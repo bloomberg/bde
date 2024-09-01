@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Aug 14 09:31:51 2023
+// Generated on Sun Sep  1 05:38:31 2024
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.h
 
 #ifdef COMPILING_BSLMF_INVOKERESULT_H
@@ -42,24 +42,25 @@ namespace bslmf {
                  // class template InvokeResultDeductionFailed
                  // ==========================================
 
+/// When `invoke_result` cannot deduce the actual return type of a functor
+/// (in C++03 mode), it yields this type as a placeholder.  The advantage of
+/// using this placeholder instead of a compilation failure (e.g., using a
+/// static assert) is that the return type of an INVOKE() operation is
+/// often discarded, so our failure to deduce the return type is often
+/// harmless.  Since `InvokeResultDeductionFailed` is a return type, it must
+/// be convertible from the actual return type; this conversion is
+/// accomplished by means of a constructor that makes it convertible from
+/// *any* type.
 struct InvokeResultDeductionFailed {
-    // When 'invoke_result' cannot deduce the actual return type of a functor
-    // (in C++03 mode), it yields this type as a placeholder.  The advantage of
-    // using this placeholder instead of a compilation failure (e.g., using a
-    // static assert) is that the return type of an INVOKE() operation is
-    // often discarded, so our failure to deduce the return type is often
-    // harmless.  Since 'InvokeResultDeductionFailed' is a return type, it must
-    // be convertible from the actual return type; this conversion is
-    // accomplished by means of a constructor that makes it convertible from
-    // *any* type.
 
     // CREATORS
+
+    /// Convert from an arbitrary type.  The actual argument value is
+    /// discarded.
     template <class t_TYPE>
     InvokeResultDeductionFailed(const t_TYPE&)
     {
     }
-        // Convert from an arbitrary type.  The actual argument value is
-        // discarded.
 };
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -574,6 +575,7 @@ class invoke_result<t_FN, t_ARGTYPES_01,
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
+
 #if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 0
 template <class t_FN>
 using invoke_result_t = typename invoke_result<t_FN,
@@ -855,6 +857,7 @@ class invoke_result
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
+
 template <class t_FN, class... t_ARGTYPES>
 using invoke_result_t = typename invoke_result<t_FN, t_ARGTYPES...>::type;
 #endif
@@ -946,6 +949,7 @@ template <class t_FN>
 struct InvokeResult_BaseCalcUtil<t_FN> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -960,6 +964,7 @@ struct InvokeResult_BaseCalcUtil<t_FN> {
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -973,6 +978,7 @@ template <class t_FN, class t_ARGTYPES_01>
 struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -987,6 +993,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01> {
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1003,6 +1010,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                        t_ARGTYPES_02> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -1017,6 +1025,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1036,6 +1045,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                        t_ARGTYPES_03> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -1050,6 +1060,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1072,6 +1083,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                        t_ARGTYPES_04> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -1086,6 +1098,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1111,6 +1124,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                        t_ARGTYPES_05> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -1125,6 +1139,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1153,6 +1168,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                        t_ARGTYPES_06> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -1167,6 +1183,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1198,6 +1215,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                        t_ARGTYPES_07> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -1212,6 +1230,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1246,6 +1265,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                        t_ARGTYPES_08> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -1260,6 +1280,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1297,6 +1318,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                        t_ARGTYPES_09> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -1311,6 +1333,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1351,6 +1374,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                        t_ARGTYPES_10> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -1365,6 +1389,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1408,6 +1433,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                        t_ARGTYPES_11> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -1422,6 +1448,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1468,6 +1495,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                        t_ARGTYPES_12> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -1482,6 +1510,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1531,6 +1560,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                        t_ARGTYPES_13> {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -1545,6 +1575,7 @@ struct InvokeResult_BaseCalcUtil<t_FN, t_ARGTYPES_01,
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1582,6 +1613,7 @@ template <class t_FN, class... t_ARGTYPES>
 struct InvokeResult_BaseCalcUtil {
 
   private:
+
     typedef typename bslmf::MovableRefUtil::Decay<t_FN>::type F;
 
     enum {
@@ -1596,6 +1628,7 @@ struct InvokeResult_BaseCalcUtil {
                                       t_FN>::type FwdFn;
 
   public:
+
     typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
                                                           k_IS_MEMFUNCPTR,
                                                           k_IS_MEMOBJPTR,
@@ -1611,32 +1644,32 @@ struct InvokeResult_BaseCalcUtil {
                       // struct InvokeResult_VoidChecker
                       // ===============================
 
+/// Empty type used to detect void expressions.  The size of this type is
+/// the same as `bslmf::Tag<1>`.
 struct InvokeResult_VoidChecker : Tag<true> {
-    // Empty type used to detect void expressions.  The size of this type is
-    // the same as 'bslmf::Tag<1>'.
 };
 
+/// Return `InvokeResult_VoidChecker()` if the left argument is of type
+/// cv-`void`; otherwise `bslmf::Tag<false>()`.  This overload of the comma
+/// operator is declared but not defined, and is intended to be used in
+/// metafunctions in an unevaluated context to detect void expressions.  For
+/// any non-void expression `expr`, `(expr,InvokeResult_VoidChecker())`,
+/// will match this overload and produce a result of type
+/// `bslmf::Tag<false>`.  However, `const t_TYPE&` will not match `void`, so
+/// if `expr` is a void expression, the built-in comma operator is matched
+/// and the result will have type `InvokeResult_VoidChecker` (i.e., the
+/// second argument).
+///
+/// Note that Sun CC incorrectly matches this overload for a void
+/// expression, then fails hard.  The `enable_if` prevents this match for
+/// Sun CC and any other compilers that may similarly match `void` and is
+/// harmless for compilers that don't.
 template <class t_TYPE>
 typename bsl::enable_if<!bsl::is_void<t_TYPE>::value, Tag<false> >::type
 operator,(const t_TYPE&, InvokeResult_VoidChecker);
-    // Return 'InvokeResult_VoidChecker()' if the left argument is of type
-    // cv-'void'; otherwise 'bslmf::Tag<false>()'.  This overload of the comma
-    // operator is declared but not defined, and is intended to be used in
-    // metafunctions in an unevaluated context to detect void expressions.  For
-    // any non-void expression 'expr', '(expr,InvokeResult_VoidChecker())',
-    // will match this overload and produce a result of type
-    // 'bslmf::Tag<false>'.  However, 'const t_TYPE&' will not match 'void', so
-    // if 'expr' is a void expression, the built-in comma operator is matched
-    // and the result will have type 'InvokeResult_VoidChecker' (i.e., the
-    // second argument).
-    //
-    // Note that Sun CC incorrectly matches this overload for a void
-    // expression, then fails hard.  The 'enable_if' prevents this match for
-    // Sun CC and any other compilers that may similarly match 'void' and is
-    // harmless for compilers that don't.
 
+/// Metafunction helpers for deducing the return type of an expression.
 struct InvokeResult_Index {
-    // Metafunction helpers for deducing the return type of an expression.
 
     enum {
         // Enumeration of possible return types.
@@ -1687,6 +1720,10 @@ struct InvokeResult_Index {
     static bslmf::Tag<e_CHAR16_T>               fromVal(char16_t&            );
     static bslmf::Tag<e_CHAR32_T>               fromVal(char32_t&            );
 #endif
+    /// Return a tag type representing the argument type.  These functions
+    /// are declared but not defined and are intended to be used in an
+    /// unevaluated context (e.g., within `sizeof`) to convert an expression
+    /// into a compile-time enumeration constant.
     static bslmf::Tag<e_SHORT>                  fromVal(short&               );
     static bslmf::Tag<e_USHORT>                 fromVal(unsigned short&      );
     static bslmf::Tag<e_INT>                    fromVal(int&                 );
@@ -1707,17 +1744,13 @@ struct InvokeResult_Index {
     static bslmf::Tag<e_POINTER>                fromVal(t_TP *&);
     template <class t_TP>
     static bslmf::Tag<e_OTHER>                  fromVal(t_TP&);
-        // Return a tag type representing the argument type.  These functions
-        // are declared but not defined and are intended to be used in an
-        // unevaluated context (e.g., within 'sizeof') to convert an expression
-        // into a compile-time enumeration constant.
 };
 
+/// Metafunction to convert a type index back to a type.  For each
+/// specialization of this struct, the `type` member will be the type
+/// corresponding to `index`.  For example, if `index` is `e_UCHAR`, then
+/// `InvokeResult_Type<index>::type` is `unsigned char`.
 template <int t_INDEX> struct InvokeResult_Type;
-    // Metafunction to convert a type index back to a type.  For each
-    // specialization of this struct, the 'type' member will be the type
-    // corresponding to 'index'.  For example, if 'index' is 'e_UCHAR', then
-    // 'InvokeResult_Type<index>::type' is 'unsigned char'.
 
 // Turn off bde_verify warnings for "Declaration without tag".  Pedantically,
 // every 'type' declared in a metafunction should have the tag '// TYPES', but
@@ -1813,34 +1846,36 @@ struct InvokeResult_Type<InvokeResult_Index::e_OTHER>
 // Re-enable warnings for "Declaration without tag"
 // BDE_VERIFY pragma: pop
 
+/// Utility metaprogramming functions inherited by other metaprogramming
+/// classes.
 struct InvokeResult_ImpUtils
 {
-    // Utility metaprogramming functions inherited by other metaprogramming
-    // classes.
 
     // TYPES
+
+    /// Type convertible from any lvalue type.  Used for overload resolution
+    /// in metafunctions.
     struct AnyLvalue {
-        // Type convertible from any lvalue type.  Used for overload resolution
-        // in metafunctions.
 
         // CREATORS
+
+        /// (Declared but not defined) Convert from any lvalue argument.
         template <class t_TP>
         AnyLvalue(volatile t_TP&);
-            // (Declared but not defined) Convert from any lvalue argument.
     };
 
+    /// Type convertible from any rvalue type.  Used for overload resolution
+    /// in metafunctions.
     struct AnyRvalue {
-        // Type convertible from any rvalue type.  Used for overload resolution
-        // in metafunctions.
 
         // CREATORS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        /// (Declared but not defined) Convert from any rvalue argument.
         template <class t_TP>
         AnyRvalue(
                t_TP&&,
                typename bsl::enable_if<bsl::is_rvalue_reference<t_TP&&>::value,
                                        int>::type = 0);
-            // (Declared but not defined) Convert from any rvalue argument.
 #else
         template <class t_TP>
         AnyRvalue(t_TP);
@@ -1852,14 +1887,14 @@ struct InvokeResult_ImpUtils
 
     // CLASS METHODS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    /// Return a reference to the specified `t_SOME_TYPE` template parameter
+    /// type; if `t_SOME_TYPE` is an rvalue, then the returned reference is
+    /// an rvalue reference.  This function is declared but not defined and
+    /// is intended to be called in an unevaluated context.  Because there
+    /// is no definition, the available constructors for `t_SOME_TYPE` are
+    /// irrelevant.
     template <class t_SOME_TYPE>
     static typename bsl::add_rvalue_reference<t_SOME_TYPE>::type myDeclval();
-        // Return a reference to the specified 't_SOME_TYPE' template parameter
-        // type; if 't_SOME_TYPE' is an rvalue, then the returned reference is
-        // an rvalue reference.  This function is declared but not defined and
-        // is intended to be called in an unevaluated context.  Because there
-        // is no definition, the available constructors for 't_SOME_TYPE' are
-        // irrelevant.
 #else
     template <class t_SOME_TYPE>
     static t_SOME_TYPE myDeclval();
@@ -1870,21 +1905,26 @@ struct InvokeResult_ImpUtils
         // irrelevant.
 #endif
 
+    /// (Declared but not defined) Return `bslmf::Tag<false>()` if the
+    /// first argument is an rvalue and `bslmf::Tag<true>()` if it is
+    /// lvalue.  In actual use, the second argument is always a literal
+    /// `int`, which causes the second overload to be preferred in case of
+    /// ambiguity.
     static bslmf::Tag<false>    checkLvalue(AnyRvalue, ...);
     static bslmf::Tag<true >    checkLvalue(AnyLvalue, int);
-        // (Declared but not defined) Return 'bslmf::Tag<false>()' if the
-        // first argument is an rvalue and 'bslmf::Tag<true>()' if it is
-        // lvalue.  In actual use, the second argument is always a literal
-        // 'int', which causes the second overload to be preferred in case of
-        // ambiguity.
 
+    /// (Declared but not defined) Return `bslmf::Tag<true>()` if the
+    /// argument is `const`-qualified and `bslmf::Tag<false>()` otherwise.
     template <class t_TP>
     static bslmf::Tag<false> checkConst(t_TP&);
     template <class t_TP>
     static bslmf::Tag<true> checkConst(const t_TP&);
-        // (Declared but not defined) Return 'bslmf::Tag<true>()' if the
-        // argument is 'const'-qualified and 'bslmf::Tag<false>()' otherwise.
 
+    /// (Declared but not defined) Return `bslmf::Tag<true>()` if the
+    /// argument is `volatile`-qualified and `bslmf::Tag<false>()`
+    /// otherwise.  Note that if `t_TP` is both const- and
+    /// volatile-qualified, it will not match `volatile t_TP&`, hence the
+    /// need for the const overloads.
     template <class t_TP>
     static bslmf::Tag<false> checkVolatile(t_TP&);
     template <class t_TP>
@@ -1893,19 +1933,18 @@ struct InvokeResult_ImpUtils
     static bslmf::Tag<true> checkVolatile(volatile t_TP&);
     template <class t_TP>
     static bslmf::Tag<true> checkVolatile(const volatile t_TP&);
-        // (Declared but not defined) Return 'bslmf::Tag<true>()' if the
-        // argument is 'volatile'-qualified and 'bslmf::Tag<false>()'
-        // otherwise.  Note that if 't_TP' is both const- and
-        // volatile-qualified, it will not match 'volatile t_TP&', hence the
-        // need for the const overloads.
 
+    /// (Declared but not defined) Return the argument, with cv-qualifiers
+    /// removed.
     template <class t_TP>
     static t_TP& uncv(const t_TP&);
     template <class t_TP>
     static t_TP& uncv(const volatile t_TP&);
-        // (Declared but not defined) Return the argument, with cv-qualifiers
-        // removed.
 
+    /// If the argument type `t_TP` is pointer to type `X`, where `X` is not
+    /// cv-`void`, return a reference to `X`; otherwise return a reference
+    /// to `t_TP`.  Note that these functions are declared but not defined
+    /// and are intended to be called only in an unevaluated context.
     template <class t_TP>
     static t_TP& unpoint(t_TP&);
     template <class t_TP>
@@ -1922,28 +1961,24 @@ struct InvokeResult_ImpUtils
     template <class t_TP>
     static typename bsl::enable_if<!bsl::is_void<t_TP>::value, t_TP>::type&
     unpoint(t_TP *const volatile&);
-        // If the argument type 't_TP' is pointer to type 'X', where 'X' is not
-        // cv-'void', return a reference to 'X'; otherwise return a reference
-        // to 't_TP'.  Note that these functions are declared but not defined
-        // and are intended to be called only in an unevaluated context.
 };
 
+/// Starting with type, `t_UNQUAL_TYPE`, generate a new type by applying the
+/// following steps in order:
+///
+/// 1. If the specified `t_IS_CONST` parameter is true, apply
+///    `bsl::add_const`; otherwise leave unchanged.
+/// 2. If the specified `t_IS_VOLATILE` parameter is true, apply
+///    `bsl::add_volatile`; otherwise leave unchanged.
+/// 3. If the specified `t_IS_LVALUE` parameter is true, apply
+///    `bsl::add_lvalue_reference`; otherwise leave unchanged.
+///
+/// Set the `type` member to the resulting type.
 template <class t_UNQUAL_TYPE,
           bool t_IS_CONST,
           bool t_IS_VOLATILE,
           bool t_IS_LVALUE>
 struct InvokeResult_AddCVRef {
-    // Starting with type, 't_UNQUAL_TYPE', generate a new type by applying the
-    // following steps in order:
-    //
-    //: 1 If the specified 't_IS_CONST' parameter is true, apply
-    //:   'bsl::add_const'; otherwise leave unchanged.
-    //: 2 If the specified 't_IS_VOLATILE' parameter is true, apply
-    //:   'bsl::add_volatile'; otherwise leave unchanged.
-    //: 3 If the specified 't_IS_LVALUE' parameter is true, apply
-    //:   'bsl::add_lvalue_reference'; otherwise leave unchanged.
-    //
-    // Set the 'type' member to the resulting type.
 
   private:
     // PRIVATE TYPES
@@ -3991,20 +4026,20 @@ struct InvokeResult_FunctorDeduction<true , t_FN, t_ARGTYPES...> {
 // }}} END GENERATED CODE
 #endif
 
+/// This metafunction determines which cv qualifiers and reference
+/// qualifiers should be propagated from the first argument of
+/// `invoke_result`.  This primary template is instantiated when
+/// `t_ARG_TYPE` is the same or is derived from `t_MEMOF_CLASS`.  The
+/// constant `k_IS_LVALUE` is true iff `t_ARG_TYPE` is an lvalue reference;
+/// the constant `k_IS_CONST` is true iff `t_ARG_TYPE` is const-qualified;
+/// and the constant `k_IS_VOLATILE` is true iff `t_ARG_TYPE` is
+/// volatile-qualified.
 template <class t_MEMOF_CLASS,
           class t_ARG_TYPE,
           bool t_IS_DERIVED = bsl::is_convertible<
               typename bsl::decay<t_ARG_TYPE>::type *,
               typename bsl::decay<t_MEMOF_CLASS>::type *>::value>
 struct InvokeResult_MemPtrArgQualifiers {
-    // This metafunction determines which cv qualifiers and reference
-    // qualifiers should be propagated from the first argument of
-    // 'invoke_result'.  This primary template is instantiated when
-    // 't_ARG_TYPE' is the same or is derived from 't_MEMOF_CLASS'.  The
-    // constant 'k_IS_LVALUE' is true iff 't_ARG_TYPE' is an lvalue reference;
-    // the constant 'k_IS_CONST' is true iff 't_ARG_TYPE' is const-qualified;
-    // and the constant 'k_IS_VOLATILE' is true iff 't_ARG_TYPE' is
-    // volatile-qualified.
 
     // TYPES
     enum {
@@ -4016,34 +4051,35 @@ struct InvokeResult_MemPtrArgQualifiers {
     };
 };
 
+/// This metafunction determines which cv qualifiers and reference
+/// qualifiers should be propagated from the first argument of
+/// `invoke_result`.
+///
+/// This specialization is instantiated when `t_ARG_TYPE` is not derived
+/// from `t_MEMOF_CLASS` and is assumed to be a pointer or smart pointer
+/// type.  If type `A` is the result of dereferencing an object of type
+/// `t_ARG_TYPE`, then the constant `k_IS_LVALUE` is true iff `A` is an
+/// lvalue reference; the constant `k_IS_CONST` is true iff `A` is a
+/// const-qualified reference; and the constant `k_IS_VOLATILE` is true iff
+/// `A` is a volatile-qualified reference.
 template <class t_MEMOF_CLASS, class t_ARG_TYPE>
 struct InvokeResult_MemPtrArgQualifiers<t_MEMOF_CLASS, t_ARG_TYPE, false>
 : InvokeResult_ImpUtils {
-    // This metafunction determines which cv qualifiers and reference
-    // qualifiers should be propagated from the first argument of
-    // 'invoke_result'.
-    //
-    // This specialization is instantiated when 't_ARG_TYPE' is not derived
-    // from 't_MEMOF_CLASS' and is assumed to be a pointer or smart pointer
-    // type.  If type 'A' is the result of dereferencing an object of type
-    // 't_ARG_TYPE', then the constant 'k_IS_LVALUE' is true iff 'A' is an
-    // lvalue reference; the constant 'k_IS_CONST' is true iff 'A' is a
-    // const-qualified reference; and the constant 'k_IS_VOLATILE' is true iff
-    // 'A' is a volatile-qualified reference.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
   private:
     // CLASS METHODS
+
+    /// (Declared but not defined.)  Return an lvalue reference
+    /// corresponding of the specified `t_TP` type, which is deduced from
+    /// the specified unnamed argument.  If the argument is an lvalue, the
+    /// return type is identical to the argument type.  If the argument is
+    /// an rvalue, the return type is an lvalue to the argument type with
+    /// the same cv qualifiers.  This function is useful for avoiding too
+    /// many redundant overloads in metafunctions that determine cv
+    /// qualifications, etc.
     template <class t_TP>
     static t_TP& tolvalue(t_TP&&);
-        // (Declared but not defined.)  Return an lvalue reference
-        // corresponding of the specified 't_TP' type, which is deduced from
-        // the specified unnamed argument.  If the argument is an lvalue, the
-        // return type is identical to the argument type.  If the argument is
-        // an rvalue, the return type is an lvalue to the argument type with
-        // the same cv qualifiers.  This function is useful for avoiding too
-        // many redundant overloads in metafunctions that determine cv
-        // qualifications, etc.
 
   public:
     // TYPES
@@ -6092,6 +6128,7 @@ struct InvokeResult_FunctorImp<
                     ))>::type,
     t_FN> : InvokeResult_ImpUtils {
 
+
     typedef decltype(myDeclval<t_FN>()()) type;
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
@@ -6103,6 +6140,7 @@ struct InvokeResult_FunctorImp<
                     InvokeResult_ImpUtils::myDeclval<t_ARGTYPES_01>()))>::type,
     t_FN,
     t_ARGTYPES_01> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>())) type;
 };
@@ -6118,6 +6156,7 @@ struct InvokeResult_FunctorImp<
     t_FN,
     t_ARGTYPES_01,
     t_ARGTYPES_02> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>())) type;
@@ -6137,6 +6176,7 @@ struct InvokeResult_FunctorImp<
     t_ARGTYPES_01,
     t_ARGTYPES_02,
     t_ARGTYPES_03> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -6160,6 +6200,7 @@ struct InvokeResult_FunctorImp<
     t_ARGTYPES_02,
     t_ARGTYPES_03,
     t_ARGTYPES_04> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -6187,6 +6228,7 @@ struct InvokeResult_FunctorImp<
     t_ARGTYPES_03,
     t_ARGTYPES_04,
     t_ARGTYPES_05> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -6218,6 +6260,7 @@ struct InvokeResult_FunctorImp<
     t_ARGTYPES_04,
     t_ARGTYPES_05,
     t_ARGTYPES_06> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -6253,6 +6296,7 @@ struct InvokeResult_FunctorImp<
     t_ARGTYPES_05,
     t_ARGTYPES_06,
     t_ARGTYPES_07> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -6292,6 +6336,7 @@ struct InvokeResult_FunctorImp<
     t_ARGTYPES_06,
     t_ARGTYPES_07,
     t_ARGTYPES_08> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -6335,6 +6380,7 @@ struct InvokeResult_FunctorImp<
     t_ARGTYPES_07,
     t_ARGTYPES_08,
     t_ARGTYPES_09> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -6382,6 +6428,7 @@ struct InvokeResult_FunctorImp<
     t_ARGTYPES_08,
     t_ARGTYPES_09,
     t_ARGTYPES_10> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -6433,6 +6480,7 @@ struct InvokeResult_FunctorImp<
     t_ARGTYPES_09,
     t_ARGTYPES_10,
     t_ARGTYPES_11> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -6488,6 +6536,7 @@ struct InvokeResult_FunctorImp<
     t_ARGTYPES_10,
     t_ARGTYPES_11,
     t_ARGTYPES_12> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -6547,6 +6596,7 @@ struct InvokeResult_FunctorImp<
     t_ARGTYPES_11,
     t_ARGTYPES_12,
     t_ARGTYPES_13> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -7365,6 +7415,7 @@ struct InvokeResult_FuncPtrImp<
                     ))>::type,
     t_FN> : InvokeResult_ImpUtils {
 
+
     typedef decltype(myDeclval<t_FN>()()) type;
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
@@ -7376,6 +7427,7 @@ struct InvokeResult_FuncPtrImp<
                     InvokeResult_ImpUtils::myDeclval<t_ARGTYPES_01>()))>::type,
     t_FN,
     t_ARGTYPES_01> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>())) type;
 };
@@ -7391,6 +7443,7 @@ struct InvokeResult_FuncPtrImp<
     t_FN,
     t_ARGTYPES_01,
     t_ARGTYPES_02> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>())) type;
@@ -7410,6 +7463,7 @@ struct InvokeResult_FuncPtrImp<
     t_ARGTYPES_01,
     t_ARGTYPES_02,
     t_ARGTYPES_03> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -7433,6 +7487,7 @@ struct InvokeResult_FuncPtrImp<
     t_ARGTYPES_02,
     t_ARGTYPES_03,
     t_ARGTYPES_04> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -7460,6 +7515,7 @@ struct InvokeResult_FuncPtrImp<
     t_ARGTYPES_03,
     t_ARGTYPES_04,
     t_ARGTYPES_05> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -7491,6 +7547,7 @@ struct InvokeResult_FuncPtrImp<
     t_ARGTYPES_04,
     t_ARGTYPES_05,
     t_ARGTYPES_06> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -7526,6 +7583,7 @@ struct InvokeResult_FuncPtrImp<
     t_ARGTYPES_05,
     t_ARGTYPES_06,
     t_ARGTYPES_07> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -7565,6 +7623,7 @@ struct InvokeResult_FuncPtrImp<
     t_ARGTYPES_06,
     t_ARGTYPES_07,
     t_ARGTYPES_08> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -7608,6 +7667,7 @@ struct InvokeResult_FuncPtrImp<
     t_ARGTYPES_07,
     t_ARGTYPES_08,
     t_ARGTYPES_09> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -7655,6 +7715,7 @@ struct InvokeResult_FuncPtrImp<
     t_ARGTYPES_08,
     t_ARGTYPES_09,
     t_ARGTYPES_10> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -7706,6 +7767,7 @@ struct InvokeResult_FuncPtrImp<
     t_ARGTYPES_09,
     t_ARGTYPES_10,
     t_ARGTYPES_11> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -7761,6 +7823,7 @@ struct InvokeResult_FuncPtrImp<
     t_ARGTYPES_10,
     t_ARGTYPES_11,
     t_ARGTYPES_12> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -7820,6 +7883,7 @@ struct InvokeResult_FuncPtrImp<
     t_ARGTYPES_11,
     t_ARGTYPES_12,
     t_ARGTYPES_13> : InvokeResult_ImpUtils {
+
 
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES_01>(),
                                        myDeclval<t_ARGTYPES_02>(),
@@ -8238,6 +8302,7 @@ template <class t_VOID_TYPE,
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
         , class = BSLS_COMPILERFEATURES_NILT>
 struct InvokeResult_MemFuncPtrImpDispatch;
+
 
 
 template <class t_FN>
@@ -9337,6 +9402,7 @@ false,
     t_FN,
     t_ARG1TYPE> : InvokeResult_ImpUtils {
 
+
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())()) type;
 };
@@ -9354,6 +9420,7 @@ false,
     t_FN,
     t_ARG1TYPE,
     t_ARGTYPES_01> : InvokeResult_ImpUtils {
+
 
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>())) type;
@@ -9375,6 +9442,7 @@ false,
     t_ARG1TYPE,
     t_ARGTYPES_01,
     t_ARGTYPES_02> : InvokeResult_ImpUtils {
+
 
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9400,6 +9468,7 @@ false,
     t_ARGTYPES_01,
     t_ARGTYPES_02,
     t_ARGTYPES_03> : InvokeResult_ImpUtils {
+
 
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9429,6 +9498,7 @@ false,
     t_ARGTYPES_02,
     t_ARGTYPES_03,
     t_ARGTYPES_04> : InvokeResult_ImpUtils {
+
 
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9462,6 +9532,7 @@ false,
     t_ARGTYPES_03,
     t_ARGTYPES_04,
     t_ARGTYPES_05> : InvokeResult_ImpUtils {
+
 
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9499,6 +9570,7 @@ false,
     t_ARGTYPES_04,
     t_ARGTYPES_05,
     t_ARGTYPES_06> : InvokeResult_ImpUtils {
+
 
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9540,6 +9612,7 @@ false,
     t_ARGTYPES_05,
     t_ARGTYPES_06,
     t_ARGTYPES_07> : InvokeResult_ImpUtils {
+
 
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9585,6 +9658,7 @@ false,
     t_ARGTYPES_06,
     t_ARGTYPES_07,
     t_ARGTYPES_08> : InvokeResult_ImpUtils {
+
 
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9634,6 +9708,7 @@ false,
     t_ARGTYPES_07,
     t_ARGTYPES_08,
     t_ARGTYPES_09> : InvokeResult_ImpUtils {
+
 
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9687,6 +9762,7 @@ false,
     t_ARGTYPES_08,
     t_ARGTYPES_09,
     t_ARGTYPES_10> : InvokeResult_ImpUtils {
+
 
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9744,6 +9820,7 @@ false,
     t_ARGTYPES_09,
     t_ARGTYPES_10,
     t_ARGTYPES_11> : InvokeResult_ImpUtils {
+
 
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9805,6 +9882,7 @@ false,
     t_ARGTYPES_10,
     t_ARGTYPES_11,
     t_ARGTYPES_12> : InvokeResult_ImpUtils {
+
 
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9870,6 +9948,7 @@ false,
     t_ARGTYPES_11,
     t_ARGTYPES_12,
     t_ARGTYPES_13> : InvokeResult_ImpUtils {
+
 
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9901,6 +9980,7 @@ false,
     t_FN,
     t_ARG1TYPE> : InvokeResult_ImpUtils {
 
+
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())()) type;
 };
@@ -9918,6 +9998,7 @@ false,
     t_FN,
     t_ARG1TYPE,
     t_ARGTYPES_01> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>())) type;
@@ -9939,6 +10020,7 @@ false,
     t_ARG1TYPE,
     t_ARGTYPES_01,
     t_ARGTYPES_02> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9964,6 +10046,7 @@ false,
     t_ARGTYPES_01,
     t_ARGTYPES_02,
     t_ARGTYPES_03> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -9993,6 +10076,7 @@ false,
     t_ARGTYPES_02,
     t_ARGTYPES_03,
     t_ARGTYPES_04> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10026,6 +10110,7 @@ false,
     t_ARGTYPES_03,
     t_ARGTYPES_04,
     t_ARGTYPES_05> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10063,6 +10148,7 @@ false,
     t_ARGTYPES_04,
     t_ARGTYPES_05,
     t_ARGTYPES_06> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10104,6 +10190,7 @@ false,
     t_ARGTYPES_05,
     t_ARGTYPES_06,
     t_ARGTYPES_07> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10149,6 +10236,7 @@ false,
     t_ARGTYPES_06,
     t_ARGTYPES_07,
     t_ARGTYPES_08> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10198,6 +10286,7 @@ false,
     t_ARGTYPES_07,
     t_ARGTYPES_08,
     t_ARGTYPES_09> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10251,6 +10340,7 @@ false,
     t_ARGTYPES_08,
     t_ARGTYPES_09,
     t_ARGTYPES_10> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10308,6 +10398,7 @@ false,
     t_ARGTYPES_09,
     t_ARGTYPES_10,
     t_ARGTYPES_11> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10369,6 +10460,7 @@ false,
     t_ARGTYPES_10,
     t_ARGTYPES_11,
     t_ARGTYPES_12> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10434,6 +10526,7 @@ false,
     t_ARGTYPES_11,
     t_ARGTYPES_12,
     t_ARGTYPES_13> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10465,6 +10558,7 @@ true,
     t_FN,
     t_ARG1TYPE> : InvokeResult_ImpUtils {
 
+
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())()) type;
 };
@@ -10482,6 +10576,7 @@ true,
     t_FN,
     t_ARG1TYPE,
     t_ARGTYPES_01> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>())) type;
@@ -10503,6 +10598,7 @@ true,
     t_ARG1TYPE,
     t_ARGTYPES_01,
     t_ARGTYPES_02> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10528,6 +10624,7 @@ true,
     t_ARGTYPES_01,
     t_ARGTYPES_02,
     t_ARGTYPES_03> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10557,6 +10654,7 @@ true,
     t_ARGTYPES_02,
     t_ARGTYPES_03,
     t_ARGTYPES_04> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10590,6 +10688,7 @@ true,
     t_ARGTYPES_03,
     t_ARGTYPES_04,
     t_ARGTYPES_05> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10627,6 +10726,7 @@ true,
     t_ARGTYPES_04,
     t_ARGTYPES_05,
     t_ARGTYPES_06> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10668,6 +10768,7 @@ true,
     t_ARGTYPES_05,
     t_ARGTYPES_06,
     t_ARGTYPES_07> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10713,6 +10814,7 @@ true,
     t_ARGTYPES_06,
     t_ARGTYPES_07,
     t_ARGTYPES_08> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10762,6 +10864,7 @@ true,
     t_ARGTYPES_07,
     t_ARGTYPES_08,
     t_ARGTYPES_09> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10815,6 +10918,7 @@ true,
     t_ARGTYPES_08,
     t_ARGTYPES_09,
     t_ARGTYPES_10> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10872,6 +10976,7 @@ true,
     t_ARGTYPES_09,
     t_ARGTYPES_10,
     t_ARGTYPES_11> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10933,6 +11038,7 @@ true,
     t_ARGTYPES_10,
     t_ARGTYPES_11,
     t_ARGTYPES_12> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -10998,6 +11104,7 @@ true,
     t_ARGTYPES_11,
     t_ARGTYPES_12,
     t_ARGTYPES_13> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES_01>(),
@@ -11027,6 +11134,7 @@ template <class t_VOID_TYPE,
           class t_FN,
           class t_ARGTYPE>
 struct InvokeResult_MemObjPtrImpDispatch;
+
 
 #if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
 template <class t_FN>
@@ -11664,6 +11772,7 @@ struct InvokeResult_FunctorImp<
     t_FN,
     t_ARGTYPES...> : InvokeResult_ImpUtils {
 
+
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES>()...)) type;
 };
 #else
@@ -11695,6 +11804,7 @@ struct InvokeResult_FuncPtrImp<
     t_FN,
     t_ARGTYPES...> : InvokeResult_ImpUtils {
 
+
     typedef decltype(myDeclval<t_FN>()(myDeclval<t_ARGTYPES>()...)) type;
 };
 #else
@@ -11719,6 +11829,7 @@ template <class t_VOID_TYPE,
           class t_ARG1TYPE,
           class... t_ARGTYPES>
 struct InvokeResult_MemFuncPtrImpDispatch;
+
 
 template <class t_FN>
 struct InvokeResult_MemFuncPtrImp<t_FN> {
@@ -11773,6 +11884,7 @@ false,
     t_ARG1TYPE,
     t_ARGTYPES...> : InvokeResult_ImpUtils {
 
+
     typedef decltype(((*myDeclval<t_ARG1TYPE>()).*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES>()...)) type;
 };
@@ -11788,6 +11900,7 @@ false,
     t_FN,
     t_ARG1TYPE,
     t_ARGTYPES...> : InvokeResult_ImpUtils {
+
 
     typedef decltype((myDeclval<t_ARG1TYPE>().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES>()...)) type;
@@ -11805,6 +11918,7 @@ true,
     t_ARG1TYPE,
     t_ARGTYPES...> : InvokeResult_ImpUtils {
 
+
     typedef decltype((myDeclval<t_ARG1TYPE>().get().*
                       myDeclval<t_FN>())(myDeclval<t_ARGTYPES>()...)) type;
 };
@@ -11819,6 +11933,7 @@ template <class t_VOID_TYPE,
           class t_FN,
           class t_ARGTYPE>
 struct InvokeResult_MemObjPtrImpDispatch;
+
 
 template <class t_FN, class... t_ARGTYPES>
 struct InvokeResult_MemObjPtrImp {

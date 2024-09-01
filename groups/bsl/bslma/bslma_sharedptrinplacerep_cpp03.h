@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sat Aug 10 15:13:06 2024
+// Generated on Sun Sep  1 05:38:38 2024
 // Command line: sim_cpp11_features.pl bslma_sharedptrinplacerep.h
 
 #ifdef COMPILING_BSLMA_SHAREDPTRINPLACEREP_H
@@ -33,11 +33,11 @@ namespace bslma {
                       // class SharedPtrInplaceRep
                       // =========================
 
+/// This class provides a concrete implementation of the `SharedPtrRep`
+/// protocol for "in-place" instances of the parameterized `TYPE`.  Upon
+/// destruction of this object, the destructor of `TYPE` is invoked.
 template <class TYPE>
 class SharedPtrInplaceRep : public SharedPtrRep {
-    // This class provides a concrete implementation of the 'SharedPtrRep'
-    // protocol for "in-place" instances of the parameterized 'TYPE'.  Upon
-    // destruction of this object, the destructor of 'TYPE' is invoked.
 
     // DATA
     Allocator *d_allocator_p; // memory allocator (held, not owned)
@@ -57,12 +57,13 @@ class SharedPtrInplaceRep : public SharedPtrRep {
     SharedPtrInplaceRep& operator=(const SharedPtrInplaceRep&);
 
     // PRIVATE CREATORS
+
+    /// Destroy this representation object and the embedded instance of
+    /// parameterized `TYPE`.  Note that this destructor is never called.
+    /// Instead, `disposeObject` destroys the in-place object and
+    /// `disposeRep` deallocates this representation object (including the
+    /// shared object's footprint).
     ~SharedPtrInplaceRep() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this representation object and the embedded instance of
-        // parameterized 'TYPE'.  Note that this destructor is never called.
-        // Instead, 'disposeObject' destroys the in-place object and
-        // 'disposeRep' deallocates this representation object (including the
-        // shared object's footprint).
 
   public:
     // CREATORS
@@ -75,6 +76,7 @@ class SharedPtrInplaceRep : public SharedPtrRep {
 #ifndef BSLMA_SHAREDPTRINPLACEREP_VARIADIC_LIMIT_A
 #define BSLMA_SHAREDPTRINPLACEREP_VARIADIC_LIMIT_A BSLMA_SHAREDPTRINPLACEREP_VARIADIC_LIMIT
 #endif
+
 #if BSLMA_SHAREDPTRINPLACEREP_VARIADIC_LIMIT_A >= 0
     explicit SharedPtrInplaceRep(Allocator *basicAllocator);
 #endif  // BSLMA_SHAREDPTRINPLACEREP_VARIADIC_LIMIT_A >= 0
@@ -348,6 +350,7 @@ class SharedPtrInplaceRep : public SharedPtrRep {
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
+
     template <class... ARGS>
     explicit SharedPtrInplaceRep(Allocator *basicAllocator,
                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
@@ -355,71 +358,74 @@ class SharedPtrInplaceRep : public SharedPtrRep {
 #endif
 
     // MANIPULATORS
+
+    /// Destroy the object being referred to by this representation.  This
+    /// method is automatically invoked by `releaseRef` when the number of
+    /// shared references reaches zero and should not be explicitly invoked
+    /// otherwise.  Note that this function calls the destructor for the
+    /// shared object, but does not deallocate its footprint.
     void disposeObject() BSLS_KEYWORD_OVERRIDE;
-        // Destroy the object being referred to by this representation.  This
-        // method is automatically invoked by 'releaseRef' when the number of
-        // shared references reaches zero and should not be explicitly invoked
-        // otherwise.  Note that this function calls the destructor for the
-        // shared object, but does not deallocate its footprint.
 
+    /// Deallocate the memory associated with this representation object
+    /// (including the shared object's footprint).  This method is
+    /// automatically invoked by `releaseRef` and `releaseWeakRef` when the
+    /// number of weak references and the number of shared references both
+    /// reach zero and should not be explicitly invoked otherwise.  The
+    /// behavior is undefined unless `disposeObject` has already been called
+    /// for this representation.  Note that this `disposeRep` method
+    /// effectively serves as the representation object's destructor.
     void disposeRep() BSLS_KEYWORD_OVERRIDE;
-        // Deallocate the memory associated with this representation object
-        // (including the shared object's footprint).  This method is
-        // automatically invoked by 'releaseRef' and 'releaseWeakRef' when the
-        // number of weak references and the number of shared references both
-        // reach zero and should not be explicitly invoked otherwise.  The
-        // behavior is undefined unless 'disposeObject' has already been called
-        // for this representation.  Note that this 'disposeRep' method
-        // effectively serves as the representation object's destructor.
 
+    /// Return a null pointer.  Note that the specified `type` is not used
+    /// as an in-place representation for a shared pointer can never store a
+    /// user-supplied deleter (there is no function that might try to create
+    /// one).
     void *getDeleter(const std::type_info& type) BSLS_KEYWORD_OVERRIDE;
-        // Return a null pointer.  Note that the specified 'type' is not used
-        // as an in-place representation for a shared pointer can never store a
-        // user-supplied deleter (there is no function that might try to create
-        // one).
 
+    /// Return the address of the modifiable (in-place) object referred to
+    /// by this representation object.
     TYPE *ptr();
-        // Return the address of the modifiable (in-place) object referred to
-        // by this representation object.
 
     // ACCESSORS
+
+    /// Return the (untyped) address of the modifiable (in-place) object
+    /// referred to by this representation object.
     void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
-        // Return the (untyped) address of the modifiable (in-place) object
-        // referred to by this representation object.
 };
 
                         //============================
                         // SharedPtrInplaceRep_ImpUtil
                         //============================
 
+/// This struct provides a namespace for several static methods that ease
+/// the implementation of many methods of the `SharedPtrInplaceRep` class.
 struct SharedPtrInplaceRep_ImpUtil {
-    // This struct provides a namespace for several static methods that ease
-    // the implementation of many methods of the 'SharedPtrInplaceRep' class.
 
     // CLASS METHODS
+
+    /// Return the specified `reference`.  Note that this pair of overloaded
+    /// functions is necessary to correctly forward movable references when
+    /// providing explicit move-semantics for C++03; otherwise the
+    /// `MovableRef` is likely to be wrapped in multiple layers of reference
+    /// wrappers, and not be recognized as the movable vocabulary type.
     template <class TYPE>
     static const TYPE& forward(const TYPE& reference);
     template <class TYPE>
     static BloombergLP::bslmf::MovableRef<TYPE> forward(
                         const BloombergLP::bslmf::MovableRef<TYPE>& reference);
-        // Return the specified 'reference'.  Note that this pair of overloaded
-        // functions is necessary to correctly forward movable references when
-        // providing explicit move-semantics for C++03; otherwise the
-        // 'MovableRef' is likely to be wrapped in multiple layers of reference
-        // wrappers, and not be recognized as the movable vocabulary type.
 
+    /// Return the specified `address` cast as a pointer to `void`, even if
+    /// (the template parameter) `TYPE` is cv-qualified.
     template <class TYPE>
     static void *voidify(TYPE *address);
-        // Return the specified 'address' cast as a pointer to 'void', even if
-        // (the template parameter) 'TYPE' is cv-qualified.
 
+    /// Destroy the specified `object`.
     template <class TYPE>
     static void dispose(const TYPE& object);
-        // Destroy the specified 'object'.
 
+    /// Destroy each element of the specified `object`.
     template <class TYPE, size_t SIZE>
     static void dispose(const TYPE (&object)[SIZE]);
-        // Destroy each element of the specified 'object'.
 };
 
 // ============================================================================
@@ -981,12 +987,12 @@ void *SharedPtrInplaceRep<TYPE>::originalPtr() const
 //                              TYPE TRAITS
 // ============================================================================
 
+/// The class template `SharedPtrInplaceRep` appears to use allocators, but
+/// passes its allocator argument in the first position, rather than in the
+/// last position, so is not compatible with BDE APIs that use this trait.
 template <class ELEMENT_TYPE>
 struct UsesBslmaAllocator<SharedPtrInplaceRep<ELEMENT_TYPE> >
     : bsl::false_type {
-    // The class template 'SharedPtrInplaceRep' appears to use allocators, but
-    // passes its allocator argument in the first position, rather than in the
-    // last position, so is not compatible with BDE APIs that use this trait.
 };
 
 }  // close package namespace

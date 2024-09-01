@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sat Oct 21 21:08:52 2023
+// Generated on Sun Sep  1 05:39:09 2024
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_H
@@ -44,9 +44,9 @@ namespace bslstl {
 
 #ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
 
+/// forward declaration
 template <class PROTOTYPE, class FUNC>
 struct Function_InvokerUtil_IsFuncInvocable;
-    // forward declaration
 
 #endif
 
@@ -54,10 +54,10 @@ struct Function_InvokerUtil_IsFuncInvocable;
                         // struct Function_InvokerUtil
                         // ===========================
 
+/// This struct is a namespace containing a single function template,
+/// `invokerForFunc`, that returns a pointer to a function that is used to
+/// invoke a callable object of a particular type.
 struct Function_InvokerUtil {
-    // This struct is a namespace containing a single function template,
-    // 'invokerForFunc', that returns a pointer to a function that is used to
-    // invoke a callable object of a particular type.
 
     // TYPES
     enum {
@@ -71,95 +71,99 @@ struct Function_InvokerUtil {
         e_OutofplaceFunctor
     };
 
+    /// Generic function pointer.  This type is as close as we can get to
+    /// `void *` for function pointers.
     typedef Function_Rep::GenericInvoker GenericInvoker;
-        // Generic function pointer.  This type is as close as we can get to
-        // 'void *' for function pointers.
 
 #ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+    /// This `struct` template implements a Boolean metafunction that
+    /// publicly inherits from `bsl::true_type` if an object of the
+    /// specified `FUNC` type is invocable under the specified `PROTOTYPE`,
+    /// and publicly inherits from `bsl::false_type` otherwise.  An object
+    /// of `FUNC` type is invocable under the `PROTOTYPE` if it is
+    /// Lvalue-Callable with the arguments of the `PROTOTYPE` (as forwarded
+    /// by the facilities of 'bslmf_forwardingtype), and returns an object
+    /// of type explicitly convertible to the return type of the
+    /// `PROTOTYPE`.  If the return type of the `PROTOTYPE` is `void`, then
+    /// any type is considered explicitly convertible to the return type of
+    /// the `PROTOTYPE`.  This `struct` template requires 'PROTOTYPE" to be
+    /// an unqualified function type.
+    ///
+    /// Note that `IsFuncInvocable` is qualitatively different than
+    /// `std::is_invocable_r`, in that it makes concessions for supporting
+    /// legacy behavior of `bsl::function`.
+    /// `std::is_invocable_r<RET, FUNC, ARGS...>` requires that the return
+    /// type of the invocation of `FUNC` with `ARGS...` be implicitly
+    /// convertible to `RET`, as opposed to explicitly convertible.
+    /// Further, the use of `bslmf::ForwardingType` to forward arguments in
+    /// the invoker of a `bsl::function` creates qualitatively different
+    /// behavior than the argument forwarding mechanism used by the standard
+    /// `INVOKE` pseudo-expression.
     template <class PROTOTYPE, class FUNC>
     struct IsFuncInvocable
     : Function_InvokerUtil_IsFuncInvocable<PROTOTYPE, FUNC> {
-        // This 'struct' template implements a Boolean metafunction that
-        // publicly inherits from 'bsl::true_type' if an object of the
-        // specified 'FUNC' type is invocable under the specified 'PROTOTYPE',
-        // and publicly inherits from 'bsl::false_type' otherwise.  An object
-        // of 'FUNC' type is invocable under the 'PROTOTYPE' if it is
-        // Lvalue-Callable with the arguments of the 'PROTOTYPE' (as forwarded
-        // by the facilities of 'bslmf_forwardingtype), and returns an object
-        // of type explicitly convertible to the return type of the
-        // 'PROTOTYPE'.  If the return type of the 'PROTOTYPE' is 'void', then
-        // any type is considered explicitly convertible to the return type of
-        // the 'PROTOTYPE'.  This 'struct' template requires 'PROTOTYPE" to be
-        // an unqualified function type.
-        //
-        // Note that 'IsFuncInvocable' is qualitatively different than
-        // 'std::is_invocable_r', in that it makes concessions for supporting
-        // legacy behavior of 'bsl::function'.
-        // 'std::is_invocable_r<RET, FUNC, ARGS...>' requires that the return
-        // type of the invocation of 'FUNC' with 'ARGS...' be implicitly
-        // convertible to 'RET', as opposed to explicitly convertible.
-        // Further, the use of 'bslmf::ForwardingType' to forward arguments in
-        // the invoker of a 'bsl::function' creates qualitatively different
-        // behavior than the argument forwarding mechanism used by the standard
-        // 'INVOKE' pseudo-expression.
     };
 #endif
 
     // CLASS METHODS
+
+    /// Return a null pointer.  Note that template argument `PROTOTYPE` must
+    /// be supplied excplicitly, as there is no way to deduce it from the
+    /// function arguments.
     template <class PROTOTYPE>
     static GenericInvoker *invokerForFunc(const bsl::nullptr_t&);
-        // Return a null pointer.  Note that template argument 'PROTOTYPE' must
-        // be supplied excplicitly, as there is no way to deduce it from the
-        // function arguments.
 
+    /// Return a pointer to the invoker for a callable object of (template
+    /// paramter) type `FUNC`.  If the specified `f` object is a null
+    /// pointer or null pointer-to-member, return a null pointer.  Note that
+    /// template argument `PROTOTYPE` must be supplied excplicitly, as there
+    /// is no way to deduce it from the function arguments.
     template <class PROTOTYPE, class FUNC>
     static GenericInvoker *invokerForFunc(const FUNC& f);
-        // Return a pointer to the invoker for a callable object of (template
-        // paramter) type 'FUNC'.  If the specified 'f' object is a null
-        // pointer or null pointer-to-member, return a null pointer.  Note that
-        // template argument 'PROTOTYPE' must be supplied excplicitly, as there
-        // is no way to deduce it from the function arguments.
 };
 
                // =============================================
                // template struct Function_InvokerUtilNullCheck
                // =============================================
 
+/// Provides an `isNull` static method that that returns whether or not its
+/// argument is "null", i.e., it cannot be invoked.  For must `FUNC` types
+/// `isNull` always returns `false` as every instance of `FUNC` is
+/// invocable.  However, specializations of this class, especially for
+/// pointer types, have `isNull` functions that sometimes return `true`.
+/// This class is a customization point: types outside of this component can
+/// (but rarely should) specialize this template.  In particular,
+/// `bslstl_function` contains a specialization for `bsl::function`.
 template <class FUNC>
 struct Function_InvokerUtilNullCheck {
-    // Provides an 'isNull' static method that that returns whether or not its
-    // argument is "null", i.e., it cannot be invoked.  For must 'FUNC' types
-    // 'isNull' always returns 'false' as every instance of 'FUNC' is
-    // invocable.  However, specializations of this class, especially for
-    // pointer types, have 'isNull' functions that sometimes return 'true'.
-    // This class is a customization point: types outside of this component can
-    // (but rarely should) specialize this template.  In particular,
-    // 'bslstl_function' contains a specialization for 'bsl::function'.
 
     // CLASS METHODS
+
+    /// Return `false`.
     static bool isNull(const FUNC&);
-        // Return 'false'.
 };
 
+/// Specialization of dispatcher for pointer objects.
 template <class FUNC>
 struct Function_InvokerUtilNullCheck<FUNC *> {
-    // Specialization of dispatcher for pointer objects.
 
     // CLASS METHODS
+
+    /// Return `true` if the specified `f` pointer is null; otherwise
+    /// `false`.
     static bool isNull(FUNC *f);
-        // Return 'true' if the specified 'f' pointer is null; otherwise
-        // 'false'.
 };
 
+/// Specialization of dispatcher for pointer-to-member objects.
 template <class CLASS, class MEMTYPE>
 struct Function_InvokerUtilNullCheck<MEMTYPE CLASS::*> {
-    // Specialization of dispatcher for pointer-to-member objects.
 
   public:
     // CLASS METHODS
+
+    /// Return `true` if the specified `f` pointer to member is null;
+    /// otherwise `false`.
     static bool isNull(MEMTYPE CLASS::* f);
-        // Return 'true' if the specified 'f' pointer to member is null;
-        // otherwise 'false'.
 };
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -2610,6 +2614,7 @@ struct Function_InvokerUtil_ForwardTypeImp<
                 typename bslmf::ForwardingType<ARG>::Type>::type>()))>::type,
     ARG> {
 
+
     typedef decltype(bslmf::ForwardingTypeUtil<ARG>::forwardToTarget(
         std::declval<typename bsl::add_lvalue_reference<
             typename bslmf::ForwardingType<ARG>::Type>::type>())) Type;
@@ -2736,6 +2741,7 @@ struct Function_InvokerUtil_ForwardTypeImp<
                 typename bslmf::ForwardingType<ARG>::Type>::type>()))>::type,
     ARG> {
 
+
     typedef decltype(bslmf::ForwardingTypeUtil<ARG>::forwardToTarget(
         std::declval<typename bsl::add_lvalue_reference<
             typename bslmf::ForwardingType<ARG>::Type>::type>())) Type;
@@ -2776,17 +2782,17 @@ struct Function_InvokerUtil_IsExplicitlyConvertibleImp<
                // template struct Function_InvokerUtil_Dispatch
                // =============================================
 
+/// Specializations of this class contain a static `invoke` method that can
+/// invoke a callable object of type `FUNC`, converting each argument in
+/// `PROTOTYPE` (a function prototype) to the corresponding argument in the
+/// invocation of the callable object and converting the return value of the
+/// invocation to the return type of `PROTOTYPE`.  The `INVOCATION_TYPE`
+/// specifies the category of callable object: pointer to function, pointer
+/// to member function, pointer to data member, inplace functor (i.e., one
+/// that qualifies for the small-object optimization) and out-of-place
+/// functor (i.e., one that is not stored in the small-object buffer).
 template <int INVOCATION_TYPE, class PROTOTYPE, class FUNC>
 struct Function_InvokerUtil_Dispatch;
-    // Specializations of this class contain a static 'invoke' method that can
-    // invoke a callable object of type 'FUNC', converting each argument in
-    // 'PROTOTYPE' (a function prototype) to the corresponding argument in the
-    // invocation of the callable object and converting the return value of the
-    // invocation to the return type of 'PROTOTYPE'.  The 'INVOCATION_TYPE'
-    // specifies the category of callable object: pointer to function, pointer
-    // to member function, pointer to data member, inplace functor (i.e., one
-    // that qualifies for the small-object optimization) and out-of-place
-    // functor (i.e., one that is not stored in the small-object buffer).
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -2798,10 +2804,12 @@ struct Function_InvokerUtil_Dispatch;
 #define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
 #endif
 
+
 #if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 template <class FUNC, class RET>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                      RET(), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep);
 };
@@ -2811,6 +2819,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
 template <class FUNC, class RET, class ARGS_01>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                      RET(ARGS_01), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01);
@@ -2823,6 +2832,7 @@ template <class FUNC, class RET, class ARGS_01,
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                      RET(ARGS_01,
                                          ARGS_02), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -2838,6 +2848,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                      RET(ARGS_01,
                                          ARGS_02,
                                          ARGS_03), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -2856,6 +2867,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                          ARGS_02,
                                          ARGS_03,
                                          ARGS_04), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -2877,6 +2889,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                          ARGS_03,
                                          ARGS_04,
                                          ARGS_05), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -2901,6 +2914,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                          ARGS_04,
                                          ARGS_05,
                                          ARGS_06), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -2928,6 +2942,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                          ARGS_05,
                                          ARGS_06,
                                          ARGS_07), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -2958,6 +2973,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                          ARGS_06,
                                          ARGS_07,
                                          ARGS_08), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -2991,6 +3007,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                          ARGS_07,
                                          ARGS_08,
                                          ARGS_09), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3027,6 +3044,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                          ARGS_08,
                                          ARGS_09,
                                          ARGS_10), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3066,6 +3084,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                          ARGS_09,
                                          ARGS_10,
                                          ARGS_11), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3108,6 +3127,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                          ARGS_10,
                                          ARGS_11,
                                          ARGS_12), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3154,6 +3174,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                          ARGS_12,
                                          ARGS_13), FUNC> {
 
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -3178,6 +3199,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                      RET(ARG0), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj);
@@ -3187,6 +3209,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                          typename bslmf::ForwardingType<ARG0>::Type     obj);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj);
 };
@@ -3198,6 +3221,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                      RET(ARG0, ARGS_01), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -3209,6 +3233,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                         typename bslmf::ForwardingType<ARGS_01>::Type args_01);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01);
@@ -3223,6 +3248,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                                ARGS_02), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -3236,6 +3262,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                         typename bslmf::ForwardingType<ARGS_02>::Type args_02);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3253,6 +3280,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                                ARGS_03), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -3268,6 +3296,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                         typename bslmf::ForwardingType<ARGS_03>::Type args_03);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3288,6 +3317,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                                ARGS_04), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -3305,6 +3335,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                         typename bslmf::ForwardingType<ARGS_04>::Type args_04);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3328,6 +3359,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                                ARGS_05), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -3347,6 +3379,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                         typename bslmf::ForwardingType<ARGS_05>::Type args_05);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3373,6 +3406,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                                ARGS_06), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -3394,6 +3428,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                         typename bslmf::ForwardingType<ARGS_06>::Type args_06);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3423,6 +3458,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                                ARGS_07), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -3446,6 +3482,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                         typename bslmf::ForwardingType<ARGS_07>::Type args_07);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3478,6 +3515,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                                ARGS_08), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -3503,6 +3541,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                         typename bslmf::ForwardingType<ARGS_08>::Type args_08);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3538,6 +3577,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                                ARGS_09), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -3565,6 +3605,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                         typename bslmf::ForwardingType<ARGS_09>::Type args_09);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3603,6 +3644,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                                ARGS_10), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -3632,6 +3674,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                         typename bslmf::ForwardingType<ARGS_10>::Type args_10);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3673,6 +3716,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                                ARGS_11), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -3704,6 +3748,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                         typename bslmf::ForwardingType<ARGS_11>::Type args_11);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3748,6 +3793,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                                ARGS_12), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -3781,6 +3827,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                         typename bslmf::ForwardingType<ARGS_12>::Type args_12);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3828,6 +3875,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                                ARGS_13), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -3863,6 +3911,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                         typename bslmf::ForwardingType<ARGS_13>::Type args_13);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3897,6 +3946,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemDataPtr,
                          typename bslmf::ForwardingType<ARG0>::Type     obj);
 
   public:
+
     static RET invoke(const Function_Rep                         *rep,
                       typename bslmf::ForwardingType<ARG0>::Type  obj);
 };
@@ -3906,6 +3956,7 @@ template <class FUNC, class RET>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                      RET(), FUNC> {
 
+
     static RET invoke(const Function_Rep                            *rep);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
@@ -3914,6 +3965,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
 template <class FUNC, class RET, class ARGS_01>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                      RET(ARGS_01), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01);
@@ -3926,6 +3978,7 @@ template <class FUNC, class RET, class ARGS_01,
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                      RET(ARGS_01,
                                          ARGS_02), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3941,6 +3994,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                      RET(ARGS_01,
                                          ARGS_02,
                                          ARGS_03), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3959,6 +4013,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                          ARGS_02,
                                          ARGS_03,
                                          ARGS_04), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3980,6 +4035,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                          ARGS_03,
                                          ARGS_04,
                                          ARGS_05), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4004,6 +4060,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                          ARGS_04,
                                          ARGS_05,
                                          ARGS_06), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4031,6 +4088,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                          ARGS_05,
                                          ARGS_06,
                                          ARGS_07), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4061,6 +4119,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                          ARGS_06,
                                          ARGS_07,
                                          ARGS_08), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4094,6 +4153,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                          ARGS_07,
                                          ARGS_08,
                                          ARGS_09), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4130,6 +4190,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                          ARGS_08,
                                          ARGS_09,
                                          ARGS_10), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4169,6 +4230,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                          ARGS_09,
                                          ARGS_10,
                                          ARGS_11), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4211,6 +4273,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                          ARGS_10,
                                          ARGS_11,
                                          ARGS_12), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4256,6 +4319,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                          ARGS_11,
                                          ARGS_12,
                                          ARGS_13), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4280,6 +4344,7 @@ template <class FUNC, class RET>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                      RET(), FUNC> {
 
+
     static RET invoke(const Function_Rep                            *rep);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
@@ -4288,6 +4353,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
 template <class FUNC, class RET, class ARGS_01>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                      RET(ARGS_01), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01);
@@ -4300,6 +4366,7 @@ template <class FUNC, class RET, class ARGS_01,
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                      RET(ARGS_01,
                                          ARGS_02), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4315,6 +4382,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                      RET(ARGS_01,
                                          ARGS_02,
                                          ARGS_03), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4333,6 +4401,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                          ARGS_02,
                                          ARGS_03,
                                          ARGS_04), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4354,6 +4423,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                          ARGS_03,
                                          ARGS_04,
                                          ARGS_05), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4378,6 +4448,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                          ARGS_04,
                                          ARGS_05,
                                          ARGS_06), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4405,6 +4476,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                          ARGS_05,
                                          ARGS_06,
                                          ARGS_07), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4435,6 +4507,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                          ARGS_06,
                                          ARGS_07,
                                          ARGS_08), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4468,6 +4541,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                          ARGS_07,
                                          ARGS_08,
                                          ARGS_09), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4504,6 +4578,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                          ARGS_08,
                                          ARGS_09,
                                          ARGS_10), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4543,6 +4618,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                          ARGS_09,
                                          ARGS_10,
                                          ARGS_11), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4585,6 +4661,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                          ARGS_10,
                                          ARGS_11,
                                          ARGS_12), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4630,6 +4707,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                          ARGS_11,
                                          ARGS_12,
                                          ARGS_13), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -4652,9 +4730,11 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 
+
 template <class FUNC, class RET, class... ARGS>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                      RET(ARGS...), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS>::Type...  args);
@@ -4665,6 +4745,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                      RET(ARG0, ARGS...), FUNC> {
 
   private:
+
     static RET invokeImp(bsl::true_type ,
                          FUNC                                           f,
                          typename bslmf::ForwardingType<ARG0>::Type     obj,
@@ -4676,6 +4757,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                          typename bslmf::ForwardingType<ARGS>::Type...  args);
 
   public:
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS>::Type...  args);
@@ -4696,6 +4778,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemDataPtr,
                          typename bslmf::ForwardingType<ARG0>::Type     obj);
 
   public:
+
     static RET invoke(const Function_Rep                         *rep,
                       typename bslmf::ForwardingType<ARG0>::Type  obj);
 };
@@ -4704,6 +4787,7 @@ template <class FUNC, class RET, class... ARGS>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                      RET(ARGS...), FUNC> {
 
+
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS>::Type...  args);
 };
@@ -4711,6 +4795,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
 template <class FUNC, class RET, class... ARGS>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                      RET(ARGS...), FUNC> {
+
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS>::Type...  args);
@@ -8507,7 +8592,7 @@ invoke(const Function_Rep                            *rep,
 #endif // ! defined(INCLUDED_BSLSTL_FUNCTION_INVOKERUTIL_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

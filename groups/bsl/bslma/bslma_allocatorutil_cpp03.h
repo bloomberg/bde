@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Aug 12 12:48:47 2024
+// Generated on Sun Sep  1 05:38:38 2024
 // Command line: sim_cpp11_features.pl bslma_allocatorutil.h
 
 #ifdef COMPILING_BSLMA_ALLOCATORUTIL_H
@@ -37,8 +37,8 @@ struct AllocatorUtil_Traits;
                         // class AllocatorUtil
                         // ===================
 
+/// Namespace for utility functions on allocators
 struct AllocatorUtil {
-    // Namespace for utility functions on allocators
 
   private:
     // PRIVATE CONSTANTS
@@ -50,6 +50,10 @@ struct AllocatorUtil {
     static long matchBslAlloc(void *,                 ...);
         // DECLARED BUT NOT DEFINED
 
+    /// Return the specified `nbytes` raw bytes having the specified
+    /// `alignment` allocated from the specified `allocator`.  If
+    /// `alignment` is larger than the largest supported alignment, the
+    /// behavior is determined by the allocator.
     template <class t_TYPE>
     static
     void *allocateBytesImp(
@@ -67,11 +71,12 @@ struct AllocatorUtil {
     allocateBytesImp(const t_ALLOCATOR&          allocator,
                      std::size_t                 nbytes,
                      std::size_t                 alignment);
-        // Return the specified 'nbytes' raw bytes having the specified
-        // 'alignment' allocated from the specified 'allocator'.  If
-        // 'alignment' is larger than the largest supported alignment, the
-        // behavior is determined by the allocator.
 
+    /// Return, to the specified `allocator`, the block of raw memory at the
+    /// specified `p` address having the specified `nbytes` size and the
+    /// specified `alignment`.  The behavior is undefined unless `p` refers
+    /// to a block having the same size and alignment allocated from a copy
+    /// of `allocator` and not yet deallocated.
     template <class t_TYPE>
     static void
     deallocateBytesImp(const bsl::polymorphic_allocator<t_TYPE>&  allocator,
@@ -90,11 +95,6 @@ struct AllocatorUtil {
         typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer p,
         std::size_t                                              nbytes,
         std::size_t                                              alignment);
-        // Return, to the specified 'allocator', the block of raw memory at the
-        // specified 'p' address having the specified 'nbytes' size and the
-        // specified 'alignment'.  The behavior is undefined unless 'p' refers
-        // to a block having the same size and alignment allocated from a copy
-        // of 'allocator' and not yet deallocated.
 
     template <class t_ALLOCATOR, class t_POINTER, class t_VALUE_TYPE>
     static void deallocateObjectImp(const t_ALLOCATOR&  allocator,
@@ -107,23 +107,30 @@ struct AllocatorUtil {
                                 t_POINTER           p,
                                 const t_VALUE_TYPE& );
 
+    /// Return `true` if the specified `alignment` is a (positive) power of
+    /// two; otherwise return false.
     static bool isPowerOf2(std::size_t alignment);
-        // Return 'true' if the specified 'alignment' is a (positive) power of
-        // two; otherwise return false.
 
     // PRIVATE TYPES
+
+    /// Metafunction derives from `true_type` if (template argument)
+    /// `t_ALLOC` is derived from any specialization of `bsl::allocator`;
+    /// else derives from `false_type`.
     template <class t_ALLOC>
     struct IsDerivedFromBslAllocator
         : bsl::integral_constant<bool,
                                  1 == sizeof(matchBslAlloc((t_ALLOC *) 0, 0))>
     {
-        // Metafunction derives from 'true_type' if (template argument)
-        // 't_ALLOC' is derived from any specialization of 'bsl::allocator';
-        // else derives from 'false_type'.
     };
 
   public:
     // CLASS METHODS
+
+    /// Return the specified `from` allocator adapted to a type most likely
+    /// to be usable for initializing another AA object.  Specifically,
+    /// return `from.mechanism()` if `from` is a specialization of
+    /// `bsl::allocator` (or a class derived from `bsl::allocator`);
+    /// otherwise return `from` unchanged.
     template <class t_ALLOC>
     static typename bsl::enable_if<
         ! IsDerivedFromBslAllocator<t_ALLOC>::value,
@@ -131,38 +138,44 @@ struct AllocatorUtil {
     adapt(const t_ALLOC& from);
     template <class t_TYPE>
     static bslma::Allocator *adapt(const bsl::allocator<t_TYPE>& from);
-        // Return the specified 'from' allocator adapted to a type most likely
-        // to be usable for initializing another AA object.  Specifically,
-        // return 'from.mechanism()' if 'from' is a specialization of
-        // 'bsl::allocator' (or a class derived from 'bsl::allocator');
-        // otherwise return 'from' unchanged.
 
+    /// Return a pointer to a block of raw memory allocated from the
+    /// specified `allocator` having the specified `nbytes` size and
+    /// optionally specified `alignment`.  If `alignment` is larger than the
+    /// largest supported alignment, either the block will be aligned to the
+    /// maximum supported alignment or an exception will be thrown.  The
+    /// specific choice of behavior is determined by the allocator: for
+    /// polymorphic allocators the behavior is determined by the memory
+    /// resource, whereas for non-polymorphic allocators, the alignment is
+    /// always truncated to the maximum non-extended alignment.
     template <class t_ALLOCATOR>
     static typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer
     allocateBytes(const t_ALLOCATOR& allocator,
                   std::size_t        nbytes,
                   std::size_t        alignment = k_MAX_ALIGNMENT);
-        // Return a pointer to a block of raw memory allocated from the
-        // specified 'allocator' having the specified 'nbytes' size and
-        // optionally specified 'alignment'.  If 'alignment' is larger than the
-        // largest supported alignment, either the block will be aligned to the
-        // maximum supported alignment or an exception will be thrown.  The
-        // specific choice of behavior is determined by the allocator: for
-        // polymorphic allocators the behavior is determined by the memory
-        // resource, whereas for non-polymorphic allocators, the alignment is
-        // always truncated to the maximum non-extended alignment.
 
+    /// Return a pointer to a block of raw memory allocated from the
+    /// specified `allocator` having a size and alignment appropriate for an
+    /// object of (templatize parameter) `t_TYPE`.  Optionally specify `n`
+    /// for the number of objects; otherwise space for a single object is
+    /// allocated.  Since `t_TYPE` cannot be deduced from the function
+    /// parameters, it must be supplied explicitly (in `<>` brackets) by the
+    /// caller.
     template <class t_TYPE, class t_ALLOCATOR>
     static typename AllocatorUtil_Traits<t_ALLOCATOR, t_TYPE>::pointer
     allocateObject(const t_ALLOCATOR& allocator, std::size_t n = 1);
-        // Return a pointer to a block of raw memory allocated from the
-        // specified 'allocator' having a size and alignment appropriate for an
-        // object of (templatize parameter) 't_TYPE'.  Optionally specify 'n'
-        // for the number of objects; otherwise space for a single object is
-        // allocated.  Since 't_TYPE' cannot be deduced from the function
-        // parameters, it must be supplied explicitly (in '<>' brackets) by the
-        // caller.
 
+    /// If the specified `allowed` tag is `bsl::true_type` assign the
+    /// allocator object at the specified `lhs` address the value of the
+    /// specified `rhs`; otherwise, do nothing, and, in both cases, return a
+    /// modifiable reference to `*lhs`.  The `t_TYPE` template parameter is
+    /// typically an allocator type and the `allowed` flag is typically a
+    /// propagation trait dependant on the calling context, such as
+    /// `propagate_on_container_copy_assignment` or
+    /// `propagate_on_container_move_assignment`.  Instantiation will fail
+    /// if `allowed` is `true_type` and `t_TYPE` lacks a publically
+    /// accessible copy assignment operator.  The behavior is undefined
+    /// unless `allowed` is `true_type` or `*lhs == rhs` before the call.
     template <class t_TYPE>
     static t_TYPE& assign(t_TYPE         *lhs,
                           const t_TYPE&   rhs,
@@ -171,18 +184,12 @@ struct AllocatorUtil {
     static t_TYPE& assign(t_TYPE          *lhs,
                           const t_TYPE&    rhs,
                           bsl::false_type  allowed);
-        // If the specified 'allowed' tag is 'bsl::true_type' assign the
-        // allocator object at the specified 'lhs' address the value of the
-        // specified 'rhs'; otherwise, do nothing, and, in both cases, return a
-        // modifiable reference to '*lhs'.  The 't_TYPE' template parameter is
-        // typically an allocator type and the 'allowed' flag is typically a
-        // propagation trait dependant on the calling context, such as
-        // 'propagate_on_container_copy_assignment' or
-        // 'propagate_on_container_move_assignment'.  Instantiation will fail
-        // if 'allowed' is 'true_type' and 't_TYPE' lacks a publically
-        // accessible copy assignment operator.  The behavior is undefined
-        // unless 'allowed' is 'true_type' or '*lhs == rhs' before the call.
 
+    /// Return to the specified allocator the block raw memory at the
+    /// specified `p` address having the specified `nbytes` size and
+    /// optionally specified `alignment`.  The behavior is undefined unless
+    /// `p` refers to a block having the same size and alignment previously
+    /// allocated from a copy of `allocator` and not yet deallocated.
     template <class t_ALLOCATOR>
     static void deallocateBytes(
         const t_ALLOCATOR&                                       allocator,
@@ -190,39 +197,34 @@ struct AllocatorUtil {
         std::size_t                                              nbytes,
         std::size_t                                              alignment
                                                             = k_MAX_ALIGNMENT);
-        // Return to the specified allocator the block raw memory at the
-        // specified 'p' address having the specified 'nbytes' size and
-        // optionally specified 'alignment'.  The behavior is undefined unless
-        // 'p' refers to a block having the same size and alignment previously
-        // allocated from a copy of 'allocator' and not yet deallocated.
 
+    /// Return to the specified `allocator` a block of raw memory at the
+    /// specified `p` address that is suitably sized and aligned to hold an
+    /// object of (templatize parameter) `t_TYPE`.  Optionally specify `n`
+    /// for the number of objects; otherwise a single object is assumed.
+    /// The behavior is undefined unless `p` refers to a block with the same
+    /// type and number of objects previously allocated from a copy of
+    /// `allocator` and not yet deallocated.
     template <class t_ALLOCATOR, class t_POINTER>
     static void deallocateObject(const t_ALLOCATOR& allocator,
                                  t_POINTER          p,
                                  std::size_t        n = 1);
-        // Return to the specified 'allocator' a block of raw memory at the
-        // specified 'p' address that is suitably sized and aligned to hold an
-        // object of (templatize parameter) 't_TYPE'.  Optionally specify 'n'
-        // for the number of objects; otherwise a single object is assumed.
-        // The behavior is undefined unless 'p' refers to a block with the same
-        // type and number of objects previously allocated from a copy of
-        // 'allocator' and not yet deallocated.
 
+    /// Destroy the object at the specified `p` address and return the block
+    /// of memory at `p` to the specified `allocator`.  The behavior is
+    /// undefined unless `p` refers to a fully constructed object allocated
+    /// from a copy of `allocator` and not yet destroyed or deallocated.
     template <class t_ALLOCATOR, class t_POINTER>
     static void deleteObject(const t_ALLOCATOR& allocator, t_POINTER p);
-        // Destroy the object at the specified 'p' address and return the block
-        // of memory at 'p' to the specified 'allocator'.  The behavior is
-        // undefined unless 'p' refers to a fully constructed object allocated
-        // from a copy of 'allocator' and not yet destroyed or deallocated.
 
+    /// Return an object of (template parameter) `t_TYPE` allocated from the
+    /// specified `allocator` and constructed with no arguments except that,
+    /// for scoped allocator types such as `bsl::allocator` and
+    /// `bsl::polymorphic_allocator`, `allocator` may be passed to the
+    /// `t_TYPE` constructor (i.e., if `t_TYPE` is AA).
     template <class t_TYPE, class t_ALLOCATOR>
     static typename AllocatorUtil_Traits<t_ALLOCATOR, t_TYPE>::pointer
     newObject(const t_ALLOCATOR& allocator);
-        // Return an object of (template parameter) 't_TYPE' allocated from the
-        // specified 'allocator' and constructed with no arguments except that,
-        // for scoped allocator types such as 'bsl::allocator' and
-        // 'bsl::polymorphic_allocator', 'allocator' may be passed to the
-        // 't_TYPE' constructor (i.e., if 't_TYPE' is AA).
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -502,6 +504,7 @@ struct AllocatorUtil {
 #endif  // BSLMA_ALLOCATORUTIL_VARIADIC_LIMIT_A >= 13
 
 # endif
+
 #if BSLMA_ALLOCATORUTIL_VARIADIC_LIMIT_A >= 0
     template <class t_TYPE, class t_ALLOCATOR, class t_ARG1>
     static typename AllocatorUtil_Traits<t_ALLOCATOR, t_TYPE>::pointer
@@ -779,6 +782,7 @@ struct AllocatorUtil {
               t_ARG1&            argument1,
               BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS)... arguments);
 # endif
+
     template <class t_TYPE, class t_ALLOCATOR, class t_ARG1, class... t_ARGS>
     static typename AllocatorUtil_Traits<t_ALLOCATOR, t_TYPE>::pointer
     newObject(const t_ALLOCATOR&                        allocator,
@@ -787,21 +791,21 @@ struct AllocatorUtil {
 // }}} END GENERATED CODE
 #endif
 
+    /// If the specified `allowed` tag is `bsl::true_type`, swap the values
+    /// of allocators at the specified `pa` and `pb` addresses using ADL
+    /// swap (with `std::swap` in scope); otherwise, do nothing.  The
+    /// `t_TYPE` template parameter is typically an allocator type and the
+    /// `allowed` flag is typically a propagation trait dependant on the
+    /// calling context, such as `propagate_on_container_swap`.
+    /// Instantiation will fail if `allowed` is `false_type` and `t_TYPE` is
+    /// not swappable (i.e., because it lacks a publically available
+    /// assignment operator).  The behavior is undefined unless `allowed` is
+    /// `true_type` or '*pa ==
+    /// *pb' before the call.
     template <class t_TYPE>
     static void swap(t_TYPE *pa, t_TYPE *pb, bsl::false_type allowed);
     template <class t_TYPE>
     static void swap(t_TYPE *pa, t_TYPE *pb, bsl::true_type  allowed);
-        // If the specified 'allowed' tag is 'bsl::true_type', swap the values
-        // of allocators at the specified 'pa' and 'pb' addresses using ADL
-        // swap (with 'std::swap' in scope); otherwise, do nothing.  The
-        // 't_TYPE' template parameter is typically an allocator type and the
-        // 'allowed' flag is typically a propagation trait dependant on the
-        // calling context, such as 'propagate_on_container_swap'.
-        // Instantiation will fail if 'allowed' is 'false_type' and 't_TYPE' is
-        // not swappable (i.e., because it lacks a publically available
-        // assignment operator).  The behavior is undefined unless 'allowed' is
-        // 'true_type' or '*pa ==
-        // *pb' before the call.
 };
 
 // ============================================================================
@@ -812,25 +816,30 @@ struct AllocatorUtil {
                     // class AllocatorUtil_Traits
                     // --------------------------
 
+/// Extend the notion of `allocator_traits` to apply to both standard
+/// allocator and to pointer-to-memory-resource types.  If the (template
+/// parameter) `t_ALLOCATOR` is a non-pointer type (i.e., an allocator
+/// class), then inherits from
+/// `bsl::allocator_traits<t_ALLOCATOR>::rebind_traits<t_TYPE>`.  However,
+/// if `t_ALLOCATOR` is a pointer type, then inherits from
+/// `bsl::allocator_traits<bsl::allocator<t_TYPE>>` for pointers to classes
+/// derived from `bslma::Allocator` and from
+/// `bsl::allocator_traits<bsl::polymorphic_allocator<t_TYPE>>` for pointers
+/// to other classes derived from `bsl::memory_resource`.  This primary
+/// template is for non-pointer `t_ALLOCATOR` template arguments.
 template <class t_ALLOCATOR, class t_TYPE>
 struct AllocatorUtil_Traits
     : bsl::allocator_traits<t_ALLOCATOR>::template rebind_traits<t_TYPE> {
-    // Extend the notion of 'allocator_traits' to apply to both standard
-    // allocator and to pointer-to-memory-resource types.  If the (template
-    // parameter) 't_ALLOCATOR' is a non-pointer type (i.e., an allocator
-    // class), then inherits from
-    // 'bsl::allocator_traits<t_ALLOCATOR>::rebind_traits<t_TYPE>'.  However,
-    // if 't_ALLOCATOR' is a pointer type, then inherits from
-    // 'bsl::allocator_traits<bsl::allocator<t_TYPE>>' for pointers to classes
-    // derived from 'bslma::Allocator' and from
-    // 'bsl::allocator_traits<bsl::polymorphic_allocator<t_TYPE>>' for pointers
-    // to other classes derived from 'bsl::memory_resource'.  This primary
-    // template is for non-pointer 't_ALLOCATOR' template arguments.
 
     BSLMF_ASSERT(! bsl::is_const<t_TYPE>::value);
     BSLMF_ASSERT(! bsl::is_volatile<t_TYPE>::value);
 };
 
+/// This specialization is for allocators expressed as a pointer to class
+/// derived from `bsl::memory_resource`.  The base class will be
+/// `bsl::allocator_traits<bsl::allocator<t_TYPE>>` if `t_MEMORY_RSRC` is
+/// derived from `bsl::Allocator`; otherwise the base class will be
+/// `bsl::allocator_traits<bsl::polymorphic_allocator<t_TYPE>>`.
 template <class t_MEMORY_RSRC, class t_TYPE>
 struct AllocatorUtil_Traits<t_MEMORY_RSRC *, t_TYPE> : bsl::allocator_traits<
     typename bsl::conditional<
@@ -839,11 +848,6 @@ struct AllocatorUtil_Traits<t_MEMORY_RSRC *, t_TYPE> : bsl::allocator_traits<
             bsl::polymorphic_allocator<t_TYPE> >::type
     >
 {
-    // This specialization is for allocators expressed as a pointer to class
-    // derived from 'bsl::memory_resource'.  The base class will be
-    // 'bsl::allocator_traits<bsl::allocator<t_TYPE>>' if 't_MEMORY_RSRC' is
-    // derived from 'bsl::Allocator'; otherwise the base class will be
-    // 'bsl::allocator_traits<bsl::polymorphic_allocator<t_TYPE>>'.
 
     // MANDATES
     BSLMF_ASSERT((bsl::is_convertible<t_MEMORY_RSRC *,

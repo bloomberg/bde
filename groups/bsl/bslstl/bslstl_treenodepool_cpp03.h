@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Sun Sep  1 05:39:11 2024
 // Command line: sim_cpp11_features.pl bslstl_treenodepool.h
 
 #ifdef COMPILING_BSLSTL_TREENODEPOOL_H
@@ -33,25 +33,25 @@ namespace bslstl {
                        // class TreeNodePool
                        // ==================
 
+/// This class provides methods for creating and deleting nodes using the
+/// appropriate allocator traits of the (template parameter) type
+/// `ALLOCATOR`.  This type is intended to be used as a private base-class
+/// for a node-based container, in order to take advantage of the
+/// empty-base-class optimization in the case where the base class has 0
+/// size (as may be the case if the (template parameter) type `ALLOCATOR` is
+/// not a `bslma::Allocator`).
 template <class VALUE, class ALLOCATOR>
 class TreeNodePool {
-    // This class provides methods for creating and deleting nodes using the
-    // appropriate allocator traits of the (template parameter) type
-    // 'ALLOCATOR'.  This type is intended to be used as a private base-class
-    // for a node-based container, in order to take advantage of the
-    // empty-base-class optimization in the case where the base class has 0
-    // size (as may be the case if the (template parameter) type 'ALLOCATOR' is
-    // not a 'bslma::Allocator').
 
+    /// Alias for the memory pool allocator.
     typedef SimplePool<TreeNode<VALUE>, ALLOCATOR> Pool;
-        // Alias for the memory pool allocator.
 
+    /// Alias for the allocator traits defined by `SimplePool`.
     typedef typename Pool::AllocatorTraits         AllocatorTraits;
-        // Alias for the allocator traits defined by 'SimplePool'.
 
+    /// This typedef is a convenient alias for the utility associated with
+    /// movable references.
     typedef bslmf::MovableRefUtil                  MoveUtil;
-        // This typedef is a convenient alias for the utility associated with
-        // movable references.
 
     // DATA
     Pool d_pool;  // pool for allocating memory
@@ -64,45 +64,48 @@ class TreeNodePool {
 
   public:
     // PUBLIC TYPE
-    typedef typename Pool::AllocatorType AllocatorType;
-        // Alias for the allocator type defined by 'SimplePool'.
 
+    /// Alias for the allocator type defined by `SimplePool`.
+    typedef typename Pool::AllocatorType AllocatorType;
+
+    /// Alias for the `size_type` of the allocator defined by `SimplePool`.
     typedef typename AllocatorTraits::size_type size_type;
-        // Alias for the 'size_type' of the allocator defined by 'SimplePool'.
 
   public:
     // CREATORS
-    explicit TreeNodePool(const ALLOCATOR& allocator);
-        // Create a node-pool that will use the specified 'allocator' to supply
-        // memory for allocated node objects.
 
+    /// Create a node-pool that will use the specified `allocator` to supply
+    /// memory for allocated node objects.
+    explicit TreeNodePool(const ALLOCATOR& allocator);
+
+    /// Create a node-pool, adopting all outstanding memory allocations
+    /// associated with the specified `original` node-pool, that will use
+    /// the allocator associated with `original` to supply memory for
+    /// allocated node objects.  `original` is left in a valid but
+    /// unspecified state.
     TreeNodePool(bslmf::MovableRef<TreeNodePool> original);
-        // Create a node-pool, adopting all outstanding memory allocations
-        // associated with the specified 'original' node-pool, that will use
-        // the allocator associated with 'original' to supply memory for
-        // allocated node objects.  'original' is left in a valid but
-        // unspecified state.
 
     // MANIPULATORS
+
+    /// Adopt all outstanding memory allocations associated with the
+    /// specified node `pool`.  The behavior is undefined unless this pool
+    /// uses the same allocator as that associated with `pool`.  The
+    /// behavior is also undefined unless this pool is in the
+    /// default-constructed state.
     void adopt(bslmf::MovableRef<TreeNodePool> pool);
-        // Adopt all outstanding memory allocations associated with the
-        // specified node 'pool'.  The behavior is undefined unless this pool
-        // uses the same allocator as that associated with 'pool'.  The
-        // behavior is also undefined unless this pool is in the
-        // default-constructed state.
 
+    /// Return a reference providing modifiable access to the rebound
+    /// allocator traits for the node-type.  Note that this operation
+    /// returns a base-class (`NodeAlloc`) reference to this object.
     AllocatorType& allocator();
-        // Return a reference providing modifiable access to the rebound
-        // allocator traits for the node-type.  Note that this operation
-        // returns a base-class ('NodeAlloc') reference to this object.
 
+    /// Allocate a node object and copy-construct an object of the (template
+    /// parameter) type `VALUE` having the same value as the specified
+    /// `original` at the `value` attribute of the node.  Return the address
+    /// of the newly allocated node.  The behavior is undefined unless
+    /// `original` refers to a `TreeNode<VALUE>` object holding a valid
+    /// (initialized) value.
     bslalg::RbTreeNode *cloneNode(const bslalg::RbTreeNode& original);
-        // Allocate a node object and copy-construct an object of the (template
-        // parameter) type 'VALUE' having the same value as the specified
-        // 'original' at the 'value' attribute of the node.  Return the address
-        // of the newly allocated node.  The behavior is undefined unless
-        // 'original' refers to a 'TreeNode<VALUE>' object holding a valid
-        // (initialized) value.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -277,54 +280,55 @@ class TreeNodePool {
 // }}} END GENERATED CODE
 #endif
 
+    /// Destroy the `VALUE` value of the specified `node` and return the
+    /// memory footprint of `node` to this pool for potential reuse.  The
+    /// behavior is undefined unless `node` refers to a `TreeNode<VALUE>`.
     void deleteNode(bslalg::RbTreeNode *node);
-        // Destroy the 'VALUE' value of the specified 'node' and return the
-        // memory footprint of 'node' to this pool for potential reuse.  The
-        // behavior is undefined unless 'node' refers to a 'TreeNode<VALUE>'.
 
+    /// Allocate a node of the type `TreeNode<VALUE>`, and move-construct an
+    /// object of the (template parameter) type `VALUE` with the (explicitly
+    /// moved) value indicated by the `value` attribute of the specified
+    /// `original` node.  Return the address of the newly allocated node.
+    /// The object referred to by the `value` attribute of `original` is
+    /// left in a valid but unspecified state.  The behavior is undefined
+    /// unless `original` refers to a `TreeNode<VALUE>` object holding a
+    /// valid (initialized) value.
     bslalg::RbTreeNode *moveIntoNewNode(bslalg::RbTreeNode *original);
-        // Allocate a node of the type 'TreeNode<VALUE>', and move-construct an
-        // object of the (template parameter) type 'VALUE' with the (explicitly
-        // moved) value indicated by the 'value' attribute of the specified
-        // 'original' node.  Return the address of the newly allocated node.
-        // The object referred to by the 'value' attribute of 'original' is
-        // left in a valid but unspecified state.  The behavior is undefined
-        // unless 'original' refers to a 'TreeNode<VALUE>' object holding a
-        // valid (initialized) value.
 
+    /// Add to this pool sufficient memory to satisfy memory requests for at
+    /// least the specified `numNodes`.  The additional memory is added
+    /// irrespective of the amount of free memory when called.  The behavior
+    /// is undefined unless `0 < numNodes`.
     void reserveNodes(size_type numNodes);
-        // Add to this pool sufficient memory to satisfy memory requests for at
-        // least the specified 'numNodes'.  The additional memory is added
-        // irrespective of the amount of free memory when called.  The behavior
-        // is undefined unless '0 < numNodes'.
 
+    /// Efficiently exchange the nodes of this object with those of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.  The behavior is undefined unless
+    /// `allocator() == other.allocator()`.
     void swap(TreeNodePool& other);
-        // Efficiently exchange the nodes of this object with those of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless
-        // 'allocator() == other.allocator()'.
 
+    /// Efficiently exchange the nodes and allocator of this object with
+    /// those of the specified `other` object.  This method provides the
+    /// no-throw exception-safety guarantee, *unless* swapping the
+    /// (user-supplied) allocator objects can throw.
     void swapExchangeAllocators(TreeNodePool& other);
-        // Efficiently exchange the nodes and allocator of this object with
-        // those of the specified 'other' object.  This method provides the
-        // no-throw exception-safety guarantee, *unless* swapping the
-        // (user-supplied) allocator objects can throw.
 
+    /// Efficiently exchange the nodes of this object with those of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.  The behavior is undefined unless
+    /// `allocator() == other.allocator()`.
     void swapRetainAllocators(TreeNodePool& other);
-        // Efficiently exchange the nodes of this object with those of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless
-        // 'allocator() == other.allocator()'.
 
     // ACCESSORS
-    const AllocatorType& allocator() const;
-        // Return a reference providing non-modifiable access to the rebound
-        // allocator traits for the node-type.  Note that this operation
-        // returns a base-class ('NodeAlloc') reference to this object.
 
+    /// Return a reference providing non-modifiable access to the rebound
+    /// allocator traits for the node-type.  Note that this operation
+    /// returns a base-class (`NodeAlloc`) reference to this object.
+    const AllocatorType& allocator() const;
+
+    /// Return `true` if this object holds free (currently unused) nodes,
+    /// and `false` otherwise.
     bool hasFreeNodes() const;
-        // Return 'true' if this object holds free (currently unused) nodes,
-        // and 'false' otherwise.
 };
 
 // ============================================================================
@@ -835,7 +839,7 @@ bool TreeNodePool<VALUE, ALLOCATOR>::hasFreeNodes() const
 #endif // ! defined(INCLUDED_BSLSTL_TREENODEPOOL_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

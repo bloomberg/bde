@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Apr 10 03:06:52 2023
+// Generated on Sun Sep  1 05:39:11 2024
 // Command line: sim_cpp11_features.pl bslstl_stack.h
 
 #ifdef COMPILING_BSLSTL_STACK_H
@@ -32,18 +32,18 @@ namespace bsl {
                              // class stack
                              // ===========
 
+/// This `class` defines a container adapter which supports access primarily
+/// via `push`, `pop`, and `top`.  This type can be based on a variety of
+/// other container types, including `deque`, `vector`, and `list`.  This
+/// type is value-semantic if the supporting `CONTAINER` and `VALUE` are
+/// value-semantic.
+///
+/// Note that we never use `VALUE` in the implementation except in the
+/// default argument of `CONTAINER`.  We use `CONTAINER::value_type` for
+/// everything, which means that if `CONTAINER` is specified, then `VALUE`
+/// is ignored.
 template <class VALUE, class CONTAINER = deque<VALUE> >
 class stack {
-    // This 'class' defines a container adapter which supports access primarily
-    // via 'push', 'pop', and 'top'.  This type can be based on a variety of
-    // other container types, including 'deque', 'vector', and 'list'.  This
-    // type is value-semantic if the supporting 'CONTAINER' and 'VALUE' are
-    // value-semantic.
-    //
-    // Note that we never use 'VALUE' in the implementation except in the
-    // default argument of 'CONTAINER'.  We use 'CONTAINER::value_type' for
-    // everything, which means that if 'CONTAINER' is specified, then 'VALUE'
-    // is ignored.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // STATIC CHECK: Type mismatch is UB per C++17
@@ -52,9 +52,10 @@ class stack {
 
   private:
     // PRIVATE TYPES
+
+    /// This `typedef` is a convenient alias for the utility associated with
+    /// movable references.
     typedef BloombergLP::bslmf::MovableRefUtil  MoveUtil;
-        // This 'typedef' is a convenient alias for the utility associated with
-        // movable references.
 
   public:
     // PUBLIC TYPES
@@ -99,107 +100,109 @@ class stack {
         BloombergLP::bslma::UsesBslmaAllocator<container_type>::value);
 
     // CREATORS
+
+    /// Create an empty stack.  No allocator will be provided to the
+    /// underlying container.  That container's memory allocation will be
+    /// provided by the default allocator of its type.
     explicit stack();
-        // Create an empty stack.  No allocator will be provided to the
-        // underlying container.  That container's memory allocation will be
-        // provided by the default allocator of its type.
 
+    /// Create a stack having the value of the specified `original`.  The
+    /// currently installed default allocator is used to supply memory.
     stack(const stack& original);
-        // Create a stack having the value of the specified 'original'.  The
-        // currently installed default allocator is used to supply memory.
 
+    /// Create a stack having the value of the specified `original` by
+    /// moving the contents of `original` to the new stack.  The allocator
+    /// associated with `original` is propagated for use in the new stack.
+    /// `original` is left in a valid but unspecified state.
     stack(BloombergLP::bslmf::MovableRef<stack> original);
-        // Create a stack having the value of the specified 'original' by
-        // moving the contents of 'original' to the new stack.  The allocator
-        // associated with 'original' is propagated for use in the new stack.
-        // 'original' is left in a valid but unspecified state.
 
+    /// Create a stack whose underlying container has the value of the
+    /// specified `container`.  The currently installed default allocator is
+    /// used to supply memory.
     explicit
     stack(const CONTAINER& container);
-        // Create a stack whose underlying container has the value of the
-        // specified 'container'.  The currently installed default allocator is
-        // used to supply memory.
 
+    /// Create a stack whose underlying container has the value of the
+    /// specified `container` (on entry) by moving the contents of
+    /// `container` to the new stack.  The allocator associated with
+    /// `container` is propagated for use in the new stack.  `container` is
+    /// left in a valid but unspecified state.
     explicit
     stack(BloombergLP::bslmf::MovableRef<CONTAINER> container);
-        // Create a stack whose underlying container has the value of the
-        // specified 'container' (on entry) by moving the contents of
-        // 'container' to the new stack.  The allocator associated with
-        // 'container' is propagated for use in the new stack.  'container' is
-        // left in a valid but unspecified state.
 
+    /// Create an empty stack, and use the specified `basicAllocator` to
+    /// supply memory.  If `CONTAINER::allocator_type` does not exist, this
+    /// constructor may not be used.
     template <class ALLOCATOR>
     explicit
     stack(const ALLOCATOR& basicAllocator,
           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                              ALLOCATOR>::type * = 0);
-        // Create an empty stack, and use the specified 'basicAllocator' to
-        // supply memory.  If 'CONTAINER::allocator_type' does not exist, this
-        // constructor may not be used.
 
+    /// Create a stack whose underlying container has the value of the
+    /// specified `container`, and use the specified `basicAllocator` to
+    /// supply memory.  If `CONTAINER::allocator_type` does not exist, this
+    /// constructor may not be used.
     template <class ALLOCATOR>
     stack(const CONTAINER& container,
           const ALLOCATOR& basicAllocator,
           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                              ALLOCATOR>::type * = 0);
-        // Create a stack whose underlying container has the value of the
-        // specified 'container', and use the specified 'basicAllocator' to
-        // supply memory.  If 'CONTAINER::allocator_type' does not exist, this
-        // constructor may not be used.
 
+    /// Create a stack having the value of the specified stack `original`
+    /// and use the specified `basicAllocator` to supply memory.  If
+    /// `CONTAINER::allocator_type` does not exist, this constructor may not
+    /// be used.
     template <class ALLOCATOR>
     stack(const stack&     original,
           const ALLOCATOR& basicAllocator,
           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                              ALLOCATOR>::type * = 0);
-        // Create a stack having the value of the specified stack 'original'
-        // and use the specified 'basicAllocator' to supply memory.  If
-        // 'CONTAINER::allocator_type' does not exist, this constructor may not
-        // be used.
 
+    /// Create a stack whose underlying container has the value of the
+    /// specified `container` (on entry) that uses `basicAllocator` to
+    /// supply memory by using the allocator-extended move constructor of
+    /// `CONTAINER.  `container' is left in a valid but unspecified state.
+    /// A `bslma::Allocator *` can be supplied for `basicAllocator` if the
+    /// (template parameter) `ALLOCATOR` is `bsl::allocator` (the default).
+    /// This method assumes that `CONTAINER` has a move constructor.  If
+    /// `CONTAINER::allocator_type` does not exist, this constructor may not
+    /// be used.
     template <class ALLOCATOR>
     stack(BloombergLP::bslmf::MovableRef<CONTAINER> container,
           const ALLOCATOR&                          basicAllocator,
           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                              ALLOCATOR>::type * = 0);
-        // Create a stack whose underlying container has the value of the
-        // specified 'container' (on entry) that uses 'basicAllocator' to
-        // supply memory by using the allocator-extended move constructor of
-        // 'CONTAINER.  'container' is left in a valid but unspecified state.
-        // A 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
-        // (template parameter) 'ALLOCATOR' is 'bsl::allocator' (the default).
-        // This method assumes that 'CONTAINER' has a move constructor.  If
-        // 'CONTAINER::allocator_type' does not exist, this constructor may not
-        // be used.
 
+    /// Create a stack having the value of the specified `original` (on
+    /// entry) that uses `basicAllocator` to supply memory by using the
+    /// allocator-extended moved constructor of `CONTAINER`.  `original` is
+    /// left in a valid but unspecified state.  Note that a
+    /// `bslma::Allocator *` can be supplied for `basicAllocator` if the
+    /// (template parameter) `ALLOCATOR` is `bsl::allocator` (the default).
+    /// Also note that this method assumes that `CONTAINER` has a move
+    /// constructor.  Also note that if `CONTAINER::allocator_type` does not
+    /// exist, this constructor may not be used.
     template <class ALLOCATOR>
     stack(BloombergLP::bslmf::MovableRef<stack> original,
           const ALLOCATOR&                      basicAllocator,
           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                              ALLOCATOR>::type * = 0);
-        // Create a stack having the value of the specified 'original' (on
-        // entry) that uses 'basicAllocator' to supply memory by using the
-        // allocator-extended moved constructor of 'CONTAINER'.  'original' is
-        // left in a valid but unspecified state.  Note that a
-        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
-        // (template parameter) 'ALLOCATOR' is 'bsl::allocator' (the default).
-        // Also note that this method assumes that 'CONTAINER' has a move
-        // constructor.  Also note that if 'CONTAINER::allocator_type' does not
-        // exist, this constructor may not be used.
 
     // MANIPULATORS
-    stack& operator=(const stack& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    stack& operator=(const stack& rhs);
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.  The
+    /// contents of `rhs` are moved to this stack using the move-assignment
+    /// operator of `CONTAINER`.  `rhs` is left in a valid but unspecified
+    /// state, and if an exception is thrown, `*this` is left in a valid but
+    /// unspecified state.
     stack& operator=(BloombergLP::bslmf::MovableRef<stack> rhs)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  The
-        // contents of 'rhs' are moved to this stack using the move-assignment
-        // operator of 'CONTAINER'.  'rhs' is left in a valid but unspecified
-        // state, and if an exception is thrown, '*this' is left in a valid but
-        // unspecified state.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -363,145 +366,148 @@ class stack {
 // }}} END GENERATED CODE
 #endif
 
+    /// Remove the top element from this stack.  The behavior is undefined
+    /// if this stack is empty.
     void pop();
-        // Remove the top element from this stack.  The behavior is undefined
-        // if this stack is empty.
 
+    /// Push the specified `value` onto the top of this stack.
     void push(const value_type& value);
-        // Push the specified 'value' onto the top of this stack.
 
+    /// Push onto this stack a `value_type` object having the value of the
+    /// specified `value` (on entry) by moving the contents of `value` to
+    /// the new object on this stack.  `value` is left in a valid but
+    /// unspecified state.
     void push(BloombergLP::bslmf::MovableRef<value_type> value);
-        // Push onto this stack a 'value_type' object having the value of the
-        // specified 'value' (on entry) by moving the contents of 'value' to
-        // the new object on this stack.  'value' is left in a valid but
-        // unspecified state.
 
     void swap(stack& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                   bsl::is_nothrow_swappable<CONTAINER>::value);
         // Exchange the value of this stack with the value of the specified
         // 'other' stack.
 
+    /// Return a reference to the element at the top of this stack.  The
+    /// behavior is undefined if this stack is empty.
     reference top();
-        // Return a reference to the element at the top of this stack.  The
-        // behavior is undefined if this stack is empty.
 
     // ACCESSORS
+
+    /// Return `true` if this stack contains no elements and `false`
+    /// otherwise.
     bool empty() const;
-        // Return 'true' if this stack contains no elements and 'false'
-        // otherwise.
 
+    /// Return the number of elements contained in this stack.
     size_type size() const;
-        // Return the number of elements contained in this stack.
 
+    /// Return a reference providing non-modifiable access to the element at
+    /// the top of this stack.  The behavior is undefined if the stack is
+    /// empty.
     const_reference top() const;
-        // Return a reference providing non-modifiable access to the element at
-        // the top of this stack.  The behavior is undefined if the stack is
-        // empty.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
 
+/// Deduce the template parameters `VALUE` and `CONTAINER` from the
+/// parameters supplied to the constructor of `stack`.  This deduction guide
+/// does not participate if the parameter meets the requirements for a
+/// standard allocator.
 template<class CONTAINER,
          class = bsl::enable_if_t<!bsl::IsStdAllocator_v<CONTAINER>>
         >
 stack(CONTAINER) -> stack<typename CONTAINER::value_type, CONTAINER>;
-    // Deduce the template parameters 'VALUE' and 'CONTAINER' from the
-    // parameters supplied to the constructor of 'stack'.  This deduction guide
-    // does not participate if the parameter meets the requirements for a
-    // standard allocator.
 
+/// Deduce the template parameters `VALUE` and `CONTAINER` from the
+/// parameters supplied to the constructor of `stack`.  This deduction
+/// guide does not participate unless the supplied allocator is convertible
+/// to the underlying container's `allocator_type`.
 template<
     class CONTAINER,
     class ALLOCATOR,
     class = bsl::enable_if_t<bsl::uses_allocator_v<CONTAINER, ALLOCATOR>>
     >
 stack(CONTAINER, ALLOCATOR) -> stack<typename CONTAINER::value_type, CONTAINER>;
-    // Deduce the template parameters 'VALUE' and 'CONTAINER' from the
-    // parameters supplied to the constructor of 'stack'.  This deduction
-    // guide does not participate unless the supplied allocator is convertible
-    // to the underlying container's 'allocator_type'.
 #endif
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `stack` objects `lhs` and `rhs` have
+/// the same value if they have the same number of elements, and each
+/// element in the ordered sequence of elements of `lhs` has the same value
+/// as the corresponding element in the ordered sequence of elements of
+/// `rhs`.  This method requires that the (template parameter) type `VALUE`
+/// be `equality-comparable` (see {Requirements on `VALUE`}).
 template <class VALUE, class CONTAINER>
 bool operator==(const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'stack' objects 'lhs' and 'rhs' have
-    // the same value if they have the same number of elements, and each
-    // element in the ordered sequence of elements of 'lhs' has the same value
-    // as the corresponding element in the ordered sequence of elements of
-    // 'rhs'.  This method requires that the (template parameter) type 'VALUE'
-    // be 'equality-comparable' (see {Requirements on 'VALUE'}).
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `stack` objects `lhs` and `rhs`
+/// do not have the same value if they do not have the same number of
+/// elements, or some element in the ordered sequence of elements of `lhs`
+/// does not have the same value as the corresponding element in the ordered
+/// sequence of elements of `rhs`.  This method requires that the (template
+/// parameter) type `VALUE` be `equality-comparable` (see {Requirements on
+/// `VALUE`}).
 template <class VALUE, class CONTAINER>
 bool operator!=(const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'stack' objects 'lhs' and 'rhs'
-    // do not have the same value if they do not have the same number of
-    // elements, or some element in the ordered sequence of elements of 'lhs'
-    // does not have the same value as the corresponding element in the ordered
-    // sequence of elements of 'rhs'.  This method requires that the (template
-    // parameter) type 'VALUE' be 'equality-comparable' (see {Requirements on
-    // 'VALUE'}).
 
+/// Return `true` if the value of the specified `lhs` stack is
+/// lexicographically less than that of the specified `rhs` stack, and
+/// `false` otherwise.  Given iterators `i` and `j` over the respective
+/// sequences `[lhs.begin() .. lhs.end())` and `[rhs.begin() .. rhs.end())`,
+/// the value of stack `lhs` is lexicographically less than that of stack
+/// `rhs` if `true == *i < *j` for the first pair of corresponding iterator
+/// positions where `*i < *j` and `*j < *i` are not both `false`.  If no
+/// such corresponding iterator position exists, the value of `lhs` is
+/// lexicographically less than that of `rhs` if `lhs.size() < rhs.size()`.
+/// This method requires that `operator<`, inducing a total order, be
+/// defined for `value_type`.
 template <class VALUE, class CONTAINER>
 bool operator< (const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the value of the specified 'lhs' stack is
-    // lexicographically less than that of the specified 'rhs' stack, and
-    // 'false' otherwise.  Given iterators 'i' and 'j' over the respective
-    // sequences '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())',
-    // the value of stack 'lhs' is lexicographically less than that of stack
-    // 'rhs' if 'true == *i < *j' for the first pair of corresponding iterator
-    // positions where '*i < *j' and '*j < *i' are not both 'false'.  If no
-    // such corresponding iterator position exists, the value of 'lhs' is
-    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
-    // This method requires that 'operator<', inducing a total order, be
-    // defined for 'value_type'.
 
+/// Return `true` if the value of the specified `lhs` stack is
+/// lexicographically greater than that of the specified `rhs` stack, and
+/// `false` otherwise.  The value of stack `lhs` is lexicographically
+/// greater than that of stack `rhs` if `rhs` is lexicographically less than
+/// `lhs` (see `operator<`).  This method requires that `operator<`,
+/// inducing a total order, be defined for `value_type`.  Note that this
+/// operator returns `rhs < lhs`.
 template <class VALUE, class CONTAINER>
 bool operator> (const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the value of the specified 'lhs' stack is
-    // lexicographically greater than that of the specified 'rhs' stack, and
-    // 'false' otherwise.  The value of stack 'lhs' is lexicographically
-    // greater than that of stack 'rhs' if 'rhs' is lexicographically less than
-    // 'lhs' (see 'operator<').  This method requires that 'operator<',
-    // inducing a total order, be defined for 'value_type'.  Note that this
-    // operator returns 'rhs < lhs'.
 
+/// Return `true` if the value of the specified `lhs` stack is
+/// lexicographically less than or equal to that of the specified `rhs`
+/// stack, and `false` otherwise.  The value of stack `lhs` is
+/// lexicographically less than or equal to that of stack `rhs` if `rhs` is
+/// not lexicographically less than `lhs` (see `operator<`).  This method
+/// requires that `operator<`, inducing a total order, be defined for
+/// `value_type`.  Note that this operator returns `!(rhs < lhs)`.
 template <class VALUE, class CONTAINER>
 bool operator<=(const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the value of the specified 'lhs' stack is
-    // lexicographically less than or equal to that of the specified 'rhs'
-    // stack, and 'false' otherwise.  The value of stack 'lhs' is
-    // lexicographically less than or equal to that of stack 'rhs' if 'rhs' is
-    // not lexicographically less than 'lhs' (see 'operator<').  This method
-    // requires that 'operator<', inducing a total order, be defined for
-    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
 
+/// Return `true` if the value of the specified `lhs` stack is
+/// lexicographically greater than or equal to that of the specified `rhs`
+/// stack, and `false` otherwise.  The value of stack `lhs` is
+/// lexicographically greater than or equal to that of stack `rhs` if `lhs`
+/// is not lexicographically less than `rhs` (see `operator<`).  This method
+/// requires that `operator<`, inducing a total order, be defined for
+/// `value_type`.  Note that this operator returns `!(lhs < rhs)`.
 template <class VALUE, class CONTAINER>
 bool operator>=(const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the value of the specified 'lhs' stack is
-    // lexicographically greater than or equal to that of the specified 'rhs'
-    // stack, and 'false' otherwise.  The value of stack 'lhs' is
-    // lexicographically greater than or equal to that of stack 'rhs' if 'lhs'
-    // is not lexicographically less than 'rhs' (see 'operator<').  This method
-    // requires that 'operator<', inducing a total order, be defined for
-    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
+
+/// Swap the value of the specified `lhs` stack with the value of the
+/// specified `rhs` stack.
 template <class VALUE, class CONTAINER>
 void swap(stack<VALUE, CONTAINER>& lhs,
           stack<VALUE, CONTAINER>& rhs)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-    // Swap the value of the specified 'lhs' stack with the value of the
-    // specified 'rhs' stack.
 
 //=============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -1071,7 +1077,7 @@ void swap(stack<VALUE, CONTAINER>& lhs,
 #endif // ! defined(INCLUDED_BSLSTL_STACK_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

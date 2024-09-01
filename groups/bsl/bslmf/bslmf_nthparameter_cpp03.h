@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Dec 16 11:47:20 2022
+// Generated on Sun Sep  1 05:38:31 2024
 // Command line: sim_cpp11_features.pl bslmf_nthparameter.h
 
 #ifdef COMPILING_BSLMF_NTHPARAMETER_H
@@ -915,10 +915,10 @@ struct NthParameter<0, t_FIRST_PARAM, t_PARAMS...> {
 // }}} END GENERATED CODE
 #endif
 
+/// Specialization of `NthParameter` for when `t_N` exceeds the actual
+/// number of parameters.
 template <>
 struct NthParameter<0, NthParameter_Sentinel> {
-    // Specialization of 'NthParameter' for when 't_N' exceeds the actual
-    // number of parameters.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
     // No 'Type' member is defined.
@@ -943,7 +943,7 @@ struct NthParameter<0, NthParameter_Sentinel> {
 #endif // ! defined(INCLUDED_BSLMF_NTHPARAMETER_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec 27 14:41:31 2023
+// Generated on Sun Sep  1 05:38:38 2024
 // Command line: sim_cpp11_features.pl bslma_polymorphicallocator.h
 
 #ifdef COMPILING_BSLMA_POLYMORPHICALLOCATOR_H
@@ -91,33 +91,33 @@ struct PolymorphicAllocator_Unique
 
 namespace std::pmr {
 
+/// Return `true` if the specified `a` and specified `b` polymorphic
+/// allocators have equal memory resources; otherwise `false`.
 template <class TYPE>
 bool operator==(const polymorphic_allocator<TYPE>&                 a,
                 const BSLMF_POLYMORPHICALLOCATOR_NODEDUCE_T(TYPE)& b)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'a' and specified 'b' polymorphic
-    // allocators have equal memory resources; otherwise 'false'.
 
+/// Return `true` if the specified `a` and specified `b` polymorphic
+/// allocators have equal memory resources; otherwise `false`.
 template <class TYPE>
 bool operator==(const BSLMF_POLYMORPHICALLOCATOR_NODEDUCE_T(TYPE)& a,
                 const polymorphic_allocator<TYPE>&                 b)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'a' and specified 'b' polymorphic
-    // allocators have equal memory resources; otherwise 'false'.
 
+/// Return `false` if the specified `a` and specified `b` polymorphic
+/// allocators have equal memory resources; otherwise `true`.
 template <class TYPE>
 bool operator!=(const polymorphic_allocator<TYPE>&                 a,
                 const BSLMF_POLYMORPHICALLOCATOR_NODEDUCE_T(TYPE)& b)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'false' if the specified 'a' and specified 'b' polymorphic
-    // allocators have equal memory resources; otherwise 'true'.
 
+/// Return `false` if the specified `a` and specified `b` polymorphic
+/// allocators have equal memory resources; otherwise `true`.
 template <class TYPE>
 bool operator!=(const BSLMF_POLYMORPHICALLOCATOR_NODEDUCE_T(TYPE)& a,
                 const polymorphic_allocator<TYPE>&                 b)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'false' if the specified 'a' and specified 'b' polymorphic
-    // allocators have equal memory resources; otherwise 'true'.
 
 }  // close namespace std::pmr
 
@@ -929,12 +929,12 @@ namespace bsl {
               // class allocator_traits<polymorphic_allocator<TYPE> >
               // ====================================================
 
+/// This `struct` template provides a specialization of the
+/// `allocator_traits` class template for `bsl::polymorphic_allocator`.
+/// This specialization is not strictly necessary, but its presence speeds
+/// up compilation by bypassing a significant amount of metaprogramming.
 template <class TYPE>
 struct allocator_traits<polymorphic_allocator<TYPE> > {
-    // This 'struct' template provides a specialization of the
-    // 'allocator_traits' class template for 'bsl::polymorphic_allocator'.
-    // This specialization is not strictly necessary, but its presence speeds
-    // up compilation by bypassing a significant amount of metaprogramming.
 
     // PUBLIC TYPES
     typedef polymorphic_allocator<TYPE> allocator_type;
@@ -2009,28 +2009,28 @@ struct allocator_traits<polymorphic_allocator<TYPE> > {
 // TRAITS
 namespace bsl {
 
+/// Note that the `bsl::is_trivially_copyable` trait automatically sets the
+/// `bslmf::IsBitwiseMoveable` trait.
 template <class TYPE>
 struct is_trivially_copyable<polymorphic_allocator<TYPE> > : true_type { };
-    // Note that the 'bsl::is_trivially_copyable' trait automatically sets the
-    // 'bslmf::IsBitwiseMoveable' trait.
 }  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslma {
 
+/// Declare `polymorphic_allocator` as a C++11 compatible allocator for
+/// all versions of C++.
 template <class TYPE>
 struct IsStdAllocator< ::bsl::polymorphic_allocator<TYPE> >
     : bsl::true_type
 {
-    // Declare 'polymorphic_allocator' as a C++11 compatible allocator for
-    // all versions of C++.
 };
 
+/// An allocator is not *itself* an allocator-aware type, even though it is
+/// convertible from `bsl::Allocator *`.
 template <class TYPE>
 struct UsesBslmaAllocator< ::bsl::polymorphic_allocator<TYPE> >
     : bsl::false_type {
-    // An allocator is not *itself* an allocator-aware type, even though it is
-    // convertible from 'bsl::Allocator *'.
 };
 
 }  // close namespace bslma

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec  7 18:22:06 2022
+// Generated on Sun Sep  1 05:39:10 2024
 // Command line: sim_cpp11_features.pl bslstl_priorityqueue.h
 
 #ifdef COMPILING_BSLSTL_PRIORITYQUEUE_H
@@ -32,17 +32,17 @@ namespace bsl {
                          // class priority_queue
                          // ====================
 
+/// This class is a value-semantic class template, adapting a container of
+/// the (template parameter) type `CONTAINER`, that holds elements of the
+/// (template parameter) type `VALUE`, to provide a highest-priority-first
+/// priority queue data structure, where the priorities of elements are
+/// compared by a comparator of the template parameter type, `COMPARATOR`.
+/// The container object held by a `priority_queue` class object is
+/// referenced as `c` in the following documentation.
 template <class VALUE,
           class CONTAINER  = vector<VALUE>,
           class COMPARATOR = std::less<typename CONTAINER::value_type> >
 class priority_queue {
-    // This class is a value-semantic class template, adapting a container of
-    // the (template parameter) type 'CONTAINER', that holds elements of the
-    // (template parameter) type 'VALUE', to provide a highest-priority-first
-    // priority queue data structure, where the priorities of elements are
-    // compared by a comparator of the template parameter type, 'COMPARATOR'.
-    // The container object held by a 'priority_queue' class object is
-    // referenced as 'c' in the following documentation.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // STATIC CHECK: Type mismatch is UB per C++17
@@ -51,9 +51,10 @@ class priority_queue {
 
   private:
     // PRIVATE TYPES
+
+    /// This `typedef` is a convenient alias for the utility associated with
+    /// movable references.
     typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
-        // This 'typedef' is a convenient alias for the utility associated with
-        // movable references.
 
   public:
     // PUBLIC TYPES
@@ -82,104 +83,110 @@ class priority_queue {
         BloombergLP::bslma::UsesBslmaAllocator<container_type>::value);
 
     // CREATORS
+
+    /// Create an empty priority queue, adapting a default-constructed
+    /// container of the (template parameter) type `CONTAINER`.  Use a
+    /// default-constructed comparator of the (template parameter) type
+    /// `COMPARATOR` to order elements in the priority queue.
     priority_queue();
-        // Create an empty priority queue, adapting a default-constructed
-        // container of the (template parameter) type 'CONTAINER'.  Use a
-        // default-constructed comparator of the (template parameter) type
-        // 'COMPARATOR' to order elements in the priority queue.
 
+    /// Create an empty priority queue, adapting a default-constructed
+    /// container of the (template parameter) type `CONTAINER`, and having
+    /// the specified `comparator` of the (template parameter) type
+    /// `COMPARATOR` to order elements in the priority queue.
     explicit priority_queue(const COMPARATOR& comparator);
-        // Create an empty priority queue, adapting a default-constructed
-        // container of the (template parameter) type 'CONTAINER', and having
-        // the specified 'comparator' of the (template parameter) type
-        // 'COMPARATOR' to order elements in the priority queue.
 
+    /// Create a priority queue, adapting the specified `container` of the
+    /// (template parameter) type `CONTAINER`, and having the specified
+    /// `comparator` of the (template parameter) type `COMPARATOR` to order
+    /// elements in the priority queue.
     priority_queue(const COMPARATOR& comparator, const CONTAINER& container);
-        // Create a priority queue, adapting the specified 'container' of the
-        // (template parameter) type 'CONTAINER', and having the specified
-        // 'comparator' of the (template parameter) type 'COMPARATOR' to order
-        // elements in the priority queue.
 
+    /// Create a priority queue, adapting the specified `container` of the
+    /// (template parameter) type `CONTAINER`, and having the specified
+    /// `comparator` of the (template parameter) type `COMPARATOR` to order
+    /// elements in the priority queue.
     explicit priority_queue(
            const COMPARATOR&                         comparator,
            BloombergLP::bslmf::MovableRef<CONTAINER> container);
-        // Create a priority queue, adapting the specified 'container' of the
-        // (template parameter) type 'CONTAINER', and having the specified
-        // 'comparator' of the (template parameter) type 'COMPARATOR' to order
-        // elements in the priority queue.
 
 
+    /// Create a priority queue, adapting a default-constructed container of
+    /// the (template parameter) type `CONTAINER`, and inserting into the
+    /// container a sequence of `value_type` elements that starts at the
+    /// specified `first` and ends immediately before the specified `last`.
+    /// Use a default-constructed comparator of the (template parameter)
+    /// type `COMPARATOR` to order elements in the priority queue.
     template <class INPUT_ITERATOR>
     priority_queue(INPUT_ITERATOR first, INPUT_ITERATOR last);
-        // Create a priority queue, adapting a default-constructed container of
-        // the (template parameter) type 'CONTAINER', and inserting into the
-        // container a sequence of 'value_type' elements that starts at the
-        // specified 'first' and ends immediately before the specified 'last'.
-        // Use a default-constructed comparator of the (template parameter)
-        // type 'COMPARATOR' to order elements in the priority queue.
 
+    /// Create a priority queue, adapting the specified `container`, having
+    /// the specified `comparator` to order the priorities of elements,
+    /// including those originally existed in `container`, and those
+    /// inserted into the `container` from a sequence of `value_type`
+    /// elements starting at the specified `first`, and ending immediately
+    /// before the specified `last`.
     template <class INPUT_ITERATOR>
     priority_queue(INPUT_ITERATOR    first,
                    INPUT_ITERATOR    last,
                    const COMPARATOR& comparator,
                    const CONTAINER&  container);
-        // Create a priority queue, adapting the specified 'container', having
-        // the specified 'comparator' to order the priorities of elements,
-        // including those originally existed in 'container', and those
-        // inserted into the 'container' from a sequence of 'value_type'
-        // elements starting at the specified 'first', and ending immediately
-        // before the specified 'last'.
 
+    /// Create a priority queue, adapting the specified `container`, having
+    /// the specified `comparator` to order elements in the priority queue,
+    /// including those originally existed in `container`, and those
+    /// inserted into the `container` from a sequence of `value_type`
+    /// elements starting at the specified `first`, and ending immediately
+    /// before the specified `last`.
     template <class INPUT_ITERATOR>
     priority_queue(
            INPUT_ITERATOR                            first,
            INPUT_ITERATOR                            last,
            const COMPARATOR&                         comparator,
            BloombergLP::bslmf::MovableRef<CONTAINER> container);
-        // Create a priority queue, adapting the specified 'container', having
-        // the specified 'comparator' to order elements in the priority queue,
-        // including those originally existed in 'container', and those
-        // inserted into the 'container' from a sequence of 'value_type'
-        // elements starting at the specified 'first', and ending immediately
-        // before the specified 'last'.
 
+    /// Create a priority queue having the same value as the specified
+    /// `original` object.  Use a copy of the comparator from `original` to
+    /// order elements in the priority queue.
     priority_queue(const priority_queue& original);
-        // Create a priority queue having the same value as the specified
-        // 'original' object.  Use a copy of the comparator from 'original' to
-        // order elements in the priority queue.
 
+    /// Create a priority queue having the same value as the specified
+    /// `original` object.  Use a copy of the comparator from `original` to
+    /// order elements in the priority queue.
     priority_queue(BloombergLP::bslmf::MovableRef<priority_queue> original);
-        // Create a priority queue having the same value as the specified
-        // 'original' object.  Use a copy of the comparator from 'original' to
-        // order elements in the priority queue.
 
+    /// Create an empty priority queue, adapting a default-constructed
+    /// container of the (template parameter) type `CONTAINER` that uses the
+    /// specified `basicAllocator` to supply memory.  Use a
+    /// default-constructed object of the (template parameter) type
+    /// `COMPARATOR` to order elements in the priority queue.  Note that
+    /// this constructor is only defined if the underlying container uses
+    /// allocator.  Otherwise this constructor is disabled.
     template <class ALLOCATOR>
     explicit
     priority_queue(const ALLOCATOR& basicAllocator,
                    typename enable_if<
                               bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                               ALLOCATOR>::type * = 0);
-        // Create an empty priority queue, adapting a default-constructed
-        // container of the (template parameter) type 'CONTAINER' that uses the
-        // specified 'basicAllocator' to supply memory.  Use a
-        // default-constructed object of the (template parameter) type
-        // 'COMPARATOR' to order elements in the priority queue.  Note that
-        // this constructor is only defined if the underlying container uses
-        // allocator.  Otherwise this constructor is disabled.
 
+    /// Create an empty priority queue, adapting a default-constructed
+    /// container of the (template parameter) type `CONTAINER` that uses the
+    /// specified `basicAllocator` to supply memory, and the specified
+    /// `comparator` to order elements in the priority queue.  Note that
+    /// this constructor is only defined if the underlying container uses
+    /// allocator.  Otherwise this constructor is disabled.
     template <class ALLOCATOR>
     priority_queue(const COMPARATOR& comparator,
                    const ALLOCATOR&  basicAllocator,
                    typename enable_if<
                               bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                               ALLOCATOR>::type * = 0);
-        // Create an empty priority queue, adapting a default-constructed
-        // container of the (template parameter) type 'CONTAINER' that uses the
-        // specified 'basicAllocator' to supply memory, and the specified
-        // 'comparator' to order elements in the priority queue.  Note that
-        // this constructor is only defined if the underlying container uses
-        // allocator.  Otherwise this constructor is disabled.
 
+    /// Create a priority queue, adapting the specified `container` that
+    /// uses the specified `basicAllocator` to supply memory, and the
+    /// specified `comparator` to order elements in the priority queue.
+    /// Note that this constructor is only defined if the underlying
+    /// container uses allocator.  Otherwise this constructor is disabled.
     template <class ALLOCATOR>
     priority_queue(const COMPARATOR& comparator,
                    const CONTAINER&  container,
@@ -187,12 +194,12 @@ class priority_queue {
                    typename enable_if<
                               bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                               ALLOCATOR>::type * = 0);
-        // Create a priority queue, adapting the specified 'container' that
-        // uses the specified 'basicAllocator' to supply memory, and the
-        // specified 'comparator' to order elements in the priority queue.
-        // Note that this constructor is only defined if the underlying
-        // container uses allocator.  Otherwise this constructor is disabled.
 
+    /// Create a priority queue, adapting the specified `container` that
+    /// uses the specified `basicAllocator` to supply memory, and the
+    /// specified `comparator` to order elements in the priority queue.
+    /// Note that this constructor is only defined if the underlying
+    /// container uses allocator.  Otherwise this constructor is disabled.
     template <class ALLOCATOR>
     priority_queue(const COMPARATOR&                         comparator,
                    BloombergLP::bslmf::MovableRef<CONTAINER> container,
@@ -200,25 +207,26 @@ class priority_queue {
                    typename enable_if<
                               bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                               ALLOCATOR>::type * = 0);
-        // Create a priority queue, adapting the specified 'container' that
-        // uses the specified 'basicAllocator' to supply memory, and the
-        // specified 'comparator' to order elements in the priority queue.
-        // Note that this constructor is only defined if the underlying
-        // container uses allocator.  Otherwise this constructor is disabled.
 
+    /// Create a priority queue having the same value as the specified
+    /// `original` object and using the specified `basicAllocator` to supply
+    /// memory.  Use a copy of the comparator from `original` to order
+    /// elements in the priority queue.  Note that this constructor is only
+    /// defined if the underlying container uses allocator.  Otherwise this
+    /// constructor is disabled.
     template <class ALLOCATOR>
     priority_queue(const priority_queue& original,
                    const ALLOCATOR&      basicAllocator,
                    typename enable_if<
                               bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                               ALLOCATOR>::type * = 0);
-        // Create a priority queue having the same value as the specified
-        // 'original' object and using the specified 'basicAllocator' to supply
-        // memory.  Use a copy of the comparator from 'original' to order
-        // elements in the priority queue.  Note that this constructor is only
-        // defined if the underlying container uses allocator.  Otherwise this
-        // constructor is disabled.
 
+    /// Create a priority queue having the same value as the specified
+    /// `original` object and using the specified `basicAllocator` to supply
+    /// memory.  Use a copy of the comparator from `original` to order
+    /// elements in the priority queue.  Note that this constructor is only
+    /// defined if the underlying container uses allocator.  Otherwise this
+    /// constructor is disabled.
     template <class ALLOCATOR>
     priority_queue(
                  BloombergLP::bslmf::MovableRef<priority_queue> original,
@@ -226,33 +234,28 @@ class priority_queue {
                  typename enable_if<
                               bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                               ALLOCATOR>::type * = 0);
-        // Create a priority queue having the same value as the specified
-        // 'original' object and using the specified 'basicAllocator' to supply
-        // memory.  Use a copy of the comparator from 'original' to order
-        // elements in the priority queue.  Note that this constructor is only
-        // defined if the underlying container uses allocator.  Otherwise this
-        // constructor is disabled.
 
     // MANIPULATORS
-    priority_queue& operator=(const priority_queue& rhs);
-        // Assign to this object the value and comparator of the specified
-        // 'rhs' object and return a reference providing modifiable access to
-        // this object.
 
+    /// Assign to this object the value and comparator of the specified
+    /// `rhs` object and return a reference providing modifiable access to
+    /// this object.
+    priority_queue& operator=(const priority_queue& rhs);
+
+    /// Assign to this object the value and comparator of the specified
+    /// `rhs` object and return a reference providing modifiable access to
+    /// this object.  `rhs` is left in a valid but unspecified state.
     priority_queue& operator=(
                             BloombergLP::bslmf::MovableRef<priority_queue> rhs)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-        // Assign to this object the value and comparator of the specified
-        // 'rhs' object and return a reference providing modifiable access to
-        // this object.  'rhs' is left in a valid but unspecified state.
 
+    /// Insert the specified `value` into this priority queue.  In effect,
+    /// performs `c.push_back(value);`.
     void push(const value_type& value);
-        // Insert the specified 'value' into this priority queue.  In effect,
-        // performs 'c.push_back(value);'.
 
+    /// Insert the specified `value` into this priority queue.  In effect,
+    /// performs `c.push_back(value);`.
     void push(BloombergLP::bslmf::MovableRef<value_type> value);
-        // Insert the specified 'value' into this priority queue.  In effect,
-        // performs 'c.push_back(value);'.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -415,11 +418,11 @@ class priority_queue {
 // }}} END GENERATED CODE
 #endif
 
+    /// Remove the top element from this `priority_queue` object that has
+    /// the highest priority.  In effect, performs `c.pop_back();`.  The
+    /// behavior is undefined if there is currently no elements in this
+    /// object.
     void pop();
-        // Remove the top element from this 'priority_queue' object that has
-        // the highest priority.  In effect, performs 'c.pop_back();'.  The
-        // behavior is undefined if there is currently no elements in this
-        // object.
 
     void swap(priority_queue& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                  bsl::is_nothrow_swappable<CONTAINER>::value &&
@@ -429,24 +432,27 @@ class priority_queue {
         // swap(c, other.c);'.
 
     // ACCESSORS
+
+    /// Return `true` if this `priority_queue` object contains no elements,
+    /// and `false` otherwise.  In effect, performs `return c.empty();`.
     bool empty() const;
-        // Return 'true' if this 'priority_queue' object contains no elements,
-        // and 'false' otherwise.  In effect, performs 'return c.empty();'.
 
+    /// Return the number of elements in this `priority_queue` object.  In
+    /// effect, performs `return c.size()`.
     size_type size() const;
-        // Return the number of elements in this 'priority_queue' object.  In
-        // effect, performs 'return c.size()'.
 
+    /// Return a reference providing non-modifiable access to the element
+    /// having the highest priority in this `priority_queue` object.  In
+    /// effect, performs `return c.front()`.  The behavior is undefined if
+    /// the priority queue is empty.
     const_reference top() const;
-        // Return a reference providing non-modifiable access to the element
-        // having the highest priority in this 'priority_queue' object.  In
-        // effect, performs 'return c.front()'.  The behavior is undefined if
-        // the priority queue is empty.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
 
+/// Deduce the template parameter `VALUE` and `CONTAINER` from the
+/// parameters supplied to the constructor of `priority_queue`.
 template <
     class COMPARATOR,
     class CONTAINER,
@@ -454,9 +460,11 @@ template <
     >
 priority_queue(COMPARATOR, CONTAINER)
   -> priority_queue<typename CONTAINER::value_type, CONTAINER, COMPARATOR>;
-    // Deduce the template parameter 'VALUE' and 'CONTAINER' from the
-    // parameters supplied to the constructor of 'priority_queue'.
 
+/// Deduce the template parameters `VALUE`, `CONTAINER` and `COMPARATOR`
+/// from the parameters supplied to the constructor of `priority_queue`.
+/// This deduction guide does not participate unless the supplied allocator
+/// is convertible to the underlying container's `allocator_type`.
 template <
     class COMPARATOR,
     class CONTAINER,
@@ -465,11 +473,9 @@ template <
     >
 priority_queue(COMPARATOR, CONTAINER, ALLOCATOR)
   -> priority_queue<typename CONTAINER::value_type, CONTAINER, COMPARATOR>;
-    // Deduce the template parameters 'VALUE', 'CONTAINER' and 'COMPARATOR'
-    // from the parameters supplied to the constructor of 'priority_queue'.
-    // This deduction guide does not participate unless the supplied allocator
-    // is convertible to the underlying container's 'allocator_type'.
 
+/// Deduce the template parameter `VALUE` from the `value_type` of the
+/// iterators supplied to the constructor of `priority_queue`.
 template <
     class INPUT_ITERATOR,
     class VALUE =
@@ -477,9 +483,11 @@ template <
     >
 priority_queue(INPUT_ITERATOR, INPUT_ITERATOR)
   -> priority_queue<VALUE>;
-    // Deduce the template parameter 'VALUE' from the 'value_type' of the
-    // iterators supplied to the constructor of 'priority_queue'.
 
+/// Deduce the template parameter `VALUE` from the `value_type` of the
+/// iterators supplied to the constructor of `priority_queue`.  Deduce the
+/// template parameters `CONTAINER` and `COMPARATOR` from the other
+/// parameters passed to the constructor.
 template <
     class INPUT_ITERATOR,
     class COMPARATOR,
@@ -489,19 +497,16 @@ template <
     >
 priority_queue(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, CONTAINER)
   -> priority_queue<VALUE, CONTAINER, COMPARATOR>;
-    // Deduce the template parameter 'VALUE' from the 'value_type' of the
-    // iterators supplied to the constructor of 'priority_queue'.  Deduce the
-    // template parameters 'CONTAINER' and 'COMPARATOR' from the other
-    // parameters passed to the constructor.
 #endif
 
 // FREE FUNCTIONS
+
+/// Exchange the container and comparator of the specified `a` object with
+/// the container and comparator of the specified `b` object.
 template <class VALUE, class CONTAINER, class COMPARATOR>
 void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& a,
           priority_queue<VALUE, CONTAINER, COMPARATOR>& b)
                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-    // Exchange the container and comparator of the specified 'a' object with
-    // the container and comparator of the specified 'b' object.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -1087,7 +1092,7 @@ void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& a,
 #endif // ! defined(INCLUDED_BSLSTL_PRIORITYQUEUE_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

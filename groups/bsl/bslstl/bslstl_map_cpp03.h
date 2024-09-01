@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Apr 12 11:15:08 2024
+// Generated on Sun Sep  1 05:39:10 2024
 // Command line: sim_cpp11_features.pl bslstl_map.h
 
 #ifdef COMPILING_BSLSTL_MAP_H
@@ -32,59 +32,60 @@ namespace bsl {
                              // class map
                              // =========
 
+/// This class template implements a value-semantic container type holding
+/// an ordered sequence of key-value pairs having unique keys that provide a
+/// mapping from keys (of the template parameter type, `KEY`) to their
+/// associated values (of another template parameter type, `VALUE`).
+///
+/// This class:
+/// * supports a complete set of *value-semantic* operations
+///   - except for BDEX serialization
+/// * is *exception-neutral*
+/// * is *alias-safe*
+/// * is `const` *thread-safe*
+/// For terminology see {`bsldoc_glossary`}.
 template <class KEY,
           class VALUE,
           class COMPARATOR = std::less<KEY>,
           class ALLOCATOR  = allocator<pair<const KEY, VALUE> > >
 class map {
-    // This class template implements a value-semantic container type holding
-    // an ordered sequence of key-value pairs having unique keys that provide a
-    // mapping from keys (of the template parameter type, 'KEY') to their
-    // associated values (of another template parameter type, 'VALUE').
-    //
-    // This class:
-    //: o supports a complete set of *value-semantic* operations
-    //:   o except for BDEX serialization
-    //: o is *exception-neutral*
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology see {'bsldoc_glossary'}.
 
     // PRIVATE TYPES
-    typedef pair<const KEY, VALUE>                             ValueType;
-        // This typedef is an alias for the type of key-value pair objects
-        // maintained by this map.
 
+    /// This typedef is an alias for the type of key-value pair objects
+    /// maintained by this map.
+    typedef pair<const KEY, VALUE>                             ValueType;
+
+    /// This typedef is an alias for the comparator used internally by this
+    /// map.
     typedef BloombergLP::bslstl::MapComparator<KEY, VALUE, COMPARATOR>
                                                                Comparator;
-        // This typedef is an alias for the comparator used internally by this
-        // map.
 
+    /// This typedef is an alias for the type of nodes held by the tree (of
+    /// nodes) used to implement this map.
     typedef BloombergLP::bslstl::TreeNode<ValueType>           Node;
-        // This typedef is an alias for the type of nodes held by the tree (of
-        // nodes) used to implement this map.
 
+    /// This typedef is an alias for the factory type used to create and
+    /// destroy `Node` objects.
     typedef BloombergLP::bslstl::TreeNodePool<ValueType, ALLOCATOR>
                                                                NodeFactory;
-        // This typedef is an alias for the factory type used to create and
-        // destroy 'Node' objects.
 
+    /// This typedef is an alias for the allocator traits type associated
+    /// with this container.
     typedef typename bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
-        // This typedef is an alias for the allocator traits type associated
-        // with this container.
 
+    /// This typedef is a convenient alias for the utility associated with
+    /// movable references.
     typedef BloombergLP::bslmf::MovableRefUtil                 MoveUtil;
-        // This typedef is a convenient alias for the utility associated with
-        // movable references.
 
+    /// This struct is wrapper around the comparator and allocator data
+    /// members.  It takes advantage of the empty-base optimization (EBO) so
+    /// that if the comparator is stateless, it takes up no space.
+    ///
+    /// TBD: This class should eventually be replaced by the use of a
+    /// general EBO-enabled component that provides a `pair`-like interface
+    /// or a `tuple`.
     class DataWrapper : public Comparator {
-        // This struct is wrapper around the comparator and allocator data
-        // members.  It takes advantage of the empty-base optimization (EBO) so
-        // that if the comparator is stateless, it takes up no space.
-        //
-        // TBD: This class should eventually be replaced by the use of a
-        // general EBO-enabled component that provides a 'pair'-like interface
-        // or a 'tuple'.
 
         // DATA
         NodeFactory d_pool;  // pool of 'Node' objects
@@ -96,29 +97,32 @@ class map {
 
       public:
         // CREATORS
+
+        /// Create a data wrapper using a copy of the specified `comparator`
+        /// to order key-value pairs and a copy of the specified
+        /// `basicAllocator` to supply memory.
         DataWrapper(const COMPARATOR& comparator,
                     const ALLOCATOR&  basicAllocator);
-            // Create a data wrapper using a copy of the specified 'comparator'
-            // to order key-value pairs and a copy of the specified
-            // 'basicAllocator' to supply memory.
 
+        /// Create a data wrapper initialized to the contents of the `pool`
+        /// associated with the specified `original` data wrapper.  The
+        /// comparator and allocator associated with `original` are
+        /// propagated to the new data wrapper.  `original` is left in a
+        /// valid but unspecified state.
         DataWrapper(
               BloombergLP::bslmf::MovableRef<DataWrapper> original);// IMPLICIT
-            // Create a data wrapper initialized to the contents of the 'pool'
-            // associated with the specified 'original' data wrapper.  The
-            // comparator and allocator associated with 'original' are
-            // propagated to the new data wrapper.  'original' is left in a
-            // valid but unspecified state.
 
         // MANIPULATORS
+
+        /// Return a reference providing modifiable access to the node
+        /// factory associated with this data wrapper.
         NodeFactory& nodeFactory();
-            // Return a reference providing modifiable access to the node
-            // factory associated with this data wrapper.
 
         // ACCESSORS
+
+        /// Return a reference providing non-modifiable access to the node
+        /// factory associated with this data wrapper.
         const NodeFactory& nodeFactory() const;
-            // Return a reference providing non-modifiable access to the node
-            // factory associated with this data wrapper.
     };
 
     // DATA
@@ -151,13 +155,13 @@ class map {
     typedef bsl::reverse_iterator<iterator>            reverse_iterator;
     typedef bsl::reverse_iterator<const_iterator>      const_reverse_iterator;
 
+    /// This nested class defines a mechanism for comparing two objects of
+    /// `value_type` by adapting an object of (template parameter) type
+    /// `COMPARATOR`, which compares two objects of (template parameter)
+    /// type `KEY` .  Note that this class exactly matches its definition in
+    /// the C++11 standard [map.overview]; otherwise, we would have
+    /// implemented it as a separate component-local class.
     class value_compare {
-        // This nested class defines a mechanism for comparing two objects of
-        // 'value_type' by adapting an object of (template parameter) type
-        // 'COMPARATOR', which compares two objects of (template parameter)
-        // type 'KEY' .  Note that this class exactly matches its definition in
-        // the C++11 standard [map.overview]; otherwise, we would have
-        // implemented it as a separate component-local class.
 
         // FRIENDS
         friend class map;
@@ -168,26 +172,28 @@ class map {
                           // member 'protected'
 
         // PROTECTED CREATORS
+
+        /// Create a `value_compare` object that uses the specified
+        /// `comparator`.
         value_compare(COMPARATOR comparator);                       // IMPLICIT
-            // Create a 'value_compare' object that uses the specified
-            // 'comparator'.
 
       public:
         // PUBLIC TYPES
+
+        /// This `typedef` is an alias for the result type of a call to the
+        /// overload of `operator()` (the comparison function) provided by a
+        /// `map::value_compare` object.
         typedef bool result_type;
-            // This 'typedef' is an alias for the result type of a call to the
-            // overload of 'operator()' (the comparison function) provided by a
-            // 'map::value_compare' object.
 
+        /// This `typedef` is an alias for the type of the first parameter
+        /// of the overload of `operator()` (the comparison function)
+        /// provided by a `map::value_compare` object.
         typedef value_type first_argument_type;
-            // This 'typedef' is an alias for the type of the first parameter
-            // of the overload of 'operator()' (the comparison function)
-            // provided by a 'map::value_compare' object.
 
+        /// This `typedef` is an alias for the type of the second parameter
+        /// of the overload of `operator()` (the comparison function)
+        /// provided by a `map::value_compare` object.
         typedef value_type second_argument_type;
-            // This 'typedef' is an alias for the type of the second parameter
-            // of the overload of 'operator()' (the comparison function)
-            // provided by a 'map::value_compare' object.
 
         // CREATORS
         //! value_compare(const value_compare& original) = default;
@@ -204,73 +210,78 @@ class map {
             // object.
 
         // ACCESSORS
+
+        /// Return `true` if the specified `x` object is ordered before the
+        /// specified `y` object, as determined by the comparator supplied
+        /// at construction, and `false` otherwise.
         bool operator()(const value_type& x, const value_type& y) const;
-            // Return 'true' if the specified 'x' object is ordered before the
-            // specified 'y' object, as determined by the comparator supplied
-            // at construction, and 'false' otherwise.
     };
 
   private:
     // PRIVATE CLASS METHODS
-    static Node *toNode(BloombergLP::bslalg::RbTreeNode *node);
-        // Return an address providing modifiable access to the specified
-        // 'node'.  The behavior is undefined unless 'node' is the address of a
-        // 'Node' object.
 
+    /// Return an address providing modifiable access to the specified
+    /// `node`.  The behavior is undefined unless `node` is the address of a
+    /// `Node` object.
+    static Node *toNode(BloombergLP::bslalg::RbTreeNode *node);
+
+    /// Return an address providing non-modifiable access to the specified
+    /// `node`.  The behavior is undefined unless `node` is the address of a
+    /// `Node` object.
     static const Node *toNode(const BloombergLP::bslalg::RbTreeNode *node);
-        // Return an address providing non-modifiable access to the specified
-        // 'node'.  The behavior is undefined unless 'node' is the address of a
-        // 'Node' object.
 
     // PRIVATE MANIPULATORS
+
+    /// Return a reference providing modifiable access to the node allocator
+    /// for this map.
     NodeFactory& nodeFactory();
-        // Return a reference providing modifiable access to the node allocator
-        // for this map.
 
+    /// Return a reference providing modifiable access to the comparator for
+    /// this map.
     Comparator& comparator();
-        // Return a reference providing modifiable access to the comparator for
-        // this map.
 
+    /// Efficiently exchange the value, comparator, and allocator of this
+    /// object with the value, comparator, and allocator of the specified
+    /// `other` object.  This method provides the no-throw exception-safety
+    /// guarantee, *unless* swapping the (user-supplied) comparator or
+    /// allocator objects can throw.
     void quickSwapExchangeAllocators(map& other);
-        // Efficiently exchange the value, comparator, and allocator of this
-        // object with the value, comparator, and allocator of the specified
-        // 'other' object.  This method provides the no-throw exception-safety
-        // guarantee, *unless* swapping the (user-supplied) comparator or
-        // allocator objects can throw.
 
+    /// Efficiently exchange the value and comparator of this object with
+    /// the value and comparator of the specified `other` object.  This
+    /// method provides the no-throw exception-safety guarantee, *unless*
+    /// swapping the (user-supplied) comparator objects can throw.  The
+    /// behavior is undefined unless this object was created with the same
+    /// allocator as `other`.
     void quickSwapRetainAllocators(map& other);
-        // Efficiently exchange the value and comparator of this object with
-        // the value and comparator of the specified 'other' object.  This
-        // method provides the no-throw exception-safety guarantee, *unless*
-        // swapping the (user-supplied) comparator objects can throw.  The
-        // behavior is undefined unless this object was created with the same
-        // allocator as 'other'.
 
     // PRIVATE ACCESSORS
-    const NodeFactory& nodeFactory() const;
-        // Return a reference providing non-modifiable access to the node
-        // allocator for this map.
 
+    /// Return a reference providing non-modifiable access to the node
+    /// allocator for this map.
+    const NodeFactory& nodeFactory() const;
+
+    /// Return a reference providing non-modifiable access to the comparator
+    /// for this map.
     const Comparator& comparator() const;
-        // Return a reference providing non-modifiable access to the comparator
-        // for this map.
 
   public:
     // CREATORS
+
+    /// Create an empty map.  Optionally specify a `comparator` used to
+    /// order key-value pairs contained in this object.  If `comparator` is
+    /// not supplied, a default-constructed object of the (template
+    /// parameter) type `COMPARATOR` is used.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is not
+    /// supplied, a default-constructed object of the (template parameter)
+    /// type `ALLOCATOR` is used.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` (the default), then `basicAllocator`, if supplied,
+    /// shall be convertible to `bslma::Allocator *`.  If the type
+    /// `ALLOCATOR` is `bsl::allocator` and `basicAllocator` is not
+    /// supplied, the currently installed default allocator is used.
     map();
     explicit map(const COMPARATOR& comparator,
                  const ALLOCATOR&  basicAllocator = ALLOCATOR())
-        // Create an empty map.  Optionally specify a 'comparator' used to
-        // order key-value pairs contained in this object.  If 'comparator' is
-        // not supplied, a default-constructed object of the (template
-        // parameter) type 'COMPARATOR' is used.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' (the default), then 'basicAllocator', if supplied,
-        // shall be convertible to 'bslma::Allocator *'.  If the type
-        // 'ALLOCATOR' is 'bsl::allocator' and 'basicAllocator' is not
-        // supplied, the currently installed default allocator is used.
     : d_compAndAlloc(comparator, basicAllocator)
     , d_tree()
     {
@@ -281,60 +292,87 @@ class map {
         // container and the comparator is defined after the new class.
     }
 
+    /// Create an empty map that uses the specified `basicAllocator` to
+    /// supply memory.  Use a default-constructed object of the (template
+    /// parameter) type `COMPARATOR` to order the key-value pairs contained
+    /// in this map.  Note that a `bslma::Allocator *` can be supplied for
+    /// `basicAllocator` if the (template parameter) `ALLOCATOR` is
+    /// `bsl::allocator` (the default).
     explicit map(const ALLOCATOR& basicAllocator);
-        // Create an empty map that uses the specified 'basicAllocator' to
-        // supply memory.  Use a default-constructed object of the (template
-        // parameter) type 'COMPARATOR' to order the key-value pairs contained
-        // in this map.  Note that a 'bslma::Allocator *' can be supplied for
-        // 'basicAllocator' if the (template parameter) 'ALLOCATOR' is
-        // 'bsl::allocator' (the default).
 
+    /// Create a map having the same value as the specified `original`
+    /// object.  Use a copy of `original.key_comp()` to order the key-value
+    /// pairs contained in this map.  Use the allocator returned by
+    /// 'bsl::allocator_traits<ALLOCATOR>::
+    /// select_on_container_copy_construction(original.get_allocator())' to
+    /// allocate memory.  If the (template parameter) type `ALLOCATOR` is
+    /// `bsl::allocator` (the default), the currently installed default
+    /// allocator is used.  This method requires that the (template
+    /// parameter) types `KEY` and `VALUE` both be `copy-insertable` into
+    /// this map (see {Requirements on `KEY` and `VALUE`}).
     map(const map& original);
-        // Create a map having the same value as the specified 'original'
-        // object.  Use a copy of 'original.key_comp()' to order the key-value
-        // pairs contained in this map.  Use the allocator returned by
-        // 'bsl::allocator_traits<ALLOCATOR>::
-        // select_on_container_copy_construction(original.get_allocator())' to
-        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is
-        // 'bsl::allocator' (the default), the currently installed default
-        // allocator is used.  This method requires that the (template
-        // parameter) types 'KEY' and 'VALUE' both be 'copy-insertable' into
-        // this map (see {Requirements on 'KEY' and 'VALUE'}).
 
+    /// Create a map having the same value as the specified `original`
+    /// object by moving (in constant time) the contents of `original` to
+    /// the new map.  Use a copy of `original.key_comp()` to order the
+    /// key-value pairs contained in this map.  The allocator associated
+    /// with `original` is propagated for use in the newly-created map.
+    /// `original` is left in a valid but unspecified state.
     map(BloombergLP::bslmf::MovableRef<map> original);              // IMPLICIT
-        // Create a map having the same value as the specified 'original'
-        // object by moving (in constant time) the contents of 'original' to
-        // the new map.  Use a copy of 'original.key_comp()' to order the
-        // key-value pairs contained in this map.  The allocator associated
-        // with 'original' is propagated for use in the newly-created map.
-        // 'original' is left in a valid but unspecified state.
 
+    /// Create a map having the same value as the specified `original`
+    /// object that uses the specified `basicAllocator` to supply memory.
+    /// Use a copy of `original.key_comp()` to order the key-value pairs
+    /// contained in this map.  This method requires that the (template
+    /// parameter) types `KEY` and `VALUE` both be `copy-insertable` into
+    /// this map (see {Requirements on `KEY` and `VALUE`}).  Note that a
+    /// `bslma::Allocator *` can be supplied for `basicAllocator` if the
+    /// (template parameter) `ALLOCATOR` is `bsl::allocator` (the default).
     map(const map&                                     original,
         const typename type_identity<ALLOCATOR>::type& basicAllocator);
-        // Create a map having the same value as the specified 'original'
-        // object that uses the specified 'basicAllocator' to supply memory.
-        // Use a copy of 'original.key_comp()' to order the key-value pairs
-        // contained in this map.  This method requires that the (template
-        // parameter) types 'KEY' and 'VALUE' both be 'copy-insertable' into
-        // this map (see {Requirements on 'KEY' and 'VALUE'}).  Note that a
-        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
-        // (template parameter) 'ALLOCATOR' is 'bsl::allocator' (the default).
 
+    /// Create a map having the same value as the specified `original`
+    /// object that uses the specified `basicAllocator` to supply memory.
+    /// The contents of `original` are moved (in constant time) to the new
+    /// map if `basicAllocator == original.get_allocator()`, and are move-
+    /// inserted (in linear time) using `basicAllocator` otherwise.
+    /// `original` is left in a valid but unspecified state.  Use a copy of
+    /// `original.key_comp()` to order the key-value pairs contained in this
+    /// map.  This method requires that the (template parameter) types `KEY`
+    /// and `VALUE` both be `move-insertable` into this map (see
+    /// {Requirements on `KEY` and `VALUE`}).  Note that a
+    /// `bslma::Allocator *` can be supplied for `basicAllocator` if the
+    /// (template parameter) `ALLOCATOR` is `bsl::allocator` (the default).
     map(BloombergLP::bslmf::MovableRef<map>            original,
         const typename type_identity<ALLOCATOR>::type& basicAllocator);
-        // Create a map having the same value as the specified 'original'
-        // object that uses the specified 'basicAllocator' to supply memory.
-        // The contents of 'original' are moved (in constant time) to the new
-        // map if 'basicAllocator == original.get_allocator()', and are move-
-        // inserted (in linear time) using 'basicAllocator' otherwise.
-        // 'original' is left in a valid but unspecified state.  Use a copy of
-        // 'original.key_comp()' to order the key-value pairs contained in this
-        // map.  This method requires that the (template parameter) types 'KEY'
-        // and 'VALUE' both be 'move-insertable' into this map (see
-        // {Requirements on 'KEY' and 'VALUE'}).  Note that a
-        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
-        // (template parameter) 'ALLOCATOR' is 'bsl::allocator' (the default).
 
+    /// Create a map, and insert each `value_type` object in the sequence
+    /// starting at the specified `first` element, and ending immediately
+    /// before the specified `last` element, ignoring those objects having a
+    /// key equivalent to that which appears earlier in the sequence.
+    /// Optionally specify a `comparator` used to order key-value pairs
+    /// contained in this object.  If `comparator` is not supplied, a
+    /// default-constructed object of the (template parameter) type
+    /// `COMPARATOR` is used.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is not supplied, a
+    /// default-constructed object of the (template parameter) type
+    /// `ALLOCATOR` is used.  If the type `ALLOCATOR` is `bsl::allocator`
+    /// (the default), then `basicAllocator`, if supplied, shall be
+    /// convertible to `bslma::Allocator *`.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` and `basicAllocator` is not supplied, the currently
+    /// installed default allocator is used.  If the sequence `first` to
+    /// `last` is ordered according to `comparator`, then this operation has
+    /// `O[N]` complexity, where `N` is the number of elements between
+    /// `first` and `last`; otherwise, this operation has `O[N * log(N)]`
+    /// complexity.  The (template parameter) type `INPUT_ITERATOR` shall
+    /// meet the requirements of an input iterator defined in the C++11
+    /// standard [input.iterators] providing access to values of a type
+    /// convertible to `value_type`, and `value_type` must be
+    /// `emplace-constructible` from `*i` into this map, where `i` is a
+    /// dereferenceable iterator in the range `[first .. last)` (see
+    /// {Requirements on `KEY` and `VALUE`}).  The behavior is undefined
+    /// unless `first` and `last` refer to a sequence of valid values where
+    /// `first` is at a position at or before `last`.
     template <class INPUT_ITERATOR>
     map(INPUT_ITERATOR    first,
         INPUT_ITERATOR    last,
@@ -344,75 +382,49 @@ class map {
     map(INPUT_ITERATOR    first,
         INPUT_ITERATOR    last,
         const ALLOCATOR&  basicAllocator);
-        // Create a map, and insert each 'value_type' object in the sequence
-        // starting at the specified 'first' element, and ending immediately
-        // before the specified 'last' element, ignoring those objects having a
-        // key equivalent to that which appears earlier in the sequence.
-        // Optionally specify a 'comparator' used to order key-value pairs
-        // contained in this object.  If 'comparator' is not supplied, a
-        // default-constructed object of the (template parameter) type
-        // 'COMPARATOR' is used.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is not supplied, a
-        // default-constructed object of the (template parameter) type
-        // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
-        // (the default), then 'basicAllocator', if supplied, shall be
-        // convertible to 'bslma::Allocator *'.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator is used.  If the sequence 'first' to
-        // 'last' is ordered according to 'comparator', then this operation has
-        // 'O[N]' complexity, where 'N' is the number of elements between
-        // 'first' and 'last'; otherwise, this operation has 'O[N * log(N)]'
-        // complexity.  The (template parameter) type 'INPUT_ITERATOR' shall
-        // meet the requirements of an input iterator defined in the C++11
-        // standard [input.iterators] providing access to values of a type
-        // convertible to 'value_type', and 'value_type' must be
-        // 'emplace-constructible' from '*i' into this map, where 'i' is a
-        // dereferenceable iterator in the range '[first .. last)' (see
-        // {Requirements on 'KEY' and 'VALUE'}).  The behavior is undefined
-        // unless 'first' and 'last' refer to a sequence of valid values where
-        // 'first' is at a position at or before 'last'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Create a map and insert each `value_type` object in the specified
+    /// `values` initializer list, ignoring those objects having a key
+    /// equivalent to that which appears earlier in the list.  Optionally
+    /// specify a `comparator` used to order keys contained in this object.
+    /// If `comparator` is not supplied, a default-constructed object of the
+    /// (template parameter) type `COMPARATOR` is used.  Optionally specify
+    /// a `basicAllocator` used to supply memory.  If `basicAllocator` is
+    /// not supplied, a default-constructed object of the (template
+    /// parameter) type `ALLOCATOR` is used.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` (the default), then `basicAllocator`, if supplied,
+    /// shall be convertible to `bslma::Allocator *`.  If the type
+    /// `ALLOCATOR` is `bsl::allocator` and `basicAllocator` is not
+    /// supplied, the currently installed default allocator is used.  If
+    /// `values` is ordered according to `comparator`, then this operation
+    /// has `O[N]` complexity, where `N` is the number of elements in
+    /// `values`; otherwise, this operation has `O[N * log(N)]` complexity.
+    /// This method requires that the (template parameter) types `KEY` and
+    /// `VALUE` both be `copy-insertable` into this map (see {Requirements
+    /// on `KEY` and `VALUE`}).
     map(std::initializer_list<value_type> values,
         const COMPARATOR&                 comparator     = COMPARATOR(),
         const ALLOCATOR&                  basicAllocator = ALLOCATOR());
     map(std::initializer_list<value_type> values,
         const ALLOCATOR&                  basicAllocator);
-        // Create a map and insert each 'value_type' object in the specified
-        // 'values' initializer list, ignoring those objects having a key
-        // equivalent to that which appears earlier in the list.  Optionally
-        // specify a 'comparator' used to order keys contained in this object.
-        // If 'comparator' is not supplied, a default-constructed object of the
-        // (template parameter) type 'COMPARATOR' is used.  Optionally specify
-        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-        // not supplied, a default-constructed object of the (template
-        // parameter) type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' (the default), then 'basicAllocator', if supplied,
-        // shall be convertible to 'bslma::Allocator *'.  If the type
-        // 'ALLOCATOR' is 'bsl::allocator' and 'basicAllocator' is not
-        // supplied, the currently installed default allocator is used.  If
-        // 'values' is ordered according to 'comparator', then this operation
-        // has 'O[N]' complexity, where 'N' is the number of elements in
-        // 'values'; otherwise, this operation has 'O[N * log(N)]' complexity.
-        // This method requires that the (template parameter) types 'KEY' and
-        // 'VALUE' both be 'copy-insertable' into this map (see {Requirements
-        // on 'KEY' and 'VALUE'}).
 #endif
 
+    /// Destroy this object.
     ~map();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value and comparator of the specified
+    /// `rhs` object, propagate to this object the allocator of `rhs` if the
+    /// `ALLOCATOR` type has trait `propagate_on_container_copy_assignment`,
+    /// and return a reference providing modifiable access to this object.
+    /// If an exception is thrown, `*this` is left in a valid but
+    /// unspecified state.  This method requires that the (template
+    /// parameter) types `KEY` and `VALUE` both be `copy-assignable` and
+    /// `copy-insertable` into this map (see {Requirements on `KEY` and
+    /// `VALUE`}).
     map& operator=(const map& rhs);
-        // Assign to this object the value and comparator of the specified
-        // 'rhs' object, propagate to this object the allocator of 'rhs' if the
-        // 'ALLOCATOR' type has trait 'propagate_on_container_copy_assignment',
-        // and return a reference providing modifiable access to this object.
-        // If an exception is thrown, '*this' is left in a valid but
-        // unspecified state.  This method requires that the (template
-        // parameter) types 'KEY' and 'VALUE' both be 'copy-assignable' and
-        // 'copy-insertable' into this map (see {Requirements on 'KEY' and
-        // 'VALUE'}).
 
     map& operator=(BloombergLP::bslmf::MovableRef<map> rhs)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
@@ -434,93 +446,93 @@ class map {
         // {Requirements on 'KEY' and 'VALUE'}).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Assign to this object the value resulting from first clearing this
+    /// map and then inserting each `value_type` object in the specified
+    /// `values` initializer list, ignoring those objects having a key
+    /// equivalent to that which appears earlier in the list; return a
+    /// reference providing modifiable access to this object.  This method
+    /// requires that the (template parameter) types `KEY` and `VALUE` both
+    /// be `copy-insertable` into this map (see {Requirements on `KEY` and
+    /// `VALUE`}).
     map& operator=(std::initializer_list<value_type> values);
-        // Assign to this object the value resulting from first clearing this
-        // map and then inserting each 'value_type' object in the specified
-        // 'values' initializer list, ignoring those objects having a key
-        // equivalent to that which appears earlier in the list; return a
-        // reference providing modifiable access to this object.  This method
-        // requires that the (template parameter) types 'KEY' and 'VALUE' both
-        // be 'copy-insertable' into this map (see {Requirements on 'KEY' and
-        // 'VALUE'}).
 #endif
 
+    /// Return a reference providing modifiable access to the mapped-value
+    /// associated with the specified `key`; if this `map` does not already
+    /// contain a `value_type` object having an equivalent key, first insert
+    /// a new `value_type` object having `key` and a default-constructed
+    /// `VALUE` object, and return a reference to the newly mapped (default)
+    /// value.  This method requires that the (template parameter) type
+    /// `KEY` be `copy-insertable` into this map and the (template
+    /// parameter) type `VALUE` be `default-insertable` into this map (see
+    /// {Requirements on `KEY` and `VALUE`}).
     typename add_lvalue_reference<VALUE>::type operator[](const key_type& key);
-        // Return a reference providing modifiable access to the mapped-value
-        // associated with the specified 'key'; if this 'map' does not already
-        // contain a 'value_type' object having an equivalent key, first insert
-        // a new 'value_type' object having 'key' and a default-constructed
-        // 'VALUE' object, and return a reference to the newly mapped (default)
-        // value.  This method requires that the (template parameter) type
-        // 'KEY' be 'copy-insertable' into this map and the (template
-        // parameter) type 'VALUE' be 'default-insertable' into this map (see
-        // {Requirements on 'KEY' and 'VALUE'}).
 
+    /// Return a reference providing modifiable access to the mapped-value
+    /// associated with the specified `key`; if this `map` does not already
+    /// contain a `value_type` object having an equivalent key, first insert
+    /// a new `value_type` object having the move-inserted `key` and a
+    /// default-constructed `VALUE` object, and return a reference to the
+    /// newly mapped (default) value.  This method requires that the
+    /// (template parameter) type `KEY` be `move-insertable` into this map
+    /// and the (template parameter) type `VALUE` be `default-insertable`
+    /// into this map (see {Requirements on `KEY` and `VALUE`}).
     typename add_lvalue_reference<VALUE>::type operator[](
                                  BloombergLP::bslmf::MovableRef<key_type> key);
-        // Return a reference providing modifiable access to the mapped-value
-        // associated with the specified 'key'; if this 'map' does not already
-        // contain a 'value_type' object having an equivalent key, first insert
-        // a new 'value_type' object having the move-inserted 'key' and a
-        // default-constructed 'VALUE' object, and return a reference to the
-        // newly mapped (default) value.  This method requires that the
-        // (template parameter) type 'KEY' be 'move-insertable' into this map
-        // and the (template parameter) type 'VALUE' be 'default-insertable'
-        // into this map (see {Requirements on 'KEY' and 'VALUE'}).
 
+    /// Return a reference providing modifiable access to the mapped-value
+    /// associated with the specified `key`, if such an entry exists;
+    /// otherwise, throw a `std::out_of_range` exception.  Note that this
+    /// method may also throw a different kind of exception if the
+    /// (user-supplied) comparator throws.
     typename add_lvalue_reference<VALUE>::type at(const key_type& key);
-        // Return a reference providing modifiable access to the mapped-value
-        // associated with the specified 'key', if such an entry exists;
-        // otherwise, throw a 'std::out_of_range' exception.  Note that this
-        // method may also throw a different kind of exception if the
-        // (user-supplied) comparator throws.
 
+    /// Return an iterator providing modifiable access to the first
+    /// `value_type` object in the ordered sequence of `value_type` objects
+    /// maintained by this map, or the `end` iterator if this map is empty.
     iterator begin() BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing modifiable access to the first
-        // 'value_type' object in the ordered sequence of 'value_type' objects
-        // maintained by this map, or the 'end' iterator if this map is empty.
 
+    /// Return an iterator providing modifiable access to the past-the-end
+    /// element in the ordered sequence of `value_type` objects maintained
+    /// by this map.
     iterator end() BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing modifiable access to the past-the-end
-        // element in the ordered sequence of 'value_type' objects maintained
-        // by this map.
 
+    /// Return a reverse iterator providing modifiable access to the last
+    /// `value_type` object in the ordered sequence of `value_type` objects
+    /// maintained by this map, or `rend` if this map is empty.
     reverse_iterator rbegin() BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing modifiable access to the last
-        // 'value_type' object in the ordered sequence of 'value_type' objects
-        // maintained by this map, or 'rend' if this map is empty.
 
+    /// Return a reverse iterator providing modifiable access to the
+    /// prior-to-the-beginning element in the ordered sequence of
+    /// `value_type` objects maintained by this map.
     reverse_iterator rend() BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing modifiable access to the
-        // prior-to-the-beginning element in the ordered sequence of
-        // 'value_type' objects maintained by this map.
 
+    /// Insert the specified `value` into this map if a key (the `first`
+    /// element) equivalent to that of `value` does not already exist in
+    /// this map; otherwise, if a `value_type` object whose key is
+    /// equivalent to that of `value` already exists in this map, this
+    /// method has no effect.  Return a pair whose `first` member is an
+    /// iterator referring to the (possibly newly inserted) `value_type`
+    /// object in this map whose key is equivalent to that of `value`, and
+    /// whose `second` member is `true` if a new value was inserted, and
+    /// `false` if the key was already present.  This method requires that
+    /// the (template parameter) types `KEY` and `VALUE` both be
+    /// `copy-insertable` into this map (see {Requirements on `KEY` and
+    /// `VALUE`}).
     pair<iterator, bool> insert(const value_type& value);
-        // Insert the specified 'value' into this map if a key (the 'first'
-        // element) equivalent to that of 'value' does not already exist in
-        // this map; otherwise, if a 'value_type' object whose key is
-        // equivalent to that of 'value' already exists in this map, this
-        // method has no effect.  Return a pair whose 'first' member is an
-        // iterator referring to the (possibly newly inserted) 'value_type'
-        // object in this map whose key is equivalent to that of 'value', and
-        // whose 'second' member is 'true' if a new value was inserted, and
-        // 'false' if the key was already present.  This method requires that
-        // the (template parameter) types 'KEY' and 'VALUE' both be
-        // 'copy-insertable' into this map (see {Requirements on 'KEY' and
-        // 'VALUE'}).
 
+    /// Insert into this map the specified `value` if a key (the `first`
+    /// element) equivalent to that of `value` does not already exist in
+    /// this map; otherwise, this method has no effect.  Return a pair whose
+    /// `first` member is an iterator referring to the (possibly newly
+    /// inserted) `value_type` object in this map whose key is equivalent to
+    /// that of `value`, and whose `second` member is `true` if a new value
+    /// was inserted and `false` if the key was already present.  This
+    /// method requires that the (template parameter) types `KEY` and
+    /// `VALUE` both be `move-insertable` into this map (see {Requirements
+    /// on `KEY` and `VALUE`}).
     pair<iterator, bool> insert(
                              BloombergLP::bslmf::MovableRef<value_type> value);
-        // Insert into this map the specified 'value' if a key (the 'first'
-        // element) equivalent to that of 'value' does not already exist in
-        // this map; otherwise, this method has no effect.  Return a pair whose
-        // 'first' member is an iterator referring to the (possibly newly
-        // inserted) 'value_type' object in this map whose key is equivalent to
-        // that of 'value', and whose 'second' member is 'true' if a new value
-        // was inserted and 'false' if the key was already present.  This
-        // method requires that the (template parameter) types 'KEY' and
-        // 'VALUE' both be 'move-insertable' into this map (see {Requirements
-        // on 'KEY' and 'VALUE'}).
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
@@ -530,25 +542,25 @@ class map {
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
                        pair<iterator, bool> >::type
 #else
+    /// Insert into this map a `value_type` object created from the
+    /// specified `value` if a key (the `first` element) equivalent to that
+    /// of such an object does not already exist in this map; otherwise,
+    /// this method has no effect (other than possibly creating a temporary
+    /// `value_type` object).  Return a pair whose `first` member is an
+    /// iterator referring to the (possibly newly inserted) `value_type`
+    /// object in this map whose key is equivalent to that of the object
+    /// created from `value`, and whose `second` member is `true` if a new
+    /// value was inserted and `false` if the key was already present.  This
+    /// method requires that the (template parameter) types `KEY` and
+    /// `VALUE` both be `move-insertable` into this map (see {Requirements
+    /// on `KEY` and `VALUE`}), and the `value_type` be constructible from
+    /// the (template parameter) `ALT_VALUE_TYPE`.
     template <class ALT_VALUE_TYPE>
     typename enable_if<std::is_constructible<value_type,
                                              ALT_VALUE_TYPE&&>::value,
                        pair<iterator, bool> >::type
 #endif
     insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
-        // Insert into this map a 'value_type' object created from the
-        // specified 'value' if a key (the 'first' element) equivalent to that
-        // of such an object does not already exist in this map; otherwise,
-        // this method has no effect (other than possibly creating a temporary
-        // 'value_type' object).  Return a pair whose 'first' member is an
-        // iterator referring to the (possibly newly inserted) 'value_type'
-        // object in this map whose key is equivalent to that of the object
-        // created from 'value', and whose 'second' member is 'true' if a new
-        // value was inserted and 'false' if the key was already present.  This
-        // method requires that the (template parameter) types 'KEY' and
-        // 'VALUE' both be 'move-insertable' into this map (see {Requirements
-        // on 'KEY' and 'VALUE'}), and the 'value_type' be constructible from
-        // the (template parameter) 'ALT_VALUE_TYPE'.
     {
         // This function has to be implemented inline, in violation of BDE
         // convention, as the MSVC compiler cannot match the out-of-class
@@ -557,38 +569,38 @@ class map {
         return emplace(BSLS_COMPILERFEATURES_FORWARD(ALT_VALUE_TYPE, value));
     }
 
+    /// Insert the specified `value` into this map (in amortized constant
+    /// time if the specified `hint` is a valid immediate successor to the
+    /// key of `value`) if a key (the `first` element) equivalent to that of
+    /// `value` does not already exist in this map; otherwise, if a
+    /// `value_type` object whose key is equivalent to that of `value`
+    /// already exists in this map, this method has no effect.  Return an
+    /// iterator referring to the (possibly newly inserted) `value_type`
+    /// object in this map whose key is equivalent to that of `value`.  If
+    /// `hint` is not a valid immediate successor to the key of `value`,
+    /// this operation has `O[log(N)]` complexity, where `N` is the size of
+    /// this map.  This method requires that the (template parameter) types
+    /// `KEY` and `VALUE` both be `copy-insertable` into this map (see
+    /// {Requirements on `KEY` and `VALUE`}).  The behavior is undefined
+    /// unless `hint` is an iterator in the range `[begin() .. end()]` (both
+    /// endpoints included).
     iterator insert(const_iterator hint, const value_type& value);
-        // Insert the specified 'value' into this map (in amortized constant
-        // time if the specified 'hint' is a valid immediate successor to the
-        // key of 'value') if a key (the 'first' element) equivalent to that of
-        // 'value' does not already exist in this map; otherwise, if a
-        // 'value_type' object whose key is equivalent to that of 'value'
-        // already exists in this map, this method has no effect.  Return an
-        // iterator referring to the (possibly newly inserted) 'value_type'
-        // object in this map whose key is equivalent to that of 'value'.  If
-        // 'hint' is not a valid immediate successor to the key of 'value',
-        // this operation has 'O[log(N)]' complexity, where 'N' is the size of
-        // this map.  This method requires that the (template parameter) types
-        // 'KEY' and 'VALUE' both be 'copy-insertable' into this map (see
-        // {Requirements on 'KEY' and 'VALUE'}).  The behavior is undefined
-        // unless 'hint' is an iterator in the range '[begin() .. end()]' (both
-        // endpoints included).
 
+    /// Insert into this map the specified `value` (in amortized constant
+    /// time if the specified `hint` is a valid immediate successor to
+    /// `value`) if a key (the `first` element) equivalent to that of
+    /// `value` does not already exist in this map; otherwise, this method
+    /// has no effect.  Return an iterator referring to the (possibly newly
+    /// inserted) `value_type` object in this map whose key is equivalent to
+    /// that of `value`.  If `hint` is not a valid immediate successor to
+    /// `value`, this operation has `O[log(N)]` complexity, where `N` is the
+    /// size of this map.  This method requires that the (template
+    /// parameter) types `KEY` and `VALUE` both be `move-insertable` into
+    /// this map (see {Requirements on `KEY` and `VALUE`}).  The behavior is
+    /// undefined unless `hint` is an iterator in the range
+    /// `[begin() .. end()]` (both endpoints included).
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
-        // Insert into this map the specified 'value' (in amortized constant
-        // time if the specified 'hint' is a valid immediate successor to
-        // 'value') if a key (the 'first' element) equivalent to that of
-        // 'value' does not already exist in this map; otherwise, this method
-        // has no effect.  Return an iterator referring to the (possibly newly
-        // inserted) 'value_type' object in this map whose key is equivalent to
-        // that of 'value'.  If 'hint' is not a valid immediate successor to
-        // 'value', this operation has 'O[log(N)]' complexity, where 'N' is the
-        // size of this map.  This method requires that the (template
-        // parameter) types 'KEY' and 'VALUE' both be 'move-insertable' into
-        // this map (see {Requirements on 'KEY' and 'VALUE'}).  The behavior is
-        // undefined unless 'hint' is an iterator in the range
-        // '[begin() .. end()]' (both endpoints included).
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ALT_VALUE_TYPE>
@@ -598,6 +610,23 @@ class map {
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
                        iterator>::type
 #else
+    /// Insert into this map a `value_type` object created from the
+    /// specified `value` (in amortized constant time if the specified
+    /// `hint` is a valid immediate successor to the object created from
+    /// `value`) if a key (the `first` element) equivalent to such an object
+    /// does not already exist in this map; otherwise, this method has no
+    /// effect (other than possibly creating a temporary `value_type`
+    /// object).  Return an iterator referring to the (possibly newly
+    /// inserted) `value_type` object in this map whose key is equivalent to
+    /// that of the object created from `value`.  If `hint` is not a valid
+    /// immediate successor to the object created from `value`, this
+    /// operation has `O[log(N)]` complexity, where `N` is the size of this
+    /// map.  This method requires that the (template parameter) types `KEY`
+    /// and `VALUE` both be `move-insertable` into this map (see
+    /// {Requirements on `KEY` and `VALUE`}), and the `value_type` be
+    /// constructible from the (template parameter) `ALT_VALUE_TYPE`.  The
+    /// behavior is undefined unless `hint` is an iterator in the range
+    /// `[begin() .. end()]` (both endpoints included).
     template <class ALT_VALUE_TYPE>
     typename enable_if<std::is_constructible<value_type,
                                              ALT_VALUE_TYPE&&>::value,
@@ -605,23 +634,6 @@ class map {
 #endif
     insert(const_iterator                                    hint,
            BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
-        // Insert into this map a 'value_type' object created from the
-        // specified 'value' (in amortized constant time if the specified
-        // 'hint' is a valid immediate successor to the object created from
-        // 'value') if a key (the 'first' element) equivalent to such an object
-        // does not already exist in this map; otherwise, this method has no
-        // effect (other than possibly creating a temporary 'value_type'
-        // object).  Return an iterator referring to the (possibly newly
-        // inserted) 'value_type' object in this map whose key is equivalent to
-        // that of the object created from 'value'.  If 'hint' is not a valid
-        // immediate successor to the object created from 'value', this
-        // operation has 'O[log(N)]' complexity, where 'N' is the size of this
-        // map.  This method requires that the (template parameter) types 'KEY'
-        // and 'VALUE' both be 'move-insertable' into this map (see
-        // {Requirements on 'KEY' and 'VALUE'}), and the 'value_type' be
-        // constructible from the (template parameter) 'ALT_VALUE_TYPE'.  The
-        // behavior is undefined unless 'hint' is an iterator in the range
-        // '[begin() .. end()]' (both endpoints included).
     {
         // This function has to be implemented inline, in violation of BDE
         // convention, as the MSVC compiler cannot match the out-of-class
@@ -632,21 +644,21 @@ class map {
                          BSLS_COMPILERFEATURES_FORWARD(ALT_VALUE_TYPE, value));
     }
 
+    /// Insert into this map the value of each `value_type` object in the
+    /// range starting at the specified `first` iterator and ending
+    /// immediately before the specified `last` iterator, if a key
+    /// equivalent to that of the object is not already contained in this
+    /// map.  The (template parameter) type `INPUT_ITERATOR` shall meet the
+    /// requirements of an input iterator defined in the C++11 standard
+    /// [input.iterators] providing access to values of a type convertible
+    /// to `value_type`, and `value_type` must be `emplace-constructible`
+    /// from `*i` into this map, where `i` is a dereferenceable iterator in
+    /// the range `[first .. last)` (see {Requirements on `KEY` and
+    /// `VALUE`}).  The behavior is undefined unless `first` and `last`
+    /// refer to a sequence of valid values where `first` is at a position
+    /// at or before `last`.
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
-        // Insert into this map the value of each 'value_type' object in the
-        // range starting at the specified 'first' iterator and ending
-        // immediately before the specified 'last' iterator, if a key
-        // equivalent to that of the object is not already contained in this
-        // map.  The (template parameter) type 'INPUT_ITERATOR' shall meet the
-        // requirements of an input iterator defined in the C++11 standard
-        // [input.iterators] providing access to values of a type convertible
-        // to 'value_type', and 'value_type' must be 'emplace-constructible'
-        // from '*i' into this map, where 'i' is a dereferenceable iterator in
-        // the range '[first .. last)' (see {Requirements on 'KEY' and
-        // 'VALUE'}).  The behavior is undefined unless 'first' and 'last'
-        // refer to a sequence of valid values where 'first' is at a position
-        // at or before 'last'.
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     void insert(const_iterator first, const_iterator last);
@@ -664,13 +676,13 @@ class map {
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Insert into this map the value of each `value_type` object in the
+    /// specified `values` initializer list if a key equivalent to that of
+    /// the object is not already contained in this map.  This method
+    /// requires that the (template parameter) types `KEY` and `VALUE` both
+    /// be `copy-insertable` into this map (see {Requirements on `KEY` and
+    /// `VALUE`}).
     void insert(std::initializer_list<value_type> values);
-        // Insert into this map the value of each 'value_type' object in the
-        // specified 'values' initializer list if a key equivalent to that of
-        // the object is not already contained in this map.  This method
-        // requires that the (template parameter) types 'KEY' and 'VALUE' both
-        // be 'copy-insertable' into this map (see {Requirements on 'KEY' and
-        // 'VALUE'}).
 #endif
 
 // {{{ BEGIN GENERATED CODE
@@ -1028,34 +1040,34 @@ class map {
 // }}} END GENERATED CODE
 #endif
 
+    /// Remove from this map the `value_type` object at the specified
+    /// `position`, and return an iterator referring to the element
+    /// immediately following the removed element, or to the past-the-end
+    /// position if the removed element was the last element in the sequence
+    /// of elements maintained by this map.   This method invalidates only
+    /// iterators and references to the removed element and previously saved
+    /// values of the `end()` iterator.  The behavior is undefined unless
+    /// `position` refers to a `value_type` object in this map.
     iterator erase(const_iterator position);
     iterator erase(iterator position);
-        // Remove from this map the 'value_type' object at the specified
-        // 'position', and return an iterator referring to the element
-        // immediately following the removed element, or to the past-the-end
-        // position if the removed element was the last element in the sequence
-        // of elements maintained by this map.   This method invalidates only
-        // iterators and references to the removed element and previously saved
-        // values of the 'end()' iterator.  The behavior is undefined unless
-        // 'position' refers to a 'value_type' object in this map.
 
+    /// Remove from this map the `value_type` object whose key is equivalent
+    /// the specified `key`, if such an entry exists, and return 1;
+    /// otherwise, if there is no `value_type` object having an equivalent
+    /// key, return 0 with no other effect.   This method invalidates only
+    /// iterators and references to the removed element and previously saved
+    /// values of the `end()` iterator.
     size_type erase(const key_type& key);
-        // Remove from this map the 'value_type' object whose key is equivalent
-        // the specified 'key', if such an entry exists, and return 1;
-        // otherwise, if there is no 'value_type' object having an equivalent
-        // key, return 0 with no other effect.   This method invalidates only
-        // iterators and references to the removed element and previously saved
-        // values of the 'end()' iterator.
 
+    /// Remove from this map the `value_type` objects starting at the
+    /// specified `first` position up to, but including the specified `last`
+    /// position, and return `last`.   This method invalidates only
+    /// iterators and references to the removed element and previously saved
+    /// values of the `end()` iterator.  The behavior is undefined unless
+    /// `first` and `last` either refer to elements in this map or are the
+    /// `end` iterator, and the `first` position is at or before the `last`
+    /// position in the ordered sequence provided by this container.
     iterator erase(const_iterator first, const_iterator last);
-        // Remove from this map the 'value_type' objects starting at the
-        // specified 'first' position up to, but including the specified 'last'
-        // position, and return 'last'.   This method invalidates only
-        // iterators and references to the removed element and previously saved
-        // values of the 'end()' iterator.  The behavior is undefined unless
-        // 'first' and 'last' either refer to elements in this map or are the
-        // 'end' iterator, and the 'first' position is at or before the 'last'
-        // position in the ordered sequence provided by this container.
 
     void swap(map& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                  AllocatorTraits::is_always_equal::value &&
@@ -3475,130 +3487,130 @@ class map {
 // }}} END GENERATED CODE
 #endif
 
+    /// Remove all entries from this map.  Note that the map is empty after
+    /// this call, but allocated memory may be retained for future use.
     void clear() BSLS_KEYWORD_NOEXCEPT;
-        // Remove all entries from this map.  Note that the map is empty after
-        // this call, but allocated memory may be retained for future use.
 
     // Turn off complaints about necessarily class-defined methods.
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -CD01
 
+    /// Return an iterator providing modifiable access to the `value_type`
+    /// object in this map whose key is equivalent to the specified `key`,
+    /// if such an entry exists, and the past-the-end (`end`) iterator
+    /// otherwise.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     iterator find(const key_type& key)
-        // Return an iterator providing modifiable access to the 'value_type'
-        // object in this map whose key is equivalent to the specified 'key',
-        // if such an entry exists, and the past-the-end ('end') iterator
-        // otherwise.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::find(
                                              d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing modifiable access to the `value_type`
+    /// object in this map whose key is equivalent to the specified `key`,
+    /// if such an entry exists, and the past-the-end (`end`) iterator
+    /// otherwise.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         iterator>::type
     find(const LOOKUP_KEY& key)
-        // Return an iterator providing modifiable access to the 'value_type'
-        // object in this map whose key is equivalent to the specified 'key',
-        // if such an entry exists, and the past-the-end ('end') iterator
-        // otherwise.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::find(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing modifiable access to the first (i.e.,
+    /// ordered least) `value_type` object in this map whose key is
+    /// greater-than or equal-to the specified `key`, and the past-the-end
+    /// iterator if this map does not contain a `value_type` object whose
+    /// key is greater-than or equal-to `key`.  Note that this function
+    /// returns the *first* position before which a `value_type` object
+    /// having an equivalent key could be inserted into the ordered sequence
+    /// maintained by this map, while preserving its ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     iterator lower_bound(const key_type& key)
-        // Return an iterator providing modifiable access to the first (i.e.,
-        // ordered least) 'value_type' object in this map whose key is
-        // greater-than or equal-to the specified 'key', and the past-the-end
-        // iterator if this map does not contain a 'value_type' object whose
-        // key is greater-than or equal-to 'key'.  Note that this function
-        // returns the *first* position before which a 'value_type' object
-        // having an equivalent key could be inserted into the ordered sequence
-        // maintained by this map, while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing modifiable access to the first (i.e.,
+    /// ordered least) `value_type` object in this map whose key is
+    /// greater-than or equal-to the specified `key`, and the past-the-end
+    /// iterator if this map does not contain a `value_type` object whose
+    /// key is greater-than or equal-to `key`.  Note that this function
+    /// returns the *first* position before which a `value_type` object
+    /// having an equivalent key could be inserted into the ordered sequence
+    /// maintained by this map, while preserving its ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         iterator>::type
     lower_bound(const LOOKUP_KEY& key)
-        // Return an iterator providing modifiable access to the first (i.e.,
-        // ordered least) 'value_type' object in this map whose key is
-        // greater-than or equal-to the specified 'key', and the past-the-end
-        // iterator if this map does not contain a 'value_type' object whose
-        // key is greater-than or equal-to 'key'.  Note that this function
-        // returns the *first* position before which a 'value_type' object
-        // having an equivalent key could be inserted into the ordered sequence
-        // maintained by this map, while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing modifiable access to the first (i.e.,
+    /// ordered least) `value_type` object in this map whose key is greater
+    /// than the specified `key`, and the past-the-end iterator if this map
+    /// does not contain a `value_type` object whose key is greater-than
+    /// `key`.  Note that this function returns the *last* position before
+    /// which a `value_type` object having an equivalent key could be
+    /// inserted into the ordered sequence maintained by this map, while
+    /// preserving its ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     iterator upper_bound(const key_type& key)
-        // Return an iterator providing modifiable access to the first (i.e.,
-        // ordered least) 'value_type' object in this map whose key is greater
-        // than the specified 'key', and the past-the-end iterator if this map
-        // does not contain a 'value_type' object whose key is greater-than
-        // 'key'.  Note that this function returns the *last* position before
-        // which a 'value_type' object having an equivalent key could be
-        // inserted into the ordered sequence maintained by this map, while
-        // preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing modifiable access to the first (i.e.,
+    /// ordered least) `value_type` object in this map whose key is greater
+    /// than the specified `key`, and the past-the-end iterator if this map
+    /// does not contain a `value_type` object whose key is greater-than
+    /// `key`.  Note that this function returns the *last* position before
+    /// which a `value_type` object having an equivalent key could be
+    /// inserted into the ordered sequence maintained by this map, while
+    /// preserving its ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         iterator>::type
     upper_bound(const LOOKUP_KEY& key)
-        // Return an iterator providing modifiable access to the first (i.e.,
-        // ordered least) 'value_type' object in this map whose key is greater
-        // than the specified 'key', and the past-the-end iterator if this map
-        // does not contain a 'value_type' object whose key is greater-than
-        // 'key'.  Note that this function returns the *last* position before
-        // which a 'value_type' object having an equivalent key could be
-        // inserted into the ordered sequence maintained by this map, while
-        // preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return a pair of iterators providing modifiable access to the
+    /// sequence of `value_type` objects in this map whose keys are
+    /// equivalent to the specified `key`, where the first iterator is
+    /// positioned at the start of the sequence and the second is positioned
+    /// one past the end of the sequence.  The first returned iterator will
+    /// be `lower_bound(key)`, the second returned iterator will be
+    /// `upper_bound(key)`, and, if this map contains no `value_type`
+    /// objects with an equivalent key, then the two returned iterators will
+    /// have the same value.  Note that since a map maintains unique keys,
+    /// the range will contain at most one element.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     pair<iterator, iterator> equal_range(const key_type& key)
-        // Return a pair of iterators providing modifiable access to the
-        // sequence of 'value_type' objects in this map whose keys are
-        // equivalent to the specified 'key', where the first iterator is
-        // positioned at the start of the sequence and the second is positioned
-        // one past the end of the sequence.  The first returned iterator will
-        // be 'lower_bound(key)', the second returned iterator will be
-        // 'upper_bound(key)', and, if this map contains no 'value_type'
-        // objects with an equivalent key, then the two returned iterators will
-        // have the same value.  Note that since a map maintains unique keys,
-        // the range will contain at most one element.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         iterator startIt = lower_bound(key);
         iterator endIt   = startIt;
@@ -3608,27 +3620,27 @@ class map {
         return pair<iterator, iterator>(startIt, endIt);
     }
 
+    /// Return a pair of iterators providing modifiable access to the
+    /// sequence of `value_type` objects in this map whose keys are
+    /// equivalent to the specified `key`, where the first iterator is
+    /// positioned at the start of the sequence and the second is positioned
+    /// one past the end of the sequence.  The first returned iterator will
+    /// be `lower_bound(key)`, the second returned iterator will be
+    /// `upper_bound(key)`, and, if this map contains no `value_type`
+    /// objects with an equivalent key, then the two returned iterators will
+    /// have the same value.  Note that although a map maintains unique
+    /// keys, the range may contain more than one  element, because a
+    /// transparent comparator may have been supplied that provides a
+    /// different (but compatible) partitioning of keys for `LOOKUP_KEY` as
+    /// the comparisons used to order the keys in the map.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         pair<iterator, iterator> >::type
     equal_range(const LOOKUP_KEY& key)
-        // Return a pair of iterators providing modifiable access to the
-        // sequence of 'value_type' objects in this map whose keys are
-        // equivalent to the specified 'key', where the first iterator is
-        // positioned at the start of the sequence and the second is positioned
-        // one past the end of the sequence.  The first returned iterator will
-        // be 'lower_bound(key)', the second returned iterator will be
-        // 'upper_bound(key)', and, if this map contains no 'value_type'
-        // objects with an equivalent key, then the two returned iterators will
-        // have the same value.  Note that although a map maintains unique
-        // keys, the range may contain more than one  element, because a
-        // transparent comparator may have been supplied that provides a
-        // different (but compatible) partitioning of keys for 'LOOKUP_KEY' as
-        // the comparisons used to order the keys in the map.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         iterator startIt = lower_bound(key);
         iterator endIt   = startIt;
@@ -3650,160 +3662,161 @@ class map {
     // BDE_VERIFY pragma: pop
 
     // ACCESSORS
+
+    /// Return (a copy of) the allocator used for memory allocation by this
+    /// map.
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
-        // Return (a copy of) the allocator used for memory allocation by this
-        // map.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// `value_type` object in the ordered sequence of `value_type` objects
+    /// maintained by this map, or the `end` iterator if this map is empty.
     const_iterator begin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object in the ordered sequence of 'value_type' objects
-        // maintained by this map, or the 'end' iterator if this map is empty.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end element in the ordered sequence of `value_type`
+    /// objects maintained by this map.
     const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element in the ordered sequence of 'value_type'
-        // objects maintained by this map.
 
+    /// Return a reverse iterator providing non-modifiable access to the
+    /// last `value_type` object in the ordered sequence of `value_type`
+    /// objects maintained by this map, or `rend` if this map is empty.
     const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing non-modifiable access to the
-        // last 'value_type' object in the ordered sequence of 'value_type'
-        // objects maintained by this map, or 'rend' if this map is empty.
 
+    /// Return a reverse iterator providing non-modifiable access to the
+    /// prior-to-the-beginning element in the ordered sequence of
+    /// `value_type` objects maintained by this map.
     const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing non-modifiable access to the
-        // prior-to-the-beginning element in the ordered sequence of
-        // 'value_type' objects maintained by this map.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// `value_type` object in the ordered sequence of `value_type` objects
+    /// maintained by this map, or the `cend` iterator if this map is empty.
     const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object in the ordered sequence of 'value_type' objects
-        // maintained by this map, or the 'cend' iterator if this map is empty.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end element in the ordered sequence of `value_type` objects
+    /// maintained by this map.
     const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element in the ordered sequence of 'value_type' objects
-        // maintained by this map.
 
+    /// Return a reverse iterator providing non-modifiable access to the
+    /// last `value_type` object in the ordered sequence of `value_type`
+    /// objects maintained by this map, or `crend` if this map is empty.
     const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing non-modifiable access to the
-        // last 'value_type' object in the ordered sequence of 'value_type'
-        // objects maintained by this map, or 'crend' if this map is empty.
 
+    /// Return a reverse iterator providing non-modifiable access to the
+    /// prior-to-the-beginning element in the ordered sequence of
+    /// `value_type` objects maintained by this map.
     const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing non-modifiable access to the
-        // prior-to-the-beginning element in the ordered sequence of
-        // 'value_type' objects maintained by this map.
 
+    /// Return `true` if this map contains an element whose key is
+    /// equivalent to the specified `key`.
     bool contains(const key_type &key) const;
-        // Return 'true' if this map contains an element whose key is
-        // equivalent to the specified 'key'.
 
+    /// Return `true` if this map contains an element whose key is
+    /// equivalent to the specified `key`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         bool>::type
     contains(const LOOKUP_KEY& key) const
-        // Return 'true' if this map contains an element whose key is
-        // equivalent to the specified 'key'.
-        //
-        // Note: implemented inline due to Sun CC compilation error
     {
         return find(key) != end();
     }
 
+    /// Return `true` if this map contains no elements, and `false`
+    /// otherwise.
     bool empty() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if this map contains no elements, and 'false'
-        // otherwise.
 
+    /// Return the number of elements in this map.
     size_type size() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the number of elements in this map.
 
+    /// Return a theoretical upper bound on the largest number of elements
+    /// that this map could possibly hold.  Note that there is no guarantee
+    /// that the map can successfully grow to the returned size, or even
+    /// close to that size without running out of resources.
     size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a theoretical upper bound on the largest number of elements
-        // that this map could possibly hold.  Note that there is no guarantee
-        // that the map can successfully grow to the returned size, or even
-        // close to that size without running out of resources.
 
+    /// Return a reference providing non-modifiable access to the
+    /// mapped-value associated with a key that is equivalent to the
+    /// specified `key`, if such an entry exists; otherwise, throw a
+    /// `std::out_of_range` exception.  Note that this method may also throw
+    /// a different kind of exception if the (user-supplied) comparator
+    /// throws.
     typename add_lvalue_reference<const VALUE>::type at(const key_type& key)
                                                                          const;
-        // Return a reference providing non-modifiable access to the
-        // mapped-value associated with a key that is equivalent to the
-        // specified 'key', if such an entry exists; otherwise, throw a
-        // 'std::out_of_range' exception.  Note that this method may also throw
-        // a different kind of exception if the (user-supplied) comparator
-        // throws.
 
+    /// Return the key-comparison functor (or function pointer) used by this
+    /// map; if a comparator was supplied at construction, return its value;
+    /// otherwise, return a default constructed `key_compare` object.  Note
+    /// that this comparator compares objects of type `KEY`, which is the
+    /// key part of the `value_type` objects contained in this map.
     key_compare key_comp() const;
-        // Return the key-comparison functor (or function pointer) used by this
-        // map; if a comparator was supplied at construction, return its value;
-        // otherwise, return a default constructed 'key_compare' object.  Note
-        // that this comparator compares objects of type 'KEY', which is the
-        // key part of the 'value_type' objects contained in this map.
 
+    /// Return a functor for comparing two `value_type` objects by comparing
+    /// their respective keys using `key_comp()`.   Note that this
+    /// comparator compares objects of type `value_type` (i.e.,
+    /// `bsl::pair<const KEY, VALUE>`).
     value_compare value_comp() const;
-        // Return a functor for comparing two 'value_type' objects by comparing
-        // their respective keys using 'key_comp()'.   Note that this
-        // comparator compares objects of type 'value_type' (i.e.,
-        // 'bsl::pair<const KEY, VALUE>').
 
     // Turn off complaints about necessarily class-defined methods.
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -CD01
 
+    /// Return an iterator providing non-modifiable access to the
+    /// `value_type` object in this map whose key is equivalent to the
+    /// specified `key`, if such an entry exists, and the past-the-end
+    /// (`end`) iterator otherwise.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     const_iterator find(const key_type& key) const
-        // Return an iterator providing non-modifiable access to the
-        // 'value_type' object in this map whose key is equivalent to the
-        // specified 'key', if such an entry exists, and the past-the-end
-        // ('end') iterator otherwise.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return const_iterator(BloombergLP::bslalg::RbTreeUtil::find(
                                              d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing non-modifiable access to the
+    /// `value_type` object in this map whose key is equivalent to the
+    /// specified `key`, if such an entry exists, and the past-the-end
+    /// (`end`) iterator otherwise.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         const_iterator>::type
     find(const LOOKUP_KEY& key) const
-        // Return an iterator providing non-modifiable access to the
-        // 'value_type' object in this map whose key is equivalent to the
-        // specified 'key', if such an entry exists, and the past-the-end
-        // ('end') iterator otherwise.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return const_iterator(BloombergLP::bslalg::RbTreeUtil::find(
             d_tree, this->comparator(), key));
     }
 
+    /// Return the number of `value_type` objects within this map whose keys
+    /// are equivalent to the specified `key`.  Note that since a map
+    /// maintains unique keys, the returned value will be either 0 or 1.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     size_type count(const key_type& key) const
-        // Return the number of 'value_type' objects within this map whose keys
-        // are equivalent to the specified 'key'.  Note that since a map
-        // maintains unique keys, the returned value will be either 0 or 1.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return (find(key) != end()) ? 1 : 0;
     }
 
+    /// Return the number of `value_type` objects within this map whose keys
+    /// are equivalent to the specified `key`.  Note that although a map
+    /// maintains unique keys, the returned value can be other than 0 or 1,
+    /// because a transparent comparator may have been supplied that
+    /// provides a different (but compatible) partitioning of keys for
+    /// `LOOKUP_KEY` as the comparisons used to order the keys in the map.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         size_type>::type
     count(const LOOKUP_KEY& key) const
-        // Return the number of 'value_type' objects within this map whose keys
-        // are equivalent to the specified 'key'.  Note that although a map
-        // maintains unique keys, the returned value can be other than 0 or 1,
-        // because a transparent comparator may have been supplied that
-        // provides a different (but compatible) partitioning of keys for
-        // 'LOOKUP_KEY' as the comparisons used to order the keys in the map.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         int            count = 0;
         const_iterator it    = lower_bound(key);
@@ -3815,38 +3828,38 @@ class map {
         return count;
     }
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// (i.e., ordered least) `value_type` object in this map whose key is
+    /// greater-than or equal-to the specified `key`, and the past-the-end
+    /// iterator if this map does not contain a `value_type` object whose
+    /// key is greater-than or equal-to `key`.  Note that this function
+    /// returns the *first* position before which a `value_type` object
+    /// having an equivalent key could be inserted into the ordered sequence
+    /// maintained by this map, while preserving its ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     const_iterator lower_bound(const key_type& key) const
-        // Return an iterator providing non-modifiable access to the first
-        // (i.e., ordered least) 'value_type' object in this map whose key is
-        // greater-than or equal-to the specified 'key', and the past-the-end
-        // iterator if this map does not contain a 'value_type' object whose
-        // key is greater-than or equal-to 'key'.  Note that this function
-        // returns the *first* position before which a 'value_type' object
-        // having an equivalent key could be inserted into the ordered sequence
-        // maintained by this map, while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// (i.e., ordered least) `value_type` object in this map whose key is
+    /// greater-than or equal-to the specified `key`, and the past-the-end
+    /// iterator if this map does not contain a `value_type` object whose
+    /// key is greater-than or equal-to `key`.  Note that this function
+    /// returns the *first* position before which a `value_type` object
+    /// having an equivalent key could be inserted into the ordered sequence
+    /// maintained by this map, while preserving its ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         const_iterator>::type
     lower_bound(const LOOKUP_KEY& key) const
-        // Return an iterator providing non-modifiable access to the first
-        // (i.e., ordered least) 'value_type' object in this map whose key is
-        // greater-than or equal-to the specified 'key', and the past-the-end
-        // iterator if this map does not contain a 'value_type' object whose
-        // key is greater-than or equal-to 'key'.  Note that this function
-        // returns the *first* position before which a 'value_type' object
-        // having an equivalent key could be inserted into the ordered sequence
-        // maintained by this map, while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return const_iterator(
                 BloombergLP::bslalg::RbTreeUtil::lowerBound(d_tree,
@@ -3854,56 +3867,56 @@ class map {
                                                             key));
     }
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// (i.e., ordered least) `value_type` object in this map whose key is
+    /// greater than the specified `key`, and the past-the-end iterator if
+    /// this map does not contain a `value_type` object whose key is
+    /// greater-than `key`.  Note that this function returns the *last*
+    /// position before which a `value_type` object having an equivalent key
+    /// could be inserted into the ordered sequence maintained by this map,
+    /// while preserving its ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     const_iterator upper_bound(const key_type& key) const
-        // Return an iterator providing non-modifiable access to the first
-        // (i.e., ordered least) 'value_type' object in this map whose key is
-        // greater than the specified 'key', and the past-the-end iterator if
-        // this map does not contain a 'value_type' object whose key is
-        // greater-than 'key'.  Note that this function returns the *last*
-        // position before which a 'value_type' object having an equivalent key
-        // could be inserted into the ordered sequence maintained by this map,
-        // while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// (i.e., ordered least) `value_type` object in this map whose key is
+    /// greater than the specified `key`, and the past-the-end iterator if
+    /// this map does not contain a `value_type` object whose key is
+    /// greater-than `key`.  Note that this function returns the *last*
+    /// position before which a `value_type` object having an equivalent key
+    /// could be inserted into the ordered sequence maintained by this map,
+    /// while preserving its ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         const_iterator>::type
     upper_bound(const LOOKUP_KEY& key) const
-        // Return an iterator providing non-modifiable access to the first
-        // (i.e., ordered least) 'value_type' object in this map whose key is
-        // greater than the specified 'key', and the past-the-end iterator if
-        // this map does not contain a 'value_type' object whose key is
-        // greater-than 'key'.  Note that this function returns the *last*
-        // position before which a 'value_type' object having an equivalent key
-        // could be inserted into the ordered sequence maintained by this map,
-        // while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return a pair of iterators providing non-modifiable access to the
+    /// sequence of `value_type` objects in this map whose keys are
+    /// equivalent to the specified `key`, where the first iterator is
+    /// positioned at the start of the sequence and the second iterator is
+    /// positioned one past the end of the sequence.  The first returned
+    /// iterator will be `lower_bound(key)`, the second returned iterator
+    /// will be `upper_bound(key)`, and, if this map contains no
+    /// `value_type` objects having keys equivalent to `key`, then the two
+    /// returned iterators will have the same value.  Note that since a map
+    /// maintains unique keys, the range will contain at most one element.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     pair<const_iterator, const_iterator> equal_range(const key_type& key) const
-        // Return a pair of iterators providing non-modifiable access to the
-        // sequence of 'value_type' objects in this map whose keys are
-        // equivalent to the specified 'key', where the first iterator is
-        // positioned at the start of the sequence and the second iterator is
-        // positioned one past the end of the sequence.  The first returned
-        // iterator will be 'lower_bound(key)', the second returned iterator
-        // will be 'upper_bound(key)', and, if this map contains no
-        // 'value_type' objects having keys equivalent to 'key', then the two
-        // returned iterators will have the same value.  Note that since a map
-        // maintains unique keys, the range will contain at most one element.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         const_iterator startIt = lower_bound(key);
         const_iterator endIt   = startIt;
@@ -3913,27 +3926,27 @@ class map {
         return pair<const_iterator, const_iterator>(startIt, endIt);
     }
 
+    /// Return a pair of iterators providing non-modifiable access to the
+    /// sequence of `value_type` objects in this map whose keys are
+    /// equivalent to the specified `key`, where the first iterator is
+    /// positioned at the start of the sequence and the second iterator is
+    /// positioned one past the end of the sequence.  The first returned
+    /// iterator will be `lower_bound(key)`, the second returned iterator
+    /// will be `upper_bound(key)`, and, if this map contains no
+    /// `value_type` objects having keys equivalent to `key`, then the two
+    /// returned iterators will have the same value.  Note that although a
+    /// map maintains unique keys, the range may contain more than one
+    /// element,  because a transparent comparator may have been supplied
+    /// that provides a different (but compatible) partitioning of keys for
+    /// `LOOKUP_KEY` as the comparisons used to order the keys in the map.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
-        // Return a pair of iterators providing non-modifiable access to the
-        // sequence of 'value_type' objects in this map whose keys are
-        // equivalent to the specified 'key', where the first iterator is
-        // positioned at the start of the sequence and the second iterator is
-        // positioned one past the end of the sequence.  The first returned
-        // iterator will be 'lower_bound(key)', the second returned iterator
-        // will be 'upper_bound(key)', and, if this map contains no
-        // 'value_type' objects having keys equivalent to 'key', then the two
-        // returned iterators will have the same value.  Note that although a
-        // map maintains unique keys, the range may contain more than one
-        // element,  because a transparent comparator may have been supplied
-        // that provides a different (but compatible) partitioning of keys for
-        // 'LOOKUP_KEY' as the comparisons used to order the keys in the map.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         const_iterator startIt = lower_bound(key);
         const_iterator   endIt = startIt;
@@ -3958,6 +3971,12 @@ class map {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
 
+/// Deduce the template parameters `KEY` and `VALUE` from the `value_type`
+/// of the iterators supplied to the constructor of `map`.  Deduce the
+/// template parameters `COMPARATOR` and `ALLOCATOR` from the other
+/// parameters passed to the constructor.  This deduction guide does not
+/// participate unless the supplied allocator meets the requirements of a
+/// standard allocator.
 template <
     class INPUT_ITERATOR,
     class KEY = BloombergLP::bslstl::IteratorUtil::IterKey_t<INPUT_ITERATOR>,
@@ -3974,13 +3993,13 @@ map(INPUT_ITERATOR,
     COMPARATOR = COMPARATOR(),
     ALLOCATOR = ALLOCATOR())
 -> map<KEY, VALUE, COMPARATOR, ALLOCATOR>;
-    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
-    // of the iterators supplied to the constructor of 'map'.  Deduce the
-    // template parameters 'COMPARATOR' and 'ALLOCATOR' from the other
-    // parameters passed to the constructor.  This deduction guide does not
-    // participate unless the supplied allocator meets the requirements of a
-    // standard allocator.
 
+/// Deduce the template parameters `KEY` and `VALUE` from the `value_type`
+/// of the iterators supplied to the constructor of `map`.  Deduce the
+/// template parameter `COMPARATOR` from the other parameter passed to the
+/// constructor.  This deduction guide does not participate unless the
+/// supplied allocator is convertible to
+/// `bsl::allocator<bsl::pair<const KEY, VALUE>>`.
 template <
     class INPUT_ITERATOR,
     class COMPARATOR,
@@ -3993,13 +4012,11 @@ template <
     >
 map(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, ALLOC *)
 -> map<KEY, VALUE, COMPARATOR>;
-    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
-    // of the iterators supplied to the constructor of 'map'.  Deduce the
-    // template parameter 'COMPARATOR' from the other parameter passed to the
-    // constructor.  This deduction guide does not participate unless the
-    // supplied allocator is convertible to
-    // 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
 
+/// Deduce the template parameters `KEY` and `VALUE` from the `value_type`
+/// of the iterators supplied to the constructor of `map`.  This deduction
+/// guide does not participate unless the supplied allocator meets the
+/// requirements of a standard allocator.
 template <
     class INPUT_ITERATOR,
     class ALLOCATOR,
@@ -4010,11 +4027,11 @@ template <
     >
 map(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
 -> map<KEY, VALUE, std::less<KEY>, ALLOCATOR>;
-    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
-    // of the iterators supplied to the constructor of 'map'.  This deduction
-    // guide does not participate unless the supplied allocator meets the
-    // requirements of a standard allocator.
 
+/// Deduce the template parameters `KEY` and `VALUE` from the `value_type`
+/// of the iterators supplied to the constructor of `map`.  This deduction
+/// guide does not participate unless the supplied allocator is convertible
+/// to `bsl::allocator<bsl::pair<const KEY, VALUE>>`.
 template <
     class INPUT_ITERATOR,
     class ALLOC,
@@ -4026,11 +4043,13 @@ template <
     >
 map(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
 -> map<KEY, VALUE>;
-    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
-    // of the iterators supplied to the constructor of 'map'.  This deduction
-    // guide does not participate unless the supplied allocator is convertible
-    // to 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
 
+/// Deduce the template parameters `KEY` and `VALUE` from the `value_type`
+/// of the initializer_list supplied to the constructor of `map`.  Deduce
+/// the template parameters `COMPARATOR` and `ALLOCATOR` from the other
+/// parameters passed to the constructor.  This deduction guide does not
+/// participate unless the supplied allocator meets the requirements of a
+/// standard allocator.
 template <
     class KEY,
     class VALUE,
@@ -4043,13 +4062,13 @@ map(std::initializer_list<pair<const KEY, VALUE>>,
     COMPARATOR = COMPARATOR(),
     ALLOCATOR = ALLOCATOR())
 -> map<KEY, VALUE, COMPARATOR, ALLOCATOR>;
-    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
-    // of the initializer_list supplied to the constructor of 'map'.  Deduce
-    // the template parameters 'COMPARATOR' and 'ALLOCATOR' from the other
-    // parameters passed to the constructor.  This deduction guide does not
-    // participate unless the supplied allocator meets the requirements of a
-    // standard allocator.
 
+/// Deduce the template parameters `KEY` and `VALUE` from the `value_type`
+/// of the initializer_list supplied to the constructor of `map`.  Deduce
+/// the template parameter `COMPARATOR` from the other parameters passed to
+/// the constructor.  This deduction guide does not participate unless the
+/// supplied allocator is convertible to
+/// `bsl::allocator<bsl::pair<const KEY, VALUE>>`.
 template <
     class KEY,
     class VALUE,
@@ -4060,13 +4079,12 @@ template <
     >
 map(std::initializer_list<pair<const KEY, VALUE>>, COMPARATOR, ALLOC *)
 -> map<KEY, VALUE, COMPARATOR>;
-    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
-    // of the initializer_list supplied to the constructor of 'map'.  Deduce
-    // the template parameter 'COMPARATOR' from the other parameters passed to
-    // the constructor.  This deduction guide does not participate unless the
-    // supplied allocator is convertible to
-    // 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
 
+/// Deduce the template parameters `KEY` and `VALUE` from the `value_type`
+/// of the initializer_list supplied to the constructor of `map`.  Deduce
+/// the template parameter `ALLOCATOR` from the other parameter passed to
+/// the constructor.  This deduction guide does not participate unless the
+/// supplied allocator meets the requirements of a standard allocator.
 template <
     class KEY,
     class VALUE,
@@ -4075,12 +4093,11 @@ template <
     >
 map(std::initializer_list<pair<const KEY, VALUE>>, ALLOCATOR)
 -> map<KEY, VALUE, std::less<KEY>, ALLOCATOR>;
-    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
-    // of the initializer_list supplied to the constructor of 'map'.  Deduce
-    // the template parameter 'ALLOCATOR' from the other parameter passed to
-    // the constructor.  This deduction guide does not participate unless the
-    // supplied allocator meets the requirements of a standard allocator.
 
+/// Deduce the template parameters `KEY` and `VALUE` from the `value_type`
+/// of the initializer_list supplied to the constructor of `map`.  This
+/// deduction guide does not participate unless the supplied allocator is
+/// convertible to `bsl::allocator<bsl::pair<const KEY, VALUE>>`.
 template <
     class KEY,
     class VALUE,
@@ -4090,24 +4107,21 @@ template <
     >
 map(std::initializer_list<pair<const KEY, VALUE>>, ALLOC *)
 -> map<KEY, VALUE>;
-    // Deduce the template parameters 'KEY' and 'VALUE' from the 'value_type'
-    // of the initializer_list supplied to the constructor of 'map'.  This
-    // deduction guide does not participate unless the supplied allocator is
-    // convertible to 'bsl::allocator<bsl::pair<const KEY, VALUE>>'.
 #endif
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `map` objects `lhs` and `rhs` have
+/// the same value if they have the same number of key-value pairs, and each
+/// element in the ordered sequence of key-value pairs of `lhs` has the same
+/// value as the corresponding element in the ordered sequence of key-value
+/// pairs of `rhs`.  This method requires that the (template parameter)
+/// types `KEY` and `VALUE` both be `equality-comparable` (see {Requirements
+/// on `KEY` and `VALUE`}).
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 bool operator==(const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
                 const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'map' objects 'lhs' and 'rhs' have
-    // the same value if they have the same number of key-value pairs, and each
-    // element in the ordered sequence of key-value pairs of 'lhs' has the same
-    // value as the corresponding element in the ordered sequence of key-value
-    // pairs of 'rhs'.  This method requires that the (template parameter)
-    // types 'KEY' and 'VALUE' both be 'equality-comparable' (see {Requirements
-    // on 'KEY' and 'VALUE'}).
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR>
@@ -4125,14 +4139,14 @@ bool operator!=(const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
 
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
+/// Perform a lexicographic three-way comparison of the specified `lhs` and
+/// the specified `rhs` maps by using the comparison operators of
+/// `bsl::pair<const KEY, VALUE>` on each element; return the result of that
+/// comparison.
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 BloombergLP::bslalg::SynthThreeWayUtil::Result<pair<const KEY, VALUE>>
 operator<=>(const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
             const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& rhs);
-    // Perform a lexicographic three-way comparison of the specified 'lhs' and
-    // the specified 'rhs' maps by using the comparison operators of
-    // 'bsl::pair<const KEY, VALUE>' on each element; return the result of that
-    // comparison.
 
 #else
 
@@ -4187,6 +4201,9 @@ bool operator>=(const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
 #endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
+
+/// Erase all the elements in the specified map `m` that satisfy the
+/// specified predicate `predicate`.  Return the number of elements erased.
 template <class KEY,
           class VALUE,
           class COMPARATOR,
@@ -4194,30 +4211,28 @@ template <class KEY,
           class PREDICATE>
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::size_type
 erase_if(map<KEY, VALUE, COMPARATOR, ALLOCATOR>& m, PREDICATE predicate);
-    // Erase all the elements in the specified map 'm' that satisfy the
-    // specified predicate 'predicate'.  Return the number of elements erased.
 
+/// Exchange the value and comparator of the specified `a` object with those
+/// of the specified `b` object; also exchange the allocator of `a` with
+/// that of `b` if the (template parameter) type `ALLOCATOR` has the
+/// `propagate_on_container_swap` trait, and do not modify either allocator
+/// otherwise.  This function provides the no-throw exception-safety
+/// guarantee if and only if the (template parameter) type `COMPARATOR`
+/// provides a no-throw swap operation, and provides the basic
+/// exception-safety guarantee otherwise; if an exception is thrown, both
+/// objects are left in valid but unspecified states.  This operation has
+/// `O[1]` complexity if either `a` was created with the same allocator as
+/// `b` or `ALLOCATOR` has the `propagate_on_container_swap` trait;
+/// otherwise, it has `O[n + m]` complexity, where `n` and `m` are the
+/// number of elements in `a` and `b`, respectively.  Note that this
+/// function's support for swapping objects created with different
+/// allocators when `ALLOCATOR` does not have the
+/// `propagate_on_container_swap` trait is a departure from the C++
+/// Standard.
 template <class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR>
 void swap(map<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
           map<KEY, VALUE, COMPARATOR, ALLOCATOR>& b)
              BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-    // Exchange the value and comparator of the specified 'a' object with those
-    // of the specified 'b' object; also exchange the allocator of 'a' with
-    // that of 'b' if the (template parameter) type 'ALLOCATOR' has the
-    // 'propagate_on_container_swap' trait, and do not modify either allocator
-    // otherwise.  This function provides the no-throw exception-safety
-    // guarantee if and only if the (template parameter) type 'COMPARATOR'
-    // provides a no-throw swap operation, and provides the basic
-    // exception-safety guarantee otherwise; if an exception is thrown, both
-    // objects are left in valid but unspecified states.  This operation has
-    // 'O[1]' complexity if either 'a' was created with the same allocator as
-    // 'b' or 'ALLOCATOR' has the 'propagate_on_container_swap' trait;
-    // otherwise, it has 'O[n + m]' complexity, where 'n' and 'm' are the
-    // number of elements in 'a' and 'b', respectively.  Note that this
-    // function's support for swapping objects created with different
-    // allocators when 'ALLOCATOR' does not have the
-    // 'propagate_on_container_swap' trait is a departure from the C++
-    // Standard.
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS

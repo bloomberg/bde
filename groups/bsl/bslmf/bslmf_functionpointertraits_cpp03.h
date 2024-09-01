@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Dec 19 14:09:56 2022
+// Generated on Sun Sep  1 05:38:31 2024
 // Command line: sim_cpp11_features.pl bslmf_functionpointertraits.h
 
 #ifdef COMPILING_BSLMF_FUNCTIONPOINTERTRAITS_H
@@ -29,24 +29,24 @@
 namespace BloombergLP {
 namespace bslmf {
 
+/// C++ function pointer linkage tag.
 struct FunctionPointerCPlusPlusLinkage {
-    // C++ function pointer linkage tag.
 };
 
+/// C function pointer linkage tag.
 struct FunctionPointerCLinkage {
-    // C function pointer linkage tag.
 };
 
                         // ===========================
                         // class FunctionPointerTraits
                         // ===========================
 
+/// This class gives information about the specified `t_PROTOTYPE`.  The
+/// general definition gives no information, but specializations for
+/// function pointers types define nested types `ResultType`,
+/// `ArgumentList`, and `Linkage`.
 template <class t_PROTOTYPE>
 struct FunctionPointerTraits {
-    // This class gives information about the specified 't_PROTOTYPE'.  The
-    // general definition gives no information, but specializations for
-    // function pointers types define nested types 'ResultType',
-    // 'ArgumentList', and 'Linkage'.
 
     enum { IS_FUNCTION_POINTER = 0 };
 };
@@ -55,14 +55,14 @@ struct FunctionPointerTraits {
                           // class IsFunctionPointer
                           // =======================
 
+/// This template determines if the specified `t_PROTOTYPE` is a free (i.e.,
+/// non-member) function pointer.  `value` is defined as 1 if the specified
+/// `t_PROTOTYPE` is a function pointer type, and a zero value otherwise.
 template <class t_PROTOTYPE>
 struct IsFunctionPointer
 : bsl::integral_constant<
       bool,
       FunctionPointerTraits<t_PROTOTYPE>::IS_FUNCTION_POINTER> {
-    // This template determines if the specified 't_PROTOTYPE' is a free (i.e.,
-    // non-member) function pointer.  'value' is defined as 1 if the specified
-    // 't_PROTOTYPE' is a function pointer type, and a zero value otherwise.
 };
 
 // ---- Anything below this line is implementation specific.  Do not use. ----
@@ -1387,31 +1387,31 @@ struct FunctionPointerTraits<t_PROTOTYPE const volatile>
     // 'ArgumentList', and 'Linkage'.
 };
 #else
+/// This class gives information about the specified `t_PROTOTYPE`.  The
+/// general definition gives no information, but specializations for
+/// function pointers types define nested types `ResultType`,
+/// `ArgumentList`, and `Linkage`.
 template <class t_PROTOTYPE>
 struct FunctionPointerTraits<t_PROTOTYPE *const>
 : FunctionPointerTraits<t_PROTOTYPE *> {
-    // This class gives information about the specified 't_PROTOTYPE'.  The
-    // general definition gives no information, but specializations for
-    // function pointers types define nested types 'ResultType',
-    // 'ArgumentList', and 'Linkage'.
 };
 
+/// This class gives information about the specified `t_PROTOTYPE`.  The
+/// general definition gives no information, but specializations for
+/// function pointers types define nested types `ResultType`,
+/// `ArgumentList`, and `Linkage`.
 template <class t_PROTOTYPE>
 struct FunctionPointerTraits<t_PROTOTYPE *volatile>
 : FunctionPointerTraits<t_PROTOTYPE *> {
-    // This class gives information about the specified 't_PROTOTYPE'.  The
-    // general definition gives no information, but specializations for
-    // function pointers types define nested types 'ResultType',
-    // 'ArgumentList', and 'Linkage'.
 };
 
+/// This class gives information about the specified `t_PROTOTYPE`.  The
+/// general definition gives no information, but specializations for
+/// function pointers types define nested types `ResultType`,
+/// `ArgumentList`, and `Linkage`.
 template <class t_PROTOTYPE>
 struct FunctionPointerTraits<t_PROTOTYPE *const volatile>
 : FunctionPointerTraits<t_PROTOTYPE *> {
-    // This class gives information about the specified 't_PROTOTYPE'.  The
-    // general definition gives no information, but specializations for
-    // function pointers types define nested types 'ResultType',
-    // 'ArgumentList', and 'Linkage'.
 };
 // }}} END GENERATED CODE
 #endif
@@ -1423,10 +1423,10 @@ struct FunctionPointerTraits<t_PROTOTYPE *const volatile>
 #pragma clang diagnostic ignored "-Wdeprecated-volatile"
 #endif
 
+/// Specialization for `noexcept` function pointers that return
+/// `t_BSLMF_RETURN` and accept a fixed number of arguments
 template <class t_BSLMF_RETURN, class... t_ARGS>
 struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS...) noexcept> {
-    // Specialization for 'noexcept' function pointers that return
-    // 't_BSLMF_RETURN' and accept a fixed number of arguments
 
     enum {
         IS_FUNCTION_POINTER = 1,
@@ -1439,11 +1439,11 @@ struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS...) noexcept> {
     typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 
+/// Specialization for `noexcept` function pointers that return
+/// `t_BSLMF_RETURN` and accept variable (C-style varargs) number of
+/// arguments
 template <class t_BSLMF_RETURN, class... t_ARGS>
 struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS...,...) noexcept> {
-    // Specialization for 'noexcept' function pointers that return
-    // 't_BSLMF_RETURN' and accept variable (C-style varargs) number of
-    // arguments
 
     enum {
         IS_FUNCTION_POINTER = 1,
@@ -1469,24 +1469,24 @@ struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS...,...) noexcept> {
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+/// This alias is defined for backward compatibility.
 typedef bslmf::FunctionPointerCPlusPlusLinkage
                                          bslmf_FunctionPointerCPlusPlusLinkage;
-    // This alias is defined for backward compatibility.
 
+/// This alias is defined for backward compatibility.
 typedef bslmf::FunctionPointerCLinkage bslmf_FunctionPointerCLinkage;
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_FunctionPointerTraits
 #undef bslmf_FunctionPointerTraits
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_FunctionPointerTraits bslmf::FunctionPointerTraits
-    // This alias is defined for backward compatibility.
 
 #ifdef bslmf_IsFunctionPointer
 #undef bslmf_IsFunctionPointer
 #endif
+/// This alias is defined for backward compatibility.
 #define bslmf_IsFunctionPointer bslmf::IsFunctionPointer
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
@@ -1498,7 +1498,7 @@ typedef bslmf::FunctionPointerCLinkage bslmf_FunctionPointerCLinkage;
 #endif // ! defined(INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

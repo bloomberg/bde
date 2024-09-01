@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Aug 19 08:48:11 2022
+// Generated on Sun Sep  1 05:39:09 2024
 // Command line: sim_cpp11_features.pl bslstl_function.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_H
@@ -38,9 +38,9 @@ extern const char s_bslstl_function_h[];
 // FORWARD DECLARATIONS
 namespace bsl {
 
+/// Forward declaration.
 template <class PROTOTYPE>
 class function;
-    // Forward declaration.
 
 }  // close namespace bsl
 
@@ -48,14 +48,14 @@ namespace BloombergLP {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
+/// Forward declaration of legacy `bdef_Function` in order to implement
+/// by-reference conversion from `bsl::function<F>`.  This declaration
+/// produces a by-name cyclic dependency between `bsl` and `bde` in order to
+/// allow legacy code to transition to `bsl::function` from (the deprecated)
+/// `bdef_Function`.  The conversion, and therefore this forward reference,
+/// should not appear in the open-source version of this component.
 template <class PROTOTYPE>
 class bdef_Function;
-    // Forward declaration of legacy 'bdef_Function' in order to implement
-    // by-reference conversion from 'bsl::function<F>'.  This declaration
-    // produces a by-name cyclic dependency between 'bsl' and 'bde' in order to
-    // allow legacy code to transition to 'bsl::function' from (the deprecated)
-    // 'bdef_Function'.  The conversion, and therefore this forward reference,
-    // should not appear in the open-source version of this component.
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
@@ -65,58 +65,58 @@ namespace bslstl {
                         // struct template Function_ArgTypes
                         // =================================
 
+/// This component-private struct template provides the following nested
+/// typedefs for `bsl::function` for a specified `PROTOTYPE` which must be a
+/// function type:
+/// ```
+/// argument_type        -- Only if PROTOTYPE takes exactly one argument
+/// first_argument_type  -- Only if PROTOTYPE takes exactly two arguments
+/// second_argument_type -- Only if PROTOTYPE takes exactly two arguments
+/// ```
+/// The C++ Standard requires that `function` define these typedefs for
+/// compatibility with one- and two-argument legacy (now deprecated) functor
+/// adaptors.  `bsl::function` publicly inherits from an instantiation of
+/// this template in order to conditionally declare the above nested types.
+/// This primary (unspecialized) template provides no typedefs.
 template <class PROTOTYPE>
 struct Function_ArgTypes {
-    // This component-private struct template provides the following nested
-    // typedefs for 'bsl::function' for a specified 'PROTOTYPE' which must be a
-    // function type:
-    //..
-    //  argument_type        -- Only if PROTOTYPE takes exactly one argument
-    //  first_argument_type  -- Only if PROTOTYPE takes exactly two arguments
-    //  second_argument_type -- Only if PROTOTYPE takes exactly two arguments
-    //..
-    // The C++ Standard requires that 'function' define these typedefs for
-    // compatibility with one- and two-argument legacy (now deprecated) functor
-    // adaptors.  'bsl::function' publicly inherits from an instantiation of
-    // this template in order to conditionally declare the above nested types.
-    // This primary (unspecialized) template provides no typedefs.
 };
 
+/// This component-private specialization of `Function_ArgTypes` is for
+/// function prototypes that take exactly one argument and provides an
+/// `argument_type` nested typedef.
 template <class RET, class ARG>
 struct Function_ArgTypes<RET(ARG)> {
-    // This component-private specialization of 'Function_ArgTypes' is for
-    // function prototypes that take exactly one argument and provides an
-    // 'argument_type' nested typedef.
 
     // PUBLIC TYPES
     BSLS_DEPRECATE_FEATURE("bsl",
                            "deprecated_cpp17_standard_library_features",
                            "do not use")
+    /// **DEPRECATED**: This typedef is deprecated in C++17, for details see
+    /// https://isocpp.org/files/papers/p0005r4.html.
     typedef ARG argument_type;
-        // !DEPRECATED!: This typedef is deprecated in C++17, for details see
-        // https://isocpp.org/files/papers/p0005r4.html.
 };
 
+/// This component-private specialization of `Function_ArgTypes` is for
+/// functions that take exactly two arguments and provides
+/// `first_argument_type` and `second_argument_type` nested typedefs.
 template <class RET, class ARG1, class ARG2>
 struct Function_ArgTypes<RET(ARG1, ARG2)> {
-    // This component-private specialization of 'Function_ArgTypes' is for
-    // functions that take exactly two arguments and provides
-    // 'first_argument_type' and 'second_argument_type' nested typedefs.
 
     // PUBLIC TYPES
     BSLS_DEPRECATE_FEATURE("bsl",
                            "deprecated_cpp17_standard_library_features",
                            "do not use")
+    /// **DEPRECATED**: This typedef is deprecated in C++17, for details see
+    /// https://isocpp.org/files/papers/p0005r4.html.
     typedef ARG1 first_argument_type;
-        // !DEPRECATED!: This typedef is deprecated in C++17, for details see
-        // https://isocpp.org/files/papers/p0005r4.html.
 
     BSLS_DEPRECATE_FEATURE("bsl",
                            "deprecated_cpp17_standard_library_features",
                            "do not use")
+    /// **DEPRECATED**: This typedef is deprecated in C++17, for details see
+    /// https://isocpp.org/files/papers/p0005r4.html.
     typedef ARG2 second_argument_type;
-        // !DEPRECATED!: This typedef is deprecated in C++17, for details see
-        // https://isocpp.org/files/papers/p0005r4.html.
 };
 
                         // ================================
@@ -150,6 +150,7 @@ class Function_Variadic<RET()> : public Function_ArgTypes<RET()>
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -159,7 +160,9 @@ class Function_Variadic<RET()> : public Function_ArgTypes<RET()>
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()() const;
@@ -181,6 +184,7 @@ class Function_Variadic<RET(ARGS_01)> : public Function_ArgTypes<RET(ARGS_01)>
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -190,7 +194,9 @@ class Function_Variadic<RET(ARGS_01)> : public Function_ArgTypes<RET(ARGS_01)>
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS_01 args_01) const;
@@ -216,6 +222,7 @@ class Function_Variadic<RET(ARGS_01,
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -226,7 +233,9 @@ class Function_Variadic<RET(ARGS_01,
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS_01 args_01,
@@ -257,6 +266,7 @@ class Function_Variadic<RET(ARGS_01,
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -268,7 +278,9 @@ class Function_Variadic<RET(ARGS_01,
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS_01 args_01,
@@ -304,6 +316,7 @@ class Function_Variadic<RET(ARGS_01,
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -316,7 +329,9 @@ class Function_Variadic<RET(ARGS_01,
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS_01 args_01,
@@ -357,6 +372,7 @@ class Function_Variadic<RET(ARGS_01,
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -370,7 +386,9 @@ class Function_Variadic<RET(ARGS_01,
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS_01 args_01,
@@ -416,6 +434,7 @@ class Function_Variadic<RET(ARGS_01,
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -430,7 +449,9 @@ class Function_Variadic<RET(ARGS_01,
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS_01 args_01,
@@ -481,6 +502,7 @@ class Function_Variadic<RET(ARGS_01,
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -496,7 +518,9 @@ class Function_Variadic<RET(ARGS_01,
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS_01 args_01,
@@ -552,6 +576,7 @@ class Function_Variadic<RET(ARGS_01,
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -568,7 +593,9 @@ class Function_Variadic<RET(ARGS_01,
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS_01 args_01,
@@ -629,6 +656,7 @@ class Function_Variadic<RET(ARGS_01,
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -646,7 +674,9 @@ class Function_Variadic<RET(ARGS_01,
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS_01 args_01,
@@ -712,6 +742,7 @@ class Function_Variadic<RET(ARGS_01,
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -730,7 +761,9 @@ class Function_Variadic<RET(ARGS_01,
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS_01 args_01,
@@ -801,6 +834,7 @@ class Function_Variadic<RET(ARGS_01,
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -820,7 +854,9 @@ class Function_Variadic<RET(ARGS_01,
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS_01 args_01,
@@ -896,6 +932,7 @@ class Function_Variadic<RET(ARGS_01,
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -916,7 +953,9 @@ class Function_Variadic<RET(ARGS_01,
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS_01 args_01,
@@ -997,6 +1036,7 @@ class Function_Variadic<RET(ARGS_01,
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -1018,7 +1058,9 @@ class Function_Variadic<RET(ARGS_01,
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS_01 args_01,
@@ -1058,6 +1100,7 @@ class Function_Variadic<RET(ARGS...)> : public Function_ArgTypes<RET(ARGS...)>
 
   private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
+
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
 
@@ -1067,7 +1110,9 @@ class Function_Variadic<RET(ARGS...)> : public Function_ArgTypes<RET(ARGS...)>
     typedef RET                          result_type;
     typedef Function_Rep::allocator_type allocator_type;
 
+
     Function_Variadic(const allocator_type& allocator);
+
 
 
     RET operator()(ARGS... args) const;
@@ -1080,23 +1125,23 @@ class Function_Variadic<RET(ARGS...)> : public Function_ArgTypes<RET(ARGS...)>
               // struct template Function_IsInvocableWithPrototype
               // =================================================
 
+/// Forward declaration of the component-private
+/// `Function_IsInvocableWithPrototype` `struct` template.  The primary
+/// (unspecialized) template is not defined.  This `struct` template
+/// implements a boolean metafunction that publicly inherits from
+/// `bsl::true_type` if an object of the specified `FUNC` type is invocable
+/// under the specified `PROTOTYPE`, and inherits from `bsl::false_type`
+/// otherwise.  An object of `FUNC` type is invocable under the `PROTOTYPE`
+/// if it is Lvalue-Callable with the arguments of the `PROTOTYPE`, and
+/// returns an object of type convertible to the return type of the
+/// `PROTOTYPE`.  If the return type of the `PROTOTYPE` is `void`, then any
+/// type is considered convertible to the return type of the `PROTOTYPE`.
+/// In C++03, `FUNC` is considered Lvalue-Callable with the argument and
+/// return types of the `PROTOTYPE` if it is not an integral type.  This
+/// `struct` template requires 'PROTOTYPE" to be an unqualified function
+/// type.
 template <class PROTOTYPE, class FUNC>
 struct Function_IsInvocableWithPrototype;
-    // Forward declaration of the component-private
-    // 'Function_IsInvocableWithPrototype' 'struct' template.  The primary
-    // (unspecialized) template is not defined.  This 'struct' template
-    // implements a boolean metafunction that publicly inherits from
-    // 'bsl::true_type' if an object of the specified 'FUNC' type is invocable
-    // under the specified 'PROTOTYPE', and inherits from 'bsl::false_type'
-    // otherwise.  An object of 'FUNC' type is invocable under the 'PROTOTYPE'
-    // if it is Lvalue-Callable with the arguments of the 'PROTOTYPE', and
-    // returns an object of type convertible to the return type of the
-    // 'PROTOTYPE'.  If the return type of the 'PROTOTYPE' is 'void', then any
-    // type is considered convertible to the return type of the 'PROTOTYPE'.
-    // In C++03, 'FUNC' is considered Lvalue-Callable with the argument and
-    // return types of the 'PROTOTYPE' if it is not an integral type.  This
-    // 'struct' template requires 'PROTOTYPE" to be an unqualified function
-    // type.
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -1107,34 +1152,34 @@ namespace bsl {
                     // class template function
                     // =======================
 
+/// This class template implements the C++ Standard Library `std::function`
+/// template, enhanced for allocator support as per Standards Proposal
+/// P0987.  An instantiation of this template generalizes the notion of a
+/// pointer to a function having the specified `PROTOTYPE` expressed as a
+/// function type (e.g., `int(const char *, float)`).  An object of this
+/// class wraps a copy of the callable object specified at construction (if
+/// any), such as a function pointer, member-function pointer, member-data
+/// pointer, or functor object.  The wrapped object (called the *target* or
+/// *target* *object*) is owned by the `bsl::function` object (unlike the
+/// function pointer that it mimics).  Invoking the `bsl::function` object
+/// will invoke the target (or throw an exception, if there is no target).
+/// Note that `function` will compile only if `PROTOTYPE` is a function
+/// type.
+///
+/// To optimize away many heap allocations, objects of this type have a
+/// buffer into which small callable objects can be stored.  In order to
+/// qualify for this small-object optimization, a callable type must not
+/// only fit in the buffer but must also be nothrow move constructible.  The
+/// latter constraint allows this type to be nothrow move constructible and
+/// nothrow swappable, as required by the C++ Standard.  The small object
+/// buffer is guaranteed to be large enough to hold a pointer to function,
+/// pointer to member function, pointer to member data, a
+/// `bsl::reference_wrapper`, or an empty struct.  Although the standard
+/// does not specify a minimum size beyond the aforementioned guarantee,
+/// many small structs will fit in the small object buffer, as defined in
+/// the `bslstl_function_smallobjectoptimization` component.
 template <class PROTOTYPE>
 class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
-    // This class template implements the C++ Standard Library 'std::function'
-    // template, enhanced for allocator support as per Standards Proposal
-    // P0987.  An instantiation of this template generalizes the notion of a
-    // pointer to a function having the specified 'PROTOTYPE' expressed as a
-    // function type (e.g., 'int(const char *, float)').  An object of this
-    // class wraps a copy of the callable object specified at construction (if
-    // any), such as a function pointer, member-function pointer, member-data
-    // pointer, or functor object.  The wrapped object (called the *target* or
-    // *target* *object*) is owned by the 'bsl::function' object (unlike the
-    // function pointer that it mimics).  Invoking the 'bsl::function' object
-    // will invoke the target (or throw an exception, if there is no target).
-    // Note that 'function' will compile only if 'PROTOTYPE' is a function
-    // type.
-    //
-    // To optimize away many heap allocations, objects of this type have a
-    // buffer into which small callable objects can be stored.  In order to
-    // qualify for this small-object optimization, a callable type must not
-    // only fit in the buffer but must also be nothrow move constructible.  The
-    // latter constraint allows this type to be nothrow move constructible and
-    // nothrow swappable, as required by the C++ Standard.  The small object
-    // buffer is guaranteed to be large enough to hold a pointer to function,
-    // pointer to member function, pointer to member data, a
-    // 'bsl::reference_wrapper', or an empty struct.  Although the standard
-    // does not specify a minimum size beyond the aforementioned guarantee,
-    // many small structs will fit in the small object buffer, as defined in
-    // the 'bslstl_function_smallobjectoptimization' component.
 
   private:
     // PRIVATE TYPES
@@ -1142,28 +1187,28 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     typedef BloombergLP::bslstl::Function_Rep                 Function_Rep;
     typedef BloombergLP::bslmf::MovableRefUtil                MovableRefUtil;
 
+    /// Abbreviation for metafunction that determines whether a reference
+    /// from `FROM` can be cast to a reference to `TO` without loss of
+    /// information.
     template <class FROM, class TO>
     struct IsReferenceCompatible
     : BloombergLP::bslstl::Function_IsReferenceCompatible<FROM, TO>::type {
-        // Abbreviation for metafunction that determines whether a reference
-        // from 'FROM' can be cast to a reference to 'TO' without loss of
-        // information.
     };
 
+    /// Abbreviation for metafunction used to provide a C++03-compatible
+    /// implementation of `std::decay` that treats `bslmf::MovableReference`
+    /// as an rvalue reference.
     template <class TYPE>
     struct Decay : MovableRefUtil::Decay<TYPE> {
-        // Abbreviation for metafunction used to provide a C++03-compatible
-        // implementation of 'std::decay' that treats 'bslmf::MovableReference'
-        // as an rvalue reference.
     };
 
+    /// Abbreviation for a metafunction used to determine whether an object
+    /// of the specified `FUNC` is callable with argument types of the
+    /// specified `PROTOTYPE` and returns a type convertible to the return
+    /// type of the `PROTOTYPE`.
     template <class FUNC>
     struct IsInvocableWithPrototype
     : BloombergLP::bslstl::Function_IsInvocableWithPrototype<PROTOTYPE, FUNC> {
-        // Abbreviation for a metafunction used to determine whether an object
-        // of the specified 'FUNC' is callable with argument types of the
-        // specified 'PROTOTYPE' and returns a type convertible to the return
-        // type of the 'PROTOTYPE'.
     };
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
@@ -1185,15 +1230,16 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
 #endif // !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
 
     // PRIVATE MANIPULATORS
+
+    /// Set the target of this `function` by constructing from the specified
+    /// `func` callable object.  If the type of `func` is a movable
+    /// reference, then the target is constructed by extended move
+    /// construction; otherwise by extended copy construction.
+    /// Instantiation will fail unless `FUNC` is a callable type that is
+    /// invocable with arguments in `PROTOTYPE` and yields a return type
+    /// that is convertible to the return type in `PROTOTYPE`.
     template <class FUNC>
     void installFunc(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func);
-        // Set the target of this 'function' by constructing from the specified
-        // 'func' callable object.  If the type of 'func' is a movable
-        // reference, then the target is constructed by extended move
-        // construction; otherwise by extended copy construction.
-        // Instantiation will fail unless 'FUNC' is a callable type that is
-        // invocable with arguments in 'PROTOTYPE' and yields a return type
-        // that is convertible to the return type in 'PROTOTYPE'.
 
   public:
     // TRAITS
@@ -1212,13 +1258,29 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     function(nullptr_t) BSLS_KEYWORD_NOEXCEPT;                      // IMPLICIT
     function(allocator_arg_t       ,
              const allocator_type& allocator) BSLS_KEYWORD_NOEXCEPT;
+
+    /// Create an empty `function` object.  Optionally specify an
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory; otherwise, the default allocator is used.
     function(allocator_arg_t       ,
              const allocator_type& allocator,
              nullptr_t             ) BSLS_KEYWORD_NOEXCEPT;
-        // Create an empty 'function' object.  Optionally specify an
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory; otherwise, the default allocator is used.
 
+    /// Create an object wrapping the specified `func` callable object.  Use
+    /// the default allocator to supply memory.  If `func` is a null pointer
+    /// or null pointer-to-member, then the resulting object will be empty.
+    /// This constructor will not participate in overload resolution if
+    /// `func` is of the same type as (or reference compatible with) this
+    /// object (to avoid ambiguity with the copy and move constructors) or
+    /// is an integral type (to avoid matching null pointer literals).  In
+    /// C++03, this function will not participate in overload resolution if
+    /// `FUNC` is a `MovableRef` (see overload, below), and instantiation
+    /// will fail unless `FUNC` is invocable using the arguments and return
+    /// type specified in `PROTOTYPE`.  In C++11 and later, this function
+    /// will not participate in overload resolution if `FUNC` is not
+    /// invocable using the arguments and return type specified in
+    /// `PROTOTYPE`.  Note that this constructor implicitly converts from
+    /// any type that is so invocable.
     template <class FUNC>
     function(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,          // IMPLICIT
              typename enable_if<
@@ -1233,21 +1295,6 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
                  && ! is_function<FUNC>::value
 #endif
                  , int>::type = 0)
-        // Create an object wrapping the specified 'func' callable object.  Use
-        // the default allocator to supply memory.  If 'func' is a null pointer
-        // or null pointer-to-member, then the resulting object will be empty.
-        // This constructor will not participate in overload resolution if
-        // 'func' is of the same type as (or reference compatible with) this
-        // object (to avoid ambiguity with the copy and move constructors) or
-        // is an integral type (to avoid matching null pointer literals).  In
-        // C++03, this function will not participate in overload resolution if
-        // 'FUNC' is a 'MovableRef' (see overload, below), and instantiation
-        // will fail unless 'FUNC' is invocable using the arguments and return
-        // type specified in 'PROTOTYPE'.  In C++11 and later, this function
-        // will not participate in overload resolution if 'FUNC' is not
-        // invocable using the arguments and return type specified in
-        // 'PROTOTYPE'.  Note that this constructor implicitly converts from
-        // any type that is so invocable.
         : Base(allocator_type())
     {
         ///Implementation Note
@@ -1349,6 +1396,22 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     }
 #endif
 
+    /// Create an object wrapping the specified `func` callable object.  Use
+    /// the specified `allocator` (i.e., the address of a `bslma::Allocator`
+    /// object) to supply memory.  If `func` is a null pointer or null
+    /// pointer-to-member, then the resulting object will be empty.  This
+    /// constructor will not participate in overload resolution if `func` is
+    /// of the same type as (or reference compatible with) this object (to
+    /// avoid ambiguity with the extended copy and move constructors) or is
+    /// an integral type (to avoid matching null pointer literals).  In
+    /// C++03, this function will not participate in overload resolution if
+    /// `FUNC` is a `MovableRef` (see overload, below), and instantiation
+    /// will fail unless `FUNC` is invocable using the arguments and return
+    /// type specified in `PROTOTYPE`.  In C++11 and later, this function
+    /// will not participate in overload resolution if `FUNC` is not
+    /// invocable using the arguments and return type specified in
+    /// `PROTOTYPE`.  Note that this constructor implicitly converts from
+    /// any type that is so invocable.
     template <class FUNC>
     function(allocator_arg_t,
              const allocator_type&                   allocator,
@@ -1362,22 +1425,6 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
                  && ! is_function<FUNC>::value
 #endif
                  , int>::type = 0)
-        // Create an object wrapping the specified 'func' callable object.  Use
-        // the specified 'allocator' (i.e., the address of a 'bslma::Allocator'
-        // object) to supply memory.  If 'func' is a null pointer or null
-        // pointer-to-member, then the resulting object will be empty.  This
-        // constructor will not participate in overload resolution if 'func' is
-        // of the same type as (or reference compatible with) this object (to
-        // avoid ambiguity with the extended copy and move constructors) or is
-        // an integral type (to avoid matching null pointer literals).  In
-        // C++03, this function will not participate in overload resolution if
-        // 'FUNC' is a 'MovableRef' (see overload, below), and instantiation
-        // will fail unless 'FUNC' is invocable using the arguments and return
-        // type specified in 'PROTOTYPE'.  In C++11 and later, this function
-        // will not participate in overload resolution if 'FUNC' is not
-        // invocable using the arguments and return type specified in
-        // 'PROTOTYPE'.  Note that this constructor implicitly converts from
-        // any type that is so invocable.
         : Base(allocator)
     {
         ///Implementation Note
@@ -1429,73 +1476,74 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     }
 #endif
 
+    /// Create a `function` having the same value as (i.e., wrapping a copy
+    /// of the target held by) the specified `original` object.  Optionally
+    /// specify an `allocator` (e.g., the address of a `bslma::Allocator`
+    /// object) to supply memory; otherwise, the default allocator is used.
     function(const function&       original);
     function(allocator_arg_t       ,
              const allocator_type& allocator,
              const function&       original);
-        // Create a 'function' having the same value as (i.e., wrapping a copy
-        // of the target held by) the specified 'original' object.  Optionally
-        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
-        // object) to supply memory; otherwise, the default allocator is used.
 
+    /// Create a `function` having the same target as the specified
+    /// `original` object.  Use `original.get_allocator()` as the allocator
+    /// to supply memory.  The `original` object is set to empty after the
+    /// new object is created.  If the target qualifies for the small-object
+    /// optimization (see class-level documentation), then it is
+    /// move-constructed into the new object; otherwise ownership of the
+    /// target is transferred without using the target's move constructor.
     function(BloombergLP::bslmf::MovableRef<function> original)
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
-        // Create a 'function' having the same target as the specified
-        // 'original' object.  Use 'original.get_allocator()' as the allocator
-        // to supply memory.  The 'original' object is set to empty after the
-        // new object is created.  If the target qualifies for the small-object
-        // optimization (see class-level documentation), then it is
-        // move-constructed into the new object; otherwise ownership of the
-        // target is transferred without using the target's move constructor.
 
+    /// Create a `function` having the same value as (i.e., wrapping a copy
+    /// of the target held by) the specified `original` object.  Use the
+    /// specified `allocator` (e.g., the address of a `bslma::Allocator`
+    /// object) to supply memory.  If `allocator == original.allocator()`,
+    /// this object is created as if by move construction; otherwise it is
+    /// created as if by extended copy construction using `allocator`.
     function(allocator_arg_t                          ,
              const allocator_type&                    allocator,
              BloombergLP::bslmf::MovableRef<function> original);
-        // Create a 'function' having the same value as (i.e., wrapping a copy
-        // of the target held by) the specified 'original' object.  Use the
-        // specified 'allocator' (e.g., the address of a 'bslma::Allocator'
-        // object) to supply memory.  If 'allocator == original.allocator()',
-        // this object is created as if by move construction; otherwise it is
-        // created as if by extended copy construction using 'allocator'.
 
     // MANIPULATORS
+
+    /// Set the target of this object to a copy of the target (if any)
+    /// held by the specified `rhs` object, destroy the target (if any)
+    /// previously held by `*this`, and return `*this`.  The result is
+    /// equivalent to having constructed `*this` from `rhs` using the
+    /// extended copy constructor with allocator `this->get_allocator()`.
+    /// If an exception is thrown, `*this` is not modified (i.e., copy
+    /// assignment provides the strong exception guarantee).
     function& operator=(const function& rhs);
-        // Set the target of this object to a copy of the target (if any)
-        // held by the specified 'rhs' object, destroy the target (if any)
-        // previously held by '*this', and return '*this'.  The result is
-        // equivalent to having constructed '*this' from 'rhs' using the
-        // extended copy constructor with allocator 'this->get_allocator()'.
-        // If an exception is thrown, '*this' is not modified (i.e., copy
-        // assignment provides the strong exception guarantee).
 
+    /// Set the target of this object to the target (if any) held by the
+    /// specified `rhs` object, destroy the target (if any) previously held
+    /// by `*this`, and return `*this`.  The result is equivalent to having
+    /// constructed `*this` from `rhs` using the extended move constructor
+    /// with allocator `this->get_allocator()`.  If an exception is thrown,
+    /// `rhs` will have a valid but unspecified value and `*this` will not
+    /// be modified.  Note that an exception will never be thrown if
+    /// `get_allocator() == rhs.get_allocator()`.
     function& operator=(BloombergLP::bslmf::MovableRef<function> rhs);
-        // Set the target of this object to the target (if any) held by the
-        // specified 'rhs' object, destroy the target (if any) previously held
-        // by '*this', and return '*this'.  The result is equivalent to having
-        // constructed '*this' from 'rhs' using the extended move constructor
-        // with allocator 'this->get_allocator()'.  If an exception is thrown,
-        // 'rhs' will have a valid but unspecified value and '*this' will not
-        // be modified.  Note that an exception will never be thrown if
-        // 'get_allocator() == rhs.get_allocator()'.
 
+    /// Set the target of this object to the specified `rhs` callable
+    /// object, destroy the previous target (if any), and return `*this`.
+    /// The result is equivalent to having constructed `*this` from
+    /// `std::forward<FUNC>(rhs)` and `this->get_allocator()`.  Note that
+    /// this assignment operator will not participate in overload resolution
+    /// if `func` is of the same type as this object (to avoid ambiguity
+    /// with the copy and move assignment operators.)  In C++03,
+    /// instantiation will fail unless `FUNC` is invocable with the
+    /// arguments and return type specified in `PROTOTYPE`.  In C++11 and
+    /// later, this assignment operator will not participate in overload
+    /// resolution unless `FUNC` is invocable with the arguments and return
+    /// type specified in `PROTOTYPE`.
     template <class FUNC>
     typename enable_if<
            ! IsReferenceCompatible<typename Decay<FUNC>::type, function>::value
         &&   IsInvocableWithPrototype<typename Decay<FUNC>::type>::value
      , function&>::type
     operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) rhs)
-        // Set the target of this object to the specified 'rhs' callable
-        // object, destroy the previous target (if any), and return '*this'.
-        // The result is equivalent to having constructed '*this' from
-        // 'std::forward<FUNC>(rhs)' and 'this->get_allocator()'.  Note that
-        // this assignment operator will not participate in overload resolution
-        // if 'func' is of the same type as this object (to avoid ambiguity
-        // with the copy and move assignment operators.)  In C++03,
-        // instantiation will fail unless 'FUNC' is invocable with the
-        // arguments and return type specified in 'PROTOTYPE'.  In C++11 and
-        // later, this assignment operator will not participate in overload
-        // resolution unless 'FUNC' is invocable with the arguments and return
-        // type specified in 'PROTOTYPE'.
     {
         ///Implementation Note
         ///- - - - - - - - - -
@@ -1530,17 +1578,17 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     }
 #endif
 
+    /// Destroy the current target (if any) of this object, then set the
+    /// target to the specified `rhs` wrapper containing a reference to a
+    /// callable object and return `*this`.  The result is equivalent to
+    /// having constructed `*this` from `rhs` and `this->get_allocator()`.
+    /// Note that this assignment is a separate overload only because it is
+    /// unconditionally `noexcept`.
     template <class FUNC>
     typename enable_if<
              IsInvocableWithPrototype<typename Decay<FUNC>::type>::value
      , function &>::type
     operator=(bsl::reference_wrapper<FUNC> rhs) BSLS_KEYWORD_NOEXCEPT
-        // Destroy the current target (if any) of this object, then set the
-        // target to the specified 'rhs' wrapper containing a reference to a
-        // callable object and return '*this'.  The result is equivalent to
-        // having constructed '*this' from 'rhs' and 'this->get_allocator()'.
-        // Note that this assignment is a separate overload only because it is
-        // unconditionally 'noexcept'.
     {
         /// Implementation Note
         ///- - - - - - - - - -
@@ -1551,36 +1599,37 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         return *this;
     }
 
+    /// Set this object to empty and return `*this`.
     function& operator=(nullptr_t) BSLS_KEYWORD_NOEXCEPT;
-        // Set this object to empty and return '*this'.
 
     // Inherit 'operator()' from 'Function_Variadic' base class.
+
+    /// If this object is empty, throw `bsl::bad_function_call`; otherwise
+    /// invoke the target object with the specified `args...` and return the
+    /// result (after conversion to `RET`).  Note that, even though it is
+    /// declared `const`, this call operator can mutate the target object
+    /// and is thus considered a manipulator rather than an accessor.
     using Base::operator();
-        // If this object is empty, throw 'bsl::bad_function_call'; otherwise
-        // invoke the target object with the specified 'args...' and return the
-        // result (after conversion to 'RET').  Note that, even though it is
-        // declared 'const', this call operator can mutate the target object
-        // and is thus considered a manipulator rather than an accessor.
 
+    /// Exchange the targets held by this `function` and the specified
+    /// `other` `function`.  The behavior is undefined unless
+    /// `get_allocator() == other.get_allocator()`.
     void swap(function& other) BSLS_KEYWORD_NOEXCEPT;
-        // Exchange the targets held by this 'function' and the specified
-        // 'other' 'function'.  The behavior is undefined unless
-        // 'get_allocator() == other.get_allocator()'.
 
+    /// If `TP` is the same type as the target object, returns a pointer
+    /// granting modifiable access to the target; otherwise return a null
+    /// pointer.
     template<class TP> TP* target() BSLS_KEYWORD_NOEXCEPT;
-        // If 'TP' is the same type as the target object, returns a pointer
-        // granting modifiable access to the target; otherwise return a null
-        // pointer.
 
     // ACCESSORS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    /// (C++11 and later) Return false if this object is empty, otherwise
+    /// return true.  Note that this is an explicit conversion operator and
+    /// is typically invoked implicitly in contexts such as in the condition
+    /// of an `if` or `while` statement, though it can also be invoked via
+    /// an explicit cast.
     explicit  // Explicit conversion available only with C++11
     operator bool() const BSLS_KEYWORD_NOEXCEPT;
-        // (C++11 and later) Return false if this object is empty, otherwise
-        // return true.  Note that this is an explicit conversion operator and
-        // is typically invoked implicitly in contexts such as in the condition
-        // of an 'if' or 'while' statement, though it can also be invoked via
-        // an explicit cast.
 #else
     operator UnspecifiedBool() const BSLS_KEYWORD_NOEXCEPT
         // (C++03 only) Return a null value if this object is empty, otherwise
@@ -1594,71 +1643,73 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     }
 #endif
 
+    /// Return (a copy of) the allocator used to supply memory for this
+    /// `function`.
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
-        // Return (a copy of) the allocator used to supply memory for this
-        // 'function'.
 
+    /// If `TP` is the same type as the target object, returns a pointer
+    /// granting read-only access to the target; otherwise return a null
+    /// pointer.
     template<class TP> const TP* target() const BSLS_KEYWORD_NOEXCEPT;
-        // If 'TP' is the same type as the target object, returns a pointer
-        // granting read-only access to the target; otherwise return a null
-        // pointer.
 
+    /// Return `typeid(void)` if this object is empty; otherwise
+    /// `typeid(FUNC)` where `FUNC` is the type of the target object.
     const std::type_info& target_type() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'typeid(void)' if this object is empty; otherwise
-        // 'typeid(FUNC)' where 'FUNC' is the type of the target object.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // LEGACY METHODS
-    operator BloombergLP::bdef_Function<PROTOTYPE *>&() BSLS_KEYWORD_NOEXCEPT;
-        // !DEPRECATED!: Use 'bsl::function' instead of 'bdef_Function'.
-        //
-        // Return '*this', converted to a mutable 'bdef_Function' reference by
-        // downcasting.  The behavior is undefined unless 'bdef_Function<F*>'
-        // is derived from 'bsl::function<F>' and adds no new data members.
 
+    /// **DEPRECATED**: Use `bsl::function` instead of `bdef_Function`.
+    ///
+    /// Return `*this`, converted to a mutable `bdef_Function` reference by
+    /// downcasting.  The behavior is undefined unless `bdef_Function<F*>`
+    /// is derived from `bsl::function<F>` and adds no new data members.
+    operator BloombergLP::bdef_Function<PROTOTYPE *>&() BSLS_KEYWORD_NOEXCEPT;
+
+    /// **DEPRECATED**: Use `bsl::function` instead of `bdef_Function`.
+    ///
+    /// Return `*this` converted to a const `bdef_Function` reference by
+    /// downcasting.  The behavior is undefined unless `bdef_Function<F*>`
+    /// is derived from `bsl::function<F>` and adds no new data members.
     operator const BloombergLP::bdef_Function<PROTOTYPE *>&() const
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // !DEPRECATED!: Use 'bsl::function' instead of 'bdef_Function'.
-        //
-        // Return '*this' converted to a const 'bdef_Function' reference by
-        // downcasting.  The behavior is undefined unless 'bdef_Function<F*>'
-        // is derived from 'bsl::function<F>' and adds no new data members.
 
     // LEGACY ACCESSORS
-    BloombergLP::bslma::Allocator *allocator() const BSLS_KEYWORD_NOEXCEPT;
-        // !DEPRECATED!: Use 'get_allocator()' instead.
-        //
-        // Return 'get_allocator().mechanism()'.  Note that this function
-        // exists for BDE compatibility and is not part of the C++ Standard
-        // Library.
 
+    /// **DEPRECATED**: Use `get_allocator()` instead.
+    ///
+    /// Return `get_allocator().mechanism()`.  Note that this function
+    /// exists for BDE compatibility and is not part of the C++ Standard
+    /// Library.
+    BloombergLP::bslma::Allocator *allocator() const BSLS_KEYWORD_NOEXCEPT;
+
+    /// **DEPRECATED**: Runtime checking of this optimization is discouraged.
+    ///
+    /// Return `true` if this `function` is empty or if it is non-empty and
+    /// its target qualifies for the small-object optimization (and is thus
+    /// allocated within this object's footprint); otherwise, return false.
     bool isInplace() const BSLS_KEYWORD_NOEXCEPT;
-        // !DEPRECATED!: Runtime checking of this optimization is discouraged.
-        //
-        // Return 'true' if this 'function' is empty or if it is non-empty and
-        // its target qualifies for the small-object optimization (and is thus
-        // allocated within this object's footprint); otherwise, return false.
 #endif
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
 
+/// Deduce the template parameter `PROTOTYPE` from the signature of the
+/// function supplied to the constructor of `function`.
 template<class RET, class... ARGS>
 function(RET(*)(ARGS...)) -> function<RET(ARGS...)>;
-    // Deduce the template parameter 'PROTOTYPE' from the signature of the
-    // function supplied to the constructor of 'function'.
 
+/// Deduce the template parameter `PROTOTYPE` from the signature of the
+/// function supplied to the constructor of `function`.
 template<class ALLOC, class RET, class... ARGS>
 function(allocator_arg_t, ALLOC, RET(*)(ARGS...)) -> function<RET(ARGS...)>;
-    // Deduce the template parameter 'PROTOTYPE' from the signature of the
-    // function supplied to the constructor of 'function'.
 
 
+/// This struct provides a set of template `meta-functions` that extract
+/// the signature of a class member function, stripping any qualifiers such
+/// as `const`, `noexcept` or `&`.
 struct FunctionDeductionHelper {
-    // This struct provides a set of template 'meta-functions' that extract
-    // the signature of a class member function, stripping any qualifiers such
-    // as 'const', 'noexcept' or '&'.
 
   public:
     // PUBLIC TYPES
@@ -1698,15 +1749,17 @@ struct FunctionDeductionHelper {
         { using Sig = RET(ARGS...); };
 };
 
+/// Deduce the template parameter `PROTOTYPE` from the signature of the
+/// `operator()` of the functor supplied to the constructor of `function`.
 template <
     class FP,
     class PROTOTYPE = typename
         FunctionDeductionHelper::StripSignature<decltype(&FP::operator())>::Sig
     >
 function(FP) -> function<PROTOTYPE>;
-    // Deduce the template parameter 'PROTOTYPE' from the signature of the
-    // 'operator()' of the functor supplied to the constructor of 'function'.
 
+/// Deduce the template parameter `PROTOTYPE` from the signature of the
+/// `operator()` of the functor supplied to the constructor of `function`.
 template <
     class ALLOC,
     class FP,
@@ -1714,28 +1767,28 @@ template <
         FunctionDeductionHelper::StripSignature<decltype(&FP::operator())>::Sig
     >
 function(allocator_arg_t, ALLOC, FP) -> function<PROTOTYPE>;
-    // Deduce the template parameter 'PROTOTYPE' from the signature of the
-    // 'operator()' of the functor supplied to the constructor of 'function'.
 #endif
 
 // FREE FUNCTIONS
 template <class PROTOTYPE>
 bool operator==(const function<PROTOTYPE>&, nullptr_t) BSLS_KEYWORD_NOEXCEPT;
+
+/// Return true if the `function` argument is empty, otherwise return false.
 template <class PROTOTYPE>
 bool operator==(nullptr_t, const function<PROTOTYPE>&) BSLS_KEYWORD_NOEXCEPT;
-    // Return true if the 'function' argument is empty, otherwise return false.
 
 template <class PROTOTYPE>
 bool operator!=(const function<PROTOTYPE>&, nullptr_t) BSLS_KEYWORD_NOEXCEPT;
+
+/// Return false if the `function` argument is empty, otherwise return true.
 template <class PROTOTYPE>
 bool operator!=(nullptr_t, const function<PROTOTYPE>&) BSLS_KEYWORD_NOEXCEPT;
-    // Return false if the 'function' argument is empty, otherwise return true.
 
+/// Exchange the targets held by the specified `a` and specified `b`
+/// objects.  The behavior is undefined unless 'a.get_allocator() ==
+/// b.get_allocator()'.
 template <class PROTOTYPE>
 void swap(function<PROTOTYPE>& a,function<PROTOTYPE>& b) BSLS_KEYWORD_NOEXCEPT;
-    // Exchange the targets held by the specified 'a' and specified 'b'
-    // objects.  The behavior is undefined unless 'a.get_allocator() ==
-    // b.get_allocator()'.
 
 }  // close namespace bsl
 
@@ -3557,15 +3610,16 @@ void bsl::swap(bsl::function<PROTOTYPE>& a,
 namespace BloombergLP {
 namespace bslstl {
 
+/// Specialization of null checker for instantiations of `bsl::function`.
+/// This specialization treats an empty `bsl::function` as a null object.
 template <class PROTO>
 struct Function_InvokerUtilNullCheck<bsl::function<PROTO> > {
-    // Specialization of null checker for instantiations of 'bsl::function'.
-    // This specialization treats an empty 'bsl::function' as a null object.
 
     // CLASS METHODS
+
+    /// Return true if the `bsl::function` specified by `f` is empty; else
+    /// false.
     static bool isNull(const bsl::function<PROTO>& f)
-        // Return true if the 'bsl::function' specified by 'f' is empty; else
-        // false.
     {
         return !f;
     }
@@ -3587,7 +3641,7 @@ struct Function_InvokerUtilNullCheck<bsl::function<PROTO> > {
 #endif // ! defined(INCLUDED_BSLSTL_FUNCTION_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2022 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

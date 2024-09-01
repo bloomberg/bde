@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Sun Sep  1 05:39:09 2024
 // Command line: sim_cpp11_features.pl bslstl_bidirectionalnodepool.h
 
 #ifdef COMPILING_BSLSTL_BIDIRECTIONALNODEPOOL_H
@@ -33,23 +33,24 @@ namespace bslstl {
                        // class BidirectionalNodePool
                        // ===========================
 
+/// This class provides methods for creating and destroying nodes using the
+/// appropriate allocator-traits of the (template parameter) type
+/// `ALLOCATOR`.
 template <class VALUE, class ALLOCATOR>
 class BidirectionalNodePool {
-    // This class provides methods for creating and destroying nodes using the
-    // appropriate allocator-traits of the (template parameter) type
-    // 'ALLOCATOR'.
 
     // PRIVATE TYPES
+
+    /// This `typedef` is an alias for the memory pool allocator.
     typedef SimplePool<bslalg::BidirectionalNode<VALUE>, ALLOCATOR> Pool;
-        // This 'typedef' is an alias for the memory pool allocator.
 
+    /// This `typedef` is an alias for the allocator traits defined by
+    /// `SimplePool`.
     typedef typename Pool::AllocatorTraits                     AllocatorTraits;
-        // This 'typedef' is an alias for the allocator traits defined by
-        // 'SimplePool'.
 
+    /// This typedef is a convenient alias for the utility associated with
+    /// movable references.
     typedef bslmf::MovableRefUtil                              MoveUtil;
-        // This typedef is a convenient alias for the utility associated with
-        // movable references.
 
     // DATA
     Pool d_pool;  // pool for allocating memory
@@ -61,26 +62,28 @@ class BidirectionalNodePool {
 
   public:
     // PUBLIC TYPE
-    typedef typename Pool::AllocatorType AllocatorType;
-        // Alias for the allocator type defined by 'SimplePool'.
 
+    /// Alias for the allocator type defined by `SimplePool`.
+    typedef typename Pool::AllocatorType AllocatorType;
+
+    /// Alias for the `size_type` of the allocator defined by `SimplePool`.
     typedef typename AllocatorTraits::size_type size_type;
-        // Alias for the 'size_type' of the allocator defined by 'SimplePool'.
 
   public:
     // CREATORS
-    explicit BidirectionalNodePool(const ALLOCATOR& allocator);
-        // Create a 'BidirectionalNodePool' object that will use the specified
-        // 'allocator' to supply memory for allocated node objects.  If the
-        // (template parameter) 'ALLOCATOR' is 'bsl::allocator', then
-        // 'allocator' shall be convertible to 'bslma::Allocator *'.
 
+    /// Create a `BidirectionalNodePool` object that will use the specified
+    /// `allocator` to supply memory for allocated node objects.  If the
+    /// (template parameter) `ALLOCATOR` is `bsl::allocator`, then
+    /// `allocator` shall be convertible to `bslma::Allocator *`.
+    explicit BidirectionalNodePool(const ALLOCATOR& allocator);
+
+    /// Create a bidirectional node-pool, adopting all outstanding memory
+    /// allocations associated with the specified `original` node-pool, that
+    /// will use the allocator associated with `original` to supply memory
+    /// for allocated node objects.  `original` is left in a valid but
+    /// unspecified state.
     BidirectionalNodePool(bslmf::MovableRef<BidirectionalNodePool> original);
-        // Create a bidirectional node-pool, adopting all outstanding memory
-        // allocations associated with the specified 'original' node-pool, that
-        // will use the allocator associated with 'original' to supply memory
-        // for allocated node objects.  'original' is left in a valid but
-        // unspecified state.
 
     //! ~BidirectionalNodePool() = default;
         // Destroy the memory pool maintained by this object, releasing all
@@ -90,35 +93,36 @@ class BidirectionalNodePool {
         // nodes are explicitly destroyed via the 'destroyNode' method.
 
     // MANIPULATORS
+
+    /// Adopt all outstanding memory allocations associated with the
+    /// specified node `pool`.  The behavior is undefined unless this pool
+    /// uses the same allocator as that associated with `pool`.  The
+    /// behavior is also undefined unless this pool is in the
+    /// default-constructed state.
     void adopt(bslmf::MovableRef<BidirectionalNodePool> pool);
-        // Adopt all outstanding memory allocations associated with the
-        // specified node 'pool'.  The behavior is undefined unless this pool
-        // uses the same allocator as that associated with 'pool'.  The
-        // behavior is also undefined unless this pool is in the
-        // default-constructed state.
 
+    /// Return a reference providing modifiable access to the allocator
+    /// supplying memory for the memory pool maintained by this object.  The
+    /// behavior is undefined if the allocator used by this object is
+    /// changed with this method.  Note that this method provides modifiable
+    /// access to enable a client to call non-`const` methods on the
+    /// allocator.
     AllocatorType& allocator();
-        // Return a reference providing modifiable access to the allocator
-        // supplying memory for the memory pool maintained by this object.  The
-        // behavior is undefined if the allocator used by this object is
-        // changed with this method.  Note that this method provides modifiable
-        // access to enable a client to call non-'const' methods on the
-        // allocator.
 
+    /// Allocate a node of the type `BidirectionalNode<VALUE>`, and
+    /// copy-construct an object of the (template parameter) type `VALUE`
+    /// having the same value as the specified `original` at the `value`
+    /// attribute of the node.  Return the address of the node.  Note that
+    /// the `next` and `prev` attributes of the returned node will be
+    /// uninitialized.
     bslalg::BidirectionalLink *cloneNode(
                                     const bslalg::BidirectionalLink& original);
-        // Allocate a node of the type 'BidirectionalNode<VALUE>', and
-        // copy-construct an object of the (template parameter) type 'VALUE'
-        // having the same value as the specified 'original' at the 'value'
-        // attribute of the node.  Return the address of the node.  Note that
-        // the 'next' and 'prev' attributes of the returned node will be
-        // uninitialized.
 
+    /// Destroy the `VALUE` attribute of the specified `linkNode` and return
+    /// the memory footprint of `linkNode` to this pool for potential reuse.
+    /// The behavior is undefined unless `node` refers to a
+    /// `bslalg::BidirectionalNode<VALUE>` that was allocated by this pool.
     void deleteNode(bslalg::BidirectionalLink *linkNode);
-        // Destroy the 'VALUE' attribute of the specified 'linkNode' and return
-        // the memory footprint of 'linkNode' to this pool for potential reuse.
-        // The behavior is undefined unless 'node' refers to a
-        // 'bslalg::BidirectionalNode<VALUE>' that was allocated by this pool.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -293,51 +297,53 @@ class BidirectionalNodePool {
 // }}} END GENERATED CODE
 #endif
 
+    /// Allocate a node of the type `BidirectionalNode<VALUE>`, and
+    /// move-construct an object of the (template parameter) type `VALUE`
+    /// with the (explicitly moved) value indicated by the `value` attribute
+    /// of the specified `original` link.  Return the address of the node.
+    /// Note that the `next` and `prev` attributes of the returned node will
+    /// be uninitialized.  Also note that the `value` attribute of
+    /// `original` is left in a valid but unspecified state.
     bslalg::BidirectionalLink *moveIntoNewNode(
                                           bslalg::BidirectionalLink *original);
-        // Allocate a node of the type 'BidirectionalNode<VALUE>', and
-        // move-construct an object of the (template parameter) type 'VALUE'
-        // with the (explicitly moved) value indicated by the 'value' attribute
-        // of the specified 'original' link.  Return the address of the node.
-        // Note that the 'next' and 'prev' attributes of the returned node will
-        // be uninitialized.  Also note that the 'value' attribute of
-        // 'original' is left in a valid but unspecified state.
 
+    /// Relinquish all memory currently allocated with the memory pool
+    /// maintained by this object.
     void release();
-        // Relinquish all memory currently allocated with the memory pool
-        // maintained by this object.
 
+    /// Add to this pool sufficient memory to satisfy memory requests for at
+    /// least the specified `numNodes` before the pool replenishes.  The
+    /// additional memory is added irrespective of the amount of free memory
+    /// when called.  The behavior is undefined unless `0 < numNodes`.
     void reserveNodes(size_type numNodes);
-        // Add to this pool sufficient memory to satisfy memory requests for at
-        // least the specified 'numNodes' before the pool replenishes.  The
-        // additional memory is added irrespective of the amount of free memory
-        // when called.  The behavior is undefined unless '0 < numNodes'.
 
+    /// Efficiently exchange the nodes of this object with those of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.  The behavior is undefined unless
+    /// `allocator() == other.allocator()`.
     void swapRetainAllocators(BidirectionalNodePool& other);
-        // Efficiently exchange the nodes of this object with those of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless
-        // 'allocator() == other.allocator()'.
 
+    /// Efficiently exchange the nodes and the allocator of this object with
+    /// those of the specified `other` object.  This method provides the
+    /// no-throw exception-safety guarantee.
     void swapExchangeAllocators(BidirectionalNodePool& other);
-        // Efficiently exchange the nodes and the allocator of this object with
-        // those of the specified 'other' object.  This method provides the
-        // no-throw exception-safety guarantee.
 
     // ACCESSORS
+
+    /// Return a reference providing non-modifiable access to the allocator
+    /// supplying memory for the memory pool maintained by this object.
     const AllocatorType& allocator() const;
-        // Return a reference providing non-modifiable access to the allocator
-        // supplying memory for the memory pool maintained by this object.
 };
 
 // FREE FUNCTIONS
+
+/// Efficiently exchange the nodes of the specified `a` object with those of
+/// the specified `b` object.  This method provides the no-throw
+/// exception-safety guarantee.  The behavior is undefined unless
+/// `a.allocator() == b.allocator()`.
 template <class VALUE, class ALLOCATOR>
 void swap(BidirectionalNodePool<VALUE, ALLOCATOR>& a,
           BidirectionalNodePool<VALUE, ALLOCATOR>& b);
-    // Efficiently exchange the nodes of the specified 'a' object with those of
-    // the specified 'b' object.  This method provides the no-throw
-    // exception-safety guarantee.  The behavior is undefined unless
-    // 'a.allocator() == b.allocator()'.
 
 }  // close package namespace
 
@@ -882,7 +888,7 @@ void bslstl::swap(bslstl::BidirectionalNodePool<VALUE, ALLOCATOR>& a,
 #endif // ! defined(INCLUDED_BSLSTL_BIDIRECTIONALNODEPOOL_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

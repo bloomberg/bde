@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Aug  8 18:03:39 2023
+// Generated on Sun Sep  1 05:38:38 2024
 // Command line: sim_cpp11_features.pl bslma_constructionutil.h
 
 #ifdef COMPILING_BSLMA_CONSTRUCTIONUTIL_H
@@ -50,29 +50,31 @@ struct ConstructionUtil_Imp;
                           // struct ConstructionUtil
                           // =======================
 
+/// This `struct` provides a namespace for utility functions that construct
+/// elements of (a template parameter) `TARGET_TYPE`.
 struct ConstructionUtil {
-    // This 'struct' provides a namespace for utility functions that construct
-    // elements of (a template parameter) 'TARGET_TYPE'.
 
   private:
     // PRIVATE TYPES
+
+    /// This `typedef` is a convenient alias for the implementation-specific
+    /// utility class defined in this component.
     typedef ConstructionUtil_Imp Imp;
-        // This 'typedef' is a convenient alias for the implementation-specific
-        // utility class defined in this component.
 
   public:
     // CLASS METHODS
+
+    /// Create a default-constructed object of (template parameter)
+    /// `TARGET_TYPE` at the specified `address`.  If `allocator` is a
+    /// `bslma`-compatible allocator and `TARGET_TYPE` supports
+    /// `bslma`-style allocation, `allocator` is passed to the default
+    /// extended constructor; otherwise, `allocator` is ignored.  If the
+    /// constructor throws, the memory at `address` is left in an
+    /// unspecified state.  The behavior is undefined unless `address`
+    /// refers to a block that is of sufficient size and properly aligned
+    /// for objects of `TARGET_TYPE`.
     template <class TARGET_TYPE, class ALLOCATOR>
     static void construct(TARGET_TYPE *address, const ALLOCATOR& allocator);
-        // Create a default-constructed object of (template parameter)
-        // 'TARGET_TYPE' at the specified 'address'.  If 'allocator' is a
-        // 'bslma'-compatible allocator and 'TARGET_TYPE' supports
-        // 'bslma'-style allocation, 'allocator' is passed to the default
-        // extended constructor; otherwise, 'allocator' is ignored.  If the
-        // constructor throws, the memory at 'address' is left in an
-        // unspecified state.  The behavior is undefined unless 'address'
-        // refers to a block that is of sufficient size and properly aligned
-        // for objects of 'TARGET_TYPE'.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -352,6 +354,7 @@ struct ConstructionUtil {
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_A >= 13
 
 # endif
+
 #if BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_A >= 0
     template <class TARGET_TYPE, class ALLOCATOR, class ARG1>
     static void construct(TARGET_TYPE                             *address,
@@ -629,6 +632,7 @@ struct ConstructionUtil {
                           ARG1&                    argument1,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments);
 # endif
+
     template <class TARGET_TYPE, class ALLOCATOR, class ARG1, class... ARGS>
     static void construct(TARGET_TYPE                             *address,
                           const ALLOCATOR&                         allocator,
@@ -637,40 +641,40 @@ struct ConstructionUtil {
 // }}} END GENERATED CODE
 #endif
 
+    /// Create an object of (template parameter) `TARGET_TYPE` at the
+    /// specified `address` by moving from the specified `original` object,
+    /// then destroy `original`.  The specified `allocator` is unused
+    /// (except possibly in precondition checks).  The constructed object
+    /// will have the same allocator (if any) as `original`.  If
+    /// `bslmf::IsBitwiseMoveable<TARGET_TYPE>::value` is `true`, then the
+    /// entire operation is a simple `memcpy` -- no constructors or
+    /// destructors are invoked; otherwise, this method move-constructs an
+    /// object at `address` from the object at `original` then invokes the
+    /// destructor on `original`.  If the move constructor throws an
+    /// exception, the memory at `address` is left in an uninitialized state
+    /// and `original` is left in a valid but unspecified state.  The
+    /// behavior is undefined if `original` uses an allocator other than
+    /// `allocator` to supply memory.  Note that if `original` points to an
+    /// object of a type derived from `TARGET_TYPE` (i.e., a slicing move)
+    /// where `TARGET_TYPE` has a non-`virtual` destructor, then `original`
+    /// will be only partially destroyed.
     template <class TARGET_TYPE, class ALLOCATOR>
     static void destructiveMove(TARGET_TYPE      *address,
                                 const ALLOCATOR&  allocator,
                                 TARGET_TYPE      *original);
-        // Create an object of (template parameter) 'TARGET_TYPE' at the
-        // specified 'address' by moving from the specified 'original' object,
-        // then destroy 'original'.  The specified 'allocator' is unused
-        // (except possibly in precondition checks).  The constructed object
-        // will have the same allocator (if any) as 'original'.  If
-        // 'bslmf::IsBitwiseMoveable<TARGET_TYPE>::value' is 'true', then the
-        // entire operation is a simple 'memcpy' -- no constructors or
-        // destructors are invoked; otherwise, this method move-constructs an
-        // object at 'address' from the object at 'original' then invokes the
-        // destructor on 'original'.  If the move constructor throws an
-        // exception, the memory at 'address' is left in an uninitialized state
-        // and 'original' is left in a valid but unspecified state.  The
-        // behavior is undefined if 'original' uses an allocator other than
-        // 'allocator' to supply memory.  Note that if 'original' points to an
-        // object of a type derived from 'TARGET_TYPE' (i.e., a slicing move)
-        // where 'TARGET_TYPE' has a non-'virtual' destructor, then 'original'
-        // will be only partially destroyed.
 
 #if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+    /// Return, by value, an object of the specified (template parameter)
+    /// `TARGET_TYPE`, having default value.  If `allocator` is a
+    /// `bslma`-compatible allocator and `TARGET_TYPE` supports
+    /// `bslma`-style allocation, `allocator` is passed to the extended
+    /// default constructor; otherwise, `allocator` is ignored.  Note that
+    /// this method is available only for compilers that reliably implement
+    /// copy/move elision (i.e., RVO) on the returned object.  This
+    /// copy/move elision is required starting with C++17 and is widely
+    /// implemented, though optional, prior to C++17.
     template <class TARGET_TYPE, class ALLOCATOR>
     static TARGET_TYPE make(const ALLOCATOR& allocator);
-        // Return, by value, an object of the specified (template parameter)
-        // 'TARGET_TYPE', having default value.  If 'allocator' is a
-        // 'bslma'-compatible allocator and 'TARGET_TYPE' supports
-        // 'bslma'-style allocation, 'allocator' is passed to the extended
-        // default constructor; otherwise, 'allocator' is ignored.  Note that
-        // this method is available only for compilers that reliably implement
-        // copy/move elision (i.e., RVO) on the returned object.  This
-        // copy/move elision is required starting with C++17 and is widely
-        // implemented, though optional, prior to C++17.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -936,6 +940,7 @@ struct ConstructionUtil {
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_B >= 13
 
 # endif
+
 #if BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_B >= 0
     template <class TARGET_TYPE, class ALLOCATOR, class ARG1>
     static TARGET_TYPE make(const ALLOCATOR&                        allocator,
@@ -1198,6 +1203,7 @@ struct ConstructionUtil {
                             ARG1&                    argument1,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments);
 # endif
+
     template <class TARGET_TYPE, class ALLOCATOR, class ARG1, class... ARGS>
     static TARGET_TYPE make(const ALLOCATOR&                        allocator,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARG1) argument1,
@@ -1211,14 +1217,14 @@ struct ConstructionUtil {
                         // struct ConstructionUtil_Imp
                         // ===========================
 
+/// This `struct` provides a namespace for a suite of utility functions that
+/// are used to implement functions in `ConstructionUtil`.  In particular,
+/// they provide overloads, resolved at compile-time, for various features
+/// (e.g., passing down the allocator to sub-elements of `pair`-like types)
+/// and optimizations (e.g., bypassing the call to the constructor for
+/// classes with trivial default and copy constructors).  These functions
+/// should not be used outside this component.
 struct ConstructionUtil_Imp {
-    // This 'struct' provides a namespace for a suite of utility functions that
-    // are used to implement functions in 'ConstructionUtil'.  In particular,
-    // they provide overloads, resolved at compile-time, for various features
-    // (e.g., passing down the allocator to sub-elements of 'pair'-like types)
-    // and optimizations (e.g., bypassing the call to the constructor for
-    // classes with trivial default and copy constructors).  These functions
-    // should not be used outside this component.
 
     // TYPES
     enum {
@@ -1234,6 +1240,13 @@ struct ConstructionUtil_Imp {
     };
 
     // CLASS METHODS
+
+    /// Construct a default instance of (template parameter) `TARGET_TYPE`
+    /// at the specified `address`, passing to the constructor the specified
+    /// `allocator` using the leading or trailing allocator convention,
+    /// according to the specified `integral_constant` tag, or ignoring
+    /// `allocator` in the `e_NIL_TRAITS` case.  If the constructor throws,
+    /// the memory at `address` is left in an unspecified state.
     template <class TARGET_TYPE, class ALLOCATOR>
     static void construct(
              TARGET_TYPE      *address,
@@ -1249,12 +1262,6 @@ struct ConstructionUtil_Imp {
              TARGET_TYPE      *address,
              const ALLOCATOR&  allocator,
              bsl::integral_constant<int, e_NIL_TRAITS>);
-        // Construct a default instance of (template parameter) 'TARGET_TYPE'
-        // at the specified 'address', passing to the constructor the specified
-        // 'allocator' using the leading or trailing allocator convention,
-        // according to the specified 'integral_constant' tag, or ignoring
-        // 'allocator' in the 'e_NIL_TRAITS' case.  If the constructor throws,
-        // the memory at 'address' is left in an unspecified state.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -2152,6 +2159,7 @@ struct ConstructionUtil_Imp {
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_C >= 13
 
 # endif
+
 #if BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_C >= 0
     template <class TARGET_TYPE, class ALLOCATOR, class ARG1>
     static void construct(
@@ -3063,6 +3071,7 @@ struct ConstructionUtil_Imp {
              ARG1&                    argument1,
              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments);
 # endif
+
     template <class TARGET_TYPE, class ALLOCATOR, class ARG1, class... ARGS>
     static void construct(
              TARGET_TYPE                            *address,
@@ -3087,41 +3096,46 @@ struct ConstructionUtil_Imp {
 // }}} END GENERATED CODE
 #endif
 
+    /// Move the bitwise movable object of (template parameter)
+    /// `TARGET_TYPE` at the specified `original` address to the specified
+    /// `address`, eliding the call to the move constructor and destructor
+    /// in favor of performing a bitwise copy.  The specified `allocator`
+    /// argument is ignored (except possibly for precondition checks).  The
+    /// behavior is undefined if `original` uses an allocator other than
+    /// `allocator` to supply memory.
     template <class TARGET_TYPE, class ALLOCATOR>
     static void destructiveMove(
               TARGET_TYPE                                           *address,
               const ALLOCATOR&                                       allocator,
               bsl::integral_constant<int, e_BITWISE_MOVABLE_TRAITS>  ,
               TARGET_TYPE                                           *original);
-        // Move the bitwise movable object of (template parameter)
-        // 'TARGET_TYPE' at the specified 'original' address to the specified
-        // 'address', eliding the call to the move constructor and destructor
-        // in favor of performing a bitwise copy.  The specified 'allocator'
-        // argument is ignored (except possibly for precondition checks).  The
-        // behavior is undefined if 'original' uses an allocator other than
-        // 'allocator' to supply memory.
 
+    /// Create an object of (template parameter) `TARGET_TYPE` at the
+    /// specified `address` by move construction from the specified
+    /// `original` object, then destroy `original`.  The specified
+    /// `allocator` is unused (except possibly in precondition checks).  The
+    /// constructed object will have the same allocator (if any) as
+    /// `original`.  If the move constructor throws an exception, the memory
+    /// at `address` is left in an uninitialized state and `original` is
+    /// left in a valid but unspecified state.  The behavior is undefined if
+    /// `original` uses an allocator other than `allocator` to supply
+    /// memory.  Note that, if `original` points to an object of a type
+    /// derived from `TARGET_TYPE` (i.e., a slicing move) where
+    /// `TARGET_TYPE` has a non-`virtual` destructor, then `original` will
+    /// be only partially destroyed.
     template <class TARGET_TYPE, class ALLOCATOR>
     static void destructiveMove(
                           TARGET_TYPE                               *address,
                           const ALLOCATOR&                           allocator,
                           bsl::integral_constant<int, e_NIL_TRAITS>  ,
                           TARGET_TYPE                               *original);
-        // Create an object of (template parameter) 'TARGET_TYPE' at the
-        // specified 'address' by move construction from the specified
-        // 'original' object, then destroy 'original'.  The specified
-        // 'allocator' is unused (except possibly in precondition checks).  The
-        // constructed object will have the same allocator (if any) as
-        // 'original'.  If the move constructor throws an exception, the memory
-        // at 'address' is left in an uninitialized state and 'original' is
-        // left in a valid but unspecified state.  The behavior is undefined if
-        // 'original' uses an allocator other than 'allocator' to supply
-        // memory.  Note that, if 'original' points to an object of a type
-        // derived from 'TARGET_TYPE' (i.e., a slicing move) where
-        // 'TARGET_TYPE' has a non-'virtual' destructor, then 'original' will
-        // be only partially destroyed.
 
 #if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+    /// Return, by value, a default-constructed object of (template
+    /// parameter) `TARGET_TYPE`, passing the specified `allocator` to the
+    /// constructor using the leading or trailing allocator convention,
+    /// according to the specified `integral_constant` tag, or ignoring
+    /// `allocator` in the `e_NIL_TRAITS` case.
     template <class TARGET_TYPE, class ALLOCATOR>
     static TARGET_TYPE make(
              const ALLOCATOR&  allocator,
@@ -3134,11 +3148,6 @@ struct ConstructionUtil_Imp {
     static TARGET_TYPE make(
              const ALLOCATOR&  allocator,
              bsl::integral_constant<int, e_NIL_TRAITS>);
-        // Return, by value, a default-constructed object of (template
-        // parameter) 'TARGET_TYPE', passing the specified 'allocator' to the
-        // constructor using the leading or trailing allocator convention,
-        // according to the specified 'integral_constant' tag, or ignoring
-        // 'allocator' in the 'e_NIL_TRAITS' case.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -3994,6 +4003,7 @@ struct ConstructionUtil_Imp {
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_D >= 13
 
 # endif
+
 #if BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_D >= 0
     template <class TARGET_TYPE, class ALLOCATOR, class ARG1>
     static TARGET_TYPE make(
@@ -4860,6 +4870,7 @@ struct ConstructionUtil_Imp {
              ARG1&                    argument1,
              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments);
 # endif
+
     template <class TARGET_TYPE, class ALLOCATOR, class ARG1, class... ARGS>
     static TARGET_TYPE make(
              const ALLOCATOR&                        allocator,
@@ -4883,10 +4894,10 @@ struct ConstructionUtil_Imp {
 #endif
 #endif // defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
 
+    /// Return the specified `address` cast as a pointer to `void`, even if
+    /// the (template parameter) `TARGET_TYPE` is cv-qualified.
     template <class TARGET_TYPE>
     static void *voidify(TARGET_TYPE *address);
-        // Return the specified 'address' cast as a pointer to 'void', even if
-        // the (template parameter) 'TARGET_TYPE' is cv-qualified.
 };
 
 // ============================================================================
@@ -4897,78 +4908,78 @@ struct ConstructionUtil_Imp {
               // struct template ConstructionUtil_IsAllocatorPtr
               // -----------------------------------------------
 
+/// Metafunction that inherits from `true_type` if the `ALLOC` type is a
+/// pointer to `bslma::Allocator` or a class derived from it and
+/// `false_type` otherwise.
 template <class ALLOC>
 struct ConstructionUtil_IsAllocatorPtr;
-    // Metafunction that inherits from 'true_type' if the 'ALLOC' type is a
-    // pointer to 'bslma::Allocator' or a class derived from it and
-    // 'false_type' otherwise.
 
+/// This primary template is instantiated only for non-pointer type `ALLOC`
+/// and always evaluates false.
 template <class ALLOC>
 struct ConstructionUtil_IsAllocatorPtr : bsl::false_type {
-    // This primary template is instantiated only for non-pointer type 'ALLOC'
-    // and always evaluates false.
 };
 
+/// This partial specialization is for pointer type `ALLOC *` and evaulates
+/// true if and only if `ALLOC` is derived from `bslma::Allocator`.
 template <class ALLOC>
 struct ConstructionUtil_IsAllocatorPtr<ALLOC *>
     : bsl::is_convertible<ALLOC *, bslma::Allocator *>::type {
-    // This partial specialization is for pointer type 'ALLOC *' and evaulates
-    // true if and only if 'ALLOC' is derived from 'bslma::Allocator'.
 };
 
               // ---------------------------------------------------
               // struct template ConstructionUtil_ConstructionTraits
               // ---------------------------------------------------
 
+/// Metafunction yielding one of the following three `value` constants:
+///
+///: e_USES_ALLOCATOR_ARG_T_TRAITS  `TARGET_TYPE` supports an allocator as
+///:                                its second constructor argument, after
+///:                                `bsl::allocator_arg`.
+///:
+///: e_USES_ALLOCATOR_TRAITS        `TARGET_TYPE` supports an allocator as
+///:                                its last constructor argument.
+///:
+///: e_NIL_TRAITS                   `TARGET_TYPE` does not support an
+///:                                allocator and/or `ALLOCATOR` is `void*`
+///:                                `int`, or any other non-allocator
+///:                                scalar.  The allocator argument to
+///:                                `construct` will be ignored.
+///
+/// `ALLOCATOR` is compatible with an AA `TARGET_TYPE` if `ALLOCATOR` is
+/// convertible to the allocator type expected by `TARGET_TYPE`'s
+/// constructors.  There are three special cases of incompatible `ALLOCATOR`
+/// types:
+///
+/// 1. If `TARGET_TYPE` expects an allocator of type `bslma::Allocator *`
+///    this metafunction yields either `e_USES_ALLOCATOR_ARG_T_TRAITS` or
+///    `e_USES_ALLOCATOR_TRAITS`, even if `ALLOCATOR` is not compatible with
+///    `TARGET_TYPE`.  The `construct` method will attempt to extract the
+///    `bslma::Allocator *` from the allocator using its `mechanism`
+///    accessor.  If there is no `mechanism` accessor, compilation will
+///    fail.
+/// 2. Otherwise, if `bslma::UsesBslmaAllocator<TARGET_TYPE>::value` is
+///    `true`, this metafunction yields either
+///    `e_USES_ALLOCATOR_ARG_T_TRAITS` or `e_USES_ALLOCATOR_TRAITS`, even if
+///    `ALLOCATOR` is not compatible with `TARGET_TYPE`, resulting in a
+///    compilation error within `construct`.
+/// 3. Otherwise, if `ALLOCATOR` is incompatible with `TARGET_TYPE`, then
+///    `ALLOCATOR` is ignored and this metafunction yields `e_NIL_TRAITS`,
+///    as though `TARGET_TYPE` were not AA.
+///
+/// The first two special cases allow mixing and matching between
+/// `bsl::allocator` and `bslma::Allocator *` in both directions, but will
+/// fail for other allocator types.  The failure is desirable to prevent
+/// code accidentally passing an incorrect allocator type.
+///
+/// The third special case is inconsistent with the other two so as to allow
+/// third-party classes that use third-party allocators to be treated as
+/// non-AA within containers that use BDE allocators.
+///
+/// This metafunction also yields a `type` of 'bsl::integral_constant<value,
+/// int>'.
 template <class TARGET_TYPE, class ALLOCATOR>
 struct ConstructionUtil_ConstructionTrait {
-    // Metafunction yielding one of the following three 'value' constants:
-    //
-    //: e_USES_ALLOCATOR_ARG_T_TRAITS  'TARGET_TYPE' supports an allocator as
-    //:                                its second constructor argument, after
-    //:                                'bsl::allocator_arg'.
-    //:
-    //: e_USES_ALLOCATOR_TRAITS        'TARGET_TYPE' supports an allocator as
-    //:                                its last constructor argument.
-    //:
-    //: e_NIL_TRAITS                   'TARGET_TYPE' does not support an
-    //:                                allocator and/or 'ALLOCATOR' is 'void*'
-    //:                                'int', or any other non-allocator
-    //:                                scalar.  The allocator argument to
-    //:                                'construct' will be ignored.
-    //
-    // 'ALLOCATOR' is compatible with an AA 'TARGET_TYPE' if 'ALLOCATOR' is
-    // convertible to the allocator type expected by 'TARGET_TYPE''s
-    // constructors.  There are three special cases of incompatible 'ALLOCATOR'
-    // types:
-    //
-    //: 1 If 'TARGET_TYPE' expects an allocator of type 'bslma::Allocator *'
-    //:   this metafunction yields either 'e_USES_ALLOCATOR_ARG_T_TRAITS' or
-    //:   'e_USES_ALLOCATOR_TRAITS', even if 'ALLOCATOR' is not compatible with
-    //:   'TARGET_TYPE'.  The 'construct' method will attempt to extract the
-    //:   'bslma::Allocator *' from the allocator using its 'mechanism'
-    //:   accessor.  If there is no 'mechanism' accessor, compilation will
-    //:   fail.
-    //: 2 Otherwise, if 'bslma::UsesBslmaAllocator<TARGET_TYPE>::value' is
-    //:   'true', this metafunction yields either
-    //:   'e_USES_ALLOCATOR_ARG_T_TRAITS' or 'e_USES_ALLOCATOR_TRAITS', even if
-    //:   'ALLOCATOR' is not compatible with 'TARGET_TYPE', resulting in a
-    //:   compilation error within 'construct'.
-    //: 3 Otherwise, if 'ALLOCATOR' is incompatible with 'TARGET_TYPE', then
-    //:   'ALLOCATOR' is ignored and this metafunction yields 'e_NIL_TRAITS',
-    //:   as though 'TARGET_TYPE' were not AA.
-    //
-    // The first two special cases allow mixing and matching between
-    // 'bsl::allocator' and 'bslma::Allocator *' in both directions, but will
-    // fail for other allocator types.  The failure is desirable to prevent
-    // code accidentally passing an incorrect allocator type.
-    //
-    // The third special case is inconsistent with the other two so as to allow
-    // third-party classes that use third-party allocators to be treated as
-    // non-AA within containers that use BDE allocators.
-    //
-    // This metafunction also yields a 'type' of 'bsl::integral_constant<value,
-    // int>'.
 
   private:
     // PRIVATE TYPES
@@ -5000,47 +5011,47 @@ template <class TYPE,
           bool IS_BSLMA_AA    = UsesBslmaAllocator<TYPE>::value>
 struct ConstructionUtil_AllocAdaptorUtil;
 
+/// This utility class template provides a static `adapt` method that adapts
+/// an allocator object to the type expected by `TYPE`.  This primary
+/// template is instantiated only for a non-AA `TYPE`; such types do not
+/// expect an allocator, so no `adapt` method is defined.
 template <class TYPE>
 struct ConstructionUtil_AllocAdaptorUtil<TYPE, false, false> {
-    // This utility class template provides a static 'adapt' method that adapts
-    // an allocator object to the type expected by 'TYPE'.  This primary
-    // template is instantiated only for a non-AA 'TYPE'; such types do not
-    // expect an allocator, so no 'adapt' method is defined.
 };
 
+/// This utility class template provides a static `adapt` method that adapts
+/// an allocator object to the type expected by `TYPE`.  This partial
+/// specialization is instantiated for types that expect an allocator of
+/// type `bslma::Allocator *`.
 template <class TYPE>
 struct ConstructionUtil_AllocAdaptorUtil<TYPE, false, true> {
-    // This utility class template provides a static 'adapt' method that adapts
-    // an allocator object to the type expected by 'TYPE'.  This partial
-    // specialization is instantiated for types that expect an allocator of
-    // type 'bslma::Allocator *'.
 
+    /// Return the `bslma::Allocator` pointer held by the specified `a`
+    /// object of non-pointer class.  Compilation will fail if type `ALLOC`
+    /// does not provide a `mechanism()` accessor returning a pointer to
+    /// type convertible to `bslma::Allocator *`.
     template <class ALLOC>
     static bslma::Allocator *adapt(const ALLOC& a) { return a.mechanism(); }
-        // Return the 'bslma::Allocator' pointer held by the specified 'a'
-        // object of non-pointer class.  Compilation will fail if type 'ALLOC'
-        // does not provide a 'mechanism()' accessor returning a pointer to
-        // type convertible to 'bslma::Allocator *'.
 
+    /// Return the specified `alloc_p` pointer, implicitly converted to
+    /// `bslma::Allocator *`.  Compilation will fail unless `ALLOC` is
+    /// derived from `bslma::Allocator`.
     template <class ALLOC>
     static bslma::Allocator *adapt(ALLOC *const &alloc_p) { return alloc_p; }
-        // Return the specified 'alloc_p' pointer, implicitly converted to
-        // 'bslma::Allocator *'.  Compilation will fail unless 'ALLOC' is
-        // derived from 'bslma::Allocator'.
 };
 
+/// This utility class template provides a static `adapt` method that adapts
+/// an allocator object to the type expected by `TYPE`.  This partial
+/// specialization is instantiated for types that expect an allocator of
+/// type `TYPE::allocator_type`.
 template <class TYPE, bool IS_BSLMA_AA>
 struct ConstructionUtil_AllocAdaptorUtil<TYPE, true, IS_BSLMA_AA> {
-    // This utility class template provides a static 'adapt' method that adapts
-    // an allocator object to the type expected by 'TYPE'.  This partial
-    // specialization is instantiated for types that expect an allocator of
-    // type 'TYPE::allocator_type'.
 
+    /// Return the specified `a` allocator, implicitly converted to
+    /// `TYPE::allocator_type`.  Compilation will fail if implicit
+    /// conversion to the return type is invalid.
     template <class ALLOC>
     static typename TYPE::allocator_type adapt(const ALLOC& a) { return a; }
-        // Return the specified 'a' allocator, implicitly converted to
-        // 'TYPE::allocator_type'.  Compilation will fail if implicit
-        // conversion to the return type is invalid.
 };
 
 
@@ -13540,7 +13551,7 @@ void *ConstructionUtil_Imp::voidify(TARGET_TYPE *address)
 #endif // ! defined(INCLUDED_BSLMA_CONSTRUCTIONUTIL_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

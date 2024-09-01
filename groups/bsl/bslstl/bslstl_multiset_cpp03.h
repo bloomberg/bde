@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Apr 12 00:28:23 2023
+// Generated on Sun Sep  1 05:39:10 2024
 // Command line: sim_cpp11_features.pl bslstl_multiset.h
 
 #ifdef COMPILING_BSLSTL_MULTISET_H
@@ -32,55 +32,56 @@ namespace bsl {
                              // class multiset
                              // ==============
 
+/// This class template implements a value-semantic container type holding
+/// an ordered sequence of possibly duplicate keys (of the template
+/// parameter type, `KEY`).
+///
+/// This class:
+/// * supports a complete set of *value-semantic* operations
+///   - except for BDEX serialization
+/// * is *exception-neutral* (agnostic except for the `at` method)
+/// * is *alias-safe*
+/// * is `const` *thread-safe*
+/// For terminology see {`bsldoc_glossary`}.
 template <class KEY,
           class COMPARATOR = std::less<KEY>,
           class ALLOCATOR  = bsl::allocator<KEY> >
 class multiset {
-    // This class template implements a value-semantic container type holding
-    // an ordered sequence of possibly duplicate keys (of the template
-    // parameter type, 'KEY').
-    //
-    // This class:
-    //: o supports a complete set of *value-semantic* operations
-    //:   o except for BDEX serialization
-    //: o is *exception-neutral* (agnostic except for the 'at' method)
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology see {'bsldoc_glossary'}.
 
     // PRIVATE TYPES
+
+    /// This typedef is an alias for the type of key objects maintained by
+    /// this multiset.
     typedef const KEY                                           ValueType;
-        // This typedef is an alias for the type of key objects maintained by
-        // this multiset.
 
+    /// This typedef is an alias for the comparator used internally by this
+    /// multiset.
     typedef BloombergLP::bslstl::SetComparator<KEY, COMPARATOR> Comparator;
-        // This typedef is an alias for the comparator used internally by this
-        // multiset.
 
+    /// This typedef is an alias for the type of nodes held by the tree (of
+    /// nodes) used to implement this multiset.
     typedef BloombergLP::bslstl::TreeNode<KEY>                 Node;
-        // This typedef is an alias for the type of nodes held by the tree (of
-        // nodes) used to implement this multiset.
 
+    /// This typedef is an alias for the factory type used to create and
+    /// destroy `Node` objects.
     typedef BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>  NodeFactory;
-        // This typedef is an alias for the factory type used to create and
-        // destroy 'Node' objects.
 
+    /// This typedef is an alias for the allocator traits type associated
+    /// with this container.
     typedef bsl::allocator_traits<ALLOCATOR>                   AllocatorTraits;
-        // This typedef is an alias for the allocator traits type associated
-        // with this container.
 
+    /// This typedef is a convenient alias for the utility associated with
+    /// movable references.
     typedef BloombergLP::bslmf::MovableRefUtil                 MoveUtil;
-        // This typedef is a convenient alias for the utility associated with
-        // movable references.
 
+    /// This class is a wrapper around the comparator and allocator data
+    /// members.  It takes advantage of the empty-base optimization (EBO) so
+    /// that if the comparator is stateless, it takes up no space.
+    ///
+    /// TBD: This class should eventually be replaced by the use of a
+    /// general EBO-enabled component that provides a `pair`-like interface
+    /// or a `tuple`.
     class DataWrapper : public Comparator {
-        // This class is a wrapper around the comparator and allocator data
-        // members.  It takes advantage of the empty-base optimization (EBO) so
-        // that if the comparator is stateless, it takes up no space.
-        //
-        // TBD: This class should eventually be replaced by the use of a
-        // general EBO-enabled component that provides a 'pair'-like interface
-        // or a 'tuple'.
 
         // DATA
         NodeFactory d_pool;  // pool of 'Node' objects
@@ -92,28 +93,31 @@ class multiset {
 
       public:
         // CREATORS
+
+        /// Create a data wrapper using a copy of the specified `comparator`
+        /// to order keys and a copy of the specified `basicAllocator` to
+        /// supply memory.
         explicit DataWrapper(const COMPARATOR& comparator,
                              const ALLOCATOR&  basicAllocator);
-            // Create a data wrapper using a copy of the specified 'comparator'
-            // to order keys and a copy of the specified 'basicAllocator' to
-            // supply memory.
 
+        /// Create a data wrapper initialized to the contents of the `pool`
+        /// associated with the specified `original` data wrapper.  The
+        /// comparator and allocator associated with `original` are
+        /// propagated to the new data wrapper.  `original` is left in a
+        /// valid but unspecified state.
         DataWrapper(BloombergLP::bslmf::MovableRef<DataWrapper> original);
-            // Create a data wrapper initialized to the contents of the 'pool'
-            // associated with the specified 'original' data wrapper.  The
-            // comparator and allocator associated with 'original' are
-            // propagated to the new data wrapper.  'original' is left in a
-            // valid but unspecified state.
 
         // MANIPULATORS
+
+        /// Return a reference providing modifiable access to the node
+        /// factory associated with this data wrapper.
         NodeFactory& nodeFactory();
-            // Return a reference providing modifiable access to the node
-            // factory associated with this data wrapper.
 
         // ACCESSORS
+
+        /// Return a reference providing non-modifiable access to the node
+        /// factory associated with this data wrapper.
         const NodeFactory& nodeFactory() const;
-            // Return a reference providing non-modifiable access to the node
-            // factory associated with this data wrapper.
     };
 
     // DATA
@@ -150,54 +154,57 @@ class multiset {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Return a reference providing modifiable access to the comparator for
+    /// this multiset.
     Comparator& comparator();
-        // Return a reference providing modifiable access to the comparator for
-        // this multiset.
 
+    /// Return a reference providing modifiable access to the node-allocator
+    /// for this multiset.
     NodeFactory& nodeFactory();
-        // Return a reference providing modifiable access to the node-allocator
-        // for this multiset.
 
+    /// Efficiently exchange the value, comparator, and allocator of this
+    /// object with the value, comparator, and allocator of the specified
+    /// `other` object.  This method provides the no-throw exception-safety
+    /// guarantee, *unless* swapping the (user-supplied) comparator or
+    /// allocator objects can throw.
     void quickSwapExchangeAllocators(multiset& other);
-        // Efficiently exchange the value, comparator, and allocator of this
-        // object with the value, comparator, and allocator of the specified
-        // 'other' object.  This method provides the no-throw exception-safety
-        // guarantee, *unless* swapping the (user-supplied) comparator or
-        // allocator objects can throw.
 
+    /// Efficiently exchange the value and comparator of this object with
+    /// the value and comparator of the specified `other` object.  This
+    /// method provides the no-throw exception-safety guarantee, *unless*
+    /// swapping the (user-supplied) comparator objects can throw.  The
+    /// behavior is undefined unless this object was created with the same
+    /// allocator as `other`.
     void quickSwapRetainAllocators(multiset& other);
-        // Efficiently exchange the value and comparator of this object with
-        // the value and comparator of the specified 'other' object.  This
-        // method provides the no-throw exception-safety guarantee, *unless*
-        // swapping the (user-supplied) comparator objects can throw.  The
-        // behavior is undefined unless this object was created with the same
-        // allocator as 'other'.
 
     // PRIVATE ACCESSORS
-    const Comparator& comparator() const;
-        // Return a reference providing non-modifiable access to the comparator
-        // for this multiset.
 
+    /// Return a reference providing non-modifiable access to the comparator
+    /// for this multiset.
+    const Comparator& comparator() const;
+
+    /// Return a reference providing non-modifiable access to the
+    /// node-allocator for this multiset.
     const NodeFactory& nodeFactory() const;
-        // Return a reference providing non-modifiable access to the
-        // node-allocator for this multiset.
 
   public:
     // CREATORS
+
+    /// Create an empty multiset.  Optionally specify a `comparator` used to
+    /// order keys contained in this object.  If `comparator` is not
+    /// supplied, a default-constructed object of the (template parameter)
+    /// type `COMPARATOR` is used.  Optionally specify the `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is not supplied, a
+    /// default-constructed object of the (template parameter) type
+    /// `ALLOCATOR` is used.  If the type `ALLOCATOR` is `bsl::allocator`
+    /// (the default), then `basicAllocator`, if supplied, shall be
+    /// convertible to `bslma::Allocator *`.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` and `basicAllocator` is not supplied, the currently
+    /// installed default allocator is used.
     multiset();
     explicit multiset(const COMPARATOR& comparator,
                       const ALLOCATOR&  basicAllocator = ALLOCATOR())
-        // Create an empty multiset.  Optionally specify a 'comparator' used to
-        // order keys contained in this object.  If 'comparator' is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type 'COMPARATOR' is used.  Optionally specify the 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is not supplied, a
-        // default-constructed object of the (template parameter) type
-        // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
-        // (the default), then 'basicAllocator', if supplied, shall be
-        // convertible to 'bslma::Allocator *'.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator is used.
     : d_compAndAlloc(comparator, basicAllocator)
     , d_tree()
     {
@@ -208,59 +215,84 @@ class multiset {
         // container and the comparator is defined after the new class.
     }
 
+    /// Create an empty multiset that uses the specified `basicAllocator` to
+    /// supply memory.  Use a default-constructed object of the (template
+    /// parameter) type `COMPARATOR` to order the keys contained in this
+    /// multiset.  Note that a `bslma::Allocator *` can be supplied for
+    /// `basicAllocator` if the (template parameter) `ALLOCATOR` is
+    /// `bsl::allocator` (the default).
     explicit multiset(const ALLOCATOR& basicAllocator);
-        // Create an empty multiset that uses the specified 'basicAllocator' to
-        // supply memory.  Use a default-constructed object of the (template
-        // parameter) type 'COMPARATOR' to order the keys contained in this
-        // multiset.  Note that a 'bslma::Allocator *' can be supplied for
-        // 'basicAllocator' if the (template parameter) 'ALLOCATOR' is
-        // 'bsl::allocator' (the default).
 
+    /// Create a multiset having the same value as the specified `original`
+    /// object.  Use a copy of `original.key_comp()` to order the keys
+    /// contained in this multiset.  Use the allocator returned by
+    /// 'bsl::allocator_traits<ALLOCATOR>::
+    /// select_on_container_copy_construction(original.get_allocator())' to
+    /// allocate memory.  This method requires that the (template parameter)
+    /// type `KEY` be `copy-insertable` into this multiset (see
+    /// {Requirements on `KEY`}).
     multiset(const multiset& original);
-        // Create a multiset having the same value as the specified 'original'
-        // object.  Use a copy of 'original.key_comp()' to order the keys
-        // contained in this multiset.  Use the allocator returned by
-        // 'bsl::allocator_traits<ALLOCATOR>::
-        // select_on_container_copy_construction(original.get_allocator())' to
-        // allocate memory.  This method requires that the (template parameter)
-        // type 'KEY' be 'copy-insertable' into this multiset (see
-        // {Requirements on 'KEY'}).
 
+    /// Create a multiset having the same value as that of the specified
+    /// `original` object by moving (in constant time) the contents of
+    /// `original` to the new multiset.  Use a copy of `original.key_comp()`
+    /// to order the keys contained in this multiset.  The allocator
+    /// associated with `original` is propagated for use in the
+    /// newly-created multiset.  `original` is left in a valid but
+    /// unspecified state.
     multiset(BloombergLP::bslmf::MovableRef<multiset> original);    // IMPLICIT
-        // Create a multiset having the same value as that of the specified
-        // 'original' object by moving (in constant time) the contents of
-        // 'original' to the new multiset.  Use a copy of 'original.key_comp()'
-        // to order the keys contained in this multiset.  The allocator
-        // associated with 'original' is propagated for use in the
-        // newly-created multiset.  'original' is left in a valid but
-        // unspecified state.
 
+    /// Create a multiset having the same value as the specified `original`
+    /// object that uses the specified `basicAllocator` to supply memory.
+    /// Use a copy of `original.key_comp()` to order the keys contained in
+    /// this multiset.  This method requires that the (template parameter)
+    /// type `KEY` be `copy-insertable` into this multiset (see
+    /// {Requirements on `KEY`}).  Note that a `bslma::Allocator *` can be
+    /// supplied for `basicAllocator` if the (template parameter) type
+    /// `ALLOCATOR` is `bsl::allocator` (the default).
     multiset(const multiset&                                original,
              const typename type_identity<ALLOCATOR>::type& basicAllocator);
-        // Create a multiset having the same value as the specified 'original'
-        // object that uses the specified 'basicAllocator' to supply memory.
-        // Use a copy of 'original.key_comp()' to order the keys contained in
-        // this multiset.  This method requires that the (template parameter)
-        // type 'KEY' be 'copy-insertable' into this multiset (see
-        // {Requirements on 'KEY'}).  Note that a 'bslma::Allocator *' can be
-        // supplied for 'basicAllocator' if the (template parameter) type
-        // 'ALLOCATOR' is 'bsl::allocator' (the default).
 
+    /// Create a multiset having the same value as the specified `original`
+    /// object that uses the specified `basicAllocator` to supply memory.
+    /// The contents of `original` are moved (in constant time) to the new
+    /// multiset if `basicAllocator == original.get_allocator()`, and are
+    /// move-inserted (in linear time) using `basicAllocator` otherwise.
+    /// `original` is left in a valid but unspecified state.  Use a copy of
+    /// `original.key_comp()` to order the keys contained in this multiset.
+    /// This method requires that the (template parameter) type `KEY` be
+    /// `move-insertable` into this multiset (see {Requirements on `KEY`}).
+    /// Note that a `bslma::Allocator *` can be supplied for
+    /// `basicAllocator` if the (template parameter) type `ALLOCATOR` is
+    /// `bsl::allocator` (the default).
     multiset(BloombergLP::bslmf::MovableRef<multiset>       original,
              const typename type_identity<ALLOCATOR>::type& basicAllocator);
-        // Create a multiset having the same value as the specified 'original'
-        // object that uses the specified 'basicAllocator' to supply memory.
-        // The contents of 'original' are moved (in constant time) to the new
-        // multiset if 'basicAllocator == original.get_allocator()', and are
-        // move-inserted (in linear time) using 'basicAllocator' otherwise.
-        // 'original' is left in a valid but unspecified state.  Use a copy of
-        // 'original.key_comp()' to order the keys contained in this multiset.
-        // This method requires that the (template parameter) type 'KEY' be
-        // 'move-insertable' into this multiset (see {Requirements on 'KEY'}).
-        // Note that a 'bslma::Allocator *' can be supplied for
-        // 'basicAllocator' if the (template parameter) type 'ALLOCATOR' is
-        // 'bsl::allocator' (the default).
 
+    /// Create a multiset, and insert each `value_type` object in the
+    /// sequence starting at the specified `first` element, and ending
+    /// immediately before the specified `last` element.  Optionally specify
+    /// a `comparator` used to order keys contained in this object.  If
+    /// `comparator` is not supplied, a default-constructed object of the
+    /// (template parameter) type `COMPARATOR` is used.  Optionally specify
+    /// a `basicAllocator` used to supply memory.  If `basicAllocator` is
+    /// not supplied, a default-constructed object of the (template
+    /// parameter) type `ALLOCATOR` is used.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` and `basicAllocator` is not supplied, the currently
+    /// installed default allocator is used.  If the sequence `first` to
+    /// `last` is ordered according to `comparator`, then this operation has
+    /// `O[N]` complexity, where `N` is the number of elements between
+    /// `first` and `last`, otherwise this operation has `O[N * log(N)]`
+    /// complexity.  The (template parameter) type `INPUT_ITERATOR` shall
+    /// meet the requirements of an input iterator defined in the C++11
+    /// standard [24.2.3] providing access to values of a type convertible
+    /// to `value_type`, and `value_type` must be `emplace-constructible`
+    /// from `*i` into this multiset, where `i` is a dereferenceable
+    /// iterator in the range `[first .. last)` (see {Requirements on
+    /// `KEY`}).  The behavior is undefined unless `first` and `last` refer
+    /// to a sequence of valid values where `first` is at a position at or
+    /// before `last`.  Note that a `bslma::Allocator *` can be supplied for
+    /// `basicAllocator` if the type `ALLOCATOR` is `bsl::allocator` (the
+    /// default).
     template <class INPUT_ITERATOR>
     multiset(INPUT_ITERATOR    first,
              INPUT_ITERATOR    last,
@@ -270,71 +302,47 @@ class multiset {
     multiset(INPUT_ITERATOR    first,
              INPUT_ITERATOR    last,
              const ALLOCATOR&  basicAllocator);
-        // Create a multiset, and insert each 'value_type' object in the
-        // sequence starting at the specified 'first' element, and ending
-        // immediately before the specified 'last' element.  Optionally specify
-        // a 'comparator' used to order keys contained in this object.  If
-        // 'comparator' is not supplied, a default-constructed object of the
-        // (template parameter) type 'COMPARATOR' is used.  Optionally specify
-        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-        // not supplied, a default-constructed object of the (template
-        // parameter) type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator is used.  If the sequence 'first' to
-        // 'last' is ordered according to 'comparator', then this operation has
-        // 'O[N]' complexity, where 'N' is the number of elements between
-        // 'first' and 'last', otherwise this operation has 'O[N * log(N)]'
-        // complexity.  The (template parameter) type 'INPUT_ITERATOR' shall
-        // meet the requirements of an input iterator defined in the C++11
-        // standard [24.2.3] providing access to values of a type convertible
-        // to 'value_type', and 'value_type' must be 'emplace-constructible'
-        // from '*i' into this multiset, where 'i' is a dereferenceable
-        // iterator in the range '[first .. last)' (see {Requirements on
-        // 'KEY'}).  The behavior is undefined unless 'first' and 'last' refer
-        // to a sequence of valid values where 'first' is at a position at or
-        // before 'last'.  Note that a 'bslma::Allocator *' can be supplied for
-        // 'basicAllocator' if the type 'ALLOCATOR' is 'bsl::allocator' (the
-        // default).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Create a multiset and insert each `value_type` object in the
+    /// specified `values` initializer list.  Optionally specify a
+    /// `comparator` used to order keys contained in this object.  If
+    /// `comparator` is not supplied, a default-constructed object of the
+    /// (template parameter) type `COMPARATOR` is used.  Optionally specify
+    /// a `basicAllocator` used to supply memory.  If `basicAllocator` is
+    /// not supplied, a default-constructed object of the (template
+    /// parameter) type `ALLOCATOR` is used.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` and `basicAllocator` is not supplied, the currently
+    /// installed default allocator is used.  If `values` is ordered
+    /// according to `comparator`, then this operation has `O[N]`
+    /// complexity, where `N` is the number of elements in `values`;
+    /// otherwise this operation has `O[N * log(N)]` complexity.  This
+    /// method requires that the (template parameter) type `KEY` be
+    /// `copy-insertable` into this multiset (see {Requirements on `KEY`}).
+    /// Note that a `bslma::Allocator *` can be supplied for
+    /// `basicAllocator` if the type `ALLOCATOR` is `bsl::allocator` (the
+    /// default).
     multiset(std::initializer_list<KEY> values,
              const COMPARATOR&          comparator     = COMPARATOR(),
              const ALLOCATOR&           basicAllocator = ALLOCATOR());
     multiset(std::initializer_list<KEY> values,
              const ALLOCATOR&           basicAllocator);
-        // Create a multiset and insert each 'value_type' object in the
-        // specified 'values' initializer list.  Optionally specify a
-        // 'comparator' used to order keys contained in this object.  If
-        // 'comparator' is not supplied, a default-constructed object of the
-        // (template parameter) type 'COMPARATOR' is used.  Optionally specify
-        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-        // not supplied, a default-constructed object of the (template
-        // parameter) type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator is used.  If 'values' is ordered
-        // according to 'comparator', then this operation has 'O[N]'
-        // complexity, where 'N' is the number of elements in 'values';
-        // otherwise this operation has 'O[N * log(N)]' complexity.  This
-        // method requires that the (template parameter) type 'KEY' be
-        // 'copy-insertable' into this multiset (see {Requirements on 'KEY'}).
-        // Note that a 'bslma::Allocator *' can be supplied for
-        // 'basicAllocator' if the type 'ALLOCATOR' is 'bsl::allocator' (the
-        // default).
 #endif
 
+    /// Destroy this object.
     ~multiset();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value and comparator of the specified
+    /// `rhs` object, propagate to this object the allocator of `rhs` if the
+    /// `ALLOCATOR` type has trait `propagate_on_container_copy_assignment`,
+    /// and return a reference providing modifiable access to this object.
+    /// If an exception is thrown, `*this` is left in a valid but
+    /// unspecified state.  This method requires that the (template
+    /// parameter) type `KEY` be `copy-assignable` and `copy-insertable`
+    /// into this multiset (see {Requirements on `KEY`}).
     multiset& operator=(const multiset& rhs);
-        // Assign to this object the value and comparator of the specified
-        // 'rhs' object, propagate to this object the allocator of 'rhs' if the
-        // 'ALLOCATOR' type has trait 'propagate_on_container_copy_assignment',
-        // and return a reference providing modifiable access to this object.
-        // If an exception is thrown, '*this' is left in a valid but
-        // unspecified state.  This method requires that the (template
-        // parameter) type 'KEY' be 'copy-assignable' and 'copy-insertable'
-        // into this multiset (see {Requirements on 'KEY'}).
 
     multiset& operator=(BloombergLP::bslmf::MovableRef<multiset> rhs)
                        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
@@ -355,100 +363,100 @@ class multiset {
         // 'move-insertable' into this multiset (see {Requirements on 'KEY'}).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Assign to this object the value resulting from first clearing this
+    /// multiset and then inserting each `value_type` object in the
+    /// specified `values` initializer list and return a reference providing
+    /// modifiable access to this object.  This method requires that the
+    /// (template parameter) type `KEY` be `copy-insertable` into this
+    /// multiset (see {Requirements on `KEY`}).
     multiset& operator=(std::initializer_list<KEY> values);
-        // Assign to this object the value resulting from first clearing this
-        // multiset and then inserting each 'value_type' object in the
-        // specified 'values' initializer list and return a reference providing
-        // modifiable access to this object.  This method requires that the
-        // (template parameter) type 'KEY' be 'copy-insertable' into this
-        // multiset (see {Requirements on 'KEY'}).
 #endif
 
+    /// Return an iterator providing modifiable access to the first
+    /// `value_type` object in the ordered sequence of `value_type` objects
+    /// maintained by this multiset, or the `end` iterator if this multiset
+    /// is empty.
     iterator begin() BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing modifiable access to the first
-        // 'value_type' object in the ordered sequence of 'value_type' objects
-        // maintained by this multiset, or the 'end' iterator if this multiset
-        // is empty.
 
+    /// Return an iterator providing modifiable access to the past-the-end
+    /// element in the ordered sequence of `value_type` objects maintained
+    /// by this multiset.
     iterator end() BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing modifiable access to the past-the-end
-        // element in the ordered sequence of 'value_type' objects maintained
-        // by this multiset.
 
+    /// Return a reverse iterator providing modifiable access to the last
+    /// `value_type` object in the ordered sequence of `value_type` objects
+    /// maintained by this multiset, or `rend` if this multiset is empty.
     reverse_iterator rbegin() BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing modifiable access to the last
-        // 'value_type' object in the ordered sequence of 'value_type' objects
-        // maintained by this multiset, or 'rend' if this multiset is empty.
 
+    /// Return a reverse iterator providing modifiable access to the
+    /// prior-to-the-beginning element in the ordered sequence of
+    /// `value_type` objects maintained by this multiset.
     reverse_iterator rend() BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing modifiable access to the
-        // prior-to-the-beginning element in the ordered sequence of
-        // 'value_type' objects maintained by this multiset.
 
+    /// Insert the specified `value` into this multiset.  If a range
+    /// containing elements equivalent to `value` already exists, insert the
+    /// `value` at the end of that range.  Return an iterator referring to
+    /// the newly inserted `value_type` object.  This method requires that
+    /// the (template parameter) type `KEY` be `copy-insertable` into this
+    /// multiset (see {Requirements on `KEY`}).
     iterator insert(const value_type& value);
-        // Insert the specified 'value' into this multiset.  If a range
-        // containing elements equivalent to 'value' already exists, insert the
-        // 'value' at the end of that range.  Return an iterator referring to
-        // the newly inserted 'value_type' object.  This method requires that
-        // the (template parameter) type 'KEY' be 'copy-insertable' into this
-        // multiset (see {Requirements on 'KEY'}).
 
+    /// Insert the specified `value` into this multiset.  If a range
+    /// containing elements equivalent to `value` already exists in this
+    /// multiset, insert `value` at the end of that range.  `value` is left
+    /// in a valid but unspecified state.  Return an iterator referring to
+    /// the newly inserted `value_type` object in this multiset that is
+    /// equivalent to `value`.  This method requires that the (template
+    /// parameter) type `KEY` be `move-insertable` into this multiset (see
+    /// {Requirements on `KEY`}).
     iterator insert(BloombergLP::bslmf::MovableRef<value_type> value);
-        // Insert the specified 'value' into this multiset.  If a range
-        // containing elements equivalent to 'value' already exists in this
-        // multiset, insert 'value' at the end of that range.  'value' is left
-        // in a valid but unspecified state.  Return an iterator referring to
-        // the newly inserted 'value_type' object in this multiset that is
-        // equivalent to 'value'.  This method requires that the (template
-        // parameter) type 'KEY' be 'move-insertable' into this multiset (see
-        // {Requirements on 'KEY'}).
 
+    /// Insert the specified `value` into this multiset (in amortized
+    /// constant time if the specified `hint` is a valid immediate successor
+    /// to `value`).  Return an iterator referring to the newly inserted
+    /// `value_type` object in this multiset that is equivalent to `value`.
+    /// If `hint` is not a valid immediate successor to `value`, this
+    /// operation has `O[log(N)]` complexity, where `N` is the size of this
+    /// multiset.  This method requires that the (template parameter) type
+    /// `KEY` be `copy-insertable` into this multiset (see {Requirements on
+    /// `KEY`}).  The behavior is undefined unless `hint` is an iterator in
+    /// the range `[begin() .. end()]` (both endpoints included).
     iterator insert(const_iterator hint, const value_type& value);
-        // Insert the specified 'value' into this multiset (in amortized
-        // constant time if the specified 'hint' is a valid immediate successor
-        // to 'value').  Return an iterator referring to the newly inserted
-        // 'value_type' object in this multiset that is equivalent to 'value'.
-        // If 'hint' is not a valid immediate successor to 'value', this
-        // operation has 'O[log(N)]' complexity, where 'N' is the size of this
-        // multiset.  This method requires that the (template parameter) type
-        // 'KEY' be 'copy-insertable' into this multiset (see {Requirements on
-        // 'KEY'}).  The behavior is undefined unless 'hint' is an iterator in
-        // the range '[begin() .. end()]' (both endpoints included).
 
+    /// Insert the specified `value` into this multiset (in amortized
+    /// constant time if the specified `hint` is a valid immediate successor
+    /// to `value`).  `value` is left in a valid but unspecified state.
+    /// Return an iterator referring to the newly inserted `value_type`
+    /// object in this multiset that is equivalent to `value`.  If `hint` is
+    /// not a valid immediate successor to `value`, this operation has
+    /// `O[log(N)]` complexity, where `N` is the size of this multiset.
+    /// This method requires that the (template parameter) type `KEY` be
+    /// `move-insertable` into this multiset (see {Requirements on `KEY`}).
+    /// The behavior is undefined unless `hint` is an iterator in the range
+    /// `[begin() .. end()]` (both endpoints included).
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
-        // Insert the specified 'value' into this multiset (in amortized
-        // constant time if the specified 'hint' is a valid immediate successor
-        // to 'value').  'value' is left in a valid but unspecified state.
-        // Return an iterator referring to the newly inserted 'value_type'
-        // object in this multiset that is equivalent to 'value'.  If 'hint' is
-        // not a valid immediate successor to 'value', this operation has
-        // 'O[log(N)]' complexity, where 'N' is the size of this multiset.
-        // This method requires that the (template parameter) type 'KEY' be
-        // 'move-insertable' into this multiset (see {Requirements on 'KEY'}).
-        // The behavior is undefined unless 'hint' is an iterator in the range
-        // '[begin() .. end()]' (both endpoints included).
 
+    /// Insert into this multiset the value of each `value_type` object in
+    /// the range starting at the specified `first` iterator and ending
+    /// immediately before the specified `last` iterator.  The (template
+    /// parameter) type `INPUT_ITERATOR` shall meet the requirements of an
+    /// input iterator defined in the C++11 standard [24.2.3] providing
+    /// access to values of a type convertible to `value_type`, and
+    /// `value_type` must be `emplace-constructible` from `*i` into this
+    /// multiset, where `i` is a dereferenceable iterator in the range
+    /// `[first .. last)` (see {Requirements on `KEY`}).  The behavior is
+    /// undefined unless `first` and `last` refer to a sequence of valid
+    /// values where `first` is at a position at or before `last`.
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
-        // Insert into this multiset the value of each 'value_type' object in
-        // the range starting at the specified 'first' iterator and ending
-        // immediately before the specified 'last' iterator.  The (template
-        // parameter) type 'INPUT_ITERATOR' shall meet the requirements of an
-        // input iterator defined in the C++11 standard [24.2.3] providing
-        // access to values of a type convertible to 'value_type', and
-        // 'value_type' must be 'emplace-constructible' from '*i' into this
-        // multiset, where 'i' is a dereferenceable iterator in the range
-        // '[first .. last)' (see {Requirements on 'KEY'}).  The behavior is
-        // undefined unless 'first' and 'last' refer to a sequence of valid
-        // values where 'first' is at a position at or before 'last'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Insert into this multiset the value of each `value_type` object in
+    /// the specified `values` initializer list.  This method requires that
+    /// the (template parameter) type `KEY` be `copy-insertable` into this
+    /// multiset (see {Requirements on `KEY`}).
     void insert(std::initializer_list<KEY> values);
-        // Insert into this multiset the value of each 'value_type' object in
-        // the specified 'values' initializer list.  This method requires that
-        // the (template parameter) type 'KEY' be 'copy-insertable' into this
-        // multiset (see {Requirements on 'KEY'}).
 #endif
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -772,33 +780,33 @@ class multiset {
 // }}} END GENERATED CODE
 #endif
 
+    /// Remove from this multiset the `value_type` object at the specified
+    /// `position`, and return an iterator referring to the element
+    /// immediately following the removed element, or to the past-the-end
+    /// position if the removed element was the last element in the sequence
+    /// of elements maintained by this multiset.   This method invalidates
+    /// only iterators and references to the removed element and previously
+    /// saved values of the `end()` iterator.  The behavior is undefined
+    /// unless `position` refers to a `value_type` object in this multiset.
     iterator erase(const_iterator position);
-        // Remove from this multiset the 'value_type' object at the specified
-        // 'position', and return an iterator referring to the element
-        // immediately following the removed element, or to the past-the-end
-        // position if the removed element was the last element in the sequence
-        // of elements maintained by this multiset.   This method invalidates
-        // only iterators and references to the removed element and previously
-        // saved values of the 'end()' iterator.  The behavior is undefined
-        // unless 'position' refers to a 'value_type' object in this multiset.
 
+    /// Remove from this multiset all `value_type` objects equivalent to the
+    /// specified `key`, if they exist, and return the number of erased
+    /// objects; otherwise, if there are no `value_type` objects equivalent
+    /// to `key`, return 0 with no other effect.   This method invalidates
+    /// only iterators and references to the removed element and previously
+    /// saved values of the `end()` iterator.
     size_type erase(const key_type& key);
-        // Remove from this multiset all 'value_type' objects equivalent to the
-        // specified 'key', if they exist, and return the number of erased
-        // objects; otherwise, if there are no 'value_type' objects equivalent
-        // to 'key', return 0 with no other effect.   This method invalidates
-        // only iterators and references to the removed element and previously
-        // saved values of the 'end()' iterator.
 
+    /// Remove from this multiset the `value_type` objects starting at the
+    /// specified `first` position up to, but not including the specified
+    /// `last` position, and return `last`.   This method invalidates only
+    /// iterators and references to the removed element and previously saved
+    /// values of the `end()` iterator.  The behavior is undefined unless
+    /// `first` and `last` either refer to elements in this multiset or are
+    /// the `end` iterator, and the `first` position is at or before the
+    /// `last` position in the ordered sequence provided by this container.
     iterator erase(const_iterator first, const_iterator last);
-        // Remove from this multiset the 'value_type' objects starting at the
-        // specified 'first' position up to, but not including the specified
-        // 'last' position, and return 'last'.   This method invalidates only
-        // iterators and references to the removed element and previously saved
-        // values of the 'end()' iterator.  The behavior is undefined unless
-        // 'first' and 'last' either refer to elements in this multiset or are
-        // the 'end' iterator, and the 'first' position is at or before the
-        // 'last' position in the ordered sequence provided by this container.
 
     void swap(multiset& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                  AllocatorTraits::is_always_equal::value
@@ -821,129 +829,129 @@ class multiset {
         // 'ALLOCATOR' does not have the 'propagate_on_container_swap' trait is
         // a departure from the C++ Standard.
 
+    /// Remove all entries from this multiset.  Note that the multiset is
+    /// empty after this call, but allocated memory may be retained for
+    /// future use.
     void clear() BSLS_KEYWORD_NOEXCEPT;
-        // Remove all entries from this multiset.  Note that the multiset is
-        // empty after this call, but allocated memory may be retained for
-        // future use.
 
     // Turn off complaints about necessarily class-defined methods.
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -CD01
 
+    /// Return an iterator providing modifiable access to the first
+    /// `value_type` object in this multiset equivalent to the specified
+    /// `key`, if such an object exists, and the past-the-end (`end`)
+    /// iterator otherwise.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     iterator find(const key_type& key)
-        // Return an iterator providing modifiable access to the first
-        // 'value_type' object in this multiset equivalent to the specified
-        // 'key', if such an object exists, and the past-the-end ('end')
-        // iterator otherwise.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::find(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing modifiable access to the first
+    /// `value_type` object in this multiset equivalent to the specified
+    /// `key`, if such an object exists, and the past-the-end (`end`)
+    /// iterator otherwise.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         iterator>::type
     find(const LOOKUP_KEY& key)
-        // Return an iterator providing modifiable access to the first
-        // 'value_type' object in this multiset equivalent to the specified
-        // 'key', if such an object exists, and the past-the-end ('end')
-        // iterator otherwise.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::find(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing modifiable access to the first (i.e.,
+    /// ordered least) `value_type` object in this multiset greater-than or
+    /// equal-to the specified `key`, and the past-the-end iterator if this
+    /// multiset does not contain a `value_type` object greater-than or
+    /// equal-to `key`.  Note that this function returns the *first*
+    /// position before which a `value_type` object equivalent to `key`
+    /// could be inserted into the ordered sequence maintained by this
+    /// multiset, while preserving its ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     iterator lower_bound(const key_type& key)
-        // Return an iterator providing modifiable access to the first (i.e.,
-        // ordered least) 'value_type' object in this multiset greater-than or
-        // equal-to the specified 'key', and the past-the-end iterator if this
-        // multiset does not contain a 'value_type' object greater-than or
-        // equal-to 'key'.  Note that this function returns the *first*
-        // position before which a 'value_type' object equivalent to 'key'
-        // could be inserted into the ordered sequence maintained by this
-        // multiset, while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing modifiable access to the first (i.e.,
+    /// ordered least) `value_type` object in this multiset greater-than or
+    /// equal-to the specified `key`, and the past-the-end iterator if this
+    /// multiset does not contain a `value_type` object greater-than or
+    /// equal-to `key`.  Note that this function returns the *first*
+    /// position before which a `value_type` object equivalent to `key`
+    /// could be inserted into the ordered sequence maintained by this
+    /// multiset, while preserving its ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         iterator>::type
     lower_bound(const LOOKUP_KEY& key)
-        // Return an iterator providing modifiable access to the first (i.e.,
-        // ordered least) 'value_type' object in this multiset greater-than or
-        // equal-to the specified 'key', and the past-the-end iterator if this
-        // multiset does not contain a 'value_type' object greater-than or
-        // equal-to 'key'.  Note that this function returns the *first*
-        // position before which a 'value_type' object equivalent to 'key'
-        // could be inserted into the ordered sequence maintained by this
-        // multiset, while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing modifiable access to the first (i.e.,
+    /// ordered least) `value_type` object in this multiset greater than the
+    /// specified `key`, and the past-the-end iterator if this multiset does
+    /// not contain a `value_type` object greater-than `key`.  Note that
+    /// this function returns the *last* position before which a
+    /// `value_type` object equivalent to `key` could be inserted into the
+    /// ordered sequence maintained by this multiset, while preserving its
+    /// ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     iterator upper_bound(const key_type& key)
-        // Return an iterator providing modifiable access to the first (i.e.,
-        // ordered least) 'value_type' object in this multiset greater than the
-        // specified 'key', and the past-the-end iterator if this multiset does
-        // not contain a 'value_type' object greater-than 'key'.  Note that
-        // this function returns the *last* position before which a
-        // 'value_type' object equivalent to 'key' could be inserted into the
-        // ordered sequence maintained by this multiset, while preserving its
-        // ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing modifiable access to the first (i.e.,
+    /// ordered least) `value_type` object in this multiset greater than the
+    /// specified `key`, and the past-the-end iterator if this multiset does
+    /// not contain a `value_type` object greater-than `key`.  Note that
+    /// this function returns the *last* position before which a
+    /// `value_type` object equivalent to `key` could be inserted into the
+    /// ordered sequence maintained by this multiset, while preserving its
+    /// ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         iterator>::type
     upper_bound(const LOOKUP_KEY& key)
-        // Return an iterator providing modifiable access to the first (i.e.,
-        // ordered least) 'value_type' object in this multiset greater than the
-        // specified 'key', and the past-the-end iterator if this multiset does
-        // not contain a 'value_type' object greater-than 'key'.  Note that
-        // this function returns the *last* position before which a
-        // 'value_type' object equivalent to 'key' could be inserted into the
-        // ordered sequence maintained by this multiset, while preserving its
-        // ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return a pair of iterators providing modifiable access to the
+    /// sequence of `value_type` objects in this multiset equivalent to the
+    /// specified `key`, where the first iterator is positioned at the start
+    /// of the sequence and the second is positioned one past the end of the
+    /// sequence.  The first returned iterator will be `lower_bound(key)`,
+    /// the second returned iterator will be `upper_bound(key)`, and, if
+    /// this multiset contains no `value_type` objects with an equivalent
+    /// key, then the two returned iterators will have the same value.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     pair<iterator, iterator> equal_range(const key_type& key)
-        // Return a pair of iterators providing modifiable access to the
-        // sequence of 'value_type' objects in this multiset equivalent to the
-        // specified 'key', where the first iterator is positioned at the start
-        // of the sequence and the second is positioned one past the end of the
-        // sequence.  The first returned iterator will be 'lower_bound(key)',
-        // the second returned iterator will be 'upper_bound(key)', and, if
-        // this multiset contains no 'value_type' objects with an equivalent
-        // key, then the two returned iterators will have the same value.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         iterator startIt = lower_bound(key);
         iterator endIt   = startIt;
@@ -954,22 +962,22 @@ class multiset {
         return pair<iterator, iterator>(startIt, endIt);
     }
 
+    /// Return a pair of iterators providing modifiable access to the
+    /// sequence of `value_type` objects in this multiset equivalent to the
+    /// specified `key`, where the first iterator is positioned at the start
+    /// of the sequence and the second is positioned one past the end of the
+    /// sequence.  The first returned iterator will be `lower_bound(key)`,
+    /// the second returned iterator will be `upper_bound(key)`, and, if
+    /// this multiset contains no `value_type` objects with an equivalent
+    /// key, then the two returned iterators will have the same value.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         pair<iterator, iterator> >::type
     equal_range(const LOOKUP_KEY& key)
-        // Return a pair of iterators providing modifiable access to the
-        // sequence of 'value_type' objects in this multiset equivalent to the
-        // specified 'key', where the first iterator is positioned at the start
-        // of the sequence and the second is positioned one past the end of the
-        // sequence.  The first returned iterator will be 'lower_bound(key)',
-        // the second returned iterator will be 'upper_bound(key)', and, if
-        // this multiset contains no 'value_type' objects with an equivalent
-        // key, then the two returned iterators will have the same value.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         iterator startIt = lower_bound(key);
         iterator endIt   = startIt;
@@ -982,135 +990,136 @@ class multiset {
     // BDE_VERIFY pragma: pop
 
     // ACCESSORS
+
+    /// Return (a copy of) the allocator used for memory allocation by this
+    /// multiset.
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
-        // Return (a copy of) the allocator used for memory allocation by this
-        // multiset.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// `value_type` object in the ordered sequence of `value_type` objects
+    /// maintained by this multiset, or the `end` iterator if this multiset
+    /// is empty.
     const_iterator begin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object in the ordered sequence of 'value_type' objects
-        // maintained by this multiset, or the 'end' iterator if this multiset
-        // is empty.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end element in the ordered sequence of `value_type` objects
+    /// maintained by this multiset.
     const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element in the ordered sequence of 'value_type' objects
-        // maintained by this multiset.
 
+    /// Return a reverse iterator providing non-modifiable access to the
+    /// last `value_type` object in the ordered sequence of `value_type`
+    /// objects maintained by this multiset, or `rend` if this multiset is
+    /// empty.
     const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing non-modifiable access to the
-        // last 'value_type' object in the ordered sequence of 'value_type'
-        // objects maintained by this multiset, or 'rend' if this multiset is
-        // empty.
 
+    /// Return a reverse iterator providing non-modifiable access to the
+    /// prior-to-the-beginning element in the ordered sequence of
+    /// `value_type` objects maintained by this multiset.
     const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing non-modifiable access to the
-        // prior-to-the-beginning element in the ordered sequence of
-        // 'value_type' objects maintained by this multiset.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// `value_type` object in the ordered sequence of `value_type` objects
+    /// maintained by this multiset, or the `end` iterator if this multiset
+    /// is empty.
     const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object in the ordered sequence of 'value_type' objects
-        // maintained by this multiset, or the 'end' iterator if this multiset
-        // is empty.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end element in the ordered sequence of `value_type` objects
+    /// maintained by this multiset.
     const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element in the ordered sequence of 'value_type' objects
-        // maintained by this multiset.
 
+    /// Return a reverse iterator providing non-modifiable access to the
+    /// last `value_type` object in the ordered sequence of `value_type`
+    /// objects maintained by this multiset, or `rend` if this multiset is
+    /// empty.
     const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing non-modifiable access to the
-        // last 'value_type' object in the ordered sequence of 'value_type'
-        // objects maintained by this multiset, or 'rend' if this multiset is
-        // empty.
 
+    /// Return a reverse iterator providing non-modifiable access to the
+    /// prior-to-the-beginning element in the ordered sequence of
+    /// `value_type` objects maintained by this multiset.
     const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing non-modifiable access to the
-        // prior-to-the-beginning element in the ordered sequence of
-        // 'value_type' objects maintained by this multiset.
 
+    /// Return `true` if this map contains an element whose key is
+    /// equivalent to the specified `key`.
     bool contains(const key_type &key) const;
-        // Return 'true' if this map contains an element whose key is
-        // equivalent to the specified 'key'.
 
+    /// Return `true` if this map contains an element whose key is
+    /// equivalent to the specified `key`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         bool>::type
     contains(const LOOKUP_KEY& key) const
-        // Return 'true' if this map contains an element whose key is
-        // equivalent to the specified 'key'.
-        //
-        // Note: implemented inline due to Sun CC compilation error
     {
         return find(key) != end();
     }
 
+    /// Return `true` if this multiset contains no elements, and `false`
+    /// otherwise.
     bool empty() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if this multiset contains no elements, and 'false'
-        // otherwise.
 
+    /// Return the number of elements in this multiset.
     size_type size() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the number of elements in this multiset.
 
+    /// Return a theoretical upper bound on the largest number of elements
+    /// that this multiset could possibly hold.  Note that there is no
+    /// guarantee that the multiset can successfully grow to the returned
+    /// size, or even close to that size without running out of resources.
     size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a theoretical upper bound on the largest number of elements
-        // that this multiset could possibly hold.  Note that there is no
-        // guarantee that the multiset can successfully grow to the returned
-        // size, or even close to that size without running out of resources.
 
+    /// Return the key-comparison functor (or function pointer) used by this
+    /// multiset; if a comparator was supplied at construction, return its
+    /// value, otherwise return a default constructed `key_compare` object.
+    /// Note that this comparator compares objects of type `KEY`, which is
+    /// the type of the `value_type` objects contained in this multiset.
     key_compare key_comp() const;
-        // Return the key-comparison functor (or function pointer) used by this
-        // multiset; if a comparator was supplied at construction, return its
-        // value, otherwise return a default constructed 'key_compare' object.
-        // Note that this comparator compares objects of type 'KEY', which is
-        // the type of the 'value_type' objects contained in this multiset.
 
+    /// Return a functor for comparing two `value_type` objects using
+    /// `key_comp()`.  Note that since `value_type` is an alias to `KEY` for
+    /// `multiset`, this method returns the same functor as `key_comp()`.
     value_compare value_comp() const;
-        // Return a functor for comparing two 'value_type' objects using
-        // 'key_comp()'.  Note that since 'value_type' is an alias to 'KEY' for
-        // 'multiset', this method returns the same functor as 'key_comp()'.
 
     // Turn off complaints about necessarily class-defined methods.
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -CD01
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// `value_type` object that is equivalent to the specified `key` in
+    /// ordered sequence maintained by this multiset, if such an object
+    /// exists, and the past-the-end (`end`) iterator otherwise.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     const_iterator find(const key_type& key) const
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object that is equivalent to the specified 'key' in
-        // ordered sequence maintained by this multiset, if such an object
-        // exists, and the past-the-end ('end') iterator otherwise.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return const_iterator(BloombergLP::bslalg::RbTreeUtil::find(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// `value_type` object that is equivalent to the specified `key` in
+    /// ordered sequence maintained by this multiset, if such an object
+    /// exists, and the past-the-end (`end`) iterator otherwise.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         const_iterator>::type
     find(const LOOKUP_KEY& key) const
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object that is equivalent to the specified 'key' in
-        // ordered sequence maintained by this multiset, if such an object
-        // exists, and the past-the-end ('end') iterator otherwise.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return const_iterator(BloombergLP::bslalg::RbTreeUtil::find(
             d_tree, this->comparator(), key));
     }
 
+    /// Return the number of `value_type` objects within this multiset that
+    /// are equivalent to the specified `key`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     size_type count(const key_type& key) const
-        // Return the number of 'value_type' objects within this multiset that
-        // are equivalent to the specified 'key'.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         int            count = 0;
         const_iterator it    = lower_bound(key);
@@ -1122,16 +1131,16 @@ class multiset {
         return count;
     }
 
+    /// Return the number of `value_type` objects within this multiset that
+    /// are equivalent to the specified `key`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         size_type>::type
     count(const LOOKUP_KEY& key) const
-        // Return the number of 'value_type' objects within this multiset that
-        // are equivalent to the specified 'key'.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         int            count = 0;
         const_iterator it    = lower_bound(key);
@@ -1143,92 +1152,92 @@ class multiset {
         return count;
     }
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// (i.e., ordered least) `value_type` object in this multiset
+    /// greater-than or equal-to the specified `key`, and the past-the-end
+    /// iterator if this multiset does not contain a `value_type`
+    /// greater-than or equal-to `key`.  Note that this function returns the
+    /// *first* position before which a `value_type` object equivalent to
+    /// `key` could be inserted into the ordered sequence maintained by this
+    /// multiset, while preserving its ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     const_iterator lower_bound(const key_type& key) const
-        // Return an iterator providing non-modifiable access to the first
-        // (i.e., ordered least) 'value_type' object in this multiset
-        // greater-than or equal-to the specified 'key', and the past-the-end
-        // iterator if this multiset does not contain a 'value_type'
-        // greater-than or equal-to 'key'.  Note that this function returns the
-        // *first* position before which a 'value_type' object equivalent to
-        // 'key' could be inserted into the ordered sequence maintained by this
-        // multiset, while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// (i.e., ordered least) `value_type` object in this multiset
+    /// greater-than or equal-to the specified `key`, and the past-the-end
+    /// iterator if this multiset does not contain a `value_type`
+    /// greater-than or equal-to `key`.  Note that this function returns the
+    /// *first* position before which a `value_type` object equivalent to
+    /// `key` could be inserted into the ordered sequence maintained by this
+    /// multiset, while preserving its ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         const_iterator>::type
     lower_bound(const LOOKUP_KEY& key) const
-        // Return an iterator providing non-modifiable access to the first
-        // (i.e., ordered least) 'value_type' object in this multiset
-        // greater-than or equal-to the specified 'key', and the past-the-end
-        // iterator if this multiset does not contain a 'value_type'
-        // greater-than or equal-to 'key'.  Note that this function returns the
-        // *first* position before which a 'value_type' object equivalent to
-        // 'key' could be inserted into the ordered sequence maintained by this
-        // multiset, while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return const_iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// (i.e., ordered least) `value_type` object in this multiset greater
+    /// than the specified `key`, and the past-the-end iterator if this
+    /// multiset does not contain a `value_type` object greater-than `key`.
+    /// Note that this function returns the *last* position before which a
+    /// `value_type` object equivalent to `key` could be inserted into the
+    /// ordered sequence maintained by this multiset, while preserving its
+    /// ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     const_iterator upper_bound(const key_type& key) const
-        // Return an iterator providing non-modifiable access to the first
-        // (i.e., ordered least) 'value_type' object in this multiset greater
-        // than the specified 'key', and the past-the-end iterator if this
-        // multiset does not contain a 'value_type' object greater-than 'key'.
-        // Note that this function returns the *last* position before which a
-        // 'value_type' object equivalent to 'key' could be inserted into the
-        // ordered sequence maintained by this multiset, while preserving its
-        // ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// (i.e., ordered least) `value_type` object in this multiset greater
+    /// than the specified `key`, and the past-the-end iterator if this
+    /// multiset does not contain a `value_type` object greater-than `key`.
+    /// Note that this function returns the *last* position before which a
+    /// `value_type` object equivalent to `key` could be inserted into the
+    /// ordered sequence maintained by this multiset, while preserving its
+    /// ordering.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         const_iterator>::type
     upper_bound(const LOOKUP_KEY& key) const
-        // Return an iterator providing non-modifiable access to the first
-        // (i.e., ordered least) 'value_type' object in this multiset greater
-        // than the specified 'key', and the past-the-end iterator if this
-        // multiset does not contain a 'value_type' object greater-than 'key'.
-        // Note that this function returns the *last* position before which a
-        // 'value_type' object equivalent to 'key' could be inserted into the
-        // ordered sequence maintained by this multiset, while preserving its
-        // ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
             d_tree, this->comparator(), key));
     }
 
+    /// Return a pair of iterators providing non-modifiable access to the
+    /// sequence of `value_type` objects in this multiset that are
+    /// equivalent to the specified `key`, where the first iterator is
+    /// positioned at the start of the sequence, and the second is
+    /// positioned one past the end of the sequence.  The first returned
+    /// iterator will be `lower_bound(key)`; the second returned iterator
+    /// will be `upper_bound(key)`; and, if this multiset contains no
+    /// `value_type` objects equivalent to `key`, then the two returned
+    /// iterators will have the same value.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     pair<const_iterator, const_iterator> equal_range(const key_type& key) const
-        // Return a pair of iterators providing non-modifiable access to the
-        // sequence of 'value_type' objects in this multiset that are
-        // equivalent to the specified 'key', where the first iterator is
-        // positioned at the start of the sequence, and the second is
-        // positioned one past the end of the sequence.  The first returned
-        // iterator will be 'lower_bound(key)'; the second returned iterator
-        // will be 'upper_bound(key)'; and, if this multiset contains no
-        // 'value_type' objects equivalent to 'key', then the two returned
-        // iterators will have the same value.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         const_iterator startIt = lower_bound(key);
         const_iterator endIt   = startIt;
@@ -1239,23 +1248,23 @@ class multiset {
         return pair<const_iterator, const_iterator>(startIt, endIt);
     }
 
+    /// Return a pair of iterators providing non-modifiable access to the
+    /// sequence of `value_type` objects in this multiset that are
+    /// equivalent to the specified `key`, where the first iterator is
+    /// positioned at the start of the sequence, and the second is
+    /// positioned one past the end of the sequence.  The first returned
+    /// iterator will be `lower_bound(key)`; the second returned iterator
+    /// will be `upper_bound(key)`; and, if this multiset contains no
+    /// `value_type` objects equivalent to `key`, then the two returned
+    /// iterators will have the same value.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
-        // Return a pair of iterators providing non-modifiable access to the
-        // sequence of 'value_type' objects in this multiset that are
-        // equivalent to the specified 'key', where the first iterator is
-        // positioned at the start of the sequence, and the second is
-        // positioned one past the end of the sequence.  The first returned
-        // iterator will be 'lower_bound(key)'; the second returned iterator
-        // will be 'upper_bound(key)'; and, if this multiset contains no
-        // 'value_type' objects equivalent to 'key', then the two returned
-        // iterators will have the same value.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     {
         const_iterator startIt = lower_bound(key);
         const_iterator endIt   = startIt;
@@ -1271,6 +1280,12 @@ class multiset {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// iterators supplied to the constructor of `multiset`.  Deduce the
+/// template parameters `COMPARATOR` and `ALLOCATOR` from the other
+/// parameters passed to the constructor.  This guide does not participate
+/// unless the supplied (or defaulted) `ALLOCATOR` meets the requirements of
+/// a standard allocator.
 template <
     class INPUT_ITERATOR,
     class KEY =
@@ -1285,13 +1300,12 @@ multiset(INPUT_ITERATOR,
          COMPARATOR = COMPARATOR(),
          ALLOCATOR = ALLOCATOR())
 -> multiset<KEY, COMPARATOR, ALLOCATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'multiset'.  Deduce the
-    // template parameters 'COMPARATOR' and 'ALLOCATOR' from the other
-    // parameters passed to the constructor.  This guide does not participate
-    // unless the supplied (or defaulted) 'ALLOCATOR' meets the requirements of
-    // a standard allocator.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// iterators supplied to the constructor of `multiset`.  Deduce the
+/// template parameter `COMPARATOR` from the other parameter passed to the
+/// constructor.  This deduction guide does not participate unless the
+/// specified `ALLOC` is convertible to `bsl::allocator<KEY>`.
 template <
     class INPUT_ITERATOR,
     class COMPARATOR,
@@ -1303,12 +1317,12 @@ template <
     >
 multiset(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, ALLOC *)
 -> multiset<KEY, COMPARATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'multiset'.  Deduce the
-    // template parameter 'COMPARATOR' from the other parameter passed to the
-    // constructor.  This deduction guide does not participate unless the
-    // specified 'ALLOC' is convertible to 'bsl::allocator<KEY>'.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// iterators supplied to the constructor of `multiset`.  Deduce the
+/// template parameter `ALLOCATOR` from the other parameter passed to the
+/// constructor.  This deduction guide does not participate unless the
+/// supplied allocator meets the requirements of a standard allocator.
 template <
     class INPUT_ITERATOR,
     class ALLOCATOR,
@@ -1318,12 +1332,11 @@ template <
     >
 multiset(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
 -> multiset<KEY, std::less<KEY>, ALLOCATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'multiset'.  Deduce the
-    // template parameter 'ALLOCATOR' from the other parameter passed to the
-    // constructor.  This deduction guide does not participate unless the
-    // supplied allocator meets the requirements of a standard allocator.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// iterators supplied to the constructor of `multiset`.  This deduction
+/// guide does not participate unless the specified `ALLOC` is convertible
+/// to `bsl::allocator<KEY>`.
 template <
     class INPUT_ITERATOR,
     class ALLOC,
@@ -1334,11 +1347,11 @@ template <
     >
 multiset(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
 -> multiset<KEY>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'multiset'.  This deduction
-    // guide does not participate unless the specified 'ALLOC' is convertible
-    // to 'bsl::allocator<KEY>'.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// initializer_list supplied to the constructor of `multiset`.  Deduce the
+/// template parameters `COMPARATOR` and `ALLOCATOR` from the other
+/// parameters passed to the constructor.
 template <
     class KEY,
     class COMPARATOR = std::less<KEY>,
@@ -1350,11 +1363,12 @@ multiset(std::initializer_list<KEY>,
          COMPARATOR = COMPARATOR(),
          ALLOCATOR = ALLOCATOR())
 -> multiset<KEY, COMPARATOR, ALLOCATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // initializer_list supplied to the constructor of 'multiset'.  Deduce the
-    // template parameters 'COMPARATOR' and 'ALLOCATOR' from the other
-    // parameters passed to the constructor.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// initializer_list supplied to the constructor of `multiset`.  Deduce the
+/// template parameter `COMPARATOR` from the other parameter passed to the
+/// constructor.  This deduction guide does not participate unless the
+/// specified `ALLOC` is convertible to `bsl::allocator<KEY>`.
 template <
     class KEY,
     class COMPARATOR,
@@ -1364,12 +1378,11 @@ template <
     >
 multiset(std::initializer_list<KEY>, COMPARATOR, ALLOC *)
 -> multiset<KEY, COMPARATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // initializer_list supplied to the constructor of 'multiset'.  Deduce the
-    // template parameter 'COMPARATOR' from the other parameter passed to the
-    // constructor.  This deduction guide does not participate unless the
-    // specified 'ALLOC' is convertible to 'bsl::allocator<KEY>'.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// initializer_list supplied to the constructor of `multiset`.  Deduce the
+/// template parameter `ALLOCATOR` from the other parameter passed to the
+/// constructor.
 template <
     class KEY,
     class ALLOCATOR,
@@ -1377,11 +1390,11 @@ template <
     >
 multiset(std::initializer_list<KEY>, ALLOCATOR)
 -> multiset<KEY, std::less<KEY>, ALLOCATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // initializer_list supplied to the constructor of 'multiset'.  Deduce the
-    // template parameter 'ALLOCATOR' from the other parameter passed to the
-    // constructor.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// initializer_list supplied to the constructor of `multiset`.  This
+/// deduction guide does not participate unless the specified `ALLOC` is
+/// convertible to `bsl::allocator<KEY>`.
 template <
     class KEY,
     class ALLOC,
@@ -1390,24 +1403,21 @@ template <
     >
 multiset(std::initializer_list<KEY>, ALLOC *)
 -> multiset<KEY>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // initializer_list supplied to the constructor of 'multiset'.  This
-    // deduction guide does not participate unless the specified 'ALLOC' is
-    // convertible to 'bsl::allocator<KEY>'.
 
 #endif
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `multiset` objects `lhs` and `rhs`
+/// have the same value if they have the same number of keys, and each
+/// element in the ordered sequence of keys of `lhs` has the same value as
+/// the corresponding element in the ordered sequence of keys of `rhs`.
+/// This method requires that the (template parameter) type `KEY` be
+/// `equality-comparable` (see {Requirements on `KEY`}).
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator==(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'multiset' objects 'lhs' and 'rhs'
-    // have the same value if they have the same number of keys, and each
-    // element in the ordered sequence of keys of 'lhs' has the same value as
-    // the corresponding element in the ordered sequence of keys of 'rhs'.
-    // This method requires that the (template parameter) type 'KEY' be
-    // 'equality-comparable' (see {Requirements on 'KEY'}).
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1424,13 +1434,13 @@ bool operator!=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
 
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
+/// Perform a lexicographic three-way comparison of the specified `lhs` and
+/// the specified `rhs` multisets by using the comparison operators of `KEY`
+/// on each element; return the result of that comparison.
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 BloombergLP::bslalg::SynthThreeWayUtil::Result<KEY>
 operator<=>(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
             const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Perform a lexicographic three-way comparison of the specified 'lhs' and
-    // the specified 'rhs' multisets by using the comparison operators of 'KEY'
-    // on each element; return the result of that comparison.
 
 #else
 
@@ -1485,11 +1495,12 @@ bool operator>=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
 #endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
+
+/// Erase all the elements in the specified multiset `ms` that satisfy the
+/// specified predicate `predicate`.  Return the number of elements erased.
 template <class KEY, class COMPARATOR, class ALLOCATOR, class PREDICATE>
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::size_type
 erase_if(multiset<KEY, COMPARATOR, ALLOCATOR>& ms, PREDICATE predicate);
-    // Erase all the elements in the specified multiset 'ms' that satisfy the
-    // specified predicate 'predicate'.  Return the number of elements erased.
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 void swap(multiset<KEY, COMPARATOR, ALLOCATOR>& a,
@@ -3430,7 +3441,7 @@ struct UsesBslmaAllocator<bsl::multiset<KEY, COMPARATOR, ALLOCATOR> >
 #endif // ! defined(INCLUDED_BSLSTL_MULTISET_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

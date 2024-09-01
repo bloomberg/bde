@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jan  3 16:40:22 2024
+// Generated on Sun Sep  1 05:38:38 2024
 // Command line: sim_cpp11_features.pl bslma_bslallocator.h
 
 #ifdef COMPILING_BSLMA_BSLALLOCATOR_H
@@ -46,18 +46,18 @@ namespace bsl {
                               // class allocator
                               // ===============
 
+/// An STL-compatible allocator that forwards allocation calls to an
+/// underlying mechanism object of a type derived from `bslma::Allocator`.
+/// This class template adheres to the allocator requirements defined in
+/// section [allocator.requirements] and implements a superset of the
+/// `std::pmr::polymorphic_allocator` class template described in section
+/// [mem.poly.allocator.class] of the C++ standard and may be used to
+/// instantiate any [container] class template that follows the STL
+/// allocator protocol.  The allocation mechanism is chosen at run-time,
+/// giving the programmer run-time control over how a container allocates
+/// and frees memory.
 template <class TYPE = polymorphic_allocator<>::value_type>
 class allocator : public polymorphic_allocator<TYPE> {
-    // An STL-compatible allocator that forwards allocation calls to an
-    // underlying mechanism object of a type derived from 'bslma::Allocator'.
-    // This class template adheres to the allocator requirements defined in
-    // section [allocator.requirements] and implements a superset of the
-    // 'std::pmr::polymorphic_allocator' class template described in section
-    // [mem.poly.allocator.class] of the C++ standard and may be used to
-    // instantiate any [container] class template that follows the STL
-    // allocator protocol.  The allocation mechanism is chosen at run-time,
-    // giving the programmer run-time control over how a container allocates
-    // and frees memory.
 
     // PRIVATE TYPES
     typedef polymorphic_allocator<TYPE> Base;
@@ -83,50 +83,51 @@ class allocator : public polymorphic_allocator<TYPE> {
     typedef typename BaseTraits::void_pointer       void_pointer;
     typedef typename BaseTraits::const_void_pointer const_void_pointer;
 
+    /// This nested `struct` template, parameterized by `ANY_TYPE`, provides
+    /// a namespace for an `other` type alias, which is this template
+    /// instantiated with `ANY_TYPE` instead of `TYPE`.  Note that this
+    /// allocator type is convertible to and from `other` for any type,
+    /// including `void`.
     template <class ANY_TYPE>
     struct rebind {
-        // This nested 'struct' template, parameterized by 'ANY_TYPE', provides
-        // a namespace for an 'other' type alias, which is this template
-        // instantiated with 'ANY_TYPE' instead of 'TYPE'.  Note that this
-        // allocator type is convertible to and from 'other' for any type,
-        // including 'void'.
 
         typedef allocator<ANY_TYPE> other;
     };
 
     // CREATORS
-    allocator();
-        // Create an allocator that will forward allocation calls to the
-        // object pointed to by 'bslma::Default::defaultAllocator()'.
-        // Postcondition:
-        //..
-        //  this->mechanism() == bslma::Default::defaultAllocator()
-        //..
 
+    /// Create an allocator that will forward allocation calls to the
+    /// object pointed to by `bslma::Default::defaultAllocator()`.
+    /// Postcondition:
+    /// ```
+    /// this->mechanism() == bslma::Default::defaultAllocator()
+    /// ```
+    allocator();
+
+    /// Convert a `bslma::Allocator` pointer to an `allocator` object that
+    /// forwards allocation calls to the object pointed to by the specified
+    /// `mechanism`.  If `mechanism` is 0, then the currently installed
+    /// default allocator is used instead.  Postcondition:
+    /// ```
+    /// this->mechanism() == bslma::Default::allocator(mechanism)
+    /// ```
     allocator(BloombergLP::bslma::Allocator *mechanism);            // IMPLICIT
-        // Convert a 'bslma::Allocator' pointer to an 'allocator' object that
-        // forwards allocation calls to the object pointed to by the specified
-        // 'mechanism'.  If 'mechanism' is 0, then the currently installed
-        // default allocator is used instead.  Postcondition:
-        //..
-        //  this->mechanism() == bslma::Default::allocator(mechanism)
-        //..
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     allocator(const allocator& original) BSLS_KEYWORD_NOEXCEPT = default;
 #else
     allocator(const allocator& original) BSLS_KEYWORD_NOEXCEPT;
 #endif
+    /// Create an allocator sharing the same mechanism object as the
+    /// specified `original`.  The newly constructed allocator will compare
+    /// equal to `original`, even though they may be instantiated on
+    /// different types.  Postconditions:
+    /// ```
+    /// *this == original
+    /// this->mechanism() == original.mechanism()
+    /// ```
     template <class ANY_TYPE>
     allocator(const allocator<ANY_TYPE>& original) BSLS_KEYWORD_NOEXCEPT;
-        // Create an allocator sharing the same mechanism object as the
-        // specified 'original'.  The newly constructed allocator will compare
-        // equal to 'original', even though they may be instantiated on
-        // different types.  Postconditions:
-        //..
-        //  *this == original
-        //  this->mechanism() == original.mechanism()
-        //..
 
     //! ~allocator() = default;
         // Destroy this object.  Note that this destructor does not delete the
@@ -134,46 +135,46 @@ class allocator : public polymorphic_allocator<TYPE> {
 
     // MANIPULATORS
     BSLMA_BSLALLOCATOR_DEPRECATE_ASSIGN
+    /// **DEPRECATED** `bsl::allocator` should not be assigned.  Modify this
+    /// allocator to use the same mechanism as the specified `rhs` allocator
+    /// and return a modifiable reference to this object.  Note that
+    /// `bsl::allocator` objects should never be assigned at runtime, but,
+    /// in the absence of `if constexpr`, such assignments can sometimes be
+    /// found legitimately in dead branches (branches that are never taken
+    /// at runtime) within function templates; ideally, such code would be
+    /// replaced by more sophisticated metaprogramming that avoided calls to
+    /// this operator entirely.  Invoking this assignment will result in a
+    /// review error unless `rhs == *this`, i.e., when the assignment would
+    /// be a no-op.  In the future, the review error may be replaced with an
+    /// a hard assertion failure.
     allocator& operator=(const allocator& rhs);
-        // !DEPRECATED! 'bsl::allocator' should not be assigned.  Modify this
-        // allocator to use the same mechanism as the specified 'rhs' allocator
-        // and return a modifiable reference to this object.  Note that
-        // 'bsl::allocator' objects should never be assigned at runtime, but,
-        // in the absence of 'if constexpr', such assignments can sometimes be
-        // found legitimately in dead branches (branches that are never taken
-        // at runtime) within function templates; ideally, such code would be
-        // replaced by more sophisticated metaprogramming that avoided calls to
-        // this operator entirely.  Invoking this assignment will result in a
-        // review error unless 'rhs == *this', i.e., when the assignment would
-        // be a no-op.  In the future, the review error may be replaced with an
-        // a hard assertion failure.
 
+    /// Return a block of memory having sufficient size and alignment to
+    /// hold the specified `n` objects of `value_type`, allocated from the
+    /// memory resource held by this allocator.  Optionally specify a
+    /// `hint`, which is ignored by this allocator type but theoretically
+    /// used by other allocators as an aid for optimizing locality.
     BSLS_ANNOTATION_NODISCARD
     pointer allocate(size_type n, const void *hint = 0);
-        // Return a block of memory having sufficient size and alignment to
-        // hold the specified 'n' objects of 'value_type', allocated from the
-        // memory resource held by this allocator.  Optionally specify a
-        // 'hint', which is ignored by this allocator type but theoretically
-        // used by other allocators as an aid for optimizing locality.
 
+    /// Deallocate a block of memory at the specified `p` address by
+    /// returning it to the memory resource held by this allocator.
+    /// Optionally specify the number of objects, `n`, to deallocate.  The
+    /// behavior is undefined unless `p` is the address of a block
+    /// previously allocated by a call to `allocate` with the same `n` from
+    /// a copy of this allocator having the same `value_type` and not yet
+    /// deallocated.
     void deallocate(TYPE *p, std::size_t n = 1);
-        // Deallocate a block of memory at the specified 'p' address by
-        // returning it to the memory resource held by this allocator.
-        // Optionally specify the number of objects, 'n', to deallocate.  The
-        // behavior is undefined unless 'p' is the address of a block
-        // previously allocated by a call to 'allocate' with the same 'n' from
-        // a copy of this allocator having the same 'value_type' and not yet
-        // deallocated.
 
+    /// Create a default-constructed object of (template parameter)
+    /// `ELEMENT_TYPE` at the specified `address`.  If `ELEMENT_TYPE`
+    /// supports `bslma`-style allocation, this allocator passes itself to
+    /// the extended default constructor.  If the constructor throws, the
+    /// memory at `address` is left in an unspecified state.  The behavior
+    /// is undefined unless `address` refers to a block of sufficient size
+    /// and properly aligned for objects of `ELEMENT_TYPE`.
     template <class ELEMENT_TYPE>
     void construct(ELEMENT_TYPE *address);
-        // Create a default-constructed object of (template parameter)
-        // 'ELEMENT_TYPE' at the specified 'address'.  If 'ELEMENT_TYPE'
-        // supports 'bslma'-style allocation, this allocator passes itself to
-        // the extended default constructor.  If the constructor throws, the
-        // memory at 'address' is left in an unspecified state.  The behavior
-        // is undefined unless 'address' refers to a block of sufficient size
-        // and properly aligned for objects of 'ELEMENT_TYPE'.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -184,6 +185,7 @@ class allocator : public polymorphic_allocator<TYPE> {
 #ifndef BSLMA_BSLALLOCATOR_VARIADIC_LIMIT_A
 #define BSLMA_BSLALLOCATOR_VARIADIC_LIMIT_A BSLMA_BSLALLOCATOR_VARIADIC_LIMIT
 #endif
+
 #if BSLMA_BSLALLOCATOR_VARIADIC_LIMIT_A >= 0
     template <class ELEMENT_TYPE, class ARG1>
     void construct(ELEMENT_TYPE            *address,
@@ -759,6 +761,7 @@ class allocator : public polymorphic_allocator<TYPE> {
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
+
     template <class ELEMENT_TYPE, class ARG1, class... ARGS>
     void construct(ELEMENT_TYPE            *address,
                    ARG1&                    argument1,
@@ -770,45 +773,46 @@ class allocator : public polymorphic_allocator<TYPE> {
 // }}} END GENERATED CODE
 #endif
 
+    /// Call the `TYPE` destructor for the object pointed to by the
+    /// specified `address`.  Do not directly deallocate any memory.
     template <class ELEMENT_TYPE>
     void destroy(ELEMENT_TYPE *address);
-        // Call the 'TYPE' destructor for the object pointed to by the
-        // specified 'address'.  Do not directly deallocate any memory.
 
     // ACCESSORS
+
+    /// Return the address of the object referred to by the specified `x`
+    /// reference, even if the (template parameter) `TYPE` overloads the
+    /// unary `operator&`.
     pointer       address(reference x) const;
     const_pointer address(const_reference x) const;
-        // Return the address of the object referred to by the specified 'x'
-        // reference, even if the (template parameter) 'TYPE' overloads the
-        // unary 'operator&'.
 
+    /// Return the maximum number of elements of (template parameter) `TYPE`
+    /// that can be allocated using this allocator.  Note that there is no
+    /// guarantee that attempts at allocating fewer elements than the value
+    /// returned by `max_size` will not throw.
     BSLS_KEYWORD_CONSTEXPR
     size_type max_size() const;
-        // Return the maximum number of elements of (template parameter) 'TYPE'
-        // that can be allocated using this allocator.  Note that there is no
-        // guarantee that attempts at allocating fewer elements than the value
-        // returned by 'max_size' will not throw.
 
+    /// Return a pointer to the mechanism object to which this proxy
+    /// forwards allocation and deallocation calls.
     BloombergLP::bslma::Allocator *mechanism() const;
-        // Return a pointer to the mechanism object to which this proxy
-        // forwards allocation and deallocation calls.
 
+    /// Return a default-constructed allocator.
     allocator select_on_container_copy_construction() const;
-        // Return a default-constructed allocator.
 };
 
                            // =====================
                            // class allocator<void>
                            // =====================
 
+/// Specialization of `allocator<T>` where `T` is `void`.  Does not contain
+/// members that are unrepresentable for `void`.  Note that this
+/// specialization may be removed in the future.  Use `allocator<>` or
+/// `allocator<char>` instead.
 template <>
 class allocator<void>
     : public allocator<BloombergLP::bslma::BslAllocator_Voidish>
 {
-    // Specialization of 'allocator<T>' where 'T' is 'void'.  Does not contain
-    // members that are unrepresentable for 'void'.  Note that this
-    // specialization may be removed in the future.  Use 'allocator<>' or
-    // 'allocator<char>' instead.
 
     // PRIVATE TYPES
     typedef allocator<BloombergLP::bslma::BslAllocator_Voidish> Base;
@@ -837,37 +841,38 @@ class allocator<void>
     typedef void            value_type;
 
     // CREATORS
-    allocator();
-        // Create a proxy object that will forward allocation calls to the
-        // object pointed to by 'bslma::Default::defaultAllocator()'.
-        // Postcondition:
-        //..
-        //  this->mechanism() == bslma::Default::defaultAllocator();
-        //..
 
+    /// Create a proxy object that will forward allocation calls to the
+    /// object pointed to by `bslma::Default::defaultAllocator()`.
+    /// Postcondition:
+    /// ```
+    /// this->mechanism() == bslma::Default::defaultAllocator();
+    /// ```
+    allocator();
+
+    /// Convert a `bslma::Allocator` pointer to an `allocator` object that
+    /// forwards allocation calls to the object pointed to by the specified
+    /// `mechanism`.  If `mechanism` is 0, then the currently installed
+    /// default allocator is used instead.  Postcondition:
+    /// ```
+    /// this->mechanism() == bslma::Default::allocator(mechanism);
+    /// ```
     allocator(BloombergLP::bslma::Allocator *mechanism);            // IMPLICIT
-        // Convert a 'bslma::Allocator' pointer to an 'allocator' object that
-        // forwards allocation calls to the object pointed to by the specified
-        // 'mechanism'.  If 'mechanism' is 0, then the currently installed
-        // default allocator is used instead.  Postcondition:
-        //..
-        //  this->mechanism() == bslma::Default::allocator(mechanism);
-        //..
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     allocator(const allocator& original) BSLS_KEYWORD_NOEXCEPT = default;
 #else
     allocator(const allocator& original) BSLS_KEYWORD_NOEXCEPT;
 #endif
+    /// Create a proxy object sharing the same mechanism object as the
+    /// specified `original`.  The newly constructed allocator will compare
+    /// equal to `original`, even though they may be instantiated on
+    /// different types.  Postcondition:
+    /// ```
+    /// this->mechanism() == original.mechanism();
+    /// ```
     template <class ANY_TYPE>
     allocator(const allocator<ANY_TYPE>& original) BSLS_KEYWORD_NOEXCEPT;
-        // Create a proxy object sharing the same mechanism object as the
-        // specified 'original'.  The newly constructed allocator will compare
-        // equal to 'original', even though they may be instantiated on
-        // different types.  Postcondition:
-        //..
-        //  this->mechanism() == original.mechanism();
-        //..
 
     //! ~allocator();
         // Destroy this object.  Note that this does not delete the object
@@ -878,20 +883,21 @@ class allocator<void>
     //! allocator& operator=(const allocator& rhs) = default;
 
     // ACCESSORS
+
+    /// Return a default-constructed allocator.
     allocator select_on_container_copy_construction() const;
-        // Return a default-constructed allocator.
 };
 
                   // ========================================
                   // class allocator_traits<allocator<TYPE> >
                   // ========================================
 
+/// This `struct` template provides a specialization of the
+/// `allocator_traits` class template for `bsl::allocator`.  This
+/// specialization is not strictly necessary, but its presence speeds up
+/// compliation by bypassing a significant amount of metaprogramming.
 template <class TYPE>
 struct allocator_traits<allocator<TYPE> > {
-    // This 'struct' template provides a specialization of the
-    // 'allocator_traits' class template for 'bsl::allocator'.  This
-    // specialization is not strictly necessary, but its presence speeds up
-    // compliation by bypassing a significant amount of metaprogramming.
 
     // PUBLIC TYPES
     typedef allocator<TYPE>                             allocator_type;
@@ -3275,22 +3281,22 @@ bool operator!=(BloombergLP::bslma::Allocator *a,
 namespace BloombergLP {
 namespace bslma {
 
+/// An allocator is not *itself* an allocator-aware type, even though it is
+/// convertible from `bsl::Allocator *`.
 template <class TYPE>
 struct UsesBslmaAllocator< ::bsl::allocator<TYPE> > : bsl::false_type {
-    // An allocator is not *itself* an allocator-aware type, even though it is
-    // convertible from 'bsl::Allocator *'.
 };
 
+/// A `bsl::allocator` inherits its `allocate` method from a base class,
+/// which causes `IsStdAllocator` to fail the auto-detected it.
 template <class TYPE>
 struct IsStdAllocator<bsl::allocator<TYPE> > : bsl::true_type {
-    // A 'bsl::allocator' inherits its 'allocate' method from a base class,
-    // which causes 'IsStdAllocator' to fail the auto-detected it.
 };
 
+/// `bsl::allocator<void>` is not an allocator type, even though all other
+/// instantiations are allocator types.
 template <>
 struct IsStdAllocator<bsl::allocator<void> > : bsl::false_type {
-    // 'bsl::allocator<void>' is not an allocator type, even though all other
-    // instantiations are allocator types.
 };
 
 }  // close namespace bslma

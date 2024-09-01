@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Oct 10 16:39:24 2023
+// Generated on Sun Sep  1 05:39:00 2024
 // Command line: sim_cpp11_features.pl bslalg_dequeprimitives.h
 
 #ifdef COMPILING_BSLALG_DEQUEPRIMITIVES_H
@@ -66,14 +66,14 @@ class DequePrimitives_DequeEndpointProctor;
                         // struct DequePrimitives
                         // ======================
 
+/// This `struct` provides a namespace for a suite of utility functions that
+/// operate on deques parameterized by the `VALUE_TYPE` and `BLOCK_LENGTH`.
+/// Depending on the traits of `VALUE_TYPE`, the default and copy
+/// constructors, destructor, assignment operators, etcetera may not be
+/// invoked, and instead the operation can be optimized using a no-op,
+/// bitwise move, or bitwise copy.
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 struct DequePrimitives {
-    // This 'struct' provides a namespace for a suite of utility functions that
-    // operate on deques parameterized by the 'VALUE_TYPE' and 'BLOCK_LENGTH'.
-    // Depending on the traits of 'VALUE_TYPE', the default and copy
-    // constructors, destructor, assignment operators, etcetera may not be
-    // invoked, and instead the operation can be optimized using a no-op,
-    // bitwise move, or bitwise copy.
 
     // PUBLIC TYPES
     typedef std::size_t                             size_type;
@@ -87,15 +87,22 @@ struct DequePrimitives {
 
   public:
     // CLASS METHODS
+
+    /// TBD: fix comment
+    /// Call the destructor on each of the elements of a deque of
+    /// parameterized `VALUE_TYPE` in the specified range `[begin .. end)`.
+    /// The behavior is undefined unless `begin <= end`.  Note that this
+    /// does not deallocate any memory (except memory deallocated by the
+    /// element destructor calls).
     template <class ALLOCATOR>
     static void destruct(Iterator begin, Iterator end, ALLOCATOR allocator);
-        // TBD: fix comment
-        // Call the destructor on each of the elements of a deque of
-        // parameterized 'VALUE_TYPE' in the specified range '[begin .. end)'.
-        // The behavior is undefined unless 'begin <= end'.  Note that this
-        // does not deallocate any memory (except memory deallocated by the
-        // element destructor calls).
 
+    /// Call the destructor on each of the elements of a deque of
+    /// parameterized `VALUE_TYPE` in the specified range `[begin .. end)`.
+    /// The behavior is undefined unless `begin <= end`.  Note that this
+    /// does not deallocate any memory (except memory deallocated by the
+    /// element destructor calls).  Note that the last argument is for
+    /// removing overload ambiguities and is not used.
     template <class ALLOCATOR>
     static void destruct(
                 Iterator                                             begin,
@@ -108,13 +115,16 @@ struct DequePrimitives {
                 Iterator                                             end,
                 ALLOCATOR                                            allocator,
                 bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
-        // Call the destructor on each of the elements of a deque of
-        // parameterized 'VALUE_TYPE' in the specified range '[begin .. end)'.
-        // The behavior is undefined unless 'begin <= end'.  Note that this
-        // does not deallocate any memory (except memory deallocated by the
-        // element destructor calls).  Note that the last argument is for
-        // removing overload ambiguities and is not used.
 
+    /// Call the destructor on each of the elements of a deque of
+    /// parameterized `VALUE_TYPE` in the specified range `[first .. last)`.
+    /// Shift the elements to fill up the empty space after the erasure,
+    /// using the smaller of the range defined by `[fromBegin .. first)` and
+    /// `[last .. fromEnd)` after the erasure.  Load in the specified
+    /// `toBegin` and `toEnd` the new boundaries of the deque after erasure
+    /// and return an iterator pointing to the element immediately following
+    /// the removed elements.  The behavior is undefined unless
+    /// `fromBegin <= first <= last <= fromEnd`.
     template <class ALLOCATOR>
     static Iterator erase(Iterator  *toBegin,
                           Iterator  *toEnd,
@@ -123,16 +133,17 @@ struct DequePrimitives {
                           Iterator   last,
                           Iterator   fromEnd,
                           ALLOCATOR  allocator);
-        // Call the destructor on each of the elements of a deque of
-        // parameterized 'VALUE_TYPE' in the specified range '[first .. last)'.
-        // Shift the elements to fill up the empty space after the erasure,
-        // using the smaller of the range defined by '[fromBegin .. first)' and
-        // '[last .. fromEnd)' after the erasure.  Load in the specified
-        // 'toBegin' and 'toEnd' the new boundaries of the deque after erasure
-        // and return an iterator pointing to the element immediately following
-        // the removed elements.  The behavior is undefined unless
-        // 'fromBegin <= first <= last <= fromEnd'.
 
+    /// Call the destructor on each of the elements of a deque of
+    /// parameterized `VALUE_TYPE` in the specified range `[first .. last)`.
+    /// Shift the elements from the smaller of the specified range
+    /// `[fromBegin .. first)` and `[last .. fromEnd)` to fill up the empty
+    /// spaces after the erasure.  Load in the specified `toBegin` and
+    /// `toEnd` the new boundaries of the deque after erasure and return an
+    /// iterator pointing to the element immediately following the removed
+    /// elements.  The behavior is undefined unless
+    /// `fromBegin <= first <= last <= fromEnd`.  Note that the last
+    /// argument is for removing overload ambiguities and is not used.
     template <class ALLOCATOR>
     static Iterator erase(
                 Iterator                                            *toBegin,
@@ -153,17 +164,16 @@ struct DequePrimitives {
                Iterator                                              fromEnd,
                ALLOCATOR                                             allocator,
                bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
-        // Call the destructor on each of the elements of a deque of
-        // parameterized 'VALUE_TYPE' in the specified range '[first .. last)'.
-        // Shift the elements from the smaller of the specified range
-        // '[fromBegin .. first)' and '[last .. fromEnd)' to fill up the empty
-        // spaces after the erasure.  Load in the specified 'toBegin' and
-        // 'toEnd' the new boundaries of the deque after erasure and return an
-        // iterator pointing to the element immediately following the removed
-        // elements.  The behavior is undefined unless
-        // 'fromBegin <= first <= last <= fromEnd'.  Note that the last
-        // argument is for removing overload ambiguities and is not used.
 
+    /// Insert the specified `numElements` copies of the specified `value`
+    /// at the specified `position`, by moving the elements in the range
+    /// `[position .. fromEnd)` forward by `numElements` position.  Pass the
+    /// specified `allocator` to the copy constructor if appropriate.  Load
+    /// into the specified `toEnd` an iterator to the end of the deque after
+    /// insertion (i.e., `fromEnd + numElements`).  The behavior is
+    /// undefined unless `fromEnd + numElements` is a valid iterator (i.e.,
+    /// the block pointer array holds enough room after the `fromEnd`
+    /// position to insert `numElements`).
     template <class ALLOCATOR>
     static void insertAndMoveToBack(Iterator          *toEnd,
                                     Iterator           fromEnd,
@@ -171,16 +181,17 @@ struct DequePrimitives {
                                     size_type          numElements,
                                     const VALUE_TYPE&  value,
                                     ALLOCATOR          allocator);
-        // Insert the specified 'numElements' copies of the specified 'value'
-        // at the specified 'position', by moving the elements in the range
-        // '[position .. fromEnd)' forward by 'numElements' position.  Pass the
-        // specified 'allocator' to the copy constructor if appropriate.  Load
-        // into the specified 'toEnd' an iterator to the end of the deque after
-        // insertion (i.e., 'fromEnd + numElements').  The behavior is
-        // undefined unless 'fromEnd + numElements' is a valid iterator (i.e.,
-        // the block pointer array holds enough room after the 'fromEnd'
-        // position to insert 'numElements').
 
+    /// Insert the specified `numElements` copies of the specified `value`
+    /// at the specified `position`, by moving the elements in the range
+    /// `[position .. fromEnd)` forward by `numElements` position.  Pass the
+    /// specified `allocator` to the copy constructor if appropriate.  Load
+    /// into the specified `toEnd` an iterator to the end of the deque after
+    /// insertion (i.e., `fromEnd + numElements`).  The behavior is
+    /// undefined unless `fromEnd + numElements` is a valid iterator (i.e.,
+    /// the block pointer array holds enough room after the `fromEnd`
+    /// position to insert `numElements`).  Note that the last argument is
+    /// for removing overload ambiguities and is not used.
     template <class ALLOCATOR>
     static void insertAndMoveToBack(
              Iterator                                             *toEnd,
@@ -208,17 +219,16 @@ struct DequePrimitives {
              const VALUE_TYPE&                                     value,
              ALLOCATOR                                             allocator,
              bsl::integral_constant<int, NIL_TRAITS>);
-        // Insert the specified 'numElements' copies of the specified 'value'
-        // at the specified 'position', by moving the elements in the range
-        // '[position .. fromEnd)' forward by 'numElements' position.  Pass the
-        // specified 'allocator' to the copy constructor if appropriate.  Load
-        // into the specified 'toEnd' an iterator to the end of the deque after
-        // insertion (i.e., 'fromEnd + numElements').  The behavior is
-        // undefined unless 'fromEnd + numElements' is a valid iterator (i.e.,
-        // the block pointer array holds enough room after the 'fromEnd'
-        // position to insert 'numElements').  Note that the last argument is
-        // for removing overload ambiguities and is not used.
 
+    /// Insert the specified `numElements` in the range `[first .. last)` at
+    /// the specified `position`, by moving the elements in the range
+    /// `[position .. fromEnd)` forward by `numElements` position.  Pass the
+    /// specified `allocator` to the copy constructor if appropriate.  Load
+    /// into the specified `toEnd` an iterator to the end of the data after
+    /// insertion (i.e., `fromEnd + numElements`).  The behavior is
+    /// undefined unless `fromEnd + numElements` is a valid iterator (i.e.,
+    /// the block pointer array holds enough room after the `fromEnd`
+    /// position to insert `numElements`).
     template <class FWD_ITER, class ALLOCATOR>
     static void insertAndMoveToBack(Iterator  *toEnd,
                                     Iterator   fromEnd,
@@ -227,16 +237,15 @@ struct DequePrimitives {
                                     FWD_ITER   last,
                                     size_type  numElements,
                                     ALLOCATOR  allocator);
-        // Insert the specified 'numElements' in the range '[first .. last)' at
-        // the specified 'position', by moving the elements in the range
-        // '[position .. fromEnd)' forward by 'numElements' position.  Pass the
-        // specified 'allocator' to the copy constructor if appropriate.  Load
-        // into the specified 'toEnd' an iterator to the end of the data after
-        // insertion (i.e., 'fromEnd + numElements').  The behavior is
-        // undefined unless 'fromEnd + numElements' is a valid iterator (i.e.,
-        // the block pointer array holds enough room after the 'fromEnd'
-        // position to insert 'numElements').
 
+    /// Insert the specified move-insertable `value` at the specified
+    /// `position` by moving the elements in the range
+    /// `[position .. fromEnd)` forward by 1 position; pass the specified
+    /// `allocator` to the move constructor if appropriate.  Load into the
+    /// specified `toEnd` an iterator one past the inserted element (i.e.,
+    /// `fromEnd + 1`).  The behavior is undefined unless `fromEnd + 1` is a
+    /// valid iterator (i.e., the block pointer array holds enough room
+    /// after the `fromEnd` position to insert 1 element).
     template <class ALLOCATOR>
     static void moveInsertAndMoveToBack(
                                      Iterator                      *toEnd,
@@ -244,15 +253,16 @@ struct DequePrimitives {
                                      Iterator                       position,
                                      bslmf::MovableRef<VALUE_TYPE>  value,
                                      ALLOCATOR                      allocator);
-        // Insert the specified move-insertable 'value' at the specified
-        // 'position' by moving the elements in the range
-        // '[position .. fromEnd)' forward by 1 position; pass the specified
-        // 'allocator' to the move constructor if appropriate.  Load into the
-        // specified 'toEnd' an iterator one past the inserted element (i.e.,
-        // 'fromEnd + 1').  The behavior is undefined unless 'fromEnd + 1' is a
-        // valid iterator (i.e., the block pointer array holds enough room
-        // after the 'fromEnd' position to insert 1 element).
 
+    /// Insert the specified move-insertable `value` at the specified
+    /// `position` by moving the elements in the range
+    /// `[position .. fromEnd)` forward by 1 position; pass the specified
+    /// `allocator` to the move constructor if appropriate.  Load into the
+    /// specified `toEnd` an iterator one past the inserted element (i.e.,
+    /// `fromEnd + 1`).  The behavior is undefined unless `fromEnd + 1` is a
+    /// valid iterator (i.e., the block pointer array holds enough room
+    /// after the `fromEnd` position to insert 1 element).  Note that the
+    /// last argument is for removing overload ambiguities and is not used.
     template <class ALLOCATOR>
     static void moveInsertAndMoveToBack(
                Iterator                                             *toEnd,
@@ -277,16 +287,16 @@ struct DequePrimitives {
                bslmf::MovableRef<VALUE_TYPE>                         value,
                ALLOCATOR                                             allocator,
                bsl::integral_constant<int, NIL_TRAITS>);
-        // Insert the specified move-insertable 'value' at the specified
-        // 'position' by moving the elements in the range
-        // '[position .. fromEnd)' forward by 1 position; pass the specified
-        // 'allocator' to the move constructor if appropriate.  Load into the
-        // specified 'toEnd' an iterator one past the inserted element (i.e.,
-        // 'fromEnd + 1').  The behavior is undefined unless 'fromEnd + 1' is a
-        // valid iterator (i.e., the block pointer array holds enough room
-        // after the 'fromEnd' position to insert 1 element).  Note that the
-        // last argument is for removing overload ambiguities and is not used.
 
+    /// Insert the specified `numElements` copies of the specified `value`
+    /// at the specified `position`, by moving the elements in the range
+    /// `[fromBegin .. position)` backward by `numElements` position.  Pass
+    /// the specified `allocator` to the copy constructor if appropriate.
+    /// Load into the specified `toBegin` an iterator to the beginning of
+    /// the data after insertion (i.e., `fromBegin - numElements`).  The
+    /// behavior is undefined unless `fromBegin - numElements` is a valid
+    /// iterator (i.e., the block pointer array holds enough room before the
+    /// `fromBegin` position to insert `numElements`).
     template <class ALLOCATOR>
     static void insertAndMoveToFront(Iterator          *toBegin,
                                      Iterator           fromBegin,
@@ -294,16 +304,17 @@ struct DequePrimitives {
                                      size_type          numElements,
                                      const VALUE_TYPE&  value,
                                      ALLOCATOR          allocator);
-        // Insert the specified 'numElements' copies of the specified 'value'
-        // at the specified 'position', by moving the elements in the range
-        // '[fromBegin .. position)' backward by 'numElements' position.  Pass
-        // the specified 'allocator' to the copy constructor if appropriate.
-        // Load into the specified 'toBegin' an iterator to the beginning of
-        // the data after insertion (i.e., 'fromBegin - numElements').  The
-        // behavior is undefined unless 'fromBegin - numElements' is a valid
-        // iterator (i.e., the block pointer array holds enough room before the
-        // 'fromBegin' position to insert 'numElements').
 
+    /// Insert the specified `numElements` copies of the specified `value`
+    /// at the specified `position`, by moving the elements in the range
+    /// `[fromBegin .. position)` backward by `numElements` position.  Pass
+    /// the specified `allocator` to the copy constructor if appropriate.
+    /// Load into the specified `toBegin` an iterator to the beginning of
+    /// the data after insertion (i.e., `fromBegin - numElements`.  The
+    /// behavior is undefined unless `fromBegin - numElements` is a valid
+    /// iterator (i.e., the block pointer array holds enough room before the
+    /// `fromBegin` position to insert `numElements`).  Note that the last
+    /// argument is for removing overload ambiguities and is not used.
     template <class ALLOCATOR>
     static void insertAndMoveToFront(
              Iterator                                             *toBegin,
@@ -331,17 +342,16 @@ struct DequePrimitives {
              const VALUE_TYPE&                                     value,
              ALLOCATOR                                             allocator,
              bsl::integral_constant<int, NIL_TRAITS>);
-        // Insert the specified 'numElements' copies of the specified 'value'
-        // at the specified 'position', by moving the elements in the range
-        // '[fromBegin .. position)' backward by 'numElements' position.  Pass
-        // the specified 'allocator' to the copy constructor if appropriate.
-        // Load into the specified 'toBegin' an iterator to the beginning of
-        // the data after insertion (i.e., 'fromBegin - numElements'.  The
-        // behavior is undefined unless 'fromBegin - numElements' is a valid
-        // iterator (i.e., the block pointer array holds enough room before the
-        // 'fromBegin' position to insert 'numElements').  Note that the last
-        // argument is for removing overload ambiguities and is not used.
 
+    /// Insert the specified `numElements` in the range `[first .. last)` at
+    /// the specified `position`, by moving the elements in the range
+    /// `[fromBegin .. position)` backward by `numElements` position.  Pass
+    /// the specified `allocator` to the copy constructor if appropriate.
+    /// Load into the specified `toBegin` an iterator to the end of the data
+    /// after insertion (i.e., `fromBegin - numElements`).  The behavior is
+    /// undefined unless `fromBegin - numElements` is a valid iterator
+    /// (i.e., the block pointer array holds enough room before the
+    /// `fromBefore` position to insert `numElements`).
     template <class FWD_ITER, class ALLOCATOR>
     static void insertAndMoveToFront(Iterator  *toBegin,
                                      Iterator   fromBegin,
@@ -350,16 +360,16 @@ struct DequePrimitives {
                                      FWD_ITER   last,
                                      size_type  numElements,
                                      ALLOCATOR  allocator);
-        // Insert the specified 'numElements' in the range '[first .. last)' at
-        // the specified 'position', by moving the elements in the range
-        // '[fromBegin .. position)' backward by 'numElements' position.  Pass
-        // the specified 'allocator' to the copy constructor if appropriate.
-        // Load into the specified 'toBegin' an iterator to the end of the data
-        // after insertion (i.e., 'fromBegin - numElements').  The behavior is
-        // undefined unless 'fromBegin - numElements' is a valid iterator
-        // (i.e., the block pointer array holds enough room before the
-        // 'fromBefore' position to insert 'numElements').
 
+    /// Insert the specified move-insertable `value` at the specified
+    /// `position` by moving the elements in the range
+    /// `[fromBegin .. position)` backward by 1 position; pass the specified
+    /// `allocator` to the move constructor if appropriate.  Load into the
+    /// specified `toBegin` an iterator to the inserted element (i.e.,
+    /// `fromBegin - 1`).  The behavior is undefined unless
+    /// `fromBegin - 1` is a valid iterator (i.e., the block pointer array
+    /// holds enough room before the `fromBegin` position to insert 1
+    /// element).
     template <class ALLOCATOR>
     static void moveInsertAndMoveToFront(
                                      Iterator                      *toBegin,
@@ -367,16 +377,17 @@ struct DequePrimitives {
                                      Iterator                       position,
                                      bslmf::MovableRef<VALUE_TYPE>  value,
                                      ALLOCATOR                      allocator);
-        // Insert the specified move-insertable 'value' at the specified
-        // 'position' by moving the elements in the range
-        // '[fromBegin .. position)' backward by 1 position; pass the specified
-        // 'allocator' to the move constructor if appropriate.  Load into the
-        // specified 'toBegin' an iterator to the inserted element (i.e.,
-        // 'fromBegin - 1').  The behavior is undefined unless
-        // 'fromBegin - 1' is a valid iterator (i.e., the block pointer array
-        // holds enough room before the 'fromBegin' position to insert 1
-        // element).
 
+    /// Insert the specified move-insertable `value` at the specified
+    /// `position` by moving the elements in the range
+    /// `[fromBegin .. position)` backward by 1 position; pass the specified
+    /// `allocator` to the move constructor if appropriate.  Load into the
+    /// specified `toBegin` an iterator to the inserted element (i.e.,
+    /// `fromBegin - 1`).  The behavior is undefined unless
+    /// `fromBegin - 1` is a valid iterator (i.e., the block pointer array
+    /// holds enough room before the `fromBegin` position to insert 1
+    /// element).  Note that the last argument is for removing overload
+    /// ambiguities and is not used.
     template <class ALLOCATOR>
     static void moveInsertAndMoveToFront(
                Iterator                                             *toBegin,
@@ -401,16 +412,6 @@ struct DequePrimitives {
                bslmf::MovableRef<VALUE_TYPE>                         value,
                ALLOCATOR                                             allocator,
                bsl::integral_constant<int, NIL_TRAITS>);
-        // Insert the specified move-insertable 'value' at the specified
-        // 'position' by moving the elements in the range
-        // '[fromBegin .. position)' backward by 1 position; pass the specified
-        // 'allocator' to the move constructor if appropriate.  Load into the
-        // specified 'toBegin' an iterator to the inserted element (i.e.,
-        // 'fromBegin - 1').  The behavior is undefined unless
-        // 'fromBegin - 1' is a valid iterator (i.e., the block pointer array
-        // holds enough room before the 'fromBegin' position to insert 1
-        // element).  Note that the last argument is for removing overload
-        // ambiguities and is not used.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -2129,74 +2130,75 @@ struct DequePrimitives {
 // }}} END GENERATED CODE
 #endif
 
+    /// Move the specified `numElements` from the specified `source` to the
+    /// specified `destination` using `std::memmove`.  Also load into
+    /// `destination` the value `destination - numElements` and `source` the
+    /// value `source - numElements`.  The behavior is undefined unless
+    /// `destination >= source`.
     static void moveBack(Iterator  *destination,
                          Iterator  *source,
                          size_type  numElements);
-        // Move the specified 'numElements' from the specified 'source' to the
-        // specified 'destination' using 'std::memmove'.  Also load into
-        // 'destination' the value 'destination - numElements' and 'source' the
-        // value 'source - numElements'.  The behavior is undefined unless
-        // 'destination >= source'.
 
+    /// Move the specified `numElements` from the specified `source` to the
+    /// specified `destination` using `std::memmove`.  Also load into
+    /// `destination` the value `destination + numElements` and `source` the
+    /// the value `source + numElements`.  The behavior is undefined unless
+    /// `destination <= source`.
     static void moveFront(Iterator  *destination,
                           Iterator  *source,
                           size_type  numElements);
-        // Move the specified 'numElements' from the specified 'source' to the
-        // specified 'destination' using 'std::memmove'.  Also load into
-        // 'destination' the value 'destination + numElements' and 'source' the
-        // the value 'source + numElements'.  The behavior is undefined unless
-        // 'destination <= source'.
 
+    /// Append the specified `numElements` copies of the specified `value`
+    /// to the deque ending at the specified `fromEnd` iterator, passing the
+    /// specified `allocator` through to the new elements, and load into the
+    /// specified `toEnd` an iterator pointing to the end of the data after
+    /// appending (i.e., `fromEnd + numElements`).  The behavior is
+    /// undefined unless `fromEnd + numElements` is a valid iterator (i.e.,
+    /// the block pointer array holds enough room after the `fromEnd`
+    /// position to insert `numElements`).
     template <class ALLOCATOR>
     static void uninitializedFillNBack(Iterator          *toEnd,
                                        Iterator           fromEnd,
                                        size_type          numElements,
                                        const VALUE_TYPE&  value,
                                        ALLOCATOR          allocator);
-        // Append the specified 'numElements' copies of the specified 'value'
-        // to the deque ending at the specified 'fromEnd' iterator, passing the
-        // specified 'allocator' through to the new elements, and load into the
-        // specified 'toEnd' an iterator pointing to the end of the data after
-        // appending (i.e., 'fromEnd + numElements').  The behavior is
-        // undefined unless 'fromEnd + numElements' is a valid iterator (i.e.,
-        // the block pointer array holds enough room after the 'fromEnd'
-        // position to insert 'numElements').
 
+    /// Prepend the specified `numElements` copies of the specified `value`
+    /// to the deque starting at the specified `fromBegin` iterator, passing
+    /// the specified `allocator` through to the new elements, and load into
+    /// the specified `toBegin` an iterator pointing to the end of the data
+    /// after prepending, i.e., `fromBegin - numElements`.  The behavior is
+    /// undefined unless `fromBegin - numElements` is a valid iterator
+    /// (i.e., the block pointer array holds enough room before the
+    /// `fromBegin` position to insert `numElements`).
     template <class ALLOCATOR>
     static void uninitializedFillNFront(Iterator          *toBegin,
                                         Iterator           fromBegin,
                                         size_type          numElements,
                                         const VALUE_TYPE&  value,
                                         ALLOCATOR          allocator);
-        // Prepend the specified 'numElements' copies of the specified 'value'
-        // to the deque starting at the specified 'fromBegin' iterator, passing
-        // the specified 'allocator' through to the new elements, and load into
-        // the specified 'toBegin' an iterator pointing to the end of the data
-        // after prepending, i.e., 'fromBegin - numElements'.  The behavior is
-        // undefined unless 'fromBegin - numElements' is a valid iterator
-        // (i.e., the block pointer array holds enough room before the
-        // 'fromBegin' position to insert 'numElements').
 
+    /// Append the specified `numElements` value-initialized objects to the
+    /// deque ending at the specified `fromEnd` iterator, passing the
+    /// specified `allocator` through to the new elements, and load into the
+    /// specified `toEnd` an iterator pointing to the end of the data after
+    /// appending (i.e., `fromEnd + numElements`).  The behavior is
+    /// undefined unless `fromEnd + numElements` is a valid iterator (i.e.,
+    /// the block pointer array holds enough room after the `fromEnd`
+    /// position to insert `numElements`).
     template <class ALLOCATOR>
     static void valueInititalizeN(Iterator  *toEnd,
                                   Iterator   fromEnd,
                                   size_type  numElements,
                                   ALLOCATOR  allocator);
-        // Append the specified 'numElements' value-initialized objects to the
-        // deque ending at the specified 'fromEnd' iterator, passing the
-        // specified 'allocator' through to the new elements, and load into the
-        // specified 'toEnd' an iterator pointing to the end of the data after
-        // appending (i.e., 'fromEnd + numElements').  The behavior is
-        // undefined unless 'fromEnd + numElements' is a valid iterator (i.e.,
-        // the block pointer array holds enough room after the 'fromEnd'
-        // position to insert 'numElements').
 };
 
 // PARTIAL SPECIALIZATION
+
+/// This is a partial specialization of `DequePrimitives` for the case when
+/// there is a single element per block.
 template <class VALUE_TYPE>
 struct DequePrimitives<VALUE_TYPE, 1> {
-    // This is a partial specialization of 'DequePrimitives' for the case when
-    // there is a single element per block.
 
     // PUBLIC TYPES
     typedef std::size_t                                         size_type;
@@ -2323,13 +2325,13 @@ static void uninitializedFillNBack(
                     // class DequePrimitives_DequeElementGuard
                     // =======================================
 
+/// This `class` provides a specialized proctor object that, upon
+/// destruction and unless the `release` method has been called, destroys
+/// the elements in a segment of a deque of parameterized `VALUE_TYPE`.  The
+/// elements destroyed are delimited by the "guarded" range
+/// `[d_begin .. d_end)`.
 template <class VALUE_TYPE, int BLOCK_LENGTH, class ALLOCATOR>
 class DequePrimitives_DequeElementGuard {
-    // This 'class' provides a specialized proctor object that, upon
-    // destruction and unless the 'release' method has been called, destroys
-    // the elements in a segment of a deque of parameterized 'VALUE_TYPE'.  The
-    // elements destroyed are delimited by the "guarded" range
-    // '[d_begin .. d_end)'.
 
   public:
     // PUBLIC TYPES
@@ -2350,47 +2352,49 @@ class DequePrimitives_DequeElementGuard {
 
   public:
     // CREATORS
+
+    /// Create a deque exception guard object for the sequence of elements
+    /// of the parameterized `VALUE_TYPE` delimited by the specified range
+    /// `[begin .. end)`.  The behavior is undefined unless `begin <= end`
+    /// and unless each element in the range `[begin .. end)` has been
+    /// initialized.
     DequePrimitives_DequeElementGuard(const Iterator& begin,
                                       const Iterator& end,
                                       ALLOCATOR       allocator);
-        // Create a deque exception guard object for the sequence of elements
-        // of the parameterized 'VALUE_TYPE' delimited by the specified range
-        // '[begin .. end)'.  The behavior is undefined unless 'begin <= end'
-        // and unless each element in the range '[begin .. end)' has been
-        // initialized.
 
+    /// Call the destructor on each of the elements of the parameterized
+    /// `VALUE_TYPE` delimited by the range `[begin .. end)` and destroy
+    /// this array exception guard.
     ~DequePrimitives_DequeElementGuard();
-        // Call the destructor on each of the elements of the parameterized
-        // 'VALUE_TYPE' delimited by the range '[begin .. end)' and destroy
-        // this array exception guard.
 
     // MANIPULATORS
+
+    /// Move the begin iterator by the specified `offset`, and return the
+    /// new begin iterator.
     Iterator& moveBegin(std::ptrdiff_t offset = -1);
-        // Move the begin iterator by the specified 'offset', and return the
-        // new begin iterator.
 
+    /// Move the end pointer by the specified `offset`, and return the new
+    /// end pointer.
     Iterator& moveEnd(std::ptrdiff_t offset = 1);
-        // Move the end pointer by the specified 'offset', and return the new
-        // end pointer.
 
+    /// Set the range of elements guarded by this object to be empty.  Note
+    /// that `d_begin == d_end` following this operation, but the specific
+    /// value is unspecified.
     void release();
-        // Set the range of elements guarded by this object to be empty.  Note
-        // that 'd_begin == d_end' following this operation, but the specific
-        // value is unspecified.
 };
 
                 // ===============================================
                 // class DequePrimitives_ExternalDequeElementGuard
                 // ===============================================
 
+/// This `class` provides a specialized proctor object that, upon
+/// destruction and unless the `release` method has been called, destroys
+/// the elements in a segment of a `bsl::deque` of parameterized type
+/// `VALUE_TYPE`.  The elements destroyed are delimited by the "guarded"
+/// range `[*d_begin .. *d_end)`.  Note that the range guarded by this
+/// `class` is dynamic and can be changed outside of this `class`.
 template <class VALUE_TYPE, int BLOCK_LENGTH, class ALLOCATOR>
 class DequePrimitives_ExternalDequeElementGuard {
-    // This 'class' provides a specialized proctor object that, upon
-    // destruction and unless the 'release' method has been called, destroys
-    // the elements in a segment of a 'bsl::deque' of parameterized type
-    // 'VALUE_TYPE'.  The elements destroyed are delimited by the "guarded"
-    // range '[*d_begin .. *d_end)'.  Note that the range guarded by this
-    // 'class' is dynamic and can be changed outside of this 'class'.
 
   public:
     // PUBLIC TYPES
@@ -2414,36 +2418,38 @@ class DequePrimitives_ExternalDequeElementGuard {
 
   public:
     // CREATORS
+
+    /// Create a deque exception guard object for the sequence of elements
+    /// of the parameterized `VALUE_TYPE` delimited by the specified range
+    /// `[*begin .. *end)`.  The behavior is undefined unless `*begin` <=
+    /// `*end` and unless each element in the range `[*begin .. *end)` has
+    /// been initialized.
     DequePrimitives_ExternalDequeElementGuard(Iterator  *begin,
                                               Iterator  *end,
                                               ALLOCATOR  allocator);
-        // Create a deque exception guard object for the sequence of elements
-        // of the parameterized 'VALUE_TYPE' delimited by the specified range
-        // '[*begin .. *end)'.  The behavior is undefined unless '*begin' <=
-        // '*end' and unless each element in the range '[*begin .. *end)' has
-        // been initialized.
 
+    /// Call the destructor on each of the elements of the parameterized
+    /// `VALUE_TYPE` delimited by the range `[*d_begin_p .. *d_end_p)` and
+    /// destroy this array exception guard.
     ~DequePrimitives_ExternalDequeElementGuard();
-        // Call the destructor on each of the elements of the parameterized
-        // 'VALUE_TYPE' delimited by the range '[*d_begin_p .. *d_end_p)' and
-        // destroy this array exception guard.
 
     // MANIPULATORS
+
+    /// Set the range of elements guarded by this object to be empty.  Note
+    /// that `d_begin_p == d_end_p == 0` following this operation.
     void release();
-        // Set the range of elements guarded by this object to be empty.  Note
-        // that 'd_begin_p == d_end_p == 0' following this operation.
 };
 
                     // ====================================
                     // class DequePrimitives_DequeMoveGuard
                     // ====================================
 
+/// This `class` provides a guard object that, upon destruction and unless
+/// the `release` method has been called, uses `moveBack` or `moveFront` to
+/// move the "guarded" range `[d_source_p .. d_source_p + d_size - 1]`
+/// back to `[d_destination_p .. d_destination_p + d_size -1]`.
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 class DequePrimitives_DequeMoveGuard {
-    // This 'class' provides a guard object that, upon destruction and unless
-    // the 'release' method has been called, uses 'moveBack' or 'moveFront' to
-    // move the "guarded" range '[d_source_p .. d_source_p + d_size - 1]'
-    // back to '[d_destination_p .. d_destination_p + d_size -1]'.
 
   public:
     // PUBLIC TYPES
@@ -2465,35 +2471,37 @@ class DequePrimitives_DequeMoveGuard {
 
   public:
     // CREATORS
+
+    /// Create a guard object that will call `moveBack` or `moveFront`,
+    /// depending on the specified `isFront`, on the specified `size`
+    /// elements from `src` to `dest` upon destruction unless `release` has
+    /// been called.
     DequePrimitives_DequeMoveGuard(Iterator    dest,
                                    Iterator    src,
                                    std::size_t size,
                                    bool        isFront);
-        // Create a guard object that will call 'moveBack' or 'moveFront',
-        // depending on the specified 'isFront', on the specified 'size'
-        // elements from 'src' to 'dest' upon destruction unless 'release' has
-        // been called.
 
+    /// Call either `moveBack` or `moveFront` depending on `d_front` upon
+    /// destruction unless `release` has been called before this.
     ~DequePrimitives_DequeMoveGuard();
-        // Call either 'moveBack' or 'moveFront' depending on 'd_front' upon
-        // destruction unless 'release' has been called before this.
 
     // MANIPULATORS
+
+    /// Set the size of the range guarded by this object to be zero.
     void release();
-        // Set the size of the range guarded by this object to be zero.
 };
 
                     // ==========================================
                     // class DequePrimitives_DequeEndpointProctor
                     // ==========================================
 
+/// This class implements a proctor that, upon destruction and unless its
+/// `release` method has previously been invoked, sets a deque endpoint
+/// (i.e., "start" or "finish" iterator) to a position within the deque.
+/// Both the endpoint and position are supplied at construction.  See
+/// `emplaceAndMoveToBack` and `emplaceAndMoveToFront` for use cases.
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 class DequePrimitives_DequeEndpointProctor {
-    // This class implements a proctor that, upon destruction and unless its
-    // 'release' method has previously been invoked, sets a deque endpoint
-    // (i.e., "start" or "finish" iterator) to a position within the deque.
-    // Both the endpoint and position are supplied at construction.  See
-    // 'emplaceAndMoveToBack' and 'emplaceAndMoveToFront' for use cases.
 
   public:
     // PUBLIC TYPES
@@ -2513,23 +2521,25 @@ class DequePrimitives_DequeEndpointProctor {
 
   public:
     // CREATORS
+
+    /// Create a deque endpoint proctor that conditionally manages the
+    /// specified `endpoint` (if non-zero) by setting `*endpoint` to the
+    /// specified `position` (if not released -- see `release`) upon
+    /// destruction.
     DequePrimitives_DequeEndpointProctor(Iterator *endpoint,
                                          Iterator  position);
-        // Create a deque endpoint proctor that conditionally manages the
-        // specified 'endpoint' (if non-zero) by setting '*endpoint' to the
-        // specified 'position' (if not released -- see 'release') upon
-        // destruction.
 
+    /// Destroy this endpoint proctor, and set the deque endpoint it manages
+    /// (if any) to the position supplied at construction.  If no endpoint
+    /// is currently being managed, this method has no effect.
     ~DequePrimitives_DequeEndpointProctor();
-        // Destroy this endpoint proctor, and set the deque endpoint it manages
-        // (if any) to the position supplied at construction.  If no endpoint
-        // is currently being managed, this method has no effect.
 
     // MANIPULATORS
+
+    /// Release from management the deque endpoint currently managed by this
+    /// proctor.  If no endpoint is currently being managed, this method has
+    /// no effect.
     void release();
-        // Release from management the deque endpoint currently managed by this
-        // proctor.  If no endpoint is currently being managed, this method has
-        // no effect.
 };
 
 // ============================================================================
@@ -9460,8 +9470,8 @@ void DequePrimitives_DequeEndpointProctor<VALUE_TYPE, BLOCK_LENGTH>::release()
 #ifdef bslalg_DequePrimitives
 #undef bslalg_DequePrimitives
 #endif
+/// This alias is defined for backward compatibility.
 #define bslalg_DequePrimitives bslalg::DequePrimitives
-    // This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
@@ -9473,7 +9483,7 @@ void DequePrimitives_DequeEndpointProctor<VALUE_TYPE, BLOCK_LENGTH>::release()
 #endif // ! defined(INCLUDED_BSLALG_DEQUEPRIMITIVES_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

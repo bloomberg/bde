@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Apr 10 03:55:22 2023
+// Generated on Sun Sep  1 05:39:11 2024
 // Command line: sim_cpp11_features.pl bslstl_unorderedset.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDSET_H
@@ -32,53 +32,54 @@ namespace bsl {
                         // class unordered_set
                         // ===================
 
+/// This class template implements a value-semantic container type holding
+/// an unordered set of unique values (of template parameter type `KEY`).
+///
+/// This class:
+/// * supports a complete set of *value-semantic* operations
+///   - except for BDEX serialization
+/// * is *exception-neutral* (agnostic except for the `at` method)
+/// * is *alias-safe*
+/// * is `const` *thread-safe*
+/// For terminology see {`bsldoc_glossary`}.
 template <class KEY,
           class HASH  = bsl::hash<KEY>,
           class EQUAL = bsl::equal_to<KEY>,
           class ALLOCATOR = bsl::allocator<KEY> >
 class unordered_set {
-    // This class template implements a value-semantic container type holding
-    // an unordered set of unique values (of template parameter type 'KEY').
-    //
-    // This class:
-    //: o supports a complete set of *value-semantic* operations
-    //:   o except for BDEX serialization
-    //: o is *exception-neutral* (agnostic except for the 'at' method)
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology see {'bsldoc_glossary'}.
 
   private:
 
     // PRIVATE TYPES
+
+    /// This typedef is an alias for the allocator traits type associated
+    /// with this container.
     typedef bsl::allocator_traits<ALLOCATOR>                 AllocatorTraits;
-        // This typedef is an alias for the allocator traits type associated
-        // with this container.
 
+    /// This typedef is an alias for the type of values maintained by this
+    /// unordered set.
     typedef KEY                                              ValueType;
-        // This typedef is an alias for the type of values maintained by this
-        // unordered set.
 
+    /// This typedef is an alias for the policy used internally by this
+    /// container to extract the `KEY` value from the values maintained by
+    /// this unordered set.
     typedef ::BloombergLP::bslstl::UnorderedSetKeyConfiguration<ValueType>
                                                              ListConfiguration;
-        // This typedef is an alias for the policy used internally by this
-        // container to extract the 'KEY' value from the values maintained by
-        // this unordered set.
 
+    /// This typedef is an alias for the template instantiation of the
+    /// underlying `bslstl::HashTable` used to implement this set.
     typedef ::BloombergLP::bslstl::HashTable<ListConfiguration,
                                              HASH,
                                              EQUAL,
                                              ALLOCATOR>      HashTable;
-        // This typedef is an alias for the template instantiation of the
-        // underlying 'bslstl::HashTable' used to implement this set.
 
+    /// This typedef is an alias for the type of links maintained by the
+    /// linked list of elements held by the underlying `bslstl::HashTable`.
     typedef ::BloombergLP::bslalg::BidirectionalLink         HashTableLink;
-        // This typedef is an alias for the type of links maintained by the
-        // linked list of elements held by the underlying 'bslstl::HashTable'.
 
+    /// This typedef is a convenient alias for the utility associated with
+    /// movable references.
     typedef BloombergLP::bslmf::MovableRefUtil               MoveUtil;
-        // This typedef is a convenient alias for the utility associated with
-        // movable references.
 
     // FRIEND
     template <class KEY2,
@@ -125,6 +126,25 @@ class unordered_set {
 
   public:
     // CREATORS
+
+    /// Create an empty unordered set.  Optionally specify an
+    /// `initialNumBuckets` indicating the initial size of the array of
+    /// buckets of this container.  If `initialNumBuckets` is not supplied,
+    /// a single bucket is used.  Optionally specify a `hashFunction` used
+    /// to generate the hash values for the keys contained in this set.  If
+    /// `hashFunction` is not supplied, a default-constructed object of the
+    /// (template parameter) type `HASH` is used.  Optionally specify a
+    /// key-equality functor `keyEqual` used to verify that two key are
+    /// equivalent.  If `keyEqual` is not supplied, a default-constructed
+    /// object of the (template parameter) type `EQUAL` is used.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is not supplied, a default-constructed object of
+    /// the (template parameter) type `ALLOCATOR` is used.  If the type
+    /// `ALLOCATOR` is `bsl::allocator` and `basicAllocator` is not
+    /// supplied, the currently installed default allocator is used to
+    /// supply memory.  Note that a `bslma::Allocator *` can be supplied for
+    /// `basicAllocator` if the type `ALLOCATOR` is `bsl::allocator` (the
+    /// default).
     unordered_set();
     explicit unordered_set(size_type        initialNumBuckets,
                            const HASH&      hashFunction = HASH(),
@@ -136,77 +156,88 @@ class unordered_set {
     unordered_set(size_type        initialNumBuckets,
                   const ALLOCATOR& basicAllocator);
     explicit unordered_set(const ALLOCATOR& basicAllocator);
-        // Create an empty unordered set.  Optionally specify an
-        // 'initialNumBuckets' indicating the initial size of the array of
-        // buckets of this container.  If 'initialNumBuckets' is not supplied,
-        // a single bucket is used.  Optionally specify a 'hashFunction' used
-        // to generate the hash values for the keys contained in this set.  If
-        // 'hashFunction' is not supplied, a default-constructed object of the
-        // (template parameter) type 'HASH' is used.  Optionally specify a
-        // key-equality functor 'keyEqual' used to verify that two key are
-        // equivalent.  If 'keyEqual' is not supplied, a default-constructed
-        // object of the (template parameter) type 'EQUAL' is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not supplied, a default-constructed object of
-        // the (template parameter) type 'ALLOCATOR' is used.  If the type
-        // 'ALLOCATOR' is 'bsl::allocator' and 'basicAllocator' is not
-        // supplied, the currently installed default allocator is used to
-        // supply memory.  Note that a 'bslma::Allocator *' can be supplied for
-        // 'basicAllocator' if the type 'ALLOCATOR' is 'bsl::allocator' (the
-        // default).
 
+    /// Create an unordered set having the same value as the specified
+    /// `original` object.  Use a copy of `original.hash_function()` to
+    /// generate hash values for the keys contained in this set.  Use a copy
+    /// of `original.key_eq()` to verify that two keys are equivalent.  Use
+    /// the allocator returned by 'bsl::allocator_traits<ALLOCATOR>::
+    /// select_on_container_copy_construction(original.get_allocator())' to
+    /// allocate memory.  This method requires that the (template parameter)
+    /// type `KEY` be `copy-insertable` into this set (see {Requirements on
+    /// `KEY`}).
     unordered_set(const unordered_set& original);
-        // Create an unordered set having the same value as the specified
-        // 'original' object.  Use a copy of 'original.hash_function()' to
-        // generate hash values for the keys contained in this set.  Use a copy
-        // of 'original.key_eq()' to verify that two keys are equivalent.  Use
-        // the allocator returned by 'bsl::allocator_traits<ALLOCATOR>::
-        // select_on_container_copy_construction(original.get_allocator())' to
-        // allocate memory.  This method requires that the (template parameter)
-        // type 'KEY' be 'copy-insertable' into this set (see {Requirements on
-        // 'KEY'}).
 
+    /// Create an unordered set having the same value as the specified
+    /// `original` object by moving (in constant time) the contents of
+    /// `original` to the new set.  Use a copy of `original.hash_function()`
+    /// to generate hash values for the keys contained in this set.  Use a
+    /// copy of `original.key_eq()` to verify that two keys are equivalent.
+    /// The allocator associated with `original` is propagated for use in
+    /// the newly-created set.  `original` is left in a valid but
+    /// unspecified state.
     unordered_set(BloombergLP::bslmf::MovableRef<unordered_set> original);
-        // Create an unordered set having the same value as the specified
-        // 'original' object by moving (in constant time) the contents of
-        // 'original' to the new set.  Use a copy of 'original.hash_function()'
-        // to generate hash values for the keys contained in this set.  Use a
-        // copy of 'original.key_eq()' to verify that two keys are equivalent.
-        // The allocator associated with 'original' is propagated for use in
-        // the newly-created set.  'original' is left in a valid but
-        // unspecified state.
 
+    /// Create an unordered set having the same value as the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  Use a copy of `original.hash_function()` to generate hash
+    /// values for the keys contained in this set.  Use a copy of
+    /// `original.key_eq()` to verify that two keys are equivalent.  This
+    /// method requires that the (template parameter) type `KEY` be
+    /// `copy-insertable` into this set (see {Requirements on `KEY`}).  Note
+    /// that a `bslma::Allocator *` can be supplied for `basicAllocator` if
+    /// the (template parameter) type `ALLOCATOR` is `bsl::allocator` (the
+    /// default).
     unordered_set(
                 const unordered_set&                           original,
                 const typename type_identity<ALLOCATOR>::type& basicAllocator);
-        // Create an unordered set having the same value as the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  Use a copy of 'original.hash_function()' to generate hash
-        // values for the keys contained in this set.  Use a copy of
-        // 'original.key_eq()' to verify that two keys are equivalent.  This
-        // method requires that the (template parameter) type 'KEY' be
-        // 'copy-insertable' into this set (see {Requirements on 'KEY'}).  Note
-        // that a 'bslma::Allocator *' can be supplied for 'basicAllocator' if
-        // the (template parameter) type 'ALLOCATOR' is 'bsl::allocator' (the
-        // default).
 
+    /// Create an unordered set having the same value as the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  The contents of `original` are moved (in constant time) to
+    /// the new set if `basicAllocator == original.get_allocator()`, and are
+    /// move-inserted (in linear time) using `basicAllocator` otherwise.
+    /// `original` is left in a valid but unspecified state.  Use a copy of
+    /// `original.hash_function()` to generate hash values for the keys
+    /// contained in this set.  Use a copy of `original.key_eq()` to verify
+    /// that two keys are equivalent.  This method requires that the
+    /// (template parameter) type `KEY` be `move-insertable` (see
+    /// {Requirements on `KEY`}).  Note that a `bslma::Allocator *` can be
+    /// supplied for `basicAllocator` if the (template parameter) type
+    /// `ALLOCATOR` is `bsl::allocator` (the default).
     unordered_set(
                 BloombergLP::bslmf::MovableRef<unordered_set>  original,
                 const typename type_identity<ALLOCATOR>::type& basicAllocator);
-        // Create an unordered set having the same value as the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  The contents of 'original' are moved (in constant time) to
-        // the new set if 'basicAllocator == original.get_allocator()', and are
-        // move-inserted (in linear time) using 'basicAllocator' otherwise.
-        // 'original' is left in a valid but unspecified state.  Use a copy of
-        // 'original.hash_function()' to generate hash values for the keys
-        // contained in this set.  Use a copy of 'original.key_eq()' to verify
-        // that two keys are equivalent.  This method requires that the
-        // (template parameter) type 'KEY' be 'move-insertable' (see
-        // {Requirements on 'KEY'}).  Note that a 'bslma::Allocator *' can be
-        // supplied for 'basicAllocator' if the (template parameter) type
-        // 'ALLOCATOR' is 'bsl::allocator' (the default).
 
+    /// Create an unordered set, and insert each `value_type` object in the
+    /// sequence starting at the specified `first` element, and ending
+    /// immediately before the specified `last` element, ignoring those keys
+    /// having a value equivalent to that which appears earlier in the
+    /// sequence.  Optionally specify an `initialNumBuckets` indicating the
+    /// initial size of the array of buckets of this container.  If
+    /// `initialNumBuckets` is not supplied, a single bucket is used.
+    /// Optionally specify a `hashFunction` used to generate hash values for
+    /// the keys contained in this set.  If `hashFunction` is not supplied,
+    /// a default-constructed object of (template parameter) type `HASH` is
+    /// used.  Optionally specify a key-equality functor `keyEqual` used to
+    /// verify that two key values are the same.  If `keyEqual` is not
+    /// supplied, a default-constructed object of (template parameter) type
+    /// `EQUAL` is used.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is not supplied, a
+    /// default-constructed object of the (template parameter) type
+    /// `ALLOCATOR` is used.  If the type `ALLOCATOR` is `bsl::allocator`
+    /// and `basicAllocator` is not supplied, the currently installed
+    /// default allocator is used to supply memory.  The (template
+    /// parameter) type `INPUT_ITERATOR` shall meet the requirements of an
+    /// input iterator defined in the C++11 standard [24.2.3] providing
+    /// access to values of a type convertible to `value_type`, and
+    /// `value_type` must be `emplace-constructible` from `*i` into this
+    /// unordered set, where `i` is a dereferenceable iterator in the range
+    /// `[first .. last)` (see {Requirements on `KEY`}).  The behavior is
+    /// undefined unless `first` and `last` refer to a sequence of valid
+    /// values where `first` is at a position at or before `last`.  Note
+    /// that a `bslma::Allocator *` can be supplied for `basicAllocator` if
+    /// the type `ALLOCATOR` is `bsl::allocator` (the default).
     template <class INPUT_ITERATOR>
     unordered_set(INPUT_ITERATOR   first,
                   INPUT_ITERATOR   last,
@@ -229,35 +260,6 @@ class unordered_set {
     unordered_set(INPUT_ITERATOR   first,
                   INPUT_ITERATOR   last,
                   const ALLOCATOR& basicAllocator);
-        // Create an unordered set, and insert each 'value_type' object in the
-        // sequence starting at the specified 'first' element, and ending
-        // immediately before the specified 'last' element, ignoring those keys
-        // having a value equivalent to that which appears earlier in the
-        // sequence.  Optionally specify an 'initialNumBuckets' indicating the
-        // initial size of the array of buckets of this container.  If
-        // 'initialNumBuckets' is not supplied, a single bucket is used.
-        // Optionally specify a 'hashFunction' used to generate hash values for
-        // the keys contained in this set.  If 'hashFunction' is not supplied,
-        // a default-constructed object of (template parameter) type 'HASH' is
-        // used.  Optionally specify a key-equality functor 'keyEqual' used to
-        // verify that two key values are the same.  If 'keyEqual' is not
-        // supplied, a default-constructed object of (template parameter) type
-        // 'EQUAL' is used.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is not supplied, a
-        // default-constructed object of the (template parameter) type
-        // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
-        // and 'basicAllocator' is not supplied, the currently installed
-        // default allocator is used to supply memory.  The (template
-        // parameter) type 'INPUT_ITERATOR' shall meet the requirements of an
-        // input iterator defined in the C++11 standard [24.2.3] providing
-        // access to values of a type convertible to 'value_type', and
-        // 'value_type' must be 'emplace-constructible' from '*i' into this
-        // unordered set, where 'i' is a dereferenceable iterator in the range
-        // '[first .. last)' (see {Requirements on 'KEY'}).  The behavior is
-        // undefined unless 'first' and 'last' refer to a sequence of valid
-        // values where 'first' is at a position at or before 'last'.  Note
-        // that a 'bslma::Allocator *' can be supplied for 'basicAllocator' if
-        // the type 'ALLOCATOR' is 'bsl::allocator' (the default).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 # ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
@@ -290,48 +292,49 @@ class unordered_set {
                   size_type                  initialNumBuckets,
                   const ALLOCATOR&           basicAllocator);
 # ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    /// Create an unordered set and insert each `value_type` object in the
+    /// specified `values` initializer list, ignoring those keys having a
+    /// value equivalent to that which appears earlier in the list.
+    /// Optionally specify an `initialNumBuckets` indicating the initial
+    /// size of the array of buckets of this container.  If
+    /// `initialNumBuckets` is not supplied, a single bucket is used.
+    /// Optionally specify a `hashFunction` used to generate the hash values
+    /// for the keys contained in this set.  If `hashFunction` is not
+    /// supplied, a default-constructed object of the (template parameter)
+    /// type `HASH` is used.  Optionally specify a key-equality functor
+    /// `keyEqual` used to verify that two keys are equivalent.  If
+    /// `keyEqual` is not supplied, a default-constructed object of the
+    /// (template parameter) type `EQUAL` is used.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is not
+    /// supplied, a default-constructed object of the (template parameter)
+    /// type `ALLOCATOR` is used.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` and `basicAllocator` is not supplied, the currently
+    /// installed default allocator is used to supply memory.  This method
+    /// requires that the (template parameter) type `KEY` be
+    /// `copy-constructible` (see {Requirements on `KEY`}).  Note that a
+    /// `bslma::Allocator *` can be supplied for `basicAllocator` if the
+    /// type `ALLOCATOR` is `bsl::allocator` (the default).
     template <class = bsl::enable_if_t<bsl::IsStdAllocator<ALLOCATOR>::value>>
 # endif
     unordered_set(std::initializer_list<KEY> values,
                   const ALLOCATOR&           basicAllocator);
-        // Create an unordered set and insert each 'value_type' object in the
-        // specified 'values' initializer list, ignoring those keys having a
-        // value equivalent to that which appears earlier in the list.
-        // Optionally specify an 'initialNumBuckets' indicating the initial
-        // size of the array of buckets of this container.  If
-        // 'initialNumBuckets' is not supplied, a single bucket is used.
-        // Optionally specify a 'hashFunction' used to generate the hash values
-        // for the keys contained in this set.  If 'hashFunction' is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type 'HASH' is used.  Optionally specify a key-equality functor
-        // 'keyEqual' used to verify that two keys are equivalent.  If
-        // 'keyEqual' is not supplied, a default-constructed object of the
-        // (template parameter) type 'EQUAL' is used.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator is used to supply memory.  This method
-        // requires that the (template parameter) type 'KEY' be
-        // 'copy-constructible' (see {Requirements on 'KEY'}).  Note that a
-        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
-        // type 'ALLOCATOR' is 'bsl::allocator' (the default).
 #endif
 
+    /// Destroy this object.
     ~unordered_set();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value, hash function, and equality
+    /// comparator of the specified `rhs` object, propagate to this object
+    /// the allocator of `rhs` if the `ALLOCATOR` type has trait
+    /// `propagate_on_container_copy_assignment`, and return a reference
+    /// providing modifiable access to this object.  If an exception is
+    /// thrown, `*this` is left in a valid but unspecified state.  This
+    /// method requires that the (template parameter) type `KEY` be
+    /// `copy-assignable` and 'copy-insertable" into this set (see
+    /// {Requirements on `KEY`}).
     unordered_set& operator=(const unordered_set& rhs);
-        // Assign to this object the value, hash function, and equality
-        // comparator of the specified 'rhs' object, propagate to this object
-        // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
-        // 'propagate_on_container_copy_assignment', and return a reference
-        // providing modifiable access to this object.  If an exception is
-        // thrown, '*this' is left in a valid but unspecified state.  This
-        // method requires that the (template parameter) type 'KEY' be
-        // 'copy-assignable' and 'copy-insertable" into this set (see
-        // {Requirements on 'KEY'}).
 
     unordered_set&
     operator=(BloombergLP::bslmf::MovableRef<unordered_set> rhs)
@@ -355,114 +358,114 @@ class unordered_set {
         // 'move-insertable' into this set (see {Requirements on 'KEY'}).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Assign to this object the value resulting from first clearing this
+    /// unordered set and then inserting each `value_type` object in the
+    /// specified `values` initializer list, ignoring those keys having a
+    /// value equivalent to that which appears earlier in the list; return a
+    /// reference providing modifiable access to this object.  This method
+    /// requires that the (template parameter) type `KEY` type be
+    /// `copy-insertable` into this set (see {Requirements on `KEY`}).
     unordered_set& operator=(std::initializer_list<KEY> values);
-        // Assign to this object the value resulting from first clearing this
-        // unordered set and then inserting each 'value_type' object in the
-        // specified 'values' initializer list, ignoring those keys having a
-        // value equivalent to that which appears earlier in the list; return a
-        // reference providing modifiable access to this object.  This method
-        // requires that the (template parameter) type 'KEY' type be
-        // 'copy-insertable' into this set (see {Requirements on 'KEY'}).
 #endif
 
+    /// Return an iterator providing modifiable access to the first
+    /// `value_type` object (in the sequence of `value_type` objects)
+    /// maintained by this set, or the `end` iterator if this set is empty.
     iterator begin() BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects)
-        // maintained by this set, or the 'end' iterator if this set is empty.
 
+    /// Return an iterator providing modifiable access to the past-the-end
+    /// element in the sequence of `value_type` objects maintained by this
+    /// unordered set.
     iterator end() BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing modifiable access to the past-the-end
-        // element in the sequence of 'value_type' objects maintained by this
-        // unordered set.
 
+    /// Return a local iterator providing modifiable access to the first
+    /// `value_type` object in the sequence of `value_type` objects of the
+    /// bucket having the specified `index`, in the array of buckets
+    /// maintained by this set, or the `end(index)` otherwise.
     local_iterator begin(size_type index);
-        // Return a local iterator providing modifiable access to the first
-        // 'value_type' object in the sequence of 'value_type' objects of the
-        // bucket having the specified 'index', in the array of buckets
-        // maintained by this set, or the 'end(index)' otherwise.
 
+    /// Return a local iterator providing modifiable access to the
+    /// past-the-end element in the sequence of `value_type` objects of the
+    /// bucket having the specified `index`s, in the array of buckets
+    /// maintained by this set.
     local_iterator end(size_type index);
-        // Return a local iterator providing modifiable access to the
-        // past-the-end element in the sequence of 'value_type' objects of the
-        // bucket having the specified 'index's, in the array of buckets
-        // maintained by this set.
 
+    /// Insert the specified `value` into this set if a key equivalent to
+    /// `value` does not already exist in this set; otherwise, if a key
+    /// equivalent to `value` already exists in this set, this method has no
+    /// effect.  Return a pair whose `first` member is an iterator referring
+    /// to the (possibly newly inserted) `value_type` object in this set
+    /// that is equivalent to `value`, and whose `second` member is `true`
+    /// if a new value was inserted, and `false` if the key was already
+    /// present.  This method requires that the (template parameter) type
+    /// `KEY` be `copy-insertable` (see {Requirements on `KEY`}).
     pair<iterator, bool> insert(const value_type& value);
-        // Insert the specified 'value' into this set if a key equivalent to
-        // 'value' does not already exist in this set; otherwise, if a key
-        // equivalent to 'value' already exists in this set, this method has no
-        // effect.  Return a pair whose 'first' member is an iterator referring
-        // to the (possibly newly inserted) 'value_type' object in this set
-        // that is equivalent to 'value', and whose 'second' member is 'true'
-        // if a new value was inserted, and 'false' if the key was already
-        // present.  This method requires that the (template parameter) type
-        // 'KEY' be 'copy-insertable' (see {Requirements on 'KEY'}).
 
+    /// Insert the specified `value` into this set if a key equivalent to
+    /// `value` does not already exist in this set; otherwise, if a key
+    /// equivalent to `value` already exists in this set, this method has no
+    /// effect.  `value` is left in a valid but unspecified state.  Return a
+    /// pair whose `first` member is an iterator referring to the (possibly
+    /// newly inserted) `value_type` object in this set that is equivalent
+    /// to `value`, and whose `second` member is `true` if a new value was
+    /// inserted, and `false` if the key was already present.  This method
+    /// requires that the (template parameter) type `KEY` be
+    /// `move-insertable` into this set (see {Requirements on `KEY`}).
     pair<iterator, bool> insert(
                              BloombergLP::bslmf::MovableRef<value_type> value);
-        // Insert the specified 'value' into this set if a key equivalent to
-        // 'value' does not already exist in this set; otherwise, if a key
-        // equivalent to 'value' already exists in this set, this method has no
-        // effect.  'value' is left in a valid but unspecified state.  Return a
-        // pair whose 'first' member is an iterator referring to the (possibly
-        // newly inserted) 'value_type' object in this set that is equivalent
-        // to 'value', and whose 'second' member is 'true' if a new value was
-        // inserted, and 'false' if the key was already present.  This method
-        // requires that the (template parameter) type 'KEY' be
-        // 'move-insertable' into this set (see {Requirements on 'KEY'}).
 
+    /// Insert the specified `value` into this set if a key equivalent to
+    /// `value` does not already exist in this set; otherwise, if a key
+    /// equivalent to `value` already exists in this set, this method has no
+    /// effect.  Return an iterator referring to the (possibly newly
+    /// inserted) `value_type` object in this set that is equivalent to
+    /// `value`.  The average and worst case complexity of this operation is
+    /// not affected by the specified `hint`.  This method requires that the
+    /// (template parameter) type `KEY` be `copy-constructible` into this
+    /// set (see {Requirements on `KEY`}).  The behavior is undefined unless
+    /// `hint` is an iterator in the range `[begin() .. end()]` (both
+    /// endpoints included).  Note that `hint` is ignored (other than
+    /// possibly asserting its validity in some build modes).
     iterator insert(const_iterator hint, const value_type& value);
-        // Insert the specified 'value' into this set if a key equivalent to
-        // 'value' does not already exist in this set; otherwise, if a key
-        // equivalent to 'value' already exists in this set, this method has no
-        // effect.  Return an iterator referring to the (possibly newly
-        // inserted) 'value_type' object in this set that is equivalent to
-        // 'value'.  The average and worst case complexity of this operation is
-        // not affected by the specified 'hint'.  This method requires that the
-        // (template parameter) type 'KEY' be 'copy-constructible' into this
-        // set (see {Requirements on 'KEY'}).  The behavior is undefined unless
-        // 'hint' is an iterator in the range '[begin() .. end()]' (both
-        // endpoints included).  Note that 'hint' is ignored (other than
-        // possibly asserting its validity in some build modes).
 
+    /// Insert the specified `value` into this set if a key equivalent to
+    /// `value` does not already exist in this set; otherwise, if a key
+    /// equivalent to `value` already exists in this set, this method has no
+    /// effect.  `value` is left in a valid but unspecified state.  Return
+    /// an iterator referring to the (possibly newly inserted) `value_type`
+    /// object in this set that is equivalent to `value`.  The average and
+    /// worst case complexity of this operation is not affected by the
+    /// specified `hint`.  This method requires that the (template
+    /// parameter) type `KEY` be `move-insertable` (see {Requirements on
+    /// `KEY`}) into this set.  The behavior is undefined unless `hint` is
+    /// an iterator in the range `[begin() .. end()]` (both endpoints
+    /// included).  Note that `hint` is ignored (other than possibly
+    /// asserting its validity in some build modes).
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
-        // Insert the specified 'value' into this set if a key equivalent to
-        // 'value' does not already exist in this set; otherwise, if a key
-        // equivalent to 'value' already exists in this set, this method has no
-        // effect.  'value' is left in a valid but unspecified state.  Return
-        // an iterator referring to the (possibly newly inserted) 'value_type'
-        // object in this set that is equivalent to 'value'.  The average and
-        // worst case complexity of this operation is not affected by the
-        // specified 'hint'.  This method requires that the (template
-        // parameter) type 'KEY' be 'move-insertable' (see {Requirements on
-        // 'KEY'}) into this set.  The behavior is undefined unless 'hint' is
-        // an iterator in the range '[begin() .. end()]' (both endpoints
-        // included).  Note that 'hint' is ignored (other than possibly
-        // asserting its validity in some build modes).
 
+    /// Insert into this set the value of each `value_type` object in the
+    /// range starting at the specified `first` iterator and ending
+    /// immediately before the specified `last` iterator, if a  key
+    /// equivalent to the object is not already contained in this set.  The
+    /// (template parameter) type `INPUT_ITERATOR` shall meet the
+    /// requirements of an input iterator defined in the C++11 standard
+    /// [24.2.3] providing access to values of a type convertible to
+    /// `value_type`, and `value_type` must be `emplace-constructible` from
+    /// `*i` into this set, where `i` is a dereferenceable iterator in the
+    /// range `[first .. last)` (see {Requirements on `KEY`}).  The behavior
+    /// is undefined unless `first` and `last` refer to a sequence of valid
+    /// values where `first` is at a position at or before `last`.
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
-        // Insert into this set the value of each 'value_type' object in the
-        // range starting at the specified 'first' iterator and ending
-        // immediately before the specified 'last' iterator, if a  key
-        // equivalent to the object is not already contained in this set.  The
-        // (template parameter) type 'INPUT_ITERATOR' shall meet the
-        // requirements of an input iterator defined in the C++11 standard
-        // [24.2.3] providing access to values of a type convertible to
-        // 'value_type', and 'value_type' must be 'emplace-constructible' from
-        // '*i' into this set, where 'i' is a dereferenceable iterator in the
-        // range '[first .. last)' (see {Requirements on 'KEY'}).  The behavior
-        // is undefined unless 'first' and 'last' refer to a sequence of valid
-        // values where 'first' is at a position at or before 'last'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Insert into this set the value of each `value_type` object in the
+    /// specified `values` initializer list if a key equivalent to the
+    /// object is not already contained in this set.  This method requires
+    /// that the (template parameter) type `KEY` be `copy-insertable` (see
+    /// {Requirements on `KEY`}).
     void insert(std::initializer_list<KEY> values);
-        // Insert into this set the value of each 'value_type' object in the
-        // specified 'values' initializer list if a key equivalent to the
-        // object is not already contained in this set.  This method requires
-        // that the (template parameter) type 'KEY' be 'copy-insertable' (see
-        // {Requirements on 'KEY'}).
 #endif
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -798,37 +801,37 @@ class unordered_set {
 // }}} END GENERATED CODE
 #endif
 
+    /// Remove from this unordered set the `value_type` object at the
+    /// specified `position`, and return an iterator referring to the
+    /// element immediately following the removed element, or to the
+    /// past-the-end position if the removed element was the last element in
+    /// the sequence of elements maintained by this set.  This method
+    /// invalidates only iterators and references to the removed element and
+    /// previously saved values of the `end()` iterator, and preserves the
+    /// relative order of the elements not removed.  The behavior is
+    /// undefined unless `position` refers to a `value_type` object in this
+    /// unordered set.
     iterator erase(const_iterator position);
-        // Remove from this unordered set the 'value_type' object at the
-        // specified 'position', and return an iterator referring to the
-        // element immediately following the removed element, or to the
-        // past-the-end position if the removed element was the last element in
-        // the sequence of elements maintained by this set.  This method
-        // invalidates only iterators and references to the removed element and
-        // previously saved values of the 'end()' iterator, and preserves the
-        // relative order of the elements not removed.  The behavior is
-        // undefined unless 'position' refers to a 'value_type' object in this
-        // unordered set.
 
+    /// Remove from this set the `value_type` object that is equivalent to
+    /// the specified `key`, if such an entry exists, and return 1;
+    /// otherwise, if there is no `value_type` object that is equivalent to
+    /// `key`, return 0 with no other effect.  This method invalidates only
+    /// iterators and references to the removed element and previously saved
+    /// values of the `end()` iterator, and preserves the relative order of
+    /// the elements not removed.
     size_type erase(const key_type& key);
-        // Remove from this set the 'value_type' object that is equivalent to
-        // the specified 'key', if such an entry exists, and return 1;
-        // otherwise, if there is no 'value_type' object that is equivalent to
-        // 'key', return 0 with no other effect.  This method invalidates only
-        // iterators and references to the removed element and previously saved
-        // values of the 'end()' iterator, and preserves the relative order of
-        // the elements not removed.
 
+    /// Remove from this set the `value_type` objects starting at the
+    /// specified `first` position up to, but including the specified `last`
+    /// position, and return `last`.  This method invalidates only iterators
+    /// and references to the removed element and previously saved values of
+    /// the `end()` iterator, and preserves the relative order of the
+    /// elements not removed.  The behavior is undefined unless `first` and
+    /// `last` either refer to elements in this set or are the `end`
+    /// iterator, and the `first` position is at or before the `last`
+    /// position in the sequence provided by this container.
     iterator erase(const_iterator first, const_iterator last);
-        // Remove from this set the 'value_type' objects starting at the
-        // specified 'first' position up to, but including the specified 'last'
-        // position, and return 'last'.  This method invalidates only iterators
-        // and references to the removed element and previously saved values of
-        // the 'end()' iterator, and preserves the relative order of the
-        // elements not removed.  The behavior is undefined unless 'first' and
-        // 'last' either refer to elements in this set or are the 'end'
-        // iterator, and the 'first' position is at or before the 'last'
-        // position in the sequence provided by this container.
 
     void swap(unordered_set& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                       AllocatorTraits::is_always_equal::value
@@ -848,52 +851,52 @@ class unordered_set {
         // created with the same allocator as 'other' or 'ALLOCATOR' has the
         // 'propagate_on_container_swap' trait.
 
+    /// Remove all entries from this unordered set.  Note that the set is
+    /// empty after this call, but allocated memory may be retained for
+    /// future use.
     void clear() BSLS_KEYWORD_NOEXCEPT;
-        // Remove all entries from this unordered set.  Note that the set is
-        // empty after this call, but allocated memory may be retained for
-        // future use.
 
+    /// Return an iterator providing modifiable access to the `value_type`
+    /// object in this unordered set that is equivalent to the specified
+    /// `key`, if such an entry exists, and the past-the-end (`end`)
+    /// iterator otherwise.  The behavior is undefined unless `key` is
+    /// equivalent to at most one element in this unordered set.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       iterator>::type
     find(const LOOKUP_KEY& key)
-        // Return an iterator providing modifiable access to the 'value_type'
-        // object in this unordered set that is equivalent to the specified
-        // 'key', if such an entry exists, and the past-the-end ('end')
-        // iterator otherwise.  The behavior is undefined unless 'key' is
-        // equivalent to at most one element in this unordered set.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
         {
             return iterator(d_impl.find(key));
         }
 
+    /// Return an iterator providing modifiable access to the `value_type`
+    /// object in this unordered set that is equivalent to the specified
+    /// `key`, if such an entry exists, and the past-the-end (`end`)
+    /// iterator otherwise.
     iterator find(const key_type& key);
-        // Return an iterator providing modifiable access to the 'value_type'
-        // object in this unordered set that is equivalent to the specified
-        // 'key', if such an entry exists, and the past-the-end ('end')
-        // iterator otherwise.
 
+    /// Return a pair of iterators providing modifiable access to the
+    /// sequence of `value_type` objects in this unordered set that are
+    /// equivalent to the specified `key`, where the first iterator is
+    /// positioned at the start of the sequence, and the second is
+    /// positioned one past the end of the sequence.  If this unordered set
+    /// contains no `value_type` objects equivalent to `key`, then the two
+    /// returned iterators will have the same value.  The behavior is
+    /// undefined unless `key` is equivalent to at most one element in this
+    /// unordered set.  Note that since an unordered set maintains unique
+    /// keys, the range will contain at most one element.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       pair<iterator, iterator> >::type
     equal_range(const LOOKUP_KEY& key)
-        // Return a pair of iterators providing modifiable access to the
-        // sequence of 'value_type' objects in this unordered set that are
-        // equivalent to the specified 'key', where the first iterator is
-        // positioned at the start of the sequence, and the second is
-        // positioned one past the end of the sequence.  If this unordered set
-        // contains no 'value_type' objects equivalent to 'key', then the two
-        // returned iterators will have the same value.  The behavior is
-        // undefined unless 'key' is equivalent to at most one element in this
-        // unordered set.  Note that since an unordered set maintains unique
-        // keys, the range will contain at most one element.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
         {
             typedef bsl::pair<iterator, iterator> ResultType;
 
@@ -903,68 +906,73 @@ class unordered_set {
                    : ResultType(iterator(0),     iterator(0));
         }
 
+    /// Return a pair of iterators providing modifiable access to the
+    /// sequence of `value_type` objects in this unordered set that are
+    /// equivalent to the specified `key`, where the first iterator is
+    /// positioned at the start of the sequence, and the second is
+    /// positioned one past the end of the sequence.  If this unordered set
+    /// contains no `value_type` objects equivalent to `key`, then the two
+    /// returned iterators will have the same value.  Note that since an
+    /// unordered set maintains unique keys, the range will contain at most
+    /// one element.
     pair<iterator, iterator> equal_range(const key_type& key);
-        // Return a pair of iterators providing modifiable access to the
-        // sequence of 'value_type' objects in this unordered set that are
-        // equivalent to the specified 'key', where the first iterator is
-        // positioned at the start of the sequence, and the second is
-        // positioned one past the end of the sequence.  If this unordered set
-        // contains no 'value_type' objects equivalent to 'key', then the two
-        // returned iterators will have the same value.  Note that since an
-        // unordered set maintains unique keys, the range will contain at most
-        // one element.
 
+    /// Set the maximum load factor of this container to the specified
+    /// `newLoadFactor`.
     void max_load_factor(float newLoadFactor);
-        // Set the maximum load factor of this container to the specified
-        // 'newLoadFactor'.
 
+    /// Change the size of the array of buckets maintained by this container
+    /// to the specified `numBuckets`, and redistribute all the contained
+    /// elements into the new sequence of buckets, according to their hash
+    /// values.  Note that this operation has no effect if rehashing the
+    /// elements into `numBuckets` would cause this set to exceed its
+    /// `max_load_factor`.
     void rehash(size_type numBuckets);
-        // Change the size of the array of buckets maintained by this container
-        // to the specified 'numBuckets', and redistribute all the contained
-        // elements into the new sequence of buckets, according to their hash
-        // values.  Note that this operation has no effect if rehashing the
-        // elements into 'numBuckets' would cause this set to exceed its
-        // 'max_load_factor'.
 
+    /// Increase the number of buckets of this set to a quantity such that
+    /// the ratio between the specified `numElements` and this quantity does
+    /// not exceed `max_load_factor`.  Note that this guarantees that, after
+    /// the reserve, elements can be inserted to grow the container to
+    /// `size() == numElements` without rehashing.  Also note that memory
+    /// allocations may still occur when growing the container to
+    /// `size() == numElements`.  Also note that this operation has no
+    /// effect if `numElements <= size()`.
     void reserve(size_type numElements);
-        // Increase the number of buckets of this set to a quantity such that
-        // the ratio between the specified 'numElements' and this quantity does
-        // not exceed 'max_load_factor'.  Note that this guarantees that, after
-        // the reserve, elements can be inserted to grow the container to
-        // 'size() == numElements' without rehashing.  Also note that memory
-        // allocations may still occur when growing the container to
-        // 'size() == numElements'.  Also note that this operation has no
-        // effect if 'numElements <= size()'.
 
     // ACCESSORS
+
+    /// Return (a copy of) the allocator used for memory allocation by this
+    /// unordered set.
     ALLOCATOR get_allocator() const BSLS_KEYWORD_NOEXCEPT;
-        // Return (a copy of) the allocator used for memory allocation by this
-        // unordered set.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// `value_type` object in the sequence of `value_type` objects
+    /// maintained by this set, or the `end` iterator if this set is empty.
     const_iterator begin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object in the sequence of 'value_type' objects
-        // maintained by this set, or the 'end' iterator if this set is empty.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end element in the sequence of `value_type` objects
+    /// maintained by this set.
     const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element in the sequence of 'value_type' objects
-        // maintained by this set.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// `value_type` object in the sequence of `value_type` objects
+    /// maintained by this set, or the `cend` iterator if this set is empty.
     const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object in the sequence of 'value_type' objects
-        // maintained by this set, or the 'cend' iterator if this set is empty.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end element (in the sequence of `value_type` objects)
+    /// maintained by this set.
     const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects)
-        // maintained by this set.
 
+    /// Return `true` if this unordered set contains an element whose key is
+    /// equivalent to the specified `key`.
     bool contains(const key_type &key) const;
-        // Return 'true' if this unordered set contains an element whose key is
-        // equivalent to the specified 'key'.
 
+    /// Return `true` if this unordered set contains an element whose key is
+    /// equivalent to the specified `key`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error
     template <class LOOKUP_KEY>
     typename enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value &&
@@ -972,100 +980,96 @@ class unordered_set {
                                                        LOOKUP_KEY>::value,
         bool>::type
     contains(const LOOKUP_KEY& key) const
-        // Return 'true' if this unordered set contains an element whose key is
-        // equivalent to the specified 'key'.
-        //
-        // Note: implemented inline due to Sun CC compilation error
     {
         return find(key) != end();
     }
 
+    /// Return `true` if this set contains no elements, and `false`
+    /// otherwise.
     bool empty() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if this set contains no elements, and 'false'
-        // otherwise.
 
+    /// Return the number of elements in this set.
     size_type size() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the number of elements in this set.
 
+    /// Return a theoretical upper bound on the largest number of elements
+    /// that this set could possibly hold.  Note that there is no guarantee
+    /// that the set can successfully grow to the returned size, or even
+    /// close to that size without running out of resources.
     size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a theoretical upper bound on the largest number of elements
-        // that this set could possibly hold.  Note that there is no guarantee
-        // that the set can successfully grow to the returned size, or even
-        // close to that size without running out of resources.
 
+    /// Return (a copy of) the key-equality binary functor that returns
+    /// `true` if the value of two `key_type` objects are equivalent, and
+    /// `false` otherwise.
     EQUAL key_eq() const;
-        // Return (a copy of) the key-equality binary functor that returns
-        // 'true' if the value of two 'key_type' objects are equivalent, and
-        // 'false' otherwise.
 
+    /// Return (a copy of) the hash unary functor used by this set to
+    /// generate a hash value (of type `size_t`) for a `key_type` object.
     HASH hash_function() const;
-        // Return (a copy of) the hash unary functor used by this set to
-        // generate a hash value (of type 'size_t') for a 'key_type' object.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// `value_type` object in this unordered set that is equivalent to the
+    /// specified `key`, if such an entry exists, and the past-the-end
+    /// (`end`) iterator otherwise.  The behavior is undefined unless `key`
+    /// is equivalent to at most one element in this unordered set.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       const_iterator>::type
     find(const LOOKUP_KEY& key) const
-        // Return an iterator providing non-modifiable access to the
-        // 'value_type' object in this unordered set that is equivalent to the
-        // specified 'key', if such an entry exists, and the past-the-end
-        // ('end') iterator otherwise.  The behavior is undefined unless 'key'
-        // is equivalent to at most one element in this unordered set.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
         {
             return const_iterator(d_impl.find(key));
         }
 
+    /// Return an iterator providing non-modifiable access to the
+    /// `value_type` object in this unordered set that is equivalent to the
+    /// specified `key`, if such an entry exists, and the past-the-end
+    /// (`end`) iterator otherwise.
     const_iterator find(const key_type& key) const;
-        // Return an iterator providing non-modifiable access to the
-        // 'value_type' object in this unordered set that is equivalent to the
-        // specified 'key', if such an entry exists, and the past-the-end
-        // ('end') iterator otherwise.
 
+    /// Return the number of `value_type` objects within this unordered set
+    /// that are equivalent to the specified `key`.  The behavior is
+    /// undefined unless `key` is equivalent to at most one element in this
+    /// unordered set.  Note that since an unordered set maintains unique
+    /// keys, the returned value will be either 0 or 1.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       size_type>::type
     count(const LOOKUP_KEY& key) const
-        // Return the number of 'value_type' objects within this unordered set
-        // that are equivalent to the specified 'key'.  The behavior is
-        // undefined unless 'key' is equivalent to at most one element in this
-        // unordered set.  Note that since an unordered set maintains unique
-        // keys, the returned value will be either 0 or 1.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
         {
             return d_impl.find(key) != 0;
         }
 
+    /// Return the number of `value_type` objects within this unordered set
+    /// that are equivalent to the specified `key`.  Note that since an
+    /// unordered set maintains unique keys, the returned value will be
+    /// either 0 or 1.
     size_type count(const key_type& key) const;
-        // Return the number of 'value_type' objects within this unordered set
-        // that are equivalent to the specified 'key'.  Note that since an
-        // unordered set maintains unique keys, the returned value will be
-        // either 0 or 1.
 
+    /// Return a pair of iterators providing non-modifiable access to the
+    /// sequence of `value_type` objects in this unordered set that are
+    /// equivalent to the specified `key`, where the first iterator is
+    /// positioned at the start of the sequence and the second iterator is
+    /// positioned one past the end of the sequence.  If this unordered set
+    /// contains no `value_type` objects equivalent to `key`, then the two
+    /// returned iterators will have the same value.  The behavior is
+    /// undefined unless `key` is equivalent to at most one element in this
+    /// unordered set.  Note that since an unordered set maintains unique
+    /// keys, the range will contain at most one element.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
-        // Return a pair of iterators providing non-modifiable access to the
-        // sequence of 'value_type' objects in this unordered set that are
-        // equivalent to the specified 'key', where the first iterator is
-        // positioned at the start of the sequence and the second iterator is
-        // positioned one past the end of the sequence.  If this unordered set
-        // contains no 'value_type' objects equivalent to 'key', then the two
-        // returned iterators will have the same value.  The behavior is
-        // undefined unless 'key' is equivalent to at most one element in this
-        // unordered set.  Note that since an unordered set maintains unique
-        // keys, the range will contain at most one element.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
         {
             typedef bsl::pair<const_iterator, const_iterator> ResultType;
 
@@ -1075,79 +1079,86 @@ class unordered_set {
                  : ResultType(iterator(0),     iterator(0));
         }
 
+    /// Return a pair of iterators providing non-modifiable access to the
+    /// sequence of `value_type` objects in this unordered set that are
+    /// equivalent to the specified `key`, where the first iterator is
+    /// positioned at the start of the sequence and the second iterator is
+    /// positioned one past the end of the sequence.  If this unordered set
+    /// contains no `value_type` objects equivalent to `key`, then the two
+    /// returned iterators will have the same value.  Note that since an
+    /// unordered set maintains unique keys, the range will contain at most
+    /// one element.
     pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;
-        // Return a pair of iterators providing non-modifiable access to the
-        // sequence of 'value_type' objects in this unordered set that are
-        // equivalent to the specified 'key', where the first iterator is
-        // positioned at the start of the sequence and the second iterator is
-        // positioned one past the end of the sequence.  If this unordered set
-        // contains no 'value_type' objects equivalent to 'key', then the two
-        // returned iterators will have the same value.  Note that since an
-        // unordered set maintains unique keys, the range will contain at most
-        // one element.
 
+    /// Return the number of buckets in the array of buckets maintained by
+    /// this set.
     size_type bucket_count() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the number of buckets in the array of buckets maintained by
-        // this set.
 
+    /// Return a theoretical upper bound on the largest number of buckets
+    /// that this container could possibly manage.  Note that there is no
+    /// guarantee that the set can successfully grow to the returned size,
+    /// or even close to that size without running out of resources.
     size_type max_bucket_count() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a theoretical upper bound on the largest number of buckets
-        // that this container could possibly manage.  Note that there is no
-        // guarantee that the set can successfully grow to the returned size,
-        // or even close to that size without running out of resources.
 
+    /// Return the number of elements contained in the bucket at the
+    /// specified `index` in the array of buckets maintained by this
+    /// container.
     size_type bucket_size(size_type index) const;
-        // Return the number of elements contained in the bucket at the
-        // specified 'index' in the array of buckets maintained by this
-        // container.
 
+    /// Return the index of the bucket, in the array of buckets of this
+    /// container, where a value equivalent to the specified `key` would be
+    /// inserted.
     size_type bucket(const key_type& key) const;
-        // Return the index of the bucket, in the array of buckets of this
-        // container, where a value equivalent to the specified 'key' would be
-        // inserted.
 
+    /// Return a local iterator providing non-modifiable access to the first
+    /// `value_type` object (in the sequence of `value_type` objects) of the
+    /// bucket having the specified `index` in the array of buckets
+    /// maintained by this set, or the `end(index)` otherwise.
     const_local_iterator begin(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects) of the
-        // bucket having the specified 'index' in the array of buckets
-        // maintained by this set, or the 'end(index)' otherwise.
 
+    /// Return a local iterator providing non-modifiable access to the
+    /// past-the-end element (in the sequence of `value_type` objects) of
+    /// the bucket having the specified `index` in the array of buckets
+    /// maintained by this set.
     const_local_iterator end(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects) of
-        // the bucket having the specified 'index' in the array of buckets
-        // maintained by this set.
 
+    /// Return a local iterator providing non-modifiable access to the first
+    /// `value_type` object (in the sequence of `value_type` objects) of the
+    /// bucket having the specified `index` in the array of buckets
+    /// maintained by this set, or the `cend(index)` otherwise.
     const_local_iterator cbegin(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects) of the
-        // bucket having the specified 'index' in the array of buckets
-        // maintained by this set, or the 'cend(index)' otherwise.
 
+    /// Return a local iterator providing non-modifiable access to the
+    /// past-the-end element (in the sequence of `value_type` objects) of
+    /// the bucket having the specified `index` in the array of buckets
+    /// maintained by this set.
     const_local_iterator cend(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects) of
-        // the bucket having the specified 'index' in the array of buckets
-        // maintained by this set.
 
+    /// Return the current ratio between the `size` of this container and
+    /// the number of buckets.  The `load_factor` is a measure of how full
+    /// the container is, and a higher load factor leads to an increased
+    /// number of collisions, thus resulting in a loss performance.
     float load_factor() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the current ratio between the 'size' of this container and
-        // the number of buckets.  The 'load_factor' is a measure of how full
-        // the container is, and a higher load factor leads to an increased
-        // number of collisions, thus resulting in a loss performance.
 
+    /// Return the maximum load factor allowed for this container.  If an
+    /// insert operation would cause `load_factor` to exceed the
+    /// `max_load_factor`, that same insert operation will increase the
+    /// number of buckets and rehash the elements of the container into
+    /// those buckets the (see rehash).
     float max_load_factor() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the maximum load factor allowed for this container.  If an
-        // insert operation would cause 'load_factor' to exceed the
-        // 'max_load_factor', that same insert operation will increase the
-        // number of buckets and rehash the elements of the container into
-        // those buckets the (see rehash).
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// iterators supplied to the constructor of `unordered_set`.  Deduce the
+/// template parameters `HASH`, `EQUAL` and `ALLOCATOR` from the other
+/// parameters passed to the constructor.  This deduction guide does not
+/// participate unless: (1) the supplied `HASH` is invocable with a `KEY`,
+/// (2) the supplied `EQUAL` is invocable with two `KEY`s, and (3) the
+/// supplied allocator meets the requirements of a standard allocator.
 template <
     class INPUT_ITERATOR,
     class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
@@ -1166,14 +1177,12 @@ unordered_set(INPUT_ITERATOR,
               EQUAL     = EQUAL(),
               ALLOCATOR = ALLOCATOR())
 -> unordered_set<KEY, HASH, EQUAL, ALLOCATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'unordered_set'.  Deduce the
-    // template parameters 'HASH', 'EQUAL' and 'ALLOCATOR' from the other
-    // parameters passed to the constructor.  This deduction guide does not
-    // participate unless: (1) the supplied 'HASH' is invocable with a 'KEY',
-    // (2) the supplied 'EQUAL' is invocable with two 'KEY's, and (3) the
-    // supplied allocator meets the requirements of a standard allocator.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// iterators supplied to the constructor of `unordered_set`.  Deduce the
+/// template parameters `HASH` and `EQUAL` from the other parameters passed
+/// to the constructor.  This deduction guide does not participate unless
+/// the supplied allocator is convertible to `bsl::allocator<KEY>`.
 template <
     class INPUT_ITERATOR,
     class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
@@ -1190,12 +1199,13 @@ unordered_set(INPUT_ITERATOR,
               EQUAL,
               ALLOC *)
 -> unordered_set<KEY, HASH, EQUAL>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'unordered_set'.  Deduce the
-    // template parameters 'HASH' and 'EQUAL' from the other parameters passed
-    // to the constructor.  This deduction guide does not participate unless
-    // the supplied allocator is convertible to 'bsl::allocator<KEY>'.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// iterators supplied to the constructor of `unordered_set`.  Deduce the
+/// template parameters `HASH` and `ALLOCATOR` from the other parameters
+/// passed to the constructor.  This deduction guide does not participate
+/// unless the supplied `HASH` is invocable with a `KEY`, and the supplied
+/// allocator meets the requirements of a standard allocator.
 template <
     class INPUT_ITERATOR,
     class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
@@ -1210,13 +1220,12 @@ unordered_set(INPUT_ITERATOR,
               HASH,
               ALLOCATOR)
 -> unordered_set<KEY, HASH, bsl::equal_to<KEY>, ALLOCATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'unordered_set'.  Deduce the
-    // template parameters 'HASH' and 'ALLOCATOR' from the other parameters
-    // passed to the constructor.  This deduction guide does not participate
-    // unless the supplied 'HASH' is invocable with a 'KEY', and the supplied
-    // allocator meets the requirements of a standard allocator.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// iterators supplied to the constructor of `unordered_set`.  Deduce the
+/// template parameter `HASH` from the other parameters passed to the
+/// constructor.  This deduction guide does not participate unless the
+/// supplied allocator is convertible to `bsl::allocator<KEY>`.
 template <
     class INPUT_ITERATOR,
     class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
@@ -1231,12 +1240,11 @@ unordered_set(INPUT_ITERATOR,
               HASH,
               ALLOC *)
 -> unordered_set<KEY, HASH>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'unordered_set'.  Deduce the
-    // template parameter 'HASH' from the other parameters passed to the
-    // constructor.  This deduction guide does not participate unless the
-    // supplied allocator is convertible to 'bsl::allocator<KEY>'.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// iterators supplied to the constructor of `unordered_set`.   This
+/// deduction guide does not participate unless the supplied allocator meets
+/// the requirements of a standard allocator.
 template <
     class INPUT_ITERATOR,
     class ALLOCATOR,
@@ -1248,11 +1256,11 @@ unordered_set(INPUT_ITERATOR,
               typename bsl::allocator_traits<ALLOCATOR>::size_type,
               ALLOCATOR)
 -> unordered_set<KEY, bsl::hash<KEY>, bsl::equal_to<KEY>, ALLOCATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'unordered_set'.   This
-    // deduction guide does not participate unless the supplied allocator meets
-    // the requirements of a standard allocator.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// iterators supplied to the constructor of `unordered_set`.  This
+/// deduction guide does not participate unless the supplied allocator is
+/// convertible to `bsl::allocator<KEY>`.
 template <
     class INPUT_ITERATOR,
     class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
@@ -1265,11 +1273,11 @@ unordered_set(INPUT_ITERATOR,
               typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
               ALLOC *)
 -> unordered_set<KEY>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'unordered_set'.  This
-    // deduction guide does not participate unless the supplied allocator is
-    // convertible to 'bsl::allocator<KEY>'.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// iterators supplied to the constructor of `unordered_set`.   This
+/// deduction guide does not participate unless the supplied allocator meets
+/// the requirements of a standard allocator.
 template <
     class INPUT_ITERATOR,
     class ALLOCATOR,
@@ -1278,11 +1286,11 @@ template <
     >
 unordered_set(INPUT_ITERATOR, INPUT_ITERATOR, ALLOCATOR)
 -> unordered_set<KEY, bsl::hash<KEY>, bsl::equal_to<KEY>, ALLOCATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'unordered_set'.   This
-    // deduction guide does not participate unless the supplied allocator meets
-    // the requirements of a standard allocator.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// iterators supplied to the constructor of `unordered_set`.  This
+/// deduction guide does not participate unless the supplied allocator is
+/// convertible to `bsl::allocator<KEY>`.
 template <
     class INPUT_ITERATOR,
     class KEY = BloombergLP::bslstl::IteratorUtil::IterVal_t<INPUT_ITERATOR>,
@@ -1292,11 +1300,14 @@ template <
     >
 unordered_set(INPUT_ITERATOR, INPUT_ITERATOR, ALLOC *)
 -> unordered_set<KEY>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // iterators supplied to the constructor of 'unordered_set'.  This
-    // deduction guide does not participate unless the supplied allocator is
-    // convertible to 'bsl::allocator<KEY>'.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// initializer_list supplied to the constructor of `unordered_set`.  Deduce
+/// the template parameters `HASH`, EQUAL and `ALLOCATOR` from the other
+/// parameters passed to the constructor.  This deduction guide does not
+/// participate unless: (1) the supplied `HASH` is invocable with a `KEY`,
+/// (2) the supplied `EQUAL` is invocable with two `KEY`s, and (3) the
+/// supplied allocator meets the requirements of a standard allocator.
 template <
     class KEY,
     class HASH = bsl::hash<KEY>,
@@ -1313,14 +1324,12 @@ unordered_set(std::initializer_list<KEY>,
               EQUAL     = EQUAL(),
               ALLOCATOR = ALLOCATOR())
 -> unordered_set<KEY, HASH, EQUAL, ALLOCATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // initializer_list supplied to the constructor of 'unordered_set'.  Deduce
-    // the template parameters 'HASH', EQUAL and 'ALLOCATOR' from the other
-    // parameters passed to the constructor.  This deduction guide does not
-    // participate unless: (1) the supplied 'HASH' is invocable with a 'KEY',
-    // (2) the supplied 'EQUAL' is invocable with two 'KEY's, and (3) the
-    // supplied allocator meets the requirements of a standard allocator.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// initializer_list supplied to the constructor of `unordered_set`.  Deduce
+/// the template parameters `HASH` and `EQUAL` from the other parameters
+/// passed to the constructor.  This deduction guide does not participate
+/// unless the supplied allocator is convertible to `bsl::allocator<KEY>`.
 template <
     class KEY,
     class HASH,
@@ -1335,12 +1344,13 @@ unordered_set(std::initializer_list<KEY>,
               EQUAL,
               ALLOC *)
 -> unordered_set<KEY, HASH, EQUAL>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // initializer_list supplied to the constructor of 'unordered_set'.  Deduce
-    // the template parameters 'HASH' and 'EQUAL' from the other parameters
-    // passed to the constructor.  This deduction guide does not participate
-    // unless the supplied allocator is convertible to 'bsl::allocator<KEY>'.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// initializer_list supplied to the constructor of `unordered_set`.  Deduce
+/// the template parameters `HASH` and `ALLOCATOR` from the other parameters
+/// passed to the constructor.  This deduction guide does not participate
+/// unless the supplied `HASH` is invocable with a `KEY`, and the supplied
+/// allocator meets the requirements of a standard allocator.
 template <
     class KEY,
     class HASH,
@@ -1353,14 +1363,13 @@ unordered_set(std::initializer_list<KEY>,
               HASH,
               ALLOCATOR)
 -> unordered_set<KEY, HASH, bsl::equal_to<KEY>, ALLOCATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // initializer_list supplied to the constructor of 'unordered_set'.  Deduce
-    // the template parameters 'HASH' and 'ALLOCATOR' from the other parameters
-    // passed to the constructor.  This deduction guide does not participate
-    // unless the supplied 'HASH' is invocable with a 'KEY', and the supplied
-    // allocator meets the requirements of a standard allocator.
 
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// initializer_list supplied to the constructor of `unordered_set`.  Deduce
+/// the template parameter `HASH` from the other parameters passed to the
+/// constructor.  This deduction guide does not participate unless the
+/// supplied allocator is convertible to `bsl::allocator<KEY>`.
 template <
     class KEY,
     class HASH,
@@ -1373,12 +1382,11 @@ unordered_set(std::initializer_list<KEY>,
               HASH,
               ALLOC *)
 -> unordered_set<KEY, HASH>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // initializer_list supplied to the constructor of 'unordered_set'.  Deduce
-    // the template parameter 'HASH' from the other parameters passed to the
-    // constructor.  This deduction guide does not participate unless the
-    // supplied allocator is convertible to 'bsl::allocator<KEY>'.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// initializer_list supplied to the constructor of `unordered_set`.  This
+/// deduction guide does not participate unless the supplied allocator meets
+/// the requirements of a standard allocator.
 template <
     class KEY,
     class ALLOCATOR,
@@ -1388,11 +1396,11 @@ unordered_set(std::initializer_list<KEY>,
               typename bsl::allocator_traits<ALLOCATOR>::size_type,
               ALLOCATOR)
 -> unordered_set<KEY, bsl::hash<KEY>, bsl::equal_to<KEY>, ALLOCATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // initializer_list supplied to the constructor of 'unordered_set'.  This
-    // deduction guide does not participate unless the supplied allocator meets
-    // the requirements of a standard allocator.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// initializer_list supplied to the constructor of `unordered_set`.  This
+/// deduction guide does not participate unless the supplied allocator is
+/// convertible to `bsl::allocator<KEY>`.
 template <
     class KEY,
     class ALLOC,
@@ -1403,11 +1411,11 @@ unordered_set(std::initializer_list<KEY>,
               typename bsl::allocator_traits<DEFAULT_ALLOCATOR>::size_type,
               ALLOC *)
 -> unordered_set<KEY>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // initializer_list supplied to the constructor of 'unordered_set'.  This
-    // deduction guide does not participate unless the supplied allocator is
-    // convertible to 'bsl::allocator<KEY>'.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// initializer_list supplied to the constructor of `unordered_set`.  This
+/// deduction guide does not participate unless the supplied allocator meets
+/// the requirements of a standard allocator.
 template <
     class KEY,
     class ALLOCATOR,
@@ -1415,11 +1423,11 @@ template <
     >
 unordered_set(std::initializer_list<KEY>, ALLOCATOR)
 -> unordered_set<KEY, bsl::hash<KEY>, bsl::equal_to<KEY>, ALLOCATOR>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // initializer_list supplied to the constructor of 'unordered_set'.  This
-    // deduction guide does not participate unless the supplied allocator meets
-    // the requirements of a standard allocator.
 
+/// Deduce the template parameter `KEY` from the `value_type` of the
+/// initializer_list supplied to the constructor of `unordered_set`.  This
+/// deduction guide does not participate unless the supplied allocator is
+/// convertible to `bsl::allocator<KEY>`.
 template <
     class KEY,
     class ALLOC,
@@ -1428,23 +1436,20 @@ template <
     >
 unordered_set(std::initializer_list<KEY>, ALLOC *)
 -> unordered_set<KEY>;
-    // Deduce the template parameter 'KEY' from the 'value_type' of the
-    // initializer_list supplied to the constructor of 'unordered_set'.  This
-    // deduction guide does not participate unless the supplied allocator is
-    // convertible to 'bsl::allocator<KEY>'.
 #endif
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `unordered_set` objects have the same
+/// value if they have the same number of value-elements, and for each
+/// value-element that is contained in `lhs` there is a value-element
+/// contained in `rhs` having the same value, and vice-versa.  Note that
+/// this method requires that the (template parameter) type `KEY` be
+/// `equality-comparable` (see {Requirements on `KEY`}).
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 bool operator==(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
                 const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'unordered_set' objects have the same
-    // value if they have the same number of value-elements, and for each
-    // value-element that is contained in 'lhs' there is a value-element
-    // contained in 'rhs' having the same value, and vice-versa.  Note that
-    // this method requires that the (template parameter) type 'KEY' be
-    // 'equality-comparable' (see {Requirements on 'KEY'}).
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1460,12 +1465,13 @@ bool operator!=(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
 #endif
 
 // FREE FUNCTIONS
+
+/// Erase all the elements in the specified unordered_set `s` that satisfy
+/// the specified predicate `predicate`.  Return the number of elements
+/// erased.
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR, class PREDICATE>
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 erase_if(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& s, PREDICATE predicate);
-    // Erase all the elements in the specified unordered_set 's' that satisfy
-    // the specified predicate 'predicate'.  Return the number of elements
-    // erased.
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& a,
@@ -3004,7 +3010,7 @@ struct UsesBslmaAllocator<bsl::unordered_set<KEY, HASH, EQUAL, ALLOCATOR> >
 #endif // ! defined(INCLUDED_BSLSTL_UNORDEREDSET_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
