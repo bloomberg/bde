@@ -58,28 +58,28 @@ BSLS_IDENT("$Id: $")
 // receive the generated records that are published.  Establishing this
 // interface proceeds in three logical steps:
 // ```
-//   (1) Create a distinguished 'ball::MultiplexObserver' that will be the
+//   (1) Create a distinguished `ball::MultiplexObserver` that will be the
 //       unique observer to receive log records directly from the logging
 //       system.
 //   (2) Create the other observers required by the application and register
-//       each of these observers with some 'ball::MultiplexObserver'.  (Note
-//       that a 'ball::MultiplexObserver' may be registered with another
-//       'ball::MultiplexObserver'.)
+//       each of these observers with some `ball::MultiplexObserver`.  (Note
+//       that a `ball::MultiplexObserver` may be registered with another
+//       `ball::MultiplexObserver`.)
 //   (3) Install the distinguished multiplexor from step (1) within the
-//       'ball' logging system.
+//       `ball` logging system.
 // ```
 // This example demonstrates the use of a multiplexing observer to forward log
 // records from a `ball` logging system to three registered observers.  Each of
 // the three registered observers performs distinct actions upon receipt of log
 // records:
 // ```
-//   (1) 'defaultObserver', an instance of 'ball::StreamObserver', formats
-//       the records it receives and outputs them to 'stdout'.
-//   (2) 'logfileObserver', an instance of 'my_LogfileObserver' (assumed to
-//       be a concrete class derived from 'ball::Observer') writes selected
+//   (1) `defaultObserver`, an instance of `ball::StreamObserver`, formats
+//       the records it receives and outputs them to `stdout`.
+//   (2) `logfileObserver`, an instance of `my_LogfileObserver` (assumed to
+//       be a concrete class derived from `ball::Observer`) writes selected
 //       records to a log file.
-//   (3) 'encryptingObserver', an instance of 'my_EncryptingObserver' (also
-//       assumed to be a concrete class derived from 'ball::Observer') creates
+//   (3) `encryptingObserver`, an instance of `my_EncryptingObserver` (also
+//       assumed to be a concrete class derived from `ball::Observer`) creates
 //       a compact, encrypted representation of each record, suitable for
 //       sending over an unsecure network.
 // ```

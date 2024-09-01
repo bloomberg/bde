@@ -64,31 +64,33 @@ BSLS_IDENT("$Id: $")
 //
 // Then, we define the interface of our implementation:
 // ```
+// /// This class provides a concrete implementation of the
+// /// `bdlt::CalendarLoader` protocol (an abstract interface) for loading
+// /// a calendar.  This elided implementation obtains calendar information
+// /// from ASCII strings formatted using JSON.  The source of the strings
+// /// is unspecified.
 // class MyCalendarLoader : public bdlt::CalendarLoader {
-//     // This class provides a concrete implementation of the
-//     // 'bdlt::CalendarLoader' protocol (an abstract interface) for loading
-//     // a calendar.  This elided implementation obtains calendar information
-//     // from ASCII strings formatted using JSON.  The source of the strings
-//     // is unspecified.
 //
 //   public:
 //     // CREATORS
-//     MyCalendarLoader();
-//         // Create a 'MyCalendarLoader' object.
 //
+//     /// Create a `MyCalendarLoader` object.
+//     MyCalendarLoader();
+//
+//     /// Destroy this object.
 //     virtual ~MyCalendarLoader();
-//         // Destroy this object.
 //
 //     // MANIPULATORS
+//
+//     /// Load, into the specified `result`, the calendar identified by
+//     /// the specified `calendarName`.  Return 0 on success, and a
+//     /// non-zero value otherwise.  If the calendar corresponding to
+//     /// `calendarName` is not found, 1 is returned with no effect on
+//     /// `*result`.  If a non-zero value other than 1 is returned
+//     /// (indicating a different error), `*result` is valid, but its
+//     /// value is undefined.
 //     virtual int load(bdlt::PackedCalendar *result,
 //                      const char           *calendarName);
-//         // Load, into the specified 'result', the calendar identified by
-//         // the specified 'calendarName'.  Return 0 on success, and a
-//         // non-zero value otherwise.  If the calendar corresponding to
-//         // 'calendarName' is not found, 1 is returned with no effect on
-//         // '*result'.  If a non-zero value other than 1 is returned
-//         // (indicating a different error), '*result' is valid, but its
-//         // value is undefined.
 // };
 // ```
 // Next, we implement the creators, trivially, as `MyCalendarLoader` does not

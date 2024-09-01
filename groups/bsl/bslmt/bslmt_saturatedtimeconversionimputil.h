@@ -152,11 +152,11 @@ struct SaturatedTimeConversionImpUtil {
     // defined as a struct on Windows, to guarantee that 'TimeSpec' exists on
     // all platforms.
 
+    /// Provide type for Windows platform
 #ifdef BSLMT_PLATFORM_POSIX_THREADS
     typedef timespec TimeSpec;
 #else
     struct TimeSpec {
-        // Provide type for Windows platform
 
         bsls::Types::Int64 tv_sec;
         int                tv_nsec;
@@ -164,10 +164,12 @@ struct SaturatedTimeConversionImpUtil {
 #endif
 
     // CLASS METHODS
+
 #if BSLS_PLATFORM_OS_DARWIN
     static void toTimeSpec(mach_timespec_t           *dst,
                            const bsls::TimeInterval&  src);
 #endif
+
     /// Assign to the specified `dst` the value of the specified `src`, and
     /// if `src` is less than the lowest representable value of `*dst`, set
     /// `*dst` to the minimum value it can represent, and if `src` is

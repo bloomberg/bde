@@ -33,40 +33,43 @@ BSLS_IDENT("$Id: $")
 // a thread-safe class, `my_SafeAccount`, given a thread-unsafe class,
 // `my_Account`.  The simple `my_Account` class is defined as follows:
 // ```
+// /// This `class` represents a bank account with a single balance.  It
+// /// is not thread-safe.
 // class my_Account {
-//     // This 'class' represents a bank account with a single balance.  It
-//     // is not thread-safe.
 //
 //     // DATA
 //     double d_money;  // amount of money in the account
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an account with zero balance.
 //     my_Account();
-//         // Create an account with zero balance.
 //
+//     /// Create an account having the value of the specified `original`
+//     /// account.
 //     my_Account(const my_Account& original);
-//         // Create an account having the value of the specified 'original'
-//         // account.
 //
+//     /// Destroy this account.
 //     ~my_Account();
-//         // Destroy this account.
 //
 //     // MANIPULATORS
+//
+//     /// Assign to this account the value of the specified `rhs` account,
+//     /// and return a reference to this modifiable account.
 //     my_Account& operator=(const my_Account& rhs);
-//         // Assign to this account the value of the specified 'rhs' account,
-//         // and return a reference to this modifiable account.
 //
+//     /// Deposit the specified `amount` of money into this account.
 //     void deposit(double amount);
-//         // Deposit the specified 'amount' of money into this account.
 //
+//     /// Withdraw the specified `amount` of money from this account.
 //     void withdraw(double amount);
-//         // Withdraw the specified 'amount' of money from this account.
 //
 //     // ACCESSORS
+
+//     /// Return the amount of money that is available for withdrawal
+//     /// from this account.
 //     double balance() const;
-//         // Return the amount of money that is available for withdrawal
-//         // from this account.
 // };
 //
 // // CREATORS
@@ -111,13 +114,13 @@ BSLS_IDENT("$Id: $")
 // a new thread-safe class that uses the thread-unsafe class in its
 // implementation.  Note the typical use of `mutable` for the lock:
 // ```
+// /// This `class` provides a thread-safe handle to an account (held, not
+// /// owned) passed at construction.
 // class my_SafeAccountHandle {
-//     // This 'class' provides a thread-safe handle to an account (held, not
-//     // owned) passed at construction.
 //
 //     // DATA
-//     my_Account          *d_account_p;  // held, not owned
-//     mutable bslmt::Mutex  d_lock;       // guard access to 'd_account_p'
+//     my_Account           *d_account_p;  // held, not owned
+//     mutable bslmt::Mutex  d_lock;       // guard access to `d_account_p`
 //
 //     // NOT IMPLEMENTED
 //     my_SafeAccountHandle(const my_SafeAccountHandle&);
@@ -125,40 +128,43 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     my_SafeAccountHandle(my_Account *account);
-//         // Create a thread-safe handle to the specified 'account'.
 //
+//     /// Create a thread-safe handle to the specified `account`.
+//     my_SafeAccountHandle(my_Account *account);
+//
+//     /// Destroy this handle.  Note that the held account is unaffected
+//     /// by this operation.
 //     ~my_SafeAccountHandle();
-//         // Destroy this handle.  Note that the held account is unaffected
-//         // by this operation.
 //
 //     // MANIPULATORS
+//
+//     /// Atomically deposit the specified `amount` of money into the
+//     /// account held by this handle.  Note that this operation is
+//     /// thread-safe; no `lock` is needed.
 //     void deposit(double amount);
-//         // Atomically deposit the specified 'amount' of money into the
-//         // account held by this handle.  Note that this operation is
-//         // thread-safe; no 'lock' is needed.
 //
+//     /// Provide exclusive access to the underlying account held by this
+//     /// object.
 //     void lock();
-//         // Provide exclusive access to the underlying account held by this
-//         // object.
 //
+//     /// Release exclusivity of the access to the underlying account held
+//     /// by this object.
 //     void unlock();
-//         // Release exclusivity of the access to the underlying account held
-//         // by this object.
 //
+//     /// Atomically withdraw the specified `amount` of money from the
+//     /// account held by this handle.  Note that this operation is
+//     /// thread-safe; no `lock` is needed.
 //     void withdraw(double amount);
-//         // Atomically withdraw the specified 'amount' of money from the
-//         // account held by this handle.  Note that this operation is
-//         // thread-safe; no 'lock' is needed.
 //
 //     // ACCESSORS
-//     my_Account *account() const;
-//         // Return the address of the modifiable account held by this
-//         // handle.
 //
+//     /// Return the address of the modifiable account held by this
+//     /// handle.
+//     my_Account *account() const;
+//
+//     /// Atomically return the amount of money that is available for
+//     /// withdrawal from the account held by this handle.
 //     double balance() const;
-//         // Atomically return the amount of money that is available for
-//         // withdrawal from the account held by this handle.
 // };
 // ```
 // The implementation show-casing the use of `bslmt::Mutex` follows:

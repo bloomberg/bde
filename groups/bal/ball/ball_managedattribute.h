@@ -173,8 +173,8 @@ class ManagedAttribute {
     ManagedAttribute(const ManagedAttribute&  original,
                      const allocator_type&    allocator = allocator_type());
 
+    /// Destroy this object.
     //! ~ManagedAttribute() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

@@ -97,10 +97,10 @@ BSLS_IDENT("$Id: $")
 // // my_array.h
 // // ...
 //
+// /// This class implements an "in-place" array of objects of
+// /// parameterized `TYPE` stored contiguously in memory.
 // template <class TYPE>
 // class my_Array {
-//     // This class implements an "in-place" array of objects of
-//     // parameterized 'TYPE' stored contiguously in memory.
 //
 //     // DATA
 //     TYPE             *d_array_p;      // dynamically allocated array
@@ -110,34 +110,35 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     my_Array(bslma::Allocator *basicAllocator = 0);
-//         // Create a 'my_Array' object having an initial length and capacity
-//         // of 0.  Optionally specify a 'basicAllocator' used to supply
-//         // memory.  If 'basicAllocator' is 0, the currently installed
-//         // default allocator is used.
 //
+//     /// Create a `my_Array` object having an initial length and capacity
+//     /// of 0.  Optionally specify a `basicAllocator` used to supply
+//     /// memory.  If `basicAllocator` is 0, the currently installed
+//     /// default allocator is used.
+//     my_Array(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Create a `my_Array` object having an initial length of 0 and
+//     /// the specified `initialCapacity`.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
 //     my_Array(int initialCapacity, bslma::Allocator *basicAllocator = 0);
-//         // Create a 'my_Array' object having an initial length of 0 and
-//         // the specified 'initialCapacity'.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
 //     // ...
 //
+//     /// Destroy this `my_Array` object and all elements currently
+//     /// stored.
 //     ~my_Array();
-//         // Destroy this 'my_Array' object and all elements currently
-//         // stored.
 //
 //     // MANIPULATORS
 //     // ...
 //
+//     /// Insert (a copy of) the specified `object` of parameterized
+//     /// `TYPE` at the specified `dstIndex` position of this array.  All
+//     /// values with initial indices at or above `dstIndex` are shifted
+//     /// up by one index position.  The behavior is undefined unless
+//     /// `0 <= dstIndex` and `dstIndex` is less than the number of items
+//     /// in this array.
 //     void insert(int dstIndex, const TYPE& object);
-//         // Insert (a copy of) the specified 'object' of parameterized
-//         // 'TYPE' at the specified 'dstIndex' position of this array.  All
-//         // values with initial indices at or above 'dstIndex' are shifted
-//         // up by one index position.  The behavior is undefined unless
-//         // '0 <= dstIndex' and 'dstIndex' is less than the number of items
-//         // in this array.
 //
 //     // ...
 // };

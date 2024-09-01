@@ -69,14 +69,14 @@ BSLS_IDENT("$Id: $")
 // specified duration.  An instance of `bsls::Stopwatch` is used to measure
 // time against the specified duration.
 // ```
+// /// Write the specified `message` to the specified `stream` at the
+// /// specified `rate` (given in messages per second) for the specified
+// /// `duration`.
 // static void heartbeat(bsl::ostream&       stream,
 //                       const bsl::string&  message,
 //                       double              rate,
 //                       double              duration)
 // {
-//     // Write the specified 'message' to the specified 'stream' at the
-//     // specified 'rate' (given in messages per second) for the specified
-//     // 'duration'.
 //
 //     bsls::Stopwatch  timer;
 //     timer.start();
@@ -170,9 +170,9 @@ class Turnstile {
               const bsls::TimeInterval& minTimeToCallSleep =
                                                      bsls::TimeInterval(1e-4));
 
+    /// Destroy this object.  Note that this trivial destructor is generated
+    /// by the compiler.
     // ~Turnstile();
-        // Destroy this object.  Note that this trivial destructor is generated
-        // by the compiler.
 
     // MANIPULATORS
 

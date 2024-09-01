@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:38:38 2024
+// Generated on Sun Sep  1 09:58:46 2024
 // Command line: sim_cpp11_features.pl bslma_managedptr.h
 
 #ifdef COMPILING_BSLMA_MANAGEDPTR_H
@@ -291,6 +291,11 @@ class ManagedPtr {
     /// empty.
     ManagedPtr(bslmf::MovableRef<ManagedPtr> original) BSLS_KEYWORD_NOEXCEPT;
 
+    /// Create a managed pointer having the same target object as the specified
+    /// `original`, transfer ownership of the object managed by `original` (if
+    /// any) to this managed pointer, and reset `original` to empty.
+    /// `TARGET_TYPE` must be an accessible and unambiguous base of
+    /// `BDE_OTHER_TYPE`
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class BDE_OTHER_TYPE>
     ManagedPtr(ManagedPtr<BDE_OTHER_TYPE>&& original,
@@ -313,11 +318,6 @@ class ManagedPtr {
                      ManagedPtr_TraitConstraint())
         BSLS_KEYWORD_NOEXCEPT;
 #endif
-        // Create a managed pointer having the same target object as the
-        // specified 'original', transfer ownership of the object managed by
-        // 'original' (if any) to this managed pointer, and reset 'original' to
-        // empty.  'TARGET_TYPE' must be an accessible and unambiguous base of
-        // 'BDE_OTHER_TYPE'
 
     /// Create a managed pointer that takes ownership of the object managed
     /// by the specified `alias`, but which uses the specified `ptr` to
@@ -470,6 +470,14 @@ class ManagedPtr {
     ManagedPtr& operator=(bslmf::MovableRef<ManagedPtr> rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 
+    /// If this object and the specified `rhs` manage the same object,
+    /// return a reference to this managed pointer; otherwise, destroy the
+    /// managed object owned by this managed pointer, transfer ownership of
+    /// the managed object owned by `rhs` to this managed pointer, set this
+    /// managed pointer to point to the target object referenced by `rhs`,
+    /// reset `rhs` to empty, and return a reference to this managed
+    /// pointer.  `TARGET_TYPE` must be an accessible and unambiguous base
+    /// of `BDE_OTHER_TYPE`
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class BDE_OTHER_TYPE>
     typename bsl::enable_if<
@@ -490,14 +498,6 @@ class ManagedPtr {
     operator=(bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > rhs)
         BSLS_KEYWORD_NOEXCEPT;
 #endif
-        // If this object and the specified 'rhs' manage the same object,
-        // return a reference to this managed pointer; otherwise, destroy the
-        // managed object owned by this managed pointer, transfer ownership of
-        // the managed object owned by 'rhs' to this managed pointer, set this
-        // managed pointer to point to the target object referenced by 'rhs',
-        // reset 'rhs' to empty, and return a reference to this managed
-        // pointer.  'TARGET_TYPE' must be an accessible and unambiguous base
-        // of 'BDE_OTHER_TYPE'
 
     /// If this object and the managed pointer reference by the specified
     /// `ref` manage the same object, return a reference to this managed

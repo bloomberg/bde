@@ -94,14 +94,14 @@ BSLS_IDENT("$Id: $")
 //
 // using namespace BloombergLP;
 //
+// /// This class provides a container that always holds exactly one
+// /// element, dynamically allocated using the specified allocator.
 // template <class TYPE, class ALLOC = bsl::allocator<TYPE> >
 // class MyContainer {
-//     // This class provides a container that always holds exactly one
-//     // element, dynamically allocated using the specified allocator.
 //
+//     /// Alias for the `allocator_traits` instantiation to use for all
+//     /// memory management requests.
 //     typedef bsl::allocator_traits<ALLOC> AllocTraits;
-//         // Alias for the 'allocator_traits' instantiation to use for all
-//         // memory management requests.
 //
 //     // DATA
 //     ALLOC  d_allocator;
@@ -160,12 +160,12 @@ BSLS_IDENT("$Id: $")
 // `allocator_traits` to access the `pointer` and `deallocate` members of
 // `ALLOC`:
 // ```
+// /// This class implements a proctor to release memory allocated during
+// /// the construction of a `MyContainer` object if the constructor for
+// /// the container's data element throws an exception.  Such a proctor
+// /// should be `release`d once the element is safely constructed.
 // template <class ALLOC>
 // class MyContainerProctor {
-//     // This class implements a proctor to release memory allocated during
-//     // the construction of a 'MyContainer' object if the constructor for
-//     // the container's data element throws an exception.  Such a proctor
-//     // should be 'release'd once the element is safely constructed.
 //
 //     typedef typename bsl::allocator_traits<ALLOC>::pointer pointer;
 //     ALLOC   d_alloc;

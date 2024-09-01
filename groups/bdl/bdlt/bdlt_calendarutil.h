@@ -133,8 +133,9 @@ namespace bdlt {
 struct CalendarUtil {
 
     // TYPES
+
+    /// Enumeration used to delineate various date-shifting conventions.
     enum ShiftConvention {
-        // Enumeration used to delineate various date-shifting conventions.
 
         e_UNADJUSTED,           // The date is not adjusted.
 

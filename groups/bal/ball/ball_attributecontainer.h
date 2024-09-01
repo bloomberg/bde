@@ -48,14 +48,14 @@ BSLS_IDENT("$Id: $")
 // `ball::Attribute` value in example 2 (and one is provided by the `ball`
 // package in the `ball_defaultattributecontainer` component).
 // ```
-//   // serviceattributes.h
+// // serviceattributes.h
 //
+// /// Provide a concrete implementation of the `ball::AttributeContainer`
+// /// that holds the `uuid`, `luw`, and `firmNumber` associated with a
+// /// request to the example service.  This concrete container
+// /// exposes those properties in attributes named "uuid", "luw", and
+// /// "firmNumber" respectively.
 // class ServiceAttributes : public ball::AttributeContainer {
-//     // Provide a concrete implementation of the 'ball::AttributeContainer'
-//     // that holds the 'uuid', 'luw', and 'firmNumber' associated with a
-//     // request to the example service.  This concrete container
-//     // exposes those properties in attributes named "uuid", "luw", and
-//     // "firmNumber" respectively.
 //
 // ```
 // Note that we use the type `ball::Attribute` for our data members for
@@ -71,36 +71,39 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // PUBLIC CONSTANTS
+//
+//     // The names of the attributes exposed by this attribute container.
 //     static const char * const UUID_ATTRIBUTE_NAME;
 //     static const char * const LUW_ATTRIBUTE_NAME;
 //     static const char * const FIRMNUMBER_ATTRIBUTE_NAME;
-//         // The names of the attributes exposed by this attribute container.
 //
 //     // CREATORS
+//
+//     /// Create a service-attributes object with the specified `uuid`,
+//     /// `luw`, and `firmNumber`.
 //     ServiceAttributes(int uuid, int luw, int firmNumber);
-//         // Create a service-attributes object with the specified 'uuid',
-//         // 'luw', and 'firmNumber'.
 //
 //     virtual ~ServiceAttributes();
 //         // Destroy this service-attributes object.
 //
 //     // ACCESSORS
-//     virtual bool hasValue(const ball::Attribute& value) const;
-//         // Return 'true' if the attribute having specified 'value' exists
-//         // in this object, and 'false' otherwise.  This implementation will
-//         // return 'true' if 'value.name()' equals "uuid", "luw", or "firm"
-//         // and 'value.value()' is an 'int' equal to the corresponding
-//         // property value supplied at construction.
 //
+//     /// Return `true` if the attribute having specified `value` exists
+//     /// in this object, and `false` otherwise.  This implementation will
+//     /// return `true` if `value.name()` equals "uuid", "luw", or "firm"
+//     /// and `value.value()` is an `int` equal to the corresponding
+//     /// property value supplied at construction.
+//     virtual bool hasValue(const ball::Attribute& value) const;
+//
+//     /// Format this object to the specified output `stream`.
 //     virtual bsl::ostream& print(bsl::ostream& stream,
 //                                 int           level = 0,
 //                                 int           spacesPerLevel = 4) const;
-//         // Format this object to the specified output 'stream'.
 //
+//     /// Invoke the specified `visitor` function for all attributes in
+//     /// this container.
 //     virtual void visitAttributes(
 //          const bsl::function<void(const ball::Attribute&)>& visitor) const;
-//         // Invoke the specified 'visitor' function for all attributes in
-//         // this container.
 // };
 //
 // // CREATORS
@@ -165,12 +168,11 @@ BSLS_IDENT("$Id: $")
 // Note that the `ball` package provides a similar `ball::AttributeContainer`
 // implementation in the `ball_defaultattributecontainer` component.
 // ```
-//  // attributeset.h
+// // attributeset.h
 //
+// /// A simple set-based implementation of the `ball::AttributeContainer`
+// /// protocol, used for testing.
 // class AttributeSet : public ball::AttributeContainer {
-//     // A simple set-based implementation of the 'ball::AttributeContainer'
-//     // protocol, used for testing.
-//
 // ```
 // To define an STL set (or hash set) for `ball::Attribute` values, we must
 // define a comparison (or hash) operation for attribute values.  Here we
@@ -178,10 +180,10 @@ BSLS_IDENT("$Id: $")
 // value-type, and finally by value.
 // ```
 //     struct AttributeComparator {
+//         /// Return `true` if the specified `lhs` attribute is ordered
+//         /// before the specified `rhs` attribute, and `false` otherwise.
 //         bool operator()(const ball::Attribute& lhs,
 //                         const ball::Attribute& rhs) const
-//             // Return 'true' if the specified 'lhs' attribute is ordered
-//             // before the specified 'rhs' attribute, and 'false' otherwise.
 //         {
 //             int cmp = bsl::strcmp(lhs.name(), rhs.name());
 //             if (0 != cmp) {
@@ -229,37 +231,40 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     AttributeSet(bslma::Allocator *basicAllocator = 0);
-//         // Create an attribute set.
 //
+//     /// Create an attribute set.
+//     AttributeSet(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Destroy this attribute set.
 //     virtual ~AttributeSet();
-//         // Destroy this attribute set.
 //
 //     // MANIPULATORS
-//     void insert(const ball::Attribute& value);
-//         // Add the specified value to this attribute set.
 //
+//     /// Add the specified value to this attribute set.
+//     void insert(const ball::Attribute& value);
+//
+//     /// Remove the specified value from this attribute set.  Return
+//     /// `true` if the attribute was found, and `false` if `value` was
+//     /// not a member of this set.
 //     bool remove(const ball::Attribute& value);
-//         // Remove the specified value from this attribute set.  Return
-//         // 'true' if the attribute was found, and 'false' if 'value' was
-//         // not a member of this set.
 //
 //     // ACCESSORS
-//     virtual bool hasValue(const ball::Attribute& value) const;
-//         // Return 'true' if the attribute having specified 'value' exists
-//         // in this object, and 'false' otherwise.
 //
+//     /// Return `true` if the attribute having specified `value` exists
+//     /// in this object, and `false` otherwise.
+//     virtual bool hasValue(const ball::Attribute& value) const;
+//
+//     /// Format this object to the specified output `stream` at the
+//     /// (absolute value of) the optionally specified indentation `level`
+//     /// and return a reference to `stream`.
 //     virtual bsl::ostream& print(bsl::ostream& stream,
 //                                 int           level = 0,
 //                                 int           spacesPerLevel = 4) const;
-//         // Format this object to the specified output 'stream' at the
-//         // (absolute value of) the optionally specified indentation 'level'
-//         // and return a reference to 'stream'.
 //
+//     /// Invoke the specified `visitor` function for all attributes in
+//     /// this container.
 //     virtual void visitAttributes(
 //          const bsl::function<void(const ball::Attribute&)>& visitor) const;
-//         // Invoke the specified 'visitor' function for all attributes in
-//         // this container.
 // };
 // ```
 // The `AttributeSet` methods are simple wrappers around `bsl::set` methods:

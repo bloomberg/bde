@@ -44,11 +44,11 @@ BSLS_IDENT("$Id: $")
 // First, we begin to define a function template that will determine whether or
 // not a given candidate value is prime:
 // ```
+// /// Return `true` if the specified `candidate` value is a prime number,
+// /// and `false` otherwise.  The behavior is undefined unless
+// /// `2 <= candidate <= MAX_VALUE`
 // template <unsigned int MAX_VALUE>
 // bool isPrime(int candidate)
-//     // Return 'true' if the specified 'candidate' value is a prime number,
-//     // and 'false' otherwise.  The behavior is undefined unless
-//     // '2 <= candidate <= MAX_VALUE'
 // {
 //     BSLMF_ASSERT(2 <= MAX_VALUE);
 //     BSLS_ASSERT(2 <= candidate); BSLS_ASSERT(candidate <= MAX_VALUE);
@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // Next, we compute `sqrt(candidate)`, which is as far as we need to look:
 // ```
-//     // We need to cast the 'sqrt' argument to avoid an overload ambiguity.
+//     // We need to cast the `sqrt` argument to avoid an overload ambiguity.
 //     const int sqrtOfCandidate = static_cast<int>(
 //                                   std::sqrt(static_cast<double>(candidate))
 //                                             + 0.01);  // fudge factor
@@ -87,8 +87,8 @@ BSLS_IDENT("$Id: $")
 // Now, we loop from 2 to `sqrtOfCandidate`, and use the sieve algorithm to
 // eliminate non-primes:
 // ```
-//     // Note that we treat 'false' values as potential primes,
-//     // since that is how 'bsl::bitset' is default-initialized.
+//     // Note that we treat `false` values as potential primes,
+//     // since that is how `bsl::bitset` is default-initialized.
 //
 //     for (std::size_t i = 2; i <= sqrtOfCandidate; ++i) {
 //         if (compositeFlags[i]) {
@@ -417,6 +417,14 @@ class bitset :
     BSLS_KEYWORD_CONSTEXPR
     bitset(unsigned long long val) BSLS_KEYWORD_NOEXCEPT;           // IMPLICIT
 
+    /// Create a bitset with its first `M` bit positions corresponding to
+    /// the characters in the specified `pos` of the specified `str`.  `M`
+    /// is the smaller of the parameterized `N` and `str.length()`.  If
+    /// `M < N`, the remaining bit positions are initialized to 0.
+    /// Characters with the value `zeroChar` correspond to an unset bit and
+    /// characters with the value `oneChar` correspond to a set bit.  The
+    /// behavior is undefined if any characters in `str` is neither the
+    /// specified `zeroChar` nor the specified `oneChar`.
 #if !defined(BSLSTL_BITSET_MSVC_CANNOT_PARSE_DEFAULTS_WITH_COLONS)
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
     explicit bitset(
@@ -437,15 +445,15 @@ class bitset :
            CHAR_TYPE              zeroChar = CHAR_TYPE('0'),
            CHAR_TYPE              oneChar  = CHAR_TYPE('1'));
 #endif
-        // Create a bitset with its first 'M' bit positions corresponding to
-        // the characters in the specified 'pos' of the specified 'str'.  'M'
-        // is the smaller of the parameterized 'N' and 'str.length()'.  If
-        // 'M < N', the remaining bit positions are initialized to 0.
-        // Characters with the value 'zeroChar' correspond to an unset bit and
-        // characters with the value 'oneChar' correspond to a set bit.  The
-        // behavior is undefined if any characters in 'str' is neither the
-        // specified 'zeroChar' nor the specified 'oneChar'.
 
+    /// Create a bitset with its first `M` bit positions corresponding to 0
+    /// the characters in the specified `pos` of the specified `str`.  `M`
+    /// is the smaller of the parameterized `N` and `str.length()`.  If
+    /// `M < N`, the remaining bit positions are initialized to 0.
+    /// Characters with the value `zeroChar` correspond to an unset bit and
+    /// characters with the value `oneChar` correspond to a set bit.  The
+    /// behavior is undefined if the characters in the specified `str` is
+    /// not the specified `zeroChar` and not the specified `oneChar`
 #if !defined(BSLSTL_BITSET_MSVC_CANNOT_PARSE_DEFAULTS_WITH_COLONS)
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
     explicit bitset(
@@ -464,14 +472,6 @@ class bitset :
                     CHAR_TYPE              zeroChar = CHAR_TYPE('0'),
                     CHAR_TYPE              oneChar  = CHAR_TYPE('1'));
 #endif
-        // Create a bitset with its first 'M' bit positions corresponding to 0
-        // the characters in the specified 'pos' of the specified 'str'.  'M'
-        // is the smaller of the parameterized 'N' and 'str.length()'.  If
-        // 'M < N', the remaining bit positions are initialized to 0.
-        // Characters with the value 'zeroChar' correspond to an unset bit and
-        // characters with the value 'oneChar' correspond to a set bit.  The
-        // behavior is undefined if the characters in the specified 'str' is
-        // not the specified 'zeroChar' and not the specified 'oneChar'
 
     // MANIPULATORS
 

@@ -38,11 +38,11 @@ BSLS_IDENT("$Id: $")
 // consider the function `evaluatePassword` which attempts to determine how
 // secure a given password might be:
 // ```
+// /// Evaluate the strength of the specified `password`, using the
+// /// specified `allocator` to supply memory for evaluation.  Return a
+// /// real value in the range `[ 0.0 .. 1.0 ]` where 0.0 indicates the
+// /// weakest password, and 1.0 the strongest.
 // double evaluatePassword(const char *password, bslma::Allocator *allocator);
-//     // Evaluate the strength of the specified 'password', using the
-//     // specified 'allocator' to supply memory for evaluation.  Return a
-//     // real value in the range '[ 0.0 .. 1.0 ]' where 0.0 indicates the
-//     // weakest password, and 1.0 the strongest.
 // ```
 // This function will be implemented in terms of three *exception* *neutral*
 // subroutines, each of which operates on a writable copy of the

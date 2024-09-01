@@ -52,10 +52,10 @@ BSLS_IDENT("$Id: $")
 // // my_array.h
 // // ...
 //
+// /// This class implements an "in-place" array of objects of
+// /// parameterized `TYPE` stored contiguously in memory.
 // template <class TYPE>
 // class my_Array {
-//     // This class implements an "in-place" array of objects of
-//     // parameterized 'TYPE' stored contiguously in memory.
 //
 //     // DATA
 //     TYPE             *d_array_p;      // dynamically allocated array
@@ -65,23 +65,24 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `my_Array` object.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
 //     my_Array(bslma::Allocator *basicAllocator = 0);
-//         // Create a 'my_Array' object.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
 //     // ...
 //
+//     /// Destroy this `my_Array` object and all elements currently
+//     /// stored.
 //     ~my_Array();
-//         // Destroy this 'my_Array' object and all elements currently
-//         // stored.
 //
 //     // MANIPULATORS
 //     // ...
 //
+//     /// Append (a copy of) the specified `object` of parameterized
+//     /// `TYPE` to (the end of) this array.
 //     void append(const TYPE& object);
-//         // Append (a copy of) the specified 'object' of parameterized
-//         // 'TYPE' to (the end of) this array.
 //
 //     // ...
 // };
@@ -118,11 +119,11 @@ BSLS_IDENT("$Id: $")
 // // my_autodestructor.h
 // // ...
 //
+// /// This class implements a range proctor that, unless its `release`
+// /// method has previously been invoked, automatically invokes the
+// /// destructor of each of sequence of objects it manages.
 // template <class TYPE>
 // class my_AutoDestructor {
-//     // This class implements a range proctor that, unless its 'release'
-//     // method has previously been invoked, automatically invokes the
-//     // destructor of each of sequence of objects it manages.
 //
 //     // DATA
 //     TYPE * d_origin_p;
@@ -130,19 +131,20 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an `my_AutoDestructor` to manage a contiguous sequence of
+//     /// objects.
 //     my_AutoDestructor(TYPE *origin, int length)
-//         // Create an 'my_AutoDestructor' to manage a contiguous sequence of
-//         // objects.
 //     : d_origin_p(origin)
 //     , d_length(length)
 //     {
 //     }
 //
+//     /// Destroy this `my_AutoDestructor` and, unless its `release`
+//     /// method has previously been invoked, destroy the sequence of
+//     /// objects it manages by invoking the destructor of each of the
+//     /// (managed) objects.
 //     ~my_AutoDestructor()
-//         // Destroy this 'my_AutoDestructor' and, unless its 'release'
-//         // method has previously been invoked, destroy the sequence of
-//         // objects it manages by invoking the destructor of each of the
-//         // (managed) objects.
 //     {
 //         if (d_length) {
 //             for (; d_length > 0; --d_length, ++d_origin_p) {
@@ -152,17 +154,18 @@ BSLS_IDENT("$Id: $")
 //     }
 //
 //     // MANIPULATORS
+//
+//     /// Increase by one the length of the sequence of objects managed by
+//     /// this range proctor.
 //     my_AutoDestructor<TYPE>& operator++()
-//         // Increase by one the length of the sequence of objects managed by
-//         // this range proctor.
 //     {
 //         ++d_length;
 //         return *this;
 //     }
 //
+//     /// Release from management the sequence of objects currently
+//     /// managed by this range proctor.
 //     void release()
-//         // Release from management the sequence of objects currently
-//         // managed by this range proctor.
 //     {
 //         d_length = 0;
 //     }

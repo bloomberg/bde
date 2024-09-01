@@ -79,9 +79,9 @@ BSLS_IDENT("$Id: $")
 // Classes that implement the `bdlbb::BlobBufferFactory` protocol are used to
 // allocate `bdlbb::BlobBuffer` objects.  A simple implementation follows:
 // ```
+// /// This factory creates blob buffers of a fixed size specified at
+// /// construction.
 // class SimpleBlobBufferFactory : public bdlbb::BlobBufferFactory {
-//     // This factory creates blob buffers of a fixed size specified at
-//     // construction.
 //
 //     // DATA
 //     bsl::size_t       d_bufferSize;
@@ -207,17 +207,29 @@ BSLS_IDENT("$Id: $")
 // copy-pasted into application programs although they can provide a foundation
 // for application utilities):
 // ```
+// /// Prepend the specified `prolog` of the specified `length` to the
+// /// specified `blob`, using the optionally specified `allocator` to
+// /// supply any memory (or the currently installed default allocator if
+// /// `allocator` is 0).  The behavior is undefined unless
+// /// `blob->totalSize() <= INT_MAX - length - sizeof(int)` and
+// /// `blob->numBuffers() < INT_MAX`.
 // void prependProlog(bdlbb::Blob        *blob,
 //                    const char         *prolog,
 //                    int                 length,
 //                    bslma::Allocator   *allocator = 0);
-//     // Prepend the specified 'prolog' of the specified 'length' to the
-//     // specified 'blob', using the optionally specified 'allocator' to
-//     // supply any memory (or the currently installed default allocator if
-//     // 'allocator' is 0).  The behavior is undefined unless
-//     // 'blob->totalSize() <= INT_MAX - length - sizeof(int)' and
-//     // 'blob->numBuffers() < INT_MAX'.
 //
+// /// Load into the specified `blob` the data composed of the specified
+// /// `prolog` and of the payload in the `numVectors` buffers pointed to
+// /// by the specified `vectors` of the respective `vectorSizes`.
+// /// Ownership of the vectors is transferred to the `blob` which will use
+// /// the specified `deleter` to destroy them.  Use the optionally
+// /// specified `allocator` to supply memory, or the currently installed
+// /// default allocator if `allocator` is 0.  Note that any buffer
+// /// belonging to `blob` prior to composing the message is not longer in
+// /// `blob` after composing the message.  Note also that `blob` need not
+// /// have been created with a blob buffer factory.  The behavior is
+// /// undefined unless `blob` points to an initialized `bdlbb::Blob`
+// /// instance.
 // template <class DELETER>
 // void composeMessage(bdlbb::Blob        *blob,
 //                     const bsl::string&  prolog,
@@ -226,27 +238,15 @@ BSLS_IDENT("$Id: $")
 //                     int                 numVectors,
 //                     const DELETER&      deleter,
 //                     bslma::Allocator   *allocator = 0);
-//     // Load into the specified 'blob' the data composed of the specified
-//     // 'prolog' and of the payload in the 'numVectors' buffers pointed to
-//     // by the specified 'vectors' of the respective 'vectorSizes'.
-//     // Ownership of the vectors is transferred to the 'blob' which will use
-//     // the specified 'deleter' to destroy them.  Use the optionally
-//     // specified 'allocator' to supply memory, or the currently installed
-//     // default allocator if 'allocator' is 0.  Note that any buffer
-//     // belonging to 'blob' prior to composing the message is not longer in
-//     // 'blob' after composing the message.  Note also that 'blob' need not
-//     // have been created with a blob buffer factory.  The behavior is
-//     // undefined unless 'blob' points to an initialized 'bdlbb::Blob'
-//     // instance.
 //
+// /// Insert a timestamp data buffer immediately after the prolog buffer
+// /// and prior to any payload buffer.  Return the number of bytes
+// /// inserted.  Use the optionally specified `allocator` to supply
+// /// memory, or the currently installed default allocator if `allocator`
+// /// is 0.  The behavior is undefined unless the specified `blob` points
+// /// to an initialized `bdlbb::Blob` instance with at least one data
+// /// buffer.
 // int timestampMessage(bdlbb::Blob *blob, bslma::Allocator *allocator = 0);
-//     // Insert a timestamp data buffer immediately after the prolog buffer
-//     // and prior to any payload buffer.  Return the number of bytes
-//     // inserted.  Use the optionally specified 'allocator' to supply
-//     // memory, or the currently installed default allocator if 'allocator'
-//     // is 0.  The behavior is undefined unless the specified 'blob' points
-//     // to an initialized 'bdlbb::Blob' instance with at least one data
-//     // buffer.
 // ```
 // A possible implementation using only `prependBuffer`, `appendBuffer`, and
 // `insertBuffer` could be as follows:

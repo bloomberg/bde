@@ -142,9 +142,10 @@ namespace bdlt {
 class TimeTz {
 
     // PRIVATE TYPES
+
+    /// This enumeration specifies the minimum and maximum time zone offset
+    /// values.
     enum ValidOffsetRange {
-        // This enumeration specifies the minimum and maximum time zone offset
-        // values.
 
         k_MAX_OFFSET =  1440,
         k_MIN_OFFSET = -1440

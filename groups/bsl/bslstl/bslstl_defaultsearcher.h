@@ -359,27 +359,28 @@ class DefaultSearcher {
                     FORWARD_ITR_NEEDLE needleLast,
                     EQUAL              equal = EQUAL());
 
+    /// Create a `DefaultSearcher` object that has the same state as the
+    /// specified `original` object.
     //! DefaultSearcher(const DefaultSearcher& original) = default;
-        // Create a 'DefaultSearcher' object that has the same state as the
-        // specified 'original' object.
 
+    /// Create a `DefaultSeacher` object having the same state as the
+    /// specified `original` object.  The `original` object is left in an
+    /// unspecified (valid) state.
     //! DefaultSearcher(DefaultSearcher&& original) = default;
-        // Create a 'DefaultSeacher' object having the same state as the
-        // specified 'original' object.  The 'original' object is left in an
-        // unspecified (valid) state.
 
+    /// Destroy this `DefaultSearcher` object.
     //! ~DefaultSearcher() = default;
-        // Destroy this 'DefaultSearcher' object.
 
     // MANIPULATORS
-    //! DefaultSearcher& operator=(const DefaultSearcher& rhs) = default;
-        // Assign to this object the state of the specified 'rhs' object, and
-        // return a non-'const' reference to this object.
 
+    /// Assign to this object the state of the specified `rhs` object, and
+    /// return a non-`const` reference to this object.
+    //! DefaultSearcher& operator=(const DefaultSearcher& rhs) = default;
+
+    /// Assign to this object the state of the specified `rhs` had and
+    /// return a non-`const` reference to this object.  The `original`
+    /// object is left in an unspecified (valid) state.
     //! DefaultSearcher& operator=(DefaultSearcher&& rhs) = default;
-        // Assign to this object the state of the specified 'rhs' had and
-        // return a non-'const' reference to this object.  The 'original'
-        // object is left in an unspecified (valid) state.
 
     // ACCESSORS
 
@@ -540,13 +541,13 @@ namespace bsl {
                         // class default_searcher
                         // ======================
 
+// This class template defines functors that can search for the sequence of
+// `value_type` values defined on construction in sequences of `value_type`
+// values passed to the functor's `operator()`.
 template<class ForwardIterator1,
          class BinaryPredicate = equal_to<
             typename bsl::iterator_traits<ForwardIterator1>::value_type> >
 class default_searcher {
-    // This class template defines functors that can search for the sequence of
-    // 'value_type' values defined on construction in sequences of 'value_type'
-    // values passed to the functor's 'operator()'.
 
     //DATA
     BloombergLP::bslstl::DefaultSearcher<ForwardIterator1,
@@ -554,63 +555,66 @@ class default_searcher {
 
   public:
     // CREATORS
+
+    /// Create a `default_searcher` object that can search for the sequence
+    /// of `value_type` values found in the specified range
+    /// `[pat_first, pat_last)`.  Optionally supply a `pred` functor for use
+    /// by `operator()`.  See {Comparator Requirements}.  The behavior is
+    /// undefined unless `pat_first` can be advanced to equal `pat_last`.
     BSLS_KEYWORD_CONSTEXPR
     default_searcher(ForwardIterator1 pat_first,
                      ForwardIterator1 pat_last,
                      BinaryPredicate  pred = BinaryPredicate());
-        // Create a 'default_searcher' object that can search for the sequence
-        // of 'value_type' values found in the specified range
-        // '[pat_first, pat_last)'.  Optionally supply a 'pred' functor for use
-        // by 'operator()'.  See {Comparator Requirements}.  The behavior is
-        // undefined unless 'pat_first' can be advanced to equal 'pat_last'.
 
+    /// Create a `default_searcher` object having same state as the
+    /// specified `original` object.
     //! default_searcher(const default_searcher& original) = default;
-        // Create a 'default_searcher' object having same state as the
-        // specified 'original' object.
 
+    /// Create a `default_searcher` object having same state as the
+    /// specified `original` object. by moving (in constant time) the state
+    /// of `original` to the new searcher.  The `original` object is left in
+    /// an unspecified (valid) state.
     //! default_searcher(BloombergLP::bslmf::MovableRef<default_searcher>
     //!                                                    original) = default;
-        // Create a 'default_searcher' object having same state as the
-        // specified 'original' object. by moving (in constant time) the state
-        // of 'original' to the new searcher.  The 'original' object is left in
-        // an unspecified (valid) state.
 
+    /// Destroy this `default_searcher` object.
     //! ~default_searcher() = default;
-        // Destroy this 'default_searcher' object.
 
     // MANIPULATORS
-    //! default_searcher& operator=(const default_searcher& rhs) = default;
-        // Assign to this object the state of the specified 'rhs' object, and
-        // return a non-'const' reference to this searcher.
 
+    /// Assign to this object the state of the specified `rhs` object, and
+    /// return a non-`const` reference to this searcher.
+    //! default_searcher& operator=(const default_searcher& rhs) = default;
+
+    /// Assign to this object the state of the specified `rhs` object and
+    /// return a non-`const` reference to this searcher.
     //! default_searcher& operator=(
     //!                        BloombergLP::bslmf::MovableRef<default_searcher>
     //!                                                         rhs) = default;
-        // Assign to this object the state of the specified 'rhs' object and
-        // return a non-'const' reference to this searcher.
 
     // ACCESSORS
+
+    /// Search the specified range `[first, last)` for the first sequence of
+    /// `value_type` values specified on construction.  Return the range
+    /// where those values are found, or the range `[last, last)` if that
+    /// sequence is not found.  The search is performed using a "naive"
+    /// algorithm that has time complexity of:
+    /// ```
+    ///    bsl::distance(pat_first, pat_last) * bsl::distance(first, last);
+    /// ```
+    /// Values of the two sequences are compared using the equality
+    /// comparison functor specified on construction.  The behavior is
+    /// undefined unless `first` can be advanced to equal `last` and the
+    /// iterators used to construct this object are still valid.  Note that
+    /// if the sought sequence is empty, the range `[first, first)` is
+    /// returned.  Also note that if the sequence sought is longer than the
+    /// sequence searched -- thus the sought sequence cannot be found -- the
+    /// range `[last, last)` is returned.
     template<class ForwardIterator2>
     BSLS_KEYWORD_CONSTEXPR
     pair<ForwardIterator2, ForwardIterator2> operator()(
                                                   ForwardIterator2 first,
                                                   ForwardIterator2 last) const;
-        // Search the specified range '[first, last)' for the first sequence of
-        // 'value_type' values specified on construction.  Return the range
-        // where those values are found, or the range '[last, last)' if that
-        // sequence is not found.  The search is performed using a "naive"
-        // algorithm that has time complexity of:
-        //..
-        //    bsl::distance(pat_first, pat_last) * bsl::distance(first, last);
-        //..
-        // Values of the two sequences are compared using the equality
-        // comparison functor specified on construction.  The behavior is
-        // undefined unless 'first' can be advanced to equal 'last' and the
-        // iterators used to construct this object are still valid.  Note that
-        // if the sought sequence is empty, the range '[first, first)' is
-        // returned.  Also note that if the sequence sought is longer than the
-        // sequence searched -- thus the sought sequence cannot be found -- the
-        // range '[last, last)' is returned.
 };
 
 }  // close namespace bsl

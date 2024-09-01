@@ -87,8 +87,9 @@ struct MonthOfYear {
 
   public:
     // TYPES
+
+    /// Define the list of month-of-year values.
     enum Enum {
-        // Define the list of month-of-year values.
 
         e_JAN = 1, e_JANUARY   = e_JAN,
         e_FEB,     e_FEBRUARY  = e_FEB,
@@ -150,10 +151,9 @@ struct MonthOfYear {
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
     };
 
+    /// Define `k_NUM_MONTHS` to be the number of consecutively valued
+    /// enumerators in the range `[ e_JAN .. e_DEC ]`.
     enum {
-        // Define 'k_NUM_MONTHS' to be the number of consecutively valued
-        // enumerators in the range '[ e_JAN .. e_DEC ]'.
-
         k_NUM_MONTHS = e_DEC
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22

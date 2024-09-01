@@ -233,7 +233,7 @@ BSLS_IDENT("$Id: $")
 // rotated when the flag controlled by `suppressUniqueFileNameOnRotation`
 // is set to `false`:
 // ```
-// Disabled: 'suppressUniqueFileNameOnRotation'
+// Disabled: `suppressUniqueFileNameOnRotation`
 //
 // For brevity:
 //     <TS1> = 20210520_123000
@@ -259,7 +259,7 @@ BSLS_IDENT("$Id: $")
 // `suppressUniqueFileNameOnRotation` is set to `true`, and (possibly new) name
 // of the (new) log file following rotation:
 // ```
-// Enabled: 'suppressUniqueFileNameOnRotation'
+// Enabled: `suppressUniqueFileNameOnRotation`
 //
 // +----------------+-----------------+----------------+----------------------
 // | Pattern        | Filename Before | Filename After | Rotated Filename
@@ -369,7 +369,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_memory.h>
 #include <bsl_string.h>
 
-#include <string>           // 'std::string', 'std::pmr::string'
+#include <string>           // `std::string`, `std::pmr::string`
 
 namespace BloombergLP {
 namespace ball {
@@ -416,7 +416,7 @@ class FileObserver2 : public Observer {
 
     bsl::ostream           d_logOutStream;             // output stream for
                                                        // file logging (refers
-                                                       // to 'd_logStreamBuf')
+                                                       // to `d_logStreamBuf`)
 
     bsl::string            d_logFilePattern;           // log filename pattern
 
@@ -433,12 +433,12 @@ class FileObserver2 : public Observer {
                                                        // used when writing to
                                                        // log file
 
-    bool                   d_publishInLocalTime;       // 'true' if timestamps
+    bool                   d_publishInLocalTime;       // `true` if timestamps
                                                        // of records are output
                                                        // in local time,
                                                        // otherwise UTC time
 
-    bool                   d_suppressUniqueFileName;   // 'false' if rotated
+    bool                   d_suppressUniqueFileName;   // `false` if rotated
                                                        // log file has a unique
                                                        // name
 
@@ -622,17 +622,19 @@ class FileObserver2 : public Observer {
     /// if file logging is enabled for this file observer.  The method has
     /// no effect if file logging is not enabled, in which case `record` is
     /// dropped.
+    ///
+    /// **DEPRECATED**: Do not use.
     void publish(const Record&  record,
                  const Context& context) BSLS_KEYWORD_OVERRIDE;
 
+    /// Process the record referenced by the specified `record` shared
+    /// pointer having the specified publishing `context` by writing the
+    /// record and `context` to the current log file if file logging is
+    /// enabled for this file observer.  The method has no effect if file
+    /// logging is not enabled, in which case `record` is dropped.
     void publish(const bsl::shared_ptr<const Record>& record,
                  const Context&                       context)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Process the record referenced by the specified 'record' shared
-        // pointer having the specified publishing 'context' by writing the
-        // record and 'context' to the current log file if file logging is
-        // enabled for this file observer.  The method has no effect if file
-        // logging is not enabled, in which case 'record' is dropped.
 
     /// Discard any shared references to `Record` objects that were supplied
     /// to the `publish` method, and are held by this observer.  Note that
@@ -715,11 +717,11 @@ class FileObserver2 : public Observer {
     bool isFileLoggingEnabled(std::string *result) const;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    /// Return `true` if file logging is enabled for this file observer, and
+    /// `false` otherwise.  Load the specified `result` with the name of the
+    /// current log file if file logging is enabled, and leave `result`
+    /// unmodified otherwise.
     bool isFileLoggingEnabled(std::pmr::string *result) const;
-        // Return 'true' if file logging is enabled for this file observer, and
-        // 'false' otherwise.  Load the specified 'result' with the name of the
-        // current log file if file logging is enabled, and leave 'result'
-        // unmodified otherwise.
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
     /// Return `true` if this file observer writes the timestamp attribute

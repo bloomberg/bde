@@ -178,7 +178,7 @@ class TestObserver : public Observer {
     static AtomicInt      s_count;        // number of instances created
 
     // DATA
-    bsl::ostream         *d_stream_p;     // target of 'publish' method
+    bsl::ostream         *d_stream_p;     // target of `publish` method
                                           // diagnostic information
 
     Record                d_record;       // most-recently-published record
@@ -187,15 +187,15 @@ class TestObserver : public Observer {
 
     int                   d_id;           // unique (per process) id
 
-    int                   d_verboseFlag;  // "verbosity" mode on 'publish'
+    int                   d_verboseFlag;  // "verbosity" mode on `publish`
 
     int                   d_numRecords;   // total number of published records
 
     int                   d_numReleases;  // total number of calls to
-                                          // 'releaseRecords'
+                                          // `releaseRecords`
 
     mutable bslmt::Mutex  d_mutex;        // serializes concurrent calls to
-                                          // 'publish' and protects concurrent
+                                          // `publish` and protects concurrent
                                           // access to other class members
 
     // NOT IMPLEMENTED

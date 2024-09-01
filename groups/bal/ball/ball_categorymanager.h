@@ -197,7 +197,7 @@ class CategoryManager {
     // DATA
     CategoryMap                      d_registry;      // mapping names to
                                                       // indices in
-                                                      // 'd_categories'
+                                                      // `d_categories`
 
     bsls::AtomicInt64                d_ruleSetSequenceNumber;
                                                       // sequence number that
@@ -209,7 +209,7 @@ class CategoryManager {
                                                       // all registered rules
 
     bslmt::Mutex                     d_ruleSetMutex;  // serialize access to
-                                                      // 'd_ruleset'
+                                                      // `d_ruleset`
 
     bsl::vector<Category *>          d_categories;    // providing random
                                                       // access to categories
@@ -478,8 +478,8 @@ class CategoryManagerIter {
     /// long as the lifetime of this iterator.
     explicit CategoryManagerIter(const CategoryManager& categoryManager);
 
+    /// Destroy this iterator.
     //! ~CategoryManagerIter() = default;
-        // Destroy this iterator.
 
     // MANIPULATORS
 
@@ -533,8 +533,8 @@ class CategoryManagerManip {
     /// long as the lifetime of this iterator.
     explicit CategoryManagerManip(CategoryManager *categoryManager);
 
+    /// Destroy this iterator.
     //! ~CategoryManagerManip() = default;
-        // Destroy this iterator.
 
     // MANIPULATORS
 

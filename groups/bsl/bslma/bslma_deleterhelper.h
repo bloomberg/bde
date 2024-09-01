@@ -33,12 +33,12 @@ BSLS_IDENT("$Id: $")
 // first destroys the managed object, then deallocates the footprint of the
 // object.  The declaration of `my_RawDeleterGuard` follows:
 // ```
+// /// This class implements a guard that unconditionally deletes a managed
+// /// object upon destruction by first invoking the object's destructor,
+// /// and then invoking the `deallocate` method of an allocator (or pool)
+// /// of parameterized `ALLOCATOR` type supplied at construction.
 // template <class TYPE, class ALLOCATOR>
 // class my_RawDeleterGuard {
-//     // This class implements a guard that unconditionally deletes a managed
-//     // object upon destruction by first invoking the object's destructor,
-//     // and then invoking the 'deallocate' method of an allocator (or pool)
-//     // of parameterized 'ALLOCATOR' type supplied at construction.
 //
 //     // DATA
 //     TYPE      *d_object_p;     // managed object
@@ -50,20 +50,21 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     my_RawDeleterGuard(TYPE *object, ALLOCATOR *allocator);
-//         // Create a raw deleter guard that unconditionally manages the
-//         // specified 'object', and that uses the specified 'allocator' to
-//         // delete 'object' upon the destruction of this guard.  The
-//         // behavior is undefined unless 'object' and 'allocator' are
-//         // non-zero, and 'allocator' supplied the memory for 'object'.
-//         // Note that 'allocator' must remain valid throughout the lifetime
-//         // of this guard.
 //
+//     /// Create a raw deleter guard that unconditionally manages the
+//     /// specified `object`, and that uses the specified `allocator` to
+//     /// delete `object` upon the destruction of this guard.  The
+//     /// behavior is undefined unless `object` and `allocator` are
+//     /// non-zero, and `allocator` supplied the memory for `object`.
+//     /// Note that `allocator` must remain valid throughout the lifetime
+//     /// of this guard.
+//     my_RawDeleterGuard(TYPE *object, ALLOCATOR *allocator);
+//
+//     /// Destroy this raw deleter guard and delete the object it manages
+//     /// by first invoking the destructor of the (managed) object, and
+//     /// then invoking the `deallocate` method of the allocator (or pool)
+//     /// that was supplied with the object at construction.
 //     ~my_RawDeleterGuard();
-//         // Destroy this raw deleter guard and delete the object it manages
-//         // by first invoking the destructor of the (managed) object, and
-//         // then invoking the 'deallocate' method of the allocator (or pool)
-//         // that was supplied with the object at construction.
 // };
 // ```
 // The `deleteObjectRaw` method is used in the destructor as follows:

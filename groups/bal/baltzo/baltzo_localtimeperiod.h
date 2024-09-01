@@ -32,6 +32,7 @@ BSLS_IDENT("$Id: $")
 // (utcStartTime != bdlt::Datetime() && utcEndTime != bdlt::Datetime()
 //  && utcStartTime < utcEndTime)'
 // ```
+//
 // * `localTimeDescriptor`: a description of local time that applies during
 //   the interval defined by `startUtcTime` and `endUtcTime`.
 // * `utcStartTime`: UTC representation of the start of the time interval over
@@ -61,14 +62,14 @@ BSLS_IDENT("$Id: $")
 // First, we define a function that performs a conversion from UTC time to
 // local time:
 // ```
+// /// Load into the specified `result` the date-time value corresponding
+// /// to the specified `utcTime` in the local time described by the
+// /// specified `period`.  Return 0 on success, and a non-zero value if
+// /// `utcTime < period.utcStartTime()` or
+// /// `utcTime >= period.utcEndTime()`.
 // int convertUtcToLocalTime(bdlt::Datetime                 *result,
 //                           const bdlt::Datetime&           utcTime,
 //                           const baltzo::LocalTimePeriod&  period)
-//     // Load into the specified 'result' the date-time value corresponding
-//     // to the specified 'utcTime' in the local time described by the
-//     // specified 'period'.  Return 0 on success, and a non-zero value if
-//     // 'utcTime < period.utcStartTime()' or
-//     // 'utcTime >= period.utcEndTime()'.
 // {
 //     BSLS_ASSERT(result);
 //

@@ -52,16 +52,16 @@ BSLS_IDENT("$Id: $")
 // ```
 // Then, we define simple push and pop functions that manipulate this queue:
 // ```
+// /// Push an element into `myQueue`, using the specified `threadIndex`.
 // void myPush(int threadIndex)
-//     // Push an element into 'myQueue', using the specified 'threadIndex'.
 // {
 //     bslmt::LockGuard<bslmt::Mutex> guard(&myMutex);
 //     myQueue.push(1000000 * threadIndex + counterValue++);
 //     mySem.post();
 // }
 //
+// /// Pop an element from `myQueue`.
 // void myPop(int)
-//     // Pop an element from 'myQueue'.
 // {
 //     mySem.wait();
 //     bslmt::LockGuard<bslmt::Mutex> guard(&myMutex);

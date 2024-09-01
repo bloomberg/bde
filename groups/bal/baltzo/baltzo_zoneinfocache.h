@@ -212,7 +212,6 @@ class ZoneinfoCache {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(ZoneinfoCache,
                                    bslma::UsesBslmaAllocator);
-        // 'ZoneinfoCache' is allocator-aware.
 
     // CREATORS
 

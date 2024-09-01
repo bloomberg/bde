@@ -189,8 +189,9 @@ BSLS_IDENT("$Id: $")
 //
 //   private:
 //     // PRIVATE MANIPULATORS
+//
+//     /// Run a thread that executes functions off `d_list`.
 //     void dispatcherThread()
-//         // Run a thread that executes functions off 'd_list'.
 //     {
 //         d_startBarrier.wait();
 //
@@ -263,8 +264,9 @@ BSLS_IDENT("$Id: $")
 //     }
 //
 //     // MANIPULATORS
+//
+//     /// Block until the scheduler has no jobs.
 //     void drain()
-//         // Block until the scheduler has no jobs.
 //     {
 //         bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
 //
@@ -273,11 +275,11 @@ BSLS_IDENT("$Id: $")
 //         }
 //     }
 //
+//     /// Schedule the specified `event` to occur at the specified `when`.
 //     void scheduleEvent(const bsl::function<void()>& event,
 //                        const bdlt::Datetime&        when)
-//         // Schedule the specified 'event' to occur at the specified 'when'.
 //     {
-//         // Use 'addR' since this event will probably be placed near the end
+//         // Use `addR` since this event will probably be placed near the end
 //         // of the list.
 //
 //         bool newFrontFlag;
@@ -290,8 +292,8 @@ BSLS_IDENT("$Id: $")
 //         }
 //     }
 //
+//     /// Stop the scheduler.
 //     void stop()
-//         // Stop the scheduler.
 //     {
 //         bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
 //
@@ -316,8 +318,8 @@ BSLS_IDENT("$Id: $")
 // wrapper around vector<int>::push_back, since this function is overloaded and
 // cannot be bound directly:
 // ```
+// /// Push the specified `item` onto the specified `vector`.
 // void pushBackWrapper(bsl::vector<int> *vector, int item)
-//     // Push the specified 'item' onto the specified 'vector'.
 // {
 //     vector->push_back(item);
 // }
@@ -602,7 +604,7 @@ template <class KEY, class DATA>
 class SkipListPair {
 
     // Note these data elements are never accessed.  A pointer to this type
-    // will be cast to a pointer to 'SkipList_Node' so make sure we are
+    // will be cast to a pointer to `SkipList_Node` so make sure we are
     // adequately aligned to avoid compiler warnings.
 
     // DATA

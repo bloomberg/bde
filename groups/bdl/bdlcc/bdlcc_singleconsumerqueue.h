@@ -89,8 +89,8 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define a utility classes that handles a simple "work item":
 // ```
+// /// Work data...
 // struct my_WorkData {
-//     // Work data...
 // };
 // ```
 // Next, we provide a simple function to service an individual work item.  The
@@ -225,8 +225,8 @@ class SingleConsumerQueue {
     SingleConsumerQueue(bsl::size_t       capacity,
                         bslma::Allocator *basicAllocator = 0);
 
+    /// Destroy this object.
     //! ~SingleConsumerQueue() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

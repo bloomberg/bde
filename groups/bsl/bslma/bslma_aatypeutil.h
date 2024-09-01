@@ -31,12 +31,12 @@ BSLS_IDENT("$Id: $")
 // This example illustrates how `bslma::AATypeUtil::getAdaptedAllocator`
 // can be used to extract the allocator from an Allocator-Aware (AA) object and
 // use it to construct a different AA object without regard to whether either
-// object is *legacy-AA* (using `bslma::Allocator *`) or *bsl-AA* (using
-// `bsl::allocator`).  We begin by defining two *legacy-AA* classes, `Larry`,
+// object is **legacy-AA** (using `bslma::Allocator *`) or **bsl-AA** (using
+// `bsl::allocator`).  We begin by defining two **legacy-AA** classes, `Larry`,
 // and `Curly`:
 // ```
+// /// A **legacy-AA** class.
 // class Larry {
-//     // A *legacy-AA* class.
 //
 //     // DATA
 //     bslma::Allocator *d_allocator_p;
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 // };
 //
 // class Curly {
-//     // Another *legacy-AA* class.
+//     // Another **legacy-AA** class.
 //
 //     // DATA
 //     bslma::Allocator *d_allocator_p;
@@ -180,7 +180,7 @@ BSLS_IDENT("$Id: $")
 //     return 0;
 // }
 // ```
-// The code above is brittle, however, as updating `Larry` to be *bsl-AA* would
+// The code above is brittle, however, as updating `Larry` to be **bsl-AA** would
 // require calling `larryObj.get_allocator().mechanism()` instead of
 // `larryObj.allocator().  By using `getAdaptedAllocator', the `setCurly`
 // implementation above is robust in the face of such future evolution.  This
@@ -231,10 +231,10 @@ BSLS_IDENT("$Id: $")
 // ```
 // However, the preceding `get_allocator` implementation, like the `setCurly`
 // implementation in the previous example, is more robust because it need not
-// be changed if `Larry` is changed from *legacy-AA* to *bsl-AA* or if it is
-// replaced by a template parameter that might use either AA model or even the
-// *pmr-AA* model.  Using the `getAllocatorFromSubobject` idiom is, infact,
-// vital to recovering `bsl` allocators stored within *pmr-AA* objects.
+// be changed if `Larry` is changed from **legacy-AA** to **bsl-AA** or if it
+// is replaced by a template parameter that might use either AA model or even
+// the **pmr-AA** model.  Using the `getAllocatorFromSubobject` idiom is, in
+// fact, vital to recovering `bsl` allocators stored within **pmr-AA** objects.
 
 #include <bslscm_version.h>
 
@@ -276,8 +276,8 @@ class AATypeUtil {
 
     /// Return the allocator held by the specified `object`, adapted to be
     /// usable as a constructor argument for the widest possible set of AA
-    /// types.  This overload will be selected if `TYPE` is *bsl-AA* or
-    /// *legacy-AA*.
+    /// types.  This overload will be selected if `TYPE` is **bsl-AA** or
+    /// **legacy-AA**.
     template <class TYPE>
     static
     typename bsl::enable_if<AAModel<TYPE>::value == AAModelLegacy::value ||
@@ -286,7 +286,7 @@ class AATypeUtil {
     getAdaptedAllocator(const TYPE& object);
 
     /// Return the allocator held by the specified `object`.  This
-    /// overload will be selected if `TYPE` is *pmr-AA* or *stl-AA*.
+    /// overload will be selected if `TYPE` is **pmr-AA** or **stl-AA**.
     template <class TYPE>
     static
     typename bsl::enable_if<AAModel<TYPE>::value != AAModelLegacy::value &&
@@ -300,10 +300,10 @@ class AATypeUtil {
     /// an `ALLOCATOR` object is used to construct a `TYPE` object that
     /// holds an allocator type compatible with, but not necessarily
     /// directly convertible to, `ALLOCATOR` -- e.g., when `TYPE` is
-    /// *pmr-AA* and `ALLOCATOR` is `bsl::allocator<int>` -- in which case
+    /// **pmr-AA** and `ALLOCATOR` is `bsl::allocator<int>` -- in which case
     /// this function reverses the implicit conversion from `ALLOCATOR` that
     /// occured when `object` was originally constructed.  When `TYPE` is
-    /// *stl-AA* or `ALLOCATOR` is not constructible from 'bsl::Allocator
+    /// **stl-AA** or `ALLOCATOR` is not constructible from 'bsl::Allocator
     /// *`, this function simply constructs `ALLOCATOR', from `object`'s
     /// allocator, if such an explicit conversion is valid; otherwise the
     /// call is ill-formed.  The behavior is undefined unless `object` was
@@ -323,8 +323,8 @@ class AATypeUtil {
 
     /// Return the allocator for the specified `object`, converted to
     /// `bsl::allocator<char>`.  This function will not participate in
-    /// overload resolution unless `TYPE` is *pmr-AA*, *bsl-AA*, or
-    /// *legacy-AA*.  In the case of a *pmr-AA* `TYPE`, the behavior is
+    /// overload resolution unless `TYPE` is **pmr-AA**, **bsl-AA**, or
+    /// **legacy-AA**.  In the case of a **pmr-AA** `TYPE`, the behavior is
     /// undefined unless `object` was originally constructed constructed
     /// with an allocator *value* holding a pointer to a `memory_resource`
     /// whose dynamic type is derived from `bslma::Allocator`.
@@ -336,7 +336,7 @@ class AATypeUtil {
 
     /// Return the address of the `bslma::Allocator` used by the specified
     /// AA `object`.  This function does not participate in overload
-    /// resolution unless `TYPE` is *legacy-AA* (i.e., uses
+    /// resolution unless `TYPE` is **legacy-AA** (i.e., uses
     /// `bslma::Allocator *` as its allocator vocabulary type).  Note that
     /// instantiation will fail unless `object.allocator()` is well formed
     /// and returns a type convertible to `bslma::Allocator *`.
@@ -361,7 +361,7 @@ class AATypeUtil {
     /// specified `a` and `b` compare equal or (b) template parameter `TYPE`
     /// is *not* AA; otherwise return `false`.  Note that if `TYPE` is AA,
     /// instantiation will fail unless the appropriate allocator accessor is
-    /// well-formed, i.e. `object.allocator()` if `TYPE` is *legacy-AA* and
+    /// well-formed, i.e. `object.allocator()` if `TYPE` is **legacy-AA** and
     /// `object.get_allocator()` otherwise.
     template <class TYPE>
     static

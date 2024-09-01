@@ -59,14 +59,14 @@ class SemaphoreImpl;
              // class SemaphoreImpl<Platform::CountedSemaphore>
              // ===============================================
 
+/// This class provides a full specialization of `SemaphoreImpl` with a
+/// separate count variable.  This implementation maintains the value of the
+/// semaphore in a separate atomic integer count, so as to allow for
+/// semaphore count on platforms where a semaphore implementation doesn't
+/// provide the count or the provided count has very limited range of
+/// values.
 template <>
 class SemaphoreImpl<Platform::CountedSemaphore> {
-    // This class provides a full specialization of 'SemaphoreImpl' with a
-    // separate count variable.  This implementation maintains the value of the
-    // semaphore in a separate atomic integer count, so as to allow for
-    // semaphore count on platforms where a semaphore implementation doesn't
-    // provide the count or the provided count has very limited range of
-    // values.
 
     // DATA
     bsls::AtomicInt d_resources; // if positive, number of available resources
@@ -81,32 +81,35 @@ class SemaphoreImpl<Platform::CountedSemaphore> {
 
   public:
     // CREATORS
-    SemaphoreImpl(int count);
-        // Create a semaphore.  This method does not return normally unless
-        // there are sufficient system resources to construct the object.
 
+    /// Create a semaphore.  This method does not return normally unless
+    /// there are sufficient system resources to construct the object.
+    SemaphoreImpl(int count);
+
+    /// Destroy a semaphore
     ~SemaphoreImpl();
-        // Destroy a semaphore
 
     // MANIPULATORS
+
+    /// Atomically increment the count of this semaphore.
     void post();
-        // Atomically increment the count of this semaphore.
 
+    /// Atomically increment the count of this semaphore by the specified
+    /// `number`.  The behavior is undefined unless `number > 0`.
     void post(int number);
-        // Atomically increment the count of this semaphore by the specified
-        // 'number'.  The behavior is undefined unless 'number > 0'.
 
+    /// Decrement the count of this semaphore if it is positive and return
+    /// 0.  Return a non-zero value otherwise.
     int tryWait();
-        // Decrement the count of this semaphore if it is positive and return
-        // 0.  Return a non-zero value otherwise.
 
+    /// Block until the count of this semaphore is a positive value and
+    /// atomically decrement it.
     void wait();
-        // Block until the count of this semaphore is a positive value and
-        // atomically decrement it.
 
     // ACCESSORS
+
+    /// Return the current value of this semaphore.
     int getValue() const;
-        // Return the current value of this semaphore.
 };
 
 }  // close package namespace

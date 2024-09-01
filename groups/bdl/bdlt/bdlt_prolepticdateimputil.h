@@ -143,9 +143,9 @@ BSLS_IDENT("$Id: $")
 // many methods, free operators, and `friend` declarations that do not
 // contribute substantively to illustrating use of this component:
 // ```
+// /// This class represents a valid date, in the proleptic Gregorian
+// /// calendar, in the range `[0001/01/01 .. 9999/12/31]`.
 // class MyDate {
-//     // This class represents a valid date, in the proleptic Gregorian
-//     // calendar, in the range '[0001/01/01 .. 9999/12/31]'.
 //
 //     // DATA
 //     int d_serialDate;  // 1 = 0001/01/01, 2 = 0001/01/02, etc.
@@ -156,27 +156,30 @@ BSLS_IDENT("$Id: $")
 //
 //   private:
 //     // PRIVATE CREATORS
+//
+//     /// Create a `MyDate` object initialized with the value indicated by
+//     /// the specified `serialDate`.  The behavior is undefined unless
+//     /// `serialDate` represents a valid `MyDate` value.
 //     explicit MyDate(int serialDate);
-//         // Create a 'MyDate' object initialized with the value indicated by
-//         // the specified 'serialDate'.  The behavior is undefined unless
-//         // 'serialDate' represents a valid 'MyDate' value.
 //
 //   public:
 //     // CLASS METHODS
+//
+//     /// Return `true` if the specified `year`, `month`, and `day`
+//     /// represent a valid value for a `MyDate` object, and `false`
+//     /// otherwise.
 //     static bool isValid(int year, int month, int day);
-//         // Return 'true' if the specified 'year', 'month', and 'day'
-//         // represent a valid value for a 'MyDate' object, and 'false'
-//         // otherwise.
 //
 //     // CREATORS
-//     MyDate();
-//         // Create a 'MyDate' object having the earliest supported valid
-//         // date value, i.e., "0001/01/01".
 //
+//     /// Create a `MyDate` object having the earliest supported valid
+//     /// date value, i.e., "0001/01/01".
+//     MyDate();
+//
+//     /// Create a `MyDate` object having the value represented by the
+//     /// specified `year`, `month`, and `day`.  The behavior is undefined
+//     /// unless `isValid(year, month, day)` returns `true`.
 //     MyDate(int year, int month, int day);
-//         // Create a 'MyDate' object having the value represented by the
-//         // specified 'year', 'month', and 'day'.  The behavior is undefined
-//         // unless 'isValid(year, month, day)' returns 'true'.
 //
 //     // ...
 //
@@ -184,37 +187,39 @@ BSLS_IDENT("$Id: $")
 //
 //     // ...
 //
+//     /// Set this `MyDate` object to have the value represented by the
+//     /// specified `year`, `month`, and `day`.  The behavior is undefined
+//     /// unless `isValid(year, month, day)` returns `true`.
 //     void setYearMonthDay(int year, int month, int day);
-//         // Set this 'MyDate' object to have the value represented by the
-//         // specified 'year', 'month', and 'day'.  The behavior is undefined
-//         // unless 'isValid(year, month, day)' returns 'true'.
 //
 //     // ACCESSORS
+//
+//     /// Load, into the specified `year`, `month`, and `day`, the
+//     /// individual attribute values of this `MyDate` object.
 //     void getYearMonthDay(int *year, int *month, int *day) const;
-//         // Load, into the specified 'year', 'month', and 'day', the
-//         // individual attribute values of this 'MyDate' object.
 //
+//     /// Return the day of the month in the range `[1 .. 31]` of this
+//     /// `MyDate` object.
 //     int day() const;
-//         // Return the day of the month in the range '[1 .. 31]' of this
-//         // 'MyDate' object.
 //
+//     /// Return the month of the year in the range `[1 .. 12]` of this
+//     /// `MyDate` object.
 //     int month() const;
-//         // Return the month of the year in the range '[1 .. 12]' of this
-//         // 'MyDate' object.
 //
+//     /// Return the year in the range `[1 .. 9999]` of this `MyDate`
+//     /// object.
 //     int year() const;
-//         // Return the year in the range '[1 .. 9999]' of this 'MyDate'
-//         // object.
 //
 //     // ...
 // };
 //
 // // FREE OPERATORS
+//
+// /// Return `true` if the specified `lhs` and `rhs` `MyDate` objects have
+// /// the same value, and `false` otherwise.  Two dates have the same
+// /// value if each of the corresponding `year`, `month`, and `day`
+// /// attributes respectively have the same value.
 // bool operator==(const MyDate& lhs, const MyDate& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' 'MyDate' objects have
-//     // the same value, and 'false' otherwise.  Two dates have the same
-//     // value if each of the corresponding 'year', 'month', and 'day'
-//     // attributes respectively have the same value.
 //
 // // ...
 // ```

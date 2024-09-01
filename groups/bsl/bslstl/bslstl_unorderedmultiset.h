@@ -480,20 +480,22 @@ BSLS_IDENT("$Id: $")
 // {
 //   public:
 //     // CREATORS
+//
+//     /// Create a `CustomerDatumHash` object.
 //     //! CustomerDatumHash() = default;
-//         // Create a 'CustomerDatumHash' object.
 //
+//     /// Create a `CustomerDatumHash` object.  Note that as
+//     /// `CustomerDatumHash` is an empty (stateless) type, this operation
+//     /// has no observable effect.
 //     //! hash(const CustomerDatumHash& original) = default;
-//         // Create a 'CustomerDatumHash' object.  Note that as
-//         // 'CustomerDatumHash' is an empty (stateless) type, this operation
-//         // has no observable effect.
 //
+//     /// Destroy this object.
 //     //! ~CustomerDatumHash() = default;
-//         // Destroy this object.
 //
 //     // ACCESSORS
+//
+//     /// Return a hash value computed using the specified `x`.
 //     std::size_t operator()(CustomerDatum x) const;
-//         // Return a hash value computed using the specified 'x'.
 // };
 //
 // // ACCESSORS
@@ -508,16 +510,17 @@ BSLS_IDENT("$Id: $")
 // {
 //   public:
 //     // CREATORS
+//
+//     /// Create a `CustomerDatumEqual` object.
 //     //! CustomerDatumEqual() = default;
-//         // Create a 'CustomerDatumEqual' object.
 //
+//     /// Create a `CustomerDatumEqual` object.  Note that as
+//     /// `CustomerDatumEqual` is an empty (stateless) type, this
+//     /// operation has no observable effect.
 //     //! CustomerDatumEqual(const CustomerDatumEqual& original) = default;
-//         // Create a 'CustomerDatumEqual' object.  Note that as
-//         // 'CustomerDatumEqual' is an empty (stateless) type, this
-//         // operation has no observable effect.
 //
+//     /// Destroy this object.
 //     //! ~CustomerDatumEqual() = default;
-//         // Destroy this object.
 //
 //     // ACCESSORS
 //     bool operator()(const CustomerDatum& lhs,
@@ -554,14 +557,14 @@ BSLS_IDENT("$Id: $")
 // Now, create a helper function to calculate the average financials for a
 // category of customer profiles within the unordered multiset.
 // ```
+// /// Print to the specified `out` in some human-readable format the
+// /// averages of the `past` and `pending` attributes of every
+// /// `CustomerInfoData` object from the specified `start` up to (but not
+// /// including) the specified `end`.  The behavior is undefined unless
+// /// `end != start`.
 // void processCategory(DataByProfileConstItr  start,
 //                      DataByProfileConstItr  end,
 //                      FILE                  *out)
-//     // Print to the specified 'out' in some human-readable format the
-//     // averages of the 'past' and 'pending' attributes of every
-//     // 'CustomerInfoData' object from the specified 'start' up to (but not
-//     // including) the specified 'end'.  The behavior is undefined unless
-//     // 'end != start'.
 // {
 //     assert(end != start);
 //     assert(out);
@@ -826,8 +829,8 @@ class unordered_multiset
     /// generate hash values for the keys contained in this unordered
     /// multiset.  Use a copy of `original.key_eq()` to verify that two keys
     /// are equivalent.  Use the allocator returned by
-    /// 'bsl::allocator_traits<ALLOCATOR>::
-    /// select_on_container_copy_construction(original.get_allocator())' to
+    /// `bsl::allocator_traits<ALLOCATOR>::
+    /// select_on_container_copy_construction(original.get_allocator())` to
     /// allocate memory.  This method requires that the (template parameter)
     /// type `KEY` be `copy-insertable` into this unordered multiset (see
     /// {Requirements on `KEY`}).
@@ -862,8 +865,8 @@ class unordered_multiset
     /// Create an unordered multiset having the same value as the specified
     /// `original` object that uses the specified `basicAllocator` to supply
     /// memory.  The contents of `original` are moved (in constant time) to
-    /// the new unordered multiset if 'basicAllocator ==
-    /// original.get_allocator()', and are move-inserted (in linear time)
+    /// the new unordered multiset if `basicAllocator ==
+    /// original.get_allocator()`, and are move-inserted (in linear time)
     /// using `basicAllocator` otherwise.  `original` is left in a valid but
     /// unspecified state.  Use a copy of `original.hash_function()` to
     /// generate hash values for the keys contained in this unordered
@@ -999,31 +1002,31 @@ class unordered_multiset
     /// providing modifiable access to this object.  If an exception is
     /// thrown, `*this` is left in a valid but unspecified state.  This
     /// method requires that the (template parameter) type `KEY` be both
-    /// `copy-assignable` and 'copy-insertable" into this unordered multiset
+    /// `copy-assignable` and `copy-insertable` into this unordered multiset
     /// (see {Requirements on `KEY`}).
     unordered_multiset& operator=(const unordered_multiset& rhs);
 
+    /// Assign to this object the value, hash function, and equality
+    /// comparator of the specified `rhs` object, propagate to this object
+    /// the allocator of `rhs` if the `ALLOCATOR` type has trait
+    /// `propagate_on_container_move_assignment`, and return a reference
+    /// providing modifiable access to this object.  The contents of `rhs`
+    /// are moved (in constant time) to this unordered multiset if
+    /// `get_allocator() == rhs.get_allocator()` (after accounting for the
+    /// aforementioned trait); otherwise, all elements in this unordered
+    /// multiset are either destroyed or move-assigned to and each
+    /// additional element in `rhs` is move-inserted into this unordered
+    /// multiset.  `rhs` is left in a valid but unspecified state, and if an
+    /// exception is thrown, `*this` is left in a valid but unspecified
+    /// state.  This method requires that the (template parameter) type
+    /// `KEY` be both `move-assignable` and `move-insertable` into this
+    /// unordered multiset (see {Requirements on `KEY`}).
     unordered_multiset&
     operator=(BloombergLP::bslmf::MovableRef<unordered_multiset> rhs)
                             BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                 AllocatorTraits::is_always_equal::value
                              && std::is_nothrow_move_assignable<HASH>::value
                              && std::is_nothrow_move_assignable<EQUAL>::value);
-        // Assign to this object the value, hash function, and equality
-        // comparator of the specified 'rhs' object, propagate to this object
-        // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
-        // 'propagate_on_container_move_assignment', and return a reference
-        // providing modifiable access to this object.  The contents of 'rhs'
-        // are moved (in constant time) to this unordered multiset if
-        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
-        // aforementioned trait); otherwise, all elements in this unordered
-        // multiset are either destroyed or move-assigned to and each
-        // additional element in 'rhs' is move-inserted into this unordered
-        // multiset.  'rhs' is left in a valid but unspecified state, and if an
-        // exception is thrown, '*this' is left in a valid but unspecified
-        // state.  This method requires that the (template parameter) type
-        // 'KEY' be both 'move-assignable' and 'move-insertable' into this
-        // unordered multiset (see {Requirements on 'KEY'}).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     /// Assign to this object the value resulting from first clearing this
@@ -1073,8 +1076,6 @@ class unordered_multiset
     /// then the two returned iterators will have the same value.  The
     /// behavior is undefined unless `key` is equivalent to the elements of
     /// at most one equivalent-key group in this unordered multiset.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1082,6 +1083,7 @@ class unordered_multiset
                       pair<iterator, iterator> >::type
     equal_range(const LOOKUP_KEY& key)
         {
+            // Note: implemented inline due to Sun CC compilation error.
             typedef bsl::pair<iterator, iterator> ResultType;
             HashTableLink *first;
             HashTableLink *last;
@@ -1137,8 +1139,6 @@ class unordered_multiset
     /// entries exist, and the past-the-end (`end`) iterator otherwise.  The
     /// behavior is undefined unless `key` is equivalent to the elements of
     /// at most one equivalent-key group in this unordered multiset.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1146,6 +1146,7 @@ class unordered_multiset
                       iterator>::type
     find(const LOOKUP_KEY& key)
         {
+            // Note: implemented inline due to Sun CC compilation error.
             return iterator(d_impl.find(key));
         }
 
@@ -1160,7 +1161,7 @@ class unordered_multiset
     /// multiset, this method is guaranteed to insert `value` in a position
     /// contiguous to one of those equivalent keys.  Return an iterator
     /// referring to the newly inserted `value_type` object that is
-    /// equivalent to 'value.  Note that this method requires that the
+    /// equivalent to `value`.  Note that this method requires that the
     /// (template parameter) type `KEY` be `copy-insertable` into this
     /// unordered multiset (see {Requirements on `KEY`}).
     iterator insert(const value_type& value);
@@ -1291,24 +1292,24 @@ class unordered_multiset
     /// has no effect if `numElements <= size()`.
     void reserve(size_type numElements);
 
+    /// Exchange the value, hasher, key-equality functor, and
+    /// `max_load_factor` of this object with those of the specified `other`
+    /// object; also exchange the allocator of this object with that of
+    /// `other` if the (template parameter) type `ALLOCATOR` has the
+    /// `propagate_on_container_swap` trait, and do not modify either
+    /// allocator otherwise.  This method provides the no-throw
+    /// exception-safety guarantee if and only if both the (template
+    /// parameter) types `HASH` and `EQUAL` provide no-throw swap
+    /// operations; if an exception is thrown, both objects are left in
+    /// valid but unspecified states.  This operation guarantees `O[1]`
+    /// complexity.  The behavior is undefined unless either this object was
+    /// created with the same allocator as `other` or `ALLOCATOR` has the
+    /// `propagate_on_container_swap` trait.
     void swap(unordered_multiset& other)
                                  BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                       AllocatorTraits::is_always_equal::value
                                   &&  bsl::is_nothrow_swappable<HASH>::value
                                   &&  bsl::is_nothrow_swappable<EQUAL>::value);
-        // Exchange the value, hasher, key-equality functor, and
-        // 'max_load_factor' of this object with those of the specified 'other'
-        // object; also exchange the allocator of this object with that of
-        // 'other' if the (template parameter) type 'ALLOCATOR' has the
-        // 'propagate_on_container_swap' trait, and do not modify either
-        // allocator otherwise.  This method provides the no-throw
-        // exception-safety guarantee if and only if both the (template
-        // parameter) types 'HASH' and 'EQUAL' provide no-throw swap
-        // operations; if an exception is thrown, both objects are left in
-        // valid but unspecified states.  This operation guarantees 'O[1]'
-        // complexity.  The behavior is undefined unless either this object was
-        // created with the same allocator as 'other' or 'ALLOCATOR' has the
-        // 'propagate_on_container_swap' trait.
 
     // ACCESSORS
 
@@ -1337,8 +1338,6 @@ class unordered_multiset
 
     /// Return `true` if this unordered multiset contains an element whose
     /// key is equivalent to the specified `key`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error
     template <class LOOKUP_KEY>
     typename enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value &&
@@ -1347,6 +1346,7 @@ class unordered_multiset
         bool>::type
     contains(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error
         return find(key) != end();
     }
 
@@ -1380,8 +1380,6 @@ class unordered_multiset
     /// entries exist, and the past-the-end (`end`) iterator otherwise.  The
     /// behavior is undefined unless `key` is equivalent to the elements of
     /// at most one equivalent-key group in this unordered multiset.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1389,6 +1387,7 @@ class unordered_multiset
                       const_iterator>::type
     find(const LOOKUP_KEY& key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
             return const_iterator(d_impl.find(key));
         }
 
@@ -1402,8 +1401,6 @@ class unordered_multiset
     /// multiset that are equivalent to the specified `key`.  The behavior
     /// is undefined unless `key` is equivalent to the elements of at most
     /// one equivalent-key group in this unordered multiset.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1411,6 +1408,7 @@ class unordered_multiset
                       size_type>::type
     count(const LOOKUP_KEY& key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
             typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
 
             size_type result = 0;
@@ -1441,8 +1439,6 @@ class unordered_multiset
     /// then the two returned iterators will have the same value.  The
     /// behavior is undefined unless `key` is equivalent to the elements of
     /// at most one equivalent-key group in this unordered multiset.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1450,6 +1446,7 @@ class unordered_multiset
                       pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
             typedef bsl::pair<const_iterator, const_iterator> ResultType;
             HashTableLink *first;
             HashTableLink *last;

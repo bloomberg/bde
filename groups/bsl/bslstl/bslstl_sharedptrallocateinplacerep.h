@@ -84,10 +84,10 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
     ReboundAllocator         d_allocator; // copy of this object's allocator
     bsls::ObjectBuffer<TYPE> d_instance;  // beginning of the in-place buffer
 
-    // Note that 'd_instance' must be last in this layout to allow for the
+    // Note that `d_instance` must be last in this layout to allow for the
     // possibility of creating an in-place uninitialized buffer, where it is
-    // possible to access memory beyond the 'd_instance' footprint (refer to
-    // 'bsl::shared_ptr::createInplaceUninitializedBuffer' for sample usage).
+    // possible to access memory beyond the `d_instance` footprint (refer to
+    // `bsl::shared_ptr::createInplaceUninitializedBuffer` for sample usage).
 
   private:
     // NOT IMPLEMENTED

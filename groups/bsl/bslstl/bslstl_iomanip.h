@@ -13,43 +13,43 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl+bslhdrs
 //
-
+//
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_iomanip.h>' instead.
+// `<bsl_iomanip.h>` instead.
 //
 // This component exists to provide BSL implementations for facilities in the
-// standard <iomanip> header.  While most of the facilities in 'bsl_iomanip.h'
+// standard <iomanip> header.  While most of the facilities in `bsl_iomanip.h`
 // are simply aliases to the platform standard library, some of them need BSL
 // specific implementations.  For example, this component provides
-// implementations for 'bsl::quoted' overloads that accept 'bsl::basic_string'
-// and proprietary 'bsl::string_view' objects.
+// implementations for `bsl::quoted` overloads that accept `bsl::basic_string`
+// and proprietary `bsl::string_view` objects.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bsl::quoted'
+///Example 1: Basic Use of `bsl::quoted`
 ///- - - - - - - - - - - - - - - - - - -
 // Suppose we want to serialize some data into JSON.
 //
-// First, we define a struct, 'Employee', to contain the data:
-//..
+// First, we define a struct, `Employee`, to contain the data:
+// ```
 //  struct Employee {
 //      bsl::string d_firstName;
 //      bsl::string d_lastName;
 //      int         d_age;
 //  };
-//..
-// Then, we create an 'Employee' object and populate it with data:
-//..
+// ```
+// Then, we create an `Employee` object and populate it with data:
+// ```
 //  Employee john;
 //  john.d_firstName = "John";
 //  john.d_lastName  = "Doe";
 //  john.d_age       = 20;
-//..
+// ```
 //  Now, we create an output stream and manually construct the JSON string
-//  using 'bsl::quoted':
-//..
+//  using `bsl::quoted`:
+// ```
 //  bsl::stringstream ss;
 //  ss << '{' << '\n';
 //  ss << bsl::quoted("firstName");
@@ -64,24 +64,24 @@ BSLS_IDENT("$Id: $")
 //  ss << ':';
 //  ss << john.d_age;
 //  ss << '\n' << '}';
-//..
+// ```
 //  Finally, we check out the JSON string:
-//..
+// ```
 //  bsl::string expected = "{\n"
 //                         "\"firstName\":\"John\",\n"
 //                         "\"lastName\":\"Doe\",\n"
 //                         "\"age\":20\n"
 //                         "}";
 //  assert(expected == ss.str());
-//..
+// ```
 //  The output should look like:
-//..
+// ```
 //  {
 //  "firstName":"John",
 //  "lastName":"Doe",
 //  "age":20
 //  }
-//..
+// ```
 
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>

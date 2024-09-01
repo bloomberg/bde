@@ -581,7 +581,7 @@ class OnceGuard {
 
 // Use a for-loop to initialize the guard, test if we can enter the
 // once-region, then leave the once-region at the end.  Each invocation of this
-// macro within a source file supplies a different 'doOnceObj' name.
+// macro within a source file supplies a different `doOnceObj` name.
 #define BSLMT_ONCE_DO_IMP(doOnceObj)                                          \
     static BloombergLP::bslmt::Once doOnceObj = BSLMT_ONCE_INITIALIZER;       \
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(                                \

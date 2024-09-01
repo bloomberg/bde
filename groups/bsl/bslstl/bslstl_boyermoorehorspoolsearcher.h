@@ -379,34 +379,38 @@ BSLS_IDENT("$Id: $")
 //     Map d_map;
 //
 //     // PRIVATE MANIPULATORS
+//
+//     /// Insert into this cache a key-value pair where the key is the
+//     /// specified `key` and the value is a `Searcher` object created to
+//     /// seek the needle specified by the key part.  Note that this
+//     /// arrangement guarantees that the iterators used by this cached
+//     /// searcher object remain valid for the life of the searcher
+//     /// object.
 //     const Searcher& insertSearcher(const bsl::string& key);
-//         // Insert into this cache a key-value pair where the key is the
-//         // specified 'key' and the value is a 'Searcher' object created to
-//         // seek the needle specified by the key part.  Note that this
-//         // arrangement guarantees that the iterators used by this cached
-//         // searcher object remain valid for the life of the searcher
-//         // object.
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an empty `MyCaseInsensitiveSearcherCache` object.
+//     /// Optionally specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default
+//     /// allocator is used.
 //     explicit MyCaseInsensitiveSearcherCache(bslma::Allocator
 //                                                       *basicAllocator = 0);
-//         // Create an empty 'MyCaseInsensitiveSearcherCache' object.
-//         // Optionally specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default
-//         // allocator is used.
 //
 //     // MANIPULATORS
+//
+//     /// Return a `const`-reference to the cached server that can do a
+//     /// case-insensitive search for the specified `needle`.  If such a
+//     /// searcher does not exist in the cache on entry, such a searcher
+//     /// is constructed, added to the cache, and returned (by
+//     /// `const`-reference).
 //     const Searcher& getSearcher(const char *needle);
-//         // Return a 'const'-reference to the cached server that can do a
-//         // case-insensitive search for the specified 'needle'.  If such a
-//         // searcher does not exist in the cache on entry, such a searcher
-//         // is constructed, added to the cache, and returned (by
-//         // 'const'-reference).
 //
 //     // ACCESSORS
+//
+//     /// Return the number of searcher objects in this cache.
 //     bsl::size_t numSearchers() const;
-//         // Return the number of searcher objects in this cache.
 // };
 // ```
 // Notice (see the `typedef` for `Searcher`) that we reuse the hash functor,

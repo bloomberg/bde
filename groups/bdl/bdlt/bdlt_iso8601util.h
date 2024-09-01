@@ -623,7 +623,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_ostream.h>
 #include <bsl_string.h>
 
-#include <string>           // 'std::string', 'std::pmr::string'
+#include <string>
 
 namespace BloombergLP {
 namespace bsls {
@@ -677,23 +677,24 @@ struct Iso8601Util {
 
   public:
     // TYPES
+
+    // This enumeration defines fixed lengths for the ISO 8601
+    // representations of date, time, and datetime values.  Note that these
+    // constants do *not* account for the null terminator that may be
+    // produced by the `generate` functions taking a `bufferLength`
+    // argument.
     enum {
-        // This enumeration defines fixed lengths for the ISO 8601
-        // representations of date, time, and datetime values.  Note that these
-        // constants do *not* account for the null terminator that may be
-        // produced by the 'generate' functions taking a 'bufferLength'
-        // argument.
 
-        k_DATE_STRLEN         = 10,  // 'bdlt::Date'
-        k_DATETZ_STRLEN       = 16,  // 'bdlt::DateTz'
+        k_DATE_STRLEN         = 10,  // `bdlt::Date`
+        k_DATETZ_STRLEN       = 16,  // `bdlt::DateTz`
 
-        k_TIME_STRLEN         = 15,  // 'bdlt::Time'
-        k_TIMETZ_STRLEN       = 21,  // 'bdlt::TimeTz'
+        k_TIME_STRLEN         = 15,  // `bdlt::Time`
+        k_TIMETZ_STRLEN       = 21,  // `bdlt::TimeTz`
 
-        k_DATETIME_STRLEN     = 26,  // 'bdlt::Datetime'
-        k_DATETIMETZ_STRLEN   = 32,  // 'bdlt::DatetimeTz'
+        k_DATETIME_STRLEN     = 26,  // `bdlt::Datetime`
+        k_DATETIMETZ_STRLEN   = 32,  // `bdlt::DatetimeTz`
 
-        k_TIMEINTERVAL_STRLEN = 38,  // 'bsls::TimeInterval'
+        k_TIMEINTERVAL_STRLEN = 38,  // `bsls::TimeInterval`
 
         k_MAX_STRLEN          = k_TIMEINTERVAL_STRLEN
 
@@ -923,7 +924,16 @@ struct Iso8601Util {
     static int generate(std::string                     *string,
                         const DatetimeOrDatetimeTz&      object,
                         const GenerateConfiguration&     configuration);
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    /// Load the ISO 8601 representation of the specified `object` into the
+    /// specified `string` of type `bsl::string`, `std::string`, or
+    /// `std::pmr::string`.  Optionally specify a `configuration` to affect
+    /// the format of the generated string.  If `configuration` is not
+    /// supplied, the process-wide default value
+    /// `Iso8601UtilConfiguration::defaultConfiguration()` is used.  Return
+    /// the number of characters in the formatted string.  The previous
+    /// contents of `string` (if any) are discarded.
     static int generate(std::pmr::string                *string,
                         const bsls::TimeInterval&        object);
     static int generate(std::pmr::string                *string,
@@ -975,14 +985,6 @@ struct Iso8601Util {
                         const DatetimeOrDatetimeTz&      object,
                         const GenerateConfiguration&     configuration);
 #endif
-        // Load the ISO 8601 representation of the specified 'object' into the
-        // specified 'string' of type 'bsl::string', 'std::string', or
-        // 'std::pmr::string'.  Optionally specify a 'configuration' to affect
-        // the format of the generated string.  If 'configuration' is not
-        // supplied, the process-wide default value
-        // 'Iso8601UtilConfiguration::defaultConfiguration()' is used.  Return
-        // the number of characters in the formatted string.  The previous
-        // contents of 'string' (if any) are discarded.
 
     /// Write the ISO 8601 representation of the specified `object` to the
     /// specified `stream`.  Optionally specify a `configuration` to affect

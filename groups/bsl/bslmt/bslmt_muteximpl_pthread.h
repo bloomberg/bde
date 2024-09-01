@@ -67,9 +67,10 @@ class MutexImpl<Platform::PosixThreads> {
 
   public:
     // PUBLIC TYPES
+
+    /// The underlying OS-level type.  Exposed so that other `bslmt`
+    /// components can operate directly on this mutex.
     typedef pthread_mutex_t NativeType;
-       // The underlying OS-level type.  Exposed so that other 'bslmt'
-       // components can operate directly on this mutex.
 
     // CREATORS
 

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:38:38 2024
+// Generated on Sun Sep  1 09:58:46 2024
 // Command line: sim_cpp11_features.pl bslma_polymorphicallocator.h
 
 #ifdef COMPILING_BSLMA_POLYMORPHICALLOCATOR_H
@@ -42,33 +42,33 @@ using polymorphic_allocator = std::pmr::polymorphic_allocator<TYPE>;
 // FREE FUNCTIONS
 
 // As per issue LWG 3683 (https://cplusplus.github.io/LWG/issue3683), the C++20
-// standard as published does not provide 'operator==' for comparing a
-// 'polymorphic_allocator' to a type convertible to 'polymorphic_allocator',
-// e.g., a 'pmr::memory_resource'.  The workaround below corresponds to
+// standard as published does not provide `operator==` for comparing a
+// `polymorphic_allocator` to a type convertible to `polymorphic_allocator`,
+// e.g., a `pmr::memory_resource`.  The workaround below corresponds to
 // proposed resolution 2, which differs from the accepted issue resolution
 // (proposed resolution 3) because the accepted resolution requires modifying
 // the library class itself.  This workaround does not depend on C++20
-// automatic generation of multiple 'operator==' and 'operator!=' from a single
-// declaration of 'operator=='.  Because 'bsl::polymorphic_allocator' is an
-// alias for 'std::pmr::polymorphic_allocator', these operators must be defined
-// in namespace 'std::pmr' to be found by ADL.
+// automatic generation of multiple `operator==` and `operator!=` from a single
+// declaration of `operator==`.  Because `bsl::polymorphic_allocator` is an
+// alias for `std::pmr::polymorphic_allocator`, these operators must be defined
+// in namespace `std::pmr` to be found by ADL.
 
 namespace BloombergLP::bslma {
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 // The MSVC compiler, up to and including version 19.33 (aka VS 2022), has a
-// bug whereby supressing argument deduction using 'type_identity' causes a
-// linker error.  The 'BSLMF_POLYMORPHICALLOCATOR_NODEDUCE_T' macro below
-// provides a non-deduced 'polymorphic_allocator' argument that works around
+// bug whereby supressing argument deduction using `type_identity` causes a
+// linker error.  The `BSLMF_POLYMORPHICALLOCATOR_NODEDUCE_T` macro below
+// provides a non-deduced `polymorphic_allocator` argument that works around
 // this problem.
 //
 // Note that this workaround will not work for a type convertible to
-// 'polymorphic_allocator' via a conversion operator:
+// `polymorphic_allocator` via a conversion operator:
 //..
 //  class C { operator bsl::polymorphic_allocator<short>() const; };
-//  assert(bsl::polymorphic_allocator<short>() == C());  // won't compile
+//  assert(bsl::polymorphic_allocator<short>() == C());  // won`t compile
 //..
-// As this is a rare-to-nonexistant use case, we won't bother to fix that for
+// As this is a rare-to-nonexistant use case, we won`t bother to fix that for
 // now.
 
 struct PolymorphicAllocator_Unique
@@ -129,15 +129,15 @@ bool operator!=(const BSLMF_POLYMORPHICALLOCATOR_NODEDUCE_T(TYPE)& a,
 
 namespace bsl {
 
+/// An STL-compatible proxy for any resource class derived from
+/// `bsl::memory_resource`.  This class template is a pre-C++17
+/// implementation of `std::pmr::polymorphic_allocator` from the C++17
+/// Standard Library.  Note that there are a number of methods (e.g.,
+/// `max_size`) that are not in the C++17 version of this class.  These
+/// members exist for compatibility with C++03 versions of the standard
+/// library, which don't use `allocator_traits`.
 template <class TYPE = unsigned char>
 class polymorphic_allocator {
-    // An STL-compatible proxy for any resource class derived from
-    // 'bsl::memory_resource'.  This class template is a pre-C++17
-    // implementation of 'std::pmr::polymorphic_allocator' from the C++17
-    // Standard Library.  Note that there are a number of methods (e.g.,
-    // 'max_size') that are not in the C++17 version of this class.  These
-    // members exist for compatibility with C++03 versions of the standard
-    // library, which don't use 'allocator_traits'.
 
     // DATA
     memory_resource *d_resource;
@@ -156,38 +156,45 @@ class polymorphic_allocator {
     typedef const TYPE&     const_reference;
     typedef TYPE            value_type;
 
+    /// This nested `struct` template, parameterized by `ANY_TYPE`, provides
+    /// a namespace for an `other` type alias, which is an allocator type
+    /// following the same template as this one but that allocates elements
+    /// of `ANY_TYPE`.  Note that this allocator type is convertible to and
+    /// from `other` for any type, including `void`.
     template <class ANY_TYPE>
     struct rebind {
-        // This nested 'struct' template, parameterized by 'ANY_TYPE', provides
-        // a namespace for an 'other' type alias, which is an allocator type
-        // following the same template as this one but that allocates elements
-        // of 'ANY_TYPE'.  Note that this allocator type is convertible to and
-        // from 'other' for any type, including 'void'.
-
-
         typedef polymorphic_allocator<ANY_TYPE> other;
     };
 
     // CREATORS
+
+    /// Create an allocator that will forward allocation calls to the
+    /// object pointed to by `bslma::Default::defaultAllocator()`.
+    /// Postcondition:
+    /// ```
+    ///  this->resource() == bslma::Default::defaultAllocator()
+    /// ```
+    /// Note that in this C++03 implementation, the default memory resource
+    /// is the same as `bslma::Default::defaultAllocator()`.
     polymorphic_allocator() BSLS_KEYWORD_NOEXCEPT;
-        // Create an allocator that will forward allocation calls to the
-        // object pointed to by 'bslma::Default::defaultAllocator()'.
-        // Postcondition:
-        //..
-        //  this->resource() == bslma::Default::defaultAllocator()
-        //..
-        // Note that in this C++03 implementation, the default memory resource
-        // is the same as 'bslma::Default::defaultAllocator()'.
 
+    /// Convert a `memory_resource` pointer to a `polymorphic_allocator`
+    /// object that forwards allocation calls to the object pointed to by
+    /// the specified `r`.  Postcondition:
+    /// ```
+    ///  this->resource() == r
+    /// ```
+    /// The behavior is undefined if `r` is null.
     polymorphic_allocator(memory_resource *r);                      // IMPLICIT
-        // Convert a 'memory_resource' pointer to a 'polymorphic_allocator'
-        // object that forwards allocation calls to the object pointed to by
-        // the specified 'r'.  Postcondition:
-        //..
-        //  this->resource() == r
-        //..
-        // The behavior is undefined if 'r' is null.
 
+    /// Create an allocator sharing the same resource object as the
+    /// specified `original`.  The newly constructed allocator will compare
+    /// equal to `original`, even though they may be instantiated on
+    /// different types.  Postconditions:
+    /// ```
+    ///  *this == original
+    ///  this->resource() == original.resource();
+    /// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     polymorphic_allocator(const polymorphic_allocator& original)
                                                BSLS_KEYWORD_NOEXCEPT = default;
@@ -198,53 +205,59 @@ class polymorphic_allocator {
     template<class ANY_TYPE>
     polymorphic_allocator(const polymorphic_allocator<ANY_TYPE>& original)
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Create an allocator sharing the same resource object as the
-        // specified 'original'.  The newly constructed allocator will compare
-        // equal to 'original', even though they may be instantiated on
-        // different types.  Postconditions:
-        //..
-        //  *this == original
-        //  this->resource() == original.resource();
-        //..
 
+    /// Destroy this object.  Note that this does not delete the object
+    /// pointed to by 'resource()'.
     //! ~polymorphic_allocator() = default;
-        // Destroy this object.  Note that this does not delete the object
-        // pointed to by 'resource()'.
 
     // MANIPULATORS
+
+    /// Return a block of memory having sufficient size and alignment to
+    /// hold the specified `n` objects of `value_type`, allocated from the
+    /// memory resource held by this allocator.
     BSLS_ANNOTATION_NODISCARD TYPE *allocate(std::size_t n);
-        // Return a block of memory having sufficient size and alignment to
-        // hold the specified 'n' objects of 'value_type', allocated from the
-        // memory resource held by this allocator.
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    /// Return a block of memory having sufficient size and alignment to
+    /// hold the specified `n` objects of `value_type`, allocated from the
+    /// memory resource held by this allocator, ignoring the specified
+    /// `hint`, which is used by other allocators as a locality hint.  Note
+    /// that this overload is not part of C++17
+    /// `std::pmr::polymorphic_allocator` but it is a requirement for all
+    /// C++03 allocators.
     BSLS_ANNOTATION_NODISCARD TYPE *allocate(std::size_t n, const void *hint);
-        // Return a block of memory having sufficient size and alignment to
-        // hold the specified 'n' objects of 'value_type', allocated from the
-        // memory resource held by this allocator, ignoring the specified
-        // 'hint', which is used by other allocators as a locality hint.  Note
-        // that this overload is not part of C++17
-        // 'std::pmr::polymorphic_allocator' but it is a requirement for all
-        // C++03 allocators.
 #endif
 
+    /// Deallocate a block of memory having sufficient size and alignment to
+    /// hold the specified `n` objects of `value_type` by returning it to
+    /// the memory resource held by this allocator.  The behavior is
+    /// undefined unless `p` is the address of a block previously allocated
+    /// by a call to `allocate` with the same `n` and not yet deallocated.
     void deallocate(TYPE *p, std::size_t n);
-        // Deallocate a block of memory having sufficient size and alignment to
-        // hold the specified 'n' objects of 'value_type' by returning it to
-        // the memory resource held by this allocator.  The behavior is
-        // undefined unless 'p' is the address of a block previously allocated
-        // by a call to 'allocate' with the same 'n' and not yet deallocated.
 
+    /// Create a default-constructed object of (template parameter)
+    /// `ELEMENT_TYPE` at the specified `address`.  If `ELEMENT_TYPE`
+    /// supports `bslma`-style allocation, this allocator passes itself to
+    /// the extended default constructor.  If the constructor throws, the
+    /// memory at `address` is left in an unspecified state.  The behavior
+    /// is undefined unless `address` refers to a block of memory having
+    /// sufficient size and alignment for an object of `ELEMENT_TYPE`.
     template <class ELEMENT_TYPE>
     void construct(ELEMENT_TYPE *address);
-        // Create a default-constructed object of (template parameter)
-        // 'ELEMENT_TYPE' at the specified 'address'.  If 'ELEMENT_TYPE'
-        // supports 'bslma'-style allocation, this allocator passes itself to
-        // the extended default constructor.  If the constructor throws, the
-        // memory at 'address' is left in an unspecified state.  The behavior
-        // is undefined unless 'address' refers to a block of memory having
-        // sufficient size and alignment for an object of 'ELEMENT_TYPE'.
 
+    /// Create an object of (template parameter) `ELEMENT_TYPE` at the
+    /// specified `address`, constructed by forwarding the specified
+    /// `argument1` and the (variable number of) additional specified
+    /// `arguments` to the corresponding constructor of `ELEMENT_TYPE`.  If
+    /// `ELEMENT_TYPE` supports `bslma`-style allocation, this allocator
+    /// passes itself to the constructor.  If the constructor throws, the
+    /// memory at `address` is left in an unspecified state.  Note that, in
+    /// C++03, perfect forwarding is limited such that any lvalue reference
+    /// in the `arguments` parameter pack is const-qualified when forwarded
+    /// to the `ELEMENT_TYPE` constructor; only `argument1` can be forwarded
+    /// as an unqualified lvalue.  The behavior is undefined unless
+    /// `address` refers to a block of memory having sufficient size and
+    /// alignment for an object of `ELEMENT_TYPE`.
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bslma_polymorphicallocator.h
@@ -840,84 +853,87 @@ class polymorphic_allocator {
 // }}} END GENERATED CODE
 #endif
 
+    /// Call the `ELEMENT_TYPE` destructor for the object at the specified
+    /// `address` but do not deallocate the memory at `address`.
     template <class ELEMENT_TYPE>
     void destroy(ELEMENT_TYPE *address);
-        // Call the 'ELEMENT_TYPE' destructor for the object at the specified
-        // 'address' but do not deallocate the memory at 'address'.
 
     // ACCESSORS
+
+    /// Return the address of the object referred to by the specified `x`
+    /// reference, even if the (template parameter) `TYPE` overloads the
+    /// unary `operator&`.
     pointer       address(reference x) const;
     const_pointer address(const_reference x) const;
-        // Return the address of the object referred to by the specified 'x'
-        // reference, even if the (template parameter) 'TYPE' overloads the
-        // unary 'operator&'.
 
-   BSLS_KEYWORD_CONSTEXPR size_type max_size() const;
-        // Return the maximum number of elements of (template parameter) 'TYPE'
-        // that can be allocated using this allocator.  Note that there is no
-        // guarantee that attempts at allocating fewer elements than the value
-        // returned by 'max_size' will not throw.
+    /// Return the maximum number of elements of (template parameter) `TYPE`
+    /// that can be allocated using this allocator.  Note that there is no
+    /// guarantee that attempts at allocating fewer elements than the value
+    /// returned by `max_size` will not throw.
+    BSLS_KEYWORD_CONSTEXPR size_type max_size() const;
 
+    /// Return the address of the memory resource supplied on construction.
     memory_resource *resource() const;
-        // Return the address of the memory resource supplied on construction.
 
+    /// Return a default-constructed `polymorphic_allocator`.
     polymorphic_allocator select_on_container_copy_construction() const;
-        // Return a default-constructed 'polymorphic_allocator'.
 
     // HIDDEN FRIENDS
+
+    /// Return `true` if memory allocated from either of the specified `a`
+    /// or `b` allocators can be deallocated from the other; otherwise
+    /// return `false`.  This operator is selected by overload resolution if
+    /// at least one argument is a specialization of `polymorphic_allocator`
+    /// and the other is either the same specialization or is convertible to
+    /// `polymorphic_allocator`.  Note that this operator is a "hidden
+    /// friend" so that it is found by only by ADL and is not considered
+    /// during overload resoution if neither argument is a specialization of
+    /// `polymorphic_allocator`; see
+    /// https://cplusplus.github.io/LWG/issue3683.
     friend
     bool operator==(const polymorphic_allocator& a,
                     const polymorphic_allocator& b) BSLS_KEYWORD_NOEXCEPT
-        // Return 'true' if memory allocated from either of the specified 'a'
-        // or 'b' allocators can be deallocated from the other; otherwise
-        // return 'false'.  This operator is selected by overload resolution if
-        // at least one argument is a specialization of 'polymorphic_allocator'
-        // and the other is either the same specialization or is convertible to
-        // 'polymorphic_allocator'.  Note that this operator is a "hidden
-        // friend" so that it is found by only by ADL and is not considered
-        // during overload resoution if neither argument is a specialization of
-        // 'polymorphic_allocator'; see
-        // https://cplusplus.github.io/LWG/issue3683.
     {
         return a.resource() == b.resource() || *a.resource() == *b.resource();
     }
 
+    /// Return `true` if memory allocated from either of the specified `a`
+    /// or `b` allocators cannot necessarily be deallocated from the other;
+    /// otherwise return `false`.  This operator is selected by overload
+    /// resolution if at least one argument is a specialization of
+    /// `polymorphic_allocator` and the other is either the same
+    /// specialization or is convertible to `polymorphic_allocator`.  Note
+    /// that this operator is a "hidden friend" so that it is found by only
+    /// by ADL and is not considered during overload resoution if neither
+    /// argument is a specialization of `polymorphic_allocator`; see
+    /// https://cplusplus.github.io/LWG/issue3683.
     friend
     bool operator!=(const polymorphic_allocator& a,
                     const polymorphic_allocator& b)  BSLS_KEYWORD_NOEXCEPT
-        // Return 'true' if memory allocated from either of the specified 'a'
-        // or 'b' allocators cannot necessarily be deallocated from the other;
-        // otherwise return 'false'.  This operator is selected by overload
-        // resolution if at least one argument is a specialization of
-        // 'polymorphic_allocator' and the other is either the same
-        // specialization or is convertible to 'polymorphic_allocator'.  Note
-        // that this operator is a "hidden friend" so that it is found by only
-        // by ADL and is not considered during overload resoution if neither
-        // argument is a specialization of 'polymorphic_allocator'; see
-        // https://cplusplus.github.io/LWG/issue3683.
     {
         return a.resource() != b.resource() && *a.resource() != *b.resource();
     }
 };
 
 // FREE FUNCTIONS
+
+/// Return `true` if memory allocated from either of the specified `a` or
+/// `b` allocators can be deallocated from the other; otherwise return
+/// `false`.  Note that, when `T1` and `T2` are different, this free
+/// operator is a better match than the hidden friend operator, which would
+/// otherwise be ambiguous.
 template <class T1, class T2>
 bool operator==(const polymorphic_allocator<T1>& a,
                 const polymorphic_allocator<T2>& b) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if memory allocated from either of the specified 'a' or
-    // 'b' allocators can be deallocated from the other; otherwise return
-    // 'false'.  Note that, when 'T1' and 'T2' are different, this free
-    // operator is a better match than the hidden friend operator, which would
-    // otherwise be ambiguous.
 
+/// Return `true` if memory allocated from either of the specified `a` or
+/// `b` allocators cannot necessarily be deallocated from the other;
+/// otherwise return `false`.  Note that, when `T1` and `T2` are different,
+/// this free operator is a better match than the hidden friend operator,
+/// which would otherwise be ambiguous.
 template <class T1, class T2>
 bool operator!=(const polymorphic_allocator<T1>& a,
                 const polymorphic_allocator<T2>& b) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if memory allocated from either of the specified 'a' or
-    // 'b' allocators cannot necessarily be deallocated from the other;
-    // otherwise return 'false'.  Note that, when 'T1' and 'T2' are different,
-    // this free operator is a better match than the hidden friend operator,
-    // which would otherwise be ambiguous.
 
 }  // close namespace bsl
 
@@ -961,12 +977,11 @@ struct allocator_traits<polymorphic_allocator<TYPE> > {
         {
         }
 
+        /// Convert from anything that can be used to cosntruct the base type.
+        /// This might be better if SFINAE-ed out using `is_convertible`, but
+        /// stressing older compilers more seems unwise.
         template <typename ARG>
         rebind_alloc(const ARG& allocatorArg)
-            // Convert from anything that can be used to cosntruct the base
-            // type.  This might be better if SFINAE-ed out using
-            // 'is_convertible', but stressing older compilers more seems
-            // unwise.
         : polymorphic_allocator<TYPE2>(allocatorArg)
         {
         }

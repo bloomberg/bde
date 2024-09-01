@@ -349,20 +349,20 @@ BSLS_IDENT("$Id: $")
 // First, we begin to define a `class`, `Employee`, that represents the data
 // corresponding to an employee of a company:
 // ```
+// /// This simply constrained (value-semantic) attribute class represents
+// /// the information about an employee.  An employee's first and last
+// /// name are represented as `string` objects and their employee
+// /// identification number is represented by an `int`.  Note that the
+// /// class invariants are identically the constraints on the individual
+// /// attributes.
+// ///
+// /// This class:
+// /// * supports a complete set of *value-semantic* operations
+// ///    - except for BDEX serialization
+// /// * is **exception-neutral** (agnostic)
+// /// * is **alias-safe**
+// /// * is `const` **thread-safe**
 // class Employee {
-//     // This simply constrained (value-semantic) attribute class represents
-//     // the information about an employee.  An employee's first and last
-//     // name are represented as 'string' objects and their employee
-//     // identification number is represented by an 'int'.  Note that the
-//     // class invariants are identically the constraints on the individual
-//     // attributes.
-//     //
-//     // This class:
-//     //: o supports a complete set of *value-semantic* operations
-//     //:   o except for BDEX serialization
-//     //: o is *exception-neutral* (agnostic)
-//     //: o is *alias-safe*
-//     //: o is 'const' *thread-safe*
 //
 //     // DATA
 //     bsl::string d_firstName;       // first name
@@ -373,36 +373,37 @@ BSLS_IDENT("$Id: $")
 // ```
 //   public:
 //     // CREATORS
-//     Employee(bslma::Allocator *basicAllocator = 0);
-//         // Create a 'Employee' object having the (default) attribute
-//         // values:
-//         //..
-//         //  firstName() == ""
-//         //  lastName()  == ""
-//         //  id()        == 0
-//         //..
-//         // Optionally specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default
-//         // allocator is used.
 //
+//     /// Create a `Employee` object having the (default) attribute
+//     /// values:
+//     /// ```
+//     ///  firstName() == ""
+//     ///  lastName()  == ""
+//     ///  id()        == 0
+//     /// ```
+//     /// Optionally specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default
+//     /// allocator is used.
+//     Employee(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Create a `Employee` object having the specified `firstName`,
+//     /// `lastName`, and `id` attribute values.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
 //     Employee(const bsl::string_view&  firstName,
 //              const bsl::string_view&  lastName,
 //              int                      id,
 //              bslma::Allocator        *basicAllocator = 0);
-//         // Create a 'Employee' object having the specified 'firstName',
-//         // 'lastName', and 'id'' attribute values.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
+//     /// Create a `Employee` object having the same value as the
+//     /// specified `original` object.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
 //     Employee(const Employee&   original,
 //              bslma::Allocator *basicAllocator = 0);
-//         // Create a 'Employee' object having the same value as the
-//         // specified 'original' object.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
+//     /// Destroy this object.
 //     //! ~Employee() = default;
-//         // Destroy this object.
 // ```
 // Notice that all constructors of the `Employee` class are optionally provided
 // an allocator that is then passed through to the `string` data members of
@@ -416,50 +417,52 @@ BSLS_IDENT("$Id: $")
 // Then, declare the remaining methods of the class:
 // ```
 //     // MANIPULATORS
+//
+//     /// Assign to this object the value of the specified `rhs` object,
+//     /// and return a reference providing modifiable access to this
+//     /// object.
 //     Employee& operator=(const Employee& rhs);
-//         // Assign to this object the value of the specified 'rhs' object,
-//         // and return a reference providing modifiable access to this
-//         // object.
 //
+//     /// Set the `firstName` attribute of this object to the specified
+//     /// `value`.
 //     void setFirstName(const bsl::string_view& value);
-//         // Set the 'firstName' attribute of this object to the specified
-//         // 'value'.
 //
+//     /// Set the `lastName` attribute of this object to the specified
+//     /// `value`.
 //     void setLastName(const bsl::string_view& value);
-//         // Set the 'lastName' attribute of this object to the specified
-//         // 'value'.
 //
+//     /// Set the `id` attribute of this object to the specified `value`.
 //     void setId(int value);
-//         // Set the 'id' attribute of this object to the specified 'value'.
 //
 //     // ACCESSORS
+//
+//     /// Return a reference providing non-modifiable access to the
+//     /// `firstName` attribute of this object.
 //     const bsl::string& firstName() const;
-//         // Return a reference providing non-modifiable access to the
-//         // 'firstName' attribute of this object.
 //
+//     /// Return a reference providing non-modifiable access to the
+//     /// `lastName` attribute of this object.
 //     const bsl::string& lastName() const;
-//         // Return a reference providing non-modifiable access to the
-//         // 'lastName' attribute of this object.
 //
+//     /// Return the value of the `id` attribute of this object.
 //     int id() const;
-//         // Return the value of the 'id' attribute of this object.
 // };
 // ```
 // Next, we declare the free operators for `Employee`:
 // ```
+// /// Return `true` if the specified `lhs` and `rhs` objects have the same
+// /// value, and `false` otherwise.  Two `Employee` objects have the
+// /// same value if all of their corresponding values of their
+// /// `firstName`, `lastName`, and `id` attributes are the same.
 // inline
 // bool operator==(const Employee& lhs, const Employee& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-//     // value, and 'false' otherwise.  Two 'Employee' objects have the
-//     // same value if all of their corresponding values of their
-//     // 'firstName', 'lastName', and 'id' attributes are the same.
 //
+// /// Return `true` if the specified `lhs` and `rhs` objects do not have
+// /// the same value, and `false` otherwise.  Two `Employee` objects do
+// /// not have the same value if any of the corresponding values of their
+// /// `firstName`, `lastName`, or `id` attributes are not the same.
 // inline
 // bool operator!=(const Employee& lhs, const Employee& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
-//     // the same value, and 'false' otherwise.  Two 'Employee' objects do
-//     // not have the same value if any of the corresponding values of their
-//     // 'firstName', 'lastName', or 'id' attributes are not the same.
 // ```
 // Then, we implement the various methods of the `Employee` class:
 // ```
@@ -578,14 +581,14 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the signature of the function, `replace`:
 // ```
+// /// Read data from the specified `inputStream` and replace all
+// /// occurrences of the text contained in the specified `oldString` in
+// /// the stream with the text contained in the specified `newString`.
+// /// Write the modified data to the specified `outputStream`.
 // void replace(bsl::ostream&      outputStream,
 //              bsl::istream&      inputStream,
 //              const bsl::string& oldString,
 //              const bsl::string& newString)
-//     // Read data from the specified 'inputStream' and replace all
-//     // occurrences of the text contained in the specified 'oldString' in
-//     // the stream with the text contained in the specified 'newString'.
-//     // Write the modified data to the specified 'outputStream'.
 // ```
 // Then, we provide the implementation for `replace`:
 // ```
@@ -710,8 +713,8 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-// Import 'char_traits' into the 'bsl' namespace so that 'basic_string' and
-// 'char_traits' are always in the same namespace.
+// Import `char_traits` into the `bsl` namespace so that `basic_string` and
+// `char_traits` are always in the same namespace.
 using std::char_traits;
 
 template <class CHAR_TYPE,
@@ -733,12 +736,12 @@ typedef basic_string<char32_t> u32string;
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
+/// This `class` provides an implementation of the `find` function for the
+/// (template parameter) type `ORIGINAL_TRAITS`.  This is an alternate
+/// representation for Sun's `char_traits::find` that returns an incorrect
+/// result for character types other than `char` (such as `wchar`).
 template <class ORIGINAL_TRAITS>
 class String_Traits {
-    // This 'class' provides an implementation of the 'find' function for the
-    // (template parameter) type 'ORIGINAL_TRAITS'.  This is an alternate
-    // representation for Sun's 'char_traits::find' that returns an incorrect
-    // result for character types other than 'char' (such as 'wchar').
 
     // PRIVATE TYPES
     typedef typename ORIGINAL_TRAITS::char_type char_type;
@@ -746,30 +749,32 @@ class String_Traits {
 
   public:
     // CLASS METHODS
+
+    /// Return an address providing non-modifiable access to the first
+    /// character that matches the specified character `a` in the specified
+    /// `n` characters of the specified `s` string.  The behavior is
+    /// undefined unless `s` holds at least `n` characters.
     static const char_type *find(const char_type  *s,
                                  size_type         n,
                                  const char_type&  a);
-        // Return an address providing non-modifiable access to the first
-        // character that matches the specified character 'a' in the specified
-        // 'n' characters of the specified 's' string.  The behavior is
-        // undefined unless 's' holds at least 'n' characters.
 };
 
+/// Sun implemented `find` for `char` properly, so this specialization
+/// simply forwards the call to Sun.
 template <>
 class String_Traits<std::char_traits<char> > {
-    // Sun implemented 'find' for 'char' properly, so this specialization
-    // simply forwards the call to Sun.
 
     // PRIVATE TYPES
     typedef std::size_t size_type;
 
   public:
     // CLASS METHODS
+
+    /// Return an address providing non-modifiable access to the first
+    /// character that matches the specified character `a` in the specified
+    /// `n` characters of the specified `s` string.  The behavior is
+    /// undefined unless `s` holds at least `n` characters.
     static const char *find(const char *s, size_type n, const char& a);
-        // Return an address providing non-modifiable access to the first
-        // character that matches the specified character 'a' in the specified
-        // 'n' characters of the specified 's' string.  The behavior is
-        // undefined unless 's' holds at least 'n' characters.
 };
 
 // CLASS METHODS
@@ -979,18 +984,19 @@ class String_Imp {
 
   public:
     // TYPES
+
+    /// This `enum` contains values necessary to calculate the size of the
+    /// short string buffer.  The starting value is
+    /// `SHORT_BUFFER_MIN_BYTES`, which defines the minimal number of bytes
+    /// (or `char` values) that the short string buffer should be able to
+    /// contain.  Then this value is aligned to a word boundary.  Then we
+    /// make sure that it fits at least one `CHAR_TYPE` character (because
+    /// the default state of the string object requires that the first
+    /// character is initialized with a NULL-terminator).  The final output
+    /// of this enum used by `String_Imp` is the `SHORT_BUFFER_CAPACITY`
+    /// value.  It defines the capacity of the short string buffer and also
+    /// the capacity of the default-constructed empty string object.
     enum ShortBufferConstraints {
-        // This 'enum' contains values necessary to calculate the size of the
-        // short string buffer.  The starting value is
-        // 'SHORT_BUFFER_MIN_BYTES', which defines the minimal number of bytes
-        // (or 'char' values) that the short string buffer should be able to
-        // contain.  Then this value is aligned to a word boundary.  Then we
-        // make sure that it fits at least one 'CHAR_TYPE' character (because
-        // the default state of the string object requires that the first
-        // character is initialized with a NULL-terminator).  The final output
-        // of this enum used by 'String_Imp' is the 'SHORT_BUFFER_CAPACITY'
-        // value.  It defines the capacity of the short string buffer and also
-        // the capacity of the default-constructed empty string object.
 
         SHORT_BUFFER_MIN_BYTES  = 20, // minimum required size of the short
                                       // string buffer in bytes
@@ -1042,11 +1048,11 @@ class String_Imp {
                                 // without reallocation
 
     // TRAITS
+
+    // `CHAR_TYPE` is required to be a POD as per the Standard, which makes
+    // `CHAR_TYPE` bitwise-movable, so `String_Imp` is also bitwise-movable.
     BSLMF_NESTED_TRAIT_DECLARATION(String_Imp,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
-        // 'CHAR_TYPE' is required to be a POD as per the Standard, which makes
-        // 'CHAR_TYPE' bitwise-movable, so 'String_Imp' is also
-        // bitwise-movable.
 
     // CLASS METHODS
 
@@ -1079,19 +1085,19 @@ class String_Imp {
     /// methods of this class.
     String_Imp(SIZE_TYPE length, SIZE_TYPE capacity);
 
+    /// Create a `String_Imp` object having the same value as the specified
+    /// `original` object.  Note that this copy constructor is generated by
+    /// the compiler.
     //! String_Imp(const String_Imp& original) = default;
-        // Create a 'String_Imp' object having the same value as the specified
-        // 'original' object.  Note that this copy constructor is generated by
-        // the compiler.
 
+    /// Destroy this object.  Note that this destructor is generated by the
+    /// compiler.
     //! ~String_Imp() = default;
-        // Destroy this object.  Note that this destructor is generated by the
-        // compiler.
 
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.  Note
+    /// that this assignment operator is generated by the compiler.
     //! String_Imp& operator=(const String_Imp& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that this assignment operator is generated by the compiler.
 
     // MANIPULATORS
 
@@ -1247,14 +1253,15 @@ class basic_string
     typedef bsl::reverse_iterator<const_iterator>      const_reverse_iterator;
 
     // TRAITS
+
+    /// `CHAR_TYPE` is required to be a POD as per the Standard, which makes
+    /// `CHAR_TYPE` bitwise-movable, so `basic_string` is bitwise-movable as
+    /// long as the (template parameter) type `ALLOCATOR` is also
+    /// bitwise-movable.
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
                       basic_string,
                       BloombergLP::bslmf::IsBitwiseMoveable,
                       BloombergLP::bslmf::IsBitwiseMoveable<ALLOCATOR>::value);
-        // 'CHAR_TYPE' is required to be a POD as per the Standard, which makes
-        // 'CHAR_TYPE' bitwise-movable, so 'basic_string' is bitwise-movable as
-        // long as the (template parameter) type 'ALLOCATOR' is also
-        // bitwise-movable.
 
   private:
     // PRIVATE TYPES
@@ -1273,9 +1280,9 @@ class basic_string
     friend string to_string(unsigned long);
     friend string to_string(unsigned long long);
 
+    /// `String_ClearProctor` is made friend to allow access to internal
+    /// buffer and length.
     friend class String_ClearProctor<basic_string>;
-        // String_ClearProctor is made friend to allow access to internal
-        // buffer and length.
 
     // PRIVATE CLASS METHODS
 
@@ -1792,18 +1799,18 @@ class basic_string
     /// a reference providing modifiable access to this string.
     basic_string& operator=(const basic_string& rhs);
 
+    /// Assign to this string the value of the specified `rhs` string,
+    /// propagate to this object the allocator of `rhs` if the `ALLOCATOR`
+    /// type has trait `propagate_on_container_move_assignment`, and return
+    /// a reference providing modifiable access to this string.  The content
+    /// of `rhs` is moved (in constant time) to this string if
+    /// `get_allocator() == rhs.get_allocator()` (after accounting for the
+    /// aforementioned trait).  `rhs` is left in a valid but unspecified
+    /// state.
     basic_string& operator=(BloombergLP::bslmf::MovableRef<basic_string> rhs)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
             AllocatorTraits::propagate_on_container_move_assignment::value ||
             AllocatorTraits::is_always_equal::value);
-        // Assign to this string the value of the specified 'rhs' string,
-        // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
-        // type has trait 'propagate_on_container_move_assignment', and return
-        // a reference providing modifiable access to this string.  The content
-        // of 'rhs' is moved (in constant time) to this string if
-        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
-        // aforementioned trait).  'rhs' is left in a valid but unspecified
-        // state.
 
     /// Assign to this string the value of the specified `rhs` object, and
     /// return a reference providing modifiable access to this string.
@@ -2257,8 +2264,8 @@ class basic_string
     /// prior to erasing.  If no such character exists, return `end()`.
     /// This method invalidates existing iterators pointing to `first` or a
     /// subsequent position.  The behavior is undefined unless `first` and
-    /// `last` are both within the range `[cbegin() .. cend()]` and 'first
-    /// <= last'.
+    /// `last` are both within the range `[cbegin() .. cend()]` and `first
+    /// <= last`.
     iterator erase(const_iterator first, const_iterator last);
 
     /// Erase the last character from this string.  The behavior is
@@ -2438,22 +2445,22 @@ class basic_string
     /// pointer.
     CHAR_TYPE *data() BSLS_KEYWORD_NOEXCEPT;
 
+    /// Exchange the value of this object with that of the specified `other`
+    /// object; also exchange the allocator of this object with that of
+    /// `other` if the (template parameter) type `ALLOCATOR` has the
+    /// `propagate_on_container_swap` trait, and do not modify either
+    /// allocator otherwise.  This method provides the no-throw
+    /// exception-safety guarantee.  This operation has `O[1]` complexity if
+    /// either this object was created with the same allocator as `other` or
+    /// `ALLOCATOR` has the `propagate_on_container_swap` trait; otherwise,
+    /// it has `O[n + m]` complexity, where `n` and `m` are the lengths of
+    /// this object and `other`, respectively.  Note that this method`s
+    /// support for swapping objects created with different allocators when
+    /// `ALLOCATOR` does not have the `propagate_on_container_swap` trait is
+    /// a departure from the C++ Standard.
     void swap(basic_string& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                          AllocatorTraits::propagate_on_container_swap::value ||
                          AllocatorTraits::is_always_equal::value);
-        // Exchange the value of this object with that of the specified 'other'
-        // object; also exchange the allocator of this object with that of
-        // 'other' if the (template parameter) type 'ALLOCATOR' has the
-        // 'propagate_on_container_swap' trait, and do not modify either
-        // allocator otherwise.  This method provides the no-throw
-        // exception-safety guarantee.  This operation has 'O[1]' complexity if
-        // either this object was created with the same allocator as 'other' or
-        // 'ALLOCATOR' has the 'propagate_on_container_swap' trait; otherwise,
-        // it has 'O[n + m]' complexity, where 'n' and 'm' are the lengths of
-        // this object and 'other', respectively.  Note that this method's
-        // support for swapping objects created with different allocators when
-        // 'ALLOCATOR' does not have the 'propagate_on_container_swap' trait is
-        // a departure from the C++ Standard.
 
     // ACCESSORS
 
@@ -3300,6 +3307,10 @@ operator<=>(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
 
 #else
 
+/// Return `true` if the specified `lhs` string has the same value as the
+/// specified `rhs` string, and `false` otherwise.  Two strings have the
+/// same value if they have the same length, and the characters at each
+/// respective position have the same value according to `CHAR_TRAITS::eq`.
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
 operator==(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
@@ -3308,11 +3319,11 @@ operator==(const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator==(const CHAR_TYPE                                  *lhs,
                 const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
-    // Return 'true' if the specified 'lhs' string has the same value as the
-    // specified 'rhs' string, and 'false' otherwise.  Two strings have the
-    // same value if they have the same length, and the characters at each
-    // respective position have the same value according to 'CHAR_TRAITS::eq'.
 
+/// Return `true` if the specified `lhs` string has a different value from
+/// the specified `rhs` string, and `false` otherwise.  Two strings have the
+/// same value if they have the same length, and the characters at each
+/// respective position have the same value according to `CHAR_TRAITS::eq`.
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
@@ -3334,11 +3345,10 @@ bool operator!=(const CHAR_TYPE                                  *lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const CHAR_TYPE                                  *rhs);
-    // Return 'true' if the specified 'lhs' string has a different value from
-    // the specified 'rhs' string, and 'false' otherwise.  Two strings have the
-    // same value if they have the same length, and the characters at each
-    // respective position have the same value according to 'CHAR_TRAITS::eq'.
 
+/// Return `true` if the specified `lhs` string has a lexicographically
+/// smaller value than the specified `rhs` string, and `false` otherwise.
+/// See {Lexicographical Comparisons}.
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
@@ -3360,9 +3370,6 @@ bool operator<(const CHAR_TYPE                                  *lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                const CHAR_TYPE                                  *rhs);
-    // Return 'true' if the specified 'lhs' string has a lexicographically
-    // smaller value than the specified 'rhs' string, and 'false' otherwise.
-    // See {Lexicographical Comparisons}.
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
@@ -3379,16 +3386,19 @@ operator>(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
           const std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 
+/// Return `true` if the specified `lhs` string has a lexicographically
+/// larger value than the specified `rhs` string, and `false` otherwise.
+/// See {Lexicographical Comparisons}.
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator>(const CHAR_TYPE                                  *lhs,
                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                const CHAR_TYPE                                  *rhs);
-    // Return 'true' if the specified 'lhs' string has a lexicographically
-    // larger value than the specified 'rhs' string, and 'false' otherwise.
-    // See {Lexicographical Comparisons}.
 
+/// Return `true` if the specified `lhs` string has a value
+/// lexicographically smaller than or or equal to the specified `rhs`
+/// string, and `false` otherwise.  See {Lexicographical Comparisons}.
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
@@ -3410,10 +3420,10 @@ bool operator<=(const CHAR_TYPE                                  *lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const CHAR_TYPE                                  *rhs);
-    // Return 'true' if the specified 'lhs' string has a value
-    // lexicographically smaller than or or equal to the specified 'rhs'
-    // string, and 'false' otherwise.  See {Lexicographical Comparisons}.
 
+/// Return `true` if the specified `lhs` string has a value
+/// lexicographically larger than or equal to the specified `rhs` string,
+/// and `false` otherwise.  See {Lexicographical Comparisons}.
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
@@ -3435,11 +3445,14 @@ bool operator>=(const CHAR_TYPE                                  *lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const CHAR_TYPE                                  *rhs);
-    // Return 'true' if the specified 'lhs' string has a value
-    // lexicographically larger than or equal to the specified 'rhs' string,
-    // and 'false' otherwise.  See {Lexicographical Comparisons}.
 #endif
 
+/// Return the concatenation of strings constructed from the specified `lhs`
+/// and `rhs` arguments, i.e., `basic_string(lhs).append(rhs)`.  The
+/// allocator of the returned string is determined per the rules in P1165
+/// (https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1165r1.html).
+/// Note that overloads that accept rvalue references are implemented for
+/// C++11 and later only.
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&     lhs,
@@ -3518,12 +3531,6 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> &&  lhs,
           CHAR_TYPE                                                rhs);
 #endif  // BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
-    // Return the concatenation of strings constructed from the specified 'lhs'
-    // and 'rhs' arguments, i.e., 'basic_string(lhs).append(rhs)'.  The
-    // allocator of the returned string is determined per the rules in P1165
-    // (https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1165r1.html).
-    // Note that overloads that accept rvalue references are implemented for
-    // C++11 and later only.
 
 /// Write the string specified by `str` into the output stream specified by
 /// `os`, and return `os`.  If the string is shorter than `os.width()`, then
@@ -3599,24 +3606,25 @@ wstring operator ""_S(const wchar_t *characterString, std::size_t length);
         // BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
 
 // FREE FUNCTIONS
+
+/// Exchange the value of the specified `a` object with that of the
+/// specified `b` object; also exchange the allocator of `a` with that of
+/// `b` if the (template parameter) type `ALLOCATOR` has the
+/// `propagate_on_container_swap` trait, and do not modify either allocator
+/// otherwise.  This function provides the no-throw exception-safety
+/// guarantee.  This operation has `O[1]` complexity if either `a` was
+/// created with the same allocator as `b` or `ALLOCATOR` has the
+/// `propagate_on_container_swap` trait; otherwise, it has `O[n + m]`
+/// complexity, where `n` and `m` are the lengths of `a` and `b`,
+/// respectively.  Note that this function`s support for swapping objects
+/// created with different allocators when `ALLOCATOR` does not have the
+/// `propagate_on_container_swap` trait is a departure from the C++
+/// Standard.
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void swap(basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& a,
           basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& b)
                            BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)));
-    // Exchange the value of the specified 'a' object with that of the
-    // specified 'b' object; also exchange the allocator of 'a' with that of
-    // 'b' if the (template parameter) type 'ALLOCATOR' has the
-    // 'propagate_on_container_swap' trait, and do not modify either allocator
-    // otherwise.  This function provides the no-throw exception-safety
-    // guarantee.  This operation has 'O[1]' complexity if either 'a' was
-    // created with the same allocator as 'b' or 'ALLOCATOR' has the
-    // 'propagate_on_container_swap' trait; otherwise, it has 'O[n + m]'
-    // complexity, where 'n' and 'm' are the lengths of 'a' and 'b',
-    // respectively.  Note that this function's support for swapping objects
-    // created with different allocators when 'ALLOCATOR' does not have the
-    // 'propagate_on_container_swap' trait is a departure from the C++
-    // Standard.
 
 /// Replace the contents of the specified `str` string by extracting
 /// characters from the specified `is` stream until the specified `delim`
@@ -3815,12 +3823,12 @@ typename basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::size_type
 erase_if(basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str,
          const UNARY_PREDICATE&                           pred);
 
+/// This `enum` give upper bounds on the maximum string lengths storing each
+/// scalar numerical type.  It is safe to use stack-allocated buffers of
+/// these sizes for generating decimal representations of the corresponding
+/// type, including sign and terminating null character, using the default
+/// precision of 6 significant digits for floating point types.
 enum MaxDecimalStringLengths{
-    // This 'enum' give upper bounds on the maximum string lengths storing each
-    // scalar numerical type.  It is safe to use stack-allocated buffers of
-    // these sizes for generating decimal representations of the corresponding
-    // type, including sign and terminating null character, using the default
-    // precision of 6 significant digits for floating point types.
 
     e_MAX_SHORT_STRLEN10      = 2 + sizeof(short) * 3,
     e_MAX_INT_STRLEN10        = 2 + sizeof(int) * 3,
@@ -3873,32 +3881,34 @@ struct hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
 
 // Sun CC 12.3 has trouble with the partial specializations above in certain
 // circumstances (see DRQS 132030795).  Adding these explicit specializations
-// for 'string' and 'wstring' makes the problematic cases work.
+// for `string` and `wstring` makes the problematic cases work.
 
 template <>
 struct hash<string> : ::BloombergLP::bslh::Hash<>
 {
     // PUBLIC ACCESSORS
-    std::size_t operator()(const string& input) const;
-        // Compute and return the hash value of the specified 'input'.
 
+    /// Compute and return the hash value of the specified `input`.
+    std::size_t operator()(const string& input) const;
+
+    /// Compute and return the hash value of the contents of the specified
+    /// null-terminated `input`.  This value will be the same as the hash
+    /// value of a `basic_string` constructed from `input`.
     std::size_t operator()(const char *input) const;
-        // Compute and return the hash value of the contents of the specified
-        // null-terminated 'input'.  This value will be the same as the hash
-        // value of a 'basic_string' constructed from 'input'.
 };
 
 template <>
 struct hash<wstring> : ::BloombergLP::bslh::Hash<>
 {
     // PUBLIC ACCESSORS
-    std::size_t operator()(const wstring& input) const;
-        // Compute and return the hash value of the specified 'input'.
 
+    /// Compute and return the hash value of the specified `input`.
+    std::size_t operator()(const wstring& input) const;
+
+    /// Compute and return the hash value of the contents of the specified
+    /// null-terminated `input`.  This value will be the same as the hash
+    /// value of a `basic_string` constructed from `input`.
     std::size_t operator()(const wchar_t *input) const;
-        // Compute and return the hash value of the contents of the specified
-        // null-terminated 'input'.  This value will be the same as the hash
-        // value of a 'basic_string' constructed from 'input'.
 };
 
 #endif

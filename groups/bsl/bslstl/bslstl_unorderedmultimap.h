@@ -454,10 +454,10 @@ BSLS_IDENT("$Id: $")
 // ```
 // First, we define several aliases to make our code more comprehensible:
 // ```
+// /// Document code number (`first`) and word offset (`second`) in that
+// /// document specify a word location.  The first word in the document
+// /// is at word offset 0.
 // typedef bsl::pair<int, int>                  WordLocation;
-//     // Document code number ('first') and word offset ('second') in that
-//     // document specify a word location.  The first word in the document
-//     // is at word offset 0.
 //
 // typedef bsl::unordered_multimap<bsl::string, WordLocation>
 //                                              Concordance;
@@ -763,8 +763,8 @@ class unordered_multimap {
     /// generate hash values for the keys contained in this unordered
     /// multimap.  Use a copy of `original.key_eq()` to verify that two keys
     /// are equivalent.  Use the allocator returned by
-    /// 'bsl::allocator_traits<ALLOCATOR>::
-    /// select_on_container_copy_construction(original.get_allocator())' to
+    /// `bsl::allocator_traits<ALLOCATOR>::
+    /// select_on_container_copy_construction(original.get_allocator())` to
     /// allocate memory.  This method requires that the (template parameter)
     /// types `KEY` and `VALUE` both be `copy-insertable` into this
     /// unordered multimap (see {Requirements on `KEY` and `VALUE`}).
@@ -800,8 +800,8 @@ class unordered_multimap {
     /// Create an unordered multimap having the same value as the specified
     /// `original` object that uses the specified `basicAllocator` to supply
     /// memory.  The contents of `original` are moved (in constant time) to
-    /// the new unordered multimap if 'basicAllocator ==
-    /// original.get_allocator()', and are move-inserted (in linear time)
+    /// the new unordered multimap if `basicAllocator ==
+    /// original.get_allocator()`, and are move-inserted (in linear time)
     /// using `basicAllocator` otherwise.  `original` is left in a valid but
     /// unspecified state.  Use a copy of `original.hash_function()` to
     /// generate hash values for the keys contained in this unordered
@@ -950,28 +950,28 @@ class unordered_multimap {
     /// unordered multimap (see {Requirements on `KEY` and `VALUE`}).
     unordered_multimap& operator=(const unordered_multimap& rhs);
 
+    /// Assign to this object the value, hash function, and key-equivalence
+    /// comparator of the specified `rhs` object, propagate to this object
+    /// the allocator of `rhs` if the `ALLOCATOR` type has trait
+    /// `propagate_on_container_move_assignment`, and return a reference
+    /// providing modifiable access to this object.  The contents of `rhs`
+    /// are moved (in constant time) to this unordered multimap if
+    /// `get_allocator() == rhs.get_allocator()` (after accounting for the
+    /// aforementioned trait); otherwise, all elements in this unordered
+    /// multimap are either destroyed or move-assigned to, and each
+    /// additional element in `rhs` is move-inserted into this unordered
+    /// multimap.  `rhs` is left in a valid but unspecified state, and if an
+    /// exception is thrown, `*this` is left in a valid but unspecified
+    /// state.  This method requires that the (template parameter) types
+    /// `KEY` and `VALUE` both be `move-assignable` and `move-insertable`
+    /// into this unordered multimap (see {Requirements on `KEY` and
+    /// `VALUE`}).
     unordered_multimap&
     operator=(BloombergLP::bslmf::MovableRef<unordered_multimap> rhs)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                 AllocatorTraits::is_always_equal::value &&
                                 std::is_nothrow_move_assignable<HASH>::value &&
                                 std::is_nothrow_move_assignable<EQUAL>::value);
-        // Assign to this object the value, hash function, and key-equivalence
-        // comparator of the specified 'rhs' object, propagate to this object
-        // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
-        // 'propagate_on_container_move_assignment', and return a reference
-        // providing modifiable access to this object.  The contents of 'rhs'
-        // are moved (in constant time) to this unordered multimap if
-        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
-        // aforementioned trait); otherwise, all elements in this unordered
-        // multimap are either destroyed or move-assigned to, and each
-        // additional element in 'rhs' is move-inserted into this unordered
-        // multimap.  'rhs' is left in a valid but unspecified state, and if an
-        // exception is thrown, '*this' is left in a valid but unspecified
-        // state.  This method requires that the (template parameter) types
-        // 'KEY' and 'VALUE' both be 'move-assignable' and 'move-insertable'
-        // into this unordered multimap (see {Requirements on 'KEY' and
-        // 'VALUE'}).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     /// Assign to this object the value resulting from first clearing this
@@ -1025,8 +1025,6 @@ class unordered_multimap {
     /// The behavior is undefined unless `key` is equivalent to the key of
     /// the elements of at most one equivalent-key group in this unordered
     /// multimap.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1034,6 +1032,7 @@ class unordered_multimap {
                       pair<iterator, iterator> >::type
     equal_range(const LOOKUP_KEY& key)
         {
+            // Note: implemented inline due to Sun CC compilation error.
             typedef bsl::pair<iterator, iterator> ResultType;
             HashTableLink *first;
             HashTableLink *last;
@@ -1092,8 +1091,6 @@ class unordered_multimap {
     /// otherwise.  The behavior is undefined unless `key` is equivalent to
     /// the key of the elements of at most one equivalent-key group in this
     /// unordered multimap.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1101,6 +1098,7 @@ class unordered_multimap {
                       iterator>::type
     find(const LOOKUP_KEY& key)
         {
+            // Note: implemented inline due to Sun CC compilation error.
             return iterator(d_impl.find(key));
         }
 
@@ -1279,23 +1277,23 @@ class unordered_multimap {
     /// this operation has no effect if `numElements <= size()`.
     void reserve(size_type numElements);
 
+    // Exchange the value, hasher, key-equality functor, and
+    // `max_load_factor` of this object with those of the specified `other`
+    // object; also exchange the allocator of this object with that of
+    // `other` if the (template parameter) type `ALLOCATOR` has the
+    // `propagate_on_container_swap` trait, and do not modify either
+    // allocator otherwise.  This method provides the no-throw
+    // exception-safety guarantee if and only if both the (template
+    // parameter) types `HASH` and `EQUAL` provide no-throw swap
+    // operations; if an exception is thrown, both objects are left in
+    // valid but unspecified states.  This operation guarantees `O[1]`
+    // complexity.  The behavior is undefined unless either this object was
+    // created with the same allocator as `other` or `ALLOCATOR` has the
+    // `propagate_on_container_swap` trait.
     void swap(unordered_multimap& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                      AllocatorTraits::is_always_equal::value &&
                                      bsl::is_nothrow_swappable<HASH>::value &&
                                      bsl::is_nothrow_swappable<EQUAL>::value);
-        // Exchange the value, hasher, key-equality functor, and
-        // 'max_load_factor' of this object with those of the specified 'other'
-        // object; also exchange the allocator of this object with that of
-        // 'other' if the (template parameter) type 'ALLOCATOR' has the
-        // 'propagate_on_container_swap' trait, and do not modify either
-        // allocator otherwise.  This method provides the no-throw
-        // exception-safety guarantee if and only if both the (template
-        // parameter) types 'HASH' and 'EQUAL' provide no-throw swap
-        // operations; if an exception is thrown, both objects are left in
-        // valid but unspecified states.  This operation guarantees 'O[1]'
-        // complexity.  The behavior is undefined unless either this object was
-        // created with the same allocator as 'other' or 'ALLOCATOR' has the
-        // 'propagate_on_container_swap' trait.
 
     // ACCESSORS
 
@@ -1324,8 +1322,6 @@ class unordered_multimap {
 
     /// Return `true` if this unordered map contains an element whose key is
     /// equivalent to the specified `key`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error
     template <class LOOKUP_KEY>
     typename enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value &&
@@ -1334,6 +1330,7 @@ class unordered_multimap {
         bool>::type
     contains(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error
         return find(key) != end();
     }
 
@@ -1367,8 +1364,6 @@ class unordered_multimap {
     /// past-the-end (`end`) iterator otherwise.  The behavior is undefined
     /// unless `key` is equivalent to the key of the elements of at most one
     /// equivalent-key group in this unordered multimap.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1376,6 +1371,7 @@ class unordered_multimap {
                       const_iterator>::type
     find(const LOOKUP_KEY& key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
             return const_iterator(d_impl.find(key));
         }
 
@@ -1389,8 +1385,6 @@ class unordered_multimap {
     /// with a key equivalent to the specified `key`.  The behavior is
     /// undefined unless `key` is equivalent to the key of the elements of
     /// at most one equivalent-key group in this unordered multimap.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1398,6 +1392,7 @@ class unordered_multimap {
                       size_type>::type
     count(const LOOKUP_KEY& key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
             typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
 
             size_type result = 0;
@@ -1430,8 +1425,6 @@ class unordered_multimap {
     /// The behavior is undefined unless `key` is equivalent to the key of
     /// the elements of at most one equivalent-key group in this unordered
     /// multimap.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1439,6 +1432,7 @@ class unordered_multimap {
                       pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
             typedef bsl::pair<const_iterator, const_iterator> ResultType;
             HashTableLink *first;
             HashTableLink *last;

@@ -98,21 +98,22 @@ class ManagedPtrDeleter {
     /// as arguments.
     ManagedPtrDeleter(void *object, void *factory, Deleter deleter);
 
+    /// Create a `ManagedPtrDeleter` object having the same value as the
+    /// specified `original` object.  Note that this trivial copy
+    /// constructor's definition is compiler generated.
     //! ManagedPtrDeleter(const ManagedPtrDeleter& original);
-        // Create a 'ManagedPtrDeleter' object having the same value as the
-        // specified 'original' object.  Note that this trivial copy
-        // constructor's definition is compiler generated.
 
+    /// Destroy this object.  Note that this trivial destructor's definition
+    /// is compiler generated.
     //! ~ManagedPtrDeleter() = default;
-        // Destroy this object.  Note that this trivial destructor's definition
-        // is compiler generated.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.  Note
+    /// that this trivial copy-assignment operator's definition is compiler
+    /// generated.
     //! ManagedPtrDeleter& operator=(const ManagedPtrDeleter& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that this trivial copy-assignment operator's definition is compiler
-        // generated.
 
     /// Reset this `ManagedPtrDeleter` to its default-constructed state.
     void clear();

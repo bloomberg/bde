@@ -82,9 +82,9 @@ BSLS_IDENT("$Id: $")
 // predicate associated with `condition` (represented here as a free function
 // that returns a `bool` value):
 // ```
+// /// Return `true` if the invariant holds for `condition`, and `false`
+// /// otherwise.
 // bool predicate()
-//     // Return 'true' if the invariant holds for 'condition', and 'false'
-//     // otherwise.
 // {
 //     return true;
 // }

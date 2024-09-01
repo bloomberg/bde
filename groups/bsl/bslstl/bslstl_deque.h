@@ -307,38 +307,41 @@ BSLS_IDENT("$Id: $")
 // First, we declare a class `LaundryQueue` based on a deque, to store names of
 // customers at a drop-off laundry:
 // ```
+// // This `class` keeps track of customers enqueued to have their laundry
+// // done by a laundromat.
 // class LaundryQueue {
-//     // This 'class' keeps track of customers enqueued to have their laundry
-//     // done by a laundromat.
 //
 //     // DATA
 //     bsl::deque<bsl::string> d_queue;
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `LaundryQueue` object using the specified
+//     /// `basicAllocator`.  If `basicAllocator` is not provided, use the
+//     /// default allocator.
 //     LaundryQueue(bslma::Allocator *basicAllocator = 0);
-//         // Create a 'LaundryQueue' object using the specified
-//         // 'basicAllocator'.  If 'basicAllocator' is not provided, use the
-//         // default allocator.
 //
 //     // MANIPULATORS
+//
+//     /// Add the specified `customerName` to the back of the laundry
+//     /// queue.
 //     void push(const bsl::string& customerName);
-//         // Add the specified 'customerName' to the back of the laundry
-//         // queue.
 //
+//     /// Add the specified `customerName` to the laundry queue at the
+//     /// front.
 //     void expeditedPush(const bsl::string& customerName);
-//         // Add the specified 'customerName' to the laundry queue at the
-//         // front.
 //
+//     /// Return the name from the front of the queue, removing it from
+//     /// the queue.  If the queue is empty, return `(* empty *)` which is
+//     /// not a valid name for a customer.
 //     bsl::string next();
-//         // Return the name from the front of the queue, removing it from
-//         // the queue.  If the queue is empty, return '(* empty *)' which is
-//         // not a valid name for a customer.
 //
 //     // ACCESSORS
+//
+//     /// Return `true` if `customerName` is in the queue, and `false`
+//     /// otherwise.
 //     bool find(const bsl::string& customerName);
-//         // Return 'true' if 'customerName' is in the queue, and 'false'
-//         // otherwise.
 // };
 // ```
 // Then, we define the implementation of the methods of `LaundryQueue`
@@ -347,8 +350,8 @@ BSLS_IDENT("$Id: $")
 // LaundryQueue::LaundryQueue(bslma::Allocator *basicAllocator)
 // : d_queue(basicAllocator)
 // {
-//     // Note that the allocator is propagated to the underlying 'deque',
-//     // which will use the default allocator is '0 == basicAllocator'.
+//     // Note that the allocator is propagated to the underlying `deque`,
+//     // which will use the default allocator is `0 == basicAllocator`.
 // }
 //
 // // MANIPULATORS
@@ -378,7 +381,7 @@ BSLS_IDENT("$Id: $")
 // // ACCESSORS
 // bool LaundryQueue::find(const bsl::string& customerName)
 // {
-//     // Note 'd_queue.empty() || d_queue[0] == d_queue.front()'
+//     // Note `d_queue.empty() || d_queue[0] == d_queue.front()`
 //
 //     for (size_t i = 0; i < d_queue.size(); ++i) {
 //         if (customerName == d_queue[i]) {    // note '[]' is constant time

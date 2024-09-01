@@ -36,12 +36,12 @@ BSLS_IDENT("$Id: $")
 // utility class that will extra which part of the objects to be sorted is the
 // key which will drive the sort:
 // ```
+// /// This function provides an order-preserving sort of the items in the
+// /// range `[begin .. end)`, where `KEY_EXTRACTOR::extractKey` yields the
+// /// key being sorted over.  We require that `VALUE_TYPE` support copy
+// /// construction and assignment.
 // template <class VALUE_TYPE, class KEY_EXTRACTOR>
 // void mySort(VALUE_TYPE *begin, VALUE_TYPE *end, const KEY_EXTRACTOR&)
-//     // This function provides an order-preserving sort of the items in the
-//     // range '[begin .. end)', where 'KEY_EXTRACTOR::extractKey' yields the
-//     // key being sorted over.  We require that 'VALUE_TYPE' support copy
-//     // construction and assignment.
 // {
 //     while (begin < --end) {
 //         for (VALUE_TYPE *it = begin; it < end; ++it) {

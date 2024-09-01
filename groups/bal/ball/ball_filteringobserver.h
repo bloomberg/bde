@@ -129,11 +129,12 @@ class FilteringObserver : public Observer {
 
   public:
     // PUBLIC TYPES
+
+    /// `RecordFilterCallback` is the type of a user-supplied callback functor
+    /// used to filter the supplied `Record` and `Context` objects based on the
+    /// user-defined criteria provided by the functor.
     typedef bsl::function<bool(const Record&, const Context&)>
                                                           RecordFilterCallback;
-    // 'RecordFilterCallback' is the type of a user-supplied callback functor
-    // used to filter the supplied 'Record' and 'Context' objects based on the
-    // user-defined criteria provided by the functor.
 
   private:
     // DATA

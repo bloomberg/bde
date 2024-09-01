@@ -38,8 +38,8 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define a class, `Data1`, that has a legacy-AA interface:
 // ```
+// /// Legacy-AA data class.
 // class Data1 {
-//     // Legacy-AA data class.
 //
 //     bslma::Allocator *d_allocator_p;
 //     // ...
@@ -81,8 +81,8 @@ BSLS_IDENT("$Id: $")
 // Next, assume that we update our `Data` class from legacy-AA to bsl-AA
 // (renamed from `Data1` to `Data2` for illustrative purposes):
 // ```
+// /// Bsl-AA data class.
 // class Data2 {
-//     // Bsl-AA data class.
 //
 //     bsl::allocator<int> d_allocator;
 //     // ...
@@ -267,6 +267,7 @@ BSLS_IDENT("$Id: $")
 // operators (thus also disabling swap):
 // ```
 // #include <bsls_keyword.h>
+
 // template <class t_TYPE>
 // class MyAlloc {
 //     bsl::allocator<t_TYPE> d_imp;

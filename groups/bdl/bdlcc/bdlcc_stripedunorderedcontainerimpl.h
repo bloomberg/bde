@@ -278,9 +278,10 @@ class StripedUnorderedContainerImpl_Bucket {
 
   public:
     // TYPES
+
+    /// Enumeration to differentiate between processing all elements with
+    /// the same key, or just the first one (and typically the only one).
     enum BucketScope {
-        // Enumeration to differentiate between processing all elements with
-        // the same key, or just the first one (and typically the only one).
 
         e_BUCKETSCOPE_FIRST = 0,  // Act on first matching element found.
         e_BUCKETSCOPE_ALL         // Act on all matching elements.

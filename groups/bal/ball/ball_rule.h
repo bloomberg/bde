@@ -200,8 +200,8 @@ class Rule {
     /// installed default allocator will be used.
     Rule(const Rule& original, bslma::Allocator *basicAllocator = 0);
 
+    /// Destroy this object.
     //! ~Rule() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

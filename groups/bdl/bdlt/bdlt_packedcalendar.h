@@ -141,31 +141,31 @@ BSLS_IDENT("$Id: $")
 // ```
 //         Manipulator                         Invalidates
 //   --------------------------            --------------------
-//   'operator='                           H    HC    WDT    BD
-//   'addHoliday'                          H    HC           BD
-//   'addHolidayCode'                           HC
-//   'addHolidayCodeIfInRange'                  HC
-//   'addHolidayIfInRange'                 H    HC           BD
-//   'addWeekendDay'                                  WDT    BD
-//   'addWeekendDays'                                 WDT    BD
-//   'addWeekendDaysTransition'                       WDT    BD
-//   'intersectBusinessDays'               H    HC    WDT    BD
-//   'intersectNonBusinessDays'            H    HC    WDT    BD
-//   'removeAll'                           H    HC    WDT    BD
-//   'removeHoliday'                       H    HC           BD
-//   'removeHolidayCode'                        HC
-//   'setValidRange'                       H    HC           BD
-//   'unionBusinessDays'                   H    HC    WDT    BD
-//   'unionNonBusinessDays'                H    HC    WDT    BD
+//   `operator=`                           H    HC    WDT    BD
+//   `addHoliday`                          H    HC           BD
+//   `addHolidayCode`                           HC
+//   `addHolidayCodeIfInRange`                  HC
+//   `addHolidayIfInRange`                 H    HC           BD
+//   `addWeekendDay`                                  WDT    BD
+//   `addWeekendDays`                                 WDT    BD
+//   `addWeekendDaysTransition`                       WDT    BD
+//   `intersectBusinessDays`               H    HC    WDT    BD
+//   `intersectNonBusinessDays`            H    HC    WDT    BD
+//   `removeAll`                           H    HC    WDT    BD
+//   `removeHoliday`                       H    HC           BD
+//   `removeHolidayCode`                        HC
+//   `setValidRange`                       H    HC           BD
+//   `unionBusinessDays`                   H    HC    WDT    BD
+//   `unionNonBusinessDays`                H    HC    WDT    BD
 //
-// where "H" represents the holiday iterators ('HolidayConstIterator' and
-// 'HolidayConstReverseIterator'), "HC" represents the holiday code iterators
-// ('HolidayCodeConstIterator' and 'HolidayCodeConstReverseIterator'), "WDT"
+// where "H" represents the holiday iterators (`HolidayConstIterator` and
+// `HolidayConstReverseIterator`), "HC" represents the holiday code iterators
+// (`HolidayCodeConstIterator` and `HolidayCodeConstReverseIterator`), "WDT"
 // represents the weekend-days transition iterators
-// ('WeekendDaysTransitionConstIterator' and
-// 'WeekendDaysTransitionConstReverseIterator'), and "BD" represents the
-// business day iterators ('BusinessDayConstIterator' and
-// 'BusinessDayConstReverseIterator').
+// (`WeekendDaysTransitionConstIterator` and
+// `WeekendDaysTransitionConstReverseIterator`), and "BD" represents the
+// business day iterators (`BusinessDayConstIterator` and
+// `BusinessDayConstReverseIterator`).
 // ```
 //
 ///Performance and Exception-Safety Guarantees
@@ -287,12 +287,12 @@ BSLS_IDENT("$Id: $")
 //
 // First, we'll create a helper function to get a holiday record:
 // ```
+// /// Load into the specified `holiday` the date of the next holiday, and
+// /// into the specified `numCodes` the associated number of holiday codes
+// /// for the holiday read from the specified `input` stream.  Return 0 on
+// /// success, and a non-zero value (with no effect on `*holiday` and
+// /// `*numCodes`) otherwise.
 // int getNextHoliday(bsl::istream& input, bdlt::Date *holiday, int *numCodes)
-//     // Load into the specified 'holiday' the date of the next holiday, and
-//     // into the specified 'numCodes' the associated number of holiday codes
-//     // for the holiday read from the specified 'input' stream.  Return 0 on
-//     // success, and a non-zero value (with no effect on '*holiday' and
-//     // '*numCodes') otherwise.
 // {
 //     enum { SUCCESS = 0, FAILURE = 1 };
 //
@@ -326,10 +326,10 @@ BSLS_IDENT("$Id: $")
 // not supported by this function, but negative holiday codes *are* supported
 // by `bdlt::PackedCalendar`):
 // ```
+// /// Load, into the specified `result`, the value read from the specified
+// /// `input` stream.  If the next token is not an integer, invalidate the
+// /// stream with no effect on `result`.
 // void getNextHolidayCode(bsl::istream& input, int *result)
-//     // Load, into the specified 'result', the value read from the specified
-//     // 'input' stream.  If the next token is not an integer, invalidate the
-//     // stream with no effect on 'result'.
 // {
 //     int holidayCode;
 //
@@ -346,11 +346,11 @@ BSLS_IDENT("$Id: $")
 // loader function, `load`, that populates a given calendar with data in this
 // "proprietary" format:
 // ```
+// /// Populate the specified `calendar` with holidays and corresponding
+// /// codes read from the specified `input` stream in our "proprietary"
+// /// format (see above).  On success, `input` will be empty, but valid;
+// /// otherwise `input` will be invalid.
 // void load(bsl::istream& input, bdlt::PackedCalendar *calendar)
-//     // Populate the specified 'calendar' with holidays and corresponding
-//     // codes read from the specified 'input' stream in our "proprietary"
-//     // format (see above).  On success, 'input' will be empty, but valid;
-//     // otherwise 'input' will be invalid.
 // {
 //     bdlt::Date holiday;
 //     int        numCodes;
@@ -404,16 +404,16 @@ BSLS_IDENT("$Id: $")
 // First, let's create a function that prints the names of holidays for a
 // given date:
 // ```
+// /// Write, to the specified `output` stream, the elements in the
+// /// specified `holidayNames` associated, via holiday codes in the
+// /// specified `calendar`, to the specified `date`.  Each holiday name
+// /// emitted is followed by a newline (`\n`).  The behavior is undefined
+// /// unless `date` is within the valid range of `calendar`.
 // void
 // printHolidayNamesForGivenDate(bsl::ostream&                   output,
 //                               const bdlt::PackedCalendar&     calendar,
 //                               const bdlt::Date&               date,
 //                               const bsl::vector<bsl::string>& holidayNames)
-//     // Write, to the specified 'output' stream, the elements in the
-//     // specified 'holidayNames' associated, via holiday codes in the
-//     // specified 'calendar', to the specified 'date'.  Each holiday name
-//     // emitted is followed by a newline ('\n').  The behavior is undefined
-//     // unless 'date' is within the valid range of 'calendar'.
 // {
 //     for (bdlt::PackedCalendar::HolidayCodeConstIterator
 //                                      it = calendar.beginHolidayCodes(date);
@@ -427,16 +427,16 @@ BSLS_IDENT("$Id: $")
 // write a function that can write out all of the names associated with each
 // holiday in the calendar:
 // ```
+// /// Write, to the specified `output` stream, each date associated with
+// /// a holiday in the specified `calendar` followed by any elements in
+// /// the specified `holidayNames` (associated via holiday codes in
+// /// `calendar`) corresponding to that date.  Each date emitted is
+// /// preceded and followed by a newline (`\n`).  Each holiday name
+// /// emitted is followed by a newline (`\n`).
 // void
 // printHolidayDatesAndNames(bsl::ostream&                   output,
 //                           const bdlt::PackedCalendar&     calendar,
 //                           const bsl::vector<bsl::string>& holidayNames)
-//     // Write, to the specified 'output' stream, each date associated with
-//     // a holiday in the specified 'calendar' followed by any elements in
-//     // the specified 'holidayNames' (associated via holiday codes in
-//     // 'calendar') corresponding to that date.  Each date emitted is
-//     // preceded and followed by a newline ('\n').  Each holiday name
-//     // emitted is followed by a newline ('\n').
 // {
 //     for (bdlt::PackedCalendar::HolidayConstIterator
 //                       it = calendar.beginHolidays();
@@ -1585,10 +1585,11 @@ class PackedCalendar_HolidayCodeConstIterator {
     typedef bdlc::PackedIntArray<int>::const_iterator CodesConstIterator;
 
     // PRIVATE CREATORS
+
+    /// Create a holiday-code iterator referencing the holiday code
+    /// referred to by the specified `iter`.
     PackedCalendar_HolidayCodeConstIterator(const CodesConstIterator& iter);
                                                                     // IMPLICIT
-        // Create a holiday-code iterator referencing the holiday code
-        // referred to by the specified 'iter'.
 
   public:
     // TYPES

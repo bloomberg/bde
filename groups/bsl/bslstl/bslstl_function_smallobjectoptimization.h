@@ -40,9 +40,10 @@ namespace bslstl {
 class Function_SmallObjectOptimization {
 
     // PRIVATE TYPES
+
+    /// `Dummy` is an incomplete type that this class uses to declare
+    /// pointers to member functions and pointers to member data.
     class Dummy;
-        // 'Dummy' is an incomplete type that this class uses to declare
-        // pointers to member functions and pointers to member data.
 
     /// `MaxAlignedType` is an alias to a type that has the maximum
     /// alignment, and is not over-aligned, for the current platform.

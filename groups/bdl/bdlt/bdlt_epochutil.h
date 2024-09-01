@@ -178,7 +178,7 @@ struct EpochUtil {
     /// until the program exits.
     static const Datetime& epoch();
 
-                           // 'time_t'-Based Methods
+                           // `time_t`-Based Methods
 
     /// Return, as a `Datetime`, the absolute datetime computed as the sum
     /// of the specified relative `time` and the epoch.  The behavior is
@@ -219,7 +219,7 @@ struct EpochUtil {
     static int convertToTimeT(bsl::time_t     *result,
                               const Datetime&  datetime);
 
-                           // 'TimeT64'-Based Methods
+                           // `TimeT64`-Based Methods
 
     /// Return, as a `Datetime`, the absolute datetime computed as the sum
     /// of the specified relative `time` and the epoch.  The behavior is
@@ -250,7 +250,7 @@ struct EpochUtil {
     static void convertToTimeT64(TimeT64         *result,
                                  const Datetime&  datetime);
 
-                       // 'bsls::TimeInterval'-Based Methods
+                       // `bsls::TimeInterval`-Based Methods
 
     /// Return, as a `Datetime`, the absolute datetime computed as the sum
     /// of the specified relative `timeInterval` and the epoch.  The
@@ -275,7 +275,7 @@ struct EpochUtil {
     /// difference between the specified absolute `datetime` and the epoch.
     static bsls::TimeInterval convertToTimeInterval(const Datetime& datetime);
 
-                   // 'DatetimeInterval'-Based Methods
+                   // `DatetimeInterval`-Based Methods
 
     /// Return, as a `Datetime`, the absolute datetime computed as the sum
     /// of the specified relative `datetimeInterval` and the epoch.  The

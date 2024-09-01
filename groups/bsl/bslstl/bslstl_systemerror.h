@@ -85,30 +85,32 @@ namespace bsl {
                              // class system_error
                              // ==================
 
+/// This class represents exceptions that have an associated error code.
 class system_error : public std::runtime_error {
-    // This class represents exceptions that have an associated error code.
 
   public:
     // CREATORS
+
+    /// Create an object of this type holding the specified `code`.
+    /// Optionally specify a string `what` to be added to the description of
+    /// this object.
     system_error(error_code code, const std::string& what);
     system_error(error_code code, const char *what);
     system_error(error_code code);                                  // IMPLICIT
-        // Create an object of this type holding the specified 'code'.
-        // Optionally specify a string 'what' to be added to the description of
-        // this object.
 
+    /// Create an object of this type holding an error code holding the
+    /// specified `value` and `category`.  Optionally specify a string
+    /// `what` to be added to the description of this object.
     system_error(int                   value,
                  const error_category& category,
                  const std::string&    what);
     system_error(int value, const error_category& category, const char *what);
     system_error(int value, const error_category& category);
-        // Create an object of this type holding an error code holding the
-        // specified 'value' and 'category'.  Optionally specify a string
-        // 'what' to be added to the description of this object.
 
     // ACCESSORS
+
+    /// Return a `const` reference to the error code held by this object.
     const error_code& code() const;
-        // Return a 'const' reference to the error code held by this object.
 
   private:
     // DATA

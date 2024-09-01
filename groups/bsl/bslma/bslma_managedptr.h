@@ -51,13 +51,14 @@ BSLS_IDENT("$Id$ $CSID$")
 //    // . . .
 //
 //    // MANIPULATORS
-//    my_Type *createObject(bslma::Allocator *basicAllocator = 0);
-//        // Create a 'my_Type' object.  Optionally specify a
-//        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//        // 0, the currently installed default allocator is used.
 //
+//    /// Create a `my_Type` object.  Optionally specify a
+//    /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//    /// 0, the currently installed default allocator is used.
+//    my_Type *createObject(bslma::Allocator *basicAllocator = 0);
+//
+//    /// Delete the specified `object`.
 //    void deleteObject(my_Type *object);
-//        // Delete the specified 'object'.
 // };
 //
 // class my_Allocator : public bslma::Allocator { /* ... */ };
@@ -170,8 +171,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // `Shape` a virtual destructor.
 // ```
 // struct Shape {
+//     /// Return the `area` of this shape.
 //     virtual double area() const = 0;
-//         // Return the 'area' of this shape.
 // };
 // ```
 // Then we define a couple of classes that implement the `Shape` protocol, a
@@ -184,15 +185,17 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //   public:
 //     // CREATORS
-//     explicit Circle(double radius);
-//         // Create a 'Circle' object having the specified 'radius'.
 //
+//     /// Create a `Circle` object having the specified `radius`.
+//     explicit Circle(double radius);
+//
+//     /// Destroy this object.
 //     virtual ~Circle();
-//         // Destroy this object.
 //
 //     // ACCESSORS
+//
+//     /// Return the area of this Circle, given by the formula pi*r*r.
 //     virtual double area() const;
-//         // Return the area of this Circle, given by the formula pi*r*r.
 // };
 //
 // class Square : public Shape {
@@ -202,15 +205,17 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //   public:
 //     // CREATORS
-//     explicit Square(double side);
-//         // Create a 'Square' having sides of length 'side'.
 //
+//     /// Create a `Square` having sides of length `side`.
+//     explicit Square(double side);
+//
+//     /// Destroy this object.
 //     virtual ~Square();
-//         // Destroy this object.
 //
 //     // ACCESSORS
+//
+//     /// Return the area of this Square, given by the formula side*side
 //     virtual double area() const;
-//         // Return the area of this Square, given by the formula side*side
 // };
 // ```
 // Next we implement the methods for `Circle` and `Square`.
@@ -469,29 +474,31 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //   public:
 //     // CREATORS
-//     explicit CountedFactory(bslma::Allocator *alloc = 0);
-//         // Create a 'CountedFactory' object which uses the supplied
-//         // allocator 'alloc'.
 //
+//     /// Create a `CountedFactory` object which uses the supplied
+//     /// allocator `alloc`.
+//     explicit CountedFactory(bslma::Allocator *alloc = 0);
+//
+//     /// Destroy this object.
 //     ~CountedFactory();
-//         // Destroy this object.
 // ```
 // Next, we provide the `createObject` and `deleteObject` functions that are
 // standard for factory objects.  Note that the `deleteObject` function
 // signature has the form required by `bslma::ManagedPtr` for a factory.
 // ```
 //     // MANIPULATORS
+//
+//     /// Return a pointer to a newly allocated object of type `TYPE`
+//     /// created using its default constructor.  Memory for the object
+//     /// is supplied by the allocator supplied to this factory's
+//     /// constructor, and the count of valid object is incremented.
 //     template <class TYPE>
 //     TYPE *createObject();
-//         // Return a pointer to a newly allocated object of type 'TYPE'
-//         // created using its default constructor.  Memory for the object
-//         // is supplied by the allocator supplied to this factory's
-//         // constructor, and the count of valid object is incremented.
 //
+//     /// Destroy the object pointed to by `target` and reclaim the
+//     /// memory.  Decrement the count of currently valid objects.
 //     template <class TYPE>
 //     void deleteObject(const TYPE *target);
-//         // Destroy the object pointed to by 'target' and reclaim the
-//         // memory.  Decrement the count of currently valid objects.
 // ```
 // Then, we round out the class with the ability to query the `count` of
 // currently allocated objects.
@@ -726,8 +733,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // production code.  The class has an elided interface (i.e., copy constructor
 // and copy-assignment operator are not included for brevity):
 // ```
+// /// Simple class that stores a copy of a null-terminated C-style string.
 // class String {
-//     // Simple class that stores a copy of a null-terminated C-style string.
 //
 //   private:
 //     // DATA
@@ -737,9 +744,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an object having the same value as the specified `str`
+//     /// using the specified `alloc` to supply memory.
 //     String(const char *str, bslma::Allocator *alloc)
-//         // Create an object having the same value as the specified 'str'
-//         // using the specified 'alloc' to supply memory.
 //     : d_alloc_p(alloc)
 //     {
 //         assert(str);
@@ -751,16 +759,17 @@ BSLS_IDENT("$Id$ $CSID$")
 //         std::strncpy(d_str_p, str, length + 1);
 //     }
 //
+//     /// Destroy this object.
 //     ~String()
-//         // Destroy this object.
 //     {
 //         d_alloc_p->deallocate(d_str_p);
 //     }
 //
 //     // ACCESSORS
+//
+//     /// Return a pointer providing modifiable access to the allocator
+//     /// associated with this `String`.
 //     bslma::Allocator *allocator() const
-//         // Return a pointer providing modifiable access to the allocator
-//         // associated with this 'String'.
 //     {
 //         return d_alloc_p;
 //     }
@@ -843,9 +852,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // The second example class almost completely repeats the first one, except
 // that it explicitly defines the `bslma::UsesBslmaAllocator` trait:
 // ```
+// // Simple class that stores a copy of a null-terminated C-style string
+// // and explicitly claims to use `bslma` allocators.
 // class StringAlloc {
-//     // Simple class that stores a copy of a null-terminated C-style string
-//     // and explicitly claims to use 'bslma' allocators.
 //
 //   private:
 //     // DATA
@@ -858,11 +867,12 @@ BSLS_IDENT("$Id$ $CSID$")
 //     BSLMF_NESTED_TRAIT_DECLARATION(StringAlloc, bslma::UsesBslmaAllocator);
 //
 //     // CREATORS
+//
+//     /// Create an object having the same value as the specified `str`.
+//     /// Optionally specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default allocator
+//     /// is used.
 //     StringAlloc(const char *str, bslma::Allocator *basicAllocator = 0)
-//         // Create an object having the same value as the specified 'str'.
-//         // Optionally specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default allocator
-//         // is used.
 //     : d_alloc_p(bslma::Default::allocator(basicAllocator))
 //     {
 //         assert(str);
@@ -873,16 +883,17 @@ BSLS_IDENT("$Id$ $CSID$")
 //         std::strncpy(d_str_p, str, length + 1);
 //     }
 //
+//     /// Destroy this object.
 //     ~StringAlloc()
-//         // Destroy this object.
 //     {
 //         d_alloc_p->deallocate(d_str_p);
 //     }
 //
 //     // ACCESSORS
+//
+//     /// Return a pointer providing modifiable access to the allocator
+//     /// associated with this `StringAlloc`.
 //     bslma::Allocator *allocator() const
-//         // Return a pointer providing modifiable access to the allocator
-//         // associated with this 'StringAlloc'.
 //     {
 //         return d_alloc_p;
 //     }
@@ -1249,6 +1260,11 @@ class ManagedPtr {
     /// empty.
     ManagedPtr(bslmf::MovableRef<ManagedPtr> original) BSLS_KEYWORD_NOEXCEPT;
 
+    /// Create a managed pointer having the same target object as the specified
+    /// `original`, transfer ownership of the object managed by `original` (if
+    /// any) to this managed pointer, and reset `original` to empty.
+    /// `TARGET_TYPE` must be an accessible and unambiguous base of
+    /// `BDE_OTHER_TYPE`
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class BDE_OTHER_TYPE>
     ManagedPtr(ManagedPtr<BDE_OTHER_TYPE>&& original,
@@ -1271,11 +1287,6 @@ class ManagedPtr {
                      ManagedPtr_TraitConstraint())
         BSLS_KEYWORD_NOEXCEPT;
 #endif
-        // Create a managed pointer having the same target object as the
-        // specified 'original', transfer ownership of the object managed by
-        // 'original' (if any) to this managed pointer, and reset 'original' to
-        // empty.  'TARGET_TYPE' must be an accessible and unambiguous base of
-        // 'BDE_OTHER_TYPE'
 
     /// Create a managed pointer that takes ownership of the object managed
     /// by the specified `alias`, but which uses the specified `ptr` to
@@ -1428,6 +1439,14 @@ class ManagedPtr {
     ManagedPtr& operator=(bslmf::MovableRef<ManagedPtr> rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 
+    /// If this object and the specified `rhs` manage the same object,
+    /// return a reference to this managed pointer; otherwise, destroy the
+    /// managed object owned by this managed pointer, transfer ownership of
+    /// the managed object owned by `rhs` to this managed pointer, set this
+    /// managed pointer to point to the target object referenced by `rhs`,
+    /// reset `rhs` to empty, and return a reference to this managed
+    /// pointer.  `TARGET_TYPE` must be an accessible and unambiguous base
+    /// of `BDE_OTHER_TYPE`
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class BDE_OTHER_TYPE>
     typename bsl::enable_if<
@@ -1448,14 +1467,6 @@ class ManagedPtr {
     operator=(bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > rhs)
         BSLS_KEYWORD_NOEXCEPT;
 #endif
-        // If this object and the specified 'rhs' manage the same object,
-        // return a reference to this managed pointer; otherwise, destroy the
-        // managed object owned by this managed pointer, transfer ownership of
-        // the managed object owned by 'rhs' to this managed pointer, set this
-        // managed pointer to point to the target object referenced by 'rhs',
-        // reset 'rhs' to empty, and return a reference to this managed
-        // pointer.  'TARGET_TYPE' must be an accessible and unambiguous base
-        // of 'BDE_OTHER_TYPE'
 
     /// If this object and the managed pointer reference by the specified
     /// `ref` manage the same object, return a reference to this managed

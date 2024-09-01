@@ -125,7 +125,7 @@ BSLS_IDENT("$Id: $")
 // They indicate properties of the original rule file that were compiled into
 // this binary representation.  Each `isGmt` boolean flag indicates whether a
 // transition time was originally specified as a UTC time or as a local time in
-// the *rule* *file*.  `isStd` indicates whether a transition time was
+// the **rule file**.  `isStd` indicates whether a transition time was
 // originally specified as a standard time or local time.  Note that all the
 // transitions in the *binary* Zoneinfo representation are UTC times regardless
 // of whether the original representation in the rule file was in local time.

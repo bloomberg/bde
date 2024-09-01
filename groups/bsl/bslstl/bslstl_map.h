@@ -286,10 +286,10 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the public interface for `TradeMatcher`:
 // ```
+// /// This class provides a mechanism that characterizes a simple trade
+// /// matching system for one stock.  An object of this class allows
+// /// clients to place orders and view the active orders.
 // class TradeMatcher {
-//     // This class provides a mechanism that characterizes a simple trade
-//     // matching system for one stock.  An object of this class allows
-//     // clients to place orders and view the active orders.
 // ```
 // Here, we create two type aliases, `SellOrdersMap` and `BuyOrdersMap`, for
 // two `bsl::map` instantiations that maps the price of an order (type
@@ -302,11 +302,11 @@ BSLS_IDENT("$Id: $")
 // ```
 //     // PRIVATE TYPES
 //     typedef bsl::map<double, int> SellOrdersMap;
-//         // This 'typedef' is an alias for a mapping between the price and
+//         // This `typedef` is an alias for a mapping between the price and
 //         // quantity of an order in ascending price order.
 //
 //     typedef bsl::map<double, int, std::greater<double> > BuyOrdersMap;
-//         // This 'typedef' is an alias for a mapping between the price and
+//         // This `typedef` is an alias for a mapping between the price and
 //         // quantity of an order in descending price order.
 //
 //
@@ -322,19 +322,19 @@ BSLS_IDENT("$Id: $")
 //   public:
 //     // PUBLIC TYPES
 //     typedef SellOrdersMap::const_iterator SellOrdersConstIterator;
-//         // This 'typedef' provides an alias for the type of an iterator
+//         // This `typedef` provides an alias for the type of an iterator
 //         // providing non-modifiable access to sell orders in a
-//         // 'TradeMatcher'.
+//         // `TradeMatcher`.
 //
 //     typedef BuyOrdersMap::const_iterator BuyOrdersConstIterator;
-//         // This 'typedef' provides an alias for the type of an iterator
+//         // This `typedef` provides an alias for the type of an iterator
 //         // providing non-modifiable access to buy orders in a
-//         // 'TradeMatcher'.
+//         // `TradeMatcher`.
 //
 //     // CREATORS
 //     TradeMatcher(bslma::Allocator *basicAllocator = 0);
-//         // Create an empty 'TradeMatcher' object.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//         // Create an empty `TradeMatcher` object.  Optionally specify a
+//         // `basicAllocator` used to supply memory.  If `basicAllocator` is
 //         // 0, the currently installed default allocator is used.
 //
 //     //! ~TradeMatcher() = default;
@@ -342,18 +342,18 @@ BSLS_IDENT("$Id: $")
 //
 //     // MANIPULATORS
 //     void placeBuyOrder(double price, int numShares);
-//         // Place an order to buy the specified 'numShares' at the specified
-//         // 'price'.  The placed buy order will (possibly partially) execute
-//         // when active sale orders exist in the system at or below 'price'.
-//         // The behavior is undefined unless '0 < price' and '0 <
-//         // numShares'.
+//         // Place an order to buy the specified `numShares` at the specified
+//         // `price`.  The placed buy order will (possibly partially) execute
+//         // when active sale orders exist in the system at or below `price`.
+//         // The behavior is undefined unless `0 < price` and `0 <
+//         // numShares`.
 //
 //     void placeSellOrder(double price, int numShares);
-//         // Place an order to sell the specified 'numShares' at the
-//         // specified 'price'.  The placed sell order will (possibly
+//         // Place an order to sell the specified `numShares` at the
+//         // specified `price`.  The placed sell order will (possibly
 //         // partially) execute when active buy orders exist in the system at
-//         // or above 'price'.  The behavior is undefined unless '0 < price'
-//         // and '0 < numShares'.
+//         // or above `price`.  The behavior is undefined unless `0 < price`
+//         // and `0 < numShares`.
 //
 //     // ACCESSORS
 //     SellOrdersConstIterator beginSellOrders() const;
@@ -398,7 +398,7 @@ BSLS_IDENT("$Id: $")
 //
 //     // Buy shares from sellers from the one with the lowest price up to but
 //     // not including the first seller with a price greater than the
-//     // specified 'price'.
+//     // specified `price`.
 //
 //     SellOrdersMap::iterator itr = d_sellOrders.begin();
 //
@@ -425,7 +425,7 @@ BSLS_IDENT("$Id: $")
 //
 //     // Sell shares to buyers from the one with the highest price up to but
 //     // not including the first buyer with a price smaller than the
-//     // specified 'price'.
+//     // specified `price`.
 //
 //     BuyOrdersMap::iterator itr = d_buyOrders.begin();
 //

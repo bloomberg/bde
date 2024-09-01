@@ -40,42 +40,45 @@ BSLS_IDENT("$Id: $")
 // additional methods that may be needed to implement this class are elided in
 // this example:
 // ```
+// /// This class implements the minimal requirements to implement a
+// /// bidirectional iterator using `bslstl::BidirectionalIterator`.
 // template <class VALUE>
 // class MyArrayIterator {
-//     // This class implements the minimal requirements to implement a
-//     // bidirectional iterator using 'bslstl::BidirectionalIterator'.
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `MyArrayIterator` object that does not refer to any
+//     /// value.
 //     MyArrayIterator();
-//         // Create a 'MyArrayIterator' object that does not refer to any
-//         // value.
 //
+//     /// Create a `MyArrayIterator` object having the same value
+//     /// as the specified `original` object.
 //     MyArrayIterator(const MyArrayIterator& original);
-//         // Create a 'MyArrayIterator' object having the same value
-//         // as the specified 'original' object.
 //
+//     /// Destroy this object;
 //     ~MyArrayIterator();
-//         // Destroy this object;
 //
 //     // MANIPULATORS
+//
+//     /// Assign to this object the value of the specified `rhs` object,
+//     /// and return a reference providing modifiable access to this
+//     /// object.
 //     MyArrayIterator& operator=(const MyArrayIterator& rhs);
-//         // Assign to this object the value of the specified 'rhs' object,
-//         // and return a reference providing modifiable access to this
-//         // object.
 //
+//     /// Increment this object to refer to the next element in an array.
 //     void operator++();
-//         // Increment this object to refer to the next element in an array.
 //
+//     /// Decrement this object to refer to the previous element in an
+//     /// array.
 //     void operator--();
-//         // Decrement this object to refer to the previous element in an
-//         // array.
 //
 //     // ACCESSORS
+//
+//     // Return a reference providing modifiable access to the value (of
+//     // the parameterized `VALUE` type) of the element referred to by
+//     // this object.
 //     VALUE& operator*() const;
-//         // Return a reference providing modifiable access to the value (of
-//         // the parameterized 'VALUE' type) of the element referred to by
-//         // this object.
 // };
 //
 // template <class VALUE>
@@ -90,10 +93,10 @@ BSLS_IDENT("$Id: $")
 // `MyFixedSizeArray`.  The implementation of the interface is elided for
 // brevity:
 // ```
+// /// This class implements a container that contains the parameterized
+// /// `SIZE` number of elements of the parameterized `VALUE` type.
 // template <class VALUE, int SIZE>
 // class MyFixedSizeArray {
-//     // This class implements a container that contains the parameterized
-//     // 'SIZE' number of elements of the parameterized 'VALUE' type.
 //
 //     // DATA
 //     VALUE d_array[SIZE];   // storage of the container
@@ -117,43 +120,46 @@ BSLS_IDENT("$Id: $")
 // Next, we continue defining the rest of the class.
 // ```
 //     // CREATORS
+//
+//     /// Create a `MyFixedSizeArray` object having the parameterized
+//     /// `SIZE` number of elements of the parameterized type `VALUE`.
 //     //! MyFixedSizeArray() = default;
-//         // Create a 'MyFixedSizeArray' object having the parameterized
-//         // 'SIZE' number of elements of the parameterized type 'VALUE'.
 //
+//     /// Create a `MyFixedSizeArray` object having same number of
+//     /// elements as that of the specified `original`, the same value of
+//     /// each element as that of corresponding element in `original`.
 //     //! MyFixedSizeArray(const MyFixedSizeArray& original) = default;
-//         // Create a 'MyFixedSizeArray' object having same number of
-//         // elements as that of the specified 'original', the same value of
-//         // each element as that of corresponding element in 'original'.
 //
+//     /// Destroy this object.
 //     //! ~MyFixedSizeArray() = default;
-//         // Destroy this object.
 //
 //     // MANIPULATORS
+//
+//     /// Return a bidirectional iterator providing modifiable access to
+//     /// the first valid element of this object.
 //     iterator begin();
-//         // Return a bidirectional iterator providing modifiable access to
-//         // the first valid element of this object.
 //
+//     /// Return a bidirectional iterator providing modifiable access to
+//     /// the last valid element of this object.
 //     iterator end();
-//         // Return a bidirectional iterator providing modifiable access to
-//         // the last valid element of this object.
 //
+//     /// Return a reference providing modifiable access to the element at
+//     /// the specified `position`.
 //     VALUE& operator[](int position);
-//         // Return a reference providing modifiable access to the element at
-//         // the specified 'position'.
 //
 //     // ACCESSORS
+//
+//     /// Return a bidirectional iterator providing non-modifiable access
+//     /// to the first valid element of this object.
 //     const_iterator begin() const;
-//         // Return a bidirectional iterator providing non-modifiable access
-//         // to the first valid element of this object.
 //
+//     /// Return a bidirectional iterator providing non-modifiable access
+//     /// to the last valid element of this object.
 //     const_iterator end() const;
-//         // Return a bidirectional iterator providing non-modifiable access
-//         // to the last valid element of this object.
 //
+//     /// Return a reference providing non-modifiable access to the
+//     /// specified `i`th element in this object.
 //     const VALUE& operator[](int position) const;
-//         // Return a reference providing non-modifiable access to the
-//         // specified 'i'th element in this object.
 // };
 // ```
 // Then, we create a `MyFixedSizeArray` and initialize its elements:
@@ -250,10 +256,10 @@ class BidirectionalIterator
     /// `implementation` of the parameterized `ITER_IMP` type.
     BidirectionalIterator(const ITER_IMP& implementation);          // IMPLICIT
 
+    // Construct a bidirectional iterator having the same value as the
+    // `original` iterator.  Note that this method's definition is compiler
+    // generated.
     //! BidirectionalIterator(const BidirectionalIterator& original);
-        // Construct a bidirectional iterator having the same value as the
-        // 'original' iterator.  Note that this method's definition is compiler
-        // generated.
 
     /// Construct a bidirectional iterator from the specified `other`
     /// iterator of another (compatible) `BidirectionalIterator` type, e.g.,
@@ -263,15 +269,16 @@ class BidirectionalIterator
     BidirectionalIterator(const BidirectionalNonConstIterator& other);
 
 
+    /// Destroy this iterator.  Note that this method's definition is
+    /// compiler generated.
     //! ~BidirectionalIterator();
-        // Destroy this iterator.  Note that this method's definition is
-        // compiler generated.
 
     // MANIPULATORS
+
+    /// Copy the value of the specified `rhs` to this iterator.  Return a
+    /// reference to this modifiable object.  Note that this method's
+    /// definition is compiler generated.
     //! BidirectionalIterator& operator=(const BidirectionalIterator& rhs);
-        // Copy the value of the specified 'rhs' to this iterator.  Return a
-        // reference to this modifiable object.  Note that this method's
-        // definition is compiler generated.
 
     /// Copy the value of the specified `rhs` of another (compatible)
     /// `BidirectionalIterator` type, (e.g., a mutable iterator of the same

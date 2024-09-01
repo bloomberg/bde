@@ -145,7 +145,7 @@ namespace baltzo {
 
 /// This `struct` provides a namespace for a `bdlt::LocalTimeOffset` local
 /// time offset callback, and functions that manage the timezone information
-/// reported by that callback.  All public methods are *thread-safe*.
+/// reported by that callback.  All public methods are **thread-safe**.
 struct LocalTimeOffsetUtil {
 
     // CLASS DATA
@@ -244,15 +244,15 @@ struct LocalTimeOffsetUtil {
     /// method.
     static void loadLocalTimePeriod(LocalTimePeriod *localTimePeriod);
 
+    /// Load to the specified `timezone` time zone identifier used to
+    /// determine the local time offset from UTC.  This method *is* not
+    /// thread-safe.  The behavior is undefined if this method is invoked
+    /// before the successful invocation of a `configure` method.
     static void loadTimezone(bsl::string      *timezone);
     static void loadTimezone(std::string      *timezone);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void loadTimezone(std::pmr::string *timezone);
 #endif
-        // Load to the specified 'timezone' time zone identifier used to
-        // determine the local time offset from UTC.  This method *is* not
-        // thread-safe.  The behavior is undefined if this method is invoked
-        // before the successful invocation of a 'configure' method.
 
     /// Return the number of successful updates of the local time period
     /// information since the start of the process.  This count is

@@ -128,10 +128,19 @@ namespace bslstl {
                           // class HashTableBucketIterator
                           // =============================
 
+/// This class template implements an in-core value-semantic type that is an
+/// standard-conforming forward iterator (see section 24.2.5
+/// [forward.iterators] of the C++11 standard) over a list of
+/// `bslalg::BidirectionalLink` objects referred to by a single
+/// `bslalg::HashTableBucket` object.  A `HashTableBucketIterator` object
+/// provides access to values of the (template parameter) `VALUE_TYPE`,
+/// stored in a bucket of a hash table.  The (template parameter)
+/// `DIFFERENCE_TYPE` determines the standard mandated `difference_type` of
+/// the iterator, without requiring access to the allocator-traits for the
+/// node.
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
-// On Solaris just to keep studio12-v4 happy, since algorithms takes only
-// iterators inheriting from 'std::iterator'.
-
+/// On Solaris just to keep studio12-v4 happy, since algorithms takes only
+/// iterators inheriting from `std::iterator`.
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 class HashTableBucketIterator
 : public std::iterator<std::forward_iterator_tag, VALUE_TYPE> {
@@ -139,16 +148,6 @@ class HashTableBucketIterator
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 class HashTableBucketIterator {
 #endif
-    // This class template implements an in-core value-semantic type that is an
-    // standard-conforming forward iterator (see section 24.2.5
-    // [forward.iterators] of the C++11 standard) over a list of
-    // 'bslalg::BidirectionalLink' objects referred to by a single
-    // 'bslalg::HashTableBucket' object.  A 'HashTableBucketIterator' object
-    // provides access to values of the (template parameter) 'VALUE_TYPE',
-    // stored in a bucket of a hash table.  The (template parameter)
-    // 'DIFFERENCE_TYPE' determines the standard mandated 'difference_type' of
-    // the iterator, without requiring access to the allocator-traits for the
-    // node.
 
     // PRIVATE TYPES
     typedef typename bsl::remove_cv<VALUE_TYPE>::type             NonConstType;
@@ -203,20 +202,21 @@ class HashTableBucketIterator {
     /// modifiable to `const` iterator types.
     HashTableBucketIterator(const NonConstIter& original);          // IMPLICIT
 
-    // HashTableBucketIterator(const HashTableBucketIterator& original)
-    //                                                               = default;
-        // Create an iterator having the same value as the specified
-        // 'original'.  Note that this operation is either defined by the
-        // constructor taking 'NonConstIter' (if 'NonConstType' is the same as
-        // 'VALUE_TYPE'), or generated automatically by the compiler.  Also
-        // note that this constructor cannot be defined explicitly (without
-        // using 'bsls::enableif') to avoid a duplicate declaration when
-        // 'NonConstType' is the same as 'VALUE_TYPE'.
+    /// Create an iterator having the same value as the specified
+    /// `original`.  Note that this operation is either defined by the
+    /// constructor taking `NonConstIter` (if `NonConstType` is the same as
+    /// `VALUE_TYPE`), or generated automatically by the compiler.  Also
+    /// note that this constructor cannot be defined explicitly (without
+    /// using `bsls::enableif`) to avoid a duplicate declaration when
+    /// `NonConstType` is the same as `VALUE_TYPE`.
+    //! HashTableBucketIterator(const HashTableBucketIterator& original)
+    //!                                                              = default;
 
-    //~HashTableBucketIterator() = default;
+    //! ~HashTableBucketIterator() = default;
 
     // MANIPULATORS
-    //HashTableBucketIterator& operator=(const HashTableBucketIterator&)
+
+    //! HashTableBucketIterator& operator=(const HashTableBucketIterator&)
     //                                                               = default;
 
     /// Copy the value of the specified `rhs` of another (compatible)

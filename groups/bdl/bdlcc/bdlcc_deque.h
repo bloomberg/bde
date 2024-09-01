@@ -177,9 +177,9 @@ BSLS_IDENT("$Id: $")
 // ```
 // Then, create the function that will produce a `WorkData` object:
 // ```
+// /// Dummy implementation of `getWorkData` function required by the usage
+// /// example.
 // bool getWorkData(WorkData *)
-//     // Dummy implementation of 'getWorkData' function required by the usage
-//     // example.
 // {
 //     static bsls::AtomicInt i(1);
 //     return ++i < 1000;
@@ -202,10 +202,10 @@ BSLS_IDENT("$Id: $")
 // ```
 // Then, create the function that will do work on a `WorkRequest` object:
 // ```
+// /// Function that pretends to do work on the specified `workData`.
 // void doWork(WorkData *workData)
-//     // Function that pretends to do work on the specified 'workData'.
 // {
-//     // do some stuff with '*workData' ...
+//     // do some stuff with `*workData` ...
 //
 //     (void) workData;
 // }
@@ -217,17 +217,19 @@ BSLS_IDENT("$Id: $")
 //     bdlcc::Deque<WorkRequest> *d_deque_p;
 //
 //     // CREATORS
+//
+//     // Create a ``ConsumerFunctor` object that will consumer work
+//     // requests from the specified `container`.
 //     explicit
 //     ConsumerFunctor(bdlcc::Deque<WorkRequest> *container)
-//         // Create a ''ConsumerFunctor' object that will consumer work
-//         // requests from the specified 'container'.
 //     : d_deque_p(container)
 //     {}
 //
 //     // MANIPULATORS
+//
+//     /// Pop work requests off the deque and process them until an
+//     /// `e_STOP` request is encountered.
 //     void operator()()
-//         // Pop work requests off the deque and process them until an
-//         // 'e_STOP' request is encountered.
 //     {
 //         WorkRequest item;
 //
@@ -247,17 +249,19 @@ BSLS_IDENT("$Id: $")
 //     bdlcc::Deque<WorkRequest> *d_deque_p;
 //
 //     // CREATORS
+//
+//     /// Create a `ProducerFunctor` object that will enqueue work
+//     /// requests into the specified `container`.
 //     explicit
 //     ProducerFunctor(bdlcc::Deque<WorkRequest> *container)
-//         // Create a 'ProducerFunctor' object that will enqueue work
-//         // requests into the specified 'container'.
 //     : d_deque_p(container)
 //     {}
 //
 //     // MANIPULATORS
+//
+//     /// Enqueue work requests to the container until `getWorkData`
+//     /// returns `false`, then enqueue an `e_STOP` request.
 //     void operator()()
-//         // Enqueue work requests to the container until 'getWorkData'
-//         // returns 'false', then enqueue an 'e_STOP' request.
 //     {
 //         WorkRequest item;
 //         WorkData    workData;
@@ -488,15 +492,15 @@ class Deque {
     typedef bsl::deque<TYPE>               MonoDeque;
     typedef typename MonoDeque::size_type  size_type;
 
-    class Proctor;            // defined after this 'class'
-    class ConstProctor;       // defined after this 'class'
+    class Proctor;            // defined after this `class`
+    class ConstProctor;       // defined after this `class`
 
   private:
     // DATA
     mutable
     bslmt::Mutex       d_mutex;              // mutex object used to
                                              // synchronize access to the
-                                             // underlying 'deque'.
+                                             // underlying `deque`.
 
     bslmt::Condition   d_notEmptyCondition;  // condition variable used to
                                              // signal that new data is

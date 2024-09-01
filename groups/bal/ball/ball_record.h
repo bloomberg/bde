@@ -184,8 +184,8 @@ class Record {
     /// allocator is used.
     Record(const Record& original, bslma::Allocator *basicAllocator = 0);
 
+    /// Destroy this log record.
     //! ~Record() = default;
-        // Destroy this log record.
 
     // MANIPULATORS
 

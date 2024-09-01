@@ -132,11 +132,11 @@ BSLS_IDENT("$Id: $")
 // We begin by defining member variables to hold the allocator, length, and
 // allocated array:
 // ```
+// /// This class provides an array of (the template parameter) `TYPE` of
+// /// fixed length as determined at construction time, using an instance
+// /// of (the template parameter) `ALLOC` type to supply memory.
 // template <class TYPE, class ALLOC>
 // class my_FixedSizeArray {
-//     // This class provides an array of (the template parameter) 'TYPE' of
-//     // fixed length as determined at construction time, using an instance
-//     // of (the template parameter) 'ALLOC' type to supply memory.
 //
 //     // DATA
 //     ALLOC  d_allocator;
@@ -151,69 +151,73 @@ BSLS_IDENT("$Id: $")
 //     typedef TYPE  value_type;
 //
 //     // CREATORS
+//
+//     /// Create a fixed-size array of the specified `length`, using the
+//     /// optionally specified `allocator` to supply memory.  If
+//     /// `allocator` is not specified, a default-constructed instance of
+//     /// the parameterized `ALLOC` type is used.  All the elements in the
+//     /// resulting array are default-constructed.
 //     explicit my_FixedSizeArray(int          length,
 //                                const ALLOC& allocator = ALLOC());
-//         // Create a fixed-size array of the specified 'length', using the
-//         // optionally specified 'allocator' to supply memory.  If
-//         // 'allocator' is not specified, a default-constructed instance of
-//         // the parameterized 'ALLOC' type is used.  All the elements in the
-//         // resulting array are default-constructed.
 //
+//     /// Create a copy of the specified `original` fixed-size array,
+//     /// using the optionally specified `allocator` to supply memory.  If
+//     /// `allocator` is not specified, a default-constructed instance of
+//     /// the parameterized `ALLOC` type is used.
 //     my_FixedSizeArray(const my_FixedSizeArray& original,
 //                       const ALLOC&             allocator = ALLOC());
-//         // Create a copy of the specified 'original' fixed-size array,
-//         // using the optionally specified 'allocator' to supply memory.  If
-//         // 'allocator' is not specified, a default-constructed instance of
-//         // the parameterized 'ALLOC' type is used.
 //
+//     /// Destroy this fixed size array.
 //     ~my_FixedSizeArray();
-//         // Destroy this fixed size array.
 //
 //     // MANIPULATORS
-//     my_FixedSizeArray& operator=(const my_FixedSizeArray& original);
-//         // Assign to this array the value of the specified 'original'
-//         // array.  Note that the length of this array might change.
 //
+//     /// Assign to this array the value of the specified `original`
+//     /// array.  Note that the length of this array might change.
+//     my_FixedSizeArray& operator=(const my_FixedSizeArray& original);
+//
+//     /// Return a reference to the modifiable element at the specified
+//     /// `index` position in this fixed size array.  The behavior is
+//     /// undefined unless `index` is non-negative and less than
+//     /// `length()`.
 //     TYPE& operator[](int index) { return d_array[index]; }
-//         // Return a reference to the modifiable element at the specified
-//         // 'index' position in this fixed size array.  The behavior is
-//         // undefined unless 'index' is non-negative and less than
-//         // 'length()'.
 //
 //     // ACCESSORS
+//
+//     /// Return a reference to the non-modifiable element at the
+//     /// specified `index` position in this fixed size array.  The
+//     /// behavior is undefined unless `index` is non-negative and less
+//     /// than `length()`.
 //     const TYPE& operator[](int index) const { return d_array[index]; }
-//         // Return a reference to the non-modifiable element at the
-//         // specified 'index' position in this fixed size array.  The
-//         // behavior is undefined unless 'index' is non-negative and less
-//         // than 'length()'.
 //
+//     /// Return the allocator used by this fixed size array to supply
+//     /// memory.
 //     allocator_type get_allocator() const { return d_allocator; }
-//         // Return the allocator used by this fixed size array to supply
-//         // memory.
 //
+//     /// Return the length specified at construction of this fixed size
+//     /// array.
 //     int length() const { return d_length; }
-//         // Return the length specified at construction of this fixed size
-//         // array.
 // };
 //
 // // FREE OPERATORS
+//
+// /// Return `true` if the specified `lhs` fixed-size array has the same
+// /// value as the specified `rhs` fixed-size array, and `false`
+// /// otherwise.  Two fixed-size arrays have the same value if they have
+// /// the same length and if the element at any index in `lhs` has the
+// /// same value as the corresponding element at the same index in `rhs`.
 // template<class TYPE, class ALLOC>
 // bool operator==(const my_FixedSizeArray<TYPE, ALLOC>& lhs,
 //                 const my_FixedSizeArray<TYPE, ALLOC>& rhs);
-//     // Return 'true' if the specified 'lhs' fixed-size array has the same
-//     // value as the specified 'rhs' fixed-size array, and 'false'
-//     // otherwise.  Two fixed-size arrays have the same value if they have
-//     // the same length and if the element at any index in 'lhs' has the
-//     // same value as the corresponding element at the same index in 'rhs'.
 //
+// /// Return `true` if the specified `lhs` fixed-size array does not have
+// /// the same value as the specified `rhs` fixed-size array, and `false`
+// /// otherwise.  Two fixed-size arrays have the same value if they have
+// /// the same length and if the element at any index in `lhs` has the
+// /// same value as the corresponding element at the same index in `rhs`.
 // template<class TYPE, class ALLOC>
 // bool operator!=(const my_FixedSizeArray<TYPE, ALLOC>& lhs,
 //                 const my_FixedSizeArray<TYPE, ALLOC>& rhs);
-//     // Return 'true' if the specified 'lhs' fixed-size array does not have
-//     // the same value as the specified 'rhs' fixed-size array, and 'false'
-//     // otherwise.  Two fixed-size arrays have the same value if they have
-//     // the same length and if the element at any index in 'lhs' has the
-//     // same value as the corresponding element at the same index in 'rhs'.
 // ```
 // Next, we define the first constructor, which uses the allocator's `allocate`
 // memory to obtain memory, then uses its `construct` method to construct each
@@ -531,7 +535,7 @@ class allocator : public polymorphic_allocator<TYPE> {
 
   public:
     // TRAITS
-    // Note that 'allocator' is not trivially copyable because its assignment
+    // Note that `allocator` is not trivially copyable because its assignment
     // operator is not trivial.
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseCopyable);
@@ -721,7 +725,7 @@ class allocator<void>
 
   public:
     // TRAITS
-    // Note that 'allocator' is not trivially copyable because its assignment
+    // Note that `allocator` is not trivially copyable because its assignment
     // operator is not trivial.
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseCopyable);
@@ -769,10 +773,10 @@ class allocator<void>
     template <class ANY_TYPE>
     allocator(const allocator<ANY_TYPE>& original) BSLS_KEYWORD_NOEXCEPT;
 
+    /// Destroy this object.  Note that this does not delete the object
+    /// pointed to by `mechanism()`.  Also note that this method's
+    /// definition is compiler generated.
     //! ~allocator();
-        // Destroy this object.  Note that this does not delete the object
-        // pointed to by 'mechanism()'.  Also note that this method's
-        // definition is compiler generated.
 
     // MANIPULATORS
     //! allocator& operator=(const allocator& rhs) = default;
@@ -819,12 +823,11 @@ struct allocator_traits<allocator<TYPE> > {
         {
         }
 
+        // Convert from anything that can be used to cosntruct the base type.
+        // This might be better if SFINAE-ed out using `is_convertible`, but
+        // stressing older compilers more seems unwise.
         template <typename ARG>
         rebind_alloc(const ARG& allocatorArg)
-            // Convert from anything that can be used to cosntruct the base
-            // type.  This might be better if SFINAE-ed out using
-            // 'is_convertible', but stressing older compilers more seems
-            // unwise.
         : allocator<ELEMENT_TYPE>(allocatorArg)
         {
         }

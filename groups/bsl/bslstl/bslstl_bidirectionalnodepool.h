@@ -49,52 +49,56 @@ BSLS_IDENT("$Id: $")
 // ```
 // #include <bslalg_bidirectionallinklistutil.h>
 //
-//  template <class VALUE, class ALLOCATOR>
-//  class MyList {
-//      // This class template implements a bidirectional linked list of
-//      // element of the (template parameter) type 'VALUE'.  The memory used
-//      // will be allocated from an allocator of the (template parameter) type
-//      // 'ALLOCATOR' specified at construction.
+// /// This class template implements a bidirectional linked list of
+// /// element of the (template parameter) type `VALUE`.  The memory used
+// /// will be allocated from an allocator of the (template parameter) type
+// /// `ALLOCATOR` specified at construction.
+// template <class VALUE, class ALLOCATOR>
+// class MyList {
 //
-//    public:
-//      // TYPES
-//      typedef bslalg::BidirectionalNode<VALUE> Node;
-//          // This 'typedef' is an alias to the type of the linked list node.
+//   public:
+//     // TYPES
 //
-//    private:
-//      // TYPES
-//      typedef bslstl::BidirectionalNodePool<VALUE, ALLOCATOR> Pool;
-//          // This 'typedef' is an alias to the type of the memory pool.
+//     /// This `typedef` is an alias to the type of the linked list node.
+//     typedef bslalg::BidirectionalNode<VALUE> Node;
 //
-//      typedef bslalg::BidirectionalLinkListUtil               Util;
-//          // This 'typedef' is an alias to the utility 'struct' providing
-//          // functions for constructing and manipulating linked lists.
+//   private:
+//     // TYPES
 //
-//      typedef bslalg::BidirectionalLink                       Link;
-//          // This 'typedef' is an alias to the type of the linked list link.
+//     /// This `typedef` is an alias to the type of the memory pool.
+//     typedef bslstl::BidirectionalNodePool<VALUE, ALLOCATOR> Pool;
 //
-//      // DATA
-//      Node *d_head_p;  // pointer to the head of the linked list
-//      Node *d_tail_p;  // pointer to the tail of the linked list
-//      Pool  d_pool;    // memory pool used to allocate memory
+//     /// This `typedef` is an alias to the utility `struct` providing
+//     /// functions for constructing and manipulating linked lists.
+//     typedef bslalg::BidirectionalLinkListUtil               Util;
+//
+//     /// This `typedef` is an alias to the type of the linked list link.
+//     typedef bslalg::BidirectionalLink                       Link;
+//
+//     // DATA
+//     Node *d_head_p;  // pointer to the head of the linked list
+//     Node *d_tail_p;  // pointer to the tail of the linked list
+//     Pool  d_pool;    // memory pool used to allocate memory
 //
 //
-//    public:
-//      // CREATORS
-//      MyList(const ALLOCATOR& allocator = ALLOCATOR());
-//          // Create an empty linked list that allocate memory using the
-//          // specified 'allocator'.
+//   public:
+//     // CREATORS
 //
-//      ~MyList();
-//          // Destroy this linked list by calling destructor for each element
-//          // and deallocate all allocated storage.
+//     /// Create an empty linked list that allocate memory using the
+//     /// specified `allocator`.
+//     MyList(const ALLOCATOR& allocator = ALLOCATOR());
 //
-//      // MANIPULATORS
-//      void pushFront(const VALUE& value);
-//          // Insert the specified 'value' at the front of this linked list.
+//     /// Destroy this linked list by calling destructor for each element
+//     /// and deallocate all allocated storage.
+//     ~MyList();
 //
-//      void pushBack(const VALUE& value);
-//          // Insert the specified 'value' at the end of this linked list.
+//     // MANIPULATORS
+//
+//     /// Insert the specified 'value' at the front of this linked list.
+//     void pushFront(const VALUE& value);
+//
+//     /// Insert the specified 'value' at the end of this linked list.
+//     void pushBack(const VALUE& value);
 //
 //      //...
 //  };
@@ -267,12 +271,12 @@ class BidirectionalNodePool {
     /// unspecified state.
     BidirectionalNodePool(bslmf::MovableRef<BidirectionalNodePool> original);
 
+    /// Destroy the memory pool maintained by this object, releasing all
+    /// memory used by the nodes of the type `BidirectionalNode<VALUE>` in
+    /// the pool.  Any memory allocated for the nodes` `value` attribute of
+    /// the (template parameter) type `VALUE` will be leaked unless the
+    /// nodes are explicitly destroyed via the `destroyNode` method.
     //! ~BidirectionalNodePool() = default;
-        // Destroy the memory pool maintained by this object, releasing all
-        // memory used by the nodes of the type 'BidirectionalNode<VALUE>' in
-        // the pool.  Any memory allocated for the nodes' 'value' attribute of
-        // the (template parameter) type 'VALUE' will be leaked unless the
-        // nodes are explicitly destroyed via the 'destroyNode' method.
 
     // MANIPULATORS
 

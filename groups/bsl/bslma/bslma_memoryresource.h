@@ -390,11 +390,11 @@ namespace bsl {
                         // Class memory_resource
                         // =====================
 
+// A protocol (pure abstract interface) class, comprising member functions
+// for allocating and deallocating memory.  This class is a pre-C++17
+// implementation of `std::pmr::memory_resource` from the C++17 Standard
+// Library.
 class memory_resource {
-    // A protocol (pure abstract interface) class, comprising member functions
-    // for allocating and deallocating memory.  This class is a pre-C++17
-    // implementation of 'std::pmr::memory_resource' from the C++17 Standard
-    // Library.
 
     // PRIVATE CONSTANTS
     enum {
@@ -404,76 +404,80 @@ class memory_resource {
   public:
     // CREATORS
 
+    /// Create this object.  Has no effect other than to begin its lifetime.
     //! memory_resource() BSLS_KEYWORD_DEFAULT;
     //! memory_resource(const memory_resource&) BSLS_KEYWORD_DEFAULT;
-        // Create this object.  Has no effect other than to begin its lifetime.
 
+    /// Destroy this object.  Has no effect other than to end its lifetime.
     virtual ~memory_resource();
-        // Destroy this object.  Has no effect other than to end its lifetime.
 
     // MANIPULATORS
 
+    /// Return a modifiable reference to this object.
     //! memory_resource& operator=(const memory_resource&)
     //!                                                   BSLS_KEYWORD_DEFAULT;
-        // Return a modifiable reference to this object.
 
+    /// Return the (non-null) address of a block of memory suitable for
+    /// holding an object having at least the specified `bytes` and
+    /// `alignment`.  If this memory resource is unable to fulfill the
+    /// request, i.e., because `bytes` or `alignment` is too large, then
+    /// throw `bad_alloc` or other suitable exception.  The behavior is
+    /// undefined unless `alignment` is a power of two.  Note that this
+    /// function calls the derived-class implementation of `do_allocate`.
     BSLS_ANNOTATION_NODISCARD
     void *allocate(size_t bytes, size_t alignment = k_MAX_ALIGN);
-        // Return the (non-null) address of a block of memory suitable for
-        // holding an object having at least the specified 'bytes' and
-        // 'alignment'.  If this memory resource is unable to fulfill the
-        // request, i.e., because 'bytes' or 'alignment' is too large, then
-        // throw 'bad_alloc' or other suitable exception.  The behavior is
-        // undefined unless 'alignment' is a power of two.  Note that this
-        // function calls the derived-class implementation of 'do_allocate'.
 
+    /// Deallocate the block of memory at the specified address `p` and
+    /// having the specified `bytes` and `alignment` by returning it to the
+    /// derived-class memory resource.  The behavior is undefined unless `p`
+    /// was allocated from this resource using the same size and alignment
+    /// and has not yet been deallocated.  Note that this function calls the
+    /// derived-class implementation of `do_deallocate`.
     void deallocate(void *p, size_t bytes, size_t alignment = k_MAX_ALIGN);
-        // Deallocate the block of memory at the specified address 'p' and
-        // having the specified 'bytes' and 'alignment' by returning it to the
-        // derived-class memory resource.  The behavior is undefined unless 'p'
-        // was allocated from this resource using the same size and alignment
-        // and has not yet been deallocated.  Note that this function calls the
-        // derived-class implementation of 'do_deallocate'.
 
     // ACCESSORS
+
+    /// Return `true` if memory allocated from this resource can be
+    /// deallocated from the specified `other` resource and vice-versa;
+    /// otherwise return `false`.  Note that this function calls the
+    /// derived-class implementation of `do_is_equal`.
     bool is_equal(const memory_resource& other) const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if memory allocated from this resource can be
-        // deallocated from the specified 'other' resource and vice-versa;
-        // otherwise return 'false'.  Note that this function calls the
-        // derived-class implementation of 'do_is_equal'.
 
   private:
     // PRIVATE MANIPULATORS
-    virtual void* do_allocate(size_t bytes, size_t alignment) = 0;
-        // Return a block of memory, allocated from the derived-class resource,
-        // suitable for holding an object having at least the specified 'bytes'
-        // and 'alignment'.  The behavior is undefined unless 'alignment' is a
-        // power of two.
 
+    /// Return a block of memory, allocated from the derived-class resource,
+    /// suitable for holding an object having at least the specified `bytes`
+    /// and `alignment`.  The behavior is undefined unless `alignment` is a
+    /// power of two.
+    virtual void* do_allocate(size_t bytes, size_t alignment) = 0;
+
+    /// Deallocate the block of memory at the specified address `p` and
+    /// having the specified `bytes` and `alignment` by returning it to the
+    /// derived-class memory resource.  The behavior is undefined unless `p`
+    /// was allocated from this resource using the same size and alignment
+    /// and has not yet been deallocated.
     virtual void do_deallocate(void* p, size_t bytes, size_t alignment) = 0;
-        // Deallocate the block of memory at the specified address 'p' and
-        // having the specified 'bytes' and 'alignment' by returning it to the
-        // derived-class memory resource.  The behavior is undefined unless 'p'
-        // was allocated from this resource using the same size and alignment
-        // and has not yet been deallocated.
 
     // PRIVATE ACCESSORS
+
+    /// Return `true` if memory allocated from this resource can be
+    /// deallocated from the specified `other` resource and vice-versa;
+    /// otherwise return `false`.
     virtual bool do_is_equal(const memory_resource& other) const
                                                      BSLS_KEYWORD_NOEXCEPT = 0;
-        // Return 'true' if memory allocated from this resource can be
-        // deallocated from the specified 'other' resource and vice-versa;
-        // otherwise return 'false'.
 };
 
 // FREE OPERATORS
-bool operator==(const memory_resource& a, const memory_resource& b);
-    // Return 'true' if memory allocated from the specified 'a' resource can be
-    // deallocated from the specified 'b' resource; otherwise return 'false'.
 
+/// Return `true` if memory allocated from the specified `a` resource can be
+/// deallocated from the specified `b` resource; otherwise return `false`.
+bool operator==(const memory_resource& a, const memory_resource& b);
+
+/// Return `true` if memory allocated from the specified `a` resource cannot
+/// be deallocated from the specified `b` resource; otherwise return
+/// `false`.
 bool operator!=(const memory_resource& a, const memory_resource& b);
-    // Return 'true' if memory allocated from the specified 'a' resource cannot
-    // be deallocated from the specified 'b' resource; otherwise return
-    // 'false'.
 
 // ============================================================================
 //                       INLINE FUNCTION IMPLEMENTATIONS
@@ -483,7 +487,7 @@ bool operator!=(const memory_resource& a, const memory_resource& b);
 inline
 memory_resource::~memory_resource()
 {
-    // Implementation note: because 'memory_resource' is a pure abstract class
+    // Implementation note: because `memory_resource` is a pure abstract class
     // with a trivial constructor, the virtual destructor can be inlined
     // without forcing the implementation to generate a vtbl for the class.
 }

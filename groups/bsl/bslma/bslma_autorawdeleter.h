@@ -113,10 +113,10 @@ BSLS_IDENT("$Id: $")
 // First we define a `myArray` class that stores an array of parameterized
 // `TYPE` objects:
 // ```
+// /// This class is a container that stores an array of objects of
+// /// parameterized `TYPE`.
 // template <class TYPE>
 // class myArray {
-//     // This class is a container that stores an array of objects of
-//     // parameterized 'TYPE'.
 //
 //     // DATA
 //     TYPE              **d_array_p;       // dynamically allocated array of
@@ -130,27 +130,30 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     myArray(bslma::Allocator *basicAllocator = 0);
-//         // Create a 'myArray' object.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
+//     /// Create a `myArray` object.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
+//     myArray(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Destroy this `myArray` object and all elements currently stored.
 //     ~myArray();
-//         // Destroy this 'myArray' object and all elements currently stored.
 //
 //     // MANIPULATORS
+//
+//     /// Insert into this array at the specified `dstIndex`, the
+//     /// character sequences in the specified `srcArray`.  All values
+//     /// with initial indices at or above `dstIndex` are shifted up by
+//     /// `srcArray.length()` index positions.  The behavior is undefined
+//     /// unless `0 <= dstIndex` and `dstIndex <= length()`.
 //     void insert(int dstIndex, const myArray& srcArray);
-//         // Insert into this array at the specified 'dstIndex', the
-//         // character sequences in the specified 'srcArray'.  All values
-//         // with initial indices at or above 'dstIndex' are shifted up by
-//         // 'srcArray.length()' index positions.  The behavior is undefined
-//         // unless '0 <= dstIndex' and 'dstIndex <= length()'.
 //
 //     // ...
 //
 //     // ACCESSORS
+//
+//     /// Return the logical length of this array.
 //     int length() const;
-//         // Return the logical length of this array.
 //
 //     // ...
 // };

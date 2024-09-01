@@ -131,26 +131,26 @@ namespace bsl {
 inline namespace literals {
 inline namespace complex_literals {
 
+    /// Create a `bsl::complex<double>` complex number having the specified
+    /// `imag` imaginary component and the real part zero.
     BSLS_KEYWORD_CONSTEXPR
     bsl::complex<double> operator "" _i(unsigned long long imag);
     BSLS_KEYWORD_CONSTEXPR
     bsl::complex<double> operator "" _i(long double imag);
-       // Create a 'bsl::complex<double>' complex number having the specified
-       // 'imag' imaginary component and the real part zero.
 
+    /// Create a `bsl::complex<float>` complex number having the specified
+    /// `imag` imaginary component and the real part zero.
     BSLS_KEYWORD_CONSTEXPR
     bsl::complex<float> operator "" _if(unsigned long long imag);
     BSLS_KEYWORD_CONSTEXPR
     bsl::complex<float> operator "" _if(long double imag);
-       // Create a 'bsl::complex<float>' complex number having the specified
-       // 'imag' imaginary component and the real part zero.
 
+    /// Create a `bsl::complex<long double>` complex number having the
+    /// specified `imag` imaginary component and the real part zero.
     BSLS_KEYWORD_CONSTEXPR
     bsl::complex<long double> operator "" _il(unsigned long long imag);
     BSLS_KEYWORD_CONSTEXPR
     bsl::complex<long double> operator "" _il(long double imag);
-       // Create a 'bsl::complex<long double>' complex number having the
-       // specified 'imag' imaginary component and the real part zero.
 
 }  // close complex_literals namespace
 }  // close literals namespace

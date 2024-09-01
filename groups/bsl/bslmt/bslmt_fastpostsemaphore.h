@@ -55,8 +55,8 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the `IntQueue` class:
 // ```
+// /// FIFO queue of integer values.
 // class IntQueue {
-//     // FIFO queue of integer values.
 //
 //     // DATA
 //     bsl::vector<int>         d_data;            // queue values
@@ -96,47 +96,50 @@ BSLS_IDENT("$Id: $")
 //     };
 //
 //     // CREATORS
+//
+//     /// Create an `IntQueue` object with the specified `capacity`.
+//     /// Optionally specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default allocator
+//     /// is used.
 //     explicit
 //     IntQueue(bsl::size_t capacity, bslma::Allocator *basicAllocator = 0);
-//         // Create an 'IntQueue' object with the specified 'capacity'.
-//         // Optionally specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default allocator
-//         // is used.
 //
+//     /// Destroy this object.
 //     //! ~IntQueue() = default;
-//         // Destroy this object.
 //
 //     // MANIPULATORS
+//
+//     /// Disable dequeueing from this queue.  All subsequent invocations
+//     /// of `popFront` and `waitUntilEmpty` will fail immediately.  All
+//     /// blocked invocations of `popFront` and `waitUntilEmpty` will fail
+//     /// immediately.  If the queue is already dequeue disabled, this
+//     /// method has no effect.
 //     void disablePopFront();
-//         // Disable dequeueing from this queue.  All subsequent invocations
-//         // of 'popFront' and 'waitUntilEmpty' will fail immediately.  All
-//         // blocked invocations of 'popFront' and 'waitUntilEmpty' will fail
-//         // immediately.  If the queue is already dequeue disabled, this
-//         // method has no effect.
 //
+//     /// Enable dequeuing.  If the queue is not dequeue disabled, this
+//     /// method has no effect.
 //     void enablePopFront();
-//         // Enable dequeuing.  If the queue is not dequeue disabled, this
-//         // method has no effect.
 //
+//     /// Remove the element from the front of this queue and load that
+//     /// element into the specified `value`.  If the queue is empty,
+//     /// block until it is not empty.  Return 0 on success, and a nonzero
+//     /// value if the queue is disabled.
 //     int popFront(int *value);
-//         // Remove the element from the front of this queue and load that
-//         // element into the specified 'value'.  If the queue is empty,
-//         // block until it is not empty.  Return 0 on success, and a nonzero
-//         // value if the queue is disabled.
 //
+//     /// Append the specified `value` to the back of this queue, blocking
+//     /// until either space is available - if necessary - or the queue is
+//     /// disabled.  Return 0 on success, and a nonzero value if the queue
+//     /// is disabled.
 //     int pushBack(int value);
-//         // Append the specified 'value' to the back of this queue, blocking
-//         // until either space is available - if necessary - or the queue is
-//         // disabled.  Return 0 on success, and a nonzero value if the queue
-//         // is disabled.
 //
 //     // ACCESSORS
+//
+//     /// Block until all the elements in this queue are removed.  Return
+//     /// 0 on success, and a non-zero value if the queue is not empty and
+//     /// `isPopFrontDisabled()`.  A blocked thread waiting for the queue
+//     /// to empty will return a non-zero value if `disablePopFront` is
+//     /// invoked.
 //     int waitUntilEmpty() const;
-//         // Block until all the elements in this queue are removed.  Return
-//         // 0 on success, and a non-zero value if the queue is not empty and
-//         // 'isPopFrontDisabled()'.  A blocked thread waiting for the queue
-//         // to empty will return a non-zero value if 'disablePopFront' is
-//         // invoked.
 // };
 // ```
 // Next, implement the queue:

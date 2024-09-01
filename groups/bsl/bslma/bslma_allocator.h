@@ -232,17 +232,17 @@ BSLS_IDENT("$Id: $")
 // relegated to the `.cpp` file.  Subsequent use of the allocator is
 // demonstrated by the following file-scope static reallocation function:
 // ```
+// /// Reallocate memory in the specified `array` to the specified
+// /// `newSize` using the specified `basicAllocator`.  The specified
+// /// `length` number of leading elements are preserved.  Since the
+// /// class invariant requires that the physical capacity of the
+// /// container may grow but never shrink, the behavior is undefined
+// /// unless `length <= newSize`.
 // static inline
 // void reallocate(double          **array,
 //                 int               newSize,
 //                 int               length,
 //                 bslma::Allocator  *basicAllocator)
-//     // Reallocate memory in the specified 'array' to the specified
-//     // 'newSize' using the specified 'basicAllocator'.  The specified
-//     // 'length' number of leading elements are preserved.  Since the
-//     // class invariant requires that the physical capacity of the
-//     // container may grow but never shrink, the behavior is undefined
-//     // unless 'length <= newSize'.
 // {
 //     assert(array);
 //     assert(1 <= newSize);
@@ -278,10 +278,10 @@ BSLS_IDENT("$Id: $")
 // // my_newdeleteallocator.h
 // // ...
 //
+// /// This class is a sample concrete implementation of the
+// /// `bslma::Allocator` protocol that provides direct access to the
+// /// system-supplied (native) global operators `new` and `delete`.
 // class my_NewDeleteAllocator : public bslma::Allocator {
-//     // This class is a sample concrete implementation of the
-//     // 'bslma::Allocator' protocol that provides direct access to the
-//     // system-supplied (native) global operators 'new' and 'delete'.
 //
 //     // NOT IMPLEMENTED
 //     my_NewDeleteAllocator(const bslma::NewDeleteAllocator&);
@@ -289,38 +289,40 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     my_NewDeleteAllocator();
-//         // Create an allocator that wraps the global (native) operators
-//         // 'new' and 'delete' to supply memory.  Note that all objects of
-//         // this class share the same underlying resource.
 //
+//     /// Create an allocator that wraps the global (native) operators
+//     /// `new` and `delete` to supply memory.  Note that all objects of
+//     /// this class share the same underlying resource.
+//     my_NewDeleteAllocator();
+//
+//     /// Destroy this allocator object.  Note that destroying this
+//     /// allocator has no effect on any outstanding allocated memory.
 //     virtual ~my_NewDeleteAllocator();
-//         // Destroy this allocator object.  Note that destroying this
-//         // allocator has no effect on any outstanding allocated memory.
 //
 //     // MANIPULATORS
-//     virtual void *allocate(size_type size);
-//         // Return a newly allocated block of memory of (at least) the
-//         // specified positive 'size' (in bytes).  If 'size' is 0, a null
-//         // pointer is returned with no other effect.  If this allocator
-//         // cannot return the requested number of bytes, then it will throw
-//         // a 'std::bad_alloc' exception in an exception-enabled build, or
-//         // else will abort the program in a non-exception build.  The
-//         // behavior is undefined unless '0 <= size'.  Note that the
-//         // alignment of the address returned is the maximum alignment for
-//         // any type defined on this platform.  Also note that global
-//         // 'operator new' is *not* called when 'size' is 0 (in order to
-//         // avoid having to acquire a lock, and potential contention in
-//         // multi-threaded programs).
 //
+//     /// Return a newly allocated block of memory of (at least) the
+//     /// specified positive `size` (in bytes).  If `size` is 0, a null
+//     /// pointer is returned with no other effect.  If this allocator
+//     /// cannot return the requested number of bytes, then it will throw
+//     /// a `std::bad_alloc` exception in an exception-enabled build, or
+//     /// else will abort the program in a non-exception build.  The
+//     /// behavior is undefined unless `0 <= size`.  Note that the
+//     /// alignment of the address returned is the maximum alignment for
+//     /// any type defined on this platform.  Also note that global
+//     /// `operator new` is *not* called when `size` is 0 (in order to
+//     /// avoid having to acquire a lock, and potential contention in
+//     /// multi-threaded programs).
+//     virtual void *allocate(size_type size);
+//
+//     /// Return the memory block at the specified `address` back to this
+//     /// allocator.  If `address` is 0, this function has no effect.  The
+//     /// behavior is undefined unless `address` was allocated using this
+//     /// allocator object and has not already been deallocated.  Note
+//     /// that global `operator delete` is *not* called when `address` is
+//     /// 0 (in order to avoid having to acquire a lock, and potential
+//     /// contention in multi-treaded programs).
 //     virtual void deallocate(void *address);
-//         // Return the memory block at the specified 'address' back to this
-//         // allocator.  If 'address' is 0, this function has no effect.  The
-//         // behavior is undefined unless 'address' was allocated using this
-//         // allocator object and has not already been deallocated.  Note
-//         // that global 'operator delete' is *not* called when 'address' is
-//         // 0 (in order to avoid having to acquire a lock, and potential
-//         // contention in multi-treaded programs).
 // };
 //
 // // CREATORS

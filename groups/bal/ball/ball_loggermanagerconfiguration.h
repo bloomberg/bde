@@ -272,15 +272,14 @@ class LoggerManagerConfiguration {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+    /// The `TriggerMarkers` enumeration defines whether text will be
+    /// written to the log to indicate whether a series of log records were
+    /// logged due to either a Trigger or Trigger-All event.  If this
+    /// attribute is `e_BEGIN_END_MARKERS`, then "BEGIN RECORD DUMP" and
+    /// "END RECORD DUMP" will be written before and after each sequence of
+    /// records logged due to a Trigger or Trigger-All event.  The default
+    /// value of this attribute is `e_BEGIN_END_MARKERS`.
     enum TriggerMarkers {
-        // The 'TriggerMarkers' enumeration defines whether text will be
-        // written to the log to indicate whether a series of log records were
-        // logged due to either a Trigger or Trigger-All event.  If this
-        // attribute is 'e_BEGIN_END_MARKERS', then "BEGIN RECORD DUMP" and
-        // "END RECORD DUMP" will be written before and after each sequence of
-        // records logged due to a Trigger or Trigger-All event.  The default
-        // value of this attribute is 'e_BEGIN_END_MARKERS'.
-
         e_NO_MARKERS,        // don't print any markers
 
         e_BEGIN_END_MARKERS  // print "BEGIN RECORD DUMP" and
@@ -375,8 +374,8 @@ class LoggerManagerConfiguration {
                         const LoggerManagerConfiguration&  original,
                         bslma::Allocator                  *basicAllocator = 0);
 
+    /// Destroy this object.
     //! ~LoggerManagerConfiguration() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

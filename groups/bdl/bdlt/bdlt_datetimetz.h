@@ -130,18 +130,20 @@ BSLS_IDENT("$Id: $")
 //                      // struct DeliverySystem
 //                      // =====================
 //
+// /// This struct provides a function that returns the estimated delivery
+// /// date and time for a particular shipment.
 // struct DeliverySystem {
-//     // This struct provides a function that returns the estimated delivery
-//     // date and time for a particular shipment.
 //
 //     // PRIVATE CLASS METHODS
+//
+//     /// Return the current UTC date and time.
 //     static bdlt::Datetime getCurrentUTCDatetime();
-//         // Return the current UTC date and time.
 //
 //   public:
 //     // TYPES
+//
+//     /// This enumeration provides an identifier for the various cities.
 //     enum City {
-//         // This enumeration provides an identifier for the various cities.
 //
 //         e_CHICAGO = 0,
 //         e_DUBAI,
@@ -151,9 +153,10 @@ BSLS_IDENT("$Id: $")
 //     };
 //
 //     // CLASS METHODS
+//
+//     /// Return the estimated delivery date and time, in local time, for
+//     /// a shipment being sent to the specified `city`.
 //     static bdlt::DatetimeTz getEstimatedDeliveryDatetime(City city);
-//         // Return the estimated delivery date and time, in local time, for
-//         // a shipment being sent to the specified 'city'.
 // };
 // ```
 // All the relevant data used for delivery estimation is stored in a lookup
@@ -257,17 +260,17 @@ namespace bdlt {
 class DatetimeTz {
 
     // PRIVATE TYPES
-    enum ValidOffsetRange {
-        // This enumeration specifies the minimum and maximum time zone offset
-        // values.
 
+    /// This enumeration specifies the minimum and maximum time zone offset
+    /// values.
+    enum ValidOffsetRange {
         k_MAX_OFFSET =  1440,
         k_MIN_OFFSET = -1440
     };
 
     // DATA
     Datetime d_localDatetime;  // datetime value in timezone specified by
-                               // 'd_offset'
+                               // `d_offset`
 
     int      d_offset;         // offset from UTC (in minutes)
 

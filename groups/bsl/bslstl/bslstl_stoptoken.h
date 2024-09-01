@@ -361,13 +361,13 @@ BSLS_KEYWORD_CONSTEXPR nostopstate_t::nostopstate_t() BSLS_KEYWORD_NOEXCEPT
 {
 }
 
+/// Value of type `nostopstate_t` used as an argument to functions that take
+/// a `nostopstate_t` argument.
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
 inline constexpr nostopstate_t nostopstate{};
 #else
 extern const nostopstate_t nostopstate;
 #endif
-    // Value of type 'nostopstate_t' used as an argument to functions that take
-    // a 'nostopstate_t' argument.
 
                               // ================
                               // class stop_token
@@ -408,12 +408,12 @@ class stop_token {
     }
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    /// Return `true` if the specified `lhs` and `rhs` refer to different
+    /// stop states, or if only one refers to a stop state; `false`
+    /// otherwise.
     BSLA_NODISCARD friend bool operator!=(
                                    const stop_token& lhs,
                                    const stop_token& rhs) BSLS_KEYWORD_NOEXCEPT
-        // Return 'true' if the specified 'lhs' and 'rhs' refer to different
-        // stop states, or if only one refers to a stop state; 'false'
-        // otherwise.
     {
         return lhs.d_state_p != rhs.d_state_p;
     }
@@ -531,12 +531,12 @@ class stop_source {
     }
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    /// Return `true` if the specified `lhs` and `rhs` refer to different
+    /// stop states, or if only one refers to a stop state; `false`
+    /// otherwise.
     BSLA_NODISCARD friend bool operator!=(
                                   const stop_source& lhs,
                                   const stop_source& rhs) BSLS_KEYWORD_NOEXCEPT
-        // Return 'true' if the specified 'lhs' and 'rhs' refer to different
-        // stop states, or if only one refers to a stop state; 'false'
-        // otherwise.
     {
         return lhs.d_state_p != rhs.d_state_p;
     }

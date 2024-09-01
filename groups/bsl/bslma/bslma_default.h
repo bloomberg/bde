@@ -123,10 +123,10 @@ BSLS_IDENT("$Id: $")
 // // my_countingallocator.h
 // #include <bslma_allocator.h>
 //
+// /// This concrete allocator maintains: (1) a count of the number of
+// /// blocks allocated that have not yet been deallocated, and (2) a count
+// /// of the cumulative number of blocks ever allocated.
 // class my_CountingAllocator : public bslma::Allocator {
-//     // This concrete allocator maintains: (1) a count of the number of
-//     // blocks allocated that have not yet been deallocated, and (2) a count
-//     // of the cumulative number of blocks ever allocated.
 //
 //     // DATA
 //     int d_numBlocksInUse;  // number of blocks currently allocated
@@ -138,35 +138,38 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     my_CountingAllocator();
-//         // Create a counting allocator.
 //
+//     /// Create a counting allocator.
+//     my_CountingAllocator();
+//
+//     /// Destroy this counting allocator.
 //     virtual ~my_CountingAllocator();
-//         // Destroy this counting allocator.
 //
 //     // MANIPULATORS
-//     virtual void *allocate(size_type size);
-//         // Return a newly allocated block of memory of (at least) the
-//         // specified positive 'size' (bytes).  If 'size' is 0, a null
-//         // pointer is returned with no effect.  Note that the alignment of
-//         // the address returned is the maximum alignment for any
-//         // fundamental type defined for this platform.
 //
+//     /// Return a newly allocated block of memory of (at least) the
+//     /// specified positive `size` (bytes).  If `size` is 0, a null
+//     /// pointer is returned with no effect.  Note that the alignment of
+//     /// the address returned is the maximum alignment for any
+//     /// fundamental type defined for this platform.
+//     virtual void *allocate(size_type size);
+//
+//     /// Return the memory at the specified `address` back to this
+//     /// allocator.  If `address` is 0, this function has no effect.  The
+//     /// behavior is undefined if `address` was not allocated using this
+//     /// allocator, or has already been deallocated.
 //     virtual void deallocate(void *address);
-//         // Return the memory at the specified 'address' back to this
-//         // allocator.  If 'address' is 0, this function has no effect.  The
-//         // behavior is undefined if 'address' was not allocated using this
-//         // allocator, or has already been deallocated.
 //
 //     // ACCESSORS
-//     int numBlocksInUse() const;
-//         // Return the number of blocks currently in use from this counting
-//         // allocator.
 //
+//     /// Return the number of blocks currently in use from this counting
+//     /// allocator.
+//     int numBlocksInUse() const;
+//
+//     /// Return the cumulative number of blocks ever allocated using this
+//     /// counting allocator.  Note that
+//     /// numBlocksTotal() >= numBlocksInUse().
 //     int numBlocksTotal() const;
-//         // Return the cumulative number of blocks ever allocated using this
-//         // counting allocator.  Note that
-//         // numBlocksTotal() >= numBlocksInUse().
 // };
 //
 // // CREATORS
@@ -238,9 +241,9 @@ BSLS_IDENT("$Id: $")
 // #include <bslma_allocator.h>
 // #include <bslma_default.h>
 //
+// /// This is a trivial class solely intended to illustrate proper use
+// /// of the default allocator.
 // class my_Id {
-//     // This is a trivial class solely intended to illustrate proper use
-//     // of the default allocator.
 //
 //     // DATA
 //     char             *d_buffer_p;     // allocated (*owned*)
@@ -251,24 +254,26 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an Id object having the specified `id`.  Optionally
+//     /// specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default allocator
+//     /// is used.
 //     explicit my_Id(const char *id, bslma::Allocator *basicAllocator = 0);
-//         // Create an Id object having the specified 'id'.  Optionally
-//         // specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default allocator
-//         // is used.
 //
+//     /// Create an Id object initialized to the value of the specified
+//     /// `original` Id object.  Optionally specify a `basicAllocator`
+//     /// used to supply memory.  If `basicAllocator` is 0, the currently
+//     /// installed default allocator is used.
 //     my_Id(const my_Id& original, bslma::Allocator *basicAllocator = 0);
-//         // Create an Id object initialized to the value of the specified
-//         // 'original' Id object.  Optionally specify a 'basicAllocator'
-//         // used to supply memory.  If 'basicAllocator' is 0, the currently
-//         // installed default allocator is used.
 //
+//     /// Destroy this Id object.
 //     ~my_Id();
-//         // Destroy this Id object.
 //
 //     // ACCESSORS
+//
+//     /// Return the id of this Id object.
 //     const char *id() const;
-//         // Return the id of this Id object.
 // };
 //
 // // CREATORS
@@ -368,11 +373,11 @@ BSLS_IDENT("$Id: $")
 // #include <my_id.h>
 // #include <bslma_default.h>
 //
+// /// This is a trivial class solely intended to help illustrate a common
+// /// programming error.  This class has two objects of type `my_Id`, only
+// /// one of which has the allocator correctly passed to it in the
+// /// definition of the constructor.
 // class my_IdPair {
-//     // This is a trivial class solely intended to help illustrate a common
-//     // programming error.  This class has two objects of type 'my_Id', only
-//     // one of which has the allocator correctly passed to it in the
-//     // definition of the constructor.
 //
 //     // DATA
 //     my_Id d_id;     // primary id (allocating)
@@ -384,23 +389,25 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an Id pair having the specified `id` and `alias` ids.
+//     /// Optionally specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default allocator
+//     /// is used.
 //     my_IdPair(const char       *id,
 //               const char       *alias,
 //               bslma::Allocator *basicAllocator = 0);
-//         // Create an Id pair having the specified 'id' and 'alias' ids.
-//         // Optionally specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default allocator
-//         // is used.
 //
+//     /// Destroy this Id pair.
 //     ~my_IdPair();
-//         // Destroy this Id pair.
 //
 //     // ACCESSORS
-//     const char *id() const;
-//         // Return the primary id of this Id pair.
 //
+//     /// Return the primary id of this Id pair.
+//     const char *id() const;
+//
+//     /// Return the alias of this Id pair.
 //     const char *alias() const;
-//         // Return the alias of this Id pair.
 // };
 //
 // // CREATORS
@@ -520,9 +527,10 @@ BSLS_IDENT("$Id: $")
 // in its member initializer:
 // ```
 // // my_singleton.h
+//
+// /// This is a trivial singleton class solely intended to illustrate use
+// /// of the global allocator.
 // class my_Singleton {
-//     // This is a trivial singleton class solely intended to illustrate use
-//     // of the global allocator.
 //
 //     // CLASS DATA
 //     static my_Singleton *s_singleton_p;  // pointer to singleton object
@@ -537,33 +545,36 @@ BSLS_IDENT("$Id: $")
 //
 //   private:
 //     // PRIVATE CREATORS
+//
+//     /// Create a singleton having the specified `id`.  Optionally
+//     /// specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed global allocator
+//     /// is used.
 //     explicit my_Singleton(const char       *id,
 //                           bslma::Allocator *basicAllocator = 0);
-//         // Create a singleton having the specified 'id'.  Optionally
-//         // specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed global allocator
-//         // is used.
 //
+//     /// Destroy this singleton.
 //     ~my_Singleton();
-//         // Destroy this singleton.
 //
 //   public:
 //     // CLASS METHODS
+//
+//     /// Initialize the singleton with the specified `id`.  Optionally
+//     /// specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed global allocator
+//     /// is used.
 //     static void initSingleton(const char       *id,
 //                               bslma::Allocator *basicAllocator = 0);
-//         // Initialize the singleton with the specified 'id'.  Optionally
-//         // specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed global allocator
-//         // is used.
 //
+//     /// Return a reference to the non-modifiable singleton of this
+//     /// class.  The behavior is undefined unless the singleton has been
+//     /// initialized.
 //     static const my_Singleton& singleton();
-//         // Return a reference to the non-modifiable singleton of this
-//         // class.  The behavior is undefined unless the singleton has been
-//         // initialized.
 //
 //     // ACCESSORS
+//
+//     /// Return the id of this singleton.
 //     const char *id() const;
-//         // Return the id of this singleton.
 // };
 //
 // // CLASS METHODS
@@ -685,27 +696,27 @@ struct Default {
 
                         // *** default allocator ***
 
-    // The default allocator that is requested by the user and will be
-    // installed as the default allocator on the first attempt to access
-    // the default allocator (via `allocator`, `defaultAllocator`, or
-    // `lockDefaultAllocator`).  This value is initialized to `0`,
-    // indicating the user hasn't made a choice yet.  In that case, when
-    // needed, the new-delete allocator will be used.  This value can be
-    // set (multiple times) by calling to `setDefaultAllocator`.  Note that
-    // once changed this variable will not become `0` again.
+    /// The default allocator that is requested by the user and will be
+    /// installed as the default allocator on the first attempt to access
+    /// the default allocator (via `allocator`, `defaultAllocator`, or
+    /// `lockDefaultAllocator`).  This value is initialized to `0`,
+    /// indicating the user hasn't made a choice yet.  In that case, when
+    /// needed, the new-delete allocator will be used.  This value can be
+    /// set (multiple times) by calling to `setDefaultAllocator`.  Note that
+    /// once changed this variable will not become `0` again.
     static bsls::AtomicOperations::AtomicTypes::Pointer
                                                    s_requestedDefaultAllocator;
 
-    // The currently installed default allocator.  This variable must be
-    // set only once, when the default allocator is first accessed (via
-    // `allocator`, `defaultAllocator`, or `lockDefaultAllocator`) but may
-    // be `0` before it is accessed unless *for* *testing* *only*
-    // `setDefaultAllocatorRaw` is used.
+    /// The currently installed default allocator.  This variable must be
+    /// set only once, when the default allocator is first accessed (via
+    /// `allocator`, `defaultAllocator`, or `lockDefaultAllocator`) but may
+    /// be `0` before it is accessed unless *for* *testing* *only*
+    /// `setDefaultAllocatorRaw` is used.
     static bsls::AtomicOperations::AtomicTypes::Pointer s_defaultAllocator;
 
                         // *** global allocator ***
 
-    // The address of the global allocator to use.
+    /// The address of the global allocator to use.
     static bsls::AtomicOperations::AtomicTypes::Pointer s_globalAllocator;
 
     // PRIVATE CLASS METHODS

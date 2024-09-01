@@ -44,22 +44,23 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define a `MyInteger` class that represents an integer value:
 // ```
+// /// This class represents an integer value.
 // class MyInteger {
-//     // This class represents an integer value.
 //
 //     // DATA
 //     int d_intValue;  // integer value
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `MyInteger` object having integer value `0`.
 //     MyInteger();
-//         // Create a 'MyInteger' object having integer value '0'.
 //
+//     /// Create a `MyInteger` object having the specified `value`.
 //     explicit MyInteger(int value);
-//         // Create a 'MyInteger' object having the specified 'value'.
 //
+//     /// Destroy this object.
 //     ~MyInteger();
-//         // Destroy this object.
 //
 //     // ACCESSORS
 //     int getValue() const;

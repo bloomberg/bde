@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:39:11 2024
+// Generated on Sun Sep  1 18:48:19 2024
 // Command line: sim_cpp11_features.pl bslstl_unorderedset.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDSET_H
@@ -161,8 +161,8 @@ class unordered_set {
     /// `original` object.  Use a copy of `original.hash_function()` to
     /// generate hash values for the keys contained in this set.  Use a copy
     /// of `original.key_eq()` to verify that two keys are equivalent.  Use
-    /// the allocator returned by 'bsl::allocator_traits<ALLOCATOR>::
-    /// select_on_container_copy_construction(original.get_allocator())' to
+    /// the allocator returned by `bsl::allocator_traits<ALLOCATOR>::
+    /// select_on_container_copy_construction(original.get_allocator())` to
     /// allocate memory.  This method requires that the (template parameter)
     /// type `KEY` be `copy-insertable` into this set (see {Requirements on
     /// `KEY`}).
@@ -336,26 +336,26 @@ class unordered_set {
     /// {Requirements on `KEY`}).
     unordered_set& operator=(const unordered_set& rhs);
 
+    /// Assign to this object the value, hash function, and equality
+    /// comparator of the specified `rhs` object, propagate to this object
+    /// the allocator of `rhs` if the `ALLOCATOR` type has trait
+    /// `propagate_on_container_move_assignment`, and return a reference
+    /// providing modifiable access to this object.  The contents of `rhs`
+    /// are moved (in constant time) to this set if
+    /// `get_allocator() == rhs.get_allocator()` (after accounting for the
+    /// aforementioned trait); otherwise, all elements in this set are
+    /// either destroyed or move-assigned to and each additional element in
+    /// `rhs` is move-inserted into this set.  `rhs` is left in a valid but
+    /// unspecified state, and if an exception is thrown, `*this` is left in
+    /// a valid but unspecified state.  This method requires that the
+    /// (template parameter) type `KEY` be both `move-assignable` and
+    /// `move-insertable` into this set (see {Requirements on `KEY`}).
     unordered_set&
     operator=(BloombergLP::bslmf::MovableRef<unordered_set> rhs)
                             BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                 AllocatorTraits::is_always_equal::value
                              && std::is_nothrow_move_assignable<HASH>::value
                              && std::is_nothrow_move_assignable<EQUAL>::value);
-        // Assign to this object the value, hash function, and equality
-        // comparator of the specified 'rhs' object, propagate to this object
-        // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
-        // 'propagate_on_container_move_assignment', and return a reference
-        // providing modifiable access to this object.  The contents of 'rhs'
-        // are moved (in constant time) to this set if
-        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
-        // aforementioned trait); otherwise, all elements in this set are
-        // either destroyed or move-assigned to and each additional element in
-        // 'rhs' is move-inserted into this set.  'rhs' is left in a valid but
-        // unspecified state, and if an exception is thrown, '*this' is left in
-        // a valid but unspecified state.  This method requires that the
-        // (template parameter) type 'KEY' be both 'move-assignable' and
-        // 'move-insertable' into this set (see {Requirements on 'KEY'}).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     /// Assign to this object the value resulting from first clearing this
@@ -833,23 +833,23 @@ class unordered_set {
     /// position in the sequence provided by this container.
     iterator erase(const_iterator first, const_iterator last);
 
+    /// Exchange the value, hasher, key-equality functor, and
+    /// `max_load_factor` of this object with those of the specified `other`
+    /// object; also exchange the allocator of this object with that of
+    /// `other` if the (template parameter) type `ALLOCATOR` has the
+    /// `propagate_on_container_swap` trait, and do not modify either
+    /// allocator otherwise.  This method provides the no-throw
+    /// exception-safety guarantee if and only if both the (template
+    /// parameter) types `HASH` and `EQUAL` provide no-throw swap
+    /// operations; if an exception is thrown, both objects are left in
+    /// valid but unspecified states.  This operation guarantees `O[1]`
+    /// complexity.  The behavior is undefined unless either this object was
+    /// created with the same allocator as `other` or `ALLOCATOR` has the
+    /// `propagate_on_container_swap` trait.
     void swap(unordered_set& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                       AllocatorTraits::is_always_equal::value
                                   &&  bsl::is_nothrow_swappable<HASH>::value
                                   &&  bsl::is_nothrow_swappable<EQUAL>::value);
-        // Exchange the value, hasher, key-equality functor, and
-        // 'max_load_factor' of this object with those of the specified 'other'
-        // object; also exchange the allocator of this object with that of
-        // 'other' if the (template parameter) type 'ALLOCATOR' has the
-        // 'propagate_on_container_swap' trait, and do not modify either
-        // allocator otherwise.  This method provides the no-throw
-        // exception-safety guarantee if and only if both the (template
-        // parameter) types 'HASH' and 'EQUAL' provide no-throw swap
-        // operations; if an exception is thrown, both objects are left in
-        // valid but unspecified states.  This operation guarantees 'O[1]'
-        // complexity.  The behavior is undefined unless either this object was
-        // created with the same allocator as 'other' or 'ALLOCATOR' has the
-        // 'propagate_on_container_swap' trait.
 
     /// Remove all entries from this unordered set.  Note that the set is
     /// empty after this call, but allocated memory may be retained for
@@ -861,8 +861,6 @@ class unordered_set {
     /// `key`, if such an entry exists, and the past-the-end (`end`)
     /// iterator otherwise.  The behavior is undefined unless `key` is
     /// equivalent to at most one element in this unordered set.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -870,6 +868,7 @@ class unordered_set {
                       iterator>::type
     find(const LOOKUP_KEY& key)
         {
+            // Note: implemented inline due to Sun CC compilation error.
             return iterator(d_impl.find(key));
         }
 
@@ -889,8 +888,6 @@ class unordered_set {
     /// undefined unless `key` is equivalent to at most one element in this
     /// unordered set.  Note that since an unordered set maintains unique
     /// keys, the range will contain at most one element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -898,6 +895,7 @@ class unordered_set {
                       pair<iterator, iterator> >::type
     equal_range(const LOOKUP_KEY& key)
         {
+            // Note: implemented inline due to Sun CC compilation error.
             typedef bsl::pair<iterator, iterator> ResultType;
 
             HashTableLink *first = d_impl.find(key);
@@ -971,8 +969,6 @@ class unordered_set {
 
     /// Return `true` if this unordered set contains an element whose key is
     /// equivalent to the specified `key`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error
     template <class LOOKUP_KEY>
     typename enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value &&
@@ -981,6 +977,7 @@ class unordered_set {
         bool>::type
     contains(const LOOKUP_KEY& key) const
     {
+       // Note: implemented inline due to Sun CC compilation error
         return find(key) != end();
     }
 
@@ -1011,8 +1008,6 @@ class unordered_set {
     /// specified `key`, if such an entry exists, and the past-the-end
     /// (`end`) iterator otherwise.  The behavior is undefined unless `key`
     /// is equivalent to at most one element in this unordered set.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1020,6 +1015,7 @@ class unordered_set {
                       const_iterator>::type
     find(const LOOKUP_KEY& key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
             return const_iterator(d_impl.find(key));
         }
 
@@ -1034,8 +1030,6 @@ class unordered_set {
     /// undefined unless `key` is equivalent to at most one element in this
     /// unordered set.  Note that since an unordered set maintains unique
     /// keys, the returned value will be either 0 or 1.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1043,6 +1037,7 @@ class unordered_set {
                       size_type>::type
     count(const LOOKUP_KEY& key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
             return d_impl.find(key) != 0;
         }
 
@@ -1062,8 +1057,6 @@ class unordered_set {
     /// undefined unless `key` is equivalent to at most one element in this
     /// unordered set.  Note that since an unordered set maintains unique
     /// keys, the range will contain at most one element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1071,6 +1064,7 @@ class unordered_set {
                       pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
             typedef bsl::pair<const_iterator, const_iterator> ResultType;
 
             HashTableLink *first = d_impl.find(key);

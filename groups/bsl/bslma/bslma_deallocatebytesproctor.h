@@ -246,14 +246,15 @@ class DeallocateBytesProctor {
     std::size_t d_alignment;  // alignment of managed blocks
 
     // PRIVATE MANIPULATORS
+
+    /// Deallocate the block at `d_bytes_p`.  The first overload is selected
+    /// for non-pointer-type `ALLOCATOR` and invokes
+    /// `bslma::AllocatorUtil::deallocateBytes(d_allocator, d_bytes,
+    /// d_nbytes, d_alignment)`.  The second overload is selected for a
+    /// pointer-type `ALLOCATOR` and invokes
+    /// `d_allocator->deallocate(d_object_p)`.
     void doDeallocate(bsl::false_type);
     void doDeallocate(bsl::true_type);
-       // Deallocate the block at 'd_bytes_p'.  The first overload is selected
-       // for non-pointer-type 'ALLOCATOR' and invokes
-       // 'bslma::AllocatorUtil::deallocateBytes(d_allocator, d_bytes,
-       // d_nbytes, d_alignment)'.  The second overload is selected for a
-       // pointer-type 'ALLOCATOR' and invokes
-       // 'd_allocator->deallocate(d_object_p)'.
 
     // NOT IMPLEMENTED
     DeallocateBytesProctor(const DeallocateBytesProctor&) BSLS_KEYWORD_DELETED;
@@ -302,9 +303,10 @@ class DeallocateBytesProctor {
                std::size_t alignment = k_MAX_ALIGNMENT);
 
     // ACCESSORS
+
+    /// Return the address of the currently managed memory block, if
+    /// engaged; otherwise return a null pointer.
     PtrType ptr() const;
-         // Return the address of the currently managed memory block, if
-         // engaged; otherwise return a null pointer.
 };
 
 // ============================================================================

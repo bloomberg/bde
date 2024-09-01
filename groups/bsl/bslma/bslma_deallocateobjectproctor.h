@@ -244,13 +244,14 @@ class DeallocateObjectProctor {
     std::size_t d_numObjects;  // number of managed objects
 
     // PRIVATE MANIPULATORS
+
+    // Deallocate the object at `d_object_p`.  The first overload is
+    // selected for non-pointer-type `ALLOCATOR` and invokes
+    // `AllocatorUtil::deallocateObject`.  The second overload is selected
+    // for a pointer-type `ALLOCATOR` and invokes
+    // `d_allocator->deallocate(d_object_p)`.
     void doDeallocate(bsl::false_type);
     void doDeallocate(bsl::true_type);
-       // Deallocate the object at 'd_object_p'.  The first overload is
-       // selected for non-pointer-type 'ALLOCATOR' and invokes
-       // 'AllocatorUtil::deallocateObject'.  The second overload is selected
-       // for a pointer-type 'ALLOCATOR' and invokes
-       // 'd_allocator->deallocate(d_object_p)'.
 
     // NOT IMPLEMENTED
     DeallocateObjectProctor(const DeallocateObjectProctor&)
@@ -293,9 +294,10 @@ class DeallocateObjectProctor {
     void reset(PtrType p, std::size_t n = 1);
 
     // ACCESSORS
+
+    /// Return the address of the currently managed objects, if engaged;
+    /// otherwise return a null pointer.
     PtrType ptr() const;
-         // Return the address of the currently managed objects, if engaged;
-         // otherwise return a null pointer.
 };
 
 // ============================================================================
@@ -345,11 +347,11 @@ template <class ALLOCATOR, class TYPE>
 inline
 void DeallocateObjectProctor<ALLOCATOR, TYPE>::doDeallocate(bsl::true_type)
 {
-    // When 'ALLOCATOR' is a pointer type, assume that 'deallocate' can be
+    // When `ALLOCATOR` is a pointer type, assume that `deallocate` can be
     // called with a single pointer argument.  We cannot use
-    // 'AllocatorUtil::deallocateObject' because 'AllocatorUtil' does not work
+    // `AllocatorUtil::deallocateObject` because `AllocatorUtil` does not work
     // with pool types, which are neither STL allocators nor derived from
-    // 'bslma::Allocator'.
+    // `bslma::Allocator`.
     d_allocator->deallocate(d_object_p);
 }
 
@@ -380,11 +382,11 @@ inline
 DeallocateObjectProctor<ALLOCATOR, TYPE>::~DeallocateObjectProctor()
 {
     if (d_object_p) {
-        // Dispatch to the appropriate version of 'doDelete', depending on
-        // whether or not 'ALLOCATOR' is a pointer type.  We cannot simply call
-        // 'AllocatorUtil::dealocateObject' unconditionally because
-        // 'AllocatorUtil' does not work with pool types, which are neither STL
-        // allocators nor derived from 'bslma::Allocator'.
+        // Dispatch to the appropriate version of `doDelete`, depending on
+        // whether or not `ALLOCATOR` is a pointer type.  We cannot simply call
+        // `AllocatorUtil::dealocateObject` unconditionally because
+        // `AllocatorUtil` does not work with pool types, which are neither STL
+        // allocators nor derived from `bslma::Allocator`.
         doDeallocate(bsl::is_pointer<ALLOCATOR>());
     }
 }

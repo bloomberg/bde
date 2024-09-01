@@ -175,7 +175,7 @@ class FixedSizeRecordBuffer: public RecordBuffer {
     // Implementation note: The order of the following data members is
     // required to ensure proper initialization order.
 
-    CountingAllocator             d_allocator;   // allocator for 'd_deque'
+    CountingAllocator             d_allocator;   // allocator for `d_deque`
 
     bsl::deque<bsl::shared_ptr<Record> >
                                   d_deque;       // deque of record handles

@@ -280,23 +280,23 @@ class Date {
 #endif
 
 #ifdef BDE_USE_PROLEPTIC_DATES
+    // Return the serial date in the POSIX calendar having the same
+    // year-month-day representation as the specified `serialDate`
+    // represents in the proleptic Gregorian calendar.  The behavior is
+    // undefined if `Date` is using a proleptic Gregorian representation
+    // and `serialDate` has a year-month-day representation earlier than
+    // 1752/09/14 that is not 0001/01/01.  Note that {BDEX Compatibility
+    // with Legacy POSIX-Based Date} has further details.
     static int convertProlepticDateToPosix(int serialDate);
-        // Return the serial date in the POSIX calendar having the same
-        // year-month-day representation as the specified 'serialDate'
-        // represents in the proleptic Gregorian calendar.  The behavior is
-        // undefined if 'Date' is using a proleptic Gregorian representation
-        // and 'serialDate' has a year-month-day representation earlier than
-        // 1752/09/14 that is not 0001/01/01.  Note that {BDEX Compatibility
-        // with Legacy POSIX-Based Date} has further details.
 
+    // Return the serial date in the proleptic Gregorian calendar having
+    // the same year-month-day representation as the specified `serialDate`
+    // represents in the POSIX calendar.  The behavior is undefined if
+    // `Date` is using a proleptic Gregorian representation and
+    // `serialDate` has a year-month-day representation earlier than
+    // 1752/09/14 that is not 0001/01/01.  Note that {BDEX Compatibility
+    // with Legacy POSIX-Based Date} has further details.
     static int convertPosixDateToProleptic(int serialDate);
-        // Return the serial date in the proleptic Gregorian calendar having
-        // the same year-month-day representation as the specified 'serialDate'
-        // represents in the POSIX calendar.  The behavior is undefined if
-        // 'Date' is using a proleptic Gregorian representation and
-        // 'serialDate' has a year-month-day representation earlier than
-        // 1752/09/14 that is not 0001/01/01.  Note that {BDEX Compatibility
-        // with Legacy POSIX-Based Date} has further details.
 #endif
 
     // PRIVATE CREATORS

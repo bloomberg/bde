@@ -41,9 +41,9 @@ BSLS_IDENT("$Id: $")
 // First, we define a class, `MyAccessTracker`, that the legacy system uses to
 // manage last-access times (eliding the implementation for brevity):
 // ```
+// /// This class provides a facility for tracking last access times
+// /// associated with usernames.
 // class MyAccessTracker {
-//     // This class provides a facility for tracking last access times
-//     // associated with usernames.
 //
 //     // LOCAL TYPE
 //     typedef bsl::map<bsl::string, bsl::tm>  TStringTmMap;
@@ -58,21 +58,24 @@ BSLS_IDENT("$Id: $")
 //                                    bslma::UsesBslmaAllocator);
 //
 //     // CREATORS
+//
+//     /// Create an object which will track the last access time ...
 //     explicit MyAccessTracker(bslma::Allocator *basicAllocator = 0);
-//         // Create an object which will track the last access time ...
 //
 //     // MANIPULATORS
+//
+//     /// Update the last access time for the specified `username` with
+//     /// the specified `accessTime`.
 //     void updateLastAccess(const bsl::string&  username,
 //                           const bsl::tm&      accessTime);
-//         // Update the last access time for the specified 'username' with
-//         // the specified 'accessTime'.
 //
 //     // ACCESSORS
+//
+//     /// Load into the specified `result` the last access time associated
+//     /// with the specified `username`, if any.  Return 0 on success, and
+//     /// non-0 (with no effect on `result`) if there's no access time
+//     /// associated with `username`.
 //     int getLastAccess(bsl::tm *result, const bsl::string& username) const;
-//         // Load into the specified 'result' the last access time associated
-//         // with the specified 'username', if any.  Return 0 on success, and
-//         // non-0 (with no effect on 'result') if there's no access time
-//         // associated with 'username'.
 // };
 // ```
 // Next, we define a utility to allow us to use `bdlt::Datetime` with our
@@ -80,22 +83,23 @@ BSLS_IDENT("$Id: $")
 // ```
 // class MyAccessTrackerUtil {
 //   public:
+//
+//     /// Load into the specified `result` the last access time associated
+//     /// with the specified `username` in the specified `tracker`, if
+//     /// any.  Returns 0 on success, and non-0 (with no effect on
+//     /// `result`) if there's no access time associated with `username`
+//     /// or the associated access time cannot be converted to
+//     /// `bdlt::Datetime`.
 //     static int getLastAccess(bdlt::Datetime         *result,
 //                              const MyAccessTracker&  tracker,
 //                              const bsl::string&      username);
-//         // Load into the specified 'result' the last access time associated
-//         // with the specified 'username' in the specified 'tracker', if
-//         // any.  Returns 0 on success, and non-0 (with no effect on
-//         // 'result') if there's no access time associated with 'username'
-//         // or the associated access time cannot be converted to
-//         // 'bdlt::Datetime'.
 //
+//     /// Update the instance pointed to by the specified `tracker` by
+//     /// adding the specified `username` with its associated specified
+//     /// `accessTime`.
 //     static void updateLastAccess(MyAccessTracker       *tracker,
 //                                  const bsl::string&     username,
 //                                  const bdlt::Datetime&  accessTime);
-//         // Update the instance pointed to by the specified 'tracker' by
-//         // adding the specified 'username' with its associated specified
-//         // 'accessTime'.
 // };
 // ```
 // Then, we implement `getLastAccess`:
@@ -140,8 +144,8 @@ BSLS_IDENT("$Id: $")
 // Finally, we create an access tracker then interact with it using
 // `bdlt::Datetime` times.
 // ```
+// /// Exercise `MyAccessTracker` for pedagogical purposes.
 // void exerciseTracker()
-//     // Exercise 'MyAccessTracker' for pedagogical purposes.
 // {
 //     MyAccessTracker accessTracker; // Datetime each user last accessed a
 //                                    // resource.

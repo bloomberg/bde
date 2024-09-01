@@ -151,13 +151,13 @@ BSLS_IDENT("$Id: $")
 //
 // First we forward declare a routine that we will use to create a thread:
 // ```
+// // Spawn a thread having properties described by the specified
+// // `attributes` and that runs the specified `function`, and assign a
+// // handle referring to the spawned thread to the specified
+// // `*threadHandle`.
 // void myThreadCreate(int                             *threadHandle,
 //                     const bslmt::ThreadAttributes&   attributes,
 //                     void                           (*function)());
-//     // Spawn a thread having properties described by the specified
-//     // 'attributes' and that runs the specified 'function', and assign a
-//     // handle referring to the spawned thread to the specified
-//     // '*threadHandle'.
 // ```
 // Then, we declare two routines that will return the minimum and maximum
 // thread priority given a scheduling policy.  Note that similar methods exist
@@ -213,20 +213,20 @@ BSLS_IDENT("$Id: $")
 // Finally, we define the thread creation function, and show how a thread
 // attributes object might be interpreted by it:
 // ```
+// /// Spawn a thread with properties described by the specified
+// /// `attributes`, running the specified `function`, and assign a handle
+// /// referring to the spawned thread to the specified `*threadHandle`.
 // void myThreadCreate(int                             *threadHandle,
 //                     const bslmt::ThreadAttributes&   attributes,
 //                     void                           (*function)())
-//     // Spawn a thread with properties described by the specified
-//     // 'attributes', running the specified 'function', and assign a handle
-//     // referring to the spawned thread to the specified '*threadHandle'.
 // {
 //     int stackSize = attributes.stackSize();
 //     if (bslmt::ThreadAttributes::e_UNSET_STACK_SIZE == stackSize) {
 //         stackSize = bslmt::Configuration::defaultThreadStackSize();
 //     }
 //
-//     // Add a "fudge factor" to 'stackSize' to ensure that the client can
-//     // declare an object of 'stackSize' bytes on the stack safely.
+//     // Add a "fudge factor" to `stackSize` to ensure that the client can
+//     // declare an object of `stackSize` bytes on the stack safely.
 //
 //     stackSize += 8192;
 //
@@ -295,9 +295,10 @@ class ThreadAttributes {
 
   public:
     // PUBLIC TYPES
+
+    /// This enumeration provides two values used to distinguish among a
+    /// joinable thread and a non-joinable (detached) thread.
     enum DetachedState {
-        // This enumeration provides two values used to distinguish among a
-        // joinable thread and a non-joinable (detached) thread.
 
         e_CREATE_JOINABLE = 0,  // create a joinable thread
         e_CREATE_DETACHED = 1   // create a non-joinable thread
@@ -322,7 +323,7 @@ class ThreadAttributes {
         e_SCHED_RR      = 2,  // round-robin scheduling policy
 
         e_SCHED_DEFAULT = 3   // default OS scheduling policy, usually
-                                  // equivalent to 'e_SCHED_OTHER'
+                              // equivalent to 'e_SCHED_OTHER'
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BCEMT_SCHED_OTHER = e_SCHED_OTHER
       , BCEMT_SCHED_FIFO = e_SCHED_FIFO
@@ -331,12 +332,12 @@ class ThreadAttributes {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+    /// The following constants indicate that the `stackSize`, `guardSize`,
+    /// and `schedulingPriority` attributes, respectively, are unspecified
+    /// and the thread creation routine is use platform-specific defaults.
+    /// These attributes are initialized to these values when a thread
+    /// attributes object is default constructed.
     enum {
-        // The following constants indicate that the 'stackSize', 'guardSize',
-        // and 'schedulingPriority' attributes, respectively, are unspecified
-        // and the thread creation routine is use platform-specific defaults.
-        // These attributes are initialized to these values when a thread
-        // attributes object is default constructed.
 
         e_UNSET_STACK_SIZE = -1,
         e_UNSET_GUARD_SIZE = -1,

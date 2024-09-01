@@ -181,7 +181,7 @@ class SingleProducerQueueImpl {
 
     // PRIVATE CONSTANTS
     enum {
-        // These value are used as values for 'd_state' in 'Node'.  A node is
+        // These value are used as values for `d_state` in `Node`.  A node is
         // writable at creation and after a read completes (when the single
         // producer can write to the node).  A node is readable after it is
         // written (when the node can be read by a consumer).  The states
@@ -194,9 +194,9 @@ class SingleProducerQueueImpl {
 
     static const int k_POP_YIELD_SPIN = 10;  // number of yield-spins to
                                              // attempt before acquiring
-                                             // 'd_readMutex'
+                                             // `d_readMutex`
 
-    // The following constants are used to maintain the queue's 'd_state'
+    // The following constants are used to maintain the queue's `d_state`
     // value.  See *Implementation* *Note* for details.
 
     static const bsls::Types::Int64 k_BLOCKED_MASK      = 0x0000000000ffffffLL;
@@ -215,7 +215,7 @@ class SingleProducerQueueImpl {
     struct QueueNode {
         // PUBLIC DATA
         bsls::ObjectBuffer<T> d_value;  // stored value
-        AtomicInt             d_state;  // 'e_READABLE' or 'e_WRITABLE'
+        AtomicInt             d_state;  // `e_READABLE` or `e_WRITABLE`
         AtomicPointer         d_next;   // pointer to next node
     };
 
@@ -226,7 +226,7 @@ class SingleProducerQueueImpl {
 
     AtomicPointer     d_nextRead;          // pointer to next read from node
 
-    MUTEX             d_readMutex;         // used with 'd_readCondition' to
+    MUTEX             d_readMutex;         // used with `d_readCondition` to
                                            // block until an element is
                                            // available for popping
 
@@ -234,10 +234,10 @@ class SingleProducerQueueImpl {
                                            // threads
 
     mutable MUTEX     d_emptyMutex;        // blocking point for producer
-                                           // during 'waitUntilEmpty'
+                                           // during `waitUntilEmpty`
 
     mutable CONDITION d_emptyCondition;    // condition variable for producer
-                                           // during 'waitUntilEmpty'
+                                           // during `waitUntilEmpty`
 
     AtomicInt64       d_state;             // bit pattern representing the
                                            // state of the queue (see

@@ -73,9 +73,9 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the interface of `TimedWaitSuccess`:
 // ```
+// /// `TimedWaitSuccess` is a synchronization primitive that always
+// /// succeeds.
 // class TimedWaitSuccess {
-//     // 'TimedWaitSuccess' is a synchronization primitive that always
-//     // succeeds.
 //
 //   private:
 //     // DATA
@@ -86,23 +86,26 @@ BSLS_IDENT("$Id: $")
 //     enum { e_TIMED_OUT = 1 };
 //
 //     // CREATORS
+//
+//     /// Create a `TimedWaitSuccess` object.  Optionally specify a
+//     /// `clockType` indicating the type of the system clock against
+//     /// which the `bsls::TimeInterval` `absTime` timeouts passed to the
+//     /// `timedWait` method are to be interpreted.  If `clockType` is not
+//     /// specified then the realtime system clock is used.
 //     explicit
 //     TimedWaitSuccess(bsls::SystemClockType::Enum clockType
 //                                       = bsls::SystemClockType::e_REALTIME);
-//         // Create a 'TimedWaitSuccess' object.  Optionally specify a
-//         // 'clockType' indicating the type of the system clock against
-//         // which the 'bsls::TimeInterval' 'absTime' timeouts passed to the
-//         // 'timedWait' method are to be interpreted.  If 'clockType' is not
-//         // specified then the realtime system clock is used.
 //
 //     // MANIPULATORS
+//
+//     /// Return 0 immediately.  Note that this is for demonstration and
+//     /// testing purposes only.
 //     int timedWait(const bsls::TimeInterval&);
-//         // Return 0 immediately.  Note that this is for demonstration and
-//         // testing purposes only.
 //
 //     // ACCESSORS
+//
+//     /// Return the clock type used for timeouts.
 //     bsls::SystemClockType::Enum clockType() const;
-//         // Return the clock type used for timeouts.
 // };
 // ```
 // Then, we implement the creator.  All it has to do is remember the

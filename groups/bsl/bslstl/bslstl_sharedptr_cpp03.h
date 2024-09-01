@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:39:10 2024
+// Generated on Sun Sep  1 18:48:19 2024
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -179,9 +179,9 @@ namespace bslstl {
 struct SharedPtr_RepFromExistingSharedPtr {
 };
 
+/// Forward declaration of `SharedPtr_ImpUtil`. This is needed because this
+/// struct is a friend of `enable_shared_from_this` in the `bsl` namespace.
 struct SharedPtr_ImpUtil;
-    // Forward declaration of 'SharedPtr_ImpUtil'. This is needed because this
-    // struct is a friend of 'enable_shared_from_this' in the 'bsl' namespace.
 
 #if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
 /// Forward declaration of component-private type trait to indicate whether
@@ -587,29 +587,29 @@ class shared_ptr {
                ALLOCATOR                       basicAllocator,
                typename ALLOCATOR::value_type * = 0);
 
+    /// Create a shared pointer that takes over the management of the
+    /// modifiable object (if any) previously managed by the specified
+    /// `managedPtr` to the (template parameter) type `CONVERTIBLE_TYPE`,
+    /// and that refers to `(ELEMENT_TYPE *)managedPtr.ptr()`.  The deleter
+    /// used in the `managedPtr` will be used to destroy the shared object
+    /// when all references have been released.  Optionally specify a
+    /// `basicAllocator` used to allocate and deallocate the internal
+    /// representation of the shared pointer.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.  If
+    /// `CONVERTIBLE_TYPE *` is not implicitly convertible to
+    /// `ELEMENT_TYPE *`, then a compiler diagnostic will be emitted
+    /// indicating the error.  Note that if `managedPtr` is empty, then an
+    /// empty shared pointer is created and `basicAllocator` is ignored.
+    /// Also note that if `managedPtr` owns a reference to another shared
+    /// object (due to a previous call to `shared_ptr<T>::managedPtr`) then
+    /// no memory will be allocated, and this `shared_ptr` will adopt the
+    /// `ManagedPtr`s ownership of that shared object.
     template <class CONVERTIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_CONVERTIBLE>
     shared_ptr(
          BloombergLP::bslma::ManagedPtr<CONVERTIBLE_TYPE>  managedPtr,
          BloombergLP::bslma::Allocator                    *basicAllocator = 0);
                                                                     // IMPLICIT
-        // Create a shared pointer that takes over the management of the
-        // modifiable object (if any) previously managed by the specified
-        // 'managedPtr' to the (template parameter) type 'CONVERTIBLE_TYPE',
-        // and that refers to '(ELEMENT_TYPE *)managedPtr.ptr()'.  The deleter
-        // used in the 'managedPtr' will be used to destroy the shared object
-        // when all references have been released.  Optionally specify a
-        // 'basicAllocator' used to allocate and deallocate the internal
-        // representation of the shared pointer.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.  If
-        // 'CONVERTIBLE_TYPE *' is not implicitly convertible to
-        // 'ELEMENT_TYPE *', then a compiler diagnostic will be emitted
-        // indicating the error.  Note that if 'managedPtr' is empty, then an
-        // empty shared pointer is created and 'basicAllocator' is ignored.
-        // Also note that if 'managedPtr' owns a reference to another shared
-        // object (due to a previous call to 'shared_ptr<T>::managedPtr') then
-        // no memory will be allocated, and this 'shared_ptr' will adopt the
-        // 'ManagedPtr's ownership of that shared object.
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
     /// Create a shared pointer that takes over the management of the
@@ -645,6 +645,20 @@ class shared_ptr {
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
 # if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
+    /// Create a shared pointer that takes over the management of the
+    /// modifiable object previously managed by the specified `adoptee` to
+    /// the (template parameter) type `COMPATIBLE_TYPE`, and that refers to
+    /// `(ELEMENT_TYPE *)autoPtr.get()`.  `delete(autoPtr.release())` will
+    /// be called to destroy the shared object when all references have been
+    /// released.  Optionally specify a `basicAllocator` used to allocate
+    /// and deallocate the internal representation of the shared pointer.
+    /// If `basicAllocator` is 0, the currently installed default allocator
+    /// is used.  This function does not exist unless
+    /// `unique_ptr<COMPATIBLE_TYPE, DELETER>::pointer` is convertible to
+    /// `ELEMENT_TYPE *`.  Note that this function creates a `shared_ptr`
+    /// with an unspecified deleter type that has satisfies this contract,
+    /// which might not be the deleter of `rhs`, which is specified by the
+    /// C++ standard.
     template <class COMPATIBLE_TYPE,
               class UNIQUE_DELETER,
               typename enable_if<is_convertible<
@@ -655,21 +669,21 @@ class shared_ptr {
                                 UNIQUE_DELETER>&&  adoptee,
                 BloombergLP::bslma::Allocator     *basicAllocator = 0);
                                                                     // IMPLICIT
-        // Create a shared pointer that takes over the management of the
-        // modifiable object previously managed by the specified 'adoptee' to
-        // the (template parameter) type 'COMPATIBLE_TYPE', and that refers to
-        // '(ELEMENT_TYPE *)autoPtr.get()'.  'delete(autoPtr.release())' will
-        // be called to destroy the shared object when all references have been
-        // released.  Optionally specify a 'basicAllocator' used to allocate
-        // and deallocate the internal representation of the shared pointer.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.  This function does not exist unless
-        // 'unique_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is convertible to
-        // 'ELEMENT_TYPE *'.  Note that this function creates a 'shared_ptr'
-        // with an unspecified deleter type that has satisfies this contract,
-        // which might not be the deleter of 'rhs', which is specified by the
-        // C++ standard.
 # else
+    /// Create a shared pointer that takes over the management of the
+    /// modifiable object previously managed by the specified `adoptee` to
+    /// the (template parameter) type `COMPATIBLE_TYPE`, and that refers to
+    /// `(ELEMENT_TYPE *)autoPtr.get()`.  `delete(autoPtr.release())` will
+    /// be called to destroy the shared object when all references have been
+    /// released.  Optionally specify a `basicAllocator` used to allocate
+    /// and deallocate the internal representation of the shared pointer.
+    /// If `basicAllocator` is 0, the currently installed default allocator
+    /// is used.  This function does not exist unless
+    /// `unique_ptr<COMPATIBLE_TYPE, DELETER>::pointer` is convertible to
+    /// `ELEMENT_TYPE *`.  Note that this function creates a `shared_ptr`
+    /// with an unspecified deleter type that has satisfies this contract,
+    /// which might not be the deleter of `rhs`, which is specified by the
+    /// C++ standard.
     template <class COMPATIBLE_TYPE, class UNIQUE_DELETER>
     shared_ptr(std::unique_ptr<COMPATIBLE_TYPE,
                                 UNIQUE_DELETER>&&  adoptee,
@@ -681,20 +695,6 @@ class shared_ptr {
                       BloombergLP::bslstl::SharedPtr_ImpUtil>::type =
                                       BloombergLP::bslstl::SharedPtr_ImpUtil())
                                                                     // IMPLICIT
-        // Create a shared pointer that takes over the management of the
-        // modifiable object previously managed by the specified 'adoptee' to
-        // the (template parameter) type 'COMPATIBLE_TYPE', and that refers to
-        // '(ELEMENT_TYPE *)autoPtr.get()'.  'delete(autoPtr.release())' will
-        // be called to destroy the shared object when all references have been
-        // released.  Optionally specify a 'basicAllocator' used to allocate
-        // and deallocate the internal representation of the shared pointer.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.  This function does not exist unless
-        // 'unique_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is convertible to
-        // 'ELEMENT_TYPE *'.  Note that this function creates a 'shared_ptr'
-        // with an unspecified deleter type that has satisfies this contract,
-        // which might not be the deleter of 'rhs', which is specified by the
-        // C++ standard.
     : d_ptr_p(adoptee.get())
     , d_rep_p(0)
     {
@@ -783,21 +783,21 @@ class shared_ptr {
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
     shared_ptr(shared_ptr<COMPATIBLE_TYPE>&& other) BSLS_KEYWORD_NOEXCEPT;
 #else
+    /// Create a shared pointer that refers to and assumes management of the
+    /// same object (if any) as the specified `other` shared pointer to the
+    /// (template parameter) type `COMPATIBLE_TYPE`, using the same deleter
+    /// as `other` to destroy the shared object, and refers to
+    /// `(ELEMENT_TYPE*)other.get()`.  If `COMPATIBLE_TYPE *` is not
+    /// implicitly convertible to `ELEMENT_TYPE *`, then a compiler
+    /// diagnostic will be emitted indicating the error.  Note that if
+    /// `other` is empty, then an empty shared pointer is created, which may
+    /// still point to an un-managed object if `other` were constructed
+    /// through an aliasing constructor.
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
     shared_ptr(
            BloombergLP::bslmf::MovableRef<shared_ptr<COMPATIBLE_TYPE> > other)
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Create a shared pointer that refers to and assumes management of the
-        // same object (if any) as the specified 'other' shared pointer to the
-        // (template parameter) type 'COMPATIBLE_TYPE', using the same deleter
-        // as 'other' to destroy the shared object, and refers to
-        // '(ELEMENT_TYPE*)other.get()'.  If 'COMPATIBLE_TYPE *' is not
-        // implicitly convertible to 'ELEMENT_TYPE *', then a compiler
-        // diagnostic will be emitted indicating the error.  Note that if
-        // 'other' is empty, then an empty shared pointer is created, which may
-        // still point to an un-managed object if 'other' were constructed
-        // through an aliasing constructor.
 #endif
 
     /// Create a shared pointer that refers to and manages the same object
@@ -810,19 +810,19 @@ class shared_ptr {
     explicit shared_ptr(const weak_ptr<COMPATIBLE_TYPE>& ptr);
 
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    /// Create a shared pointer that refers to and manages the same object
+    /// as the specified `ptr` if  `ptr.expired()` is `false`; otherwise,
+    /// create a shared pointer in the empty state.  Note that the
+    /// referenced and managed objects may be different if `ptr` was created
+    /// from a `shared_ptr` in an aliasing state.  Also note that this
+    /// overloaded constructor is necessary only for C++03 compilers that
+    /// rely on the BDE move-emulation type, `bslmf::MovableRef`; a C++11
+    /// compiler will pass rvalues directly to the constructor taking a
+    /// `const weak_ptr&`, rendering this constructor redundant.
     template<class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
     explicit shared_ptr(
               BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > ptr);
-        // Create a shared pointer that refers to and manages the same object
-        // as the specified 'ptr' if  'ptr.expired()' is 'false'; otherwise,
-        // create a shared pointer in the empty state.  Note that the
-        // referenced and managed objects may be different if 'ptr' was created
-        // from a 'shared_ptr' in an aliasing state.  Also note that this
-        // overloaded constructor is necessary only for C++03 compilers that
-        // rely on the BDE move-emulation type, 'bslmf::MovableRef'; a C++11
-        // compiler will pass rvalues directly to the constructor taking a
-        // 'const weak_ptr&', rendering this constructor redundant.
 #endif
 
     /// Destroy this shared pointer.  If this shared pointer refers to a
@@ -892,27 +892,27 @@ class shared_ptr {
                       shared_ptr&>::type
     operator=(shared_ptr<COMPATIBLE_TYPE>&& rhs) BSLS_KEYWORD_NOEXCEPT;
 #else
+    /// Make this shared pointer refer to and manage the same modifiable
+    /// object as the specified `rhs` shared pointer to the (template
+    /// parameter) type `COMPATIBLE_TYPE`, using the same deleter as `rhs`
+    /// and referring to `(ELEMENT_TYPE *)rhs.get()`, and return a reference
+    /// to this modifiable shared pointer.  If this shared pointer is
+    /// already managing a (possibly shared) object, then release the shared
+    /// reference to that object, and destroy it using its associated
+    /// deleter if this shared pointer held the last shared reference to
+    /// that object.  Reset `rhs` to an empty state, not pointing to any
+    /// object, unless `*this` is the same object as `rhs`.  This function
+    /// does not exist unless a pointer to (template parameter)
+    /// `COMPATIBLE_TYPE` is convertible to a pointer to the (template
+    /// parameter) `ELEMENT_TYPE` of this `shared_ptr`.  Note that if `rhs`
+    /// is empty, then this shared pointer will also be empty after the
+    /// assignment.
     template <class COMPATIBLE_TYPE>
     typename
             enable_if<is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
                       shared_ptr&>::type
     operator=(BloombergLP::bslmf::MovableRef<shared_ptr<COMPATIBLE_TYPE> > rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Make this shared pointer refer to and manage the same modifiable
-        // object as the specified 'rhs' shared pointer to the (template
-        // parameter) type 'COMPATIBLE_TYPE', using the same deleter as 'rhs'
-        // and referring to '(ELEMENT_TYPE *)rhs.get()', and return a reference
-        // to this modifiable shared pointer.  If this shared pointer is
-        // already managing a (possibly shared) object, then release the shared
-        // reference to that object, and destroy it using its associated
-        // deleter if this shared pointer held the last shared reference to
-        // that object.  Reset 'rhs' to an empty state, not pointing to any
-        // object, unless '*this' is the same object as 'rhs'.  This function
-        // does not exist unless a pointer to (template parameter)
-        // 'COMPATIBLE_TYPE' is convertible to a pointer to the (template
-        // parameter) 'ELEMENT_TYPE' of this 'shared_ptr'.  Note that if 'rhs'
-        // is empty, then this shared pointer will also be empty after the
-        // assignment.
 #endif
 
     /// Transfer, to this shared pointer, ownership of the modifiable object
@@ -1476,9 +1476,11 @@ class shared_ptr {
     /// than one, then it is not safe to release the representation (thereby
     /// destroying the shared object), but it is always safe to create
     /// another shared pointer with the representation using the constructor
-    /// with the signature
+    /// with the following signature:
+    /// ```
     /// 'shared_ptr(ELEMENT_TYPE                     *ptr,
-    ///             BloombergLP::bslma::SharedPtrRep *rep)'.
+    ///             BloombergLP::bslma::SharedPtrRep *rep)'
+    /// ```
     /// Note that this function returns a pair of null pointers if this
     /// shared pointer is empty.
     pair<element_type *, BloombergLP::bslma::SharedPtrRep *> release()
@@ -1778,7 +1780,7 @@ template<class ELEMENT_TYPE,
 shared_ptr(std::unique_ptr<ELEMENT_TYPE, DELETER>, ALLOC *)
 -> shared_ptr<ELEMENT_TYPE>;
 
-// Deduction guides for 'auto_ptr' and 'auto_ptr_ref' are deliberately not
+// Deduction guides for `auto_ptr` and `auto_ptr_ref` are deliberately not
 // provided, since auto_ptr has been removed from C++17.
 
 /// Deduce the specified type `ELEMENT_TYPE` corresponding template
@@ -1826,54 +1828,54 @@ strong_ordering operator<=>(const shared_ptr<LHS_TYPE>& lhs,
 
 #else
 
+/// Return `true` if the specified `lhs` shared pointer does not refer to
+/// the same object (if any) as that referred to by the specified `rhs`
+/// shared pointer (if any), and `false` otherwise; a compiler diagnostic
+/// will be emitted indicating the error unless a (raw) pointer to
+/// `LHS_TYPE` can be compared to a (raw) pointer to `RHS_TYPE`.  Note that
+/// two shared pointers that do not compare equal may manage the same object
+/// due to aliasing.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const shared_ptr<LHS_TYPE>& lhs,
                 const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'lhs' shared pointer does not refer to
-    // the same object (if any) as that referred to by the specified 'rhs'
-    // shared pointer (if any), and 'false' otherwise; a compiler diagnostic
-    // will be emitted indicating the error unless a (raw) pointer to
-    // 'LHS_TYPE' can be compared to a (raw) pointer to 'RHS_TYPE'.  Note that
-    // two shared pointers that do not compare equal may manage the same object
-    // due to aliasing.
 
+/// Return `true` if the address of the object that the specified `lhs`
+/// shared pointer refers to is ordered before the address of the object
+/// that the specified `rhs` shared pointer refers to under the total
+/// ordering supplied by `std::less<T *>`, where `T *` is the composite
+/// pointer type of `LHS_TYPE *` and `RHS_TYPE *`, and `false` otherwise.
 template<class LHS_TYPE, class RHS_TYPE>
 bool operator<(const shared_ptr<LHS_TYPE>& lhs,
                const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the address of the object that the specified 'lhs'
-    // shared pointer refers to is ordered before the address of the object
-    // that the specified 'rhs' shared pointer refers to under the total
-    // ordering supplied by 'std::less<T *>', where 'T *' is the composite
-    // pointer type of 'LHS_TYPE *' and 'RHS_TYPE *', and 'false' otherwise.
 
+/// Return `true` if the address of the object that the specified `lhs`
+/// shared pointer refers to is ordered after the address of the object
+/// that the specified `rhs` shared pointer refers to under the total
+/// ordering supplied by `std::less<T *>`, where `T *` is the composite
+/// pointer type of `LHS_TYPE *` and `RHS_TYPE *`, and `false` otherwise.
 template<class LHS_TYPE, class RHS_TYPE>
 bool operator>(const shared_ptr<LHS_TYPE>& lhs,
                const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the address of the object that the specified 'lhs'
-    // shared pointer refers to is ordered after the address of the object
-    // that the specified 'rhs' shared pointer refers to under the total
-    // ordering supplied by 'std::less<T *>', where 'T *' is the composite
-    // pointer type of 'LHS_TYPE *' and 'RHS_TYPE *', and 'false' otherwise.
 
+/// Return `true` if the specified `lhs` shared pointer refers to the same
+/// object as the specified `rhs` shared pointer, or if the address of the
+/// object referred to by `lhs` (if any) is ordered before the address of
+/// the object referred to by `rhs` (if any) under the total ordering
+/// supplied by `std::less<T *>`, where `T *` is the composite pointer type
+// of `LHS_TYPE *` and `RHS_TYPE *`, and `false` otherwise.
 template<class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const shared_ptr<LHS_TYPE>& lhs,
                 const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'lhs' shared pointer refers to the same
-    // object as the specified 'rhs' shared pointer, or if the address of the
-    // object referred to by 'lhs' (if any) is ordered before the address of
-    // the object referred to by 'rhs' (if any) under the total ordering
-    // supplied by 'std::less<T *>', where 'T *' is the composite pointer type
-    // of 'LHS_TYPE *' and 'RHS_TYPE *', and 'false' otherwise.
 
+/// Return `true` if the specified `lhs` shared pointer refers to the same
+/// object as the specified `rhs` shared pointer, or if the address of the
+/// object referred to by `lhs` (if any) is ordered after the address of the
+/// object referred to by `rhs` (if any) under the total ordering supplied
+/// by `std::less<T *>`, where `T *` is the composite pointer type of
+/// `LHS_TYPE *` and `RHS_TYPE *`, and `false` otherwise.
 template<class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const shared_ptr<LHS_TYPE>& lhs,
                 const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'lhs' shared pointer refers to the same
-    // object as the specified 'rhs' shared pointer, or if the address of the
-    // object referred to by 'lhs' (if any) is ordered after the address of the
-    // object referred to by 'rhs' (if any) under the total ordering supplied
-    // by 'std::less<T *>', where 'T *' is the composite pointer type of
-    // 'LHS_TYPE *' and 'RHS_TYPE *', and 'false' otherwise.
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
@@ -1894,87 +1896,87 @@ strong_ordering operator<=>(const shared_ptr<TYPE>& ptr,
 
 #else
 
+/// Return `true` if the specified `rhs` shared pointer does not refer to an
+/// object, and `false` otherwise.
 template <class RHS_TYPE>
 bool operator==(nullptr_t,
                 const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'rhs' shared pointer does not refer to an
-    // object, and 'false' otherwise.
 
+/// Return `true` if the specified `lhs` shared pointer refers to an object,
+/// and `false` otherwise.
 template <class LHS_TYPE>
 bool operator!=(const shared_ptr<LHS_TYPE>& lhs,
                 nullptr_t) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'lhs' shared pointer refers to an object,
-    // and 'false' otherwise.
 
+/// Return `true` if the specified `rhs` shared pointer refers to an object,
+/// and `false` otherwise.
 template <class RHS_TYPE>
 bool operator!=(nullptr_t,
                 const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'rhs' shared pointer refers to an object,
-    // and 'false' otherwise.
 
+/// Return `true` if the address of the object referred to by the specified
+/// `lhs` shared pointer is ordered before the null-pointer value under the
+/// total ordering supplied by `std::less<LHS_TYPE *>`, and `false`
+/// otherwise.
 template <class LHS_TYPE>
 bool operator<(const shared_ptr<LHS_TYPE>& lhs, nullptr_t)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the address of the object referred to by the specified
-    // 'lhs' shared pointer is ordered before the null-pointer value under the
-    // total ordering supplied by 'std::less<LHS_TYPE *>', and 'false'
-    // otherwise.
 
+/// Return `true` if the address of the object referred to by the specified
+/// `rhs` shared pointer is ordered after the null-pointer value under the
+/// total ordering supplied by `std::less<RHS_TYPE *>`, and `false`
+/// otherwise.
 template <class RHS_TYPE>
 bool operator<(nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the address of the object referred to by the specified
-    // 'rhs' shared pointer is ordered after the null-pointer value under the
-    // total ordering supplied by 'std::less<RHS_TYPE *>', and 'false'
-    // otherwise.
 
+/// Return `true` if the specified `lhs` shared pointer does not refer to an
+/// object, or if the address of the object referred to by `lhs` is ordered
+/// before the null-pointer value under the total ordering supplied by
+/// `std::less<LHS_TYPE *>`, and `false` otherwise.
 template <class LHS_TYPE>
 bool operator<=(const shared_ptr<LHS_TYPE>& lhs,
                 nullptr_t) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'lhs' shared pointer does not refer to an
-    // object, or if the address of the object referred to by 'lhs' is ordered
-    // before the null-pointer value under the total ordering supplied by
-    // 'std::less<LHS_TYPE *>', and 'false' otherwise.
 
+/// Return `true` if the specified `rhs` shared pointer does not refer to an
+/// object, or if the address of the object referred to by `rhs` is ordered
+/// after the null-pointer value under the total ordering supplied by
+/// `std::less<RHS_TYPE *>`, and `false` otherwise.
 template <class RHS_TYPE>
 bool operator<=(nullptr_t,
                 const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'rhs' shared pointer does not refer to an
-    // object, or if the address of the object referred to by 'rhs' is ordered
-    // after the null-pointer value under the total ordering supplied by
-    // 'std::less<RHS_TYPE *>', and 'false' otherwise.
 
+/// Return `true` if the address of the object referred to by the specified
+/// `lhs` shared pointer is ordered after the null-pointer value under the
+/// total ordering supplied by `std::less<LHS_TYPE *>`, and `false`
+/// otherwise.
 template <class LHS_TYPE>
 bool operator>(const shared_ptr<LHS_TYPE>& lhs, nullptr_t)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the address of the object referred to by the specified
-    // 'lhs' shared pointer is ordered after the null-pointer value under the
-    // total ordering supplied by 'std::less<LHS_TYPE *>', and 'false'
-    // otherwise.
 
+/// Return `true` if the address of the object referred to by the specified
+/// `rhs` shared pointer is ordered before the null-pointer value under the
+/// total ordering supplied by `std::less<RHS_TYPE *>`, and `false`
+/// otherwise.
 template <class RHS_TYPE>
 bool operator>(nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the address of the object referred to by the specified
-    // 'rhs' shared pointer is ordered before the null-pointer value under the
-    // total ordering supplied by 'std::less<RHS_TYPE *>', and 'false'
-    // otherwise.
 
+/// Return `true` if the specified `lhs` shared pointer does not refer to an
+/// object, or if the address of the object referred to by `lhs` is ordered
+/// after the null-pointer value under the total ordering supplied by
+/// `std::less<LHS_TYPE *>`, and `false` otherwise.
 template <class LHS_TYPE>
 bool operator>=(const shared_ptr<LHS_TYPE>& lhs,
                 nullptr_t) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'lhs' shared pointer does not refer to an
-    // object, or if the address of the object referred to by 'lhs' is ordered
-    // after the null-pointer value under the total ordering supplied by
-    // 'std::less<LHS_TYPE *>', and 'false' otherwise.
 
+/// Return `true` if the specified `rhs` shared pointer does not refer to an
+/// object, or if the address of the object referred to by `rhs` is ordered
+/// before the null-pointer value under the total ordering supplied by
+/// `std::less<RHS_TYPE *>`, and `false` otherwise.
 template <class RHS_TYPE>
 bool operator>=(nullptr_t,
                 const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'rhs' shared pointer does not refer to an
-    // object, or if the address of the object referred to by 'rhs' is ordered
-    // before the null-pointer value under the total ordering supplied by
-    // 'std::less<RHS_TYPE *>', and 'false' otherwise.
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
@@ -3355,6 +3357,10 @@ class weak_ptr {
     weak_ptr(BloombergLP::bslmf::MovableRef<weak_ptr> original)
                                                          BSLS_KEYWORD_NOEXCEPT;
 
+    /// Create a weak pointer that refers to the same object (if any) as the
+    /// specified `other` weak pointer, and reset `original` to an empty
+    /// state.  Note that this operation does not involve any change to
+    /// reference counts.
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
@@ -3365,10 +3371,6 @@ class weak_ptr {
     weak_ptr(BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > other)
                                                          BSLS_KEYWORD_NOEXCEPT;
 #endif
-        // Create a weak pointer that refers to the same object (if any) as the
-        // specified 'other' weak pointer, and reset 'original' to an empty
-        // state.  Note that this operation does not involve any change to
-        // reference counts.
 
     /// Create a weak pointer that refers to the same object (if any) as the
     /// specified `original` weak pointer, and increment the number of weak
@@ -3377,6 +3379,14 @@ class weak_ptr {
     /// initialized to the empty state.
     weak_ptr(const weak_ptr& original) BSLS_KEYWORD_NOEXCEPT;
 
+    /// Create a weak pointer that refers to the same object (if any) as the
+    /// specified `other` (shared or weak) pointer of the (template
+    /// parameter) `COMPATIBLE_TYPE`, and increment the number of weak
+    /// references to the object managed by `other` (if any).  If
+    /// `COMPATIBLE_TYPE *` is not implicitly convertible to
+    /// `ELEMENT_TYPE *`, then a compiler diagnostic will be emitted.  Note
+    /// that if `other` is in the empty state, this weak pointer will be
+    /// initialized to the empty state.
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
     weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& other) BSLS_KEYWORD_NOEXCEPT;
@@ -3385,14 +3395,6 @@ class weak_ptr {
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
     weak_ptr(const weak_ptr<COMPATIBLE_TYPE>& other) BSLS_KEYWORD_NOEXCEPT;
                                                                     // IMPLICIT
-        // Create a weak pointer that refers to the same object (if any) as the
-        // specified 'other' (shared or weak) pointer of the (template
-        // parameter) 'COMPATIBLE_TYPE', and increment the number of weak
-        // references to the object managed by 'other' (if any).  If
-        // 'COMPATIBLE_TYPE *' is not implicitly convertible to
-        // 'ELEMENT_TYPE *', then a compiler diagnostic will be emitted.  Note
-        // that if 'other' is in the empty state, this weak pointer will be
-        // initialized to the empty state.
 
     /// Destroy this weak pointer object.  If this weak pointer manages a
     /// (possibly shared) object, release the weak reference to that object.
@@ -3419,6 +3421,15 @@ class weak_ptr {
     /// weak pointer will be set to an empty state.
     weak_ptr& operator=(const weak_ptr& rhs) BSLS_KEYWORD_NOEXCEPT;
 
+    /// Make this weak pointer refer to the same object (if any) as the
+    /// specified `rhs` weak pointer.  Decrement the number of weak
+    /// references to the object this weak pointer managed (if any), and
+    /// reset `rhs` to an empty state.  Return a reference providing
+    /// modifiable access to this weak pointer.  This function does not
+    /// exist unless a pointer to (the template parameter) `COMPATIBLE_TYPE`
+    /// is convertible to a pointer to (the template parameter)
+    /// `ELEMENT_TYPE`.  Note that if `rhs` is in an empty state, this weak
+    /// pointer will be set to an empty state.
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class COMPATIBLE_TYPE>
     typename enable_if<
@@ -3431,15 +3442,6 @@ class weak_ptr {
     operator=(BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
 #endif
-        // Make this weak pointer refer to the same object (if any) as the
-        // specified 'rhs' weak pointer.  Decrement the number of weak
-        // references to the object this weak pointer managed (if any), and
-        // reset 'rhs' to an empty state.  Return a reference providing
-        // modifiable access to this weak pointer.  This function does not
-        // exist unless a pointer to (the template parameter) 'COMPATIBLE_TYPE'
-        // is convertible to a pointer to (the template parameter)
-        // 'ELEMENT_TYPE'.  Note that if 'rhs' is in an empty state, this weak
-        // pointer will be set to an empty state.
 
     template <class COMPATIBLE_TYPE>
     typename enable_if<
@@ -3591,9 +3593,10 @@ template<class ELEMENT_TYPE>
 class enable_shared_from_this {
 
     // FRIENDS
+
+    /// Allows `shared_ptr` to initialize `d_weakThis` when it detects an
+    /// `enable_shared_from_this` base class.
     friend struct BloombergLP::bslstl::SharedPtr_ImpUtil;
-        // Allows 'shared_ptr' to initialize 'd_weakThis' when it detects an
-        // 'enable_shared_from_this' base class.
 
   private:
     // DATA
@@ -4026,21 +4029,22 @@ struct SharedPtr_TestIsCallable<RESULT(PARAM)> {
 
   public:
     // CLASS METHODS
+
+    // This function is never defined.  It provides a property-checker that
+    // an entity of (template parameter) type `FACTORY` can be called like
+    // a function with a single argument, which is a pointer to an object
+    // of (template parameter) type `ARG`.  The `sizeof` expression
+    // provides an unevaluated context to check the validity of the
+    // enclosed expression, and the `, 0` ensures that the `sizeof` check
+    // remains valid, even if the expression returns `void`.  Similarly,
+    // the cast to `void` ensures that there are no surprises with types
+    // that overload the comma operator.
     template <class ARG>
     static FalseType test(...);
     template <class ARG>
     static TrueType test(typename bsl::enable_if<(bool)sizeof(
                                         ((void)callMe(Util::declval<ARG>())), 0
                                                        )>::type *);
-        // This function is never defined.  It provides a property-checker that
-        // an entity of (template parameter) type 'FACTORY' can be called like
-        // a function with a single argument, which is a pointer to an object
-        // of (template parameter) type 'ARG'.  The 'sizeof' expression
-        // provides an unevaluated context to check the validity of the
-        // enclosed expression, and the ', 0' ensures that the 'sizeof' check
-        // remains valid, even if the expression returns 'void'.  Similarly,
-        // the cast to 'void' ensures that there are no surprises with types
-        // that overload the comma operator.
 };
 
 template <class RESULT, class PARAM>

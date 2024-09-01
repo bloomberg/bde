@@ -48,18 +48,18 @@ BSLS_IDENT("$Id: $")
 // The following example demonstrates temporary replacement of the underlying
 // `streambuf` within the existing `ostream` object.
 // ```
+// /// Write atomically to the specified `os` output stream.
 // void writeSync(bsl::ostream& os)
-//     // Write atomically to the specified 'os' output stream.
 // {
-//     // Temporarily replace the underlying 'streambuf'
+//     // Temporarily replace the underlying `streambuf`
 //     bsl::syncbuf buf(os.rdbuf());
 //     os.rdbuf(&buf);
 //
-//     // Write to the 'syncbuf'
+//     // Write to the `syncbuf`
 //     os << "Hello, ";
 //     os << "World!\n";
 //
-//     // Restore the underlying 'streambuf'
+//     // Restore the underlying `streambuf`
 //     os.rdbuf(buf.get_wrapped());
 //
 //     // The accumulated output will be atomically flushed/emitted here
@@ -223,23 +223,24 @@ class basic_syncbuf : public std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>,
 
   protected:
     // PROTECTED MANIPULATORS
+
+    // Do nothing if `traits_type::eof()` is passed.  Optionally specify
+    // `character` that has non-default value to add it to the internal
+    // buffer and return `traits_type::to_int_type(character)`.  Return
+    // `traits_type::eof()` otherwise.
     int_type overflow(int_type character = traits_type::eof())
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Do nothing if 'traits_type::eof()' is passed.  Optionally specify
-        // 'character' that has non-default value to add it to the internal
-        // buffer and return 'traits_type::to_int_type(character)'.  Return
-        // 'traits_type::eof()' otherwise.
 
     /// Request the wrapped streambuf flush on the next `emit` call, then
     /// call `emit` if the "emit-on-sync" flag is `true`.  Return 0 on
     /// success and -1 if the `emit` call has failed.
     int sync() BSLS_KEYWORD_OVERRIDE;
 
+    /// Write the specified `inputString` array of the specified `count`
+    /// characters to the internal buffer.  Return the number of characters
+    /// successfully written.
     std::streamsize xsputn(const char_type *inputString, std::streamsize count)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Write the specified 'inputString' array of the specified 'count'
-        // characters to the internal buffer.  Return the number of characters
-        // successfully written.
 };
 
 // STANDARD TYPEDEFS

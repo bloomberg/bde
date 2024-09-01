@@ -202,8 +202,8 @@ class TimetableTransition {
     /// specified `original` object.
     TimetableTransition(const TimetableTransition& original);
 
+    /// Destroy this object.
     //! ~TimetableTransition() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

@@ -76,7 +76,7 @@ BSLS_IDENT("$Id: $")
 // +=======================+=======================+
 // | Log Record Timestamps | publishInLocalTime    |
 // +-----------------------+-----------------------+
-// | 'stdout' Logging      | stdoutThreshold       |
+// | `stdout` Logging      | stdoutThreshold       |
 // +-----------------------+-----------------------+
 //
 // +-------------+------------------------------------+
@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 // |             | isFileLoggingEnabled               |
 // |             |                                    |
 // +-------------+------------------------------------+
-// | 'stdout'    | setStdoutThreshold                 |
+// | `stdout`    | setStdoutThreshold                 |
 // | Logging     | enableStdoutLoggingPrefix          |
 // |             | disableStdoutLoggingPrefix         |
 // |             | stdoutThreshold                    |
@@ -270,7 +270,7 @@ BSLS_IDENT("$Id: $")
 // rotated when the flag controlled by `suppressUniqueFileNameOnRotation`
 // is set to `false`:
 // ```
-// Disabled: 'suppressUniqueFileNameOnRotation'
+// Disabled: `suppressUniqueFileNameOnRotation`
 //
 // For brevity:
 //     <TS1> = 20210520_123000
@@ -296,7 +296,7 @@ BSLS_IDENT("$Id: $")
 // `suppressUniqueFileNameOnRotation` is set to `true`, and (possibly new) name
 // of the (new) log file following rotation:
 // ```
-// Enabled: 'suppressUniqueFileNameOnRotation'
+// Enabled: `suppressUniqueFileNameOnRotation`
 //
 // +----------------+-----------------+----------------+----------------------
 // | Pattern        | Filename Before | Filename After | Rotated Filename
@@ -459,33 +459,33 @@ class FileObserver : public Observer {
                                                 // logging to a file
 
     RecordStringFormatter d_stdoutFormatter;    // record formatter used when
-                                                // logging to 'stdout'
+                                                // logging to `stdout`
 
     Severity::Level       d_stdoutThreshold;    // minimum severity for records
-                                                // logged to 'stdout'
+                                                // logged to `stdout`
 
     bool                  d_useRegularFormatOnStdoutFlag;
-                                                // 'true' if records published
-                                                // to 'stdout' in regular
+                                                // `true` if records published
+                                                // to `stdout` in regular
                                                 // (long) format, otherwise
                                                 // short format is used
 
-    bool                  d_publishInLocalTime; // 'true' if timestamps of
+    bool                  d_publishInLocalTime; // `true` if timestamps of
                                                 // records are output in local
                                                 // time, otherwise UTC time
 
     bool                  d_userFieldsLoggingFlag;
-                                                // 'true' if user-defined
+                                                // `true` if user-defined
                                                 // fields published
                                                 // (!DEPRECATED!)
 
     bsl::string           d_stdoutLongFormat;   // initially set to default
                                                 // long format for records
-                                                // printed to 'stdout'; updated
-                                                // by 'setLogFormat'
+                                                // printed to `stdout`; updated
+                                                // by `setLogFormat`
 
     bsl::string           d_stdoutShortFormat;  // default short format for
-                                                // records printed to 'stdout'
+                                                // records printed to `stdout`
 
     mutable bslmt::Mutex  d_mutex;              // serialize operations
 
@@ -671,18 +671,20 @@ class FileObserver : public Observer {
     /// if file logging is enabled for this file observer, and to `stdout`
     /// if the severity of `record` is at least as severe as the value
     /// returned by `stdoutThreshold`.
+    ///
+    /// **DEPRECATED**: Do not use.
     void publish(const Record&  record,
                  const Context& context) BSLS_KEYWORD_OVERRIDE;
 
+    /// Process the record referenced by the specified 'record' shared
+    /// pointer having the specified publishing 'context' by writing the
+    /// record and 'context' to the current log file if file logging is
+    /// enabled for this file observer, and to 'stdout' if the severity of
+    /// 'record' is at least as severe as the value returned by
+    /// 'stdoutThreshold'.
     void publish(const bsl::shared_ptr<const Record>& record,
                  const Context&                       context)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Process the record referenced by the specified 'record' shared
-        // pointer having the specified publishing 'context' by writing the
-        // record and 'context' to the current log file if file logging is
-        // enabled for this file observer, and to 'stdout' if the severity of
-        // 'record' is at least as severe as the value returned by
-        // 'stdoutThreshold'.
 
     /// Discard any shared references to `Record` objects that were supplied
     /// to the `publish` method, and are held by this observer.  Note that
@@ -786,13 +788,13 @@ class FileObserver : public Observer {
     bool isFileLoggingEnabled(std::string *result) const;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    /// Return `true` if file logging is enabled for this file observer, and
+    /// `false` otherwise.  Load the specified `result` with the name of the
+    /// current log file if file logging is enabled, and leave `result`
+    /// unmodified otherwise.  Note that records received through the
+    /// `publish` method of this file observer may still be logged to
+    /// `stdout` when this method returns `false`.
     bool isFileLoggingEnabled(std::pmr::string *result) const;
-        // Return 'true' if file logging is enabled for this file observer, and
-        // 'false' otherwise.  Load the specified 'result' with the name of the
-        // current log file if file logging is enabled, and leave 'result'
-        // unmodified otherwise.  Note that records received through the
-        // 'publish' method of this file observer may still be logged to
-        // 'stdout' when this method returns 'false'.
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
     /// Return `true` if this file observer uses the long output format when

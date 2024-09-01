@@ -103,9 +103,10 @@ class Function_Rep {
 
   private:
     // PRIVATE TYPES
+
+    /// Function manager opcode enumerators.  See documentation for the
+    /// `functionManager` function template (below).
     enum ManagerOpCode {
-        // Function manager opcode enumerators.  See documentation for the
-        // 'functionManager' function template (below).
 
         e_MOVE_CONSTRUCT  ,
         e_COPY_CONSTRUCT  ,
@@ -162,31 +163,31 @@ class Function_Rep {
 
     // DATA
 
-    // When wrapping a target object that qualifies for the small-object
-    // optimization (as described in the
-    // `bslstl_function_smallobjectoptimization` component), this buffer
-    // stores the in-place representation of the target; otherwise it
-    // stores a pointer to allocated storage holding the target.
+    /// When wrapping a target object that qualifies for the small-object
+    /// optimization (as described in the
+    /// `bslstl_function_smallobjectoptimization` component), this buffer
+    /// stores the in-place representation of the target; otherwise it
+    /// stores a pointer to allocated storage holding the target.
     mutable InplaceBuffer d_objbuf;
 
-    // Allocator used to supply memory
+    /// Allocator used to supply memory
     bsl::allocator<char>  d_allocator;
 
-    // Pointer to a specialization of the `functionManager` function
-    // template (below) used to manage the current target, or null for
-    // empty objects.
+    /// Pointer to a specialization of the `functionManager` function
+    /// template (below) used to manage the current target, or null for
+    /// empty objects.
     ManagerRet          (*d_funcManager_p)(ManagerOpCode  opCode,
                                            Function_Rep  *rep_p,
                                            void          *srcFunc_vp);
 
-    // Pointer to the function used to invoke the current target, or null
-    // for empty objects.  Note that this pointer is always set *after*
-    // `d_funcManager_p` (see state transition table, below).
+    /// Pointer to the function used to invoke the current target, or null
+    /// for empty objects.  Note that this pointer is always set *after*
+    /// `d_funcManager_p` (see state transition table, below).
     void                (*d_invoker_p)();
 
-    // The table below shows progression of states of the a 'Function_Rep' from
+    // The table below shows progression of states of the a `Function_Rep` from
     // empty through having a fully constructed target.  The progression goes
-    // in the reverse direction when setting the 'Function_Rep' back to empty.
+    // in the reverse direction when setting the `Function_Rep` back to empty.
     // The "target allocated" state is transient and occurs only while a target
     // is being installed; unless otherwise documented, all member functions
     // assume as a class invariant that an object is not in the "target
@@ -415,8 +416,8 @@ class Function_Rep {
     /// object has no target object.
     bool isEmpty() const BSLS_KEYWORD_NOEXCEPT;
 
-    // The 'isInplace function is public in BDE legacy mode and private
-    // otherwise.
+    /// The `isInplace` function is public in BDE legacy mode and private
+    /// otherwise.
 #ifdef BDE_OMIT_INTERNAL_DEPRECATED
   private:
 #endif

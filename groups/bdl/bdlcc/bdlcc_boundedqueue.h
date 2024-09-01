@@ -102,8 +102,8 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define a utility classes that handles a simple "work item":
 // ```
+// /// Work data...
 // struct my_WorkData {
-//     // Work data...
 // };
 //
 // struct my_WorkRequest {
@@ -120,8 +120,8 @@ BSLS_IDENT("$Id: $")
 // Next, we provide a simple function to service an individual work item.  The
 // details are unimportant for this example:
 // ```
+// /// Do some work based upon the specified `data`.
 // void myDoWork(const my_WorkData& data)
-//     // Do some work based upon the specified 'data'.
 // {
 //     // do some stuff...
 //     (void)data;
@@ -134,11 +134,11 @@ BSLS_IDENT("$Id: $")
 // `queue->popFront()`, and `bdlcc::BoundedQueue` guarantees that each thread
 // gets a unique element from the queue:
 // ```
+// /// Pop elements from the specified `queue`.
 // void myConsumer(bdlcc::BoundedQueue<my_WorkRequest> *queue)
-//     // Pop elements from the specified 'queue'.
 // {
 //     while (1) {
-//         // 'popFront()' will wait for a 'my_WorkRequest' until available.
+//         // `popFront()` will wait for a `my_WorkRequest` until available.
 //
 //         my_WorkRequest item;
 //         item.d_type = my_WorkRequest::e_WORK;
@@ -161,9 +161,9 @@ BSLS_IDENT("$Id: $")
 // particular work item, it can rely on the knowledge that each consumer thread
 // will read a single `e_STOP` item and then terminate.
 // ```
+// /// Create a queue, start the specified `numThreads` consumer threads,
+// /// produce and enqueue work.
 // void myProducer(int numThreads)
-//     // Create a queue, start the specified 'numThreads' consumer threads,
-//     // produce and enqueue work.
 // {
 //     enum {
 //         k_MAX_QUEUE_LENGTH = 100,
@@ -364,8 +364,8 @@ class BoundedQueue {
 
     // PRIVATE CONSTANTS
 
-    // The following constants are used to maintain the queue's 'd_popCount'
-    // and 'd_pushCount' values.  See *Implementation* *Note* for details.
+    // The following constants are used to maintain the queue's `d_popCount`
+    // and `d_pushCount` values.  See *Implementation* *Note* for details.
 
     static const bsls::Types::Uint64 k_STARTED_MASK   = 0x00000000ffffffffLL;
     static const bsls::Types::Uint64 k_STARTED_INC    = 0x0000000000000001LL;
@@ -424,11 +424,11 @@ class BoundedQueue {
                                                    // element location
 
     mutable AtomicUint        d_emptyWaiterCount;  // circular count of
-                                                   // 'waitUntilEmpty'
+                                                   // `waitUntilEmpty`
                                                    // invocations
 
     AtomicUint                d_emptyCountSeen;    // maximum
-                                                   // 'd_emptyWaiterCount' seen
+                                                   // `d_emptyWaiterCount` seen
                                                    // prior to the queue being
                                                    // observed as empty; used
                                                    // to detect most very short
@@ -436,10 +436,10 @@ class BoundedQueue {
                                                    // queue being empty
 
     mutable bslmt::Mutex      d_emptyMutex;        // blocking point for
-                                                   // 'waitUntilEmpty'
+                                                   // `waitUntilEmpty`
 
     mutable bslmt::Condition  d_emptyCondition;    // condition variable for
-                                                   // 'waitUntilEmpty'
+                                                   // `waitUntilEmpty`
 
     Node                     *d_element_p;         // array of elements that
                                                    // comprise the bounded

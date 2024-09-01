@@ -91,16 +91,17 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CLASS METHODS
+//
+//     /// Return a `bsls::TimeInterval` value representing the difference
+//     /// between the local time for the "America/New_York" timezone and
+//     /// UTC time at the specified `utcDatetime`.  The behavior is
+//     /// undefined unless `2013 == utcDatetime.date().year()`.
 //     static bsls::TimeInterval localTimeOffset(
 //                                         const bdlt::Datetime& utcDatetime);
-//         // Return a 'bsls::TimeInterval' value representing the difference
-//         // between the local time for the "America/New_York" timezone and
-//         // UTC time at the specified 'utcDatetime'.  The behavior is
-//         // undefined unless '2013 == utcDatetime.date().year()'.
 //
+//     /// Return the number of invocations of the `localTimeOffset` since
+//     /// the start of the process.
 //     static int useCount();
-//         // Return the number of invocations of the 'localTimeOffset' since
-//         // the start of the process.
 // };
 //
 // // DATA

@@ -205,17 +205,17 @@ BSLS_IDENT("$Id: $")
 // Next, we define a visitor type to aggregate keys of the out-of-date values
 // in the cache:
 // ```
+// /// Visitor to `MyCache`.
 // struct MyVisitor {
-//     // Visitor to 'MyCache'.
 //     bsl::vector<int>  d_oldKeys;  // list of out-of-date keys
 //
 //     MyVisitor()
 //     : d_oldKeys(&talloc)
 //     {}
 //
+//     /// Check if the specified `value` is older than 1 hour.  If so,
+//     /// insert the specified `key` into `d_oldKeys`.
 //     bool operator() (int key, const MyValue& value)
-//       // Check if the specified 'value' is older than 1 hour.  If so,
-//       // insert the specified 'key' into 'd_oldKeys'.
 //     {
 //         if (veryVerbose) {
 //             bsl::cout << "Visiting " << key

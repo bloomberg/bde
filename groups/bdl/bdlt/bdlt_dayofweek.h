@@ -76,8 +76,9 @@ struct DayOfWeek {
 
   public:
     // TYPES
+
+    /// Enumerated day-of-week values.
     enum Enum {
-        // Enumerated day-of-week values.
 
         e_SUN = 1, e_SUNDAY    = e_SUN,
         e_MON,     e_MONDAY    = e_MON,

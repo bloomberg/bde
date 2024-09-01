@@ -70,8 +70,9 @@ BSLS_IDENT("$Id: $")
 // {
 //     BSLMF_NESTED_TRAIT_DECLARATION(MyAllocator, bslma::IsStdAllocator);
 //     typedef int value_type;
+//
+//     /// Allocate some memory for use by the caller.
 //     int *allocate(size_t);
-//         // Allocate some memory for use by the caller.
 // };
 // ```
 // Now, we instantiate the `bslma::IsStdAllocator` template for both a type

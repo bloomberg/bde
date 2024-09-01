@@ -58,67 +58,67 @@ BSLS_IDENT("$Id: $")
 // Assume the following declarations (we leave the implementations as
 // undefined, as the definitions are largely irrelevant to this example):
 // ```
+// /// Class simulating the query.
 // struct Query {
-//     // Class simulating the query.
 // };
 //
+// /// Class simulating the result of a query.
 // class QueryResult {
-//     // Class simulating the result of a query.
 // };
 //
+// /// Class encapsulating the request message.  It encapsulates the
+// /// actual query and the handle associated with the callback for the
+// /// query.
 // class RequestMsg
-//     // Class encapsulating the request message.  It encapsulates the
-//     // actual query and the handle associated with the callback for the
-//     // query.
 // {
 //     Query d_query;
 //     int   d_handle;
 //
 //   public:
+//     /// Create a request message with the specified `query` and
+//     /// `handle`.
 //     RequestMsg(Query query, int handle)
-//         // Create a request message with the specified 'query' and
-//         // 'handle'.
 //     : d_query(query)
 //     , d_handle(handle)
 //     {
 //     }
 //
+//     /// Return the handle contained in this response message.
 //     int handle() const
-//         // Return the handle contained in this response message.
 //     {
 //         return d_handle;
 //     }
 // };
 //
+// /// Class encapsulating the response message.  It encapsulates the query
+// /// result and the handle associated with the callback for the query.
 // class ResponseMsg
-//     // Class encapsulating the response message.  It encapsulates the query
-//     // result and the handle associated with the callback for the query.
 // {
 //     int d_handle;
 //
 //   public:
+//     /// Set the "handle" contained in this response message to the
+//     /// specified `handle`.
 //     void setHandle(int handle)
-//         // Set the "handle" contained in this response message to the
-//         // specified 'handle'.
 //     {
 //         d_handle = handle;
 //     }
 //
+//     /// Return the query result contained in this response message.
 //     QueryResult queryResult() const
-//         // Return the query result contained in this response message.
 //     {
 //         return QueryResult();
 //     }
 //
+//     /// Return the handle contained in this response message.
 //     int handle() const
-//         // Return the handle contained in this response message.
 //     {
 //         return d_handle;
 //     }
 // };
 //
+// /// Send the specified `msg` to the specified `peer`.
 // void sendMessage(RequestMsg msg, RemoteAddress peer)
-//     // Send the specified 'msg' to the specified 'peer'.
 // {
 //     serverMutex.lock();
 //     peer->push(msg.handle());
@@ -126,8 +126,8 @@ BSLS_IDENT("$Id: $")
 //     serverMutex.unlock();
 // }
 //
+// /// Get the response from the specified `peer` into the specified `msg`.
 // void recvMessage(ResponseMsg *msg, RemoteAddress peer)
-//     // Get the response from the specified 'peer' into the specified 'msg'.
 // {
 //     serverMutex.lock();
 //     while (peer->empty()) {
@@ -138,11 +138,11 @@ BSLS_IDENT("$Id: $")
 //     serverMutex.unlock();
 // }
 //
+// /// Set the specified `query` and `callBack` to the next `Query` and its
+// /// associated functor (the functor to be called when the response to
+// /// this `Query` comes in).
 // void getQueryAndCallback(Query                            *query,
 //                          bsl::function<void(QueryResult)> *callBack)
-//     // Set the specified 'query' and 'callBack' to the next 'Query' and its
-//     // associated functor (the functor to be called when the response to
-//     // this 'Query' comes in).
 // {
 //     (void)query;
 //     *callBack = &queryCallBack;
@@ -152,12 +152,12 @@ BSLS_IDENT("$Id: $")
 // ```
 // RemoteAddress serverAddress;  // address of remote server
 //
+// /// Catalog of query callbacks, used by the client internally to keep
+// /// track of callback functions across multiple queries.  The invariant
+// /// is that each element corresponds to a pending query (i.e., the
+// /// callback function has not yet been or is in the process of being
+// /// invoked).
 // bdlcc::ObjectCatalog<bsl::function<void(QueryResult)> > catalog;
-//     // Catalog of query callbacks, used by the client internally to keep
-//     // track of callback functions across multiple queries.  The invariant
-//     // is that each element corresponds to a pending query (i.e., the
-//     // callback function has not yet been or is in the process of being
-//     // invoked).
 // ```
 // Now we define functions that will be used in the thread entry functions:
 // ```
@@ -171,11 +171,11 @@ BSLS_IDENT("$Id: $")
 //         // The following call blocks until a query becomes available.
 //         getQueryAndCallback(&query, &callBack);
 //
-//         // Register 'callBack' in the object catalog.
+//         // Register `callBack` in the object catalog.
 //         int handle = catalog.add(callBack);
 //         assert(handle);
 //
-//         // Send query to server in the form of a 'RequestMsg'.
+//         // Send query to server in the form of a `RequestMsg`.
 //         RequestMsg msg(query, handle);
 //         sendMessage(msg, serverAddress);
 //     }
@@ -186,23 +186,23 @@ BSLS_IDENT("$Id: $")
 //     int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
 //     while (queriesToBeProcessed--) {
 //         // The following call blocks until some response is available in
-//         // the form of a 'ResponseMsg'.
+//         // the form of a `ResponseMsg`.
 //
 //         ResponseMsg msg;
 //         recvMessage(&msg, serverAddress);
 //         int handle = msg.handle();
 //         QueryResult result = msg.queryResult();
 //
-//         // Process query 'result' by applying registered 'callBack' to it.
-//         // The 'callBack' function is retrieved from the 'catalog' using
-//         // the given 'handle'.
+//         // Process query `result` by applying registered `callBack` to it.
+//         // The `callBack` function is retrieved from the `catalog` using
+//         // the given `handle`.
 //
 //         bsl::function<void(QueryResult)> callBack;
 //         assert(0 == catalog.find(handle, &callBack));
 //         callBack(result);
 //
-//         // Finally, remove the no-longer-needed 'callBack' from the
-//         // 'catalog'.  Assert so that 'catalog' may not grow unbounded if
+//         // Finally, remove the no-longer-needed `callBack` from the
+//         // `catalog`.  Assert so that `catalog` may not grow unbounded if
 //         // remove fails.
 //
 //         assert(0 == catalog.remove(handle));
@@ -383,10 +383,10 @@ class ObjectCatalog {
         // PUBLIC DATA
         typedef union {
             // PUBLIC DATA
-            bsls::ObjectBuffer<TYPE>            d_value;
+            bsls::ObjectBuffer<TYPE>     d_value;
 
-            Node                               *d_next_p; // when free, pointer
-                                                          // to next free node
+            Node                        *d_next_p; // when free, pointer
+                                                   // to next free node
         } Payload;
         Payload d_payload;
         int     d_handle;

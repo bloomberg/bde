@@ -158,8 +158,8 @@ class UserFieldValue {
     UserFieldValue(const UserFieldValue&  original,
                    bslma::Allocator      *basicAllocator = 0);
 
+    /// Destroy this object.
     //! ~UserFieldValue() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

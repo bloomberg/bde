@@ -218,8 +218,8 @@ class Category {
              int               triggerAllLevel,
              bslma::Allocator *basicAllocator = 0);
 
+    /// Destroy this category.
     //! ~Category() = default;
-        // Destroy this category.
 
     // MANIPULATORS
 
@@ -234,6 +234,7 @@ class Category {
                   int triggerAllLevel);
 
     // ACCESSORS
+
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -FABC01: Functions not in alphanumeric order
 
@@ -330,6 +331,7 @@ class CategoryHolder {
     };
 
     // PUBLIC DATA
+
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -MN01 // Class data members must be private
     AtomicInt     d_threshold;   // threshold level
@@ -390,6 +392,7 @@ class CategoryManagerImpUtil {
 
   public:
     // CLASS METHODS
+
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -FABC01: Functions not in alphanumeric order
 

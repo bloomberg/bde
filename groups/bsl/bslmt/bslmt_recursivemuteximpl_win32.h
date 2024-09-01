@@ -47,12 +47,12 @@ class RecursiveMutexImpl;
              // class RecursiveMutexImpl<Platform::Win32Threads>
              // ================================================
 
+/// This class provides a full specialization of `RecursiveMutexImpl` for
+/// Windows.  Since the Windows specialization of `MutexImpl` is recursive,
+/// this type is effectively an alias for that one.
 template <>
 class RecursiveMutexImpl<Platform::Win32Threads>
 : public MutexImpl<Platform::Win32Threads> {
-    // This class provides a full specialization of 'RecursiveMutexImpl' for
-    // Windows.  Since the Windows specialization of 'MutexImpl' is recursive,
-    // this type is effectively an alias for that one.
 };
 
 }  // close package namespace

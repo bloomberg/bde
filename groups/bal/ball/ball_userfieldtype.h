@@ -77,8 +77,8 @@ struct UserFieldType {
 
   public:
     // TYPES
+    // This `enum` defines the list of supported values types.
     enum Enum {
-        // Define the list of month-of-year values.
 
         e_VOID,
         e_INT64,

@@ -29,11 +29,11 @@ BSLS_IDENT("$Id: $")
 // queue in FIFO order.  It illustrates two potential uses of semaphores: to
 // enforce exclusive access, and to allow resource sharing.
 // ```
+// /// FIFO queue of integer values.
 // class IntQueue {
-//     // FIFO queue of integer values.
 //
 //     // DATA
-//     bsl::deque<int> d_queue;        // underlying queue
+//     bsl::deque<int> d_queue;         // underlying queue
 //     bslmt::Semaphore d_mutexSem;     // mutual-access semaphore
 //     bslmt::Semaphore d_resourceSem;  // resource-availability semaphore
 //
@@ -43,21 +43,23 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     explicit IntQueue(bslma::Allocator *basicAllocator = 0);
-//         // Create an 'IntQueue' object.  Optionally specified a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
+//     /// Create an `IntQueue` object.  Optionally specified a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
+//     explicit IntQueue(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Destroy this `IntQueue` object.
 //     ~IntQueue();
-//         // Destroy this 'IntQueue' object.
 //
 //     // MANIPULATORS
-//     int getInt();
-//         // Retrieve an integer from this 'IntQueue' object.  Integer values
-//         // are obtained from the queue in FIFO order.
 //
+//     /// Retrieve an integer from this `IntQueue` object.  Integer values
+//     /// are obtained from the queue in FIFO order.
+//     int getInt();
+//
+//     /// Push the specified `value` to this `IntQueue` object.
 //     void pushInt(int value);
-//         // Push the specified 'value' to this 'IntQueue' object.
 // };
 // ```
 // Note that the `IntQueue` constructor increments the count of the semaphore
@@ -82,7 +84,7 @@ BSLS_IDENT("$Id: $")
 //     // Waiting for resources.
 //     d_resourceSem.wait();
 //
-//     // 'd_mutexSem' is used for exclusive access.
+//     // `d_mutexSem` is used for exclusive access.
 //     d_mutexSem.wait();        // lock
 //     const int ret = d_queue.back();
 //     d_queue.pop_back();

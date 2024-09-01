@@ -203,8 +203,8 @@ class RuleSet {
     /// installed default allocator will be used.
     RuleSet(const RuleSet& original, bslma::Allocator *basicAllocator = 0);
 
+    /// Destroy this rule set.
     //! ~RuleSet() = default;
-        // Destroy this rule set.
 
     // MANIPULATOR
 

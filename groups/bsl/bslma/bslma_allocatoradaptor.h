@@ -37,8 +37,8 @@ BSLS_IDENT("$Id: $")
 //
 // namespace my {
 //
+// /// Store the path of a file or directory.
 // class FilePath {
-//     // Store the path of a file or directory
 //     bslma::Allocator *d_allocator;
 //     char             *d_data;
 //
@@ -240,18 +240,17 @@ template <class STL_ALLOC>
 using AllocatorAdaptor =
     AllocatorAdaptor_Imp<typename STL_ALLOC::template rebind<char>::other>;
 #else
+/// Polymorphic wrapper around an object of the specified `STL_ALLOC`
+/// STL-style allocator template parameter.  A pointer to an object of this
+/// class can thus be used with any component that uses BDE-style memory
+/// allocation.  Note that `AllocatorAdaptor<A>::Type` is the same type
+/// regardless of whether or not the compiler supports alias templates.  It
+/// should be used, therefore, whenever the exact type of the adaptor is
+/// important.
 template <class STL_ALLOC>
 class AllocatorAdaptor : public
   AllocatorAdaptor_Imp<typename STL_ALLOC::template rebind<char>::other>
 {
-    // Polymorphic wrapper around an object of the specified 'STL_ALLOC'
-    // STL-style allocator template parameter.  A pointer to an object of this
-    // class can thus be used with any component that uses BDE-style memory
-    // allocation.  Note that 'AllocatorAdaptor<A>::Type' is the same type
-    // regardless of whether or not the compiler supports alias templates.  It
-    // should be used, therefore, whenever the exact type of the adaptor is
-    // important.
-
     typedef typename STL_ALLOC::template rebind<char>::other ReboundSTLAlloc;
 
     // Not assignable
@@ -259,13 +258,14 @@ class AllocatorAdaptor : public
 
 public:
     // CREATORS
-    AllocatorAdaptor(); // = default
-        // Constructs a polymorphic wrapper around a default-constructed
-        // STL-style allocator.
 
+    /// Constructs a polymorphic wrapper around a default-constructed
+    /// STL-style allocator.
+    AllocatorAdaptor(); // = default
+
+    /// Constructs a polymorphic wrapper around a copy of the specified
+    /// 'stla' STL-style allocator.
     AllocatorAdaptor(const STL_ALLOC& stla);
-        // Constructs a polymorphic wrapper around a copy of the specified
-        // 'stla' STL-style allocator.
 
     //! AllocatorAdaptor(const AllocatorAdaptor&);
     //! ~AllocatorAdaptor();

@@ -61,10 +61,10 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the container:
 // ```
+// /// This `class` provides a fully *thread-safe* unidirectional queue of
+// /// `int` values.  See {`bsls_glossary`|Fully Thread-Safe}.  All public
+// /// manipulators operate as single, atomic actions.
 // class MyThreadSafeQueue {
-//     // This 'class' provides a fully *thread-safe* unidirectional queue of
-//     // 'int' values.  See {'bsls_glossary'|Fully Thread-Safe}.  All public
-//     // manipulators operate as single, atomic actions.
 //
 //     // DATA
 //     bsl::deque<int>      d_deque;    // underlying non-*thread-safe*
@@ -73,36 +73,38 @@ BSLS_IDENT("$Id: $")
 //     mutable bslmt::Mutex  d_mutex;    // mutex to provide thread safety
 //
 //     // PRIVATE MANIPULATOR
+//
+//     // Assign the value at the front of the queue to the specified
+//     // `*result`, and remove the value at the front of the queue;
+//     // return 0 if the queue was not initially empty, and a non-zero
+//     // value (with no effect) otherwise.  The behavior is undefined
+//     // unless `d_mutex` is locked.
 //     int popImp(int *result);
-//         // Assign the value at the front of the queue to the specified
-//         // '*result', and remove the value at the front of the queue;
-//         // return 0 if the queue was not initially empty, and a non-zero
-//         // value (with no effect) otherwise.  The behavior is undefined
-//         // unless 'd_mutex' is locked.
 //
 //   public:
 //     // ...
 //
 //     // MANIPULATORS
+//
+//     /// Assign the value at the front of the queue to the specified
+//     /// `*result`, and remove the value at the front of the queue;
+//     /// return 0 if the queue was not initially empty, and a non-zero
+//     /// value (with no effect) otherwise.
 //     int pop(int *result);
-//         // Assign the value at the front of the queue to the specified
-//         // '*result', and remove the value at the front of the queue;
-//         // return 0 if the queue was not initially empty, and a non-zero
-//         // value (with no effect) otherwise.
 //
+//     /// Assign the values of all the elements from this queue, in order,
+//     /// to the specified `*result`, and remove them from this queue.
+//     /// Any previous contents of `*result` are discarded.  Note that, as
+//     /// with the other public manipulators, this entire operation occurs
+//     /// as a single, atomic action.
 //     void popAll(bsl::vector<int> *result);
-//         // Assign the values of all the elements from this queue, in order,
-//         // to the specified '*result', and remove them from this queue.
-//         // Any previous contents of '*result' are discarded.  Note that, as
-//         // with the other public manipulators, this entire operation occurs
-//         // as a single, atomic action.
 //
+//     /// ...
 //     void push(int value);
-//         // ...
 //
+//     /// ...
 //     template <class INPUT_ITER>
 //     void pushRange(const INPUT_ITER& first, const INPUT_ITER& last);
-//         // ...
 // };
 // ```
 // Notice that our public manipulators have two forms: push/pop a single
@@ -307,8 +309,8 @@ struct MutexAssert_Imp {
                                    const char *file,
                                    int         line);
 };
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -174,10 +174,10 @@ class ForwardIterator
     /// of the parameterized `ITER_IMP` type.
     ForwardIterator(const ITER_IMP& implementation);
 
+    /// Create a `ForwardIterator` having the same value as the specified
+    /// `original` iterator.  Note that this method's definition is compiler
+    /// generated.
     //! ForwardIterator(const ForwardIterator& original);
-        // Create a 'ForwardIterator' having the same value as the specified
-        // 'original' iterator.  Note that this method's definition is compiler
-        // generated.
 
     /// Construct a forward iterator from the specified `other` iterator of
     /// another (compatible) `ForwardIterator` type, e.g., a mutable
@@ -186,15 +186,16 @@ class ForwardIterator
     /// constructor above), or may be an additional overload.
     ForwardIterator(const ForwardNonConstIterator& other);
 
+    /// Destroy this iterator.  Note that this method's definition is
+    /// compiler generated.
     //! ~ForwardIterator();
-        // Destroy this iterator.  Note that this method's definition is
-        // compiler generated.
 
     // MANIPULATORS
+
+    /// Copy the value of the specified `rhs` to this iterator.  Return a
+    /// reference to this modifiable object.  Note that this method's
+    /// definition is compiler generated.
     //! ForwardIterator& operator=(const ForwardIterator& rhs);
-        // Copy the value of the specified 'rhs' to this iterator.  Return a
-        // reference to this modifiable object.  Note that this method's
-        // definition is compiler generated.
 
     /// Copy the value of the specified `rhs` of another (compatible)
     /// `ForwardIterator` type, (e.g., a mutable iterator of the same type)

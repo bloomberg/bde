@@ -77,20 +77,20 @@ BSLS_IDENT("$Id: $")
 //     bslma::Allocator *d_allocator_p; // memory allocator (not owned)
 //
 //   public:
+//     /// Create an empty `my_shortArray`.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator`
+//     /// is 0, the currently installed default allocator is used.
 //     my_ShortArray(bslma::Allocator *basicAllocator = 0);
-//         // Create an empty 'my_shortArray'.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator'
-//         // is 0, the currently installed default allocator is used.
 //
+//     /// Create a `bslma::ShortArray` having the same value as the
+//     /// specified `other` array.  Optionally specify a `basicAllocator`
+//     /// used to supply memory.  If `basicAllocator` is 0, the currently
+//     /// installed default allocator is used.
 //     my_ShortArray(const my_ShortArray&  other,
 //                   bslma::Allocator     *basicAllocator = 0);
-//         // Create a 'bslma::ShortArray' having the same value as the
-//         // specified 'other' array.  Optionally specify a 'basicAllocator'
-//         // used to supply memory.  If 'basicAllocator' is 0, the currently
-//         // installed default allocator is used.
 //
+//     /// Destroy this object.
 //     ~my_ShortArray();
-//         // Destroy this object.
 //
 //    // ...
 // };
@@ -106,31 +106,31 @@ BSLS_IDENT("$Id: $")
 // // ...
 // namespace bslma { class Allocator; }
 //
+// /// This class maintains a process-wide `bslma::Allocator` object
+// /// to be used when an allocator is needed, and not suppled explicitly.
+// /// By default, the currently installed default allocator is the unique
+// /// `bslma::NewDeleteAllocator` object returned by the `static` method,
+// /// `bslma::NewDeleteAllocator::singleton()`.  Note that the default
+// /// allocator will exist longer than any possibility of its use.
 // struct my_Default {
-//     // This class maintains a process-wide 'bslma::Allocator' object
-//     // to be used when an allocator is needed, and not suppled explicitly.
-//     // By default, the currently installed default allocator is the unique
-//     // 'bslma::NewDeleteAllocator' object returned by the 'static' method,
-//     // 'bslma::NewDeleteAllocator::singleton()'.  Note that the default
-//     // allocator will exist longer than any possibility of its use.
 //
+//     /// Return the address of the specified modifiable
+//     /// `basicAllocator` or, if `basicAllocator` is 0, an instance of
+//     /// the currently installed default `bslma::Allocator` object, which
+//     /// will exist longer than any possibility of its use.  Note
+//     /// that this function can safely be called concurrently (from
+//     /// multiple threads).
 //     static bslma::Allocator *allocator(bslma::Allocator *basicAllocator);
-//         // Return the address of the specified modifiable
-//         // 'basicAllocator' or, if 'basicAllocator' is 0, an instance of
-//         // the currently installed default 'bslma::Allocator' object, which
-//         // will exist longer than any possibility of its use.  Note
-//         // that this function can safely be called concurrently (from
-//         // multiple threads).
 //
+//     /// Replace the address of the currently installed allocator with
+//     /// that of the specified modifiable `basicAllocator` (or if 0,
+//     /// with the "factory" default, `bslma::NewDeleteAllocator`), and
+//     /// return the address of the previous allocator.  The behavior is
+//     /// undefined unless `basicAllocator` will exist longer than any
+//     /// possibility of its use.  Note that this function is *not* *at*
+//     /// *all* thread-safe, and should *never* be called when multiple
+//     /// threads are active.
 //     static bslma::Allocator *replace(bslma::Allocator *basicAllocator);
-//         // Replace the address of the currently installed allocator with
-//         // that of the specified modifiable 'basicAllocator' (or if 0,
-//         // with the "factory" default, 'bslma::NewDeleteAllocator'), and
-//         // return the address of the previous allocator.  The behavior is
-//         // undefined unless 'basicAllocator' will exist longer than any
-//         // possibility of its use.  Note that this function is *not* *at*
-//         // *all* thread-safe, and should *never* be called when multiple
-//         // threads are active.
 // };
 //
 // // my_default.cpp:

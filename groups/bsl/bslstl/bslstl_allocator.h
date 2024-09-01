@@ -86,11 +86,11 @@ BSLS_IDENT("$Id: $")
 //                            // class my_FixedSizeArray
 //                            // =======================
 //
+// /// This class provides an array of the parameterized `T` type passed of
+// /// fixed length at construction, using an object of the parameterized
+// /// `ALLOC` type to supply memory.
 // template <class T, class ALLOC>
 // class my_FixedSizeArray {
-//     // This class provides an array of the parameterized 'T' type passed of
-//     // fixed length at construction, using an object of the parameterized
-//     // 'ALLOC' type to supply memory.
 //
 //     // DATA
 //     ALLOC  d_allocator;
@@ -103,53 +103,57 @@ BSLS_IDENT("$Id: $")
 //     typedef T      value_type;
 //
 //     // CREATORS
-//     my_FixedSizeArray(int length, const ALLOC& allocator = ALLOC());
-//         // Create a fixed-size array of the specified 'length', using the
-//         // optionally specified 'allocator' to supply memory.  If
-//         // 'allocator' is not specified, a default-constructed object of
-//         // the parameterized 'ALLOC' type is used.  Note that all the
-//         // elements in that array are default-constructed.
 //
+//     /// Create a fixed-size array of the specified `length`, using the
+//     /// optionally specified `allocator` to supply memory.  If
+//     /// `allocator` is not specified, a default-constructed object of
+//     /// the parameterized `ALLOC` type is used.  Note that all the
+//     /// elements in that array are default-constructed.
+//     my_FixedSizeArray(int length, const ALLOC& allocator = ALLOC());
+//
+//     /// Create a copy of the specified `original` fixed-size array,
+//     /// using the optionally specified `allocator` to supply memory.  If
+//     /// `allocator` is not specified, a default-constructed object of
+//     /// the parameterized `ALLOC` type is used.
 //     my_FixedSizeArray(const my_FixedSizeArray& original,
 //                       const ALLOC&             allocator = ALLOC());
-//         // Create a copy of the specified 'original' fixed-size array,
-//         // using the optionally specified 'allocator' to supply memory.  If
-//         // 'allocator' is not specified, a default-constructed object of
-//         // the parameterized 'ALLOC' type is used.
 //
+//     /// Destroy this fixed size array.
 //     ~my_FixedSizeArray();
-//         // Destroy this fixed size array.
 //
 //     // MANIPULATORS
+//
+//     /// Return a reference to the modifiable element at the specified
+//     /// `index` position in this fixed size array.
 //     T& operator[](int index);
-//         // Return a reference to the modifiable element at the specified
-//         // 'index' position in this fixed size array.
 //
 //     // ACCESSORS
+//
+//     /// Return a reference to the modifiable element at the specified
+//     /// `index` position in this fixed size array.
 //     const T& operator[](int index) const;
-//         // Return a reference to the modifiable element at the specified
-//         // 'index' position in this fixed size array.
 //
+//     /// Return the length specified at construction of this fixed size
+//     // array.
 //     int length() const;
-//         // Return the length specified at construction of this fixed size
-//         // array.
 //
+//     /// Return a reference to the non-modifiable allocator used by this
+//     /// fixed size array to supply memory.  This is here for
+//     /// illustrative purposes.  We should not generally have an accessor
+//     /// to return the allocator.
 //     const ALLOC& allocator() const;
-//         // Return a reference to the non-modifiable allocator used by this
-//         // fixed size array to supply memory.  This is here for
-//         // illustrative purposes.  We should not generally have an accessor
-//         // to return the allocator.
 // };
 //
 // // FREE OPERATORS
+//
+// /// Return `true` if the specified `lhs` fixed-size array has the same
+// /// value as the specified `rhs` fixed-size array, and `false`
+// /// otherwise.  Two fixed-size arrays have the same value if they have
+// /// the same length and if the element at any index in `lhs` has the
+// /// same value as the corresponding element at the same index in `rhs`.
 // template<class T, class ALLOC>
 // bool operator==(const my_FixedSizeArray<T,ALLOC>& lhs,
 //                 const my_FixedSizeArray<T,ALLOC>& rhs)
-//     // Return 'true' if the specified 'lhs' fixed-size array has the same
-//     // value as the specified 'rhs' fixed-size array, and 'false'
-//     // otherwise.  Two fixed-size arrays have the same value if they have
-//     // the same length and if the element at any index in 'lhs' has the
-//     // same value as the corresponding element at the same index in 'rhs'.
 // ```
 // The implementation is straightforward
 // ```
@@ -255,32 +259,35 @@ BSLS_IDENT("$Id: $")
 //                          // class my_CountingAllocator
 //                          // ==========================
 //
+// /// This concrete implementation of the `bslma::Allocator` protocol
+// /// maintains some statistics of the number of blocks outstanding (i.e.,
+// /// allocated but not yet deallocated).
 // class my_CountingAllocator : public bslma::Allocator {
-//     // This concrete implementation of the 'bslma::Allocator' protocol
-//     // maintains some statistics of the number of blocks outstanding (i.e.,
-//     // allocated but not yet deallocated).
 //
 //     // DATA
 //     int d_blocksOutstanding;
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a counting allocator that uses the operators `new` and
+//     /// `delete` to supply and free memory.
 //     my_CountingAllocator();
-//     // Create a counting allocator that uses the operators 'new' and
-//     // 'delete' to supply and free memory.
 //
 //     // MANIPULATORS
-//     virtual void *allocate(size_type size);
-//         // Return a pointer to an uninitialized memory of the specified
-//         // 'size (in bytes).
 //
+//     /// Return a pointer to an uninitialized memory of the specified
+//     /// `size` (in bytes).
+//     virtual void *allocate(size_type size);
+//
+//     /// Return the memory at the specified `address` to this allocator.
 //     virtual void deallocate(void *address);
-//         // Return the memory at the specified 'address' to this allocator.
 //
 //     // ACCESSORS
+//
+//     /// Return the number of blocks outstanding (i.e., allocated but not
+//     /// yet deallocated by this counting allocator).
 //     int blocksOutstanding() const;
-//         // Return the number of blocks outstanding (i.e., allocated but not
-//         // yet deallocated by this counting allocator).
 // };
 // ```
 // The implementation is really straightforward:

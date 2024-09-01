@@ -154,17 +154,17 @@ class ObserverAdapter : public Observer {
 
     // MANIPULATORS
 
-    /// Process the specified log `record` having the specified publishing
-    /// `context`.
+    /// Process the record referred by the specified log shared pointer
+    /// `record`.  Note that classes that derive from `ObserverAdapter`
+    /// should **not** implement this method.
     void publish(const Record&  record,
                  const Context& context) BSLS_KEYWORD_OVERRIDE = 0;
 
+    /// Process the specified log `record` having the specified publishing
+    /// `context`.
     void publish(const bsl::shared_ptr<const Record>& record,
                  const Context&                       context)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Process the record referred by the specified log shared pointer
-        // 'record'.  Note that classes that derive from 'ObserverAdapter'
-        // should *not* implement this method.
 
     /// Discard any shared reference to a `Record` object that was supplied
     /// to the `publish` method and is held by this observer.  Note that

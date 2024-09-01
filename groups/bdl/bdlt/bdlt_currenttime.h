@@ -38,11 +38,11 @@ BSLS_IDENT("$Id: $")
 // First, we create a sample application.  For this example, we simply have it
 // retrieve the current time in several formats:
 // ```
+// /// Retrieve versions of the current time into the specified `local`,
+// /// `utc`, and `now` parameters.
 // void sampleApplication(bdlt::Datetime     *local,
 //                        bdlt::Datetime     *utc,
 //                        bsls::TimeInterval *now)
-//     // Retrieve versions of the current time into the specified 'local',
-//     // 'utc', and 'now' parameters.
 // {
 //     *local = bdlt::CurrentTime::local();
 //     *utc   = bdlt::CurrentTime::utc();
@@ -52,12 +52,12 @@ BSLS_IDENT("$Id: $")
 // Then, we create a method to test whether the application is producing the
 // expected results:
 // ```
+// // Return `true` iff `sampleApplication` returns values matching the
+// // specified expected values `expectedLocal`, `expectedUtc`, and
+// // `expectedNow`.
 // bool checkApplication(bdlt::Datetime     expectedLocal,
 //                       bdlt::Datetime     expectedUtc,
 //                       bsls::TimeInterval expectedNow)
-//     // Return 'true' iff 'sampleApplication' returns values matching the
-//     // specified expected values 'expectedLocal', 'expectedUtc', and
-//     // 'expectedNow'.
 // {
 //     bdlt::Datetime     local;
 //     bdlt::Datetime     utc;
@@ -72,20 +72,20 @@ BSLS_IDENT("$Id: $")
 // Next, we create a class allowing us to set the current time which will be
 // seen by the application:
 // ```
+// /// Maintain and return a "current time" value.
 // class TestCurrentTimeGuard {
-//     // Maintain and return a "current time" value.
 //   private:
 //     bdlt::CurrentTime::CurrentTimeCallback d_prev;  // old callback
 //
 //   public:
+//     /// Create an object of this type, installing the handler.
 //     TestCurrentTimeGuard();
-//         // Create an object of this type, installing the handler.
 //
+//     /// Destroy an object of this type, restoring the handler.
 //     ~TestCurrentTimeGuard();
-//         // Destroy an object of this type, restoring the handler.
 //
+//     /// Return `s_time`.
 //     static bsls::TimeInterval time();
-//         // Return 's_time'.
 //
 //     static bsls::TimeInterval s_time;               // the "current time"
 // };
@@ -110,8 +110,8 @@ BSLS_IDENT("$Id: $")
 // Finally, we write a method that tests that our application is functioning
 // correctly:
 // ```
+// /// Test the application.
 // void testApplication()
-//     // Test the application.
 // {
 //     TestCurrentTimeGuard tct;
 //     TestCurrentTimeGuard::s_time = bdlt::EpochUtil::convertToTimeInterval(

@@ -33,11 +33,11 @@ BSLS_IDENT("$Id: $")
 // The initial five types in this signature match the following `typedef` from
 // `ball::LoggerManager` (and `ball::LoggerManagerConfiguration`):
 // ```
+// /// `DefaultThresholdLevelsCallback` is the type of the functor that
+// /// determines default threshold levels for categories added to the
+// /// registry by the `setCategory(const char *)` method.
 // typedef bsl::function<void(int *, int *, int *, int *, const char *)>
 //                                             DefaultThresholdLevelsCallback;
-//     // 'DefaultThresholdLevelsCallback' is the type of the functor that
-//     // determines default threshold levels for categories added to the
-//     // registry by the 'setCategory(const char *)' method.
 // ```
 // The purpose of the trailing `char` argument is discussed in the following
 // section, the Usage example, and the `loadParentCategoryThresholdValues`

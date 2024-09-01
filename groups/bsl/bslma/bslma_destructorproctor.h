@@ -38,11 +38,11 @@ BSLS_IDENT("$Id: $")
 // // MyPair.h
 // // ...
 //
+// /// This class provides a pair container to pair two different objects,
+// /// one of parameterized `TYPE1`, and the other of parameterized
+// /// `TYPE2`.
 // template <class TYPE1, class TYPE2>
 // class MyPair {
-//     // This class provides a pair container to pair two different objects,
-//     // one of parameterized 'TYPE1', and the other of parameterized
-//     // 'TYPE2'.
 //
 //   public:
 //     // PUBLIC TYPES
@@ -53,20 +53,20 @@ BSLS_IDENT("$Id: $")
 //     TYPE1            first;          // first object
 //     TYPE2            second;         // second object
 //
-//     // Declare trait 'my_PairTrait'.
+//     // Declare trait `my_PairTrait`.
 //     // ...
 //
 //   public:
 //     // CREATORS
 //     // ...
 //
+//     /// Create a `MyPair` object that holds a copy of the specified
+//     /// `iFirst` and `iSecond`.  Optionally specify `basicAllocator` to
+//     /// supply memory.  If `basicAllocator` is zero,  the global default
+//     /// allocator will be used to supply memory.
 //     MyPair(const TYPE1&      iFirst,
 //            const TYPE2&      iSecond,
 //            bslma::Allocator *basic_Allocator = 0)
-//         // Create a 'MyPair' object that holds a copy of the specified
-//         // 'iFirst' and 'iSecond'.  Optionally specify 'basicAllocator' to
-//         // supply memory.  If 'basicAllocator' is zero,  the global default
-//         // allocator will be used to supply memory.
 //     : first(iFirst)
 //     , second(iSecond)
 //     , d_allocator_p(bslma::Default::allocator(basic_Allocator))
@@ -86,9 +86,9 @@ BSLS_IDENT("$Id: $")
 // // MyPrimitives.h
 // // ...
 //
+// /// This `struct` provides a namespace for primitive functions used to
+// /// construct, destroy, insert, append and remove objects.
 // struct MyPrimitives {
-//     // This 'struct' provides a namespace for primitive functions used to
-//     // construct, destroy, insert, append and remove objects.
 //
 //   private:
 //     // PRIVATE TYPES
@@ -97,33 +97,33 @@ BSLS_IDENT("$Id: $")
 //   public:
 //     // CLASS METHODS
 //
+//     /// Copy construct the specified `original` into the specified
+//     /// `address` using the specified `basicAllocator` (if the
+//     /// copy constructor of `TYPE` takes an allocator).
 //     template <class TYPE>
 //     static void copyConstruct(TYPE             *address,
 //                               const TYPE&       original,
 //                               bslma::Allocator *basicAllocator);
-//         // Copy construct the specified 'original' into the specified
-//         // 'address' using the specified 'basicAllocator' (if the
-//         // copy constructor of 'TYPE' takes an allocator).
 //
+//     /// Copy construct the specified `original` into the specified
+//     /// `address` using the specified `basicAllocator` (if the
+//     /// copy constructor of `TYPE` takes an allocator).  Note that
+//     /// the last parameter is used only for overload resolution.
 //     template <class TYPE>
 //     static void copyConstruct(TYPE             *address,
 //                               const TYPE&       original,
 //                               bslma::Allocator *basicAllocator,
 //                               bsl::integral_constant<bool, PAIR_TRAIT> *);
-//         // Copy construct the specified 'original' into the specified
-//         // 'address' using the specified 'basicAllocator' (if the
-//         // copy constructor of 'TYPE' takes an allocator).  Note that
-//         // the last parameter is used only for overload resolution.
 //
+//     /// Copy construct the specified `original` into the specified
+//     /// `address` using the specified `basicAllocator` (if the
+//     /// copy constructor of `TYPE` takes an allocator).  Note that
+//     /// the last parameter is used only for overload resolution.
 //     template <class TYPE>
 //     static void copyConstruct(TYPE             *address,
 //                               const TYPE&       original,
 //                               bslma::Allocator *basicAllocator,
 //                               bsl::integral_constant<bool, NIL_TRAIT> *);
-//         // Copy construct the specified 'original' into the specified
-//         // 'address' using the specified 'basicAllocator' (if the
-//         // copy constructor of 'TYPE' takes an allocator).  Note that
-//         // the last parameter is used only for overload resolution.
 // };
 //
 // template <class TYPE>

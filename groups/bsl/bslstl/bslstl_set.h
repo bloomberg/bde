@@ -258,10 +258,10 @@ BSLS_IDENT("$Id: $")
 // `MyDate`, that represents a date: (Note that for brevity, we do not
 // explicitly document the invariants of a valid date.)
 // ```
+// /// This class implements a value-semantic attribute class
+// /// characterizing a date according to the (Gregorian) Unix date
+// /// convention.
 // class MyDate {
-//     // This class implements a value-semantic attribute class
-//     // characterizing a date according to the (Gregorian) Unix date
-//     // convention.
 //
 //     // DATA
 //     int d_year;
@@ -270,32 +270,34 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `MyDate` object having the value represented by the
+//     /// specified `year`, `month`, and `day`.  The behavior is undefined
+//     /// unless the value represented by `year`, `month`, and `day` is
+//     /// valid.
 //     MyDate(int year, int month, int day)
-//         // Create a 'MyDate' object having the value represented by the
-//         // specified 'year', 'month', and 'day.  The behavior is undefined
-//         // unless the value represented by 'year', 'month', and 'day is
-//         // valid.
 //     : d_year(year), d_month(month), d_day(day)
 //     {
 //     }
 //
+//     /// Create a `MyDate` object having the same value as the specified
+//     /// `original` object.
 //     MyDate(const MyDate& original)
-//         // Create a 'MyDate' object having the same value as the specified
-//         // 'original' object.
 //     : d_year(original.d_year)
 //     , d_month(original.d_month)
 //     , d_day(original.d_day)
 //     {
 //     }
 //
+//     /// Destroy this object
 //     //! ~MyDate() = default;
-//         // Destroy this object
 //
 //     // MANIPULATORS
+//
+//     /// Assign to this object the value of the specified `rhs` object,
+//     /// and return a reference providing modifiable access to this
+//     /// object.
 //     MyDate& operator=(const MyDate& rhs)
-//         // Assign to this object the value of the specified 'rhs' object,
-//         // and return a reference providing modifiable access to this
-//         // object.
 //     {
 //         d_year = rhs.d_year;
 //         d_month = rhs.d_month;
@@ -304,20 +306,21 @@ BSLS_IDENT("$Id: $")
 //     }
 //
 //     // ACCESSORS
+//
+//     /// Return the year of this date.
 //     int year() const
-//         // Return the year of this date.
 //     {
 //         return d_year;
 //     }
 //
+//     /// Return the month of this date.
 //     int month() const
-//         // Return the month of this date.
 //     {
 //         return d_month;
 //     }
 //
+//     /// Return the day of this date.
 //     int day() const
-//         // Return the day of this date.
 //     {
 //         return d_day;
 //     }
@@ -325,24 +328,25 @@ BSLS_IDENT("$Id: $")
 // };
 //
 // // FREE FUNCTIONS
+//
+// /// Return `true` if the specified `lhs` and `rhs` objects have the same
+// /// value, and `false` otherwise.  Two `MyDate` objects have the same
+// /// value if each of their corresponding `year`, `month`, and `day`
+// /// attributes respective have the same value.
 // inline
 // bool operator==(const MyDate& lhs, const MyDate& rhs)
-//     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-//     // value, and 'false' otherwise.  Two 'MyDate' objects have the same
-//     // value if each of their corresponding 'year', 'month', and 'day'
-//     // attributes respective have the same value.
 // {
 //     return lhs.year()  == rhs.year() &&
 //            lhs.month() == rhs.month() &&
 //            lhs.day()   == rhs.day();
 // }
 //
+// /// Return `true` if the specified `lhs` and `rhs` objects do not have
+// /// the same value, and `false` otherwise.  Two `MyDate` objects do not
+// /// have the same value if each of their corresponding `year`, `month`,
+// /// and `day` attributes respective do not have the same value.
 // inline
 // bool operator!=(const MyDate& lhs, const MyDate& rhs)
-//     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
-//     // the same value, and 'false' otherwise.  Two 'MyDate' objects do not
-//     // have the same value if each of their corresponding 'year', 'month',
-//     // and 'day' attributes respective do not have the same value.
 // {
 //     return !(lhs == rhs);
 // }
@@ -350,16 +354,16 @@ BSLS_IDENT("$Id: $")
 // Then, we define a comparison functor for `MyDate` objects in order for them
 // to be stored in a `bsl::set` object:
 // ```
+// /// This `struct` defines an ordering on `MyDate` objects, allowing them
+// /// to be included in associative containers such as `bsl::set`.
 // struct MyDateLess {
-//     // This 'struct' defines an ordering on 'MyDate' objects, allowing them
-//     // to be included in associative containers such as 'bsl::set'.
 //
+//     /// Return `true` if the value of the specified `lhs` is less than
+//     /// (ordered before) the value of the specified `rhs`, and `false`
+//     /// otherwise.  The `lhs` value is considered less than the `rhs`
+//     /// value if the date represented by `lhs` is earlier than the date
+//     /// represented by `rhs` in time.
 //     bool operator() (const MyDate& lhs, const MyDate& rhs) const
-//         // Return 'true' if the value of the specified 'lhs' is less than
-//         // (ordered before) the value of the specified 'rhs', and 'false'
-//         // otherwise.  The 'lhs' value is considered less than the 'rhs'
-//         // value if the date represented by 'lhs' is earlier than the date
-//         // represented by 'rhs' in time.
 //     {
 //         if (lhs.year() < rhs.year()) return true;
 //         if (lhs.year() == rhs.year()) {
@@ -374,9 +378,9 @@ BSLS_IDENT("$Id: $")
 // ```
 // Next, we define `HolidayCalendar`:
 // ```
+// /// This class provides a value-semantic type that allows clients to
+// /// modify and query a set of dates considered to be holidays.
 // class HolidayCalendar {
-//     // This class provides a value-semantic type that allows clients to
-//     // modify and query a set of dates considered to be holidays.
 // ```
 // Here, we create a type alias, `DateSet`, for a `bsl::set` that will serve as
 // the data member for a `HolidayCalendar`.  A `DateSet` has keys of type
@@ -385,80 +389,85 @@ BSLS_IDENT("$Id: $")
 // `bslma` style allocators:
 // ```
 //     // PRIVATE TYPES
+//
+//     /// This `typedef` is an alias for a set of `MyDate` objects.
 //     typedef bsl::set<MyDate, MyDateLess> DateSet;
-//         // This 'typedef' is an alias for a set of 'MyDate' objects.
 //
 //     // DATA
 //     DateSet d_holidayDates;  // set of dates considered to be holidays
 //
 //   public:
 //     // PUBLIC TYPES
+//
+//     /// This `typedef` provides an alias for the type of an iterator
+//     /// providing non-modifiable access to holiday dates in a
+//     /// `HolidayCalendar`.
 //     typedef DateSet::const_iterator ConstIterator;
-//         // This 'typedef' provides an alias for the type of an iterator
-//         // providing non-modifiable access to holiday dates in a
-//         // 'HolidayCalendar'.
 //
 //     // CREATORS
-//     HolidayCalendar(bslma::Allocator *basicAllocator = 0);
-//         // Create an empty 'HolidayCalendar' object.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
+//     /// Create an empty `HolidayCalendar` object.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
+//     HolidayCalendar(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Create a `HolidayCalendar` object having the same value as the
+//     /// specified `original` object.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
 //     HolidayCalendar(const HolidayCalendar&  original,
 //                     bslma::Allocator       *basicAllocator = 0);
-//         // Create a 'HolidayCalendar' object having the same value as the
-//         // specified 'original' object.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
+//     /// Destroy this object.
 //     //! ~HolidayCalendar() = default;
-//         // Destroy this object.
 //
 //     // MANIPULATORS
-//     void addHolidayDate(const MyDate& date);
-//         // Add the specified 'date' as a holiday date maintained by this
-//         // calendar.  If 'date' is already a holiday date, this method has
-//         // no effect.
 //
+//     /// Add the specified `date` as a holiday date maintained by this
+//     /// calendar.  If `date` is already a holiday date, this method has
+//     /// no effect.
+//     void addHolidayDate(const MyDate& date);
+//
+//     /// Remove the specify `date` from the set of holiday dates
+//     /// maintained by this calendar.  If `date` is not a holiday date,
+//     /// this method has no effect.
 //     void removeHolidayDate(const MyDate& date);
-//         // Remove the specify 'date' from the set of holiday dates
-//         // maintained by this calendar.  If 'date' is not a holiday date,
-//         // this method has no effect.
 //
 //     // ACCESSORS
+//
+//     /// Return `true` if the specified `date` is in the set of holiday
+//     /// dates maintained by this calendar, and return `false` otherwise.
 //     bool isHolidayDate(const MyDate& date) const;
-//         // Return 'true' if the specified 'date' is in the set of holiday
-//         // dates maintained by this calendar, and return 'false' otherwise.
 //
+//     /// Return an iterator providing non-modifiable access to the first
+//     /// date in the ordered sequence of holiday dates maintained by this
+//     /// calendar.
 //     ConstIterator beginHolidayDates() const;
-//         // Return an iterator providing non-modifiable access to the first
-//         // date in the ordered sequence of holiday dates maintained by this
-//         // calendar.
 //
+//     /// Return an iterator providing non-modifiable access to
+//     /// past-the-end date in the ordered sequence of holiday dates
+//     /// maintained by this calendar.
 //     ConstIterator endHolidayDates() const;
-//         // Return an iterator providing non-modifiable access to
-//         // past-the-end date in the ordered sequence of holiday dates
-//         // maintained by this calendar.
 // };
 // ```
 // Then, we declare the free operators for `HolidayCalendar`:
 // ```
+// /// Return `true` if the specified `lhs` and `rhs` objects have the same
+// /// value, and `false` otherwise.  Two `HolidayCalendar` objects have
+// /// the same value if they have the same number of holiday dates, and
+// /// each corresponding holiday date, in their respective ordered
+// /// sequence of dates, is the same.
 // inline
 // bool operator==(const HolidayCalendar& lhs, const HolidayCalendar& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-//     // value, and 'false' otherwise.  Two 'HolidayCalendar' objects have
-//     // the same value if they have the same number of holiday dates, and
-//     // each corresponding holiday date, in their respective ordered
-//     // sequence of dates, is the same.
 //
+// /// Return `true` if the specified `lhs` and `rhs` objects do not have
+// /// the same value, and `false` otherwise.  Two `HolidayCalendar`
+// /// objects do not have the same value if they either differ in their
+// /// number of holiday dates, or if any of the corresponding holiday
+// /// dates, in their respective ordered sequences of dates, is not the
+// /// same.
 // inline
 // bool operator!=(const HolidayCalendar& lhs, const HolidayCalendar& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
-//     // the same value, and 'false' otherwise.  Two 'HolidayCalendar'
-//     // objects do not have the same value if they either differ in their
-//     // number of holiday dates, or if any of the corresponding holiday
-//     // dates, in their respective ordered sequences of dates, is not the
-//     // same.
 // ```
 // Now, we define the implementations methods of the `HolidayCalendar` class:
 // ```
@@ -670,10 +679,10 @@ class set {
 
     // DATA
     DataWrapper                       d_compAndAlloc;
-                                               // comparator and pool of 'Node'
+                                               // comparator and pool of `Node`
                                                // objects
 
-    BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of 'Node'
+    BloombergLP::bslalg::RbTreeAnchor d_tree;  // balanced tree of `Node`
                                                // objects
 
   public:
@@ -774,8 +783,8 @@ class set {
     /// Create a set having the same value as the specified `original`
     /// object.  Use a copy of `original.key_comp()` to order the keys
     /// contained in this set.  Use the allocator returned by
-    /// 'bsl::allocator_traits<ALLOCATOR>::
-    /// select_on_container_copy_construction(original.get_allocator())' to
+    /// `bsl::allocator_traits<ALLOCATOR>::
+    /// select_on_container_copy_construction(original.get_allocator())` to
     /// allocate memory.  This method requires that the (template parameter)
     /// type `KEY` be `copy-insertable` into this set (see {Requirements on
     /// `KEY`}).
@@ -892,23 +901,23 @@ class set {
     /// into this set (see {Requirements on `KEY`}).
     set& operator=(const set& rhs);
 
+    /// Assign to this object the value and comparator of the specified
+    /// `rhs` object, propagate to this object the allocator of `rhs` if the
+    /// `ALLOCATOR` type has trait `propagate_on_container_move_assignment`,
+    /// and return a reference providing modifiable access to this object.
+    /// The contents of `rhs` are moved (in constant time) to this set if
+    /// `get_allocator() == rhs.get_allocator()` (after accounting for the
+    /// aforementioned trait); otherwise, all elements in this set are
+    /// either destroyed or move-assigned to and each additional element in
+    /// `rhs` is move-inserted into this set.  `rhs` is left in a valid but
+    /// unspecified state, and if an exception is thrown, `*this` is left
+    /// in a valid but unspecified state.  This method requires that the
+    /// (template parameter) type `KEY` be `move-assignable` and
+    /// `move-insertable` into this set (see {Requirements on `KEY`}).
     set& operator=(BloombergLP::bslmf::MovableRef<set> rhs)
                        BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                            AllocatorTraits::is_always_equal::value
                         && std::is_nothrow_move_assignable<COMPARATOR>::value);
-        // Assign to this object the value and comparator of the specified
-        // 'rhs' object, propagate to this object the allocator of 'rhs' if the
-        // 'ALLOCATOR' type has trait 'propagate_on_container_move_assignment',
-        // and return a reference providing modifiable access to this object.
-        // The contents of 'rhs' are moved (in constant time) to this set if
-        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
-        // aforementioned trait); otherwise, all elements in this set are
-        // either destroyed or move-assigned to and each additional element in
-        // 'rhs' is move-inserted into this set.  'rhs' is left in a valid but
-        // unspecified state, and if an exception is thrown, '*this' is left
-        // in a valid but unspecified state.  This method requires that the
-        // (template parameter) type 'KEY' be 'move-assignable' and
-        // 'move-insertable' into this set (see {Requirements on 'KEY'}).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     /// Assign to this object the value resulting from first clearing this
@@ -1090,26 +1099,26 @@ class set {
     /// position in the ordered sequence provided by this container.
     iterator erase(const_iterator first, const_iterator last);
 
+    /// Exchange the value and comparator of this object with those of the
+    /// specified `other` object; also exchange the allocator of this object
+    /// with that of `other` if the (template parameter) type `ALLOCATOR`
+    /// has the `propagate_on_container_swap` trait, and do not modify
+    /// either allocator otherwise.  This method provides the no-throw
+    /// exception-safety guarantee if and only if the (template parameter)
+    /// type `COMPARATOR` provides a no-throw swap operation, and provides
+    /// the basic exception-safety guarantee otherwise; if an exception is
+    /// thrown, both objects are left in valid but unspecified states.  This
+    /// operation has `O[1]` complexity if either this object was created
+    /// with the same allocator as `other` or `ALLOCATOR` has the
+    /// `propagate_on_container_swap` trait; otherwise, it has `O[n + m]`
+    /// complexity, where `n` and `m` are the number of elements in this
+    /// object and `other`, respectively.  Note that this method`s support
+    /// for swapping objects created with different allocators when
+    /// `ALLOCATOR` does not have the `propagate_on_container_swap` trait is
+    /// a departure from the C++ Standard.
     void swap(set& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                  AllocatorTraits::is_always_equal::value
                               && bsl::is_nothrow_swappable<COMPARATOR>::value);
-        // Exchange the value and comparator of this object with those of the
-        // specified 'other' object; also exchange the allocator of this object
-        // with that of 'other' if the (template parameter) type 'ALLOCATOR'
-        // has the 'propagate_on_container_swap' trait, and do not modify
-        // either allocator otherwise.  This method provides the no-throw
-        // exception-safety guarantee if and only if the (template parameter)
-        // type 'COMPARATOR' provides a no-throw swap operation, and provides
-        // the basic exception-safety guarantee otherwise; if an exception is
-        // thrown, both objects are left in valid but unspecified states.  This
-        // operation has 'O[1]' complexity if either this object was created
-        // with the same allocator as 'other' or 'ALLOCATOR' has the
-        // 'propagate_on_container_swap' trait; otherwise, it has 'O[n + m]'
-        // complexity, where 'n' and 'm' are the number of elements in this
-        // object and 'other', respectively.  Note that this method's support
-        // for swapping objects created with different allocators when
-        // 'ALLOCATOR' does not have the 'propagate_on_container_swap' trait is
-        // a departure from the C++ Standard.
 
     /// Remove all entries from this set.  Note that the set is empty after
     /// this call, but allocated memory may be retained for future use.
@@ -1720,16 +1729,16 @@ bool operator==(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `set` objects `lhs` and `rhs` do
+/// not have the same value if they do not have the same number of keys, or
+/// some element in the ordered sequence of keys of `lhs` does not have the
+/// same value as the corresponding element in the ordered sequence of keys
+/// of `rhs`.  This method requires that the (template parameter) type `KEY`
+/// be `equality-comparable` (see {Requirements on `KEY`}).
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator!=(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'set' objects 'lhs' and 'rhs' do
-    // not have the same value if they do not have the same number of keys, or
-    // some element in the ordered sequence of keys of 'lhs' does not have the
-    // same value as the corresponding element in the ordered sequence of keys
-    // of 'rhs'.  This method requires that the (template parameter) type 'KEY'
-    // be 'equality-comparable' (see {Requirements on 'KEY'}).
 #endif
 
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
@@ -1744,53 +1753,53 @@ operator<=>(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
 
 #else
 
+/// Return `true` if the value of the specified `lhs` set is
+/// lexicographically less than that of the specified `rhs` set, and `false`
+/// otherwise.  Given iterators `i` and `j` over the respective sequences
+/// `[lhs.begin() .. lhs.end())` and `[rhs.begin() .. rhs.end())`, the value
+/// of set `lhs` is lexicographically less than that of set `rhs` if
+/// `true == *i < *j` for the first pair of corresponding iterator positions
+/// where `*i < *j` and `*j < *i` are not both `false`.  If no such
+/// corresponding iterator position exists, the value of `lhs` is
+/// lexicographically less than that of `rhs` if `lhs.size() < rhs.size()`.
+/// This method requires that `operator<`, inducing a total order, be
+/// defined for `value_type`.
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator< (const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' set is
-    // lexicographically less than that of the specified 'rhs' set, and 'false'
-    // otherwise.  Given iterators 'i' and 'j' over the respective sequences
-    // '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())', the value
-    // of set 'lhs' is lexicographically less than that of set 'rhs' if
-    // 'true == *i < *j' for the first pair of corresponding iterator positions
-    // where '*i < *j' and '*j < *i' are not both 'false'.  If no such
-    // corresponding iterator position exists, the value of 'lhs' is
-    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
-    // This method requires that 'operator<', inducing a total order, be
-    // defined for 'value_type'.
 
+/// Return `true` if the value of the specified `lhs` set is
+/// lexicographically greater than that of the specified `rhs` set, and
+/// `false` otherwise.  The value of set `lhs` is lexicographically greater
+/// than that of set `rhs` if `rhs` is lexicographically less than `lhs`
+/// (see `operator<`).  This method requires that `operator<`, inducing a
+/// total order, be defined for `value_type`.  Note that this operator
+/// returns `rhs < lhs`.
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator> (const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' set is
-    // lexicographically greater than that of the specified 'rhs' set, and
-    // 'false' otherwise.  The value of set 'lhs' is lexicographically greater
-    // than that of set 'rhs' if 'rhs' is lexicographically less than 'lhs'
-    // (see 'operator<').  This method requires that 'operator<', inducing a
-    // total order, be defined for 'value_type'.  Note that this operator
-    // returns 'rhs < lhs'.
 
+/// Return `true` if the value of the specified `lhs` set is
+/// lexicographically less than or equal to that of the specified `rhs` set,
+/// and `false` otherwise.  The value of set `lhs` is lexicographically less
+/// than or equal to that of set `rhs` if `rhs` is not lexicographically
+/// less than `lhs` (see `operator<`).  This method requires that
+/// `operator<`, inducing a total order, be defined for `value_type`.  Note
+/// that this operator returns `!(rhs < lhs)`.
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator<=(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' set is
-    // lexicographically less than or equal to that of the specified 'rhs' set,
-    // and 'false' otherwise.  The value of set 'lhs' is lexicographically less
-    // than or equal to that of set 'rhs' if 'rhs' is not lexicographically
-    // less than 'lhs' (see 'operator<').  This method requires that
-    // 'operator<', inducing a total order, be defined for 'value_type'.  Note
-    // that this operator returns '!(rhs < lhs)'.
 
+/// Return `true` if the value of the specified `lhs` set is
+/// lexicographically greater than or equal to that of the specified `rhs`
+/// set, and `false` otherwise.  The value of set `lhs` is lexicographically
+/// greater than or equal to that of set `rhs` if `lhs` is not
+/// lexicographically less than `rhs` (see `operator<`).  This method
+/// requires that `operator<`, inducing a total order, be defined for
+/// `value_type`.  Note that this operator returns `!(lhs < rhs)`.
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator>=(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' set is
-    // lexicographically greater than or equal to that of the specified 'rhs'
-    // set, and 'false' otherwise.  The value of set 'lhs' is lexicographically
-    // greater than or equal to that of set 'rhs' if 'lhs' is not
-    // lexicographically less than 'rhs' (see 'operator<').  This method
-    // requires that 'operator<', inducing a total order, be defined for
-    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 #endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
@@ -1802,28 +1811,28 @@ template <class KEY, class COMPARATOR, class ALLOCATOR, class PREDICATE>
 typename set<KEY, COMPARATOR, ALLOCATOR>::size_type
 erase_if(set<KEY, COMPARATOR, ALLOCATOR>& s, PREDICATE predicate);
 
+/// Exchange the value and comparator of the specified `a` object with those
+/// of the specified `b` object; also exchange the allocator of `a` with
+/// that of `b` if the (template parameter) type `ALLOCATOR` has the
+/// `propagate_on_container_swap` trait, and do not modify either allocator
+/// otherwise.  This function provides the no-throw exception-safety
+/// guarantee if and only if the (template parameter) type `COMPARATOR`
+/// provides a no-throw swap operation, and provides the basic
+/// exception-safety guarantee otherwise; if an exception is thrown, both
+/// objects are left in valid but unspecified states.  This operation has
+/// `O[1]` complexity if either `a` was created with the same allocator as
+/// `b` or `ALLOCATOR` has the `propagate_on_container_swap` trait;
+/// otherwise, it has `O[n + m]` complexity, where `n` and `m` are the
+/// number of elements in `a` and `b`, respectively.  Note that this
+/// function`s support for swapping objects created with different
+/// allocators when `ALLOCATOR` does not have the
+/// `propagate_on_container_swap` trait is a departure from the C++
+/// Standard.
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 void swap(set<KEY, COMPARATOR, ALLOCATOR>& a,
           set<KEY, COMPARATOR, ALLOCATOR>& b)
                                 BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                     BSLS_KEYWORD_NOEXCEPT_OPERATOR(a.swap(b)));
-    // Exchange the value and comparator of the specified 'a' object with those
-    // of the specified 'b' object; also exchange the allocator of 'a' with
-    // that of 'b' if the (template parameter) type 'ALLOCATOR' has the
-    // 'propagate_on_container_swap' trait, and do not modify either allocator
-    // otherwise.  This function provides the no-throw exception-safety
-    // guarantee if and only if the (template parameter) type 'COMPARATOR'
-    // provides a no-throw swap operation, and provides the basic
-    // exception-safety guarantee otherwise; if an exception is thrown, both
-    // objects are left in valid but unspecified states.  This operation has
-    // 'O[1]' complexity if either 'a' was created with the same allocator as
-    // 'b' or 'ALLOCATOR' has the 'propagate_on_container_swap' trait;
-    // otherwise, it has 'O[n + m]' complexity, where 'n' and 'm' are the
-    // number of elements in 'a' and 'b', respectively.  Note that this
-    // function's support for swapping objects created with different
-    // allocators when 'ALLOCATOR' does not have the
-    // 'propagate_on_container_swap' trait is a departure from the C++
-    // Standard.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -1898,11 +1907,11 @@ void set<KEY, COMPARATOR, ALLOCATOR>::quickSwapExchangeAllocators(set& other)
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
     nodeFactory().swapExchangeAllocators(other.nodeFactory());
 
-    // 'DataWrapper' contains a 'NodeFactory' object and inherits from
-    // 'Comparator'.  If the empty-base-class optimization has been applied to
-    // 'Comparator', then we must not call 'swap' on it because
-    // 'sizeof(Comparator) > 0' and, therefore, we will incorrectly swap bytes
-    // of the 'NodeFactory' members!
+    // `DataWrapper` contains a `NodeFactory` object and inherits from
+    // `Comparator`.  If the empty-base-class optimization has been applied to
+    // `Comparator`, then we must not call `swap` on it because
+    // `sizeof(Comparator) > 0` and, therefore, we will incorrectly swap bytes
+    // of the `NodeFactory` members!
 
     if (sizeof(NodeFactory) != sizeof(DataWrapper)) {
         comparator().swap(other.comparator());
@@ -1916,7 +1925,7 @@ void set<KEY, COMPARATOR, ALLOCATOR>::quickSwapRetainAllocators(set& other)
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
     nodeFactory().swapRetainAllocators(other.nodeFactory());
 
-    // See 'quickSwapExchangeAllocators' (above).
+    // See `quickSwapExchangeAllocators` (above).
 
     if (sizeof(NodeFactory) != sizeof(DataWrapper)) {
         comparator().swap(other.comparator());
@@ -2055,7 +2064,7 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(INPUT_ITERATOR    first,
         // ordered sequence of values (as required by the standard).   If the
         // values are in sorted order, we are guaranteed the next node can be
         // inserted as the right child of the previous node, and can call
-        // 'insertAt' without 'findUniqueInsertLocation'.
+        // `insertAt` without `findUniqueInsertLocation`.
 
         insert(*first);
         BloombergLP::bslalg::RbTreeNode *prevNode = d_tree.rootNode();
@@ -2110,7 +2119,7 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(INPUT_ITERATOR    first,
         // ordered sequence of values (as required by the standard).   If the
         // values are in sorted order, we are guaranteed the next node can be
         // inserted as the right child of the previous node, and can call
-        // 'insertAt' without 'findUniqueInsertLocation'.
+        // `insertAt` without `findUniqueInsertLocation`.
 
         insert(*first);
         BloombergLP::bslalg::RbTreeNode *prevNode = d_tree.rootNode();
@@ -2380,8 +2389,8 @@ void set<KEY, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
     // First, consume currently held free nodes.  If those nodes are
     // insufficient *and* one can calculate the remaining number of elements,
     // then reserve exactly that many free nodes.  There is no more than one
-    // call to 'reserveNodes' per invocation of this method, hence the use of
-    // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.  When reserving nodes, we
+    // call to `reserveNodes` per invocation of this method, hence the use of
+    // `BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY`.  When reserving nodes, we
     // assume the elements remaining to be inserted are unique and do not
     // duplicate any elements already in the container.  If there are any
     // duplicates, this container will have free nodes on return from this
@@ -2527,7 +2536,7 @@ void set<KEY, COMPARATOR, ALLOCATOR>::swap(set& other)
         quickSwapExchangeAllocators(other);
     }
     else {
-        // C++11 behavior for member 'swap': undefined for unequal allocators.
+        // C++11 behavior for member `swap`: undefined for unequal allocators.
         // BSLS_ASSERT(allocator() == other.allocator());
 
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(

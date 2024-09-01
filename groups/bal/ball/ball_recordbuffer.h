@@ -49,10 +49,10 @@ BSLS_IDENT("$Id: $")
 // ```
 // // my_recordbuffer.h
 //
+// /// This class provides a thread-safe implementation of the
+// /// `ball::RecordBuffer` protocol.  This implementation employs a vector
+// /// to hold an unlimited number of record handles.
 // class my_RecordBuffer : public ball::RecordBuffer {
-//     // This class provides a thread-safe implementation of the
-//     // 'ball::RecordBuffer' protocol.  This implementation employs a vector
-//     // to hold an unlimited number of record handles.
 //
 //     mutable bslmt::RecursiveMutex d_mutex;
 //                                  // thread safety provider (see
@@ -190,22 +190,21 @@ BSLS_IDENT("$Id: $")
 // We implement a function `processRecord` that processes a specified record
 // handle based on its severity.
 // ```
+// /// Process the specified `handle`, based on it`s severity.  Records
+// /// (encapsulated in `handle`) with severity equal to or *greater*
+// /// severe than (i.e., with *numerical* value *less* than or equal to)
+// /// `ball::Severity::e_WARN` are pushed back into the specified
+// /// `buffer`.  Records with a severity equal to or more severe than
+// /// `ball::Severity::e_ERROR` are (in addition to get pushed back
+// /// into the `buffer`) printed to `stdout`, and then each record
+// /// contained in `buffer` is in turn printed to `stdout` and then
+// /// removed from `buffer`.  That is, any severity level equal to or
+// /// more severe than `ball::Severity::e_ERROR` triggers a trace-back
+// /// of all records accumulated in the buffer and flushes the buffer.
+// /// The function is thread safe and thus allows multiple concurrent
+// /// invocations of this function with the same record buffer.
 // void processRecord(const bsl::shared_ptr<ball::Record>& handle,
-//                          ball::RecordBuffer&            buffer)
-//     // Process the specified 'handle', based on it's severity.  Records
-//     // (encapsulated in 'handle') with severity equal to or *greater*
-//     // severe than (i.e., with *numerical* value *less* than or equal to)
-//     // 'ball::Severity::e_WARN' are pushed back into the specified
-//     // 'buffer'.  Records with a severity equal to or more severe than
-//     // 'ball::Severity::e_ERROR' are (in addition to get pushed back
-//     // into the 'buffer') printed to 'stdout', and then each record
-//     // contained in 'buffer' is in turn printed to 'stdout' and then
-//     // removed from 'buffer'.  That is, any severity level equal to or
-//     // more severe than 'ball::Severity::e_ERROR' triggers a trace-back
-//     // of all records accumulated in the buffer and flushes the buffer.
-//     // The function is thread safe and thus allows multiple concurrent
-//     // invocations of this function with the same record buffer.
-//
+//                    ball::RecordBuffer&                  buffer)
 // {
 //     int severity = handle->fixedFields().severity();
 //

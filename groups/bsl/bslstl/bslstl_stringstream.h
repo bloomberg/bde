@@ -231,8 +231,6 @@ class basic_stringstream
     /// be convertible to `bslma::Allocator *`.  If the `ALLOCATOR` argument
     /// is of type `bsl::allocator` and `allocator` is not supplied, the
     /// currently installed default allocator will be used to supply memory.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class SALLOC>
     basic_stringstream(
         const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>&
@@ -246,6 +244,7 @@ class basic_stringstream
                allocator)
     , BaseStream(BaseType::rdbuf())
     {
+        // Note: implemented inline due to Sun CC compilation error.
     }
 
     /// Create a `basic_stringstream` object.  Use the specified
@@ -260,8 +259,6 @@ class basic_stringstream
     /// be convertible to `bslma::Allocator *`.  If the `ALLOCATOR` argument
     /// is of type `bsl::allocator` and `allocator` is not supplied, the
     /// currently installed default allocator will be used to supply memory.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class SALLOC>
     basic_stringstream(
         const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>&
@@ -276,6 +273,7 @@ class basic_stringstream
                allocator)
     , BaseStream(BaseType::rdbuf())
     {
+        // Note: implemented inline due to Sun CC compilation error.
     }
 
 
@@ -287,10 +285,11 @@ class basic_stringstream
     basic_stringstream(basic_stringstream&& original);
 #endif
 
+    /// Destroy this object.
     //! ~basic_stringstream() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
     /// Assign to this object the value of the specified `rhs`, and return a
     /// reference providing modifiable access to this object.  The contents
@@ -302,8 +301,6 @@ class basic_stringstream
     /// Reset the internally buffered sequence of characters maintained by
     /// this stream to the specified `value`.  If `value` is passed by
     /// `MovableRef`, it is left in a valid but unspecified state.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     void str(const StringType& value);
     void str(BloombergLP::bslmf::MovableRef<StringType> value);
     template <class SALLOC>
@@ -311,6 +308,7 @@ class basic_stringstream
         bsl::enable_if<!bsl::is_same<ALLOCATOR, SALLOC>::value, void>::type
     str(const basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>& value)
     {
+        // Note: implemented inline due to Sun CC compilation error.
         return this->rdbuf()->str(value);
     }
 
@@ -327,13 +325,13 @@ class basic_stringstream
     /// object to buffer unformatted characters.
     StreamBufType *rdbuf() const;
 
+    /// Return the internally buffered sequence of characters maintained by
+    /// this stream object.
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
     StringType str() const &;
 #else
     StringType str() const;
 #endif
-        // Return the internally buffered sequence of characters maintained by
-        // this stream object.
 
 #ifndef BSLS_PLATFORM_CMP_SUN
     // To be enabled once DRQS 168075157 is resolved
@@ -341,14 +339,13 @@ class basic_stringstream
     /// Return a copy of the internally buffered sequence of characters
     /// maintained by this stream object in a `basic_string` that uses the
     /// specified `allocator`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class SALLOC>
     typename bsl::enable_if<
         bsl::IsStdAllocator<SALLOC>::value,
         basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC> >::type
     str(const SALLOC& allocator) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
         return this->rdbuf()->str(allocator);
     }
 #endif

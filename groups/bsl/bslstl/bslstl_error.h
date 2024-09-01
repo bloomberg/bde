@@ -108,9 +108,9 @@ class error_condition;
                             // class error_category
                             // ====================
 
+// This `class` acts as a base for types that represent the source and
+// encoding of error categories.
 class error_category {
-    // This 'class' acts as a base for types that represent the source and
-    // encoding of error categories.
 
   private:
     // PRIVATE CREATORS
@@ -121,49 +121,51 @@ class error_category {
 
   public:
     // CREATORS
-    error_category();
-        // Create an object of this type.
 
+    /// Create an object of this type.
+    error_category();
+
+    /// Destroy this object.
     virtual ~error_category();
-        // Destroy this object.
 
     // ACCESSORS
+
+    /// Return an `error_condition` object initialized with the specified
+    /// `value` and this object as the error category.
     virtual error_condition default_error_condition(int value) const
     BSLS_KEYWORD_NOEXCEPT;
-        // Return an 'error_condition' object initialized with the specified
-        // 'value' and this object as the error category.
 
+    /// Return, for the error category defined by this object, whether the
+    /// specified `code` and `condition` are considered equivalent.
     virtual bool equivalent(int code, const error_condition& condition) const
     BSLS_KEYWORD_NOEXCEPT;
     virtual bool equivalent(const error_code& code, int condition) const
     BSLS_KEYWORD_NOEXCEPT;
-        // Return, for the error category defined by this object, whether the
-        // specified 'code' and 'condition' are considered equivalent.
 
+    /// Return a string describing the error condition denoted by the
+    /// specified `value`.
     virtual std::string message(int value) const = 0;
-        // Return a string describing the error condition denoted by the
-        // specified 'value'.
 
+    /// Return the name of this error category.
     virtual const char *name() const BSLS_KEYWORD_NOEXCEPT = 0;
-        // Return the name of this error category.
 
+    /// Return whether this object is the same as the specified `other`.
     bool operator==(const error_category& other) const BSLS_KEYWORD_NOEXCEPT;
-        // Return whether this object is the same as the specified 'other'.
 
+    /// Return whether this object is different than the specified `other`.
     bool operator!=(const error_category& other) const BSLS_KEYWORD_NOEXCEPT;
-        // Return whether this object is different than the specified 'other'.
 
+    /// Return whether this object precedes the specified `other` in a total
+    /// ordering of `error_category` objects.
     bool operator<(const error_category& other) const BSLS_KEYWORD_NOEXCEPT;
-        // Return whether this object precedes the specified 'other' in a total
-        // ordering of 'error_category' objects.
 };
 
                               // ================
                               // class error_code
                               // ================
 
+// This `class` represents a system-specific error value.
 class error_code {
-    // This 'class' represents a system-specific error value.
 
   private:
     // PRIVATE TYPES
@@ -172,58 +174,61 @@ class error_code {
 
   public:
     // CREATORS
+
+    /// Create an object of this type initialized with value 0 and system
+    /// category.
     error_code();
-        // Create an object of this type initialized with value 0 and system
-        // category.
 
+    /// Create an object of this type initialized with the specified `value`
+    /// and `category`.
     error_code(int value, const error_category& category);
-        // Create an object of this type initialized with the specified 'value'
-        // and 'category'.
 
+    /// Construct an object of this type initialized with the specified
+    /// `value` and its category (found from an overloaded call to
+    /// `make_error_code`).  Note that this constructor exists only for
+    /// those types designated as error codes via the `is_error_code_enum`
+    /// trait template.
     template <class ERROR_CODE_ENUM>
     error_code(ERROR_CODE_ENUM value,
                typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
                                   BoolType>::type = 0);             // IMPLICIT
-        // Construct an object of this type initialized with the specified
-        // 'value' and its category (found from an overloaded call to
-        // 'make_error_code').  Note that this constructor exists only for
-        // those types designated as error codes via the 'is_error_code_enum'
-        // trait template.
 
     // MANIPULATORS
-    void assign(int value, const error_category& category);
-        // Set this object to hold the specified 'value' and 'category'.
 
+    /// Set this object to hold the specified `value` and `category`.
+    void assign(int value, const error_category& category);
+
+    /// Set this object to hold the specified `value` and its category
+    /// (found from an overloaded call to `make_error_code`).  Note that
+    /// this operator exists only for those types designated as error codes
+    /// via the `is_error_code_enum` trait template.  Note that this object
+    /// is set to the generic rather than system category, because that is
+    /// what the standard specifies.
     template <class ERROR_CODE_ENUM>
     typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
                        error_code&>::type
     operator=(ERROR_CODE_ENUM value);
-        // Set this object to hold the specified 'value' and its category
-        // (found from an overloaded call to 'make_error_code').  Note that
-        // this operator exists only for those types designated as error codes
-        // via the 'is_error_code_enum' trait template.  Note that this object
-        // is set to the generic rather than system category, because that is
-        // what the standard specifies.
 
+    /// Set this object to hold the value 0 and the system category.
     void clear();
-        // Set this object to hold the value 0 and the system category.
 
     // ACCESSORS
+
+    /// Return a `const` reference to the category held by this object.
     const error_category& category() const;
-        // Return a 'const' reference to the category held by this object.
 
+    /// Return an `error_condition` object initialized with the value and
+    /// category of this object.
     error_condition default_error_condition() const;
-        // Return an 'error_condition' object initialized with the value and
-        // category of this object.
 
+    /// Return a string describing this object.
     std::string message() const;
-        // Return a string describing this object.
 
+    /// Return the value held by this object.
     int value() const;
-        // Return the value held by this object.
 
+    /// Return whether the value held by this object is non-zero.
     operator BoolType() const;
-        // Return whether the value held by this object is non-zero.
 
   private:
     // DATA
@@ -235,8 +240,8 @@ class error_code {
                            // class error_condition
                            // =====================
 
+/// This `class` represents a portable error value.
 class error_condition {
-    // This 'class' represents a portable error value.
 
   private:
     // PRIVATE TYPES
@@ -246,53 +251,56 @@ class error_condition {
 
   public:
     // CREATORS
+
+    /// Create an object of this type initialized with value 0 and generic
+    /// category.
     error_condition();
-        // Create an object of this type initialized with value 0 and generic
-        // category.
 
+    /// Create an object of this type initialized with the specified `value`
+    /// and `category`.
     error_condition(int value, const error_category& category);
-        // Create an object of this type initialized with the specified 'value'
-        // and 'category'.
 
+    /// Construct an object of this type initialized with the specified
+    /// `value` and its category (found from an overloaded call to
+    /// `make_error_condition`).  Note that this constructor exists only for
+    /// those types designated as error conditions via the
+    /// `is_error_condition_enum` trait template.
     template <class ERROR_CONDITION_ENUM>
     error_condition(ERROR_CONDITION_ENUM value,
                     typename enable_if<
                         is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
                         BoolType>::type = 0);                       // IMPLICIT
-        // Construct an object of this type initialized with the specified
-        // 'value' and its category (found from an overloaded call to
-        // 'make_error_condition').  Note that this constructor exists only for
-        // those types designated as error conditions via the
-        // 'is_error_condition_enum' trait template.
 
     // MANIPULATORS
-    void assign(int value, const error_category& category);
-        // Set this object to hold the specified 'value' and 'category'.
 
+    /// Set this object to hold the specified `value` and `category`.
+    void assign(int value, const error_category& category);
+
+    /// Set this object to hold the specified `value` and its category
+    /// (found from an overloaded call to `make_error_condition`).  Note
+    /// that this operator exists only for those types designated as error
+    /// conditions via the `is_error_condition_enum` trait template.
     template <class ERROR_CONDITION_ENUM>
     typename enable_if<is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
                        error_condition&>::type
     operator=(ERROR_CONDITION_ENUM value);
-        // Set this object to hold the specified 'value' and its category
-        // (found from an overloaded call to 'make_error_condition').  Note
-        // that this operator exists only for those types designated as error
-        // conditions via the 'is_error_condition_enum' trait template.
 
+    /// Set this object to hold the value 0 and the generic category.
     void clear();
-        // Set this object to hold the value 0 and the generic category.
 
     // ACCESSORS
+
+    /// Return a `const` reference to the category held by this object.
     const error_category& category() const;
-        // Return a 'const' reference to the category held by this object.
 
+    /// Return a string describing this object.
     std::string message() const;
-        // Return a string describing this object.
 
+    /// Return the value held by this object.
     int value() const;
-        // Return the value held by this object.
 
+    /// Return whether the value held by this object is non-zero.
     operator BoolType() const;
-        // Return whether the value held by this object is non-zero.
 
   private:
     // DATA
@@ -301,54 +309,55 @@ class error_condition {
 };
 
 // FREE FUNCTIONS
+
+/// Return a `const` reference to the unique generic category object.
 const error_category& generic_category();
-    // Return a 'const' reference to the unique generic category object.
 
+/// Return a `const` reference to the unique system category object.
 const error_category& system_category();
-    // Return a 'const' reference to the unique system category object.
 
+/// Return an `error_code` object holding the specified `value` and generic
+/// category.  Note that the category is generic rather than system because
+/// that is what the standard specifies.
 error_code make_error_code(errc::Enum value);
-    // Return an 'error_code' object holding the specified 'value' and generic
-    // category.  Note that the category is generic rather than system because
-    // that is what the standard specifies.
 
+/// Return an `error_condition` object holding the specified `value` and
+/// generic category.
 error_condition make_error_condition(errc::Enum value);
-    // Return an 'error_condition' object holding the specified 'value' and
-    // generic category.
 
+/// Hash the specified `object` using the specified `hashAlgorithm`.
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlgorithm, const error_code& object);
-    // Hash the specified 'object' using the specified 'hashAlgorithm'.
 
+/// Hash the specified `object` using the specified `hashAlgorithm`.
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlgorithm, const error_condition& object);
-    // Hash the specified 'object' using the specified 'hashAlgorithm'.
 
 // FREE OPERATORS
+
+/// Return whether the specified `lhs` and `rhs` are equal or equivalent.
 bool operator==(const error_code& lhs, const error_code& rhs);
 bool operator==(const error_code& lhs, const error_condition& rhs);
 bool operator==(const error_condition& lhs, const error_code& rhs);
 bool operator==(const error_condition& lhs, const error_condition& rhs);
-    // Return whether the specified 'lhs' and 'rhs' are equal or equivalent.
 
+/// Return whether the specified `lhs` and `rhs` are not equal or equivalent.
 bool operator!=(const error_code&, const error_code&);
 bool operator!=(const error_code&, const error_condition&);
 bool operator!=(const error_condition&, const error_code&);
 bool operator!=(const error_condition&, const error_condition&);
-    // Return whether the specified 'lhs' and 'rhs' are not equal or
-    // equivalent.
 
+/// Return whether the specified `lhs` is lexicographically less than the
+/// specified `rhs`, ordered by category then value.
 bool operator<(const error_code& lhs, const error_code& rhs);
 bool operator<(const error_condition& lhs, const error_condition& rhs);
-    // Return whether the specified 'lhs' is lexicographically less than the
-    // specified 'rhs', ordered by category then value.
 
+/// Write the specified `code` to `stream`.
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
                      std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
                      const error_code&                           code);
-    // Write the specified 'code' to 'stream'.
 
 // ============================================================================
 //                             INLINE DEFINITIONS

@@ -57,50 +57,53 @@ BSLS_IDENT("$Id: $")
 // `bslmt::ReaderWriterMutex` to write a thread-safe class, `my_Account`.  Note
 // the typical use of `mutable` for the lock:
 // ```
+// // This `class` represents a bank account with a single balance.
 // class my_Account {
-//     // This 'class' represents a bank account with a single balance.
 //
 //     // DATA
 //     bsls::Types::Uint64               d_pennies;  // amount of money in the
 //                                                   // account
 //
 //     mutable bslmt::ReaderWriterMutex  d_lock;     // guard access to
-//                                                   // 'd_account_p'
+//                                                   // `d_account_p`
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an account with zero balance.
 //     my_Account();
-//         // Create an account with zero balance.
 //
+//     /// Create an account having the value of the specified `original`
+//     /// account.
 //     my_Account(const my_Account& original);
-//         // Create an account having the value of the specified 'original'
-//         // account.
 //
+//     /// Destroy this account.
 //     ~my_Account();
-//         // Destroy this account.
 //
 //     // MANIPULATORS
+//
+//     /// Atomically assign to this account the value of the specified
+//     /// `rhs` account, and return a reference to this modifiable
+//     /// account.  Note that this operation is thread-safe; no `lock` is
+//     /// needed.
 //     my_Account& operator=(const my_Account& rhs);
-//         // Atomically assign to this account the value of the specified
-//         // 'rhs' account, and return a reference to this modifiable
-//         // account.  Note that this operation is thread-safe; no 'lock' is
-//         // needed.
 //
+//     /// Atomically deposit the specified `pennies` into this account.
+//     /// Note that this operation is thread-safe; no `lock` is needed.
 //     void deposit(bsls::Types::Uint64 pennies);
-//         // Atomically deposit the specified 'pennies' into this account.
-//         // Note that this operation is thread-safe; no 'lock' is needed.
 //
+//     /// Attempt to atomically withdraw the specified `pennies` from this
+//     /// account.  Return 0 on success and update this account to reflect
+//     /// the withdrawal.  Otherwise, return a non-zero value and do not
+//     /// update the balance of this account.  Note that this operation is
+//     /// thread-safe; no `lock` is needed.
 //     int withdraw(bsls::Types::Uint64 pennies);
-//         // Attempt to atomically withdraw the specified 'pennies' from this
-//         // account.  Return 0 on success and update this account to reflect
-//         // the withdrawal.  Otherwise, return a non-zero value and do not
-//         // update the balance of this account.  Note that this operation is
-//         // thread-safe; no 'lock' is needed.
 //
 //     // ACCESSORS
+//
+//     /// Atomically return the number of pennies that are available for
+//     /// withdrawal from this account.
 //     bsls::Types::Uint64 balanceInPennies() const;
-//         // Atomically return the number of pennies that are available for
-//         // withdrawal from this account.
 // };
 //
 // // CREATORS
@@ -210,8 +213,8 @@ class ReaderWriterMutex {
     /// Construct a reader/writer lock initialized to an unlocked state.
     ReaderWriterMutex();
 
+    /// Destroy this object
     //! ~ReaderWriterMutex();
-        // Destroy this object
 
     // MANIPULATORS
 

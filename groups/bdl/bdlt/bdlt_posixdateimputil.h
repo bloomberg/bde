@@ -123,9 +123,9 @@ BSLS_IDENT("$Id: $")
 // of the three supported by this component; in this example, we will choose to
 // represent the date value internally as a "serial date":
 // ```
+// /// This class represents a valid date in the range
+// /// `[ 0001/01/01 .. 9999/12/31 ]`.
 // class MyDate {
-//     // This class represents a valid date in the range
-//     // '[ 0001/01/01 .. 9999/12/31 ]'.
 //
 //     // DATA
 //     int d_serialDate;  // 1 = 0001JAN01, 2 = 0001JAN02, ...

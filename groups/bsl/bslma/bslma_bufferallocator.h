@@ -73,11 +73,11 @@ BSLS_IDENT("$Id: $")
 //
 // class my_ShortArray {
 //     short            *d_array_p;      // dynamically-allocated array of
-//                                       // 'short' integers
+//                                       // `short` integers
 //
-//     int               d_size;         // physical size of 'd_array_p'
+//     int               d_size;         // physical size of `d_array_p`
 //
-//     int               d_length;       // logical length of 'd_array_p'
+//     int               d_length;       // logical length of `d_array_p`
 //
 //     bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 //
@@ -87,9 +87,10 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an empty array using the specified `basicAllocator` to
+//     /// supply memory.
 //     my_ShortArray(bslma::Allocator *basicAllocator);
-//         // Create an empty array using the specified 'basicAllocator' to
-//         // supply memory.
 //     // ...
 //
 //     ~my_ShortArray();
@@ -136,15 +137,15 @@ BSLS_IDENT("$Id: $")
 //     d_array_p[d_length++] = value;
 // }
 //
+// /// Reallocate memory in the specified `array` to the specified
+// /// `newSize` using the specified `basicAllocator` or global new
+// /// operator.  The specified `length` number of leading elements are
+// /// preserved.  Since the class invariant requires that the physical
+// /// capacity of the container may grow but never shrink, the behavior
+// /// is undefined unless length <= newSize.
 // static
 // void reallocate(short **array, int newSize, int length,
 //                 bslma::Allocator *basicAllocator)
-//     // Reallocate memory in the specified 'array' to the specified
-//     // 'newSize' using the specified 'basicAllocator' or global new
-//     // operator.  The specified 'length' number of leading elements are
-//     // preserved.  Since the class invariant requires that the physical
-//     // capacity of the container may grow but never shrink, the behavior
-//     // is undefined unless length <= newSize.
 // {
 //     assert(array);
 //     assert(1 <= newSize);
@@ -227,8 +228,8 @@ class BufferAllocator : public Allocator {
     /// takes an integer argument and returns `void *`.
     typedef void *(*AllocCallback)(int);
 
+    /// Types of alignment strategy to allocate memory.
     enum AlignmentStrategy {
-        // Types of alignment strategy to allocate memory.
 
         MAXIMUM_ALIGNMENT,  // Default.  Return memory on maximally-aligned
                             // boundary

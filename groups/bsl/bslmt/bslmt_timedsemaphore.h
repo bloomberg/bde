@@ -58,8 +58,8 @@ BSLS_IDENT("$Id: $")
 // enforce exclusive access, and to allow resource sharing.  This queue allows
 // clients to set a limit on how long they wait to retrieve values.
 // ```
+// /// FIFO queue of integer values.
 // class IntQueue {
-//     // FIFO queue of integer values.
 //
 //     // DATA
 //     bsl::deque<int>       d_queue;       // underlying queue
@@ -72,23 +72,25 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     explicit IntQueue(bslma::Allocator *basicAllocator = 0);
-//         // Create an 'IntQueue' object.  Optionally specified a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
+//     /// Create an `IntQueue` object.  Optionally specified a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
+//     explicit IntQueue(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Destroy this `IntQueue` object.
 //     ~IntQueue();
-//         // Destroy this 'IntQueue' object.
 //
 //     // MANIPULATORS
-//     int getInt(int *result, int maxWaitSeconds = 0);
-//         // Load the first integer in this queue into the specified 'result'
-//         // and return 0 unless the operation takes more than the optionally
-//         // specified 'maxWaitSeconds', in which case return a nonzero value
-//         // and leave 'result' unmodified.
 //
+//     /// Load the first integer in this queue into the specified `result`
+//     /// and return 0 unless the operation takes more than the optionally
+//     /// specified `maxWaitSeconds`, in which case return a nonzero value
+//     /// and leave `result` unmodified.
+//     int getInt(int *result, int maxWaitSeconds = 0);
+//
+//     /// Push the specified `value` to this `IntQueue` object.
 //     void pushInt(int value);
-//         // Push the specified 'value' to this 'IntQueue' object.
 // };
 // ```
 // Note that the `IntQueue` constructor increments the count of the semaphore

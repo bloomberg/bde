@@ -312,8 +312,8 @@ class RecordStringFormatter {
                     const RecordStringFormatter& original,
                     const allocator_type&        allocator = allocator_type());
 
+    /// Destroy this object.
     //! ~RecordStringFormatter() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

@@ -90,8 +90,8 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define a utility classes that handles a simple "work item":
 // ```
+// /// Work data...
 // struct my_WorkData {
-//     // Work data...
 // };
 //
 // struct my_WorkRequest {
@@ -108,8 +108,8 @@ BSLS_IDENT("$Id: $")
 // Next, we provide a simple function to service an individual work item.  The
 // details are unimportant for this example:
 // ```
+// /// Do some work based upon the specified `data`.
 // void myDoWork(const my_WorkData& data)
-//     // Do some work based upon the specified 'data'.
 // {
 //     // do some stuff...
 //     (void)data;
@@ -121,10 +121,10 @@ BSLS_IDENT("$Id: $")
 // ```
 // void myConsumer(
 //     bdlcc::SingleProducerSingleConsumerBoundedQueue<my_WorkRequest> *queue)
-//     // Pop elements from the specified 'queue'.
+//     // Pop elements from the specified `queue`.
 // {
 //     while (1) {
-//         // 'popFront()' will wait for a 'my_WorkRequest' until available.
+//         // `popFront()` will wait for a `my_WorkRequest` until available.
 //
 //         my_WorkRequest item;
 //         item.d_type = my_WorkRequest::e_WORK;
@@ -143,8 +143,8 @@ BSLS_IDENT("$Id: $")
 // consumer queue.  This `e_STOP` item indicates to the consumer thread to
 // terminate its thread-handling function.
 // ```
+// /// Create a queue, start consumer thread, produce and enqueue work.
 // void myProducer()
-//     // Create a queue, start consumer thread, produce and enqueue work.
 // {
 //     enum {
 //         k_MAX_QUEUE_LENGTH = 100,
@@ -259,7 +259,7 @@ class SingleProducerSingleConsumerBoundedQueue {
 
     // PRIVATE CONSTANTS
     enum {
-        // These value are used as values for 'd_state' in 'Node'.  A node is
+        // These value are used as values for `d_state` in `Node`.  A node is
         // writable at creation and after a read completes (when the single
         // producer can write to the node).  A node is readable after it is
         // written (when the node can be read by the single consumer).  The
@@ -286,7 +286,7 @@ class SingleProducerSingleConsumerBoundedQueue {
     struct QueueNode {
         // PUBLIC DATA
         bsls::ObjectBuffer<DATA> d_value;  // stored value
-        AtomicUint               d_state;  // 'e_READABLE', 'e_WRITABLE', etc.
+        AtomicUint               d_state;  // `e_READABLE`, `e_WRITABLE`, etc.
     };
 
     typedef QueueNode<TYPE> Node;
@@ -298,18 +298,18 @@ class SingleProducerSingleConsumerBoundedQueue {
     Node                     *d_popElement_p;    // array of elements that
                                                  // comprise the bounded queue;
                                                  // identical to
-                                                 // 'd_pushElement_p'
+                                                 // `d_pushElement_p`
 
     const bsl::size_t         d_popCapacity;     // the capacity of the queue;
                                                  // identical to
-                                                 // 'd_pushCapacity'
+                                                 // `d_pushCapacity`
 
     AtomicUint                d_popDisabledGeneration;
                                                  // generation count of pop
                                                  // disablements
 
     mutable AtomicUint        d_emptyCount;      // count of threads in
-                                                 // 'waitUntilEmpty'
+                                                 // `waitUntilEmpty`
 
     AtomicUint                d_emptyGeneration; // generation count for the
                                                  // empty queue state, queue is
@@ -334,11 +334,11 @@ class SingleProducerSingleConsumerBoundedQueue {
     Node                     *d_pushElement_p;   // array of elements that
                                                  // comprise the bounded queue;
                                                  // identical to
-                                                 // 'd_popElement_p'
+                                                 // `d_popElement_p`
 
     const bsl::size_t         d_pushCapacity;    // the capacity of the queue;
                                                  // identical to
-                                                 // 'd_popCapacity'
+                                                 // `d_popCapacity`
 
     AtomicUint                d_pushDisabledGeneration;
                                                  // generation count of push
@@ -354,7 +354,7 @@ class SingleProducerSingleConsumerBoundedQueue {
                                                  // in the same cache line as
                                                  // the prior data
 
-    bslmt::Mutex              d_popMutex;        // used with 'd_popCondition'
+    bslmt::Mutex              d_popMutex;        // used with `d_popCondition`
                                                  // to block the consumer when
                                                  // the queue is empty
 
@@ -362,7 +362,7 @@ class SingleProducerSingleConsumerBoundedQueue {
                                                  // consumer when the queue is
                                                  // empty
 
-    bslmt::Mutex              d_pushMutex;       // used with 'd_pushCondition'
+    bslmt::Mutex              d_pushMutex;       // used with `d_pushCondition`
                                                  // to block the producer when
                                                  // the queue is full
 
@@ -371,10 +371,10 @@ class SingleProducerSingleConsumerBoundedQueue {
                                                  // full
 
     mutable bslmt::Mutex      d_emptyMutex;      // blocking point for
-                                                 // 'waitUntilEmpty'
+                                                 // `waitUntilEmpty`
 
     mutable bslmt::Condition  d_emptyCondition;  // condition variable for
-                                                 // 'waitUntilEmpty'
+                                                 // `waitUntilEmpty`
 
     bslma::Allocator         *d_allocator_p;     // allocator, held not owned
 

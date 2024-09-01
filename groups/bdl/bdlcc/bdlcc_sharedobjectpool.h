@@ -330,7 +330,7 @@ class SharedObjectPool {
                                 d_objectCreator; // functor for object creation
 
     bslalg::ConstructorProxy<RESETTER>
-                                d_objectResetter;  // functor to reset object
+                                d_objectResetter; // functor to reset object
 
     PoolType                    d_pool;           // object pool (owned)
 
@@ -352,6 +352,28 @@ class SharedObjectPool {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create an object pool that dispenses shared pointers to TYPE.  When
+    /// the pool is depleted, it increases its capacity according to the
+    /// optionally specified `growBy` value.  If `growBy` is positive, the
+    /// pool always increases by at least `growBy`.  If `growBy` is
+    /// negative, the amount of increase begins at `-growBy` and then grows
+    /// geometrically up to an implementation-defined maximum.  The
+    /// optionally specified `objectCreator` is called whenever objects must
+    /// be constructed.  If `objectCreator` is not specified and the
+    /// parameterized `CREATOR` is the default type (that is,
+    /// `ObjectPoolFunctors::DefaultCreator`), a function that calls the
+    /// default constructor of `TYPE` with placement new, passing this
+    /// pool`s allocator if TYPE uses allocator, is used.  If the
+    /// parameterized `CREATOR` is some other type, and `objectCreator` is
+    /// not specified, the default value of the `CREATOR` type is used.  The
+    /// optionally specified `objectResetter` is invoked with a pointer to
+    /// an object of `TYPE` when the object is returned to the pool.  It
+    /// must reset the object into a valid state for reuse.  If
+    /// `objectResetter` is not specified, a default RESETTER object is
+    /// used.  Optionally specify a basic allocator to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  The behavior is undefined if `growBy` is 0.
     explicit
     SharedObjectPool(int growBy = -1, bslma::Allocator *basicAllocator = 0);
 
@@ -368,27 +390,6 @@ class SharedObjectPool {
                      int               growBy = -1,
                      bslma::Allocator *basicAllocator = 0);
 
-        // Create an object pool that dispenses shared pointers to TYPE.  When
-        // the pool is depleted, it increases its capacity according to the
-        // optionally specified 'growBy' value.  If 'growBy' is positive, the
-        // pool always increases by at least 'growBy'.  If 'growBy' is
-        // negative, the amount of increase begins at '-growBy' and then grows
-        // geometrically up to an implementation-defined maximum.  The
-        // optionally specified 'objectCreator' is called whenever objects must
-        // be constructed.  If 'objectCreator' is not specified and the
-        // parameterized 'CREATOR' is the default type (that is,
-        // 'ObjectPoolFunctors::DefaultCreator'), a function that calls the
-        // default constructor of 'TYPE' with placement new, passing this
-        // pool's allocator if TYPE uses allocator, is used.  If the
-        // parameterized 'CREATOR' is some other type, and 'objectCreator' is
-        // not specified, the default value of the 'CREATOR' type is used.  The
-        // optionally specified 'objectResetter' is invoked with a pointer to
-        // an object of 'TYPE' when the object is returned to the pool.  It
-        // must reset the object into a valid state for reuse.  If
-        // 'objectResetter' is not specified, a default RESETTER object is
-        // used.  Optionally specify a basic allocator to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined if 'growBy' is 0.
 
     /// Destroy this object pool.  All objects created by this pool are
     /// destroyed (even if some of them are still in use) and memory is

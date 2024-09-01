@@ -72,16 +72,17 @@ BSLS_IDENT("$Id: $")
 //     }
 //
 //     // MANIPULATORS
+//
+//     // Configure this observer.
 //     void configure() {
-//         // Configure this observer.
 //         d_configureFlag = true;
 //     }
 //
 //     using Observer::publish;  // avoid hiding base class method
 //
+//     /// Publish the specified `record` with the specified `context`.
 //     void publish(const bsl::shared_ptr<ball::Record>& record,
 //                  const ball::Context&                 context)
-//         // Publish the specified 'record' with the specified 'context'.
 //     {
 //         // Do not publish any records until configuration has been done.
 //         if (!d_configureFlag) {
@@ -90,6 +91,7 @@ BSLS_IDENT("$Id: $")
 //         // Publish the record.
 //         // ...
 //     }
+//
 //     // ACCESSORS
 //     bool isConfigured() const
 //     {
@@ -194,7 +196,7 @@ class BroadcastObserver : public Observer {
     ObserverRegistry                 d_observers;  // observer registry
 
     mutable bslmt::ReaderWriterMutex d_rwMutex;    // protects concurrent
-                                                   // access to 'd_observers'
+                                                   // access to `d_observers`
 
     // NOT IMPLEMENTED
     BroadcastObserver(const BroadcastObserver&);

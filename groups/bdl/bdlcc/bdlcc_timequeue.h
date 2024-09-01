@@ -134,10 +134,10 @@ BSLS_IDENT("$Id: $")
 // Protocol class `my_Session` provides a pure abstract protocol to manage a
 // single "session" to be associated with a specific connection on a server.
 // ```
+// /// Pure protocol class to process a data buffer of arbitrary size.
+// /// Concrete implementations in the "real world" would typically manage
+// /// an external connection like a socket.
 // class my_Session {
-//     // Pure protocol class to process a data buffer of arbitrary size.
-//     // Concrete implementations in the "real world" would typically manage
-//     // an external connection like a socket.
 //
 //   public:
 //     my_Session();
@@ -165,8 +165,8 @@ BSLS_IDENT("$Id: $")
 // connections is required, and implements the virtual function
 // `monitorConnections` to monitor all open connections.
 // ```
+// /// Simple server supporting multiple Connections.
 // class my_Server {
-//     // Simple server supporting multiple Connections.
 //
 //     bsl::vector<my_Connection*>      d_connections;
 //     bdlcc::TimeQueue<my_Connection*> d_timeQueue;
@@ -178,45 +178,45 @@ BSLS_IDENT("$Id: $")
 //     volatile bool                    d_done;
 //
 //   protected:
+//     /// Add the specified `connection` to the current `my_Server`,
+//     /// setting the new timeout value to the current time plus the
+//     /// timeout value provided at construction of this `my_Server`
+//     /// instance.  If the added connection is the new "top" of the
+//     /// queue, signal that the minimum time on the queue has changed.
+//     /// Upon seeing this signal, the TimerMonitor thread will wake up
+//     /// and look for expired timers.
+//     ///
+//     /// Behavior is undefined if `connection` has already been added to
+//     /// any `my_Server` and has not been removed via member function
+//     /// `closeConnection`.
 //     void newConnection(my_Connection *connection);
-//         // Add the specified 'connection' to the current 'my_Server',
-//         // setting the new timeout value to the current time plus the
-//         // timeout value provided at construction of this 'my_Server'
-//         // instance.  If the added connection is the new "top" of the
-//         // queue, signal that the minimum time on the queue has changed.
-//         // Upon seeing this signal, the TimerMonitor thread will wake up
-//         // and look for expired timers.
-//         //
-//         // Behavior is undefined if 'connection' has already been added to
-//         // any 'my_Server' and has not been removed via member function
-//         // 'closeConnection'.
 //
+//     /// Remove the specified `connection` from the current `my_Server`,
+//     /// so that it will no longer be monitored for available data.
 //     void removeConnection(my_Connection *connection);
-//         // Remove the specified 'connection' from the current 'my_Server',
-//         // so that it will no longer be monitored for available data.
 //
+//     /// Provide a mechanism for a concrete implementation to close a
+//     /// specified `connection`.
 //     virtual void closeConnection(my_Connection *connection)=0;
-//         // Provide a mechanism for a concrete implementation to close a
-//         // specified 'connection'.
 //
+//     /// Receive in the specified `buffer_p` a pointer to a data buffer
+//     /// of the specified `length` bytes, and pass this to the specified
+//     /// `connection` to be processed.  Behavior is undefined if
+//     /// `connection` is not currently added to this `my_Server` object,
+//     /// or if `length` <= 0.
 //     void dataAvailable(my_Connection *connection,
 //                        void          *buffer_p,
 //                        int            length);
-//         // Receive in the specified 'buffer_p' a pointer to a data buffer
-//         // of the specified 'length' bytes, and pass this to the specified
-//         // 'connection' to be processed.  Behavior is undefined if
-//         // 'connection' is not currently added to this 'my_Server' object,
-//         // or if 'length' <= 0.
 //
 //   protected:
+//     /// Monitor all connections in the current `my_Server`.  When data
+//     /// becomes available for a given connection, pass the data to that
+//     /// connection for processing.
 //     virtual void monitorConnections()=0;
-//         // Monitor all connections in the current 'my_Server'.  When data
-//         // becomes available for a given connection, pass the data to that
-//         // connection for processing.
 //
+//     /// Monitor all timers in the current `my_Server`, and handle each
+//     /// timer as it expires.
 //     void monitorTimers();
-//         // Monitor all timers in the current 'my_Server', and handle each
-//         // timer as it expires.
 //
 //     friend void *my_connectionMonitorThreadEntry(void *server);
 //     friend void *my_timerMonitorThreadEntry(void *server);
@@ -227,18 +227,20 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Construct a `my_Server` object with a timeout value of the
+//     /// specified `ioTimeout` seconds.  Use the optionally specified
+//     /// `basicAllocator` for all memory allocation for data members of
+//     /// `my_Server`.
 //     explicit
 //     my_Server(int ioTimeout, bslma::Allocator *basicAllocator = 0);
-//         // Construct a 'my_Server' object with a timeout value of the
-//         // specified 'ioTimeout' seconds.  Use the optionally specified
-//         // 'basicAllocator' for all memory allocation for data members of
-//         // 'my_Server'.
 //
 //     virtual ~my_Server();
 //
 //     // MANIPULATORS
+//
+//     /// Begin monitoring timers and connections.
 //     int start();
-//         // Begin monitoring timers and connections.
 // };
 // ```
 // The constructor is simple: it initializes the internal `bdlcc::TimeQueue`
@@ -440,12 +442,12 @@ BSLS_IDENT("$Id: $")
 // ```
 // // myTestSession.h             -*-C++-*-
 //
+// /// Concrete implementation of my_Session, providing simple test
+// /// semantics In particular, implement the virtual function
+// /// processData() to record all incoming data for the controlling
+// /// connection, and virtual function handleTimeout() for handling
+// /// timeouts.
 // class my_TestSession : public my_Session {
-//     // Concrete implementation of my_Session, providing simple test
-//     // semantics In particular, implement the virtual function
-//     // processData() to record all incoming data for the controlling
-//     // connection, and virtual function handleTimeout() for handling
-//     // timeouts.
 //
 //     int d_verbose;
 //
@@ -479,27 +481,28 @@ BSLS_IDENT("$Id: $")
 //
 // // myTestSession.h             -*-C++-*-
 //
+// /// Concrete implementation of my_Server, providing connection logic.
 // class my_TestServer :  public my_Server {
-//     // Concrete implementation of my_Server, providing connection logic.
 //
 //     int d_verbose;
 //
 //   protected:
+//     /// Close the specified external `connection` and call
+//     /// `removeConnection` when done.
 //     virtual void closeConnection(my_Connection *connection);
-//         // Close the specified external 'connection' and call
-//         // 'removeConnection' when done.
 //
+//     /// Monitor all connections in the current `my_Server`.  When data
+//     /// becomes available for a given connection, pass the data to that
+//     /// connection for processing.
 //     virtual void monitorConnections();
-//         // Monitor all connections in the current 'my_Server'.  When data
-//         // becomes available for a given connection, pass the data to that
-//         // connection for processing.
 //
 //   private:
-//     // Not implemented:
+//     // NOT IMPLEMENTED
 //     my_TestServer(const my_TestServer&);
 //
 //   public:
 //     // CREATORS
+//
 //     explicit
 //     my_TestServer(int               ioTimeout,
 //                   int               verbose = 0,

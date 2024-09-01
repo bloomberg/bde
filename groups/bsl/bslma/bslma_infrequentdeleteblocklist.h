@@ -41,30 +41,35 @@ BSLS_IDENT("$Id: $")
 //                                      // supplies managed memory blocks
 //
 //   private:
+//
+//     /// Request a new memory block of at least the specified `numBytes`
+//     /// size and allocate the initial `numBytes` from this block.
+//     /// Return the address of the allocated memory.
 //     void *allocateBlock(int numBytes);
-//         // Request a new memory block of at least the specified 'numBytes'
-//         // size and allocate the initial 'numBytes' from this block.
-//         // Return the address of the allocated memory.
 //
 //   private: // not implemented
 //     my_StrPool(const my_StrPool&);
 //     my_StrPool& operator=(const my_StrPool&);
 //
 //   public:
+//     // CREATORS
+//
+//     /// Create a memory manager using the specified `basicAllocator` to
+//     /// supply memory.  If `basicAllocator` is 0, the currently
+//     /// installed default allocator is used.
 //     my_StrPool(bslma::Allocator *basicAllocator = 0);
-//         // Create a memory manager using the specified 'basicAllocator' to
-//         // supply memory.  If 'basicAllocator' is 0, the currently
-//         // installed default allocator is used.
 //
+//     /// Destroy this object and release all associated memory.
 //     ~my_StrPool();
-//         // Destroy this object and release all associated memory.
 //
+//     // MANIPULATORS
+//
+//     /// Allocate the specified `numBytes` of memory and return its
+//     /// address.
 //     void *allocate(int numBytes);
-//         // Allocate the specified 'numBytes' of memory and return its
-//         // address.
 //
+//     /// Release all memory currently allocated through this instance.
 //     void release();
-//         // Release all memory currently allocated through this instance.
 // };
 //
 // inline

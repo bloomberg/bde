@@ -260,17 +260,17 @@ BSLS_IDENT("$Id: $")
 // BALL_LOG_ERROR << X << Y ... ;
 // BALL_LOG_FATAL << X << Y ... ;
 //     where X, Y, ... represents any sequence of values for which
-//     'operator<<' is defined.  The resulting formatted message string is
+//     `operator<<` is defined.  The resulting formatted message string is
 //     logged with the severity indicated by the name of the macro
-//     (e.g., 'BALL_LOG_TRACE' logs with severity 'ball::Severity::e_TRACE').
+//     (e.g., `BALL_LOG_TRACE` logs with severity `ball::Severity::e_TRACE`).
 // ```
 // A closely-related macro also based on C++ streams, `BALL_LOG_STREAM`,
 // requires that the severity be explicitly supplied as an argument:
 // ```
 // BALL_LOG_STREAM(SEVERITY) << X << Y ... ;
 //     where X, Y, ... represents any sequence of values for which
-//     'operator<<' is defined.  The resulting formatted message string is
-//     logged with the specified 'SEVERITY'.
+//     `operator<<` is defined.  The resulting formatted message string is
+//     logged with the specified `SEVERITY`.
 // ```
 // Another set of macros based on C++ streams, similar to `BALL_LOG_TRACE`,
 // etc., allow the caller to specify a "callback" function that is passed the
@@ -286,25 +286,25 @@ BSLS_IDENT("$Id: $")
 // BALL_LOGCB_ERROR(CALLBACK) << X << Y ... ;
 // BALL_LOGCB_FATAL(CALLBACK) << X << Y ... ;
 //     where X, Y, ... represents any sequence of values for which
-//     'operator<<' is defined and 'CALLBACK' is a callback taking a
-//     'ball::UserFields *' as an argument.  The resulting formatted message
+//     `operator<<` is defined and `CALLBACK` is a callback taking a
+//     `ball::UserFields *` as an argument.  The resulting formatted message
 //     string is logged with the severity indicated by the name of the macro
-//     (e.g., 'BALL_LOGCB_ERROR' logs with severity
-//     'ball::Severity::e_ERROR').  The generated log record will contain the
-//     'ball::UserFields' representing user fields as populated by 'CALLBACK'.
+//     (e.g., `BALL_LOGCB_ERROR` logs with severity
+//     `ball::Severity::e_ERROR`).  The generated log record will contain the
+//     `ball::UserFields` representing user fields as populated by `CALLBACK`.
 //     Note that the callback supplied to the logging macro must match the
-//     prototype 'void (*)(ball::UserFields *)'.
+//     prototype `void (*)(ball::UserFields *)`.
 // ```
 // A closely-related macro also based on C++ streams, `BALL_LOGCB_STREAM`,
 // requires that the severity be explicitly supplied as an argument:
 // ```
 // BALL_LOGCB_STREAM(SEVERITY, CALLBACK) << X << Y ... ;
 //     where X, Y, ... represents any sequence of values for which
-//     'operator<<' is defined.  The resulting formatted message string is
-//     logged with the specified 'SEVERITY'.  The generated log record will
-//     contain the 'ball::UserFields' representing user fields as populated by
-//     'CALLBACK'.  Note that the callback supplied to the logging macro must
-//     match the prototype 'void (*)(ball::UserFields *)'.
+//     `operator<<` is defined.  The resulting formatted message string is
+//     logged with the specified `SEVERITY`.  The generated log record will
+//     contain the `ball::UserFields` representing user fields as populated by
+//     `CALLBACK`.  Note that the callback supplied to the logging macro must
+//     match the prototype `void (*)(ball::UserFields *)`.
 // ```
 // The remaining macros are based on `printf`-style format specifications:
 // ```
@@ -314,27 +314,27 @@ BSLS_IDENT("$Id: $")
 // BALL_LOGVA_WARN( MSG, ...);
 // BALL_LOGVA_ERROR(MSG, ...);
 // BALL_LOGVA_FATAL(MSG, ...);
-//     Format the specified '...' optional arguments, if any, according to the
-//     'printf'-style format specification in the specified 'MSG' (assumed to
-//     be of type convertible to 'const char *') and log the resulting
+//     Format the specified `...` optional arguments, if any, according to the
+//     `printf`-style format specification in the specified `MSG` (assumed to
+//     be of type convertible to `const char *`) and log the resulting
 //     formatted message string with the severity indicated by the name of the
-//     macro (e.g., 'BALL_LOGVA_INFO' logs with severity
-//     'ball::Severity::e_INFO').  The behavior is undefined unless the number
+//     macro (e.g., `BALL_LOGVA_INFO` logs with severity
+//     `ball::Severity::e_INFO`).  The behavior is undefined unless the number
 //     and types of optional arguments are compatible with the format
-//     specification in 'MSG'.  Note that each use of these macros must be
-//     terminated by a ';'.
+//     specification in `MSG`.  Note that each use of these macros must be
+//     terminated by a `;`.
 // ```
 // A closely-related `printf`-style macro, `BALL_LOGVA`, requires that the
 // severity be explicitly supplied as an argument:
 // ```
 // BALL_LOGVA(SEVERITY, MSG, ...);
-//     Format the specified '...' optional arguments, if any, according to the
-//     'printf'-style format specification in the specified 'MSG' (assumed to
-//     be of type convertible to 'const char *') and log the resulting
-//     formatted message string with the specified 'SEVERITY'.  The behavior
+//     Format the specified `...` optional arguments, if any, according to the
+//     `printf`-style format specification in the specified `MSG` (assumed to
+//     be of type convertible to `const char *`) and log the resulting
+//     formatted message string with the specified `SEVERITY`.  The behavior
 //     is undefined unless the number and types of optional arguments are
-//     compatible with the format specification in 'MSG'.  Note that each use
-//     of this macro must be terminated by a ';'.
+//     compatible with the format specification in `MSG`.  Note that each use
+//     of this macro must be terminated by a `;`.
 // ```
 //
 ///Macros for Logging Code Blocks
@@ -382,9 +382,9 @@ BSLS_IDENT("$Id: $")
 // point where the macro is used.
 // ```
 // BALL_LOG_IS_ENABLED(SEVERITY)
-//     Return 'true' if the specified 'SEVERITY' is at least as severe as any
+//     Return `true` if the specified `SEVERITY` is at least as severe as any
 //     of the threshold levels of the logging category that is in scope, and
-//     'false' otherwise.
+//     `false` otherwise.
 // ```
 //
 ///Usage
@@ -685,12 +685,12 @@ BSLS_IDENT("$Id: $")
 // thread's attribute context.  We will use these attributes later, to create a
 // logging rule that enables verbose logging only for a particular user.
 // ```
+// /// Process the specified `data` associated with the specified Bloomberg
+// /// `uuid`, `luw`, and `terminalNumber`.
 // void processData(int                      uuid,
 //                  int                      luw,
 //                  int                      terminalNumber,
 //                  const bsl::vector<char>& data)
-//     // Process the specified 'data' associated with the specified Bloomberg
-//     // 'uuid', 'luw', and 'terminalNumber'.
 // {
 //     (void)data;  // suppress "unused" warning
 // ```
@@ -705,7 +705,7 @@ BSLS_IDENT("$Id: $")
 // of using a different attribute container, and {`ball_attributecontainer`}
 // for an example of creating a custom attribute container.
 // ```
-//     // We use 'ball::ScopedAttribute' here because the number of
+//     // We use `ball::ScopedAttribute` here because the number of
 //     // attributes is relatively small.
 //
 //     ball::ScopedAttribute uuidAttribute("mylibrary.uuid", uuid);
@@ -793,9 +793,9 @@ BSLS_IDENT("$Id: $")
 // We define a callback function `populateUsingPoint` that appends to the
 // specified `fields` the attributes of the `point` to log:
 // ```
+// /// Append to the specified `list` the name, x value, and y value of
+// /// the specified `point`.
 // void populateUsingPoint(ball::UserFields *fields, const Point& point)
-//     // Append to the specified 'list' the name, x value, and y value of
-//     // the specified 'point'.
 // {
 //     fields->appendString(point.name());
 //     fields->appendInt64(point.x());
@@ -861,16 +861,18 @@ BSLS_IDENT("$Id: $")
 //     // ...
 //
 //     // MANIPULATORS
+//
+//     /// Log to the class-scope category "PCKG.THING" if the specified
+//     /// `useClassCategory` flag is `true`, and to the block-scope
+//     /// category "X.Y.Z" otherwise.
 //     void outOfLineMethodThatLogs(bool useClassCategory);
-//         // Log to the class-scope category "PCKG.THING" if the specified
-//         // 'useClassCategory' flag is 'true', and to the block-scope
-//         // category "X.Y.Z" otherwise.
 //
 //     // ...
 //
 //     // ACCESSORS
+//
+//     /// Log a record to the class-scope category "PCKG.THING".
 //     void inlineMethodThatLogs() const;
-//         // Log a record to the class-scope category "PCKG.THING".
 // };
 // ```
 // Next, we define the `inlineMethodThatLogs` method `inline` within the header

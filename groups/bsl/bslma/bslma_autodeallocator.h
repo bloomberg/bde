@@ -116,15 +116,15 @@ BSLS_IDENT("$Id: $")
 // // my_strarray.h
 // // ...
 //
+// /// This class is a container that stores an array of character
+// /// sequences.  Memory will be supplied by the parameterized `ALLOCATOR`
+// /// type provided at construction (which must remain valid throughout
+// /// the lifetime of this guard object).  Note that memory is managed by
+// /// a parameterized `ALLOCATOR` type, instead of a `bslma::Allocator`,
+// /// to enable clients to pass in a pool (such as a sequential pool)
+// /// optimized for allocations of character sequences.
 // template <class ALLOCATOR>
 // class my_StrArray {
-//     // This class is a container that stores an array of character
-//     // sequences.  Memory will be supplied by the parameterized 'ALLOCATOR'
-//     // type provided at construction (which must remain valid throughout
-//     // the lifetime of this guard object).  Note that memory is managed by
-//     // a parameterized 'ALLOCATOR' type, instead of a 'bslma::Allocator',
-//     // to enable clients to pass in a pool (such as a sequential pool)
-//     // optimized for allocations of character sequences.
 //
 //     // DATA
 //     char      **d_array_p;      // dynamically allocated array of character
@@ -138,44 +138,47 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     my_StrArray(ALLOCATOR *basicAllocator);
-//         // Create a 'my_StrArray' object using the specified
-//         // 'basicAllocator' used to supply memory.
 //
+//     /// Create a `my_StrArray` object using the specified
+//     /// `basicAllocator` used to supply memory.
+//     my_StrArray(ALLOCATOR *basicAllocator);
+//
+//     /// Destroy this `my_StrArray` object and all elements currently
+//     /// stored.
 //     ~my_StrArray();
-//         // Destroy this 'my_StrArray' object and all elements currently
-//         // stored.
 //
 //     // MANIPULATORS
+//
+//     /// Append to this array the string `src`.
 //     void append(const char *src);
-//         // Append to this array the string 'src'.
 //
+//     /// Insert into this array at the specified `dstIndex`, the
+//     /// character sequences in the specified `srcArray`.  All values
+//     /// with initial indices at or above `dstIndex` are shifted up by
+//     /// unless `0 <= dstIndex` and `dstIndex <= length()`.  Note that
+//     /// this method is functionally the same as `insert2`, but has a
+//     /// different implementation to facilitate the usage example.
 //     void insert(int dstIndex, const my_StrArray& srcArray);
-//         // Insert into this array at the specified 'dstIndex', the
-//         // character sequences in the specified 'srcArray'.  All values
-//         // with initial indices at or above 'dstIndex' are shifted up by
-//         // unless '0 <= dstIndex' and 'dstIndex <= length()'.  Note that
-//         // this method is functionally the same as 'insert2', but has a
-//         // different implementation to facilitate the usage example.
 //
+//     /// Insert into this array at the specified `dstIndex`, the
+//     /// character sequences in the specified `srcArray`.  All values
+//     /// with initial indices at or above `dstIndex` are shifted up by
+//     /// unless `0 <= dstIndex` and `dstIndex <= length()`.  Note that
+//     /// this method is functionally the same as `insert`, but has a
+//     /// different implementation to facilitate the usage example.
 //     void insert2(int dstIndex, const my_StrArray& srcArray);
-//         // Insert into this array at the specified 'dstIndex', the
-//         // character sequences in the specified 'srcArray'.  All values
-//         // with initial indices at or above 'dstIndex' are shifted up by
-//         // unless '0 <= dstIndex' and 'dstIndex <= length()'.  Note that
-//         // this method is functionally the same as 'insert', but has a
-//         // different implementation to facilitate the usage example.
 //
 //     // ...
 //
 //     // ACCESSORS
-//     int length() const;
-//         // Return the logical length of this array.
 //
+//     /// Return the logical length of this array.
+//     int length() const;
+//
+//     /// Return a pointer to the 'index'th string in the array.  Note
+//     /// the pointer is returned by value, it is not a reference to a
+//     /// pointer.
 //     const char *operator[](int index) const;
-//         // Return a pointer to the 'index'th string in the array.  Note
-//         // the pointer is returned by value, it is not a reference to a
-//         // pointer.
 //
 //     // ...
 // };

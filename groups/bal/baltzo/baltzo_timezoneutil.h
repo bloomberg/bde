@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 //    hour; therefore, the time "Nov 7, 2010 1:30AM" occurred twice, and that
 //    description (as represented in a `bdlt::Datetime` object) could refer to
 //    either of those two times.
-// 3. The local time is *invalid*: The local-time representation doesn't
+// 3. The local time is **invalid**: The local-time representation doesn't
 //    correspond to a valid time within the given time zone, as may happen
 //    around a daylight-saving time transition where the offset from UTC
 //    decreases (e.g., in the United States local time "springs forward" by an

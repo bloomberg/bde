@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:38:38 2024
+// Generated on Sun Sep  1 09:58:46 2024
 // Command line: sim_cpp11_features.pl bslma_constructionutil.h
 
 #ifdef COMPILING_BSLMA_CONSTRUCTIONUTIL_H
@@ -1227,11 +1227,12 @@ struct ConstructionUtil {
 struct ConstructionUtil_Imp {
 
     // TYPES
+
+    /// These constants are used in the overloads below, when the last argument
+    /// is of type `bsl::integral_constant<int, N> *`, indicating that
+    /// `TARGET_TYPE` has the traits for which the enumerator equal to `N` is
+    /// named.
     enum {
-        // These constants are used in the overloads below, when the last
-        // argument is of type 'bsl::integral_constant<int, N> *', indicating
-        // that 'TARGET_TYPE' has the traits for which the enumerator equal to
-        // 'N' is named.
 
         e_NIL_TRAITS                 ,
         e_BITWISE_MOVABLE_TRAITS     ,

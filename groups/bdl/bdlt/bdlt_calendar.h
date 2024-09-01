@@ -216,30 +216,33 @@ BSLS_IDENT("$Id: $")
 // representing New York Bank settlement days) to `bdlt::PackedCalendar`
 // objects, containing densely packed calendar data:
 // ```
+// /// This class maintains a space-efficient repository of calendar data
+// /// associated with a (typically short) name.
 // class MyPackedCalendarCache {
-//     // This class maintains a space-efficient repository of calendar data
-//     // associated with a (typically short) name.
 //
 //     // DATA
 //     bsl::unordered_map<bsl::string, bdlt::PackedCalendar>  d_map;
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an empty `MyPackedCalendarCache`.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
 //     MyPackedCalendarCache(bslma::Allocator *basicAllocator = 0);
-//         // Create an empty 'MyPackedCalendarCache'.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
 //     // MANIPULATORS
+//
+//     /// Associate the value of the specified `calendar` with the
+//     /// specified `name`.
 //     void assign(const bsl::string&          name,
 //                 const bdlt::PackedCalendar& calendar);
-//         // Associate the value of the specified 'calendar' with the
-//         // specified 'name'.
 //
 //     // ACCESSORS
+//
+//     /// Return the address of calendar data associated with the
+//     /// specified `name`, or 0 if no such association exists.
 //     const bdlt::PackedCalendar *lookup(const bsl::string& name) const;
-//         // Return the address of calendar data associated with the
-//         // specified 'name', or 0 if no such association exists.
 // };
 //
 // // CREATORS
@@ -274,10 +277,10 @@ BSLS_IDENT("$Id: $")
 // up-to-date calendar data for all known locales (which, in the future, will
 // be from a well-known database location):
 // ```
+// /// Load, into the specified `result`, up-to-date calendar information
+// /// for every known locale.  Return 0 on success, and a non-zero value
+// /// otherwise.
 // int loadMyPackedCalendarCache(MyPackedCalendarCache *result)
-//     // Load, into the specified 'result', up-to-date calendar information
-//     // for every known locale.  Return 0 on success, and a non-zero value
-//     // otherwise.
 // {
 //     bdlt::PackedCalendar calendar;
 //     calendar.setValidRange(bdlt::Date(2000,  1,  1),
@@ -297,10 +300,10 @@ BSLS_IDENT("$Id: $")
 // `bdlt::Calendar` objects, which are instantiated on demand from a
 // packed-calendar-based data source:
 // ```
+// /// This class maintains a cache of runtime-efficient calendar objects
+// /// created on demand from a compact packed-calendar-based data source,
+// /// whose address is supplied at construction.
 // class MyCalendarCache {
-//     // This class maintains a cache of runtime-efficient calendar objects
-//     // created on demand from a compact packed-calendar-based data source,
-//     // whose address is supplied at construction.
 //
 //     // DATA
 //     MyPackedCalendarCache                           *d_datasource_p;
@@ -308,20 +311,22 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an empty `MyCalendarCache` associated with the specified
+//     /// `dataSource`.  Optionally specify a `basicAllocator` used to
+//     /// supply memory.  If `basicAllocator` is 0, the currently
+//     /// installed default allocator is used.
 //     MyCalendarCache(MyPackedCalendarCache *dataSource,
 //                     bslma::Allocator      *basicAllocator = 0);
-//         // Create an empty 'MyCalendarCache' associated with the specified
-//         // 'dataSource'.  Optionally specify a 'basicAllocator' used to
-//         // supply memory.  If 'basicAllocator' is 0, the currently
-//         // installed default allocator is used.
 //
 //     // MANIPULATORS
+//
+//     /// Return the address of calendar data associated with the
+//     /// specified `name`, or 0 if no such association exists in the data
+//     /// source whose address was supplied at construction.  Note that
+//     /// this method may alter the physical state of this object (and is
+//     /// therefore deliberately declared non-`const`).
 //     const bdlt::Calendar *lookup(const bsl::string& name);
-//         // Return the address of calendar data associated with the
-//         // specified 'name', or 0 if no such association exists in the data
-//         // source whose address was supplied at construction.  Note that
-//         // this method may alter the physical state of this object (and is
-//         // therefore deliberately declared non-'const').
 // };
 //
 // MyCalendarCache::MyCalendarCache(MyPackedCalendarCache *dataSource,
@@ -396,18 +401,19 @@ BSLS_IDENT("$Id: $")
 // struct MyCalendarUtil {
 //
 //     // CLASS METHODS
+//
+//     // Return the date of the first business day at or after the
+//     // specified `targetDay` in the specified `month` and `year`
+//     // according to the specified `calendar`, unless the resulting
+//     // date would not fall within `month`, in which case return
+//     // instead the date of the first business day before `targetDay`
+//     // in `month`.  The behavior is undefined unless all candidate
+//     // dates applied to `calendar` are within its valid range and
+//     // there exists at least one business day within `month`.
 //     static bdlt::Date modifiedFollowing(int                   targetDay,
 //                                         int                   month,
 //                                         int                   year,
 //                                         const bdlt::Calendar& calendar)
-//         // Return the date of the first business day at or after the
-//         // specified 'targetDay' in the specified 'month' and 'year'
-//         // according to the specified 'calendar', unless the resulting
-//         // date would not fall within 'month', in which case return
-//         // instead the date of the first business day before 'targetDay'
-//         // in 'month'.  The behavior is undefined unless all candidate
-//         // dates applied to 'calendar' are within its valid range and
-//         // there exists at least one business day within 'month'.
 //     {
 //         BSLS_ASSERT(bdlt::Date::isValidYearMonthDay(year,
 //                                                     month,
@@ -532,7 +538,7 @@ class Calendar {
     /// Synchronize this calendar's cache by first clearing the cache, then
     /// repopulating it with the holiday and weekend information from this
     /// calendar's `d_packedCalendar`.  Note that this method is only
-    /// *exception*-*neutral*; exception safety and rollback must be
+    /// **exception-neutral**; exception safety and rollback must be
     /// handled by the caller.
     void synchronizeCache();
 

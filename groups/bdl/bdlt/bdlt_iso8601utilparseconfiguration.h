@@ -138,21 +138,21 @@ class Iso8601UtilParseConfiguration {
     /// ```
     Iso8601UtilParseConfiguration();
 
+    /// Create an `Iso8601UtilParseConfiguration` object having the value of
+    /// the specified `original` configuration.
     // Iso8601UtilParseConfiguration(
     //                 const Iso8601UtilParseConfiguration original) = default;
-        // Create an 'Iso8601UtilParseConfiguration' object having the value of
-        // the specified 'original' configuration.
 
     /// Destroy this object.
     ~Iso8601UtilParseConfiguration();
 
     // MANIPULATORS
 
+    /// Assign to this object the value of the specified `rhs`
+    /// configuration, and return a reference providing modifiable access to
+    /// this object.
     // Iso8601UtilParseConfiguration& operator=(
     //                     const Iso8601UtilParseConfiguration& rhs) = default;
-        // Assign to this object the value of the specified 'rhs'
-        // configuration, and return a reference providing modifiable access to
-        // this object.
 
     /// Set the `basic` field of this object to the specified `value` and
     /// return a copy of this object.

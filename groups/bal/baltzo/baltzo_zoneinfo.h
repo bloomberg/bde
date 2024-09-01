@@ -164,15 +164,15 @@ BSLS_IDENT("$Id: $")
 //
 // First we declare the function `utcToLocalTime` and its contract:
 // ```
+// /// Return the `bdlt::DatetimeTz` value representing the date, time and
+// /// offset from UTC (rounded to the minute) value of the local time,
+// /// corresponding to the specified `utcTime` in the specified
+// /// `timeZone`.  The behavior is undefined if the `utcTime` precedes the
+// /// time of the first transition contained in `timeZone` and
+// /// `0 < timeZone.numTransitions()`.
 // static bdlt::DatetimeTz utcToLocalTime(const bdlt::Datetime&   utcTime,
 //                                       const baltzo::Zoneinfo& timeZone)
 // {
-//     // Return the 'bdlt::DatetimeTz' value representing the date, time and
-//     // offset from UTC (rounded to the minute) value of the local time,
-//     // corresponding to the specified 'utcTime' in the specified
-//     // 'timeZone'.  The behavior is undefined if the 'utcTime' precedes the
-//     // time of the first transition contained in 'timeZone' and
-//     // '0 < timeZone.numTransitions()'.
 // ```
 // Then, we check the precondition of `utcToLocalTime`, by checking that
 // `timeZone` contains at least one transitions and comparing `utcTime` to the

@@ -68,14 +68,15 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the class that implements the stack:
 // ```
+// /// This class defines a node-based stack of integers.
 // template <class ALLOCATOR = bsl::allocator<int> >
 // class my_Stack {
-//     // This class defines a node-based stack of integers.
 //
 //     // PRIVATE TYPES
+//
+//     /// This `struct` implements a link data structure containing a
+//     /// value and a pointer to the next node.
 //     struct Node {
-//         // This 'struct' implements a link data structure containing a
-//         // value and a pointer to the next node.
 //
 //         int   d_value;   // payload value
 //         Node *d_next_p;  // pointer to the next node
@@ -92,27 +93,30 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an empty `my_Stack` object.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
 //     my_Stack(const ALLOCATOR& allocator = ALLOCATOR());
-//         // Create an empty 'my_Stack' object.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
 //     // MANIPULATORS
-//     void push(int value);
-//         // Insert an element with the specified value to the top of this
-//         // stack.
 //
+//     /// Insert an element with the specified value to the top of this
+//     /// stack.
+//     void push(int value);
+//
+//     /// Remove the top element from this stack.  The behavior is
+//     /// undefined unless `1 <= size()`.
 //     void pop();
-//         // Remove the top element from this stack.  The behavior is
-//         // undefined unless '1 <= size()'.
 //
 //     // ACCESSORS
-//     int top();
-//         // Return the value of the element on the top of this stack.  The
-//         // behavior is undefined unless '1 <= size()'.
 //
+//     /// Return the value of the element on the top of this stack.  The
+//     /// behavior is undefined unless `1 <= size()`.
+//     int top();
+//
+//     /// Return the number of elements in this stack.
 //     std::size_t size();
-//         // Return the number of elements in this stack.
 // };
 // ```
 // Now, we define the implementation of the stack.  Notice how
@@ -257,7 +261,7 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
         Block *d_next_p;                    // pointer to the next block
 
         char   d_size[sizeof(VALUE)];       // make a block has the size of at
-                                            // least 'VALUE'
+                                            // least `VALUE`
 
         typename bsls::AlignmentFromType<VALUE>::Type d_alignment;
                                             // ensure proper alignment

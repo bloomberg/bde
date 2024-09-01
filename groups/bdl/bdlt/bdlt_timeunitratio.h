@@ -34,20 +34,20 @@ BSLS_IDENT("$Id: $")
 // ```
 // and `SU` and `LU` are abbreviations in the following group:
 // ```
-// NS // abbreviation for 'NANOSECOND'
-// US // abbreviation for 'MICROSECOND'
-// MS // abbreviation for 'MILLISECOND'
-// S  // abbreviation for 'SECOND'
-// M  // abbreviation for 'MINUTE'
-// H  // abbreviation for 'HOUR'
-// D  // abbreviation for 'DAY'
+// NS // abbreviation for `NANOSECOND`
+// US // abbreviation for `MICROSECOND`
+// MS // abbreviation for `MILLISECOND`
+// S  // abbreviation for `SECOND`
+// M  // abbreviation for `MINUTE`
+// H  // abbreviation for `HOUR`
+// D  // abbreviation for `DAY`
 // ```
 // Note that `SMALLUNIT` (`SU`) is always a smaller unit than `LARGEUNIT`
 // (`LU`).  Thus, the (whole) number of microseconds in an hour is
 // characterized by the constants:
 // ```
 // bdlt::TimeUnitRatio::k_MICROSECONDS_PER_HOUR
-// bdlt::TimeUnitRatio::k_US_PER_H'
+// bdlt::TimeUnitRatio::k_US_PER_H
 // ```
 // Additionally, ratios that can be represented by a 32-bit integer also have
 // two corresponding 32-bit constants, having the same names as the constants

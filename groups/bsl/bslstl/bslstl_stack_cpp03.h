@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:39:11 2024
+// Generated on Sun Sep  1 18:48:19 2024
 // Command line: sim_cpp11_features.pl bslstl_stack.h
 
 #ifdef COMPILING_BSLSTL_STACK_H
@@ -379,10 +379,10 @@ class stack {
     /// unspecified state.
     void push(BloombergLP::bslmf::MovableRef<value_type> value);
 
+    /// Exchange the value of this stack with the value of the specified
+    /// `other` stack.
     void swap(stack& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                   bsl::is_nothrow_swappable<CONTAINER>::value);
-        // Exchange the value of this stack with the value of the specified
-        // 'other' stack.
 
     /// Return a reference to the element at the top of this stack.  The
     /// behavior is undefined if this stack is empty.

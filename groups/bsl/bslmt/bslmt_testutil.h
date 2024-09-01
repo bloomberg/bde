@@ -278,17 +278,18 @@ BSLS_IDENT("$Id: $")
 // ```
 // namespace xyzde {
 //
+// /// This utility class provides sample functionality to demonstrate how
+// /// a multi-threaded test driver might be written.
 // struct SumUtil {
-//     // This utility class provides sample functionality to demonstrate how
-//     // a multi-threaded test driver might be written.
 //
 //     // CLASS METHODS
+//
+//     /// Return the sum of the squares of one to 4 arguments, the
+//     /// specified `a` and the optionally specified `b`, `c`, and `d`.
 //     static double sumOfSquares(double a,
 //                                double b = 0,
 //                                double c = 0,
 //                                double d = 0);
-//         // Return the sum of the squares of one to 4 arguments, the
-//         // specified 'a' and the optionally specified 'b', 'c', and 'd'.
 // };
 //
 // // CLASS METHODS
@@ -389,9 +390,9 @@ BSLS_IDENT("$Id: $")
 // concurrently to test the static function:
 // ```
 // struct SumUtilTest {
+//     /// Test `TestUtil::sumOfSquares` with a variety of randomly
+//     /// generated arguments.
 //     void operator()()
-//         // Test 'TestUtil::sumOfSquares' with a variety of randomly
-//         // generated arguments.
 //     {
 //         int    threadIdx;
 //         double x[4];                // randomly-generated test values

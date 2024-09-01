@@ -30,6 +30,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Comparison between `bslmt` Reader-Writer Locks
 /// - - - - - - - - - - - - - - - - - - - - - - -
+//
 // * `bslmt::ReaderWriterLock` (defined in this component).  Preferred only
 //   when very long hold times are anticipated.  Provides `upgrade*` methods
 //   from a locked-for-read state to a locked-for-write state, but the use of
@@ -56,9 +57,9 @@ BSLS_IDENT("$Id: $")
 // reader will block until all *write* *locks* (including those acquired after
 // the reader) are released.
 //
-// `bslmt::ReaderWriterLock` also supports atomic conversion from *read* to
-// *write* *locks*.  This feature allows callers to first acquire a *read*
-// *lock*, determine if a write operation needs to be performed, and
+// `bslmt::ReaderWriterLock` also supports atomic conversion from **read** to
+// **write locks**.  This feature allows callers to first acquire a **read
+//  lock**, determine if a write operation needs to be performed, and
 // conditionally upgrade to a *write* *lock* without possibility of another
 // writer having changed the state of the resource.
 //
@@ -66,7 +67,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Optimistic Lock Conversions
 ///- - - - - - - - - - - - - -
-// Any basic *read* *lock* can be converted to a *write* *lock*, but the
+// Any basic **read lock** can be converted to a **write lock**, but the
 // conversion is not guaranteed to be atomic.  If the conversion cannot be
 // performed atomically, which means the lock was first released, then a lock
 // for write was acquired again (possibly after other threads have obtained and
@@ -77,11 +78,11 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - -
 // For conditions with high probably for write contention, or where the cost of
 // re-evaluating the update condition is too high, clients may choose to
-// acquire a *read* *lock* that is guaranteed to upgrade atomically, that is
+// acquire a **read lock** that is guaranteed to upgrade atomically, that is
 // without the possibility of another thread acquiring a read or write lock in
 // the meantime.  The `lockReadReserveWrite` method allows a caller to acquire
-// a *read* *lock* and simultaneously reserve a *write* *lock*.  The *read*
-// *lock* can then be atomically upgraded to the reserved *write* *lock* by
+// a **read lock** and simultaneously reserve a **write lock**.  The **read
+// lock** can then be atomically upgraded to the reserved **write lock** by
 // calling the `upgradeToWriteLock` method.
 //
 ///Usage
@@ -136,7 +137,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // Getting the user info does not require any write access.  We do, however,
 // need read access to `d_infoMap`, which is controlled by `d_lock`.  (Note
-// that writers *will* block until this *read* *lock* is released, but
+// that writers **will** block until this **read lock** is released, but
 // concurrent reads are allowed.)  The user info is copied into the
 // caller-owned location `userInfo`.
 // ```
@@ -155,21 +156,21 @@ BSLS_IDENT("$Id: $")
 // {
 //     int ret = 1;
 // ```
-// Although we intend to update the information, we first acquire a *read*
-// *lock* to locate the item.  This allows other threads to read the list while
+// Although we intend to update the information, we first acquire a **read
+// lock** to locate the item.  This allows other threads to read the list while
 // we find the item.  If we do not locate the item we can simply release the
-// *read* *lock* and return an error without causing any other *reading* thread
-// to block.  (Again, other writers *will* block until this *read* *lock* is
+// **read lock** and return an error without causing any other *reading* thread
+// to block.  (Again, other writers **will** block until this **read lock** is
 // released.)
 // ```
 //     d_lock.lockRead();
 //     InfoMap::iterator it = d_infoMap.find(userId);
 //     if (d_infoMap.end() != it) {
 // ```
-// Since `it != end()`, we found the item.  Now we need to upgrade to a *write*
-// *lock*.  If we can't do this atomically, then we need to locate the item
+// Since `it != end()`, we found the item.  Now we need to upgrade to a **write
+// lock**.  If we can't do this atomically, then we need to locate the item
 // again.  This is because another thread may have changed `d_infoMap` during
-// the time between our *read* and *write* locks.
+// the time between our **read** and **write** locks.
 // ```
 //         if (d_lock.upgradeToWriteLock()) {
 //             it = d_infoMap.find(userId);
@@ -177,7 +178,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // This is a little more costly, but since we don't expect many concurrent
 // writes, it should not happen often.  In the (likely) event that we do
-// upgrade to a *write* *lock* atomically, then the second lookup above is not
+// upgrade to a **write lock* atomically, then the second lookup above is not
 // performed.  In any case, we can now update the information and release the
 // lock, since we already have a pointer to the item and we know that the list
 // could not have been changed by anyone else.

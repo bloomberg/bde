@@ -44,7 +44,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // where `deleterInstance` is an instance of the "deleter" object, and
 // `objectPtr` is a pointer to the shared object.  In summary:
 // ```
-// Deleter                     Expression used to destroy 'objectPtr'
+// Deleter                     Expression used to destroy `objectPtr`
 // - - - - - - - -             - - - - - - - - - - - - - - - - - - -
 // "function-like"             deleterInstance(objectPtr);
 // "factory"                   deleterInstance.deleteObject(objectPtr);
@@ -52,18 +52,18 @@ BSLS_IDENT("$Id$ $CSID$")
 // The following are examples of function-like deleters that delete an object
 // of `MyType`:
 // ```
+// /// Delete the specified `object`.
 // void deleteObject(MyType *object);
-//     // Delete the specified 'object'.
 //
+// /// Release the specified `object`.
 // void releaseObject(MyType *object);
-//     // Release the specified 'object'.
 //
+// /// This `struct` provides an `operator()` that can be used to delete a
+// /// `MyType` object.
 // struct FunctionLikeDeleterObject {
-//     // This 'struct' provides an 'operator()' that can be used to delete a
-//     // 'MyType' object.
 //
+//     /// Destroy the specified `object`.
 //     void operator()(MyType *object);
-//         // Destroy the specified 'object'.
 // };
 // ```
 // The following on the other hand is an example of a factory deleter:
@@ -73,13 +73,14 @@ BSLS_IDENT("$Id$ $CSID$")
 //    // . . .
 //
 //    // MANIPULATORS
-//    MyType *createObject(bslma::Allocator *basicAllocator = 0);
-//        // Create a 'MyType' object.  Optionally specify a 'basicAllocator'
-//        // used to supply memory.  If 'basicAllocator' is 0, the currently
-//        // installed default allocator is used.
 //
+//    /// Create a `MyType` object.  Optionally specify a `basicAllocator`
+//    /// used to supply memory.  If `basicAllocator` is 0, the currently
+//    /// installed default allocator is used.
+//    MyType *createObject(bslma::Allocator *basicAllocator = 0);
+//
+//    /// Delete the specified `object`.
 //    void deleteObject(MyType *object);
-//        // Delete the specified 'object'.
 // };
 // ```
 // Note that `deleteObject` is provided by all `bslma` allocators and by any
@@ -102,9 +103,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // The following example demonstrates how to implement a shared
 // `bdlt::Datetime` object using `bslstl::SharedPtrAllocateOutofplaceRep`:
 // ```
+// /// This class provide a reference counted smart pointer to support
+// /// shared ownership of a `bdlt::Datetime` object.
 // class MySharedDatetimePtr {
-//     // This class provide a reference counted smart pointer to support
-//     // shared ownership of a 'bdlt::Datetime' object.
 //
 //   private:
 //     bdlt::Datetime      *d_ptr_p;  // pointer to the managed object
@@ -116,36 +117,38 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `MySharedDatetimePtr` object to managed the specified
+//     /// `ptr`.  Optionally specify an `basicAllocator` to allocate and
+//     /// deallocate the internal representation and to destroy `ptr` when
+//     /// all references have been released.  The behavior is undefined
+//     /// unless `ptr` was allocated using memory supplied by
+//     /// `basicAllocator`.
 //     MySharedDatetimePtr(bdlt::Datetime   *ptr,
 //                         bslma::Allocator *basicAllocator = 0);
-//         // Create a 'MySharedDatetimePtr' object to managed the specified
-//         // 'ptr'.  Optionally specify an 'basicAllocator' to allocate and
-//         // deallocate the internal representation and to destroy 'ptr' when
-//         // all references have been released.  The behavior is undefined
-//         // unless 'ptr' was allocated using memory supplied by
-//         // 'basicAllocator'.
 //
+//     /// Create a shared datetime that refers to the same object managed
+//     /// by the specified `original`
 //     MySharedDatetimePtr(const MySharedDatetimePtr& original);
-//         // Create a shared datetime that refers to the same object managed
-//         // by the specified 'original'
 //
+//     /// Destroy this shared datetime and release the reference to the
+//     /// `bdlt::Datetime` object to which it might be referring.  If this
+//     /// is the last shared reference, deleted the managed object.
 //     ~MySharedDatetimePtr();
-//         // Destroy this shared datetime and release the reference to the
-//         // 'bdlt::Datetime' object to which it might be referring.  If this
-//         // is the last shared reference, deleted the managed object.
 //
 //     // MANIPULATORS
+//
+//     /// Return a reference offering modifiable access to the shared
+//     /// datetime.
 //     bdlt::Datetime& operator*() const;
-//         // Return a reference offering modifiable access to the shared
-//         // datetime.
 //
+//     /// Return the address of the modifiable `bdlt::Datetime` to which
+//     /// this object refers.
 //     bdlt::Datetime *operator->() const;
-//         // Return the address of the modifiable 'bdlt::Datetime' to which
-//         // this object refers.
 //
+//     /// Return the address of the modifiable `bdlt::Datetime` to which
+//     /// this object refers.
 //     bdlt::Datetime *ptr() const;
-//         // Return the address of the modifiable 'bdlt::Datetime' to which
-//         // this object refers.
 // };
 // ```
 // Finally, we define the implementation.

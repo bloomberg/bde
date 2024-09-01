@@ -167,6 +167,7 @@ struct Transmission {
 
   public:
     // TYPES
+
     enum Cause {
         e_PASSTHROUGH        = 0,  // single record emitted; caused locally
         e_TRIGGER            = 1,  // all records emitted; caused locally

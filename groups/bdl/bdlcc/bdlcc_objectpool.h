@@ -143,8 +143,8 @@ BSLS_IDENT("$Id: $")
 //                                     // (in microseconds)
 // };
 //
+// /// This class simulates a database connection.
 // class my_DatabaseConnection
-//     // This class simulates a database connection.
 // {
 //   public:
 //     my_DatabaseConnection()
@@ -185,8 +185,8 @@ BSLS_IDENT("$Id: $")
 // a *new* database connection, calls its `executeQuery` method to execute the
 // query and finally closes the connection.
 // ```
+// /// Handle the specified `query` without using an objectpool.
 // extern "C" void queryHandler1(Query *query)
-//     // Handle the specified 'query' without using an objectpool.
 // {
 //     bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
 //     my_DatabaseConnection connection;
@@ -197,7 +197,7 @@ BSLS_IDENT("$Id: $")
 //
 //     queryFactory->destroyQuery(query);
 //
-//     // 'connection' is implicitly destroyed on function return.
+//     // `connection` is implicitly destroyed on function return.
 // }
 // ```
 // The main thread starts and joins these threads:
@@ -284,21 +284,21 @@ BSLS_IDENT("$Id: $")
 // back to the pool for further reuse.  The modified `queryHandler` is
 // following.
 // ```
-//   bdlcc::ObjectPool<my_DatabaseConnection> *connectionPool;
+// bdlcc::ObjectPool<my_DatabaseConnection> *connectionPool;
 //
-//   void queryHandler2(Query *query)
-//       // Process the specified 'query'.
-//   {
-//       bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
-//       my_DatabaseConnection *connection = connectionPool->getObject();
-//       connection->executeQuery(query);
-//       bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
+// /// Process the specified `query`.
+// void queryHandler2(Query *query)
+// {
+//      bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
+//      my_DatabaseConnection *connection = connectionPool->getObject();
+//      connection->executeQuery(query);
+//      bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
 //
-//       totalResponseTime2 += t2 - t1;
+//      totalResponseTime2 += t2 - t1;
 //
-//       connectionPool->releaseObject(connection);
-//       queryFactory->destroyQuery(query);
-//   }
+//      connectionPool->releaseObject(connection);
+//      queryFactory->destroyQuery(query);
+// }
 // ```
 // The total response time for each strategy is:
 // ```

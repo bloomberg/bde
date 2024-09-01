@@ -71,20 +71,20 @@ BSLS_IDENT("$Id: $")
 // ------------  --------------------------------------------------------------
 // Solaris 5.10  None.
 //
-// Solaris 5.11  Spawning of threads fails if 'schedulingPolicy' is
-//               'BSLMT_SCHED_FIFO' or 'BSLMT_SCHED_RR'.  Thread priorities
+// Solaris 5.11  Spawning of threads fails if `schedulingPolicy` is
+//               `BSLMT_SCHED_FIFO` or `BSLMT_SCHED_RR`.  Thread priorities
 //               should not be used on Solaris 5.11 as it is not clear that
 //               they have any detectable effect.  Note that
-//               'getMinSchedulingPriority' and 'getMaxSchedulingPriority'
+//               `getMinSchedulingPriority` and `getMaxSchedulingPriority`
 //               return different values than on Solaris 5.10.
 //
 // AIX           For non-privileged clients, spawning of threads fails if
-//               'schedulingPolicy' is 'BSLMT_SCHED_FIFO' or 'BSLMT_SCHED_RR'.
+//               `schedulingPolicy` is `BSLMT_SCHED_FIFO` or `BSLMT_SCHED_RR`.
 //
 // Linux         Non-privileged clients *can* *not* make effective use of
 //               thread priorities -- spawning of threads fails if
-//               'schedulingPolicy' is 'BSLMT_SCHED_FIFO' or 'BSLMT_SCHED_RR',
-//               and 'getMinSchedulingPriority == getMaxSchedulingPriority' if
+//               `schedulingPolicy` is `BSLMT_SCHED_FIFO` or `BSLMT_SCHED_RR`,
+//               and `getMinSchedulingPriority == getMaxSchedulingPriority` if
 //               the policy has any other value.
 //
 // Darwin        Non-privileged clients *can* *not* make effective use of
@@ -94,8 +94,8 @@ BSLS_IDENT("$Id: $")
 //               policies.
 //
 // Windows       Clients *can* *not* make effective use of thread priorities --
-//               'schedulingPolicy', 'schedulingPriority', and
-//               'inheritSchedule' are ignored for all clients.
+//               `schedulingPolicy`, `schedulingPriority`, and
+//               `inheritSchedule` are ignored for all clients.
 // ```
 //
 ///Supported Clock-Types
@@ -126,9 +126,9 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create a function that will run in the spawned thread:
 // ```
+// /// Print to standard output "Another second has passed" every second
+// /// for five seconds, and return 0.
 // extern "C" void *myThreadFunction(void *)
-//     // Print to standard output "Another second has passed" every second
-//     // for five seconds, and return 0.
 // {
 //     for (int i = 0; i < 3; ++i) {
 //         bslmt::ThreadUtil::microSleep(0, 1);
@@ -189,8 +189,8 @@ BSLS_IDENT("$Id: $")
 // First, we define our thread function, noting that it doesn't need much stack
 // space:
 // ```
+// /// Initialize a small object on the stack and do some work.
 // extern "C" void *mySmallStackThreadFunction(void *threadArg)
-//     // Initialize a small object on the stack and do some work.
 // {
 //     char *initValue = (char *)threadArg;
 //     char Small[8];
@@ -202,9 +202,8 @@ BSLS_IDENT("$Id: $")
 // Finally, we show how to create a detached thread running the function just
 // created with a small stack size:
 // ```
+// /// Create a detached thread with a small stack size and perform some work.
 // void createSmallStackSizeThread()
-//     // Create a detached thread with a small stack size and perform some
-//     // work.
 // {
 //     enum { k_STACK_SIZE = 16384 };
 //     bslmt::ThreadAttributes attributes;
@@ -229,9 +228,9 @@ BSLS_IDENT("$Id: $")
 // in the range `[ getMinSchedulingPriority, getMaxSchedulingPriority ]` to set
 // the `schedulingPriority` attribute.
 // ```
+// /// Create 3 threads with different priorities and then wait for them
+// /// all to finish.
 // void runSeveralThreads()
-//     // Create 3 threads with different priorities and then wait for them
-//     // all to finish.
 // {
 //     enum { k_NUM_THREADS = 3 };
 //

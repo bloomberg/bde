@@ -203,16 +203,16 @@ BSLS_IDENT("$Id: $")
 // type is known at compile time but which can be set to an arbitrary
 // operation at run time:
 // ```
+// /// Apply my special algorithm to the elements in the contiguous address
+// /// range from the specified `begin` pointer up to but not including the
+// /// specified `end` pointer, writing the result to the contiguous range
+// /// starting at the specified `output` pointer.  The specified `op`
+// /// function is applied to each element before it is fed into the
+// /// algorithm.
 // void myAlgorithm(const int                      *begin,
 //                  const int                      *end,
 //                  int                            *output,
 //                  const bsl::function<int(int)>&  op);
-//     // Apply my special algorithm to the elements in the contiguous address
-//     // range from the specified 'begin' pointer up to but not including the
-//     // specified 'end' pointer, writing the result to the contiguous range
-//     // starting at the specified 'output' pointer.  The specified 'op'
-//     // function is applied to each element before it is fed into the
-//     // algorithm.
 // ```
 // For the purpose of illustration, `myAlgorithm` is a simple loop that
 // invokes the specified `op` on each element in the input range and writes it
@@ -242,8 +242,8 @@ BSLS_IDENT("$Id: $")
 // ```
 // Then, we test our algorithm using our negation function:
 // ```
+// /// Test the use of the `negation` function with `myAlgorithm`.
 // bool testNegation()
-//     // Test the use of the 'negation' function with 'myAlgorithm'.
 // {
 //     myAlgorithm(testInput, testInput + DATA_SIZE, testOutput, negate);
 //
@@ -265,29 +265,31 @@ BSLS_IDENT("$Id: $")
 // a running sum over its inputs.  A running sum requires holding on to state,
 // so we define a functor class for this purpose:
 // ```
+// /// Keep a running total of all of the inputs provided to `operator()`.
 // class RunningSum {
-//     // Keep a running total of all of the inputs provided to 'operator()'.
 //
 //     // DATA
 //     int d_sum;
 //
 //   public:
 //     // CREATORS
+//
+//     // Create a `RunningSum` with initial value set to the specified
+//     // `initial` argument.
 //     explicit RunningSum(int initial = 0) : d_sum(initial) { }
-//         // Create a 'RunningSum' with initial value set to the specified
-//         // 'initial' argument.
 //
 //     // MANIPULATORS
+//
+//     // Add the specified `v` to the running sum and return the running
+//     // sum.
 //     int operator()(int v)
-//         // Add the specified 'v' to the running sum and return the running
-//         // sum.
 //         { return d_sum += v; }
 // };
 // ```
 // Then, we test `myAlgorithm` with `RunningSum`:
 // ```
+// /// Test the user of `RunningSum` with `myAlgorithm`.
 // bool testRunningSum()
-//     // Test the user of 'RunningSum' with 'myAlgorithm'.
 // {
 //     myAlgorithm(testInput, testInput+DATA_SIZE, testOutput, RunningSum());
 //
@@ -334,8 +336,8 @@ BSLS_IDENT("$Id: $")
 // queue as a fixed-sized circular buffer and (because this is a
 // single-threaded simulation), ignore synchronization concerns.
 // ```
+// /// A FIFO queue of tasks to be executed.
 // class WorkQueue {
-//     // A FIFO queue of tasks to be executed.
 //
 //     // PRIVATE CONSTANTS
 //     static const int k_MAX_ITEMS = 16;
@@ -347,15 +349,17 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an empty work queue.
 //     WorkQueue()
-//         // Create an empty work queue.
 //         : d_numItems(0), d_head(0) { }
 //
 //     // MANIPULATORS
+//
+//     /// Move the work item at the head of the queue into the specified
+//     /// `result` and remove it from the queue.  The behavior is
+//     /// undefined if this queue is empty.
 //     void dequeue(WorkItem *result)
-//         // Move the work item at the head of the queue into the specified
-//         // 'result' and remove it from the queue.  The behavior is
-//         // undefined if this queue is empty.
 //     {
 //         assert(d_numItems > 0);
 //         *result = bslmf::MovableRefUtil::move(d_items[d_head]);
@@ -363,9 +367,9 @@ BSLS_IDENT("$Id: $")
 //         --d_numItems;
 //     }
 //
+//     /// Enqueue the specified `item` work item onto the tail of the
+//     /// queue.  The work is moved from `item`.
 //     void enqueue(bslmf::MovableRef<WorkItem> item)
-//         // Enqueue the specified 'item' work item onto the tail of the
-//         // queue.  The work is moved from 'item'.
 //     {
 //         int tail = (d_head + d_numItems++) % k_MAX_ITEMS; // circular
 //         assert(d_numItems <= k_MAX_ITEMS);
@@ -373,42 +377,43 @@ BSLS_IDENT("$Id: $")
 //     }
 //
 //     // ACCESSORS
-//     bool isEmpty() const
-//         // Return true if there are no items in the queue; otherwise return
-//         // false.
-//         { return 0 == d_numItems; }
 //
-//     int size() const
-//         // Return the number of items currently in the queue.
-//         { return d_numItems; }
+//     /// Return true if there are no items in the queue; otherwise return
+//     /// false.
+//     bool isEmpty() const { return 0 == d_numItems; }
+//
+//     /// Return the number of items currently in the queue.
+//     int size() const { return d_numItems; }
 // };
 // ```
 // Next, we'll create a worker class that represents the state of a worker
 // thread:
 // ```
+// /// A simulated worker thread.
 // class Worker {
-//     // A simulated worker thread.
 //
 //     // DATA
 //     bool d_isIdle;             // True if the worker is idle
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an idle worker.
 //     Worker()
-//         // Create an idle worker.
 //         : d_isIdle(true) { }
 //
 //     // MANIPULATORS
+//
+//     /// Dequeue a task from the specified `queue` and execute it
+//     /// (asynchronously, in theory).  The behavior is undefined unless
+//     /// this worker is idle before the call to `run`.
 //     void run(WorkQueue *queue);
-//         // Dequeue a task from the specified 'queue' and execute it
-//         // (asynchronously, in theory).  The behavior is undefined unless
-//         // this worker is idle before the call to 'run'.
 //
 //     // ACCESSORS
-//     bool isIdle() const
-//         // Return whether this worker is idle.  An idle worker is one that
-//         // can except work.
-//         { return d_isIdle; }
+//
+//     /// Return whether this worker is idle.  An idle worker is one that
+//     /// can except work.
+//     bool isIdle() const { return d_isIdle; }
 // };
 // ```
 // Next, we implement the `run` function, which removes a `bsl::function`
@@ -433,8 +438,8 @@ BSLS_IDENT("$Id: $")
 // Now, we implement a simple scheduler containing a work queue and an array of
 // four workers, which are run in a round-robin fashion:
 // ```
+// /// Parallel work scheduler.
 // class Scheduler {
-//     // Parallel work scheduler.
 //
 //     // PRIVATE CONSTANTS
 //     static const int k_NUM_WORKERS = 4;
@@ -445,16 +450,18 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a scheduler and enqueue the specified `initialTask`.
 //     explicit Scheduler(bslmf::MovableRef<WorkItem> initialTask)
-//         // Create a scheduler and enqueue the specified 'initialTask'.
 //     {
 //         d_workQueue.enqueue(bslmf::MovableRefUtil::move(initialTask));
 //     }
 //
 //     // MANIPULATORS
+//
+//     /// Execute the tasks in the work queue (theoretically in parallel)
+//     /// until the queue is empty.
 //     void run();
-//         // Execute the tasks in the work queue (theoretically in parallel)
-//         // until the queue is empty.
 // };
 // ```
 // Next, we implement the scheduler's `run` method: which does a round-robin
@@ -480,35 +487,38 @@ BSLS_IDENT("$Id: $")
 // halves.  We define a class that encapsulates an invocation of quicksort on
 // an input range:
 // ```
+// /// A functor class to execute parallel quicksort on a contiguous range
+// /// of elements of specified `TYPE` supplied at construction.
 // template <class TYPE>
 // class QuickSortTask {
-//     // A functor class to execute parallel quicksort on a contiguous range
-//     // of elements of specified 'TYPE' supplied at construction.
 //
 //     // DATA
 //     TYPE *d_begin_p;
 //     TYPE *d_end_p;
 //
 //     // PRIVATE CLASS METHODS
+//
+//     /// Partition the contiguous range specified by `[begin, end)` and
+//     /// return an iterator, `mid`, such that every element in the range
+//     /// `[begin, mid)` is less than `*mid` and every element in the
+//     /// range `[mid + 1, end)` is not less than `*mid`.  The behavior is
+//     /// undefined unless `begin < end`.
 //     static TYPE* partition(TYPE *begin, TYPE *end);
-//         // Partition the contiguous range specified by '[begin, end)' and
-//         // return an iterator, 'mid', such that every element in the range
-//         // '[begin, mid)' is less than '*mid' and every element in the
-//         // range '[mid + 1, end)' is not less than '*mid'.  The behavior is
-//         // undefined unless 'begin < end'.
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a task to sort the contiguous range from the item at the
+//     /// specified `begin` location up to but not included the item at
+//     /// the specified `end` location.
 //     QuickSortTask(TYPE *begin, TYPE *end)
-//         // Create a task to sort the contiguous range from the item at the
-//         // specified 'begin' location up to but not included the item at
-//         // the specified 'end' location.
 //         : d_begin_p(begin), d_end_p(end) { }
 //
 //     // MANIPULATORS
+//
+//     /// Preform the sort in parallel using the specified `queue` to
+//     /// enqueue parallel work.
 //     void operator()(WorkQueue *queue);
-//         // Preform the sort in parallel using the specified 'queue' to
-//         // enqueue parallel work.
 // };
 // ```
 // Next we implement the `partition` method, using a variation of the Lomuto
@@ -902,21 +912,22 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     };
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    /// Unique type that evaluates to true or false in a boolean control
+    /// construct such as an `if` or `while` statement.  In C++03,
+    /// `function` is implicitly convertible to this type but is not
+    /// implicitly convertible to `bool`.  In C++11 and later, `function` is
+    /// explicitly convertible to `bool`, so this type is not needed.
     typedef BloombergLP::bsls::UnspecifiedBool<function> UnspecifiedBoolUtil;
     typedef typename UnspecifiedBoolUtil::BoolType       UnspecifiedBool;
-        // Unique type that evaluates to true or false in a boolean control
-        // construct such as an 'if' or 'while' statement.  In C++03,
-        // 'function' is implicitly convertible to this type but is not
-        // implicitly convertible to 'bool'.  In C++11 and later, 'function' is
-        // explicitly convertible to 'bool', so this type is not needed.
 
     // NOT IMPLEMENTED
+
+    /// Since `function` does not support `operator==` and `operator!=`,
+    /// they must be deliberately suppressed; otherwise `function` objects
+    /// would be implicitly comparable by implicit conversion to
+    /// `UnspecifiedBool`.
     bool operator==(const function&) const;  // Declared but not defined
     bool operator!=(const function&) const;  // Declared but not defined
-        // Since 'function' does not support 'operator==' and 'operator!=',
-        // they must be deliberately suppressed; otherwise 'function' objects
-        // would be implicitly comparable by implicit conversion to
-        // 'UnspecifiedBool'.
 #endif // !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
 
     // PRIVATE MANIPULATORS
@@ -992,18 +1003,18 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // The body of this constructor must be inlined inplace because the use
         // of 'enable_if' will otherwise break the MSVC 2010 compiler.
         //
-        // The '! bsl::is_function<FUNC>::value' constraint is required in
+        // The `! bsl::is_function<FUNC>::value` constraint is required in
         // C++03 mode when using the IBM XL C++ compiler.  In C++03,
-        // 'BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func' expands to
-        // 'const FUNC& func'.  A conforming compiler deduces a
-        // reference-to-function type for 'func' when it binds to a function
+        // `BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func` expands to
+        // `const FUNC& func`.  A conforming compiler deduces a
+        // reference-to-function type for `func` when it binds to a function
         // argument.  The IBM XL C++ compiler erroneously does not collapse the
-        // 'const' qualifier when 'FUNC' is deduced to be a function type, and
-        // instead attempts to deduce the type of 'func' to be a reference to a
-        // 'const'-qualified function.  This causes substitution to fail
-        // because function-typed expressions are never 'const'.  This
-        // component solves the problem by accepting a 'func' having a function
-        // type as a pointer to a (non-'const') function.  An overload for the
+        // `const` qualifier when `FUNC` is deduced to be a function type, and
+        // instead attempts to deduce the type of `func` to be a reference to a
+        // `const`-qualified function.  This causes substitution to fail
+        // because function-typed expressions are never `const`.  This
+        // component solves the problem by accepting a `func` having a function
+        // type as a pointer to a (non-`const`) function.  An overload for the
         // corresponding constructor is defined below.
 
         installFunc(BSLS_COMPILERFEATURES_FORWARD(FUNC, func));
@@ -1022,13 +1033,13 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // compiler defect.  See the implementation notes for the above
         // constructor overload for more information.
         //
-        // This constructor also forwards the 'func' as a pointer-to-function
+        // This constructor also forwards the `func` as a pointer-to-function
         // type to downstream operations in order to work around the
         // aforementioned reference-to-function type deduction defects.
         //
         // Further, note that instantiation of this constructor will fail
-        // unless 'FUNC' is invocable using the arguments and return type
-        // specified in 'PROTOTYPE'.  This component assumes that the IBM XL
+        // unless `FUNC` is invocable using the arguments and return type
+        // specified in `PROTOTYPE`.  This component assumes that the IBM XL
         // C++ compiler does not support C++11 or later.
 
         installFunc(func);
@@ -1036,6 +1047,37 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
 #endif
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    /// Create an object wrapping the specified `func` callable object.
+    /// This constructor (ctor 2) is identical to the previous constructor
+    /// (ctor 1) except that, in C++03 ctor 2 provides for explicit
+    /// construction from a `MovableRef` referencing a callable type, rather
+    /// than an implicit conversion for `FUNC` not being a `MovableRef`.  In
+    /// C++11, overload resolution matching an argument of type `T&&` to a
+    /// parameter of type `T` (exact match) is always preferred over
+    /// matching `T&&` to `bsl::function` (conversion).  In C++03, however
+    /// `MovableRef` is not a real reference type, so it sometimes creates
+    /// overload ambiguities whereby matching `MovableRef<T>` to `T`
+    /// (conversion) is no better than matching `MovableRef<T>` to
+    /// `bsl::function` (also conversion).  This ambiguity is resolved by
+    /// making this constructor from `MovableRef<T>` explicit, while leaving
+    /// other constructor from `FUNC` implicit.  This means that
+    /// `move` will fail in a narrow set of cases in C++03, as shown below:
+    /// ```
+    ///  typedef bsl::function<void(int)> Obj;
+    ///  MyCallableType x;
+    ///
+    ///  Obj f1 = x;                              // OK
+    ///  Obj f2 = bslmf::MovableRefUtil::move(x); // No conversion in C++03
+    ///  Obj f3(bslmf::MovableRefUtil::move(x));  // OK, normal ctor call
+    ///
+    ///  void y(const Obj& f);
+    ///  y(x);                                    // OK
+    ///  y(bslmf::MovableRefUtil::move(x));       // Not found in C++03
+    ///  y(Obj(bslmf::MovableRefUtil::move(x)));  // OK, explicit cast
+    /// ```
+    /// As you can see from the examples above, there are simple workarounds
+    /// for the problem cases, although generic code might need to be extra
+    /// careful.
     template <class FUNC>
     explicit function(const BloombergLP::bslmf::MovableRef<FUNC>& func,
              typename enable_if<
@@ -1044,43 +1086,12 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
                  &&   IsInvocableWithPrototype<
                                              typename Decay<FUNC>::type>::value
                  , int>::type = 0)
-        // Create an object wrapping the specified 'func' callable object.
-        // This constructor (ctor 2) is identical to the previous constructor
-        // (ctor 1) except that, in C++03 ctor 2 provides for explicit
-        // construction from a 'MovableRef' referencing a callable type, rather
-        // than an implicit conversion for 'FUNC' not being a 'MovableRef'.  In
-        // C++11, overload resolution matching an argument of type 'T&&' to a
-        // parameter of type 'T' (exact match) is always preferred over
-        // matching 'T&&' to 'bsl::function' (conversion).  In C++03, however
-        // 'MovableRef' is not a real reference type, so it sometimes creates
-        // overload ambiguities whereby matching 'MovableRef<T>' to 'T'
-        // (conversion) is no better than matching 'MovableRef<T>' to
-        // 'bsl::function' (also conversion).  This ambiguity is resolved by
-        // making this constructor from 'MovableRef<T>' explicit, while leaving
-        // other constructor from 'FUNC' implicit.  This means that
-        // 'move' will fail in a narrow set of cases in C++03, as shown below:
-        //..
-        //  typedef bsl::function<void(int)> Obj;
-        //  MyCallableType x;
-        //
-        //  Obj f1 = x;                              // OK
-        //  Obj f2 = bslmf::MovableRefUtil::move(x); // No conversion in C++03
-        //  Obj f3(bslmf::MovableRefUtil::move(x));  // OK, normal ctor call
-        //
-        //  void y(const Obj& f);
-        //  y(x);                                    // OK
-        //  y(bslmf::MovableRefUtil::move(x));       // Not found in C++03
-        //  y(Obj(bslmf::MovableRefUtil::move(x)));  // OK, explicit cast
-        //..
-        // As you can see from the examples above, there are simple workarounds
-        // for the problem cases, although generic code might need to be extra
-        // careful.
         : Base(allocator_type())
     {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this constructor must inlined inplace because the use of
-        // 'enable_if' will otherwise break the MSVC 2010 compiler.
+        // `enable_if` will otherwise break the MSVC 2010 compiler.
 
         installFunc(BloombergLP::bslmf::MovableRefUtil::move(func));
     }
@@ -1120,20 +1131,20 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this constructor must inlined inplace because the use of
-        // 'enable_if' will otherwise break the MSVC 2010 compiler.
+        // `enable_if` will otherwise break the MSVC 2010 compiler.
         //
-        // The '! bsl::is_function<FUNC>::value' constraint is required in
+        // The `! bsl::is_function<FUNC>::value` constraint is required in
         // C++03 mode when using the IBM XL C++ compiler.  In C++03,
-        // 'BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func' expands to
-        // 'const FUNC& func'.  A conforming compiler deduces a
-        // reference-to-function type for 'func' when it binds to a function
+        // `BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func` expands to
+        // `const FUNC& func`.  A conforming compiler deduces a
+        // reference-to-function type for `func` when it binds to a function
         // argument.  The IBM XL C++ compiler erroneously does not collapse the
-        // 'const' qualifier when 'FUNC' is deduced to be a function type, and
-        // instead attempts to deduce the type of 'func' to be a reference to a
-        // 'const'-qualified function.  This causes substitution to fail
-        // because function-typed expressions are never 'const'.  This
-        // component solves the problem by accepting a 'func' having a function
-        // type as a pointer to a (non-'const') function.  An overload for the
+        // `const` qualifier when `FUNC` is deduced to be a function type, and
+        // instead attempts to deduce the type of `func` to be a reference to a
+        // `const`-qualified function.  This causes substitution to fail
+        // because function-typed expressions are never `const`.  This
+        // component solves the problem by accepting a `func` having a function
+        // type as a pointer to a (non-`const`) function.  An overload for the
         // corresponding constructor is defined below.
 
         installFunc(BSLS_COMPILERFEATURES_FORWARD(FUNC, func));
@@ -1153,13 +1164,13 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // compiler defect.  See the implementation notes for the above
         // constructor overload for more information.
         //
-        // This constructor also forwards the 'func' as a pointer-to-function
+        // This constructor also forwards the `func` as a pointer-to-function
         // type to downstream operations in order to work around the
         // aforementioned reference-to-function type deduction defects.
         //
         // Further, note that instantiation of this constructor will fail
-        // unless 'FUNC' is invocable using the arguments and return type
-        // specified in 'PROTOTYPE'.  This component assumes that the IBM XL
+        // unless `FUNC` is invocable using the arguments and return type
+        // specified in `PROTOTYPE`.  This component assumes that the IBM XL
         // C++ compiler does not support C++11 or later.
 
         installFunc(func);
@@ -1238,7 +1249,7 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this operator must inlined inplace because the use of
-        // 'enable_if' will otherwise break the MSVC 2010 compiler.
+        // `enable_if` will otherwise break the MSVC 2010 compiler.
 
         function(allocator_arg, this->get_allocator(),
                  BSLS_COMPILERFEATURES_FORWARD(FUNC, rhs)).swap(*this);
@@ -1246,21 +1257,21 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     }
 
 #ifdef BSLS_PLATFORM_CMP_IBM
+    /// Set the target of this object to the specified `rhs` function
+    /// pointer.  This overload exists only for the IBM compiler, which has
+    /// trouble decaying functions to function pointers in
+    /// pass-by-const-reference template arguments.
     template <class FUNC>
     typename enable_if<is_function<FUNC>::value, function&>::type
     operator=(FUNC *rhs)
-        // Set the target of this object to the specified 'rhs' function
-        // pointer.  This overload exists only for the IBM compiler, which has
-        // trouble decaying functions to function pointers in
-        // pass-by-const-reference template arguments.
     {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this operator must inlined inplace.
         //
         // Further, note that instantiation of this assignment operator will
-        // fail unless 'FUNC' is invocable using the arguments and return type
-        // specified in 'PROTOTYPE'.  This component assumes that the IBM XL
+        // fail unless `FUNC` is invocable using the arguments and return type
+        // specified in `PROTOTYPE`.  This component assumes that the IBM XL
         // C++ compiler does not support C++11 or later.
 
         function(allocator_arg, this->get_allocator(), rhs).swap(*this);
@@ -1321,12 +1332,12 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     explicit  // Explicit conversion available only with C++11
     operator bool() const BSLS_KEYWORD_NOEXCEPT;
 #else
+    /// (C++03 only) Return a null value if this object is empty, otherwise
+    /// an arbitrary non-null value.  Note that this operator will be
+    /// invoked implicitly in boolean contexts such as in the condition of
+    /// an `if` or `while` statement, but does not constitute an implicit
+    /// conversion to `bool`.
     operator UnspecifiedBool() const BSLS_KEYWORD_NOEXCEPT
-        // (C++03 only) Return a null value if this object is empty, otherwise
-        // an arbitrary non-null value.  Note that this operator will be
-        // invoked implicitly in boolean contexts such as in the condition of
-        // an 'if' or 'while' statement, but does not constitute an implicit
-        // conversion to 'bool'.
     {
         // Inplace inlined to work around xlC bug when out-of-line.
         return UnspecifiedBoolUtil::makeValue(0 != this->d_rep.invoker());
@@ -1557,21 +1568,21 @@ struct Function_IsInvocableWithPrototype<RET(ARGS...), FUNC>
 
 #else // if !defined(BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE)
 
+/// This component-private `struct` template provides a partial
+/// specialization of `Function_IsInvocableWithPrototype` for any `FUNC`
+/// type, and for `PROTOTYPE` types that are function types.  This
+/// specialization only exists in pre-C++11 (e.g. C++03) compilers.  It
+/// approximates a boolean metafunction for detecting whether the specified
+/// `FUNC` type is Lvalue-Callable with the prototype `RET(ARGS...)`.  This
+/// approximation is extremely coarse, and only checks that the `FUNC` is
+/// not an integral type.  It does this for the sole purpose of ensuring
+/// that there are no overload resolution ambiguities in the constructors
+/// and assignment operators of `bsl::function`, which provide overloads for
+/// both integral types (to accept the literal `0` is a null pointer
+/// constant), and for callable types like `FUNC`.
 template <class RET, class FUNC, class... ARGS>
 struct Function_IsInvocableWithPrototype<RET(ARGS...), FUNC>
 : bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
-    // This component-private 'struct' template provides a partial
-    // specialization of 'Function_IsInvocableWithPrototype' for any 'FUNC'
-    // type, and for 'PROTOTYPE' types that are function types.  This
-    // specialization only exists in pre-C++11 (e.g. C++03) compilers.  It
-    // approximates a boolean metafunction for detecting whether the specified
-    // 'FUNC' type is Lvalue-Callable with the prototype 'RET(ARGS...)'.  This
-    // approximation is extremely coarse, and only checks that the 'FUNC' is
-    // not an integral type.  It does this for the sole purpose of ensuring
-    // that there are no overload resolution ambiguities in the constructors
-    // and assignment operators of 'bsl::function', which provide overloads for
-    // both integral types (to accept the literal '0' is a null pointer
-    // constant), and for callable types like 'FUNC'.
 };
 
 #endif // !defined(BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE)

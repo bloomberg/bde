@@ -42,27 +42,28 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the interface of our implementation:
 // ```
+// /// This class provides a concrete implementation of the
+// /// `baltzo::Loader` protocol (an abstract interface) for obtaining a
+// /// time zone.  This test implementation contains only partial data of
+// /// the "America/New_York" time zone, and is unable to obtain time-zone
+// /// information for any other time zones.
 // class MyLoaderImp : public baltzo::Loader {
-//     // This class provides a concrete implementation of the
-//     // 'baltzo::Loader' protocol (an abstract interface) for obtaining a
-//     // time zone.  This test implementation contains only partial data of
-//     // the "America/New_York" time zone, and is unable to obtain time-zone
-//     // information for any other time zones.
-//
 //   public:
 //     // CREATORS
-//     MyLoaderImp();
-//         // Create a 'MyLoaderImp' object.
 //
+//     /// Create a `MyLoaderImp` object.
+//     MyLoaderImp();
+//
+//     // Destroy this object.
 //     ~MyLoaderImp();
-//         // Destroy this object.
 //
 //     // MANIPULATORS
+//
+//     /// Load into the specified `result` the "Zoneinfo" time zone
+//     /// information for the time zone identified by the specified
+//     /// `timeZoneId`.  Return 0 on success, and non-zero otherwise.
 //     virtual int loadTimeZone(baltzo::Zoneinfo *result,
 //                              const char       *timeZoneId);
-//         // Load into the specified 'result' the "Zoneinfo" time zone
-//         // information for the time zone identified by the specified
-//         // 'timeZoneId'.  Return 0 on success, and non-zero otherwise.
 // };
 // ```
 // Then, we implement the creators, trivially, as this class contains no

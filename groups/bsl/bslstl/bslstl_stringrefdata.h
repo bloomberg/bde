@@ -131,8 +131,8 @@ BSLS_IDENT("$Id: $")
 // const char str[] = "test string";
 // StringRef  strRef(str, str + sizeof(str));
 //
-// String     strObj = strRef;     // convert 'StringRef' to 'String'
-// StringRef  strRf2 = strObj;     // convert 'String' to 'StringRef'
+// String     strObj = strRef;     // convert `StringRef` to `String`
+// StringRef  strRf2 = strObj;     // convert `String` to `StringRef`
 //
 // assert(strObj.data()   == strRef.data());
 // assert(strObj.length() == strRef.length());

@@ -51,14 +51,14 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define a bidirectional iterator class:
 // ```
+// // This `class` basically behaves as a pointer to the (template
+// // parameter) `TYPE` with 4 types defined to allow the use of
+// // `bdlt::CalendarReverseIteratorAdapter` with this `class`.  Note that
+// // this `class` supports only a subset of the functionality that a
+// // pointer would, but this subset covers all the functionality that a
+// // `bdlt::CalendarReverseIteratorAdapter` needs.
 // template <class TYPE>
 // class Iterator {
-//     // This 'class' basically behaves as a pointer to the (template
-//     // parameter) 'TYPE' with 4 types defined to allow the use of
-//     // 'bdlt::CalendarReverseIteratorAdapter' with this 'class'.  Note that
-//     // this 'class' supports only a subset of the functionality that a
-//     // pointer would, but this subset covers all the functionality that a
-//     // 'bdlt::CalendarReverseIteratorAdapter' needs.
 //
 //     // DATA
 //     TYPE *d_ptr;  // pointer to the element referred to by this iterator
@@ -75,14 +75,15 @@ BSLS_IDENT("$Id: $")
 //     typedef TYPE&  reference;
 //
 //     // CREATORS
+//
+//     /// Create an `Iterator` object having the default value.
 //     Iterator()
-//         // Create an 'Iterator' object having the default value.
 //     : d_ptr(0)
 //     {
 //     }
 //
+//     /// Create an `Iterator` object from the specified `value`.
 //     Iterator(TYPE *value)                                       // IMPLICIT
-//         // Create an 'Iterator' object from the specified 'value'.
 //     : d_ptr(value)
 //     {
 //     }
@@ -92,80 +93,83 @@ BSLS_IDENT("$Id: $")
 //     // ~Iterator() = default;
 //
 //     // MANIPULATORS
+//
 //     // Iterator& operator=(const Iterator&) = default;
 //
+//     /// Increment to the next element in the iteration sequence, and
+//     /// return a reference providing modifiable access to this iterator.
+//     /// The behavior is undefined if, on entry, this iterator has the
+//     /// past-the-end value for an iterator over the underlying sequence.
 //     Iterator& operator++()
-//         // Increment to the next element in the iteration sequence, and
-//         // return a reference providing modifiable access to this iterator.
-//         // The behavior is undefined if, on entry, this iterator has the
-//         // past-the-end value for an iterator over the underlying sequence.
 //     {
 //         ++d_ptr;
 //         return *this;
 //     }
 //
+//     /// Decrement to the previous element in the iteration sequence, and
+//     /// return a reference providing modifiable access to this iterator.
+//     /// The behavior is undefined if, on entry, this iterator has the
+//     /// same value as an iterator at the start of the underlying
+//     /// sequence.
 //     Iterator& operator--()
-//         // Decrement to the previous element in the iteration sequence, and
-//         // return a reference providing modifiable access to this iterator.
-//         // The behavior is undefined if, on entry, this iterator has the
-//         // same value as an iterator at the start of the underlying
-//         // sequence.
 //     {
 //         --d_ptr;
 //         return *this;
 //     }
 //
 //     // ACCESSORS
+//
+//     /// Return a reference to the element referred to by this iterator.
+//     /// The behavior is undefined unless this iterator is within the
+//     /// bounds of the underlying sequence.
 //     reference operator*() const
-//         // Return a reference to the element referred to by this iterator.
-//         // The behavior is undefined unless this iterator is within the
-//         // bounds of the underlying sequence.
 //     {
 //         return *d_ptr;
 //     }
 //
+//     /// Return a pointer to the element referred to by this iterator.
+//     /// The behavior is undefined unless this iterator is within the
+//     /// bounds of the underlying sequence.
 //     pointer operator->() const
-//         // Return a pointer to the element referred to by this iterator.
-//         // The behavior is undefined unless this iterator is within the
-//         // bounds of the underlying sequence.
 //     {
 //         return d_ptr;
 //     }
 //
+//     // Return an iterator referencing the location at the specified
+//     // `offset` from the element referenced by this iterator.  The
+//     // behavior is undefined unless the resultant iterator is within
+//     // the bounds of the underlying sequence.
 //     Iterator operator+(bsl::ptrdiff_t offset) const
-//         // Return an iterator referencing the location at the specified
-//         // 'offset' from the element referenced by this iterator.  The
-//         // behavior is undefined unless the resultant iterator is within
-//         // the bounds of the underlying sequence.
 //     {
 //         return Iterator(d_ptr + offset);
 //     }
 // };
 //
 // // FREE OPERATORS
+//
+// /// Return `true` if the specified `lhs` iterator has the same value as
+// /// the specified `rhs` iterator, and `false` otherwise.  Two iterators
+// /// have the same value if they refer to the same element, or both have
+// /// the past-the-end value for am iterator over the underlying iteration
+// /// sequence.  The behavior is undefined unless `lhs` and `rhs` refer to
+// /// the same underlying sequence.
 // template <class TYPE>
 // inline
 // bool operator==(const Iterator<TYPE>& lhs,  const Iterator<TYPE>& rhs)
-//     // Return 'true' if the specified 'lhs' iterator has the same value as
-//     // the specified 'rhs' iterator, and 'false' otherwise.  Two iterators
-//     // have the same value if they refer to the same element, or both have
-//     // the past-the-end value for am iterator over the underlying iteration
-//     // sequence.  The behavior is undefined unless 'lhs' and 'rhs' refer to
-//     // the same underlying sequence.
 // {
 //     return lhs.d_ptr == rhs.d_ptr;
 // }
 //
+// /// Return `true` if the specified `lhs` iterator does not have the same
+// /// value as the specified `rhs` iterator, and `false` otherwise.  Two
+// /// iterators do not have the same value if (1) they do not refer to the
+// /// same element and (2) both do not have the past-the-end value for an
+// /// iterator over the underlying iteration sequence.  The behavior is
+// /// undefined unless `lhs` and `rhs` refer to the same underlying
+// /// sequence.
 // template <class TYPE>
 // inline
 // bool operator!=(const Iterator<TYPE>& lhs, const Iterator<TYPE>& rhs)
-//     // Return 'true' if the specified 'lhs' iterator does not have the same
-//     // value as the specified 'rhs' iterator, and 'false' otherwise.  Two
-//     // iterators do not have the same value if (1) they do not refer to the
-//     // same element and (2) both do not have the past-the-end value for an
-//     // iterator over the underlying iteration sequence.  The behavior is
-//     // undefined unless 'lhs' and 'rhs' refer to the same underlying
-//     // sequence.
 // {
 //     return !(lhs == rhs);
 // }

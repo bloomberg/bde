@@ -50,12 +50,12 @@ BSLS_IDENT("$Id: $")
 // integers, to hold the values in the queue, and an index manager to ensure
 // thread-safe access to the indices of the vector:
 // ```
+// /// This class provides a fully thread-safe queue of integers with a
+// /// fixed maximum capacity.
 // class IntegerQueue {
-//     // This class provides a fully thread-safe queue of integers with a
-//     // fixed maximum capacity.
 //
 //     // DATA
-//     bdlcc::FixedQueueIndexManager d_indexManager;  // manages 'd_values'
+//     bdlcc::FixedQueueIndexManager d_indexManager;  // manages `d_values`
 //                                                    // indices
 //
 //     bsl::vector<int>              d_values;        // maintains values
@@ -69,32 +69,35 @@ BSLS_IDENT("$Id: $")
 // Then, we declare the methods of an integer queue:
 // ```
 //     // CREATORS
+//
+//     /// Create a queue capable of holding up to the specified
+//     /// `capacity` number of integer values.
 //     explicit IntegerQueue(bsl::size_t       capacity,
 //                           bslma::Allocator *basicAllocator = 0);
-//         // Create a queue capable of holding up to the specified
-//         // 'capacity' number of integer values.
 //
+//     /// Destroy this queue.
 //     ~IntegerQueue();
-//         // Destroy this queue.
 //
 //     // MANIPULATORS
-//     int tryPushBack(int value);
-//         // Attempt to push the specified 'value' onto the back of this
-//         // queue.  Return 0 on success, and a non-zero value if this queue
-//         // is full.
 //
+//     /// Attempt to push the specified `value` onto the back of this
+//     /// queue.  Return 0 on success, and a non-zero value if this queue
+//     /// is full.
+//     int tryPushBack(int value);
+//
+//     /// Attempt to remove an element from the front of this queue and
+//     /// load the removed value into the specified `result`.  Return 0
+//     /// on success, and a non-zero value otherwise.
 //     int tryPopFront(int *result);
-//         // Attempt to remove an element from the front of this queue and
-//         // load the removed value into the specified 'result'.  Return 0
-//         // on success, and a non-zero value otherwise.
 //
 //     // ACCESSORS
-//     bsl::size_t length() const;
-//         // Return a snapshot of the number of elements currently in this
-//         // queue.
 //
+//     /// Return a snapshot of the number of elements currently in this
+//     /// queue.
+//     bsl::size_t length() const;
+//
+//     /// Return the maximum number of elements that this queue can hold.
 //     bsl::size_t capacity() const;
-//         // Return the maximum number of elements that this queue can hold.
 // };
 // ```
 //  Next, we define the constructor, which initializes both the index manager
@@ -241,7 +244,7 @@ class FixedQueueIndexManager {
 
     const unsigned int  d_maxCombinedIndex;
                            // maximum combination of index and generation count
-                           // that can stored in 'd_pushIndex' and 'd_popIndex'
+                           // that can stored in `d_pushIndex` and `d_popIndex`
                            // of this object (see implementation note in the
                            // .cpp file for more detail)
 
@@ -314,7 +317,7 @@ class FixedQueueIndexManager {
     enum {
         k_MAX_CAPACITY = 1 << ((sizeof(int) * 8) - 2)
                                     // maximum capacity of an index manager;
-                                    // note that 2 bits of 'd_pushIndex' are
+                                    // note that 2 bits of `d_pushIndex` are
                                     // reserved for holding the disabled status
                                     // flag, and ensuring that the
                                     // representable number of generation

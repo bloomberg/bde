@@ -36,9 +36,9 @@ BSLS_IDENT("$Id: $")
 // one described by the `ball::LoggerManagerConfiguration`
 // `UserFieldsPopulatorCallback`.
 // ```
+// /// Populate the specified `fields` with the username and current task
+// /// identifier.  The behavior is undefined unless `fields` is empty.
 // void populateLoggingFields(ball::UserFields *fields)
-//     // Populate the specified 'fields' with the username and current task
-//     // identifier.  The behavior is undefined unless 'fields' is empty.
 // {
 // ```
 // Next, we assert the precondition that `fields` is empty:
@@ -122,8 +122,8 @@ class UserFields {
     UserFields(const UserFields&  original,
                bslma::Allocator  *basicAllocator = 0);
 
+    /// Destroy this object.
     //! ~UserFields() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

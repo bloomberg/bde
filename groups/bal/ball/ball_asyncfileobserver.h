@@ -560,8 +560,9 @@ struct AsyncFileObserver_Record {
 class AsyncFileObserver : public Observer {
 
     // PRIVATE TYPES
+
+    /// State of the publication thread, as captured by `d_threadState`.
     enum ThreadState {
-        // State of the publication thread, as captured by 'd_threadState'.
 
         e_RUNNING,        // the publication thread is running
 
@@ -584,14 +585,14 @@ class AsyncFileObserver : public Observer {
 
     bsls::AtomicInt                d_threadState;    // the publication thread
                                                      // state, one of the
-                                                     // values of 'ThreadState'
+                                                     // values of `ThreadState`
 
     Severity::Level                d_dropRecordsOnFullQueueThreshold;
                                                      // records with severity
                                                      // below this threshold
                                                      // are dropped when the
                                                      // queue is full; default
-                                                     // is 'Severity::e_OFF'
+                                                     // is `Severity::e_OFF`
 
     bsls::AtomicInt                d_dropCount;      // number of dropped
                                                      // records; reset to 0
@@ -952,13 +953,13 @@ class AsyncFileObserver : public Observer {
     bool isFileLoggingEnabled(std::string *result) const;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    /// Return `true` if file logging is enabled for this async file
+    /// observer, and `false` otherwise.  Load the specified `result` with
+    /// the name of the current log file if file logging is enabled, and
+    /// leave `result` unmodified otherwise.  Note that records received
+    /// through the `publish` method of this async file observer may still
+    /// be logged to `stdout` when this method returns `false`.
     bool isFileLoggingEnabled(std::pmr::string *result) const;
-        // Return 'true' if file logging is enabled for this async file
-        // observer, and 'false' otherwise.  Load the specified 'result' with
-        // the name of the current log file if file logging is enabled, and
-        // leave 'result' unmodified otherwise.  Note that records received
-        // through the 'publish' method of this async file observer may still
-        // be logged to 'stdout' when this method returns 'false'.
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 
     /// Return `true` if a publication thread is running, and `false`

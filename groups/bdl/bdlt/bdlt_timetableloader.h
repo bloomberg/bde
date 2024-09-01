@@ -70,30 +70,32 @@ BSLS_IDENT("$Id: $")
 //
 // Then, we define the interface of our implementation:
 // ```
+// /// This class provides a concrete implementation of the
+// /// `bdlt::TimetableLoader` protocol (an abstract interface) for loading
+// /// a timetable.  This elided implementation obtains timetable
+// /// information from ASCII strings formatted using JSON.  The source of
+// /// the strings is unspecified.
 // class MyTimetableLoader : public bdlt::TimetableLoader {
-//     // This class provides a concrete implementation of the
-//     // 'bdlt::TimetableLoader' protocol (an abstract interface) for loading
-//     // a timetable.  This elided implementation obtains timetable
-//     // information from ASCII strings formatted using JSON.  The source of
-//     // the strings is unspecified.
 //
 //   public:
 //     // CREATORS
-//     MyTimetableLoader();
-//         // Create a 'MyTimetableLoader' object.
 //
+//     /// Create a `MyTimetableLoader` object.
+//     MyTimetableLoader();
+//
+//     /// Destroy this object.
 //     virtual ~MyTimetableLoader();
-//         // Destroy this object.
 //
 //     // MANIPULATORS
+//
+//     /// Load, into the specified `result`, the timetable identified by
+//     /// the specified `timetableName`.  Return 0 on success, and a
+//     /// non-zero value otherwise.  If the timetable corresponding to
+//     /// `timetableName` is not found, 1 is returned with no effect on
+//     /// `*result`.  If a non-zero value other than 1 is returned
+//     /// (indicating a different error), `*result` is valid, but its
+//     /// value is undefined.
 //     virtual int load(bdlt::Timetable *result, const char *timetableName);
-//         // Load, into the specified 'result', the timetable identified by
-//         // the specified 'timetableName'.  Return 0 on success, and a
-//         // non-zero value otherwise.  If the timetable corresponding to
-//         // 'timetableName' is not found, 1 is returned with no effect on
-//         // '*result'.  If a non-zero value other than 1 is returned
-//         // (indicating a different error), '*result' is valid, but its
-//         // value is undefined.
 // };
 // ```
 // Next, we implement the creators, trivially, as `MyTimetableLoader` does not

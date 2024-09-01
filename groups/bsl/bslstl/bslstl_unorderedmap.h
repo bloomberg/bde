@@ -530,9 +530,9 @@ BSLS_IDENT("$Id: $")
 // entries, and determine the 20 most commonly used words in the given
 // documents:
 // ```
+// /// Assignable equivalent to `WordTally::value_type`.  Note that
+// /// `bsl::vector` requires assignable types.
 // typedef bsl::pair<bsl::string, int> WordTallyEntry;
-//     // Assignable equivalent to 'WordTally::value_type'.  Note that
-//     // 'bsl::vector' requires assignable types.
 //
 // struct WordTallyEntryCompare {
 //     static bool lessValue(const WordTallyEntry& a,
@@ -771,10 +771,10 @@ BSLS_IDENT("$Id: $")
 // that document (the first word of the document is at offset 0).  The "mapped"
 // value of each entry is a `bsl::string` containing the word at that location.
 // ```
+// /// Document code number (`first`) and word offset (`second`) in that
+// /// document specify a word location.  The first word in the document
+// /// is at word offset 0.
 // typedef bsl::pair<int, int> WordLocation;
-//     // Document code number ('first') and word offset ('second') in that
-//     // document specify a word location.  The first word in the document
-//     // is at word offset 0.
 // ```
 // Notice that the `WordLocation`, the type of the key value, has no natural
 // ordering.  The assignment of document codes is arbitrary so there is no
@@ -795,20 +795,22 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `WordLocationHash` object.
 //     //! WordLocationHash() = default;
-//         // Create a 'WordLocationHash' object.
 //
+//     /// Create a `WordLocationHash` object.  Note that as
+//     /// `WordLocationHash` is an empty (stateless) type, this operation
+//     /// has no observable effect.
 //     //! WordLocationHash(const WordLocationHash& original) = default;
-//         // Create a 'WordLocationHash' object.  Note that as
-//         // 'WordLocationHash' is an empty (stateless) type, this operation
-//         // has no observable effect.
 //
+//     /// Destroy this object.
 //     //! ~WordLocationHash() = default;
-//         // Destroy this object.
 //
 //     // ACCESSORS
+//
+//     /// Return a hash value computed using the specified `x`.
 //     std::size_t operator()(WordLocation x) const
-//         // Return a hash value computed using the specified 'x'.
 //     {
 //         bsl::hash<int> hasher;
 //         return hasher(x.first) ^ hasher(x.second);
@@ -1321,26 +1323,26 @@ class unordered_map {
     /// be `copy-constructible` (see {Requirements on `value_type`}).
     unordered_map& operator=(const unordered_map& rhs);
 
+    /// Assign to this object the value, hash function, and key-equality
+    /// comparator of the specified `rhs` object, propagate to this object
+    /// the allocator of `rhs` if the `ALLOCATOR` type has trait
+    /// `propagate_on_container_move_assignment`, and return a reference
+    /// providing modifiable access to this object.  The contents of `rhs`
+    /// are moved (in constant time) to this unordered map if
+    /// `get_allocator() == rhs.get_allocator()` (after accounting for the
+    /// aforementioned trait); otherwise, all elements in this container are
+    /// either destroyed or move-assigned to, and each additional element in
+    /// `rhs` is move-inserted into this unordered_map.  `rhs` is left in a
+    /// valid but unspecified state, and if an exception is thrown, `*this`
+    /// is left in a valid but unspecified state.  This method requires that
+    /// the type `value_type` be `move-constructible` (see {Requirements on
+    /// `value_type`}).
     unordered_map&
     operator=(BloombergLP::bslmf::MovableRef<unordered_map> rhs)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                 AllocatorTraits::is_always_equal::value &&
                                 std::is_nothrow_move_assignable<HASH>::value &&
                                 std::is_nothrow_move_assignable<EQUAL>::value);
-        // Assign to this object the value, hash function, and key-equality
-        // comparator of the specified 'rhs' object, propagate to this object
-        // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
-        // 'propagate_on_container_move_assignment', and return a reference
-        // providing modifiable access to this object.  The contents of 'rhs'
-        // are moved (in constant time) to this unordered map if
-        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
-        // aforementioned trait); otherwise, all elements in this container are
-        // either destroyed or move-assigned to, and each additional element in
-        // 'rhs' is move-inserted into this unordered_map.  'rhs' is left in a
-        // valid but unspecified state, and if an exception is thrown, '*this'
-        // is left in a valid but unspecified state.  This method requires that
-        // the type 'value_type' be 'move-constructible' (see {Requirements on
-        // 'value_type'}).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     /// Assign to this unordered map the value of the of the specified
@@ -1485,8 +1487,6 @@ class unordered_map {
     /// `key`, if such an entry exists, and the past-the-end iterator
     /// (`end`) otherwise.  The behavior is undefined unless `key` is
     /// equivalent to the key of at most one element in this unordered map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1494,6 +1494,7 @@ class unordered_map {
                       iterator>::type
     find(const LOOKUP_KEY& key)
         {
+            // Note: implemented inline due to Sun CC compilation error.
             return iterator(d_impl.find(key));
         }
 
@@ -1548,7 +1549,7 @@ class unordered_map {
 #endif
     insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
     {
-        // Note that some compilers require functions declared with 'enable_if'
+        // Note that some compilers require functions declared with `enable_if`
         // to be defined inline.
 
         typedef bsl::pair<iterator, bool> ResultType;
@@ -1773,28 +1774,28 @@ class unordered_map {
     /// not exceed `max_load_factor`.  Note that this guarantees that, after
     /// the reserve, elements can be inserted to grow the container to
     /// `size() == numElements` without rehashing.  Also note that memory
-    /// allocations may still occur when growing the container to 'size() ==
-    /// numElements'.  Also note that this operation has no effect if
+    /// allocations may still occur when growing the container to `size() ==
+    /// numElements`.  Also note that this operation has no effect if
     /// `numElements <= size()`.
     void reserve(size_type numElements);
 
+    /// Exchange the value, hasher, key-equality functor, and
+    /// `max_load_factor` of this object with those of the specified `other`
+    /// object; also exchange the allocator of this object with that of
+    /// `other` if the (template parameter) type `ALLOCATOR` has the
+    /// `propagate_on_container_swap` trait, and do not modify either
+    /// allocator otherwise.  This method provides the no-throw
+    /// exception-safety guarantee if and only if both the (template
+    /// parameter) types `HASH` and `EQUAL` provide no-throw swap
+    /// operations; if an exception is thrown, both objects are left in
+    /// valid but unspecified states.  This operation guarantees `O[1]`
+    /// complexity.  The behavior is undefined unless either this object was
+    /// created with the same allocator as `other` or `ALLOCATOR` has the
+    /// `propagate_on_container_swap` trait.
     void swap(unordered_map& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                      AllocatorTraits::is_always_equal::value &&
                                      bsl::is_nothrow_swappable<HASH>::value &&
                                      bsl::is_nothrow_swappable<EQUAL>::value);
-        // Exchange the value, hasher, key-equality functor, and
-        // 'max_load_factor' of this object with those of the specified 'other'
-        // object; also exchange the allocator of this object with that of
-        // 'other' if the (template parameter) type 'ALLOCATOR' has the
-        // 'propagate_on_container_swap' trait, and do not modify either
-        // allocator otherwise.  This method provides the no-throw
-        // exception-safety guarantee if and only if both the (template
-        // parameter) types 'HASH' and 'EQUAL' provide no-throw swap
-        // operations; if an exception is thrown, both objects are left in
-        // valid but unspecified states.  This operation guarantees 'O[1]'
-        // complexity.  The behavior is undefined unless either this object was
-        // created with the same allocator as 'other' or 'ALLOCATOR' has the
-        // 'propagate_on_container_swap' trait.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// If a key equivalent to the specified `key` already exists in this

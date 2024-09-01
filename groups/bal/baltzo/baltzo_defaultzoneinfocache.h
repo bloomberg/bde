@@ -93,16 +93,16 @@ BSLS_IDENT("$Id: $")
 // default `zoneinfoCache` parameter.  If `zoneinfoCache` is unspecified or 0,
 // the default Zoneinfo cache is used for the operation:
 // ```
+// /// Load, into the specified `result`, the local time descriptor
+// /// indicated by the specified `utcTime` and the specified `timeZoneId`.
+// /// Return 0 on success, and a non-zero value otherwise.  Optionally
+// /// specify a `zoneinfoCache` used to retrieve time-zone information.
+// /// If `zoneinfoCache` is 0, the currently installed default Zoneinfo
+// /// cache is used.
 // int getLocalTimeDescriptor(baltzo::LocalTimeDescriptor *result,
 //                            const bdlt::Datetime&        utcTime,
 //                            const char                  *timeZoneId,
 //                            baltzo::ZoneinfoCache       *zoneinfoCache = 0)
-//     // Load, into the specified 'result', the local time descriptor
-//     // indicated by the specified 'utcTime' and the specified 'timeZoneId'.
-//     // Return 0 on success, and a non-zero value otherwise.  Optionally
-//     // specify a 'zoneinfoCache' used to retrieve time-zone information.
-//     // If 'zoneinfoCache' is 0, the currently installed default Zoneinfo
-//     // cache is used.
 // {
 // ```
 // We call the `baltzo::DefaultZoneinfoCache::defaultCache` method, which
@@ -119,7 +119,7 @@ BSLS_IDENT("$Id: $")
 //     const baltzo::Zoneinfo *zoneinfo = cache->getZoneinfo(timeZoneId);
 //     if (0 == zoneinfo) {
 //
-//         // Data for 'timeZoneId' is not available in the cache, so return
+//         // Data for `timeZoneId` is not available in the cache, so return
 //         // an error.
 //
 //         return 1;                                                 // RETURN
@@ -261,13 +261,14 @@ struct DefaultZoneinfoCache {
                                     bsl::vector<const char *>      *locations);
     static void loadDefaultZoneinfoDataLocations(
                                     std::vector<const char *>      *locations);
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    /// Load into the specified `locations`, the sequence of null
+    /// terminated C-style strings that characterizes the default paths for
+    /// Zoneinfo data, accessed by this class, on this platform.
     static void loadDefaultZoneinfoDataLocations(
                                     std::pmr::vector<const char *> *locations);
 #endif
-        // Load into the specified 'locations', the sequence of null
-        // terminated C-style strings that characterizes the default paths for
-        // Zoneinfo data, accessed by this class, on this platform.
 
     /// Set the address of the default `ZoneinfoCache` object to the
     /// specified `cache`.  Return the address of the default cache object

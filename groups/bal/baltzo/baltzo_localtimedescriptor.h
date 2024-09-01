@@ -148,8 +148,8 @@ class LocalTimeDescriptor {
     // DATA
     int         d_utcOffsetInSeconds;  // *signed* offset *from* UTC
 
-    bool        d_dstInEffectFlag;     // 'true' if Daylight-Saving Time is in
-                                       // effect, and 'false' otherwise
+    bool        d_dstInEffectFlag;     // `true` if Daylight-Saving Time is in
+                                       // effect, and `false` otherwise
 
     bsl::string d_description;         // *non-canonical* identifier for this
                                        // descriptor

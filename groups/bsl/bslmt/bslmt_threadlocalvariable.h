@@ -21,23 +21,23 @@ BSLS_IDENT("$Id: $")
 // has a different memory location for each thread in the process:
 // ```
 // BSLMT_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME, INITIAL_VALUE)
-//     Declare, at function or namespace scope, a thread-local 'static'
-//     variable having the specified 'VARIABLE_NAME' of the specified
-//     'BASIC_TYPE' in the current context and initialize it with the
-//     specified 'INITIAL_VALUE'.  The 'BASIC_TYPE' must be a valid
+//     Declare, at function or namespace scope, a thread-local `static`
+//     variable having the specified `VARIABLE_NAME` of the specified
+//     `BASIC_TYPE` in the current context and initialize it with the
+//     specified `INITIAL_VALUE`.  The `BASIC_TYPE` must be a valid
 //     typename, and that typename must represent either a fundamental or a
-//     pointer type.  The specified 'VARIABLE_NAME' must be a valid variable
+//     pointer type.  The specified `VARIABLE_NAME` must be a valid variable
 //     name in the scope in which the macro is employed.  The specified
-//     'INITIAL_VALUE' must evaluate to a *compile-time* *constant* *value*
-//     of type 'BASIC_TYPE'.  If 'VARIABLE_NAME' is not a valid variable
-//     name, or the type of 'INITIAL_VALUE' is not convertible to type
-//     'BASIC_TYPE', the instantiation will result in a *compile* *time*
+//     `INITIAL_VALUE` must evaluate to a *compile-time* *constant* *value*
+//     of type `BASIC_TYPE`.  If `VARIABLE_NAME` is not a valid variable
+//     name, or the type of `INITIAL_VALUE` is not convertible to type
+//     `BASIC_TYPE`, the instantiation will result in a *compile* *time*
 //     error.  The behavior is undefined unless this macro is instantiated
 //     within a function or at file (or namespace) scope (i.e., *not* at
-//     class scope), and 'INITIAL_VALUE' is a *compile-time* constant.  Note
+//     class scope), and `INITIAL_VALUE` is a *compile-time* constant.  Note
 //     that the instantiation of this macro is similar to the declaration:
-//     'static BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;'
-//     except that the declared variable, 'VARIABLE_NAME', refers to a
+//     `static BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;`
+//     except that the declared variable, `VARIABLE_NAME`, refers to a
 //     different memory location for each thread in the process.
 // ```
 // Note that, `BSLMT_THREAD_LOCAL_VARIABLE` should *not* be instantiated at
@@ -93,21 +93,22 @@ BSLS_IDENT("$Id: $")
 // method that returns the `RequestContext` for the current thread, or 0 if the
 // current thread is not processing a request.
 // ```
+// /// This class implements an "example" request processor.
 // class RequestProcessor {
-//     // This class implements an "example" request processor.
 //
 //     // NOT IMPLEMENTED
 //     RequestProcessor(const RequestProcessor&);
 //     RequestProcessor& operator=(const RequestProcessor&);
 //
 //     // PRIVATE CLASS METHODS
+//
+//     /// Return a reference to a *modifiable* thread-local pointer to the
+//     /// non-modifiable request context for this thread.  Note that this
+//     /// method explicitly allows the pointer (but not the
+//     /// `RequestContext` object) to be modified by the caller to allow
+//     /// other methods to assign the thread-local context pointer to a
+//     /// new address.
 //     static const RequestContext *&contextReference();
-//         // Return a reference to a *modifiable* thread-local pointer to the
-//         // non-modifiable request context for this thread.  Note that this
-//         // method explicitly allows the pointer (but not the
-//         // 'RequestContext' object) to be modified by the caller to allow
-//         // other methods to assign the thread-local context pointer to a
-//         // new address.
 //
 //   public:
 //
@@ -117,16 +118,18 @@ BSLS_IDENT("$Id: $")
 //         // this thread, or 0 if none has been set.
 //
 //     // CREATORS
-//     RequestProcessor() {}
-//         // Create a 'RequestProcessor'.
 //
+//     /// Create a `RequestProcessor`.
+//     RequestProcessor() {}
+//
+//     /// Destroy this request processor.
 //     ~RequestProcessor() {}
-//         // Destroy this request processor.
 //
 //     // MANIPULATORS
+//
+//     /// Process (in the caller`s thread) the specified `request` for
+//     /// the specified `userId` and `workstation`.
 //     void processRequest(int userId, int workstation, const char *request);
-//         // Process (in the caller's thread) the specified 'request' for
-//         // the specified 'userId' and 'workstation'.
 // };
 //
 // // requestprocessor.cpp

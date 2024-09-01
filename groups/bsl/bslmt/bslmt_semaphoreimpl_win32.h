@@ -85,11 +85,11 @@ class SemaphoreImpl;
               // class SemaphoreImpl<Platform::Win32Semaphore>
               // =============================================
 
+/// This class provides a full specialization of `SemaphoreImpl` for win32.
+/// The implementation provided here defines an efficient POSIX like
+/// semaphore.
 template <>
 class SemaphoreImpl<Platform::Win32Semaphore> {
-    // This class provides a full specialization of 'SemaphoreImpl' for win32.
-    // The implementation provided here defines an efficient POSIX like
-    // semaphore.
 
     // DATA
     void            *d_handle;     // TBD doc
@@ -106,33 +106,36 @@ class SemaphoreImpl<Platform::Win32Semaphore> {
 
   public:
     // CREATORS
-    SemaphoreImpl(int count);
-        // Create a semaphore initially having the specified 'count'.  This
-        // method does not return normally unless there are sufficient system
-        // resources to construct the object.
 
+    /// Create a semaphore initially having the specified `count`.  This
+    /// method does not return normally unless there are sufficient system
+    /// resources to construct the object.
+    SemaphoreImpl(int count);
+
+    /// Destroy a semaphore
     ~SemaphoreImpl();
-        // Destroy a semaphore
 
     // MANIPULATORS
+
+    /// Atomically increment the count of this semaphore.
     void post();
-        // Atomically increment the count of this semaphore.
 
+    /// Atomically increment the count of this semaphore by the specified
+    /// `number`.  The behavior is undefined unless `number > 0`.
     void post(int number);
-        // Atomically increment the count of this semaphore by the specified
-        // 'number'.  The behavior is undefined unless 'number > 0'.
 
+    /// Decrement the count of this semaphore if it is positive and return
+    /// 0.  Return a non-zero value otherwise.
     int tryWait();
-        // Decrement the count of this semaphore if it is positive and return
-        // 0.  Return a non-zero value otherwise.
 
+    /// Block until the count of this semaphore is a positive value and
+    /// atomically decrement it.
     void wait();
-        // Block until the count of this semaphore is a positive value and
-        // atomically decrement it.
 
     // ACCESSORS
+
+    /// Return the current value of this semaphore.
     int getValue() const;
-        // Return the current value of this semaphore.
 };
 
 }  // close package namespace

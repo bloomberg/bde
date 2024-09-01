@@ -308,8 +308,8 @@ BSLS_IDENT("$Id: $")
 // #include <cstdio>
 // using namespace std;
 //
+// /// This class represents a star as seen through a digital telescope.
 // class Star
-//     // This class represents a star as seen through a digital telescope.
 // {
 //     // DATA
 //     double d_x, d_y;     // coordinates
@@ -318,16 +318,17 @@ BSLS_IDENT("$Id: $")
 //
 // public:
 //     // CREATORS
+//
+//     /// Create a `Star` object located at coordinates `(0, 0)` having
+//     /// `0` brightness.
 //     Star()
-//         // Create a 'Star' object located at coordinates '(0, 0)' having
-//         // '0' brightness.
 //     : d_x(0), d_y(0), d_brightness(0)
 //     {
 //     }
 //
+//     /// Create a `Star` object located at the specified coordinates
+//     /// `(x, y)` having the specified `b` brightness.
 //     Star(double x, double y, int b)
-//         // Create a 'Star' object located at the specified coordinates
-//         // '(x, y)' having the specified 'b' brightness.
 //     : d_x(x), d_y(y), d_brightness(b)
 //     {
 //     }
@@ -338,29 +339,31 @@ BSLS_IDENT("$Id: $")
 //     // ~Star() = default;
 //
 //     // MANIPULATORS
-//     bool read(FILE *input);
-//         // Read x, y, and brightness from the specified 'input' file.
-//         // Return 'true' if the read succeeded and 'false' otherwise.
 //
+//     /// Read x, y, and brightness from the specified `input` file.
+//     /// Return `true` if the read succeeded and `false` otherwise.
+//     bool read(FILE *input);
+//
+//     /// Write x, y, and brightness to the specified `output` file
+//     /// followed by a newline.
 //     void write(FILE *output) const;
-//         // Write x, y, and brightness to the specified 'output' file
-//         // followed by a newline.
 //
 //     // ACCESSORS
+//
+//     /// Return the x coordinate of this `Star` object.
 //     double x() const
-//         // Return the x coordinate of this 'Star' object.
 //     {
 //         return d_x;
 //     }
 //
+//     /// Return the y coordinate of this `Star` object.
 //     double y() const
-//         // Return the y coordinate of this 'Star' object.
 //     {
 //         return d_y;
 //     }
 //
+//     /// Return the brightness of this `Star` object.
 //     int brightness() const
-//         // Return the brightness of this 'Star' object.
 //     {
 //         return d_brightness;
 //     }

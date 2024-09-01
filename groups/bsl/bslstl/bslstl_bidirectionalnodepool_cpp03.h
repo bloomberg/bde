@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:39:09 2024
+// Generated on Sun Sep  1 15:18:45 2024
 // Command line: sim_cpp11_features.pl bslstl_bidirectionalnodepool.h
 
 #ifdef COMPILING_BSLSTL_BIDIRECTIONALNODEPOOL_H
@@ -85,12 +85,12 @@ class BidirectionalNodePool {
     /// unspecified state.
     BidirectionalNodePool(bslmf::MovableRef<BidirectionalNodePool> original);
 
+    /// Destroy the memory pool maintained by this object, releasing all
+    /// memory used by the nodes of the type `BidirectionalNode<VALUE>` in
+    /// the pool.  Any memory allocated for the nodes` `value` attribute of
+    /// the (template parameter) type `VALUE` will be leaked unless the
+    /// nodes are explicitly destroyed via the `destroyNode` method.
     //! ~BidirectionalNodePool() = default;
-        // Destroy the memory pool maintained by this object, releasing all
-        // memory used by the nodes of the type 'BidirectionalNode<VALUE>' in
-        // the pool.  Any memory allocated for the nodes' 'value' attribute of
-        // the (template parameter) type 'VALUE' will be leaked unless the
-        // nodes are explicitly destroyed via the 'destroyNode' method.
 
     // MANIPULATORS
 

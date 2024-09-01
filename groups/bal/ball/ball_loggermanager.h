@@ -461,6 +461,16 @@ BSLS_IDENT("$Id: $")
 // that a category named "xx.y" (for example) is not related to either of "x",
 // "x.y", or "x.y.z":
 // ```
+// // Obtain appropriate threshold levels for the category having the
+// // specified `categoryName` by searching the registry of the specified
+// // `loggerManager`, and store the resulting values at the specified
+// // `recordLevel`, `passLevel`, `triggerLevel`, and `triggerAllLevel`
+// // addresses.  A hierarchical category naming scheme is assumed that
+// // employs the specified `delimiter` to separate the components of
+// // category names.  Return 0 on success, and a non-zero value
+// // otherwise.  The behavior is undefined unless `recordLevel`,
+// // `passLevel`, `triggerLevel`, and `triggerAllLevel` are non-null, and
+// // `categoryName` is null-terminated.
 // static
 // int getDefaultThresholdLevels(int                        *recordLevel,
 //                               int                        *passLevel,
@@ -469,16 +479,6 @@ BSLS_IDENT("$Id: $")
 //                               char                        delimiter,
 //                               const ball::LoggerManager&  loggerManager,
 //                               const char                 *categoryName)
-//     // Obtain appropriate threshold levels for the category having the
-//     // specified 'categoryName' by searching the registry of the specified
-//     // 'loggerManager', and store the resulting values at the specified
-//     // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'
-//     // addresses.  A hierarchical category naming scheme is assumed that
-//     // employs the specified 'delimiter' to separate the components of
-//     // category names.  Return 0 on success, and a non-zero value
-//     // otherwise.  The behavior is undefined unless 'recordLevel',
-//     // 'passLevel', 'triggerLevel', and 'triggerAllLevel' are non-null, and
-//     // 'categoryName' is null-terminated.
 // {
 //     assert(recordLevel);
 //     assert(passLevel);
@@ -508,18 +508,18 @@ BSLS_IDENT("$Id: $")
 //     }
 // }
 //
+// // Obtain appropriate threshold levels for the category having the
+// // specified `categoryName`, and store the resulting values at the
+// // specified `recordLevel`, `passLevel`, `triggerLevel`, and
+// // `triggerAllLevel` addresses.  The behavior is undefined unless
+// // `recordLevel`, `passLevel`, `triggerLevel`, and `triggerAllLevel`
+// // are non-null, and `categoryName` is null-terminated.
 // static
 // void inheritThresholdLevels(int        *recordLevel,
 //                             int        *passLevel,
 //                             int        *triggerLevel,
 //                             int        *triggerAllLevel,
 //                             const char *categoryName)
-//     // Obtain appropriate threshold levels for the category having the
-//     // specified 'categoryName', and store the resulting values at the
-//     // specified 'recordLevel', 'passLevel', 'triggerLevel', and
-//     // 'triggerAllLevel' addresses.  The behavior is undefined unless
-//     // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'
-//     // are non-null, and 'categoryName' is null-terminated.
 // {
 //     assert(recordLevel);
 //     assert(passLevel);
@@ -687,10 +687,10 @@ BSLS_IDENT("$Id: $")
 // logger.  Suppose we want to *efficiently* log instances of the following
 // class:
 // ```
+// /// This (incomplete) class is a simple aggregate of a "heading" and
+// /// "contents" pertaining to that heading.  It serves to illustrate how
+// /// to log the string representation of an object.
 // class Information {
-//     // This (incomplete) class is a simple aggregate of a "heading" and
-//     // "contents" pertaining to that heading.  It serves to illustrate how
-//     // to log the string representation of an object.
 //
 //     bsl::string d_heading;
 //     bsl::string d_contents;
@@ -806,9 +806,9 @@ BSLS_IDENT("$Id: $")
 // and Usage Example 2 above for information on how to use category names to
 // customize logger behavior:
 // ```
+// /// Return the factorial of the specified value `n` if the factorial
+// /// can be represented as an `int`, and a negative value otherwise.
 // int factorial(int n)
-//     // Return the factorial of the specified value 'n' if the factorial
-//     // can be represented as an 'int', and a negative value otherwise.
 // {
 //     static const ball::Category *factorialCategory =
 //         ball::LoggerManager::singleton().setCategory(
@@ -1241,14 +1241,14 @@ class LoggerManager {
     static LoggerManager  *s_singleton_p;        // address of singleton if
                                                  // initialized; 0 otherwise
 
-    static bool            s_isSingletonOwned;   // 'true' by default whereby
-                                                 // 'ball' owns the singleton
+    static bool            s_isSingletonOwned;   // `true` by default whereby
+                                                 // `ball` owns the singleton
                                                  // and destroys it in
-                                                 // 'shutDownSingleton'; can be
-                                                 // set to 'false' by the
+                                                 // `shutDownSingleton`; can be
+                                                 // set to `false` by the
                                                  // Windows-specific
-                                                 // 'initSingleton' taking an
-                                                 // 'adoptSingleton' flag
+                                                 // `initSingleton` taking an
+                                                 // `adoptSingleton` flag
 
     // DATA
     const bsl::shared_ptr<BroadcastObserver>
@@ -1266,7 +1266,7 @@ class LoggerManager {
 
     mutable bslmt::ReaderWriterMutex
                            d_defaultThresholdsLock;
-                                                 // 'd_defaultThresholdsLock'
+                                                 // `d_defaultThresholdsLock`
                                                  // protector
 
     ThresholdAggregate     d_defaultThresholdLevels;
@@ -1298,7 +1298,7 @@ class LoggerManager {
     bsl::set<Logger *>     d_loggers;            // set of *allocated* loggers
 
     bslmt::ReaderWriterMutex
-                           d_loggersLock;        // 'd_loggers' protector
+                           d_loggersLock;        // `d_loggers` protector
 
     RecordBuffer          *d_recordBuffer_p;     // holds record buffer (owned)
 
@@ -1346,6 +1346,7 @@ class LoggerManager {
                            bslma::Allocator                  *globalAllocator);
 
     // PRIVATE CREATORS
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     /// Create a logger manager having the specified `observer` that
     /// receives published log records and the specified `configuration` of
@@ -2134,8 +2135,8 @@ class LoggerManagerCategoryManip {
     /// least as long as the lifetime of this iterator.
     explicit LoggerManagerCategoryManip(LoggerManager *loggerManager);
 
+    // Destroy this iterator.
     //! ~LoggerManagerCategoryManip() = default;
-        // Destroy this iterator.
 
     // MANIPULATORS
 

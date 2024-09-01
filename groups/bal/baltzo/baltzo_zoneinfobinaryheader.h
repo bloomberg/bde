@@ -55,15 +55,15 @@ BSLS_IDENT("$Id: $")
 // a stream, validates the data, and constructs a
 // `baltzo::ZoneinfoBinaryHeader` object.
 // ```
+// /// Set to the specified `object` the value extracted from the
+// /// specified `stream`.  Return 0 on success, and a non-zero value
+// /// otherwise, with no change to `object`.  The `stream` contains
+// /// white-space separated decimal representations of the attributes
+// /// of `baltzo::ZoneinfoBinaryHeader` in the following order: `version`,
+// /// `numIsGmt`, `numIsStd`, `numLeaps`, `numTransitions`,
+// /// `numLocalTimeTypes`, and `abbrevDataSize`.
 // int getNextZoneinfoBinaryHeader(baltzo::ZoneinfoBinaryHeader *object,
 //                                 bsl::istream&                stream)
-//     // Set to the specified 'object' the value extracted from the
-//     // specified 'stream'.  Return 0 on success, and a non-zero value
-//     // otherwise, with no change to 'object'.  The 'stream' contains
-//     // white-space separated decimal representations of the attributes
-//     // of 'baltzo::ZoneinfoBinaryHeader' in the following order: 'version',
-//     // 'numIsGmt', 'numIsStd', 'numLeaps', 'numTransitions',
-//     // 'numLocalTimeTypes', and 'abbrevDataSize'.
 // {
 //     int version;  // not 'char'
 //     int numIsGmt;

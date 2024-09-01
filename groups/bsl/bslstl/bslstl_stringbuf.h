@@ -223,22 +223,22 @@ class basic_stringbuf
 
     off_type           d_endHint;
                                 // offset to one past the last known good
-                                // character in 'd_str'  (Note that to enable
-                                // efficient buffering, 'd_str' may be resized
+                                // character in `d_str`  (Note that to enable
+                                // efficient buffering, `d_str` may be resized
                                 // beyond the last written character, so
-                                // 'd_str.size()' may not accurately report
+                                // `d_str.size()` may not accurately report
                                 // the current length of the character
                                 // sequence available for input.  Extending
-                                // the size of 'd_str' and updating 'epptr'
+                                // the size of `d_str` and updating `epptr`
                                 // (the end-of-output pointer) allows the
                                 // parent stream type to write additional
-                                // characters without 'overflow'.  However,
+                                // characters without `overflow`.  However,
                                 // care must be taken to refresh the cached
-                                // 'd_endHint' value as the parent stream will
-                                // update the current output position 'pptr',
+                                // `d_endHint` value as the parent stream will
+                                // update the current output position `pptr`,
                                 // without calling a method on this type.)
 
-    ios_base::openmode d_mode;  // 'stringbuf' open mode ('in', 'out', or both)
+    ios_base::openmode d_mode;  // `stringbuf` open mode (`in`, `out`, or both)
 
   private:
     // NOT IMPLEMENTED
@@ -473,6 +473,16 @@ class basic_stringbuf
                     ios_base::openmode           modeBitMask,
                     const allocator_type&        allocator);
 
+    /// Create a `basic_stringbuf` object.  Use the specified
+    /// `initialString` indicating the initial sequence of characters that
+    /// this buffer will access or manipulate.  Optionally specify the
+    /// `allocator` used to supply memory.  If `allocator` is not supplied,
+    /// a default-constructed object of the (template parameter) `ALLOCATOR`
+    /// type is used.  If the `ALLOCATOR` argument is of type
+    /// `bsl::allocator` (the default), then `allocator`, if supplied, shall
+    /// be convertible to `bslma::Allocator *`.  If the `ALLOCATOR` argument
+    /// is of type `bsl::allocator` and `allocator` is not supplied, the
+    /// currently installed default allocator will be used to supply memory.
     template <class SALLOC>
     explicit
     basic_stringbuf(
@@ -482,23 +492,12 @@ class basic_stringbuf
         typename bsl::enable_if<
                     !bsl::is_same<ALLOCATOR, SALLOC>::value, void *>::type = 0)
 
-        // Create a 'basic_stringbuf' object.  Use the specified
-        // 'initialString' indicating the initial sequence of characters that
-        // this buffer will access or manipulate.  Optionally specify the
-        // 'allocator' used to supply memory.  If 'allocator' is not supplied,
-        // a default-constructed object of the (template parameter) 'ALLOCATOR'
-        // type is used.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default), then 'allocator', if supplied, shall
-        // be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' argument
-        // is of type 'bsl::allocator' and 'allocator' is not supplied, the
-        // currently installed default allocator will be used to supply memory.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
     : BaseType()
     , d_str(initialString.data(), initialString.size(), allocator)
     , d_endHint(initialString.size())
     , d_mode(ios_base::in | ios_base::out)
     {
+        // Note: implemented inline due to Sun CC compilation error.
         updateStreamPositions();
     }
 
@@ -547,6 +546,7 @@ class basic_stringbuf
     ~basic_stringbuf();
 
     // MANIPULATORS
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
     /// Assign to this object the value of the specified `rhs`, and return a
     /// reference providing modifiable access to this object.  The contents
@@ -607,20 +607,20 @@ class basic_stringbuf
     /// Return the allocator used by the underlying string to supply memory.
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
 
+    /// Return the currently buffered sequence of characters.  If this
+    /// object was created only in input mode, the resultant `StringType`
+    /// contains the character sequence in the range `[eback(), egptr())`.
+    /// If `modeBitMask & ios_base::out` specified at construction is
+    /// nonzero then the resultant `StringType` contains the character
+    /// sequence in the range `[pbase(), high_mark)`, where `high_mark`
+    /// represents the position one past the highest initialized character
+    /// in the buffer.  Otherwise this object has been created in neither
+    /// input nor output mode and a zero length `StringType` is returned.
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
     StringType str() const &;
 #else
     StringType str() const;
 #endif
-        // Return the currently buffered sequence of characters.  If this
-        // object was created only in input mode, the resultant 'StringType'
-        // contains the character sequence in the range '[eback(), egptr())'.
-        // If 'modeBitMask & ios_base::out' specified at construction is
-        // nonzero then the resultant 'StringType' contains the character
-        // sequence in the range '[pbase(), high_mark)', where 'high_mark'
-        // represents the position one past the highest initialized character
-        // in the buffer.  Otherwise this object has been created in neither
-        // input nor output mode and a zero length 'StringType' is returned.
 
 #ifndef BSLS_PLATFORM_CMP_SUN
     // To be enabled once DRQS 168075157 is resolved
@@ -777,12 +777,12 @@ class StringBufContainer {
     {
     }
 
+    /// Create a `StringBufContainer` object using the specified `allocator` to
+    /// supply memory and having the same value as the specified `original`
+    /// object by moving the contents of `original` to the newly-created object.
+    /// `original` is left in a valid but unspecified state.
     StringBufContainer(StringBufContainer&& original,
                        const ALLOCATOR&     allocator)
-    // Create a 'StringBufContainer' object using the specified 'allocator' to
-    // supply memory and having the same value as the specified 'original'
-    // object by moving the contents of 'original' to the newly-created object.
-    // 'original' is left in a valid but unspecified state.
     : d_bufObj(std::move(original.d_bufObj), allocator)
     {
     }
@@ -791,6 +791,7 @@ class StringBufContainer {
     //! ~StringBufContainer() = default;
 
     // MANIPULATORS
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
     /// Assign to this object the value of the specified `rhs`, and return a
     /// reference providing modifiable access to this object.  The contents
@@ -960,7 +961,7 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
                                                ios_base::seekdir  whence,
                                                ios_base::openmode modeBitMask)
 {
-    // If 'whence' is 'ios_base::cur' (the current position), 'modeBitMask'
+    // If `whence` is `ios_base::cur` (the current position), `modeBitMask`
     // may not be both input and output mode.
 
     if (((modeBitMask & (ios_base::in | ios_base::out)) ==

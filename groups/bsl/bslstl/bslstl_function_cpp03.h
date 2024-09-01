@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:39:09 2024
+// Generated on Sun Sep  1 15:18:45 2024
 // Command line: sim_cpp11_features.pl bslstl_function.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_H
@@ -1212,21 +1212,22 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     };
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    /// Unique type that evaluates to true or false in a boolean control
+    /// construct such as an `if` or `while` statement.  In C++03,
+    /// `function` is implicitly convertible to this type but is not
+    /// implicitly convertible to `bool`.  In C++11 and later, `function` is
+    /// explicitly convertible to `bool`, so this type is not needed.
     typedef BloombergLP::bsls::UnspecifiedBool<function> UnspecifiedBoolUtil;
     typedef typename UnspecifiedBoolUtil::BoolType       UnspecifiedBool;
-        // Unique type that evaluates to true or false in a boolean control
-        // construct such as an 'if' or 'while' statement.  In C++03,
-        // 'function' is implicitly convertible to this type but is not
-        // implicitly convertible to 'bool'.  In C++11 and later, 'function' is
-        // explicitly convertible to 'bool', so this type is not needed.
 
     // NOT IMPLEMENTED
+
+    /// Since `function` does not support `operator==` and `operator!=`,
+    /// they must be deliberately suppressed; otherwise `function` objects
+    /// would be implicitly comparable by implicit conversion to
+    /// `UnspecifiedBool`.
     bool operator==(const function&) const;  // Declared but not defined
     bool operator!=(const function&) const;  // Declared but not defined
-        // Since 'function' does not support 'operator==' and 'operator!=',
-        // they must be deliberately suppressed; otherwise 'function' objects
-        // would be implicitly comparable by implicit conversion to
-        // 'UnspecifiedBool'.
 #endif // !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
 
     // PRIVATE MANIPULATORS
@@ -1302,18 +1303,18 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // The body of this constructor must be inlined inplace because the use
         // of 'enable_if' will otherwise break the MSVC 2010 compiler.
         //
-        // The '! bsl::is_function<FUNC>::value' constraint is required in
+        // The `! bsl::is_function<FUNC>::value` constraint is required in
         // C++03 mode when using the IBM XL C++ compiler.  In C++03,
-        // 'BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func' expands to
-        // 'const FUNC& func'.  A conforming compiler deduces a
-        // reference-to-function type for 'func' when it binds to a function
+        // `BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func` expands to
+        // `const FUNC& func`.  A conforming compiler deduces a
+        // reference-to-function type for `func` when it binds to a function
         // argument.  The IBM XL C++ compiler erroneously does not collapse the
-        // 'const' qualifier when 'FUNC' is deduced to be a function type, and
-        // instead attempts to deduce the type of 'func' to be a reference to a
-        // 'const'-qualified function.  This causes substitution to fail
-        // because function-typed expressions are never 'const'.  This
-        // component solves the problem by accepting a 'func' having a function
-        // type as a pointer to a (non-'const') function.  An overload for the
+        // `const` qualifier when `FUNC` is deduced to be a function type, and
+        // instead attempts to deduce the type of `func` to be a reference to a
+        // `const`-qualified function.  This causes substitution to fail
+        // because function-typed expressions are never `const`.  This
+        // component solves the problem by accepting a `func` having a function
+        // type as a pointer to a (non-`const`) function.  An overload for the
         // corresponding constructor is defined below.
 
         installFunc(BSLS_COMPILERFEATURES_FORWARD(FUNC, func));
@@ -1332,13 +1333,13 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // compiler defect.  See the implementation notes for the above
         // constructor overload for more information.
         //
-        // This constructor also forwards the 'func' as a pointer-to-function
+        // This constructor also forwards the `func` as a pointer-to-function
         // type to downstream operations in order to work around the
         // aforementioned reference-to-function type deduction defects.
         //
         // Further, note that instantiation of this constructor will fail
-        // unless 'FUNC' is invocable using the arguments and return type
-        // specified in 'PROTOTYPE'.  This component assumes that the IBM XL
+        // unless `FUNC` is invocable using the arguments and return type
+        // specified in `PROTOTYPE`.  This component assumes that the IBM XL
         // C++ compiler does not support C++11 or later.
 
         installFunc(func);
@@ -1346,6 +1347,37 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
 #endif
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    /// Create an object wrapping the specified `func` callable object.
+    /// This constructor (ctor 2) is identical to the previous constructor
+    /// (ctor 1) except that, in C++03 ctor 2 provides for explicit
+    /// construction from a `MovableRef` referencing a callable type, rather
+    /// than an implicit conversion for `FUNC` not being a `MovableRef`.  In
+    /// C++11, overload resolution matching an argument of type `T&&` to a
+    /// parameter of type `T` (exact match) is always preferred over
+    /// matching `T&&` to `bsl::function` (conversion).  In C++03, however
+    /// `MovableRef` is not a real reference type, so it sometimes creates
+    /// overload ambiguities whereby matching `MovableRef<T>` to `T`
+    /// (conversion) is no better than matching `MovableRef<T>` to
+    /// `bsl::function` (also conversion).  This ambiguity is resolved by
+    /// making this constructor from `MovableRef<T>` explicit, while leaving
+    /// other constructor from `FUNC` implicit.  This means that
+    /// `move` will fail in a narrow set of cases in C++03, as shown below:
+    /// ```
+    ///  typedef bsl::function<void(int)> Obj;
+    ///  MyCallableType x;
+    ///
+    ///  Obj f1 = x;                              // OK
+    ///  Obj f2 = bslmf::MovableRefUtil::move(x); // No conversion in C++03
+    ///  Obj f3(bslmf::MovableRefUtil::move(x));  // OK, normal ctor call
+    ///
+    ///  void y(const Obj& f);
+    ///  y(x);                                    // OK
+    ///  y(bslmf::MovableRefUtil::move(x));       // Not found in C++03
+    ///  y(Obj(bslmf::MovableRefUtil::move(x)));  // OK, explicit cast
+    /// ```
+    /// As you can see from the examples above, there are simple workarounds
+    /// for the problem cases, although generic code might need to be extra
+    /// careful.
     template <class FUNC>
     explicit function(const BloombergLP::bslmf::MovableRef<FUNC>& func,
              typename enable_if<
@@ -1354,43 +1386,12 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
                  &&   IsInvocableWithPrototype<
                                              typename Decay<FUNC>::type>::value
                  , int>::type = 0)
-        // Create an object wrapping the specified 'func' callable object.
-        // This constructor (ctor 2) is identical to the previous constructor
-        // (ctor 1) except that, in C++03 ctor 2 provides for explicit
-        // construction from a 'MovableRef' referencing a callable type, rather
-        // than an implicit conversion for 'FUNC' not being a 'MovableRef'.  In
-        // C++11, overload resolution matching an argument of type 'T&&' to a
-        // parameter of type 'T' (exact match) is always preferred over
-        // matching 'T&&' to 'bsl::function' (conversion).  In C++03, however
-        // 'MovableRef' is not a real reference type, so it sometimes creates
-        // overload ambiguities whereby matching 'MovableRef<T>' to 'T'
-        // (conversion) is no better than matching 'MovableRef<T>' to
-        // 'bsl::function' (also conversion).  This ambiguity is resolved by
-        // making this constructor from 'MovableRef<T>' explicit, while leaving
-        // other constructor from 'FUNC' implicit.  This means that
-        // 'move' will fail in a narrow set of cases in C++03, as shown below:
-        //..
-        //  typedef bsl::function<void(int)> Obj;
-        //  MyCallableType x;
-        //
-        //  Obj f1 = x;                              // OK
-        //  Obj f2 = bslmf::MovableRefUtil::move(x); // No conversion in C++03
-        //  Obj f3(bslmf::MovableRefUtil::move(x));  // OK, normal ctor call
-        //
-        //  void y(const Obj& f);
-        //  y(x);                                    // OK
-        //  y(bslmf::MovableRefUtil::move(x));       // Not found in C++03
-        //  y(Obj(bslmf::MovableRefUtil::move(x)));  // OK, explicit cast
-        //..
-        // As you can see from the examples above, there are simple workarounds
-        // for the problem cases, although generic code might need to be extra
-        // careful.
         : Base(allocator_type())
     {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this constructor must inlined inplace because the use of
-        // 'enable_if' will otherwise break the MSVC 2010 compiler.
+        // `enable_if` will otherwise break the MSVC 2010 compiler.
 
         installFunc(BloombergLP::bslmf::MovableRefUtil::move(func));
     }
@@ -1430,20 +1431,20 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this constructor must inlined inplace because the use of
-        // 'enable_if' will otherwise break the MSVC 2010 compiler.
+        // `enable_if` will otherwise break the MSVC 2010 compiler.
         //
-        // The '! bsl::is_function<FUNC>::value' constraint is required in
+        // The `! bsl::is_function<FUNC>::value` constraint is required in
         // C++03 mode when using the IBM XL C++ compiler.  In C++03,
-        // 'BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func' expands to
-        // 'const FUNC& func'.  A conforming compiler deduces a
-        // reference-to-function type for 'func' when it binds to a function
+        // `BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func` expands to
+        // `const FUNC& func`.  A conforming compiler deduces a
+        // reference-to-function type for `func` when it binds to a function
         // argument.  The IBM XL C++ compiler erroneously does not collapse the
-        // 'const' qualifier when 'FUNC' is deduced to be a function type, and
-        // instead attempts to deduce the type of 'func' to be a reference to a
-        // 'const'-qualified function.  This causes substitution to fail
-        // because function-typed expressions are never 'const'.  This
-        // component solves the problem by accepting a 'func' having a function
-        // type as a pointer to a (non-'const') function.  An overload for the
+        // `const` qualifier when `FUNC` is deduced to be a function type, and
+        // instead attempts to deduce the type of `func` to be a reference to a
+        // `const`-qualified function.  This causes substitution to fail
+        // because function-typed expressions are never `const`.  This
+        // component solves the problem by accepting a `func` having a function
+        // type as a pointer to a (non-`const`) function.  An overload for the
         // corresponding constructor is defined below.
 
         installFunc(BSLS_COMPILERFEATURES_FORWARD(FUNC, func));
@@ -1463,13 +1464,13 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // compiler defect.  See the implementation notes for the above
         // constructor overload for more information.
         //
-        // This constructor also forwards the 'func' as a pointer-to-function
+        // This constructor also forwards the `func` as a pointer-to-function
         // type to downstream operations in order to work around the
         // aforementioned reference-to-function type deduction defects.
         //
         // Further, note that instantiation of this constructor will fail
-        // unless 'FUNC' is invocable using the arguments and return type
-        // specified in 'PROTOTYPE'.  This component assumes that the IBM XL
+        // unless `FUNC` is invocable using the arguments and return type
+        // specified in `PROTOTYPE`.  This component assumes that the IBM XL
         // C++ compiler does not support C++11 or later.
 
         installFunc(func);
@@ -1548,7 +1549,7 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this operator must inlined inplace because the use of
-        // 'enable_if' will otherwise break the MSVC 2010 compiler.
+        // `enable_if` will otherwise break the MSVC 2010 compiler.
 
         function(allocator_arg, this->get_allocator(),
                  BSLS_COMPILERFEATURES_FORWARD(FUNC, rhs)).swap(*this);
@@ -1556,21 +1557,21 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     }
 
 #ifdef BSLS_PLATFORM_CMP_IBM
+    /// Set the target of this object to the specified `rhs` function
+    /// pointer.  This overload exists only for the IBM compiler, which has
+    /// trouble decaying functions to function pointers in
+    /// pass-by-const-reference template arguments.
     template <class FUNC>
     typename enable_if<is_function<FUNC>::value, function&>::type
     operator=(FUNC *rhs)
-        // Set the target of this object to the specified 'rhs' function
-        // pointer.  This overload exists only for the IBM compiler, which has
-        // trouble decaying functions to function pointers in
-        // pass-by-const-reference template arguments.
     {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this operator must inlined inplace.
         //
         // Further, note that instantiation of this assignment operator will
-        // fail unless 'FUNC' is invocable using the arguments and return type
-        // specified in 'PROTOTYPE'.  This component assumes that the IBM XL
+        // fail unless `FUNC` is invocable using the arguments and return type
+        // specified in `PROTOTYPE`.  This component assumes that the IBM XL
         // C++ compiler does not support C++11 or later.
 
         function(allocator_arg, this->get_allocator(), rhs).swap(*this);
@@ -1631,12 +1632,12 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     explicit  // Explicit conversion available only with C++11
     operator bool() const BSLS_KEYWORD_NOEXCEPT;
 #else
+    /// (C++03 only) Return a null value if this object is empty, otherwise
+    /// an arbitrary non-null value.  Note that this operator will be
+    /// invoked implicitly in boolean contexts such as in the condition of
+    /// an `if` or `while` statement, but does not constitute an implicit
+    /// conversion to `bool`.
     operator UnspecifiedBool() const BSLS_KEYWORD_NOEXCEPT
-        // (C++03 only) Return a null value if this object is empty, otherwise
-        // an arbitrary non-null value.  Note that this operator will be
-        // invoked implicitly in boolean contexts such as in the condition of
-        // an 'if' or 'while' statement, but does not constitute an implicit
-        // conversion to 'bool'.
     {
         // Inplace inlined to work around xlC bug when out-of-line.
         return UnspecifiedBoolUtil::makeValue(0 != this->d_rep.invoker());

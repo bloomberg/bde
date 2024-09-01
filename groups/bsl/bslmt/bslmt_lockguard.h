@@ -130,9 +130,9 @@ BSLS_IDENT("$Id: $")
 // When blocking while acquiring the lock is not desirable, one may instead use
 // a `bslmt::LockGuardTryLock` in the typical following fashion:
 // ```
+// /// Perform task and return positive value if locking succeeds.  Return
+// /// 0 if locking fails.
 // static int safeButNonBlockingFunc(my_Object *obj, my_Mutex *mutex)
-//     // Perform task and return positive value if locking succeeds.  Return
-//     // 0 if locking fails.
 // {
 //     const int RETRIES = 1; // use higher values for higher success rate
 //     bslmt::LockGuardTryLock<my_Mutex> guard(mutex, RETRIES);

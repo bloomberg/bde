@@ -36,13 +36,13 @@ BSLS_IDENT("$Id: $")
 //
 // First, we declare our function:
 // ```
+// /// Write the specified `value`, in decimal, to the specified `result`.
 // void writeJsonScalar(std::streambuf *result, int value)
-//     // Write the specified 'value', in decimal, to the specified 'result'.
 // {
 // ```
 // Then, we declare a buffer long enough to store any `int` value in decimal.
 // ```
-//     char buffer[11];        // size large enough to write 'INT_MIN', the
+//     char buffer[11];        // size large enough to write `INT_MIN`, the
 //                             // worst-case value, in decimal.
 // ```
 // Next, we declare a variable to store the return value:

@@ -105,14 +105,14 @@ class ThroughputBenchmarkResult {
   private:
     // DATA
 
-    // Count of work done, collected from the various threads, and the
-    // various samples, divided by the actual time period a sample took.
-    // The inner-most vectors (the `DoubleVector`) are the data for the
-    // specific threads within a thread group.  The middle vector is
-    // indexed over the thread groups.  The outer vector is indexed over
-    // the samples.  That is, to access sample S1, thread group G1, and
-    // thread index T1 within G1, we refer to
-    // `d_vecThroughputs[S1][G1][T1]`.
+    /// Count of work done, collected from the various threads, and the
+    /// various samples, divided by the actual time period a sample took.
+    /// The inner-most vectors (the `DoubleVector`) are the data for the
+    /// specific threads within a thread group.  The middle vector is
+    /// indexed over the thread groups.  The outer vector is indexed over
+    /// the samples.  That is, to access sample S1, thread group G1, and
+    /// thread index T1 within G1, we refer to
+    /// `d_vecThroughputs[S1][G1][T1]`.
     bsl::vector<bsl::vector<DoubleVector> > d_vecThroughputs;
 
     // PRIVATE ACCESSORS
@@ -182,8 +182,8 @@ class ThroughputBenchmarkResult {
                  bslmf::MovableRef<ThroughputBenchmarkResult>  original,
                  bslma::Allocator                             *basicAllocator);
 
+    /// Destroy this object.
     // ~ThroughputBenchmarkResult() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

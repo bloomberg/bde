@@ -410,33 +410,33 @@ class StripedUnorderedMap {
 
     /// An alias to a function meeting the following contract:
     /// ```
+    /// /// Return `true` if the specified `value` is to be removed from
+    /// /// the container, and `false` otherwise.  Note that this
+    /// /// functor can *not* change the values associated with `value`.
     /// bool eraseIfValuePredicate(const VALUE& value);
-    ///     // Return 'true' if the specified 'value' is to be removed from
-    ///     // the container, and 'false' otherwise.  Note that this
-    ///     // functor can *not* change the values associated with 'value'.
     /// ```
     typedef bsl::function<bool(const VALUE&)> EraseIfValuePredicate;
 
     /// An alias to a function meeting the following contract:
     /// ```
+    /// /// Visit the specified `value` attribute associated with the
+    /// /// specified `key`.  Return `true` if this function may be
+    /// /// called on additional elements, and `false` otherwise (i.e.,
+    /// /// if no other elements should be visited).  Note that this
+    /// /// functor can change the value associated with `key`.
     /// bool visitorFunction(VALUE *value, const KEY& key);
-    ///     // Visit the specified 'value' attribute associated with the
-    ///     // specified 'key'.  Return 'true' if this function may be
-    ///     // called on additional elements, and 'false' otherwise (i.e.,
-    ///     // if no other elements should be visited).  Note that this
-    ///     // functor can change the value associated with 'key'.
     /// ```
     typedef bsl::function<bool (VALUE *, const KEY&)> VisitorFunction;
 
     /// An alias to a function meeting the following contract:
     /// ```
+    /// /// Visit the specified `value` attribute associated with the
+    /// /// specified `key`.  Return `true` if this function may be
+    /// /// called on additional elements, and `false` otherwise (i.e.,
+    /// /// if no other elements should be visited).  Note that this
+    /// /// functor can *not* change the value associated with `key`
+    /// /// and `value`.
     /// bool visitorFunction(const VALUE& value, const KEY& key);
-    ///     // Visit the specified 'value' attribute associated with the
-    ///     // specified 'key'.  Return 'true' if this function may be
-    ///     // called on additional elements, and 'false' otherwise (i.e.,
-    ///     // if no other elements should be visited).  Note that this
-    ///     // functor can *not* change the value associated with 'key'
-    ///     // and 'value'.
     /// ```
     typedef bsl::function<bool (const VALUE&, const KEY&)>
                                                        ReadOnlyVisitorFunction;

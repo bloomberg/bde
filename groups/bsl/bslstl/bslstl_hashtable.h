@@ -35,15 +35,15 @@ BSLS_IDENT("$Id: $")
 // respectively.  In addition, a `KEY_CONFIG` class shall provide a static
 // member function which may be called as if it had the following signature:
 // ```
+// /// Return a reference offering non-modifiable access to the key for the
+// /// specified `value`.
 // static const KeyType& extractKey(const ValueType& value);
-//     // Return a reference offering non-modifiable access to the key for the
-//     // specified 'value'.
 // ```
 // Optionally, the `KEY_CONFIG` class might provide an `extractKey` function
 // with the alternative signature:
 // ```
+// /// Return a reference to the key for the specified `value`.
 // static KeyType& extractKey(ValueType& value);
-//     // Return a reference to the key for the specified 'value'.
 // ```
 // This alternative signature is necessary to support the rare case that a hash
 // function or comparator used to configure the `HashTable` template below take
@@ -200,23 +200,23 @@ BSLS_IDENT("$Id: $")
 //                         // struct UseEntireValueAsKey
 //                         // ==========================
 //
+// // This `struct` provides a namespace for types and methods that define
+// // the policy by which the key value of a hashed container (i.e., the
+// // value passed to the hasher) is extracted from the objects stored in
+// // the hashed container (the `value` type).
 // template <class VALUE_TYPE>
 // struct UseEntireValueAsKey {
-//     // This 'struct' provides a namespace for types and methods that define
-//     // the policy by which the key value of a hashed container (i.e., the
-//     // value passed to the hasher) is extracted from the objects stored in
-//     // the hashed container (the 'value' type).
 //
+//     /// Alias for `VALUE_TYPE`, the type stored in the hashed container.
 //     typedef VALUE_TYPE ValueType;
-//         // Alias for 'VALUE_TYPE', the type stored in the hashed container.
 //
+//     /// Alias for the type passed to the hasher by the hashed container.
+//     /// In this policy, that type is `ValueType`.
 //     typedef ValueType KeyType;
-//         // Alias for the type passed to the hasher by the hashed container.
-//         // In this policy, that type is 'ValueType'.
 //
+//     /// Return the key value for the specified `value`.  In this policy,
+//     /// that is `value` itself.
 //     static const KeyType& extractKey(const ValueType& value);
-//         // Return the key value for the specified 'value'.  In this policy,
-//         // that is 'value' itself.
 // };
 //
 //                         // --------------------------
@@ -278,59 +278,62 @@ BSLS_IDENT("$Id: $")
 //     typedef iterator                            const_iterator;
 //
 //     // CREATORS
+//
+//     /// Create an empty `MyHashedSet` object having a maximum load
+//     /// factor of 1.  Optionally specify at least `initialNumBuckets` in
+//     /// this container's initial array of buckets.  If
+//     /// `initialNumBuckets` is not supplied, an implementation defined
+//     /// value is used.  Optionally specify a `hash` used to generate the
+//     /// hash values associated to the keys extracted from the values
+//     /// contained in this object.  If `hash` is not supplied, a
+//     /// default-constructed object of type `HASHF` is used.  Optionally
+//     /// specify a key-equality functor `keyEqual` used to verify that
+//     /// two key values are the same.  If `keyEqual` is not supplied, a
+//     /// default-constructed object of type `EQUAL` is used.  Optionally
+//     /// specify an `allocator` used to supply memory.  If `allocator` is
+//     /// not supplied, a default-constructed object of the (template
+//     /// parameter) type `ALLOCATOR` is used.  If the `ALLOCATOR` is
+//     /// `bsl::allocator` (the default), then `allocator` shall be
+//     /// convertible to `bslma::Allocator *`.  If the `ALLOCATOR` is
+//     /// `bsl::allocator` and `allocator` is not supplied, the currently
+//     /// installed default allocator is used to supply memory.
 //     explicit MyHashedSet(size_type        initialNumBuckets = 0,
 //                          const HASHF&     hash              = HASHF(),
 //                          const EQUAL&     keyEqual          = EQUAL(),
 //                          const ALLOCATOR& allocator         = ALLOCATOR());
-//         // Create an empty 'MyHashedSet' object having a maximum load
-//         // factor of 1.  Optionally specify at least 'initialNumBuckets' in
-//         // this container's initial array of buckets.  If
-//         // 'initialNumBuckets' is not supplied, an implementation defined
-//         // value is used.  Optionally specify a 'hash' used to generate the
-//         // hash values associated to the keys extracted from the values
-//         // contained in this object.  If 'hash' is not supplied, a
-//         // default-constructed object of type 'HASHF' is used.  Optionally
-//         // specify a key-equality functor 'keyEqual' used to verify that
-//         // two key values are the same.  If 'keyEqual' is not supplied, a
-//         // default-constructed object of type 'EQUAL' is used.  Optionally
-//         // specify an 'allocator' used to supply memory.  If 'allocator' is
-//         // not supplied, a default-constructed object of the (template
-//         // parameter) type 'ALLOCATOR' is used.  If the 'ALLOCATOR' is
-//         // 'bsl::allocator' (the default), then 'allocator' shall be
-//         // convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' is
-//         // 'bsl::allocator' and 'allocator' is not supplied, the currently
-//         // installed default allocator is used to supply memory.
 //
+//     /// Destroy this object.
 //     //! ~MyHashedSet() = default;
-//         // Destroy this object.
 //
 //     // MANIPULATORS
+//
+//     /// Insert the specified `value` into this set if the `value` does
+//     /// not already exist in this set; otherwise, this method has no
+//     /// effect.  Return a pair whose `first` member is an iterator
+//     /// providing non-modifiable access to the (possibly newly inserted)
+//     /// `KEY` object having `value` (according to `EQUAL`) and whose
+//     /// `second` member is `true` if a new element was inserted, and
+//     /// `false` if `value` was already present.
 //     bsl::pair<const_iterator, bool> insert(const KEY& value);
-//         // Insert the specified 'value' into this set if the 'value' does
-//         // not already exist in this set; otherwise, this method has no
-//         // effect.  Return a pair whose 'first' member is an iterator
-//         // providing non-modifiable access to the (possibly newly inserted)
-//         // 'KEY' object having 'value' (according to 'EQUAL') and whose
-//         // 'second' member is 'true' if a new element was inserted, and
-//         // 'false' if 'value' was already present.
 //
 //     // ACCESSORS
+//
+//     /// Return the number of buckets in this set.
 //     size_type bucket_count() const;
-//         // Return the number of buckets in this set.
 //
+//     /// Return an iterator providing non-modifiable access to the
+//     /// past-the-end element (in the sequence of `KEY` objects)
+//     /// maintained by this set.
 //     const_iterator cend() const;
-//         // Return an iterator providing non-modifiable access to the
-//         // past-the-end element (in the sequence of 'KEY' objects)
-//         // maintained by this set.
 //
+//     /// Return an iterator providing non-modifiable access to the `KEY`
+//     /// object in this set having the specified `value`, if such an
+//     /// entry exists, and the iterator returned by the `cend` method
+//     /// otherwise.
 //     const_iterator find(const KEY& value) const;
-//         // Return an iterator providing non-modifiable access to the 'KEY'
-//         // object in this set having the specified 'value', if such an
-//         // entry exists, and the iterator returned by the 'cend' method
-//         // otherwise.
 //
+//     /// Return the number of elements in this set.
 //     size_type size() const;
-//         // Return the number of elements in this set.
 // };
 // ```
 // Next, we implement the methods of `MyHashedSet`.  In many cases, the
@@ -970,11 +973,11 @@ BSLS_IDENT("$Id: $")
 //                         // struct UseCustomerIdAsKey
 //                         // =========================
 //
+// /// This `struct` provides a namespace for types and methods that define
+// /// the policy by which the key value of a hashed container (i.e., the
+// /// value passed to the hasher) is extracted from the objects stored in
+// /// the hashed container (the `value` type).
 // struct UseCustomerIdAsKey {
-//     // This 'struct' provides a namespace for types and methods that define
-//     // the policy by which the key value of a hashed container (i.e., the
-//     // value passed to the hasher) is extracted from the objects stored in
-//     // the hashed container (the 'value' type).
 //
 //     typedef const MySalesRecord *ValueType;
 //         // Alias for 'const MySalesRecord *', the type stored in second
@@ -1015,11 +1018,11 @@ BSLS_IDENT("$Id: $")
 //                         // struct UseVendorIdAsKey
 //                         // ========================
 //
+// /// This `struct` provides a namespace for types and methods that define
+// /// the policy by which the key value of a hashed container (i.e., the
+// /// value passed to the hasher) is extracted from the objects stored in
+// /// the hashed container (the `value` type).
 // struct UseVendorIdAsKey {
-//     // This 'struct' provides a namespace for types and methods that define
-//     // the policy by which the key value of a hashed container (i.e., the
-//     // value passed to the hasher) is extracted from the objects stored in
-//     // the hashed container (the 'value' type).
 //
 //     typedef const MySalesRecord *ValueType;
 //         // Alias for 'const MySalesRecord *', the type stored in second

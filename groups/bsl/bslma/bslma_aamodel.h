@@ -9,10 +9,10 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  AAModelNone:   Tag `struct` representing no AA model
-//  AAModelPmr:    Tag for the *pmr-AA* model (`polymorphic_allocator`)
-//  AAModelBsl:    Tag for the *bsl-AA* model (`bsl::allocator`)
-//  AAModelLegacy: Tag for the *legacy-AA* model (`bslma::Allocator*`)
-//  AAModelStl:    Tag for the *stl-AA* model (non-bsl, non-pmr STL allocator)
+//  AAModelPmr:    Tag for the **pmr-AA** model (`polymorphic_allocator`)
+//  AAModelBsl:    Tag for the **bsl-AA** model (`bsl::allocator`)
+//  AAModelLegacy: Tag for the **legacy-AA** model (`bslma::Allocator*`)
+//  AAModelStl:    Tag for the **stl-AA** model (non-bsl, non-pmr STL alloc)
 //  AAModelIsSupported: Metafunction to detect if type `T` supports model `M`
 //  AAModel: Metafunction to detect the AA model implemented by a type `T`
 //
@@ -33,30 +33,30 @@ BSLS_IDENT("$Id: $")
 // allocator used by `T` to allocate memory:
 //
 // * If `T` does not use an externally supplied allocator, then it is not AA.
-// * If `T` uses the address of a `bslma::Allocator`, then it is *legacy-AA*.
-//   Most older AA classes developed at Bloomberg are *legacy-AA*.  The value
+// * If `T` uses the address of a `bslma::Allocator`, then it is **legacy-AA**.
+//   Most older AA classes developed at Bloomberg are **legacy-AA**.  The value
 //   of `bslma::UsesBslmaAllocator<T>::value` must be true for a type to be
-//   detected as supporting the *legacy-AA* model.
-// * If `T` uses an instantiation of `bsl::allocator`, then it is *bsl-AA*.
-//   Most newer AA classes developed at Bloomberg are *bsl-AA*.  `T` is
-//   automatically detectable as supporting the *bsl-AA* model if there exists
+//   detected as supporting the **legacy-AA** model.
+// * If `T` uses an instantiation of `bsl::allocator`, then it is **bsl-AA**.
+//   Most newer AA classes developed at Bloomberg are **bsl-AA**.  `T` is
+//   automatically detectable as supporting the **bsl-AA** model if there exists
 //   a nested type `T::allocator_type` that is convertible from
 //   `bsl::allocator<char>`.
 // * If `T` uses an instantiation of `bsl::polymorphic_allocator`, then it is
-//   *pmr-AA*.  `T` will be automatically detectable as supporting the
-//   *pmr-AA* model if there exists a nested type `T::allocator_type` that is
+//   **pmr-AA**.  `T` will be automatically detectable as supporting the
+//   **pmr-AA** model if there exists a nested type `T::allocator_type` that is
 //   convertible from `bsl::polymorphic_allocator<char>`.
 // * If `T` uses an STL-style allocator other than `bsl::allocator` or
-//   `bsl::polymorphic_allocator`, then it is *stl-AA*.  For the purposes of
+//   `bsl::polymorphic_allocator`, then it is **stl-AA**.  For the purposes of
 //   this component, any class having an `allocator_type` member that is not
 //   convertible from `bsl::allocator` or `bsl::polymorphic_allocator` is
 //   assumed to be fall into this category.  For example, `bslstl::vector` is
-//   *stl-AA* if it is instantiated with a third-party STL-compliant
+//   **stl-AA** if it is instantiated with a third-party STL-compliant
 //   allocator.
 //
 // Note that a single type can support more than one AA model.  For example,
-// any type that is *bsl-AA* can be constructed with a `bsl::Allocator` pointer
-// and, thus, can be said to support the *legacy-AA* model as well.  Similarly,
+// any type that is **bsl-AA** can be constructed with a `bsl::Allocator` pointer
+// and, thus, can be said to support the **legacy-AA** model as well.  Similarly,
 // all AA types are assumed to be constructible without specifying an allocator
 // (typically using a default-initialized allocator value) and, thus, can be
 // used as non-AA types.
@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 // alias for itself.  By representing each model as a separate *type* rather
 // than a simple *value*, these tag types are more versatile when used for
 // metaprogramming.  The table below lists the `value` constant for each
-// *model* *tag* struct:
+// **model tag** struct:
 // ```
 // +---------------+-------+
 // | model tag     | value |
@@ -85,11 +85,11 @@ BSLS_IDENT("$Id: $")
 // ```
 // Note that these values are roughly in order of "pickyness" of the model: A
 // *legacy-AA* type's constructors accept only allocators convertible to
-// `bslma::Allocator *` whereas a *pmr-AA* type is less picky in that its
+// `bslma::Allocator *` whereas a **pmr-AA** type is less picky in that its
 // constructors also accept allocators convertible to
 // `bsl::polymorphic_allocator` (including `bsl::allocator`).  The models are
-// not fully ordered in that, for example, *stl-AA* is orthogonal to the rest
-// and is neither more nor less picky than *legacy-AA*.
+// not fully ordered in that, for example, **stl-AA** is orthogonal to the rest
+// and is neither more nor less picky than **legacy-AA**.
 //
 ///AA-model metafunctions
 ///----------------------
@@ -100,7 +100,7 @@ BSLS_IDENT("$Id: $")
 // understanding the use of this component, so readers are welcome to skip
 // forward to the usage examples, below.
 //
-// With the exception of *legacy-AA*, AA types generally adhere to the basic
+// With the exception of **legacy-AA**, AA types generally adhere to the basic
 // interface pattern shown here:
 // ```
 // class AAType {
@@ -123,13 +123,13 @@ BSLS_IDENT("$Id: $")
 // ```
 // The metafunctions in this component test for the existence of the
 // `allocator_type` member.  If `T::allocator_type` exists, then `T` is assumed
-// to support the *stl-AA* model.  If, additionally,
+// to support the **stl-AA** model.  If, additionally,
 // `bsl::polymorphic_allocator<char>` and/or `bsl::allocator<char>` are
-// convertible to `T::allocator_type` then `T` supports the *pmr-AA* and/or
-// *bsl-AA* models, respectively.  The metafunctions do not require that AA
+// convertible to `T::allocator_type` then `T` supports the **pmr-AA** and/or
+// **bsl-AA** models, respectively.  The metafunctions do not require that AA
 // constructors exist nor that the `get_allocator` member function exists.
 //
-// The interface for a *legacy-AA* type is somewhat different:
+// The interface for a **legacy-AA** type is somewhat different:
 // ```
 // class LegacyAAType {
 //     // ... (private members)
@@ -151,7 +151,7 @@ BSLS_IDENT("$Id: $")
 // };
 // ```
 // If `bslma::UsesBslmaAllocator<T>::value` is `true`, then the metafunctions
-// assume that `T` supports the *legacy-AA* model.  Again, the presence of
+// assume that `T` supports the **legacy-AA** model.  Again, the presence of
 // appropriate allocators or the `allocator` accessor are not required.
 //
 ///Usage
@@ -160,13 +160,13 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Conditionally Passing an Allocator to a Constructor
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates the use of `AAModelIsSupported` to choose an
-// appropriate overload for AA constructors.  Consider a *bsl-AA* class,
+// appropriate overload for AA constructors.  Consider a **bsl-AA** class,
 // `Wrapper`, that wraps an object of template-parameter type, `TYPE`.  First,
 // we define the data members:
 // ```
+// /// Wrap an object of type `TYPE`.
 // template <class TYPE>
 // class Wrapper {
-//     // Wrap an object of type 'TYPE'.
 //
 //     // DATA
 //     bsl::allocator<char> d_allocator;
@@ -187,6 +187,11 @@ BSLS_IDENT("$Id: $")
 // `AAModelIsSupported`:
 // ```
 //     // CREATORS
+//
+//     /// Construct a `Wrapper` using the specified `a` allocator, passing
+//     /// the allocator to the wrapped object.  This constructor will not
+//     /// participate in overload resolution unless `TYPE` supports the
+//     /// legacy allocator-awareness model (**legacy-AA**).
 //     template <class ALLOC>
 //     explicit
 //     Wrapper(const ALLOC& a,
@@ -195,12 +200,13 @@ BSLS_IDENT("$Id: $")
 //             && bslma::AAModelIsSupported<TYPE,bslma::AAModelLegacy>::value,
 //                 int
 //             >::type = 0)
-//         // Construct a 'Wrapper' using the specified 'a' allocator, passing
-//         // the allocator to the wrapped object.  This constructor will not
-//         // participate in overload resolution unless 'TYPE' supports the
-//         // legacy allocator-awareness model (*legacy-AA*).
 //         : d_allocator(a), d_object(d_allocator.mechanism()) { }
 //
+//     /// Construct a `Wrapper` using the specified `a` allocator,
+//     /// constructing the wrapped object without an explicit allocator.
+//     /// This constructor will not participate in overload resolution if
+//     /// `TYPE` supports the legacy allocator-awareness model
+//     /// (**legacy-AA**).
 //     template <class ALLOC>
 //     explicit
 //     Wrapper(const ALLOC& a,
@@ -209,22 +215,17 @@ BSLS_IDENT("$Id: $")
 //            && !bslma::AAModelIsSupported<TYPE,bslma::AAModelLegacy>::value,
 //                int
 //             >::type = 0)
-//         // Construct a 'Wrapper' using the specified 'a' allocator,
-//         // constructing the wrapped object without an explicit allocator.
-//         // This constructor will not participate in overload resolution if
-//         // 'TYPE' supports the legacy allocator-awareness model
-//         // (*legacy-AA*).
 //         : d_allocator(a), d_object() { }
 // ```
-// Support for *bsl-AA* implies support for *legacy-AA*, so the example above
-// needs to test for only the latter model; the first constructor overload is
-// selected if `TYPE` implements either AA model.  Similarly
+// Support for ***bsl-AA*** implies support for **legacy-AA**, so the example
+// above needs to test for only the latter model; the first constructor
+// overload is selected if `TYPE` implements either AA model.  Similarly
 // `d_allocator.mechanism()` yields a common denominator type,
 // `bslma::Allocator *` that can be passed to the constructor for `d_object`,
 // regardless of its preferred AA model.  The second overload is selected for
-// types that do *not* support the *legacy-AA* (or *bsl-AA*) model.  Note that
-// this example, though functional, does not handle all cases; e.g., it does
-// not handle types whose allocator constructor parameter is preceded by
+// types that do *not* support the **legacy-AA** (or **bsl-AA**) model.  Note
+// that this example, though functional, does not handle all cases; e.g., it
+// does not handle types whose allocator constructor parameter is preceded by
 // `bsl::allocator_arg_t`.  See higher-level components such as
 // `bslma_contructionutil` for a more comprehensive treatment of AA constructor
 // variations.
@@ -233,8 +234,9 @@ BSLS_IDENT("$Id: $")
 // wrapped object:
 // ```
 //     // ACCESSORS
+//
+//     /// Return the allocator used to construct this object.
 //     const allocator_type get_allocator() const { return d_allocator; }
-//         // Return the allocator used to construct this object.
 //
 //     const TYPE& value() const { return d_object; }
 // };
@@ -242,8 +244,8 @@ BSLS_IDENT("$Id: $")
 // Now, to see the effect of these constructors, we'll use a simple AA class,
 // `SampleAAType` that does nothing more than hold the allocator:
 // ```
+// /// Sample AA class that adheres to the bsl-AA interface.
 // class SampleAAType {
-//     // Sample AA class that adheres to the bsl-AA interface.
 //
 //     // DATA
 //     bsl::allocator<char> d_allocator;
@@ -283,8 +285,8 @@ BSLS_IDENT("$Id: $")
 //     assert(&alloc == w2.value().get_allocator());
 // }
 // ```
-// Note that, even though `SampleAAType` conforms to the *bsl-AA* interface, it
-// is also supports the *legacy-AA* model because `bslma::Allocator *` is
+// Note that, even though `SampleAAType` conforms to the **bsl-AA** interface,
+// it is also supports the **legacy-AA** model because `bslma::Allocator *` is
 // convertible to `bsl::allocator`.
 //
 ///Example 2: Choose an Implementation Based on Allocator-Aware (AA) model
@@ -296,8 +298,8 @@ BSLS_IDENT("$Id: $")
 // template, `getAllocator(const TYPE& obj)` returning a `bsl::allocator<char>`
 // as follows:
 //
-// * If `TYPE` is *bsl-AA*, return `obj.get_allocator()`.
-// * If `TYPE` is *legacy-AA*, return `bsl::allocator<char>(obj.allocator())`.
+// * If `TYPE` is **bsl-AA**, return `obj.get_allocator()`.
+// * If `TYPE` is **legacy-AA**, return `bsl::allocator<char>(obj.allocator())`.
 // * If `TYPE` is not AA, return `bsl::allocator<char>()`.
 // * If `TYPE` is AA but not one of the above, compilation will fail.
 //
@@ -308,8 +310,8 @@ BSLS_IDENT("$Id: $")
 // implemention functions, each taking an argument of a different AA model
 // tag:
 // ```
+// /// Namespace for functions that operate on AA types.
 // class Util {
-//     // Namespace for functions that operate on AA types.
 //
 //     template <class TYPE>
 //     static bsl::allocator<char> getAllocatorImp(const TYPE& obj,
@@ -336,10 +338,10 @@ BSLS_IDENT("$Id: $")
 //   };
 // ```
 // Now, to check all of the possibilities, we create a minimal AA type sporting
-// the *legacy-AA* interface:
+// the **legacy-AA** interface:
 // ```
+// /// Sample AA class that adheres to the bsl-AA interface.
 // class SampleLegacyAAType {
-//     // Sample AA class that adheres to the bsl-AA interface.
 //
 //     // DATA
 //     bslma::Allocator *d_allocator_p;
@@ -485,7 +487,7 @@ struct AAModel : AAModel_Imp<TYPE,
 /// yields `false_type`.  `MODEL` Must be one of `AAModelNone`,
 /// `AAModelLegacy`, `AAModelBsl`, `AAModelPmr`, or `AAModelStl`.  This
 /// metafunction can yield `true_type` for more than one type `MODEL` type,
-/// e.g., it will yield `true_type` if `TYPE` is *bsl-AA*, and `MODEL` is
+/// e.g., it will yield `true_type` if `TYPE` is **bsl-AA**, and `MODEL` is
 /// either `AAModelBsl` or `AAModelLegacy`, since `TYPE` can be constructed
 /// with either allocator type.
 template <class TYPE, class MODEL>
@@ -532,8 +534,8 @@ struct AAModelIsSupported<TYPE, AAModelLegacy>
 /// Specialization of `AAModelIsSupported` for `MODEL == AAModelStl`,
 /// yielding `true_type` if `TYPE::allocator_type` exists; otherwise,
 /// yielding `false_type` unless `AAModelIsSupported<TYPE, AAModelBsl>` is
-/// true.  The latter condition exists so that *bsl-AA* always implies
-/// *stl-AA* even if `AAModelIsSupported<TYPE, AAModelBsl>` is explicitly
+/// true.  The latter condition exists so that **bsl-AA** always implies
+/// **stl-AA** even if `AAModelIsSupported<TYPE, AAModelBsl>` is explicitly
 /// specialized to true for a type that does not have an `allocator_type`
 /// member.
 template <class TYPE>

@@ -178,9 +178,10 @@ class Iso8601UtilConfiguration {
 
   private:
     // PRIVATE TYPES
+
+    /// This enumeration denotes the distinct bits that define the values of
+    /// each of the four configuration attributes.
     enum {
-        // This enumeration denotes the distinct bits that define the values of
-        // each of the four configuration attributes.
 
         k_FRACTIONAL_SECOND_PRECISION_MASK  = 0x07,
         k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT = 0x08,

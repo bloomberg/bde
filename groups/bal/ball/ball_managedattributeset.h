@@ -154,8 +154,8 @@ class ManagedAttributeSet {
                       const ManagedAttributeSet& original,
                       const allocator_type&      allocator = allocator_type());
 
+    /// Destroy this attribute set.
     //! ~ManagedAttributeSet() = default;
-        // Destroy this attribute set.
 
     // MANIPULATORS
 

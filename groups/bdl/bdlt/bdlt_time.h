@@ -259,8 +259,8 @@ class Time {
     /// time.
     Time(const Time& original);
 
+    /// Destroy this 'Time' object.
     //! ~Time() = default;
-        // Destroy this 'Time' object.
 
     // MANIPULATORS
 

@@ -89,8 +89,8 @@ class ReaderWriterMutexImpl {
     /// Construct a reader/writer lock initialized to an unlocked state.
     ReaderWriterMutexImpl();
 
+    /// Destroy this object
     //! ~ReaderWriterMutexImpl();
-        // Destroy this object
 
     // MANIPULATORS
 

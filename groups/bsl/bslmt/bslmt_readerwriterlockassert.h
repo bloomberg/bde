@@ -110,10 +110,10 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the container class:
 // ```
+// /// This `class` provides a fully *thread-safe* unidirectional queue of
+// /// `int` values.  See {`bsls_glossary`|Fully Thread-Safe}.  All public
+// /// methods operate as single, atomic actions.
 // class MyThreadSafeQueue {
-//     // This 'class' provides a fully *thread-safe* unidirectional queue of
-//     // 'int' values.  See {'bsls_glossary'|Fully Thread-Safe}.  All public
-//     // methods operate as single, atomic actions.
 //
 //     // DATA
 //     bsl::deque<int>      d_deque;    // underlying non-*thread-safe*
@@ -123,57 +123,60 @@ BSLS_IDENT("$Id: $")
 //                          d_rwLock;   // coordinate thread access
 //
 //     // PRIVATE MANIPULATOR
+//
+//     // Assign the value at the front of the queue to the specified
+//     // `*result`, and remove the value at the front of the queue;
+//     // return 0 if the queue was not initially empty, and a non-zero
+//     // value (with no effect) otherwise.  The behavior is undefined
+//     // unless `d_rwLock` is locked for writing.
 //     int popImp(int *result);
-//         // Assign the value at the front of the queue to the specified
-//         // '*result', and remove the value at the front of the queue;
-//         // return 0 if the queue was not initially empty, and a non-zero
-//         // value (with no effect) otherwise.  The behavior is undefined
-//         // unless 'd_rwLock' is locked for writing.
 //
 //     // PRIVATE ACCESSOR
+//
+//     /// Return a `bsl::pair<int, int>` containing the number of elements
+//     /// and the mean value of the elements of this queue.  The mean
+//     /// values is set to `DBL_MIN` if the number of elements is 0.  The
+//     /// behavior is undefined unless the call has locked this queue
+//     /// (either a read lock or write lock).
 //     bsl::pair<int, double> getStats() const;
-//         // Return a 'bsl::pair<int, int>' containing the number of elements
-//         // and the mean value of the elements of this queue.  The mean
-//         // values is set to 'DBL_MIN' if the number of elements is 0.  The
-//         // behavior is undefined unless the call has locked this queue
-//         // (either a read lock or write lock).
 //
 //   public:
 //     // ...
 //
 //     // MANIPULATORS
 //
+//     /// Assign the value at the front of the queue to the specified
+//     /// `*result`, and remove the value at the front of the queue;
+//     /// return 0 if the queue was not initially empty, and a non-zero
+//     /// value (with no effect) otherwise.
 //     int pop(int *result);
-//         // Assign the value at the front of the queue to the specified
-//         // '*result', and remove the value at the front of the queue;
-//         // return 0 if the queue was not initially empty, and a non-zero
-//         // value (with no effect) otherwise.
 //
+//     /// Assign the values of all the elements from this queue, in order,
+//     /// to the specified `*result`, and remove them from this queue.
+//     /// Any previous contents of `*result` are discarded.  Note that, as
+//     /// with the other public manipulators, this entire operation occurs
+//     /// as a single, atomic action.
 //     void popAll(bsl::vector<int> *result);
-//         // Assign the values of all the elements from this queue, in order,
-//         // to the specified '*result', and remove them from this queue.
-//         // Any previous contents of '*result' are discarded.  Note that, as
-//         // with the other public manipulators, this entire operation occurs
-//         // as a single, atomic action.
 //
+//     /// Remove all elements from this queue if their mean exceeds the
+//     /// specified `limit`.
 //     void purgeAll(double limit);
-//         // Remove all elements from this queue if their mean exceeds the
-//         // specified 'limit'.
 //
+//     /// Push the specified `value` onto this queue.
 //     void push(int value);
-//         // Push the specified 'value' onto this queue.
 //
+//     /// Push the values from the specified `first` (inclusive) to the
+//     /// specified `last` (exclusive) onto this queue.
 //     template <class INPUT_ITER>
 //     void pushRange(const INPUT_ITER& first, const INPUT_ITER& last);
-//         // Push the values from the specified 'first' (inclusive) to the
-//         // specified 'last' (exclusive) onto this queue.
 //
 //     // ACCESSORS
-//     double mean() const;
-//         // Return the mean value of the elements of this queue.
 //
+//     /// Return the mean value of the elements of this queue.
+//     double mean() const;
+//
+//     /// Return the number of elements in this queue.
 //     bsl::size_t numElements() const;
-//         // Return the number of elements in this queue.
 // };
 // ```
 // Notice that this version of the `MyThreadSafeQueue` class has two public
@@ -320,8 +323,8 @@ BSLS_IDENT("$Id: $")
 // ```
 // Finally, we confirm that our accessors work as expected:
 // ```
+// /// Exercise the added methods of the `MyThreadSafeQueue` class.
 // void testEnhancedThreadSafeQueue()
-//     // Exercise the added methods of the 'MyThreadSafeQueue' class.
 // {
 //     MyThreadSafeQueue queue;
 //

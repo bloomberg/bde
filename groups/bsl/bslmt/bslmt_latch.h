@@ -115,44 +115,44 @@ BSLS_IDENT("$Id: $")
 //   public:
 //     // ...
 //
+//     // Enqueue the specified `job` to be executed by the next available
+//     // thread.
 //     void enqueueJob(const bsl::function<void()>& job);
-//         // Enqueue the specified 'job' to be executed by the next available
-//         // thread.
 // };
 // ```
 // Next, we declare the signature for our vector sum function,
 // `parallelVectorSum`:
 // ```
+// /// Load the specified `result` array with the vector sum of the
+// /// specified `inputA` and `inputB`, each having at least the specified
+// /// `numElements`, using the specified `threadPool` to perform the
+// /// operation in parallel using the specified `numJobs` parallel jobs.
+// /// The behavior is undefined unless `numElements > 0`, `numJobs > 0`,
+// /// and `result`, `inputA`, and `inputB` each contain at least
+// /// `numElements`.
 // void parallelVectorSum(double          *result,
 //                        const double    *inputA,
 //                        const double    *inputB,
 //                        int              numElements,
 //                        FixedThreadPool *threadPool,
 //                        int              numJobs);
-//     // Load the specified 'result' array with the vector sum of the
-//     // specified 'inputA' and 'inputB', each having at least the specified
-//     // 'numElements', using the specified 'threadPool' to perform the
-//     // operation in parallel using the specified 'numJobs' parallel jobs.
-//     // The behavior is undefined unless 'numElements > 0', 'numJobs > 0',
-//     // and 'result', 'inputA', and 'inputB' each contain at least
-//     // 'numElements'.
 // ```
 // Now, we declare a helper function, `vectorSumJob`, that will be used as a
 // sub-task by `parallelVectorSum`.  `vectorSumJob` computes a single-threaded
 // vector sum and uses a `bslmt::Latch` object, `completionSignal`, to indicate
 // to the parent task that the computation has been completed:
 // ```
+// /// Load the specified `result` array with the vector sum of the
+// /// specified `inputA` and `inputB`, each having at least the specified
+// /// `numElements`, and when the operation is complete signal the
+// /// specified `completionSignal`.  The behavior is undefined unless
+// /// `numElements > 0` and `result`, `inputA`, and `inputB` each contain
+// /// at least `numElements`.
 // void vectorSumJob(double       *result,
 //                   bslmt::Latch *completionSignal,
 //                   const double *inputA,
 //                   const double *inputB,
 //                   int           numElements)
-//     // Load the specified 'result' array with the vector sum of the
-//     // specified 'inputA' and 'inputB', each having at least the specified
-//     // 'numElements', and when the operation is complete signal the
-//     // specified 'completionSignal'.  The behavior is undefined unless
-//     // 'numElements > 0' and 'result', 'inputA', and 'inputB' each contain
-//     // at least 'numElements'.
 // {
 //     for (int i = 0; i < numElements; ++i) {
 //         result[i] = inputA[i] + inputB[i];
@@ -170,9 +170,9 @@ BSLS_IDENT("$Id: $")
 // usage example) in view of the fact that such a facility is not available at
 // this level in the BDE hierarchy:
 // ```
+// // This class provides an invokable that is tailored to bind the
+// // `vectorSumJob` (defined above) to its requisite five arguments.
 // class UsageBinder {
-//     // This class provides an invokable that is tailored to bind the
-//     // 'vectorSumJob' (defined above) to its requisite five arguments.
 //
 //   public:
 //     // TYPES
@@ -193,15 +193,16 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `UsageBinder` object that binds the specified
+//     /// `functionPtr` to the specified `arg1Ptr`, `arg2Ptr`, `arg3Ptr`,
+//     /// `arg4Ptr`, and `arg5` arguments.
 //     UsageBinder(FREE_FUNCTION *functionPtr,
 //                 double        *arg1Ptr,
 //                 bslmt::Latch  *arg2Ptr,
 //                 const double  *arg3Ptr,
 //                 const double  *arg4Ptr,
 //                 int            arg5)
-//         // Create a 'UsageBinder' object that binds the specified
-//         // 'functionPtr' to the specified 'arg1Ptr', 'arg2Ptr', 'arg3Ptr',
-//         // 'arg4Ptr', and 'arg5' arguments.
 //     : d_func_p(functionPtr)
 //     , d_arg1_p(arg1Ptr)
 //     , d_arg2_p(arg2Ptr)
@@ -212,9 +213,10 @@ BSLS_IDENT("$Id: $")
 //     }
 //
 //     // MANIPULATORS
+//
+//     /// Invoke the function that was supplied at construction on the
+//     /// arguments that were supplied at construction.
 //     void operator()()
-//         // Invoke the function that was supplied at construction on the
-//         // arguments that were supplied at construction.
 //     {
 //         (*d_func_p)(d_arg1_p, d_arg2_p, d_arg3_p, d_arg4_p, d_arg5);
 //     }

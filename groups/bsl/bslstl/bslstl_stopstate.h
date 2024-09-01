@@ -44,7 +44,7 @@ class StopState_ListNode {
   private:
     // DATA
     StopState_ListNode *d_prev_p;
-    StopState_ListNode *d_next_p;  // set to null by 'unlink'
+    StopState_ListNode *d_next_p;  // set to null by `unlink`
 
     // FRIENDS
     friend class StopState;

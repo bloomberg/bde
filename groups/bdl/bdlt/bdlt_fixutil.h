@@ -485,20 +485,20 @@ class  FixUtilConfiguration;
 struct FixUtil {
 
     // TYPES
+
+    /// This enumeration defines fixed lengths for the FIX representations
+    /// of date, time, and datetime values.  Note that these constants do
+    /// *not* account for the null terminator that may be produced by the
+    /// `generate` functions taking a `bufferLength` argument.
     enum {
-        // This enumeration defines fixed lengths for the FIX representations
-        // of date, time, and datetime values.  Note that these constants do
-        // *not* account for the null terminator that may be produced by the
-        // 'generate' functions taking a 'bufferLength' argument.
+        k_DATE_STRLEN       =  8,  // `bdlt::Date`
+        k_DATETZ_STRLEN     = 14,  // `bdlt::DateTz`
 
-        k_DATE_STRLEN       =  8,  // 'bdlt::Date'
-        k_DATETZ_STRLEN     = 14,  // 'bdlt::DateTz'
+        k_TIME_STRLEN       = 15,  // `bdlt::Time`
+        k_TIMETZ_STRLEN     = 14,  // `bdlt::TimeTz`
 
-        k_TIME_STRLEN       = 15,  // 'bdlt::Time'
-        k_TIMETZ_STRLEN     = 14,  // 'bdlt::TimeTz'
-
-        k_DATETIME_STRLEN   = 24,  // 'bdlt::Datetime'
-        k_DATETIMETZ_STRLEN = 30,  // 'bdlt::DatetimeTz'
+        k_DATETIME_STRLEN   = 24,  // `bdlt::Datetime`
+        k_DATETIMETZ_STRLEN = 30,  // `bdlt::DatetimeTz`
 
         k_MAX_STRLEN        = k_DATETIMETZ_STRLEN
     };
@@ -623,6 +623,13 @@ struct FixUtil {
                         const FixUtilConfiguration&  configuration);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    /// Load the FIX representation of the specified `object` into the
+    /// specified `string`.  Optionally specify a `configuration` to affect
+    /// the format of the generated string.  If `configuration` is not
+    /// supplied, the process-wide default value
+    /// `FixUtilConfiguration::defaultConfiguration()` is used.  Return the
+    /// number of characters in the formatted string.  The previous contents
+    /// of `string` (if any) are discarded.
     static int generate(std::pmr::string            *string,
                         const Date&                  object);
     static int generate(std::pmr::string            *string,
@@ -654,13 +661,6 @@ struct FixUtil {
                         const DatetimeTz&            object,
                         const FixUtilConfiguration&  configuration);
 #endif
-        // Load the FIX representation of the specified 'object' into the
-        // specified 'string'.  Optionally specify a 'configuration' to affect
-        // the format of the generated string.  If 'configuration' is not
-        // supplied, the process-wide default value
-        // 'FixUtilConfiguration::defaultConfiguration()' is used.  Return the
-        // number of characters in the formatted string.  The previous contents
-        // of 'string' (if any) are discarded.
 
     /// Write the FIX representation of the specified `object` to the
     /// specified `stream`.  Optionally specify a `configuration` to affect

@@ -84,16 +84,16 @@ namespace bsl {
                                // struct 'errc'
                                // =============
 
+/// This `struct` defines an enumeration type that provides named literals
+/// for the `errno` values defined in the `<cerrno>` header.  Note that in
+/// the C++11 standard, `std::errc` is defined as an `enum class`, so that
+/// literals can be qualified with `std::errc::` and objects of the type can
+/// be declared as `std::errc`.  In C++03 mode, we cannot have both, and we
+/// have chosen in favor of allowing the literals to be qualified, so
+/// objects of the type must be declared as `bsl::errc::Enum`.  For
+/// portability between modes, declare objects of the enumeration type as
+/// `bsl::ErrcEnum`.
 struct errc {
-    // This 'struct' defines an enumeration type that provides named literals
-    // for the 'errno' values defined in the '<cerrno>' header.  Note that in
-    // the C++11 standard, 'std::errc' is defined as an 'enum class', so that
-    // literals can be qualified with 'std::errc::' and objects of the type can
-    // be declared as 'std::errc'.  In C++03 mode, we cannot have both, and we
-    // have chosen in favor of allowing the literals to be qualified, so
-    // objects of the type must be declared as 'bsl::errc::Enum'.  For
-    // portability between modes, declare objects of the enumeration type as
-    // 'bsl::ErrcEnum'.
 
     // TYPES
     enum Enum {
@@ -184,9 +184,9 @@ typedef errc::Enum ErrcEnum;  // Portable typedef for 'errc'
                        // struct is_error_condition_enum
                        // ------------------------------
 
+/// Mark the `errc` enumeration as an error condition.
 template <>
 struct is_error_condition_enum<errc::Enum> : public bsl::true_type {
-    // Mark the 'errc' enumeration as an error condition.
 };
 
 }  // close namespace bsl

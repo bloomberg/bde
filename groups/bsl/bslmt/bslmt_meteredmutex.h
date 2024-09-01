@@ -72,12 +72,12 @@ BSLS_IDENT("$Id: $")
 // enum { k_USAGE_NUM_THREADS = 4, k_USAGE_SLEEP_TIME = 100000 };
 // bslmt::Barrier usageBarrier(k_USAGE_NUM_THREADS);
 //
+// /// Create the specified `numThreads`, each executing the specified
+// /// `function`.  Number each thread (sequentially from 0 to
+// /// `numThreads - 1`) by passing i to i'th thread.  Finally join all the
+// /// threads.
 // void executeInParallel(int                               numThreads,
 //                        bslmt::ThreadUtil::ThreadFunction function)
-//     // Create the specified 'numThreads', each executing the specified
-//     // 'function'.  Number each thread (sequentially from 0 to
-//     // 'numThreads - 1') by passing i to i'th thread.  Finally join all the
-//     // threads.
 // {
 //     bslmt::ThreadUtil::Handle *threads =
 //                                  new bslmt::ThreadUtil::Handle[numThreads];

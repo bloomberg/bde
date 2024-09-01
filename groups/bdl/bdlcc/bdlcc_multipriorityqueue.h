@@ -363,7 +363,7 @@ BSLS_IDENT("$Id: $")
 //         && k_NUM_THREADS <= static_cast<int>(k_MAX_CONSUMER_THREADS));
 //     bslmt::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
 //
-//     // Create 'k_NUM_THREADS' threads, each having a unique "worker id".
+//     // Create `k_NUM_THREADS` threads, each having a unique "worker id".
 //
 //     MyWorkerData workerData[k_NUM_THREADS];
 //     for (int i = 0; i < k_NUM_THREADS; ++i) {
@@ -374,9 +374,9 @@ BSLS_IDENT("$Id: $")
 //                                  &workerData[i]);
 //     }
 //
-//     // Now print out each of the 'MyEvent' values as the threads complete.
-//     // This function ends after a total of 'k_NUM_THREADS'
-//     // 'MyEvent::e_TASK_COMPLETE' events have been printed.
+//     // Now print out each of the `MyEvent` values as the threads complete.
+//     // This function ends after a total of `k_NUM_THREADS`
+//     // `MyEvent::e_TASK_COMPLETE` events have been printed.
 //
 //     int nStop = 0;
 //     while (nStop < k_NUM_THREADS) {

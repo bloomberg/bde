@@ -130,10 +130,18 @@ namespace bslstl {
                           // class HashTableIterator
                           // =======================
 
+/// This class template implements an in-core value-semantic type that is an
+/// standard-conforming forward iterator (see section 24.2.5
+/// [forward.iterators] of the C++11 standard) over a list of
+/// `bslalg::BidirectionalLink` objects.  A `HashTableIterator` object
+/// provides access to values of the (template parameter) `VALUE_TYPE`,
+/// stored in a hash table composed of `bslalg::BidirectionalLink` nodes.
+/// The (template parameter) `DIFFERENCE_TYPE` determines the standard
+/// mandated `difference_type` of the iterator, without requiring access to
+/// the allocator-traits for the node.
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
-// On Solaris just to keep studio12-v4 happy, since algorithms take only
-// iterators inheriting from 'std::iterator'.
-
+/// On Solaris just to keep studio12-v4 happy, since algorithms take only
+/// iterators inheriting from `std::iterator`.
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 class HashTableIterator
 : public std::iterator<std::forward_iterator_tag, VALUE_TYPE> {
@@ -141,15 +149,6 @@ class HashTableIterator
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 class HashTableIterator {
 #endif
-    // This class template implements an in-core value-semantic type that is an
-    // standard-conforming forward iterator (see section 24.2.5
-    // [forward.iterators] of the C++11 standard) over a list of
-    // 'bslalg::BidirectionalLink' objects.  A 'HashTableIterator' object
-    // provides access to values of the (template parameter) 'VALUE_TYPE',
-    // stored in a hash table composed of 'bslalg::BidirectionalLink' nodes.
-    // The (template parameter) 'DIFFERENCE_TYPE' determines the standard
-    // mandated 'difference_type' of the iterator, without requiring access to
-    // the allocator-traits for the node.
 
     // PRIVATE TYPES
     typedef typename bsl::remove_cv<VALUE_TYPE>::type   NcType;
@@ -196,14 +195,14 @@ class HashTableIterator {
     /// modifiable to `const` iterator types.
     HashTableIterator(const NcIter& original);                      // IMPLICIT
 
+    /// Create an iterator having the same value as the specified
+    /// `original`.  Note that this operation is either defined by the
+    /// constructor taking `NcIter` (if `NcType` is the same as
+    /// `VALUE_TYPE`), or generated automatically by the compiler.  Also
+    /// note that this constructor cannot be defined explicitly (without
+    /// using `bsls::enableif`) to avoid a duplicate declaration when
+    /// `NcType` is the same as `VALUE_TYPE`.
     //! HashTableIterator(const HashTableIterator& original) = default;
-        // Create an iterator having the same value as the specified
-        // 'original'.  Note that this operation is either defined by the
-        // constructor taking 'NcIter' (if 'NcType' is the same as
-        // 'VALUE_TYPE'), or generated automatically by the compiler.  Also
-        // note that this constructor cannot be defined explicitly (without
-        // using 'bsls::enableif') to avoid a duplicate declaration when
-        // 'NcType' is the same as 'VALUE_TYPE'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
     /// Destroy this object.

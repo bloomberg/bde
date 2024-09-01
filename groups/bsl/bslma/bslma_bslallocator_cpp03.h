@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:38:38 2024
+// Generated on Sun Sep  1 09:58:46 2024
 // Command line: sim_cpp11_features.pl bslma_bslallocator.h
 
 #ifdef COMPILING_BSLMA_BSLALLOCATOR_H
@@ -65,7 +65,7 @@ class allocator : public polymorphic_allocator<TYPE> {
 
   public:
     // TRAITS
-    // Note that 'allocator' is not trivially copyable because its assignment
+    // Note that `allocator` is not trivially copyable because its assignment
     // operator is not trivial.
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseCopyable);
@@ -826,7 +826,7 @@ class allocator<void>
 
   public:
     // TRAITS
-    // Note that 'allocator' is not trivially copyable because its assignment
+    // Note that `allocator` is not trivially copyable because its assignment
     // operator is not trivial.
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                                    BloombergLP::bslmf::IsBitwiseCopyable);
@@ -874,10 +874,10 @@ class allocator<void>
     template <class ANY_TYPE>
     allocator(const allocator<ANY_TYPE>& original) BSLS_KEYWORD_NOEXCEPT;
 
+    /// Destroy this object.  Note that this does not delete the object
+    /// pointed to by `mechanism()`.  Also note that this method's
+    /// definition is compiler generated.
     //! ~allocator();
-        // Destroy this object.  Note that this does not delete the object
-        // pointed to by 'mechanism()'.  Also note that this method's
-        // definition is compiler generated.
 
     // MANIPULATORS
     //! allocator& operator=(const allocator& rhs) = default;
@@ -924,12 +924,11 @@ struct allocator_traits<allocator<TYPE> > {
         {
         }
 
+        // Convert from anything that can be used to cosntruct the base type.
+        // This might be better if SFINAE-ed out using `is_convertible`, but
+        // stressing older compilers more seems unwise.
         template <typename ARG>
         rebind_alloc(const ARG& allocatorArg)
-            // Convert from anything that can be used to cosntruct the base
-            // type.  This might be better if SFINAE-ed out using
-            // 'is_convertible', but stressing older compilers more seems
-            // unwise.
         : allocator<ELEMENT_TYPE>(allocatorArg)
         {
         }

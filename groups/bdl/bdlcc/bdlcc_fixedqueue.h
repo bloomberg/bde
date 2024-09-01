@@ -66,8 +66,8 @@ BSLS_IDENT("$Id: $")
 ///Memory Usage
 ///------------
 // `bdlcc::FixedQueue` is most efficient when dealing with small objects or
-// fundamental types (as a thread-safe container, its methods pass objects *by*
-// *value*).  We recommend:
+// fundamental types (as a thread-safe container, its methods pass objects **by
+// value**).  We recommend:
 // * Large objects be stored as shared-pointers (or possibly raw pointers).
 // * Clients take care in specifying the queue capacity (specified in a number
 //   of objects, *not* a number of bytes).
@@ -242,24 +242,24 @@ class FixedQueue {
                                            // padding to prevent false sharing
     FixedQueueIndexManager
                       d_impl;              // index manager for managing the
-                                           // state of 'd_elements'
+                                           // state of `d_elements`
 
     bsls::AtomicInt   d_numWaitingPoppers; // number of threads waiting on
-                                           // 'd_popControlSema' to pop an
+                                           // `d_popControlSema` to pop an
                                            // element
 
     bslmt::Semaphore  d_popControlSema;    // semaphore on which threads
-                                           // waiting to pop 'wait'
+                                           // waiting to pop `wait`
 
     const char        d_popControlSemaPad[k_SEMA_PADDING];
                                            // padding to prevent false sharing
 
     bsls::AtomicInt   d_numWaitingPushers; // number of threads waiting on
-                                           // 'd_pushControlSema' to push an
+                                           // `d_pushControlSema` to push an
                                            // element
 
     bslmt::Semaphore  d_pushControlSema;   // semaphore on which threads
-                                           // waiting to push 'wait'
+                                           // waiting to push `wait`
 
     const char        d_pushControlSemaPad[k_SEMA_PADDING];
                                            // padding to prevent false sharing
@@ -563,10 +563,10 @@ int FixedQueue<TYPE>::tryPushBack(bslmf::MovableRef<TYPE> value)
 
     // SYNCHRONIZATION POINT 1
     //
-    // The following call to 'reservePushIndex' writes
-    // 'FixedQueueIndexManaged::d_pushIndex' with full sequential consistency,
+    // The following call to `reservePushIndex` writes
+    // `FixedQueueIndexManaged::d_pushIndex` with full sequential consistency,
     // which guarantees the subsequent (relaxed) read from
-    // 'd_numWaitingPoppers' sees any waiting poppers from SYNCHRONIZATION
+    // `d_numWaitingPoppers` sees any waiting poppers from SYNCHRONIZATION
     // POINT 1-Prime.
 
     int retval = d_impl.reservePushIndex(&generation, &index);
@@ -604,10 +604,10 @@ int FixedQueue<TYPE>::tryPopFront(TYPE *value)
 
     // SYNCHRONIZATION POINT 2
     //
-    // The following call to 'reservePopIndex' writes
-    // 'FixedQueueIndexManaged::d_popIndex' with full sequential consistency,
+    // The following call to `reservePopIndex` writes
+    // `FixedQueueIndexManaged::d_popIndex` with full sequential consistency,
     // which guarantees the subsequent (relaxed) read from
-    // 'd_numWaitingPoppers' sees any waiting poppers from SYNCHRONIZATION
+    // `d_numWaitingPoppers` sees any waiting poppers from SYNCHRONIZATION
     // POINT 2-Prime.
 
     int retval = d_impl.reservePopIndex(&generation, &index);
@@ -616,14 +616,14 @@ int FixedQueue<TYPE>::tryPopFront(TYPE *value)
         return retval;                                                // RETURN
     }
 
-    // Copy or move the element.  'FixedQueue_PopGuard' will destroy original
+    // Copy or move the element.  `FixedQueue_PopGuard` will destroy original
     // object, update the queue, and release a waiting pusher, even if the
     // assignment operator throws.
 
     FixedQueue_PopGuard<TYPE> guard(this, generation, index);
     // Unfortunately, in C++03, there are user types where a MovableRef will
     // not safely degrade to a lvalue reference when a move constructor is not
-    // available, so 'move' cannot be used directly on a user supplied type.
+    // available, so `move` cannot be used directly on a user supplied type.
     // See internal bug report 99039150.
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     *value = bslmf::MovableRefUtil::move(d_elements[index]);
@@ -649,10 +649,10 @@ int FixedQueue<TYPE>::pushBack(const TYPE& value)
 
         // SYNCHRONIZATION POINT 1-Prime
         //
-        // The following call to 'isFull' loads
-        // 'FixedQueueIndexManager::d_pushIndex' with full sequential
+        // The following call to `isFull` loads
+        // `FixedQueueIndexManager::d_pushIndex` with full sequential
         // consistency, which is required to ensure the visibility of the
-        // preceding change to 'd_numWaitingPushers' to SYNCHRONIZATION POINT
+        // preceding change to `d_numWaitingPushers` to SYNCHRONIZATION POINT
         // 2.
 
         if (isFull() && isEnabled()) {
@@ -680,10 +680,10 @@ int FixedQueue<TYPE>::pushBack(bslmf::MovableRef<TYPE> value)
 
         // SYNCHRONIZATION POINT 1-Prime
         //
-        // The following call to 'isFull' loads
-        // 'FixedQueueIndexManager::d_pushIndex' with full sequential
+        // The following call to `isFull` loads
+        // `FixedQueueIndexManager::d_pushIndex` with full sequential
         // consistency, which is required to ensure the visibility of the
-        // preceding change to 'd_numWaitingPushers' to SYNCHRONIZATION POINT
+        // preceding change to `d_numWaitingPushers` to SYNCHRONIZATION POINT
         // 2.
 
         if (isFull() && isEnabled()) {
@@ -704,10 +704,10 @@ void FixedQueue<TYPE>::popFront(TYPE *value)
 
         // SYNCHRONIZATION POINT 2-Prime
         //
-        // The following call to 'isEmpty' loads
-        // 'FixedQueueIndexManager::d_pushIndex' with full sequential
+        // The following call to `isEmpty` loads
+        // `FixedQueueIndexManager::d_pushIndex` with full sequential
         // consistency, which is required to ensure the visibility of the
-        // preceding change to 'd_numWaitingPushers' to SYNCHRONIZATION POINT
+        // preceding change to `d_numWaitingPushers` to SYNCHRONIZATION POINT
         // 2.
 
         if (isEmpty()) {
@@ -734,14 +734,14 @@ TYPE FixedQueue<TYPE>::popFront()
         d_numWaitingPoppers.addRelaxed(-1);
     }
 
-    // Copy the element.  'FixedQueue_PopGuard' will destroy original object,
+    // Copy the element.  `FixedQueue_PopGuard` will destroy original object,
     // update the queue, and release a waiting pusher, even if the copy
     // constructor throws.
 
     FixedQueue_PopGuard<TYPE> guard(this, generation, index);
     // Unfortunately, in C++03, there are user types where a MovableRef will
     // not safely degrade to a lvalue reference when a move constructor is not
-    // available, so 'move' cannot be used directly on a user supplied type.
+    // available, so `move` cannot be used directly on a user supplied type.
     // See internal bug report 99039150.
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     return TYPE(bslmf::MovableRefUtil::move(d_elements[index]));
@@ -864,8 +864,8 @@ FixedQueue_PopGuard<VALUE>::FixedQueue_PopGuard(FixedQueue<VALUE> *queue,
 template <class VALUE>
 FixedQueue_PopGuard<VALUE>::~FixedQueue_PopGuard()
 {
-    // This popping thread currently has the cell at 'd_index' (in
-    // 'd_generation') reserved for popping.  Destroy the element at that
+    // This popping thread currently has the cell at `d_index` (in
+    // `d_generation`) reserved for popping.  Destroy the element at that
     // position and then release the reservation.  Wake up to 1 waiting pusher
     // thread.
 
@@ -902,8 +902,8 @@ template <class VALUE>
 FixedQueue_PushProctor<VALUE>::~FixedQueue_PushProctor()
 {
     if (d_parent_p) {
-        // This pushing thread currently has the cell at 'd_index' reserved as
-        // 'e_WRITING'.  Dispose of all the elements up to 'd_index'.
+        // This pushing thread currently has the cell at `d_index` reserved as
+        // `e_WRITING`.  Dispose of all the elements up to `d_index`.
 
         unsigned int generation, index;
 

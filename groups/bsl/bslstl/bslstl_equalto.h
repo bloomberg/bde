@@ -36,26 +36,26 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define our `ListSet` template class:
 // ```
+// /// This class implements a crude implementation of a set, that will
+// /// keep a set of values and be able to determine if an element is a
+// /// member of the set.  Unlike a `bsl::set` or `bsl::unordered_set`, no
+// /// hash function or transitive `operator<` is required -- only a
+// /// transitive `EQUALS` operator.
+// ///
+// /// The `TYPE` template parameter must have a public copy constructor
+// /// and destructor available.
+// ///
+// /// The `EQUALS` template parameter must a function with a function
+// /// whose signature is
+// /// ```.
+// ///  bool operator()(const TYPE& lhs, const TYPE& rhs) const;
+// /// ```
+// /// and which returns `true` if `lhs` and `rhs` are equivalent and
+// /// `false` otherwise.  This equivalence relation must be transitive and
+// /// symmetric.  The comparator must have a default constructor and
+// /// destructor which are public.
 // template <typename TYPE, typename EQUALS = bsl::equal_to<TYPE> >
 // class ListSet {
-//     // This class implements a crude implementation of a set, that will
-//     // keep a set of values and be able to determine if an element is a
-//     // member of the set.  Unlike a 'bsl::set' or 'bsl::unordered_set', no
-//     // hash function or transitive 'operator<' is required -- only a
-//     // transitive 'EQUALS' operator.
-//     //
-//     // The 'TYPE' template parameter must have a public copy constructor
-//     // and destructor available.
-//     //
-//     // The 'EQUALS' template parameter must a function with a function
-//     // whose signature is
-//     //..
-//     //  bool operator()(const TYPE& lhs, const TYPE& rhs) const;
-//     //..
-//     // and which returns 'true' if 'lhs' and 'rhs' are equivalent and
-//     // 'false' otherwise.  This equivalence relation must be transitive and
-//     // symmetric.  The comparator must have a default constructor and
-//     // destructor which are public.
 //
 //     // PRIVATE TYPES
 //     struct Node {
@@ -75,17 +75,18 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an empty `ListSet` using the specified `allocator`, or
+//     /// the default allocator if none is specified.
 //     explicit
 //     ListSet(bslma::Allocator *allocator = 0)
 //     : d_comparator()
 //     , d_nodeList(0)
 //     , d_allocator_p(bslma::Default::allocator(allocator))
-//         // Create an empty "ListSet' using the specified 'allocator', or
-//         // the default allocator if none is specified.
 //     {}
 //
+//     /// Release all memory used by this `ListSet`
 //     ~ListSet()
-//         // Release all memory used by this 'ListSet'
 //     {
 //         for (Node *node = d_nodeList; node; ) {
 //             Node *toDelete = node;
@@ -96,10 +97,11 @@ BSLS_IDENT("$Id: $")
 //     }
 //
 //     // MANIPULATOR
+//
+//     /// If `value` isn't contained in this `ListSet`, add it and return
+//     /// `true`, otherwise, return `false` with no change to the
+//     /// `ListSet`.
 //     bool insert(const TYPE& value)
-//         // If 'value' isn't contained in this 'ListSet', add it and return
-//         // 'true', otherwise, return 'false' with no change to the
-//         // 'ListSet'.
 //     {
 //         if (count(value)) {
 //             return false;                                         // RETURN
@@ -116,9 +118,9 @@ BSLS_IDENT("$Id: $")
 //         return true;
 //     }
 //
+//     /// Return the number of nodes whose `d_value` field is equivalent
+//     /// to the specified `value`, which will always be 0 or 1.
 //     int count(const TYPE& value) const
-//         // Return the number of nodes whose 'd_value' field is equivalent
-//         // to the specified 'value', which will always be 0 or 1.
 //     {
 //         for (Node *node = d_nodeList; node; node = node->d_next) {
 //             if (d_comparator(node->d_value, value)) {
@@ -170,27 +172,29 @@ BSLS_IDENT("$Id: $")
 // pointer, it will be a very simple type, that is implicitly castable to or
 // from a `const char *`.
 // ```
+// /// This class holds a pointer to zero-terminated string.  It is
+// /// implicitly convertible to and from a `const char *`.  The difference
+// /// between this type and a `const char *` is that `operator==` will
+// /// properly compare two objects of this type for equality of strings
+// /// rather than equality of pointers.
 // class StringThing {
-//     // This class holds a pointer to zero-terminated string.  It is
-//     // implicitly convertible to and from a 'const char *'.  The difference
-//     // between this type and a 'const char *' is that 'operator==' will
-//     // properly compare two objects of this type for equality of strings
-//     // rather than equality of pointers.
 //
 //     // DATA
 //     const char *d_string;    // held, not owned
 //
 //   public:
 //     // CREATOR
+//
+//     /// Create a `StringThing` object out of the specified `string`.
 //     StringThing(const char *string)                             // IMPLICIT
 //     : d_string(string)
-//         // Create a 'StringThing' object out of the specified 'string'.
 //     {}
 //
 //     // ACCESSOR
+//
+//     /// Implicitly cast this `StringThing` object to a `const char *`
+//     /// that refers to the same buffer.
 //     operator const char *() const
-//         // Implicitly cast this 'StringThing' object to a 'const char *'
-//         // that refers to the same buffer.
 //     {
 //         return d_string;
 //     }
@@ -269,22 +273,23 @@ struct equal_to {
     typedef VALUE_TYPE second_argument_type;
     typedef bool       result_type;
 
+    /// Create a `equal_to` object.
     //! equal_to() = default;
-        // Create a 'equal_to' object.
 
+    /// Create a `equal_to` object.  Note that as `equal_to` is an empty
+    /// (stateless) type, this operation will have no observable effect.
     //! equal_to(const equal_to& original) = default;
-        // Create a 'equal_to' object.  Note that as 'equal_to' is an empty
-        // (stateless) type, this operation will have no observable effect.
 
+    /// Destroy this object.
     //! ~equal_to() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// a return a reference providing modifiable access to this object.
+    /// Note that as `equal_to` is an empty (stateless) type, this operation
+    /// will have no observable effect.
     //! equal_to& operator=(const equal_to&) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // a return a reference providing modifiable access to this object.
-        // Note that as 'equal_to' is an empty (stateless) type, this operation
-        // will have no observable effect.
 
     // ACCESSORS
 
@@ -303,23 +308,24 @@ struct equal_to<void> {
     // PUBLIC TYPES
     typedef void is_transparent;
 
+    /// Create a `equal_to` object.
     //! equal_to() = default;
-        // Create a 'equal_to' object.
 
+    /// Create a `equal_to` object.  Note that as `equal_to<void>` is an
+    /// empty (stateless) type, this operation will have no observable
+    /// effect.
     //! equal_to(const equal_to& original) = default;
-        // Create a 'equal_to' object.  Note that as 'equal_to<void>' is an
-        // empty (stateless) type, this operation will have no observable
-        // effect.
 
+    /// Destroy this object.
     //! ~equal_to() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// a return a reference providing modifiable access to this object.
+    /// Note that as `equal_to` is an empty (stateless) type, this
+    /// operation will have no observable effect.
     //! equal_to& operator=(const equal_to&) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // a return a reference providing modifiable access to this object.
-        // Note that as 'equal_to' is an empty (stateless) type, this
-        // operation will have no observable effect.
 
     // ACCESSORS
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
@@ -334,11 +340,11 @@ struct equal_to<void> {
       -> decltype(      std::forward<TYPE1>(lhs) == std::forward<TYPE2>(rhs))
     { return            std::forward<TYPE1>(lhs) == std::forward<TYPE2>(rhs); }
 #else
+    /// Return `true` if the specified `lhs` compares equal to the specified
+    /// `rhs` using the equality-comparison operator, `lhs == rhs`.
+    /// Implemented inline because of compiler errors (AIX, SUN).
     template<class TYPE1, class TYPE2>
     inline bool operator()(const TYPE1& lhs, const TYPE2& rhs) const
-        // Return 'true' if the specified 'lhs' compares equal to the specified
-        // 'rhs' using the equality-comparison operator, 'lhs == rhs'.
-        // Implemented inline because of compiler errors (AIX, SUN).
     {
         return lhs == rhs;
     }

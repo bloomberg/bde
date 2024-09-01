@@ -46,8 +46,8 @@ BSLS_IDENT("$Id: $")
 // mechanisms.  In particular, the functionality provided by `bslmt::Sluice` is
 // useful for implementing a condition variable:
 // ```
+// /// This class implements a condition variable based on `bslmt::Sluice`.
 // class MyCondition {
-//     // This class implements a condition variable based on 'bslmt::Sluice'.
 //
 //     // DATA
 //     bslmt::Sluice d_waitSluice;  // sluice object

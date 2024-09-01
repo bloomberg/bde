@@ -159,10 +159,10 @@ class FixUtilConfiguration {
 
   private:
     // PRIVATE TYPES
-    enum {
-        // This enumeration denotes the distinct bits that define the values of
-        // each of the two configuration attributes.
 
+    /// This enumeration denotes the distinct bits that define the values of
+    /// each of the two configuration attributes.
+    enum {
         k_FRACTIONAL_SECOND_PRECISION_MASK = 0x07,
         k_USE_Z_ABBREVIATION_FOR_UTC_BIT   = 0x08
     };

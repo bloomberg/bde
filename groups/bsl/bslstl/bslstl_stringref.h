@@ -83,7 +83,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // void MyClass::setLabel(const bsl::string& label)
 // {
-//     d_label = label;  // 'MyClass::d_label' is of type 'bsl::string'
+//     d_label = label;  // `MyClass::d_label` is of type `bsl::string`
 // }
 // ```
 // Then, consider a typical call to this method:
@@ -149,10 +149,10 @@ BSLS_IDENT("$Id: $")
 // ```
 // #include <algorithm>
 //
-//  bslstl::StringRef::size_type
-//  getNumBlanks(const bslstl::StringRef& stringRef)
-//     // Return the number of blank (' ') characters in the string referenced
-//     // by the specified 'stringRef'.
+// // Return the number of blank (` `) characters in the string referenced
+// // by the specified `stringRef`.
+// bslstl::StringRef::size_type
+// getNumBlanks(const bslstl::StringRef& stringRef)
 // {
 //     return std::count(stringRef.begin(), stringRef.end(), ' ');
 // }
@@ -400,23 +400,23 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     /// unless `data` is null-terminated.
     StringRefImp(const CHAR_TYPE *data);                            // IMPLICIT
 
+    /// Create a string-reference object having a valid `std::string` value,
+    /// whose external representation is defined by the specified `str`
+    /// object.  The external representation must remain valid as long as it
+    /// is bound to this string reference.
     StringRefImp(const bsl::basic_string_view<CHAR_TYPE>& str);     // IMPLICIT
     StringRefImp(const std::basic_string<CHAR_TYPE>& str);          // IMPLICIT
     StringRefImp(const bsl::basic_string<CHAR_TYPE>& str);          // IMPLICIT
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     StringRefImp(const std::pmr::basic_string<CHAR_TYPE>& str);     // IMPLICIT
 #endif
-        // Create a string-reference object having a valid 'std::string' value,
-        // whose external representation is defined by the specified 'str'
-        // object.  The external representation must remain valid as long as it
-        // is bound to this string reference.
 
-//! StringRefImp(const StringRefImp& original) = default;
-        // Create a string-reference object having a valid 'std::string' value,
-        // whose external representation is defined by the specified 'original'
-        // object.  The external representation must remain valid as long as it
-        // is bound to this string reference.  Note that this trivial copy
-        // constructor's definition is compiler generated.
+    /// Create a string-reference object having a valid `std::string` value,
+    /// whose external representation is defined by the specified `original`
+    /// object.  The external representation must remain valid as long as it
+    /// is bound to this string reference.  Note that this trivial copy
+    /// constructor's definition is compiler generated.
+    //! StringRefImp(const StringRefImp& original) = default;
 
     /// Create a string-reference object having a valid `std::string` value,
     /// whose external representation begins at the specified `startIndex`
@@ -431,16 +431,17 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
                  size_type           startIndex,
                  size_type           numCharacters);
 
-//! ~StringRefImp() = default;
-        // Destroy this object.
+    /// Destroy this object.
+    //! ~StringRefImp() = default;
 
     // MANIPULATORS
-//! StringRefImp& operator=(const StringRefImp& rhs) = default;
-        // Modify this string reference to refer to the same string as the
-        // specified 'rhs' string reference and return a reference providing
-        // modifiable access to this object.  The assigned object is guaranteed
-        // to have values of attributes 'begin' and 'end' equal to the 'rhs'
-        // object's attributes.
+
+    /// Modify this string reference to refer to the same string as the
+    /// specified `rhs` string reference and return a reference providing
+    /// modifiable access to this object.  The assigned object is guaranteed
+    /// to have values of attributes `begin` and `end` equal to the `rhs`
+    /// object's attributes.
+    //! StringRefImp& operator=(const StringRefImp& rhs) = default;
 
     /// Bind this string reference to the string at the specified `data`
     /// address and extending for the specified `length` characters.  The
@@ -1074,8 +1075,8 @@ bsl::basic_string<CHAR_TYPE>
 bslstl::operator+(const CHAR_TYPE                *lhs,
                   const StringRefImp<CHAR_TYPE>&  rhs)
 {
-    // We have to traverse 'lhs' to know how much space to allocate in the
-    // result anyway, so best to build a 'StringRefImp' from it.
+    // We have to traverse `lhs` to know how much space to allocate in the
+    // result anyway, so best to build a `StringRefImp` from it.
 
     return StringRefImp<CHAR_TYPE>(lhs) + rhs;
 }
@@ -1086,8 +1087,8 @@ bsl::basic_string<CHAR_TYPE>
 bslstl::operator+(const StringRefImp<CHAR_TYPE>&  lhs,
                   const CHAR_TYPE                *rhs)
 {
-    // We have to traverse 'rhs' to know how much space to allocate in the
-    // result anyway, so best to build a 'StringRefImp' from it.
+    // We have to traverse `rhs` to know how much space to allocate in the
+    // result anyway, so best to build a `StringRefImp` from it.
 
     return lhs + StringRefImp<CHAR_TYPE>(rhs);
 }

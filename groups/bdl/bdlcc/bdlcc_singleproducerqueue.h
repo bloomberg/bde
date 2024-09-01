@@ -83,8 +83,8 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define a utility classes that handles a simple "work item":
 // ```
+// /// Work data...
 // struct my_WorkData {
-//     // Work data...
 // };
 //
 // struct my_WorkRequest {
@@ -120,7 +120,7 @@ BSLS_IDENT("$Id: $")
 // void myConsumer(bdlcc::SingleProducerQueue<my_WorkRequest> *queue)
 // {
 //     while (1) {
-//         // 'popFront()' will wait for a 'my_WorkRequest' until available.
+//         // `popFront()` will wait for a `my_WorkRequest` until available.
 //
 //         my_WorkRequest item;
 //         queue->popFront(&item);
@@ -239,8 +239,8 @@ class SingleProducerQueue {
     SingleProducerQueue(bsl::size_t       capacity,
                         bslma::Allocator *basicAllocator = 0);
 
+    /// Destroy this object.
     //! ~SingleProducerQueue() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

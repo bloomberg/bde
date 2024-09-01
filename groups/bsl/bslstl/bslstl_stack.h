@@ -188,21 +188,23 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // MANIPULATORS
-//     void enqueueTask(const char *task);
-//         // Add the specified 'task', a string describing a task, to the
-//         // list.  Note the lifetime of the string referred to by 'task'
-//         // must exceed the lifetime of the task in this list.
 //
+//     /// Add the specified `task`, a string describing a task, to the
+//     /// list.  Note the lifetime of the string referred to by `task`
+//     /// must exceed the lifetime of the task in this list.
+//     void enqueueTask(const char *task);
+//
+//     /// Remove the current task from the list.  Return `true` if a task
+//     /// was removed and it was the last task on the list, and return
+//     /// `false` otherwise.
 //     bool finishTask();
-//         // Remove the current task from the list.  Return 'true' if a task
-//         // was removed and it was the last task on the list, and return
-//         // 'false' otherwise.
 //
 //     // ACCESSORS
+//
+//     /// Return the string representing the current task.  If there
+//     /// is no current task, return the string "<EMPTY>", which is
+//     /// not a valid task.
 //     const char *currentTask() const;
-//         // Return the string representing the current task.  If there
-//         // is no current task, return the string "<EMPTY>", which is
-//         // not a valid task.
 // };
 //
 // // MANIPULATORS
@@ -516,10 +518,10 @@ class stack {
     /// unspecified state.
     void push(BloombergLP::bslmf::MovableRef<value_type> value);
 
+    /// Exchange the value of this stack with the value of the specified
+    /// `other` stack.
     void swap(stack& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                   bsl::is_nothrow_swappable<CONTAINER>::value);
-        // Exchange the value of this stack with the value of the specified
-        // 'other' stack.
 
     /// Return a reference to the element at the top of this stack.  The
     /// behavior is undefined if this stack is empty.

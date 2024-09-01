@@ -71,26 +71,26 @@ BSLS_IDENT("$Id: $")
 // Trait                       How Used
 // --------------------------- -----------------------------------------------
 // bslma::UsesBslmaAllocator   If true, the allocator being passed in must be
-//                             either convertible to 'bslma::Allocator *' or
-//                             else have a 'mechanism' accessor.  If false,
+//                             either convertible to `bslma::Allocator *` or
+//                             else have a `mechanism` accessor.  If false,
 //                             the allocator argument must be convertible to
-//                             the 'TYPE::allocator_type'.
+//                             the `TYPE::allocator_type`.
 //
-// bslma::HasAllocatorType     If true, 'TYPE::allocator_type' is assumed to
-//                             the type of allocator accepted by 'TYPE''s
+// bslma::HasAllocatorType     If true, `TYPE::allocator_type` is assumed to
+//                             the type of allocator accepted by `TYPE`'s
 //                             constructors.
 //
-// bsl::uses_allocator<TYPE,A> If true, then 'A' can be used as an allocator
-//                             to construct 'TYPE'.
+// bsl::uses_allocator<TYPE,A> If true, then `A` can be used as an allocator
+//                             to construct `TYPE`.
 //
 // bslmf::UsesAllocatorArgT    If true, an allocator argument is passed as the
 //                             second argument to the constructor, preceeded
-//                             by a 'bsl::allocator_arg' tag; otherwise the
+//                             by a `bsl::allocator_arg` tag; otherwise the
 //                             allocator is passed as the last argument to the
 //                             constructor.
 //
-// bslmf::IsBitwiseMoveable    If true, 'destructiveMove' is implemented as a
-//                             simple 'memcpy', rather than as a move-destroy
+// bslmf::IsBitwiseMoveable    If true, `destructiveMove` is implemented as a
+//                             simple `memcpy`, rather than as a move-destroy
 //                             sequence.
 // ```
 //
@@ -110,12 +110,12 @@ BSLS_IDENT("$Id: $")
 // ```
 // #include <bslma_bslallocator.h>
 //
+// /// This class implements a proctor to release memory allocated during
+// /// the construction of a `MyContainer` object if the constructor for
+// /// the container's data element throws an exception.  Such a proctor
+// /// should be `release`d once the element is safely constructed.
 // template <class TYPE>
 // class MyContainerProctor {
-//     // This class implements a proctor to release memory allocated during
-//     // the construction of a 'MyContainer' object if the constructor for
-//     // the container's data element throws an exception.  Such a proctor
-//     // should be 'release'd once the element is safely constructed.
 //
 //     // DATA
 //     bsl::allocator<TYPE>  d_allocator;
@@ -128,22 +128,23 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a proctor that conditionally manages the memory at the
+//     /// specified `address`, and that uses the specified `allocator` to
+//     /// deallocate the block of memory (if not released -- see
+//     /// `release`) upon destruction.  The behavior is undefined unless
+//     /// `allocator` is non-zero and supplied the memory at `address`.
 //     MyContainerProctor(const bsl::allocator<TYPE> allocator, TYPE *address)
-//         // Create a proctor that conditionally manages the memory at the
-//         // specified 'address', and that uses the specified 'allocator' to
-//         // deallocate the block of memory (if not released -- see
-//         // 'release') upon destruction.  The behavior is undefined unless
-//         // 'allocator' is non-zero and supplied the memory at 'address'.
 //     : d_allocator(allocator)
 //     , d_address_p(address)
 //     {
 //     }
 //
+//     /// Destroy this proctor, and deallocate the block of memory it
+//     /// manages (if any) by invoking the `deallocate` method of the
+//     /// allocator that was supplied at construction of this proctor.  If
+//     /// no memory is currently being managed, this method has no effect.
 //     ~MyContainerProctor()
-//         // Destroy this proctor, and deallocate the block of memory it
-//         // manages (if any) by invoking the 'deallocate' method of the
-//         // allocator that was supplied at construction of this proctor.  If
-//         // no memory is currently being managed, this method has no effect.
 //     {
 //         if (d_address_p) {
 //             d_allocator.deallocate(d_address_p, 1);
@@ -151,10 +152,11 @@ BSLS_IDENT("$Id: $")
 //     }
 //
 //     // MANIPULATORS
+//
+//     /// Release from management the block of memory currently managed by
+//     /// this proctor.  If no memory is currently being managed, this
+//     /// method has no effect.
 //     void release()
-//         // Release from management the block of memory currently managed by
-//         // this proctor.  If no memory is currently being managed, this
-//         // method has no effect.
 //     {
 //         d_address_p = 0;
 //     }
@@ -165,78 +167,81 @@ BSLS_IDENT("$Id: $")
 // ```
 // #include <bslma_constructionutil.h>
 //
+// /// This class provides a container that always holds exactly one
+// /// element, dynamically allocated using the specified `bslma`
+// /// allocator.
 // template <class TYPE>
 // class MyContainer {
-//     // This class provides a container that always holds exactly one
-//     // element, dynamically allocated using the specified 'bslma'
-//     // allocator.
 //
 //     // DATA
 //     bsl::allocator<TYPE>  d_allocator;
 //     TYPE                 *d_value_p;
 //
+//     /// Return the address of a new element that was allocated from this
+//     /// container's allocator and initialized with the optionally
+//     /// specified `value`, or default-initialized if `value` is not
+//     /// specified.  If `TYPE` is AA, this container's allocator is used
+//     /// to construct the new element.
 //     TYPE *createElement();
 //     TYPE *createElement(const TYPE& value);
-//         // Return the address of a new element that was allocated from this
-//         // container's allocator and initialized with the optionally
-//         // specified 'value', or default-initialized if 'value' is not
-//         // specified.  If 'TYPE' is AA, this container's allocator is used
-//         // to construct the new element.
 //
 //   public:
 //     typedef bsl::allocator<TYPE>  allocator_type;
 //
 //     // CREATORS
+//
+//     /// Create a container with a default-constructed element.
+//     /// Optionally specify a `allocator` used to supply memory.
 //     explicit
 //     MyContainer(const allocator_type& allocator = allocator_type())
-//         // Create a container with a default-constructed element.
-//         // Optionally specify a 'allocator' used to supply memory.
 //         : d_allocator(allocator), d_value_p(createElement()) { }
 //
+//     /// Create a container having an element constructed from the
+//     /// specified `value`.  Optionally specify an `allocator` to supply
+//     /// memory both for the container and for the contained element.
 //     explicit
 //     MyContainer(const TYPE&           value,
 //                 const allocator_type& allocator = allocator_type())
-//         // Create a container having an element constructed from the
-//         // specified 'value'.  Optionally specify an 'allocator' to supply
-//         // memory both for the container and for the contained element.
 //         : d_allocator(allocator), d_value_p(createElement(value)) { }
 //
+//     /// Create a container having the same value as the specified
+//     /// `original` object.  Optionally specify a `allocator` used
+//     /// to supply memory.  If `allocator` is 0, the currently
+//     /// installed default allocator is used.
 //     MyContainer(const MyContainer&    original,
 //                 const allocator_type& allocator = allocator_type())
-//         // Create a container having the same value as the specified
-//         // 'original' object.  Optionally specify a 'allocator' used
-//         // to supply memory.  If 'allocator' is 0, the currently
-//         // installed default allocator is used.
 //         : d_allocator(allocator)
 //         , d_value_p(createElement(*original.d_value_p)) { }
 //
+//     /// Destroy this object.
 //     ~MyContainer();
-//         // Destroy this object.
 //
 //     // MANIPULATORS
+//
+//     /// Assign to this object the value of the specified `rhs` object,
+//     /// and return a reference providing modifiable access to this
+//     /// object.
 //     MyContainer& operator=(const TYPE& rhs);
 //     MyContainer& operator=(const MyContainer& rhs);
-//         // Assign to this object the value of the specified 'rhs' object,
-//         // and return a reference providing modifiable access to this
-//         // object.
 //
+//     /// Return a non-`const` reference to the element contained in this
+//     /// object.
 //     TYPE& front()
-//         // Return a non-'const' reference to the element contained in this
-//         // object.
 //     {
 //         return *d_value_p;
 //     }
 //
 //     // ACCESSORS
+//
+//     /// Return a `const` reference to the element contained in this
+//     /// object.
 //     const TYPE& front() const
-//         // Return a 'const' reference to the element contained in this
-//         // object.
 //     {
 //         return *d_value_p;
 //     }
 //
+//     /// Return the allocator used by this object to supply memory.
 //     allocator_type get_allocator() const
-//         // Return the allocator used by this object to supply memory.
 //     {
 //         return d_allocator;
 //     }
@@ -350,34 +355,35 @@ BSLS_IDENT("$Id: $")
 //     BSLMF_NESTED_TRAIT_DECLARATION(MyType, bslma::UsesBslmaAllocator);
 //
 //     // CREATORS
+//
+//     /// Create a `MyType` object having the default value.  Optionally
+//     /// specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default allocator
+//     /// is used.
 //     explicit MyType(bslma::Allocator *basicAllocator = 0)
-//         // Create a 'MyType' object having the default value.  Optionally
-//         // specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default allocator
-//         // is used.
 //         : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //         , d_value()
 //     {
 //         // ...
 //     }
 //
+//     /// Create a `MyType` object having the specified `value`.
+//     /// Optionally specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default allocator
+//     /// is used.
 //     explicit MyType(int               value,
 //                     bslma::Allocator *basicAllocator = 0)
-//         // Create a 'MyType' object having the specified 'value'.
-//         // Optionally specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default allocator
-//         // is used.
 //         : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //         , d_value(value)
 //     {
 //         // ...
 //     }
 //
+//     /// Create a `MyType` object having the same value as the specified
+//     /// `original` object.  Optionally specify a `basicAllocator` used
+//     /// to supply memory.  If `basicAllocator` is 0, the currently
+//     /// installed default allocator is used.
 //     MyType(const MyType& original, bslma::Allocator *basicAllocator = 0)
-//         // Create a 'MyType' object having the same value as the specified
-//         // 'original' object.  Optionally specify a 'basicAllocator' used
-//         // to supply memory.  If 'basicAllocator' is 0, the currently
-//         // installed default allocator is used.
 //     : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //     , d_value(original.value())
 //     {
@@ -387,14 +393,15 @@ BSLS_IDENT("$Id: $")
 //     // ...
 //
 //     // ACCESSORS
+//
+//     /// Return the allocator used by this object to supply memory.
 //     bslma::Allocator *allocator() const
-//         // Return the allocator used by this object to supply memory.
 //     {
 //         return d_allocator_p;
 //     }
 //
+//     /// Return the value of this object.
 //     int value() const
-//         // Return the value of this object.
 //     {
 //         return d_value;
 //     }
@@ -453,12 +460,12 @@ BSLS_IDENT("$Id: $")
 // changes.  We store the object directly as a member variable, instead of
 // using an uninitialized buffer, to avoid a separate construction step:
 // ```
+// /// This class is a wrapper around an object of the specified `TYPE`
+// /// that triggers a call to an object, called the "listener", of the
+// /// specified `FUNC` invocable type whenever the wrapped object is
+// /// changed.
 // template <class TYPE, class FUNC>
 // class MyTriggeredWrapper {
-//     // This class is a wrapper around an object of the specified 'TYPE'
-//     // that triggers a call to an object, called the "listener", of the
-//     // specified 'FUNC' invocable type whenever the wrapped object is
-//     // changed.
 //
 //     // DATA
 //     TYPE d_value;
@@ -468,52 +475,55 @@ BSLS_IDENT("$Id: $")
 //     typedef bsl::allocator<> allocator_type;
 //
 //     // CREATORS
+//
+//     /// Create an object with the specified `f` as the listener to be
+//     /// called when a change is triggered.  Optionally specify `v` as
+//     /// the wrapped value; otherwise the wrapped value is default
+//     /// constructed.  Optionally specify `allocator` to supply
+//     /// memory; otherwise the current default allocator is used.  If
+//     /// `TYPE` is not allocator aware, `allocator` is ignored.
 //     explicit
 //     MyTriggeredWrapper(const FUNC&           f,
 //                        const allocator_type& allocator = allocator_type());
 //     MyTriggeredWrapper(const TYPE&           v,
 //                        const FUNC&           f,
 //                        const allocator_type& allocator = allocator_type());
-//         // Create an object with the specified 'f' as the listener to be
-//         // called when a change is triggered.  Optionally specify 'v' as
-//         // the wrapped value; otherwise the wrapped value is default
-//         // constructed.  Optionally specify 'allocator' to supply
-//         // memory; otherwise the current default allocator is used.  If
-//         // 'TYPE' is not allocator aware, 'allocator' is ignored.
 //
+//     /// Create a copy of the specified `original`.  Optionally specify
+//     /// `allocator` to supply memory; otherwise the current
+//     /// default allocator is used.
 //     MyTriggeredWrapper(const MyTriggeredWrapper&  original,
 //                        const allocator_type& allocator = allocator_type());
-//         // Create a copy of the specified 'original'.  Optionally specify
-//         // 'allocator' to supply memory; otherwise the current
-//         // default allocator is used.
 //
+//     /// Destroy the wrapped object and listener.
 //     ~MyTriggeredWrapper()
-//         // Destroy the wrapped object and listener.
 //     {
 //     }
 //
 //     // MANIPULATORS
+//
+//     /// Assign to the wrapped value the value of the specified `rhs`,
+//     /// invoke the listener with the new value, and return a reference
+//     /// providing modifiable access to this object.  Note that the
+//     /// listener itself is not assigned.
 //     MyTriggeredWrapper& operator=(const TYPE& rhs);
 //     MyTriggeredWrapper& operator=(const MyTriggeredWrapper& rhs);
-//         // Assign to the wrapped value the value of the specified 'rhs',
-//         // invoke the listener with the new value, and return a reference
-//         // providing modifiable access to this object.  Note that the
-//         // listener itself is not assigned.
 //
+//     /// Set the wrapped value to the specified `value` and invoke the
+//     /// listener with the new value.
 //     void setValue(const TYPE& value);
-//         // Set the wrapped value to the specified 'value' and invoke the
-//         // listener with the new value.
 //
 //     // ACCESSORS
+//
+//     /// Return a reference providing read-only access to the wrapped
+//     /// value.
 //     const TYPE& value() const
-//         // Return a reference providing read-only access to the wrapped
-//         // value.
 //     {
 //         return d_value;
 //     }
 //
+//     /// Return a reference providing read-only access to the listener.
 //     const FUNC& listener() const
-//         // Return a reference providing read-only access to the listener.
 //     {
 //         return d_listener;
 //     }
@@ -818,11 +828,12 @@ struct ConstructionUtil {
 struct ConstructionUtil_Imp {
 
     // TYPES
+
+    /// These constants are used in the overloads below, when the last argument
+    /// is of type `bsl::integral_constant<int, N> *`, indicating that
+    /// `TARGET_TYPE` has the traits for which the enumerator equal to `N` is
+    /// named.
     enum {
-        // These constants are used in the overloads below, when the last
-        // argument is of type 'bsl::integral_constant<int, N> *', indicating
-        // that 'TARGET_TYPE' has the traits for which the enumerator equal to
-        // 'N' is named.
 
         e_NIL_TRAITS                 ,
         e_BITWISE_MOVABLE_TRAITS     ,

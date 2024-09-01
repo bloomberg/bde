@@ -41,11 +41,11 @@ BSLS_IDENT("$Id: $")
 // `MyFixedSizeArray`, which provides mutable and constant iterators of
 // template type `bsl::iterator` and `reverse_iterator`:
 // ```
+// /// This is a container that contains a fixed number of elements.  The
+// /// number of elements is specified upon construction and can not be
+// /// changed afterwards.
 // template <class VALUE, int SIZE>
 // class MyFixedSizeArray
-//     // This is a container that contains a fixed number of elements.  The
-//     // number of elements is specified upon construction and can not be
-//     // changed afterwards.
 // {
 //     // DATA
 //     VALUE d_array[SIZE];  // storage of the container
@@ -63,13 +63,13 @@ BSLS_IDENT("$Id: $")
 //
 //     // CREATORS
 //     //! MyFixedSizeArray() = default;
-//         // Create a 'MyFixedSizeArray' object having the parameterized
-//         // 'SIZE' elements of the parameterized type 'VALUE'.
+//         // Create a `MyFixedSizeArray` object having the parameterized
+//         // `SIZE` elements of the parameterized type `VALUE`.
 //
 //     //! MyFixedSizeArray(const MyFixedSizeArray& original) = default;
-//         // Create a 'MyFixedSizeArray' object having same number of
-//         // elements as that of the specified 'rhs', and the same value of
-//         // each element as that of corresponding element in 'rhs'.
+//         // Create a `MyFixedSizeArray` object having same number of
+//         // elements as that of the specified `rhs`, and the same value of
+//         // each element as that of corresponding element in `rhs`.
 //
 //     //! ~MyFixedSizeArray() = default;
 //         // Destroy this object.
@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 // Now, we define the `begin` and `end` methods to return basic iterators
 // (`VALUE*` and `const VALUE*`), and the `rbegin` and `rend` methods to return
 // reverse iterators (`bsl::reverse_iterator<VALUE*>` and
-// 'bsl::reverse_iterator<const VALUE*>) type:
+// `bsl::reverse_iterator<const VALUE*>)` type:
 // ```
 //     // MANIPULATORS
 //     iterator begin();
@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 //
 //     VALUE& operator[](int i);
 //         // Return the reference providing modifiable access of the
-//         // specified 'i'th element of this object.
+//         // specified `i`th element of this object.
 //
 //     // ACCESSORS
 //     const_iterator begin() const;
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 //
 //     const VALUE& operator[](int i) const;
 //         // Return the reference providing non-modifiable access of the
-//         // specified 'i'th element of this object.
+//         // specified `i`th element of this object.
 // };
 //
 // // ...

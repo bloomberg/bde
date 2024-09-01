@@ -222,10 +222,10 @@ using std::get;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)                    \
  && defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 60000
-// gcc 5.4 (and earlier) does not allow non-'constexpr' code in a relaxed
-// 'constexpr' function, such as a 'BSLS_ASSERT' macro.  As use of such code in
+// gcc 5.4 (and earlier) does not allow non-`constexpr` code in a relaxed
+// `constexpr` function, such as a `BSLS_ASSERT` macro.  As use of such code in
 // this component is limited to function templates, the effect is to silently
-// disable the 'constexpr'-ness of those functions, which parse correctly and
+// disable the `constexpr`-ness of those functions, which parse correctly and
 // evaluate as expected at run-time, but fail to compile in a constant
 // evaluation context.  In order to support C++14 standard conformance, we
 // choose to disable our BDE contract checks on platforms affected by this
@@ -238,12 +238,12 @@ namespace bsl {
                                 // class array
                                 // ===========
 
+/// This class template provides a standard conforming implementation of
+/// `std::array`.  `array` is an aggregate wrapper around a raw array,
+/// supporting aggregate initialization and an iterator interface as
+/// required for a standard container.
 template <class VALUE_TYPE, size_t SIZE>
 struct array {
-    // This class template provides a standard conforming implementation of
-    // 'std::array'.  'array' is an aggregate wrapper around a raw array,
-    // supporting aggregate initialization and an iterator interface as
-    // required for a standard container.
 
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -KS02  // Tag implicitly requires private declaration
@@ -267,280 +267,291 @@ struct array {
     typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
 
     // CREATORS
+
+    /// Create an `array` object.  Every element is default constructed if
+    /// `VALUE_TYPE` is default constructible; otherwise, `array` is not
+    /// default constructible.
     //! array() = default;
-        // Create an 'array' object.  Every element is default constructed if
-        // 'VALUE_TYPE' is default constructible; otherwise, 'array' is not
-        // default constructible.
+
+    /// Create an `array` object having the same value as the specified
+    /// `original` object.  Every element is copy constructed from the
+    /// corresponding element in the specified `original` if `VALUE_TYPE` is
+    /// copy constructible; otherwise, `array` is not copy constructible.
+    /// Only in C++11 and later.
     //! array(const array& original) = default;
-        // Create an 'array' object having the same value as the specified
-        // 'original' object.  Every element is copy constructed from the
-        // corresponding element in the specified 'original' if 'VALUE_TYPE' is
-        // copy constructible; otherwise, 'array' is not copy constructible.
-        // Only in C++11 and later.
+
+    /// Create an `array` object having the same value as the specified
+    /// `original` object.  Every element is move constructed from the
+    /// corresponding element in the specified `original` if `VALUE_TYPE` is
+    /// move constructible; otherwise, `array` is not move constructible.
     //! array(array&& original) = default;
-        // Create an 'array' object having the same value as the specified
-        // 'original' object.  Every element is move constructed from the
-        // corresponding element in the specified 'original' if 'VALUE_TYPE' is
-        // move constructible; otherwise, 'array' is not move constructible.
+
+    /// Destroy this object.  Evert element is destroyed if `VALUE_TYPE` is
+    /// destructible; otherwise, array is not destructible.
     //! ~array() = default;
-        // Destroy this object.  Evert element is destroyed if 'VALUE_TYPE' is
-        // destructible; otherwise, array is not destructible.
 
     // MANIPULATORS
-    void fill(const VALUE_TYPE& value);
-        // Set every element in this array to the specified 'value' using the
-        // 'operator=' of 'value_type'.
 
+    /// Set every element in this array to the specified `value` using the
+    /// `operator=` of `value_type`.
+    void fill(const VALUE_TYPE& value);
+
+    /// Exchange each corresponding element between this array and the
+    /// specified `rhs` array by calling `swap(a,b)` where `swap` is found
+    /// by overload resolution including at least the namespaces `std` and
+    /// the associated namespaces of `VALUE_TYPE`.
     void swap(array& rhs) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                  bsl::is_nothrow_swappable<VALUE_TYPE>::value);
-        // Exchange each corresponding element between this array and the
-        // specified 'rhs' array by calling 'swap(a,b)' where 'swap' is found
-        // by overload resolution including at least the namespaces 'std' and
-        // the associated namespaces of 'VALUE_TYPE'.
 
+    /// Return an iterator providing modifiable access to the first element
+    /// in this array; return a past-the-end iterator if this array has size
+    /// 0.
     BSLS_KEYWORD_CONSTEXPR_CPP14
     iterator begin() BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing modifiable access to the first element
-        // in this array; return a past-the-end iterator if this array has size
-        // 0.
 
+    /// Return a past-the-end iterator providing modifiable access to this
+    /// array.
     BSLS_KEYWORD_CONSTEXPR_CPP14
     iterator end() BSLS_KEYWORD_NOEXCEPT;
-        // Return a past-the-end iterator providing modifiable access to this
-        // array.
 
+    /// Return a reverse iterator providing modifiable access to the last
+    /// element in this array; return a past-the-end iterator if this array
+    /// has size 0.
     BSLS_KEYWORD_CONSTEXPR_CPP17
     reverse_iterator rbegin() BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing modifiable access to the last
-        // element in this array; return a past-the-end iterator if this array
-        // has size 0.
 
+    /// Return the past-the-end reverse iterator providing modifiable access
+    /// to this array.
     BSLS_KEYWORD_CONSTEXPR_CPP17
     reverse_iterator rend() BSLS_KEYWORD_NOEXCEPT;
-        // Return the past-the-end reverse iterator providing modifiable access
-        // to this array.
 
+    /// Return a reference providing modifiable access to the element at the
+    /// specified `position` in this array.  The behavior is undefined
+    /// unless `position < size()`.
     BSLS_KEYWORD_CONSTEXPR_CPP14
     reference operator[](size_type position);
-        // Return a reference providing modifiable access to the element at the
-        // specified 'position' in this array.  The behavior is undefined
-        // unless 'position < size()'.
 
+    /// Return a reference to the element at the specified `position` in
+    /// this array.  Throw an `out_of_range` exception if
+    /// `position >= size()`.
     BSLS_KEYWORD_CONSTEXPR_CPP14
     reference at(size_type position);
-        // Return a reference to the element at the specified 'position' in
-        // this array.  Throw an 'out_of_range' exception if
-        // 'position >= size()'.
 
+    /// Return a reference to the first element in this array.  The behavior
+    /// is undefined unless `SIZE > 0`.
     BSLS_KEYWORD_CONSTEXPR_CPP14
     reference front();
-        // Return a reference to the first element in this array.  The behavior
-        // is undefined unless 'SIZE > 0'.
 
+    /// Return a reference to the last element in this array.  The behavior
+    /// is undefined unless `SIZE > 0`.
     BSLS_KEYWORD_CONSTEXPR_CPP14
     reference back();
-        // Return a reference to the last element in this array.  The behavior
-        // is undefined unless 'SIZE > 0'.
 
+    /// Return the address of the first element of the underlying raw array.
+    /// Return a valid `T*` which cannot be dereferenced if the `SIZE` is 0.
     BSLS_KEYWORD_CONSTEXPR_CPP14
     pointer data() BSLS_KEYWORD_NOEXCEPT;
-        // Return the address of the first element of the underlying raw array.
-        // Return a valid 'T*' which cannot be dereferenced if the 'SIZE' is 0.
 
+    /// Sets every element in this array to the corresponding element in the
+    /// specified `other` if `VALUE_TYPE` is copy assignable; otherwise,
+    /// `array` is not copy assignable.
     //! array& operator=(const array& other);
-        // Sets every element in this array to the corresponding element in the
-        // specified 'other' if 'VALUE_TYPE' is copy assignable; otherwise,
-        // 'array' is not copy assignable.
+
+    /// Moves every element in the specified `other` into the corresponding
+    /// element in this array in the if `VALUE_TYPE` is moves assignable;
+    /// otherwise, `array` is not move assignable.
     //! array& operator=(array&& other);
-        // Moves every element in the specified 'other' into the corresponding
-        // element in this array in the if 'VALUE_TYPE' is moves assignable;
-        // otherwise, 'array' is not move assignable.
 
     // BDE_VERIFY pragma: -FABC01  // Function not in alphanumeric order
+
     // ACCESSORS
+
+    /// Return an iterator providing non-modifiable access to the first
+    /// element in this array; return a past-the-end iterator if this array
+    /// has size 0.
     BSLS_KEYWORD_CONSTEXPR_CPP14
     const_iterator begin() const BSLS_KEYWORD_NOEXCEPT;
     BSLS_KEYWORD_CONSTEXPR_CPP14
     const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return an iterator providing non-modifiable access to the first
-        // element in this array; return a past-the-end iterator if this array
-        // has size 0.
 
+    /// Return a past-the-end iterator providing non-modifiable access to
+    /// this array.
     BSLS_KEYWORD_CONSTEXPR_CPP14
     const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
     BSLS_KEYWORD_CONSTEXPR_CPP14
     const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a past-the-end iterator providing non-modifiable access to
-        // this array.
 
+    /// Return a reverse iterator providing non-modifiable access to the
+    /// last element in this array, and the past-the-end reverse iterator if
+    /// this array has size 0.
     BSLS_KEYWORD_CONSTEXPR_CPP17
     const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
     BSLS_KEYWORD_CONSTEXPR_CPP17
     const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
-        // Return a reverse iterator providing non-modifiable access to the
-        // last element in this array, and the past-the-end reverse iterator if
-        // this array has size 0.
 
+    /// Return the past-the-end reverse iterator providing non-modifiable
+    /// access to this `array`.
     BSLS_KEYWORD_CONSTEXPR_CPP17
     const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
     BSLS_KEYWORD_CONSTEXPR_CPP17
     const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the past-the-end reverse iterator providing non-modifiable
-        // access to this 'array'.
 
+    /// Return `true` if the array has size 0, and `false` otherwise.
     BSLS_KEYWORD_CONSTEXPR bool empty() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if the array has size 0, and 'false' otherwise.
 
+    /// Return the number of elements in this array.
     BSLS_KEYWORD_CONSTEXPR size_type size() const BSLS_KEYWORD_NOEXCEPT;
     BSLS_KEYWORD_CONSTEXPR size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the number of elements in this array.
 
+    /// Return a reference providing non-modifiable access to the element at
+    /// the specified `position` in this array.  The behavior is undefined
+    /// unless `position < size()`.
     BSLS_KEYWORD_CONSTEXPR_CPP14
     const_reference operator[](size_type position) const;
-        // Return a reference providing non-modifiable access to the element at
-        // the specified 'position' in this array.  The behavior is undefined
-        // unless 'position < size()'.
 
+    /// Return a reference providing non-modifiable access to the element at
+    /// the specified `position` in this array.  Throw an `out_of_range`
+    /// exception if `position >= size()`.
     BSLS_KEYWORD_CONSTEXPR_CPP14
     const_reference at(size_type position) const;
-        // Return a reference providing non-modifiable access to the element at
-        // the specified 'position' in this array.  Throw an 'out_of_range'
-        // exception if 'position >= size()'.
 
+    /// Return a reference providing non-modifiable access to the first
+    /// element in this array.  The behavior is undefined unless `SIZE > 0`.
     BSLS_KEYWORD_CONSTEXPR_CPP14 const_reference front() const;
-        // Return a reference providing non-modifiable access to the first
-        // element in this array.  The behavior is undefined unless 'SIZE > 0'.
 
+    /// Return a reference providing non-modifiable access to the last
+    /// element in this array.  Behavior is undefined unless `SIZE > 0`.
     BSLS_KEYWORD_CONSTEXPR_CPP14 const_reference back() const;
-        // Return a reference providing non-modifiable access to the last
-        // element in this array.  Behavior is undefined unless 'SIZE > 0'.
 
+    /// Return the address of the first element of the underlying raw array.
+    /// Return a valid `T*` which cannot be dereferenced if the `SIZE` is 0.
     BSLS_KEYWORD_CONSTEXPR_CPP14
     const_pointer data() const BSLS_KEYWORD_NOEXCEPT;
-        // Return the address of the first element of the underlying raw array.
-        // Return a valid 'T*' which cannot be dereferenced if the 'SIZE' is 0.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 // CLASS TEMPLATE DEDUCTION GUIDES
 
+/// Deduce the specified types `VALUE_TYPE` and `SIZE` from the
+/// corresponding elements in the sequence supplied to the constructor of
+/// `array`. The type of the first element in the sequence is the type of
+/// the elements of the array, and the length of the sequence is the size of
+/// the array.
 template<class    VALUE_TYPE,
          class... OTHERS,
          class = bsl::enable_if_t<(bsl::is_same_v<VALUE_TYPE, OTHERS> && ...)>
          >
 array(VALUE_TYPE, OTHERS...) -> array<VALUE_TYPE, 1 + sizeof...(OTHERS)>;
-    // Deduce the specified types 'VALUE_TYPE' and 'SIZE' from the
-    // corresponding elements in the sequence supplied to the constructor of
-    // 'array'. The type of the first element in the sequence is the type of
-    // the elements of the array, and the length of the sequence is the size of
-    // the array.
 #endif
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` has the same value as the specified
+/// `rhs`; return false otherwise.  Two arrays have the same value if each
+/// element has the same value as the corresponding element in the other
+/// array.
 template <class VALUE_TYPE, size_t SIZE>
 bool operator==(const array<VALUE_TYPE, SIZE>& lhs,
                 const array<VALUE_TYPE, SIZE>& rhs);
-    // Return 'true' if the specified 'lhs' has the same value as the specified
-    // 'rhs'; return false otherwise.  Two arrays have the same value if each
-    // element has the same value as the corresponding element in the other
-    // array.
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
+/// Return `true` if the specified `lhs` does not have the same value as the
+/// specified `rhs`; return false otherwise.  Two arrays do not have the
+/// same value if some element in the ordered sequence of elements of `lhs`
+/// does not have the same value as the corresponding element in the ordered
+/// sequence of elements of `rhs`.
 template <class VALUE_TYPE, size_t SIZE>
 bool operator!=(const array<VALUE_TYPE, SIZE>& lhs,
                 const array<VALUE_TYPE, SIZE>& rhs);
-    // Return 'true' if the specified 'lhs' does not have the same value as the
-    // specified 'rhs'; return false otherwise.  Two arrays do not have the
-    // same value if some element in the ordered sequence of elements of 'lhs'
-    // does not have the same value as the corresponding element in the ordered
-    // sequence of elements of 'rhs'.
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
+/// Perform a lexicographic three-way comparison of the specified `lhs` and
+/// the specified `rhs` arrays by using the comparison operators of
+/// `VALUE_TYPE` on each element; return the result of that comparison.
 template <class VALUE_TYPE, size_t SIZE>
 BloombergLP::bslalg::SynthThreeWayUtil::Result<VALUE_TYPE> operator<=>(
                                            const array<VALUE_TYPE, SIZE>& lhs,
                                            const array<VALUE_TYPE, SIZE>& rhs);
-    // Perform a lexicographic three-way comparison of the specified 'lhs' and
-    // the specified 'rhs' arrays by using the comparison operators of
-    // 'VALUE_TYPE' on each element; return the result of that comparison.
 
 #else
 
+/// Return `true` if the specified `lhs` is lexicographically less than the
+/// specified `rhs` by using the comparison operators of `VALUE_TYPE` on
+/// each element; return `false` otherwise.
 template <class VALUE_TYPE, size_t SIZE>
 bool operator<(const array<VALUE_TYPE, SIZE>& lhs,
                const array<VALUE_TYPE, SIZE>& rhs);
-    // Return 'true' if the specified 'lhs' is lexicographically less than the
-    // specified 'rhs' by using the comparison operators of 'VALUE_TYPE' on
-    // each element; return 'false' otherwise.
 
+/// Return `true` if the specified `lhs` is lexicographically greater than
+/// the specified `rhs` by using the comparison operators of `VALUE_TYPE` on
+/// each element; return `false` otherwise.
 template <class VALUE_TYPE, size_t SIZE>
 bool operator>(const array<VALUE_TYPE, SIZE>& lhs,
                const array<VALUE_TYPE, SIZE>& rhs);
-    // Return 'true' if the specified 'lhs' is lexicographically greater than
-    // the specified 'rhs' by using the comparison operators of 'VALUE_TYPE' on
-    // each element; return 'false' otherwise.
 
+/// Return `true` if the specified `lhs` is lexicographically less than the
+/// specified `rhs` by using the comparison operators of `VALUE_TYPE` on
+/// each element or if `lhs` and `rhs` are equal; return `false` otherwise.
 template <class VALUE_TYPE, size_t SIZE>
 bool operator<=(const array<VALUE_TYPE, SIZE>& lhs,
                 const array<VALUE_TYPE, SIZE>& rhs);
-    // Return 'true' if the specified 'lhs' is lexicographically less than the
-    // specified 'rhs' by using the comparison operators of 'VALUE_TYPE' on
-    // each element or if 'lhs' and 'rhs' are equal; return 'false' otherwise.
 
+/// Return `true` if the specified `lhs` is lexicographically greater than
+/// the specified `rhs` by using the comparison operators of `VALUE_TYPE` on
+/// each element or if `lhs` and `rhs` are equal; return `false` otherwise.
 template <class VALUE_TYPE, size_t SIZE>
 bool operator>=(const array<VALUE_TYPE, SIZE>& lhs,
                 const array<VALUE_TYPE, SIZE>& rhs);
-    // Return 'true' if the specified 'lhs' is lexicographically greater than
-    // the specified 'rhs' by using the comparison operators of 'VALUE_TYPE' on
-    // each element or if 'lhs' and 'rhs' are equal; return 'false' otherwise.
 
 #endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
+
+/// Call `swap` using ADL on each element of the specified `lhs` with the
+/// corresponding element in the specified `rhs`.
 template <class VALUE_TYPE, size_t SIZE>
 void swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs);
-    // Call 'swap' using ADL on each element of the specified 'lhs' with the
-    // corresponding element in the specified 'rhs'.
 
+/// Return a reference providing modifiable access to the element of the
+/// specified `a`, having the ordinal number specified by the (template
+/// parameter) `INDEX`.  This function will not compile unless `INDEX < N`.
 template<size_t INDEX, class TYPE, size_t SIZE>
 BSLS_KEYWORD_CONSTEXPR_CPP14
 TYPE& get(array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT;
-    // Return a reference providing modifiable access to the element of the
-    // specified 'a', having the ordinal number specified by the (template
-    // parameter) 'INDEX'.  This function will not compile unless 'INDEX < N'.
 
+/// Return a reference providing non-modifiable access to the element of the
+/// specified `a`, having the ordinal number specified by the (template
+/// parameter) `INDEX`.  This function will not compile unless `INDEX < N`.
 template<size_t INDEX, class TYPE, size_t SIZE>
 BSLS_KEYWORD_CONSTEXPR
 const TYPE& get(const array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT;
-    // Return a reference providing non-modifiable access to the element of the
-    // specified 'a', having the ordinal number specified by the (template
-    // parameter) 'INDEX'.  This function will not compile unless 'INDEX < N'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+/// Return an rvalue reference providing modifiable access to the element of
+/// the specified `a`, having the ordinal number specified by the (template
+/// parameter) `INDEX`.  This function will not compile unless `INDEX < N`.
 template<size_t INDEX, class TYPE, size_t SIZE>
 BSLS_KEYWORD_CONSTEXPR_CPP14
 TYPE&& get(array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT;
-    // Return an rvalue reference providing modifiable access to the element of
-    // the specified 'a', having the ordinal number specified by the (template
-    // parameter) 'INDEX'.  This function will not compile unless 'INDEX < N'.
 
+/// Return an rvalue reference providing non-modifiable access to the
+/// element of the specified `a`, having the ordinal number specified by the
+/// (template parameter) `INDEX`.  This function will not compile unless
+/// `INDEX < N`.
 template<size_t INDEX, class TYPE, size_t SIZE>
 BSLS_KEYWORD_CONSTEXPR
 const TYPE&& get(const array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT;
-    // Return an rvalue reference providing non-modifiable access to the
-    // element of the specified 'a', having the ordinal number specified by the
-    // (template parameter) 'INDEX'.  This function will not compile unless
-    // 'INDEX < N'.
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 // HASH SPECIALIZATIONS
+
+/// Pass the specified `input` to the specified `hashAlgorithm`
 template <class HASH_ALGORITHM, class TYPE, size_t SIZE>
 void hashAppend(HASH_ALGORITHM& hashAlgorithm, const array<TYPE, SIZE>& input);
-    // Pass the specified 'input' to the specified 'hashAlgorithm'
 
 }  // close namespace bsl
 
@@ -553,7 +564,7 @@ namespace std {
 #pragma clang diagnostic ignored "-Wmismatched-tags"
     // The native STL library headers for libstdc++ are internally inconsistent
     // so it is not possible for this header to resolve this warning by picking
-    // either 'struct' or 'class' for the class introducer.  We do not see this
+    // either `struct` or `class` for the class introducer.  We do not see this
     // warning directly from the native libraries only because they are tagged
     // as system headers, which implicitly silences all warnings.
 #endif
@@ -562,11 +573,11 @@ namespace std {
                             // struct tuple_element
                             // ====================
 
+/// This partial specialization of `tuple_element` provides compile-time
+/// access to the type of the array's elements.
 template<size_t INDEX, class TYPE, size_t SIZE>
 struct tuple_element<INDEX, bsl::array<TYPE, SIZE> >
 {
-    // This partial specialization of 'tuple_element' provides compile-time
-    // access to the type of the array's elements.
 
     // STATIC CHECKS
     BSLMF_ASSERT(INDEX < SIZE);
@@ -579,11 +590,11 @@ struct tuple_element<INDEX, bsl::array<TYPE, SIZE> >
                              // struct tuple_size
                              // =================
 
+/// This meta-function provides a compile-time way to obtain the number of
+/// elements in an array.
 template<class TYPE, size_t SIZE>
 struct tuple_size<bsl::array<TYPE, SIZE> > : integral_constant<size_t, SIZE>
 {
-    // This meta-function provides a compile-time way to obtain the number of
-    // elements in an array.
 };
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)

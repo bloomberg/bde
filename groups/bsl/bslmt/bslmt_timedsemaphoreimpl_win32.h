@@ -101,9 +101,9 @@ class TimedSemaphoreImpl;
               // class TimedSemaphoreImpl<Win32TimedSemaphore>
               // =============================================
 
+/// This class implements a timed semaphore in terms of Windows semaphores.
 template <>
 class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
-    // This class implements a timed semaphore in terms of Windows semaphores.
 
     // DATA
     void                        *d_handle;    // handle to Window's
@@ -118,69 +118,72 @@ class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
 
   public:
     // TYPES
+
+    /// The value `timedWait` returns when a timeout occurs.
     enum { e_TIMED_OUT = 0x102 };
-        // The value 'timedWait' returns when a timeout occurs.
 
     // CREATORS
+
+    /// Create a timed semaphore initially having a count of 0.  Optionally
+    /// specify a `clockType` indicating the type of the system clock
+    /// against which the `bsls::TimeInterval` `absTime` timeouts passed to
+    /// the `timedWait` method are to be interpreted (see {Supported
+    /// Clock-Types} in the component documentation).  If `clockType` is not
+    /// specified then the realtime system clock is used.  This method does
+    /// not return normally unless there are sufficient system resources to
+    /// construct the object.
     explicit
     TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
-        // Create a timed semaphore initially having a count of 0.  Optionally
-        // specify a 'clockType' indicating the type of the system clock
-        // against which the 'bsls::TimeInterval' 'absTime' timeouts passed to
-        // the 'timedWait' method are to be interpreted (see {Supported
-        // Clock-Types} in the component documentation).  If 'clockType' is not
-        // specified then the realtime system clock is used.  This method does
-        // not return normally unless there are sufficient system resources to
-        // construct the object.
 
+    /// Create a timed semaphore initially having the specified `count`.
+    /// Optionally specify a `clockType` indicating the type of the system
+    /// clock against which the `bsls::TimeInterval` `absTime` timeouts
+    /// passed to the `timedWait` method are to be interpreted (see
+    /// {Supported Clock-Types} in the component documentation).  If
+    /// `clockType` is not specified then the realtime system clock is used.
+    /// This method does not return normally unless there are sufficient
+    /// system resources to construct the object.
     explicit
     TimedSemaphoreImpl(int                         count,
                        bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
-        // Create a timed semaphore initially having the specified 'count'.
-        // Optionally specify a 'clockType' indicating the type of the system
-        // clock against which the 'bsls::TimeInterval' 'absTime' timeouts
-        // passed to the 'timedWait' method are to be interpreted (see
-        // {Supported Clock-Types} in the component documentation).  If
-        // 'clockType' is not specified then the realtime system clock is used.
-        // This method does not return normally unless there are sufficient
-        // system resources to construct the object.
 
+    /// Destroy this semaphore object.
     ~TimedSemaphoreImpl();
-        // Destroy this semaphore object.
 
     // MANIPULATORS
+
+    /// Atomically increment the count of the semaphore.
     void post();
-        // Atomically increment the count of the semaphore.
 
+    /// Atomically increment the count by the specified `number` of the
+    /// semaphore.  The behavior is undefined unless `number` is a positive
+    /// value.
     void post(int number);
-        // Atomically increment the count by the specified 'number' of the
-        // semaphore.  The behavior is undefined unless 'number' is a positive
-        // value.
 
+    /// Block until the count of this semaphore is a positive value, or
+    /// until the specified `absTime` timeout expires.  `absTime` is an
+    /// *absolute* time represented as an interval from some epoch, which is
+    /// determined by the clock indicated at construction (see {Supported
+    /// Clock-Types} in the component documentation).  If the timeout did
+    /// not expire before the count attained a positive value, atomically
+    /// decrement the count and return 0; otherwise, return a non-zero value
+    /// with no effect on the count.  This method may return `e_TIMED_OUT`
+    /// slightly before `absTime`.
     int timedWait(const bsls::TimeInterval& absTime);
-        // Block until the count of this semaphore is a positive value, or
-        // until the specified 'absTime' timeout expires.  'absTime' is an
-        // *absolute* time represented as an interval from some epoch, which is
-        // determined by the clock indicated at construction (see {Supported
-        // Clock-Types} in the component documentation).  If the timeout did
-        // not expire before the count attained a positive value, atomically
-        // decrement the count and return 0; otherwise, return a non-zero value
-        // with no effect on the count.  This method may return 'e_TIMED_OUT'
-        // slightly before 'absTime'.
 
+    /// Decrement the count of this semaphore if it is positive and return 0.
+    ///  Return a non-zero value otherwise.
     int tryWait();
-        // Decrement the count of this semaphore if it is positive and return
-        // 0.  Return a non-zero value otherwise.
 
+    /// Block until the count is a positive value and atomically decrement it.
     void wait();
-        // Block until the count is a positive value and atomically decrement
-        // it.
 
     // ACCESSORS
+
+    /// Return the clock type used for timeouts.
     bsls::SystemClockType::Enum clockType() const;
-        // Return the clock type used for timeouts.
 };
 
 }  // close package namespace
