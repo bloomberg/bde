@@ -10,13 +10,13 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bbldc::CalendarBus252: BUS-252 convention stateless functions
 //
-//@DESCRIPTION: This component provides a 'struct', 'bbldc::CalendarBus252',
+//@DESCRIPTION: This component provides a `struct`, `bbldc::CalendarBus252`,
 // that serves as a namespace for defining a suite of date-related functions
 // used to compute the day count and the year fraction between two dates as per
 // the BUS-252 day-count convention.  In this day-count convention, the day
-// count between two ordered dates, 'beginDate' and 'endDate' where
-// 'beginDate < endDate', is exactly the number of *business* days occurring in
-// the time period '[beginDate .. endDate)'.  Reversing the order of the dates
+// count between two ordered dates, `beginDate` and `endDate` where
+// `beginDate < endDate`, is exactly the number of *business* days occurring in
+// the time period `[beginDate .. endDate)`.  Reversing the order of the dates
 // negates the result.  When the two dates have the same value, the day count
 // is 0.  The year fraction is the day count divided by 252.
 //
@@ -26,33 +26,33 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Computing Day Count and Year Fraction
 /// - - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use 'bbldc::CalendarBus252'
-// methods.  First, create two 'bdlt::Date' variables, 'd1' and 'd2':
-//..
-//  const bdlt::Date d1(2003, 10, 19);
-//  const bdlt::Date d2(2003, 12, 31);
-//..
-// Then, create a 'calendar' with a valid range spanning 2003 and typical
+// The following snippets of code illustrate how to use `bbldc::CalendarBus252`
+// methods.  First, create two `bdlt::Date` variables, `d1` and `d2`:
+// ```
+// const bdlt::Date d1(2003, 10, 19);
+// const bdlt::Date d2(2003, 12, 31);
+// ```
+// Then, create a `calendar` with a valid range spanning 2003 and typical
 // weekend days:
-//..
-//  bdlt::Calendar calendar;
-//  calendar.setValidRange(bdlt::Date(2003, 1, 1), bdlt::Date(2003, 12, 31));
-//  calendar.addWeekendDay(bdlt::DayOfWeek::e_SUN);
-//  calendar.addWeekendDay(bdlt::DayOfWeek::e_SAT);
-//..
-// Next, compute the day count between 'd1' and 'd2':
-//..
-//  const int daysDiff = bbldc::CalendarBus252::daysDiff(d1, d2, calendar);
-//  assert(52 == daysDiff);
-//..
+// ```
+// bdlt::Calendar calendar;
+// calendar.setValidRange(bdlt::Date(2003, 1, 1), bdlt::Date(2003, 12, 31));
+// calendar.addWeekendDay(bdlt::DayOfWeek::e_SUN);
+// calendar.addWeekendDay(bdlt::DayOfWeek::e_SAT);
+// ```
+// Next, compute the day count between `d1` and `d2`:
+// ```
+// const int daysDiff = bbldc::CalendarBus252::daysDiff(d1, d2, calendar);
+// assert(52 == daysDiff);
+// ```
 // Finally, compute the year fraction between the two dates:
-//..
-//  const double yearsDiff = bbldc::CalendarBus252::yearsDiff(d1,
-//                                                            d2,
-//                                                            calendar);
-//  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
-//  assert(yearsDiff > 0.2063 && yearsDiff < 0.2064);
-//..
+// ```
+// const double yearsDiff = bbldc::CalendarBus252::yearsDiff(d1,
+//                                                           d2,
+//                                                           calendar);
+// // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+// assert(yearsDiff > 0.2063 && yearsDiff < 0.2064);
+// ```
 
 #include <bblscm_version.h>
 
@@ -69,37 +69,38 @@ namespace bbldc {
                           // struct CalendarBus252
                           // =====================
 
+/// This `struct` provides a namespace for a suite of pure functions that
+/// compute values based on dates according to the BUS-252 day-count
+/// convention.
 struct CalendarBus252 {
-    // This 'struct' provides a namespace for a suite of pure functions that
-    // compute values based on dates according to the BUS-252 day-count
-    // convention.
 
     // CLASS METHODS
+
+    /// Return the (signed) number of days between the specified `beginDate`
+    /// and `endDate` according to the BUS-252 day-count convention with the
+    /// specified `calendar` providing the definition of business days.  If
+    /// `beginDate <= endDate`, then the result is non-negative.  The
+    /// behavior is undefined unless `calendar.isInRange(beginDate)` and
+    /// `calendar.isInRange(endDate)`.  Note that reversing the order of
+    /// `beginDate` and `endDate` negates the result and that the result is
+    /// 0 when `beginDate == endDate`.
     static int daysDiff(const bdlt::Date&     beginDate,
                         const bdlt::Date&     endDate,
                         const bdlt::Calendar& calendar);
-        // Return the (signed) number of days between the specified 'beginDate'
-        // and 'endDate' according to the BUS-252 day-count convention with the
-        // specified 'calendar' providing the definition of business days.  If
-        // 'beginDate <= endDate', then the result is non-negative.  The
-        // behavior is undefined unless 'calendar.isInRange(beginDate)' and
-        // 'calendar.isInRange(endDate)'.  Note that reversing the order of
-        // 'beginDate' and 'endDate' negates the result and that the result is
-        // 0 when 'beginDate == endDate'.
 
+    /// Return the (signed fractional) number of years between the specified
+    /// `beginDate` and `endDate` according to the BUS-252 day-count
+    /// convention with the specified `calendar` providing the definition of
+    /// business days.  If `beginDate <= endDate`, then the result is
+    /// non-negative.  The behavior is undefined unless
+    /// `calendar.isInRange(beginDate)` and `calendar.isInRange(endDate)`.
+    /// Note that reversing the order of `beginDate` and `endDate` negates
+    /// the result; specifically,
+    /// `|yearsDiff(b, e, c) + yearsDiff(e, b, c)| <= 1.0e-15` for all
+    /// calendars `c` and valid dates `b` and `e`.
     static double yearsDiff(const bdlt::Date&     beginDate,
                             const bdlt::Date&     endDate,
                             const bdlt::Calendar& calendar);
-        // Return the (signed fractional) number of years between the specified
-        // 'beginDate' and 'endDate' according to the BUS-252 day-count
-        // convention with the specified 'calendar' providing the definition of
-        // business days.  If 'beginDate <= endDate', then the result is
-        // non-negative.  The behavior is undefined unless
-        // 'calendar.isInRange(beginDate)' and 'calendar.isInRange(endDate)'.
-        // Note that reversing the order of 'beginDate' and 'endDate' negates
-        // the result; specifically,
-        // '|yearsDiff(b, e, c) + yearsDiff(e, b, c)| <= 1.0e-15' for all
-        // calendars 'c' and valid dates 'b' and 'e'.
 };
 
 // ============================================================================

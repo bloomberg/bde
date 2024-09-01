@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bbldc::BasicNl365: NL/365 convention stateless functions
 //
-//@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicNl365', that
+//@DESCRIPTION: This component provides a `struct`, `bbldc::BasicNl365`, that
 // serves as a namespace for defining a suite of date-related functions used to
 // compute the day count and the year fraction between two dates as per the
 // NL/365 day-count convention.  In this day-count convention, we simply
@@ -25,35 +25,35 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use 'bbldc::BasicNl365'
-// methods.  First, create four 'bdlt::Date' variables:
-//..
-//  const bdlt::Date dA(2004, 2, 1);
-//  const bdlt::Date dB(2004, 3, 1);
-//  const bdlt::Date dC(2004, 5, 1);
-//  const bdlt::Date dD(2005, 2, 1);
-//..
+// The following snippets of code illustrate how to use `bbldc::BasicNl365`
+// methods.  First, create four `bdlt::Date` variables:
+// ```
+// const bdlt::Date dA(2004, 2, 1);
+// const bdlt::Date dB(2004, 3, 1);
+// const bdlt::Date dC(2004, 5, 1);
+// const bdlt::Date dD(2005, 2, 1);
+// ```
 // Then, compute the day count between some pairs of these dates:
-//..
-//  int daysDiff;
-//  daysDiff = bbldc::BasicNl365::daysDiff(dA, dB);
-//  assert( 28 == daysDiff);
-//  daysDiff = bbldc::BasicNl365::daysDiff(dA, dC);
-//  assert( 89 == daysDiff);
-//  daysDiff = bbldc::BasicNl365::daysDiff(dA, dD);
-//  assert(365 == daysDiff);
-//  daysDiff = bbldc::BasicNl365::daysDiff(dB, dC);
-//  assert( 61 == daysDiff);
-//..
+// ```
+// int daysDiff;
+// daysDiff = bbldc::BasicNl365::daysDiff(dA, dB);
+// assert( 28 == daysDiff);
+// daysDiff = bbldc::BasicNl365::daysDiff(dA, dC);
+// assert( 89 == daysDiff);
+// daysDiff = bbldc::BasicNl365::daysDiff(dA, dD);
+// assert(365 == daysDiff);
+// daysDiff = bbldc::BasicNl365::daysDiff(dB, dC);
+// assert( 61 == daysDiff);
+// ```
 // Finally, compute the year fraction between some of the dates:
-//..
-//  double yearsDiff;
-//  yearsDiff = bbldc::BasicNl365::yearsDiff(dA, dC);
-//  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
-//  assert(yearsDiff < 0.2439 && yearsDiff > 0.2438);
-//  yearsDiff = bbldc::BasicNl365::yearsDiff(dA, dD);
-//  assert(1.0 == yearsDiff);
-//..
+// ```
+// double yearsDiff;
+// yearsDiff = bbldc::BasicNl365::yearsDiff(dA, dC);
+// // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+// assert(yearsDiff < 0.2439 && yearsDiff > 0.2438);
+// yearsDiff = bbldc::BasicNl365::yearsDiff(dA, dD);
+// assert(1.0 == yearsDiff);
+// ```
 
 #include <bblscm_version.h>
 
@@ -68,28 +68,29 @@ namespace bbldc {
                             // struct BasicNl365
                             // =================
 
+/// This `struct` provides a namespace for a suite of pure functions that
+/// compute values based on dates according to the NL/365 day-count
+/// convention.
 struct BasicNl365 {
-    // This 'struct' provides a namespace for a suite of pure functions that
-    // compute values based on dates according to the NL/365 day-count
-    // convention.
 
     // CLASS METHODS
+
+    /// Return the (signed) number of days between the specified `beginDate`
+    /// and `endDate` according to the NL/365 day-count convention.  If
+    /// `beginDate <= endDate` then the result is non-negative.  Note that
+    /// reversing the order of `beginDate` and `endDate` negates the result.
     static int daysDiff(const bdlt::Date& beginDate,
                         const bdlt::Date& endDate);
-        // Return the (signed) number of days between the specified 'beginDate'
-        // and 'endDate' according to the NL/365 day-count convention.  If
-        // 'beginDate <= endDate' then the result is non-negative.  Note that
-        // reversing the order of 'beginDate' and 'endDate' negates the result.
 
+    /// Return the (signed fractional) number of years between the specified
+    /// `beginDate` and `endDate` according to the NL/365 day-count
+    /// convention.  If `beginDate <= endDate` then the result is
+    /// non-negative.  Note that reversing the order of `beginDate` and
+    /// `endDate` negates the result; specifically,
+    /// `|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15` for all dates `b`
+    /// and `e`.
     static double yearsDiff(const bdlt::Date& beginDate,
                             const bdlt::Date& endDate);
-        // Return the (signed fractional) number of years between the specified
-        // 'beginDate' and 'endDate' according to the NL/365 day-count
-        // convention.  If 'beginDate <= endDate' then the result is
-        // non-negative.  Note that reversing the order of 'beginDate' and
-        // 'endDate' negates the result; specifically,
-        // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
-        // and 'e'.
 };
 
 // ============================================================================

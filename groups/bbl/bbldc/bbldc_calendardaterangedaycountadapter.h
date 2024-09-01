@@ -8,31 +8,31 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a parameterized day-count convention implementation.
 //
 //@CLASSES:
-//  bbldc::CalendarDateRangeDayCountAdapter: 'bbldc::DateRangeDayCount' adapter
+//  bbldc::CalendarDateRangeDayCountAdapter: `bbldc::DateRangeDayCount` adapter
 //
 //@DESCRIPTION: This component provides a parameterized (template)
-// implementation, 'bbldc::CalendarDateRangeDayCountAdapter', of the
-// 'bbldc::DateRangeDayCount' protocol.  The template argument can be any type
+// implementation, `bbldc::CalendarDateRangeDayCountAdapter`, of the
+// `bbldc::DateRangeDayCount` protocol.  The template argument can be any type
 // supporting the following two class methods.
-//..
-//  int daysDiff(const bdlt::Date&     beginDate,
-//               const bdlt::Date&     endDate,
-//               const bdlt::Calendar& calendar);
+// ```
+// int daysDiff(const bdlt::Date&     beginDate,
+//              const bdlt::Date&     endDate,
+//              const bdlt::Calendar& calendar);
 //
-//  double yearsDiff(const bdlt::Date&     beginDate,
-//                   const bdlt::Date&     endDate,
-//                   const bdlt::Calendar& calendar);
-//..
-// The template class 'bbldc::CalendarDateRangeDayCountAdapter' provides
+// double yearsDiff(const bdlt::Date&     beginDate,
+//                  const bdlt::Date&     endDate,
+//                  const bdlt::Calendar& calendar);
+// ```
+// The template class `bbldc::CalendarDateRangeDayCountAdapter` provides
 // convenient support for run-time polymorphic choice of day-count conventions
 // (via conventional use of a base-class pointer or reference) without having
 // to implement each derived type explicitly.  In this sense,
-// 'bbldc::CalendarDateRangeDayCountAdapter' adapts the various concrete
-// calendar-based day-count convention classes (e.g., 'bbldc::CalendarBus252')
+// `bbldc::CalendarDateRangeDayCountAdapter` adapts the various concrete
+// calendar-based day-count convention classes (e.g., `bbldc::CalendarBus252`)
 // to a run-time binding mechanism.
 //
-// The 'bbldc::DateRangeDayCount' protocol requires two methods, 'firstDate'
-// and 'lastDate', that define a date range for which calculations are valid,
+// The `bbldc::DateRangeDayCount` protocol requires two methods, `firstDate`
+// and `lastDate`, that define a date range for which calculations are valid,
 // to reflect the valid range of, say, a calendar required for the
 // computations.  For "calendar" day-count implementations, the valid date
 // range is the valid range of the calendar.
@@ -41,46 +41,46 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Adapting 'bbldc::CalendarBus252'
+///Example 1: Adapting `bbldc::CalendarBus252`
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This example shows the procedure for using
-// 'bbldc::CalendarDateRangeDayCountAdapter' to adapt the
-// 'bbldc::CalendarBus252' day-count convention to the
-// 'bbldc::DateRangeDayCount' protocol, and then the use of the day-count
-// methods.  First, we create a 'calendar' with a valid range spanning 2003 and
+// `bbldc::CalendarDateRangeDayCountAdapter` to adapt the
+// `bbldc::CalendarBus252` day-count convention to the
+// `bbldc::DateRangeDayCount` protocol, and then the use of the day-count
+// methods.  First, we create a `calendar` with a valid range spanning 2003 and
 // typical weekend days:
-//..
-//  bdlt::Calendar calendar;
-//  calendar.setValidRange(bdlt::Date(2003, 1, 1), bdlt::Date(2003, 12, 31));
-//  calendar.addWeekendDay(bdlt::DayOfWeek::e_SUN);
-//  calendar.addWeekendDay(bdlt::DayOfWeek::e_SAT);
-//..
+// ```
+// bdlt::Calendar calendar;
+// calendar.setValidRange(bdlt::Date(2003, 1, 1), bdlt::Date(2003, 12, 31));
+// calendar.addWeekendDay(bdlt::DayOfWeek::e_SUN);
+// calendar.addWeekendDay(bdlt::DayOfWeek::e_SAT);
+// ```
 // Then, we define an instance of the adapted day-count convention and obtain a
-// reference to the 'bbldc::DateRangeDayCount':
-//..
-//  const bbldc::CalendarDateRangeDayCountAdapter<bbldc::CalendarBus252>
-//                                                             myDcc(calendar);
-//  const bbldc::DateRangeDayCount&                            dcc = myDcc;
-//..
-// Next, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
+// reference to the `bbldc::DateRangeDayCount`:
+// ```
+// const bbldc::CalendarDateRangeDayCountAdapter<bbldc::CalendarBus252>
+//                                                            myDcc(calendar);
+// const bbldc::DateRangeDayCount&                            dcc = myDcc;
+// ```
+// Next, create two `bdlt::Date` variables, `d1` and `d2`, with which to use
 // the day-count convention methods:
-//..
-//  const bdlt::Date d1(2003, 10, 19);
-//  const bdlt::Date d2(2003, 12, 31);
-//..
+// ```
+// const bdlt::Date d1(2003, 10, 19);
+// const bdlt::Date d2(2003, 12, 31);
+// ```
 // Now, use the base-class reference to compute the day count between the two
 // dates:
-//..
-//  const int daysDiff = dcc.daysDiff(d1, d2);
-//  assert(52 == daysDiff);
-//..
+// ```
+// const int daysDiff = dcc.daysDiff(d1, d2);
+// assert(52 == daysDiff);
+// ```
 // Finally, use the base-class reference to compute the year fraction between
 // the two dates:
-//..
-//  const double yearsDiff = dcc.yearsDiff(d1, d2);
-//  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
-//  assert(yearsDiff > 0.2063 && yearsDiff < 0.2064);
-//..
+// ```
+// const double yearsDiff = dcc.yearsDiff(d1, d2);
+// // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+// assert(yearsDiff > 0.2063 && yearsDiff < 0.2064);
+// ```
 
 #include <bblscm_version.h>
 
@@ -105,12 +105,12 @@ namespace bbldc {
                   // class CalendarDateRangeDayCountAdapter
                   // ======================================
 
+/// This `class` provides an "adapter" from the specified `CONVENTION`, that
+/// requires a calendar to compute the day count and the year fraction, to
+/// the `bbldc::DateRangeDayCount` protocol that can be used for determining
+/// values based on dates according to the day-count `CONVENTION`.
 template <class CONVENTION>
 class CalendarDateRangeDayCountAdapter : public DateRangeDayCount {
-    // This 'class' provides an "adapter" from the specified 'CONVENTION', that
-    // requires a calendar to compute the day count and the year fraction, to
-    // the 'bbldc::DateRangeDayCount' protocol that can be used for determining
-    // values based on dates according to the day-count 'CONVENTION'.
 
     // DATA
     bdlt::Calendar d_calendar;  // calendar used in all calculations
@@ -123,16 +123,17 @@ class CalendarDateRangeDayCountAdapter : public DateRangeDayCount {
 
   public:
     // CREATORS
+
+    /// Create a day-count adapter that uses the specified `calendar` during
+    /// invocations of `daysDiff` and `yearsDiff`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     CalendarDateRangeDayCountAdapter(
                                     const bdlt::Calendar&  calendar,
                                     bslma::Allocator      *basicAllocator = 0);
-        // Create a day-count adapter that uses the specified 'calendar' during
-        // invocations of 'daysDiff' and 'yearsDiff'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Destroy this object.
     ~CalendarDateRangeDayCountAdapter() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object.
 
     // ACCESSORS
     int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate) const
@@ -146,35 +147,35 @@ class CalendarDateRangeDayCountAdapter : public DateRangeDayCount {
         // 'calendar.firstDate() <= endDate <= calendar.lastDate()'.  Note that
         // reversing the order of 'beginDate' and 'endDate' negates the result.
 
+    /// Return a reference providing non-modifiable access to
+    /// `calendar.firstDate()` for the `calendar` provided at construction.
+    /// Note that this value is the earliest date in the valid range of this
+    /// day-count convention adaptation.
     const bdlt::Date& firstDate() const BSLS_KEYWORD_OVERRIDE;
-        // Return a reference providing non-modifiable access to
-        // 'calendar.firstDate()' for the 'calendar' provided at construction.
-        // Note that this value is the earliest date in the valid range of this
-        // day-count convention adaptation.
 
+    /// Return a reference providing non-modifiable access to
+    /// `calendar.lastDate()` for the `calendar` provided at construction.
+    /// Note that this value is the latest date in the valid range of this
+    /// day-count convention adaptation.
     const bdlt::Date& lastDate() const BSLS_KEYWORD_OVERRIDE;
-        // Return a reference providing non-modifiable access to
-        // 'calendar.lastDate()' for the 'calendar' provided at construction.
-        // Note that this value is the latest date in the valid range of this
-        // day-count convention adaptation.
 
+    /// Return the (signed fractional) number of years between the specified
+    /// `beginDate` and `endDate` as per the `CONVENTION` template policy.
+    /// If `beginDate <= endDate`, then the result is non-negative.  The
+    /// behavior is undefined unless, for the `calendar` provided at
+    /// construction,
+    /// `calendar.firstDate() <= beginDate <= calendar.lastDate()` and
+    /// `calendar.firstDate() <= endDate <= calendar.lastDate()`.  Note that
+    /// reversing the order of `beginDate` and `endDate` negates the result;
+    /// specifically, `|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15` for
+    /// all dates `b` and `e`.
     double yearsDiff(const bdlt::Date& beginDate,
                      const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE;
-        // Return the (signed fractional) number of years between the specified
-        // 'beginDate' and 'endDate' as per the 'CONVENTION' template policy.
-        // If 'beginDate <= endDate', then the result is non-negative.  The
-        // behavior is undefined unless, for the 'calendar' provided at
-        // construction,
-        // 'calendar.firstDate() <= beginDate <= calendar.lastDate()' and
-        // 'calendar.firstDate() <= endDate <= calendar.lastDate()'.  Note that
-        // reversing the order of 'beginDate' and 'endDate' negates the result;
-        // specifically, '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for
-        // all dates 'b' and 'e'.
 
                                   // Aspects
 
+    /// Return the allocator used by this adapter to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this adapter to supply memory.
 };
 
 // ============================================================================

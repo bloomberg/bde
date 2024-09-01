@@ -8,60 +8,60 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a parameterized day-count convention implementation.
 //
 //@CLASSES:
-//  bbldc::BasicBasicDayCountAdapter: 'bbldc::BasicDayCount' realization
+//  bbldc::BasicBasicDayCountAdapter: `bbldc::BasicDayCount` realization
 //
 //@DESCRIPTION: This component provides a parameterized (template)
-// implementation, 'bbldc::BasicBasicDayCountAdapter', of the
-// 'bbldc::BasicDayCount' protocol.  The template argument can be any type
+// implementation, `bbldc::BasicBasicDayCountAdapter`, of the
+// `bbldc::BasicDayCount` protocol.  The template argument can be any type
 // supporting the following two class methods.
-//..
-//  int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate);
+// ```
+// int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate);
 //
-//  double yearsDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate);
-//..
-// The template class 'bbldc::BasicBasicDayCountAdapter' provides convenient
+// double yearsDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate);
+// ```
+// The template class `bbldc::BasicBasicDayCountAdapter` provides convenient
 // support for run-time polymorphic choice of day-count conventions (via
 // conventional use of a base-class pointer or reference) without having to
 // implement each derived type explicitly.  In this sense,
-// 'bbldc::BasicBasicDayCountAdapter' adapts the various concrete "basic"
-// day-count convention classes (e.g., 'bbldc::BasicIsma30360') to a run-time
+// `bbldc::BasicBasicDayCountAdapter` adapts the various concrete "basic"
+// day-count convention classes (e.g., `bbldc::BasicIsma30360`) to a run-time
 // binding mechanism.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Adapting 'bbldc::BasicIsma30360'
+///Example 1: Adapting `bbldc::BasicIsma30360`
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This example shows the procedure for using
-// 'bbldc::BasicBasicDayCountAdapter' to adapt the 'bbldc::BasicIsma30360'
-// day-count convention to the 'bbldc::BasicDayCount' protocol, and then the
+// `bbldc::BasicBasicDayCountAdapter` to adapt the `bbldc::BasicIsma30360`
+// day-count convention to the `bbldc::BasicDayCount` protocol, and then the
 // use of the day-count methods.  First, we define an instance of the adapted
-// day-count convention and obtain a reference to the 'bbldc::BasicDayCount':
-//..
-//  const bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsma30360> myDcc =
-//                   bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsma30360>();
-//  const bbldc::BasicDayCount&                                   dcc = myDcc;
-//..
-// Then, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
+// day-count convention and obtain a reference to the `bbldc::BasicDayCount`:
+// ```
+// const bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsma30360> myDcc =
+//                  bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsma30360>();
+// const bbldc::BasicDayCount&                                   dcc = myDcc;
+// ```
+// Then, create two `bdlt::Date` variables, `d1` and `d2`, with which to use
 // the day-count convention methods:
-//..
-//  const bdlt::Date d1(2003, 10, 18);
-//  const bdlt::Date d2(2003, 12, 31);
-//..
+// ```
+// const bdlt::Date d1(2003, 10, 18);
+// const bdlt::Date d2(2003, 12, 31);
+// ```
 // Now, use the base-class reference to compute the day count between the two
 // dates:
-//..
-//  const int daysDiff = dcc.daysDiff(d1, d2);
-//  assert(72 == daysDiff);
-//..
+// ```
+// const int daysDiff = dcc.daysDiff(d1, d2);
+// assert(72 == daysDiff);
+// ```
 // Finally, use the base-class reference to compute the year fraction between
 // the two dates:
-//..
-//  const double yearsDiff = dcc.yearsDiff(d1, d2);
-//  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
-//  assert(0.1999 < yearsDiff && 0.2001 > yearsDiff);
-//..
+// ```
+// const double yearsDiff = dcc.yearsDiff(d1, d2);
+// // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+// assert(0.1999 < yearsDiff && 0.2001 > yearsDiff);
+// ```
 
 #include <bblscm_version.h>
 
@@ -80,11 +80,11 @@ namespace bbldc {
                      // class BasicBasicDayCountAdapter
                      // ===============================
 
+/// This `class` provides an "adapter" from the specified `CONVENTION` to
+/// the `bbldc::BasicDayCount` protocol that can be used for determining
+/// values based on dates according to the day-count `CONVENTION`.
 template <class CONVENTION>
 class BasicBasicDayCountAdapter : public BasicDayCount {
-    // This 'class' provides an "adapter" from the specified 'CONVENTION' to
-    // the 'bbldc::BasicDayCount' protocol that can be used for determining
-    // values based on dates according to the day-count 'CONVENTION'.
 
   public:
     // ACCESSORS
@@ -95,15 +95,15 @@ class BasicBasicDayCountAdapter : public BasicDayCount {
         // 'beginDate <= endDate', then the result is non-negative.  Note that
         // reversing the order of 'beginDate' and 'endDate' negates the result.
 
+    /// Return the (signed fractional) number of years between the specified
+    /// `beginDate` and `endDate` as per the `CONVENTION` template policy.
+    /// If `beginDate <= endDate`, then the result is non-negative.  Note
+    /// that reversing the order of `beginDate` and `endDate` negates the
+    /// result; specifically,
+    /// `|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15` for all dates `b`
+    /// and `e`.
     double yearsDiff(const bdlt::Date& beginDate,
                      const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE;
-        // Return the (signed fractional) number of years between the specified
-        // 'beginDate' and 'endDate' as per the 'CONVENTION' template policy.
-        // If 'beginDate <= endDate', then the result is non-negative.  Note
-        // that reversing the order of 'beginDate' and 'endDate' negates the
-        // result; specifically,
-        // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
-        // and 'e'.
 };
 
 // ============================================================================

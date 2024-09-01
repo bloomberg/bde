@@ -5,19 +5,19 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Support for day-count calculations of 'enum'-specified conventions.
+//@PURPOSE: Support for day-count calculations of `enum`-specified conventions.
 //
 //@CLASSES:
-//  bbldc::CalendarDayCountUtil: 'enum'-specified day-count calculations
+//  bbldc::CalendarDayCountUtil: `enum`-specified day-count calculations
 //
 //@SEE_ALSO: bbldc_daycountconvention, bbldc_calendarbus252
 //
-//@DESCRIPTION: This component provides a 'struct',
-// 'bbldc::CalendarDayCountUtil', that defines a suite of date-related
+//@DESCRIPTION: This component provides a `struct`,
+// `bbldc::CalendarDayCountUtil`, that defines a suite of date-related
 // functions used to compute the day count and the year fraction between two
 // dates as prescribed by an enumerated day-count convention.  Specifically,
-// the 'daysDiff' and 'yearsDiff' methods defined in
-// 'bbldc::CalendarDayCountUtil' take a trailing 'DayCountConvention::Enum'
+// the `daysDiff` and `yearsDiff` methods defined in
+// `bbldc::CalendarDayCountUtil` take a trailing `DayCountConvention::Enum`
 // argument indicating which particular day-count convention to apply.
 //
 ///Usage
@@ -27,41 +27,41 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Computing Day Count and Year Fraction
 /// - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::CalendarDayCountUtil' methods.  First, create two 'bdlt::Date'
-// variables, 'd1' and 'd2':
-//..
-//  const bdlt::Date d1(2003, 10, 19);
-//  const bdlt::Date d2(2003, 12, 31);
-//..
-// Then, create a 'calendar' with a valid range spanning 2003 and typical
+// `bbldc::CalendarDayCountUtil` methods.  First, create two `bdlt::Date`
+// variables, `d1` and `d2`:
+// ```
+// const bdlt::Date d1(2003, 10, 19);
+// const bdlt::Date d2(2003, 12, 31);
+// ```
+// Then, create a `calendar` with a valid range spanning 2003 and typical
 // weekend days:
-//..
-//  bdlt::Calendar calendar;
-//  calendar.setValidRange(bdlt::Date(2003, 1, 1), bdlt::Date(2003, 12, 31));
-//  calendar.addWeekendDay(bdlt::DayOfWeek::e_SUN);
-//  calendar.addWeekendDay(bdlt::DayOfWeek::e_SAT);
-//..
-// Now, compute the day count between 'd1' and 'd2' according to the BUS-252
+// ```
+// bdlt::Calendar calendar;
+// calendar.setValidRange(bdlt::Date(2003, 1, 1), bdlt::Date(2003, 12, 31));
+// calendar.addWeekendDay(bdlt::DayOfWeek::e_SUN);
+// calendar.addWeekendDay(bdlt::DayOfWeek::e_SAT);
+// ```
+// Now, compute the day count between `d1` and `d2` according to the BUS-252
 // day-count convention:
-//..
-//  const int daysDiff = bbldc::CalendarDayCountUtil::daysDiff(
-//                              d1,
-//                              d2,
-//                              calendar,
-//                              bbldc::DayCountConvention::e_CALENDAR_BUS_252);
-//  assert(52 == daysDiff);
-//..
+// ```
+// const int daysDiff = bbldc::CalendarDayCountUtil::daysDiff(
+//                             d1,
+//                             d2,
+//                             calendar,
+//                             bbldc::DayCountConvention::e_CALENDAR_BUS_252);
+// assert(52 == daysDiff);
+// ```
 // Finally, compute the year fraction between the two dates according to the
 // BUS-252 day-count convention:
-//..
-//  const double yearsDiff = bbldc::CalendarDayCountUtil::yearsDiff(
-//                              d1,
-//                              d2,
-//                              calendar,
-//                              bbldc::DayCountConvention::e_CALENDAR_BUS_252);
-//  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
-//  assert(0.2063 < yearsDiff && 0.2064 > yearsDiff);
-//..
+// ```
+// const double yearsDiff = bbldc::CalendarDayCountUtil::yearsDiff(
+//                             d1,
+//                             d2,
+//                             calendar,
+//                             bbldc::DayCountConvention::e_CALENDAR_BUS_252);
+// // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+// assert(0.2063 < yearsDiff && 0.2064 > yearsDiff);
+// ```
 
 #include <bblscm_version.h>
 
@@ -77,44 +77,45 @@ namespace bbldc {
                        // struct CalendarDayCountUtil
                        // ===========================
 
+/// This `struct` provides a namespace for a suite of pure functions that
+/// compute values based on dates according to enumerated day-count
+/// conventions.
 struct CalendarDayCountUtil {
-    // This 'struct' provides a namespace for a suite of pure functions that
-    // compute values based on dates according to enumerated day-count
-    // conventions.
 
     // CLASS METHODS
+
+    /// Return the (signed) number of days between the specified `beginDate`
+    /// and `endDate` according to the specified day-count `convention` with
+    /// the specified `calendar` providing the definition of business days.
+    /// If `beginDate <= endDate` then the result is non-negative.  The
+    /// behavior is undefined unless `isSupported(convention)`,
+    /// `calendar.isInRange(beginDate)`, and `calendar.isInRange(endDate)`.
+    /// Note that reversing the order of `beginDate` and `endDate` negates
+    /// the result and that the result is 0 when `beginDate == endDate`.
     static int daysDiff(const bdlt::Date&        beginDate,
                         const bdlt::Date&        endDate,
                         const bdlt::Calendar&    calendar,
                         DayCountConvention::Enum convention);
-        // Return the (signed) number of days between the specified 'beginDate'
-        // and 'endDate' according to the specified day-count 'convention' with
-        // the specified 'calendar' providing the definition of business days.
-        // If 'beginDate <= endDate' then the result is non-negative.  The
-        // behavior is undefined unless 'isSupported(convention)',
-        // 'calendar.isInRange(beginDate)', and 'calendar.isInRange(endDate)'.
-        // Note that reversing the order of 'beginDate' and 'endDate' negates
-        // the result and that the result is 0 when 'beginDate == endDate'.
 
+    /// Return `true` if the specified `convention` is valid for use in
+    /// `daysDiff` and `yearsDiff`, and `false` otherwise.
     static bool isSupported(DayCountConvention::Enum convention);
-        // Return 'true' if the specified 'convention' is valid for use in
-        // 'daysDiff' and 'yearsDiff', and 'false' otherwise.
 
+    /// Return the (signed fractional) number of years between the specified
+    /// `beginDate` and `endDate` according to the specified day-count
+    /// `convention` with the specified `calendar` providing the definition
+    /// of business days.  If `beginDate <= endDate` then the result is
+    /// non-negative.  The behavior is undefined unless
+    /// `isSupported(convention)`, `calendar.isInRange(beginDate)`, and
+    /// `calendar.isInRange(endDate)`.  Note that reversing the order of
+    /// `beginDate` and `endDate` negates the result; specifically,
+    /// `|yearsDiff(b, e, cal, c) + yearsDiff(e, b, cal, c)| <= 1.0e-15` for
+    /// all calendars `cal`, valid dates `b` and `e`, and day-count
+    /// conventions `c`.
     static double yearsDiff(const bdlt::Date&        beginDate,
                             const bdlt::Date&        endDate,
                             const bdlt::Calendar&    calendar,
                             DayCountConvention::Enum convention);
-        // Return the (signed fractional) number of years between the specified
-        // 'beginDate' and 'endDate' according to the specified day-count
-        // 'convention' with the specified 'calendar' providing the definition
-        // of business days.  If 'beginDate <= endDate' then the result is
-        // non-negative.  The behavior is undefined unless
-        // 'isSupported(convention)', 'calendar.isInRange(beginDate)', and
-        // 'calendar.isInRange(endDate)'.  Note that reversing the order of
-        // 'beginDate' and 'endDate' negates the result; specifically,
-        // '|yearsDiff(b, e, cal, c) + yearsDiff(e, b, cal, c)| <= 1.0e-15' for
-        // all calendars 'cal', valid dates 'b' and 'e', and day-count
-        // conventions 'c'.
 };
 
 }  // close package namespace

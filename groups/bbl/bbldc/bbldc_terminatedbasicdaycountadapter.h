@@ -8,67 +8,67 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a parameterized day-count convention implementation.
 //
 //@CLASSES:
-//  bbldc::TerminatedBasicDayCountAdapter: 'bbldc::BasicDayCount' realization
+//  bbldc::TerminatedBasicDayCountAdapter: `bbldc::BasicDayCount` realization
 //
 //@DESCRIPTION: This component provides a parameterized (template)
-// implementation, 'bbldc::TerminatedBasicDayCountAdapter', of the
-// 'bbldc::BasicDayCount' protocol that allows for special handling of a
+// implementation, `bbldc::TerminatedBasicDayCountAdapter`, of the
+// `bbldc::BasicDayCount` protocol that allows for special handling of a
 // termination date (e.g., maturity date).  The template argument can be any
 // type supporting the following two class methods.
-//..
-//  int daysDiff(const bdlt::Date& beginDate,
-//               const bdlt::Date& endDate,
-//               const bdlt::Date& terminationDate);
+// ```
+// int daysDiff(const bdlt::Date& beginDate,
+//              const bdlt::Date& endDate,
+//              const bdlt::Date& terminationDate);
 //
-//  double yearsDiff(const bdlt::Date& beginDate,
-//                   const bdlt::Date& endDate,
-//                   const bdlt::Date& terminationDate);
-//..
-// The template class 'bbldc::TerminatedBasicDayCountAdapter' provides
+// double yearsDiff(const bdlt::Date& beginDate,
+//                  const bdlt::Date& endDate,
+//                  const bdlt::Date& terminationDate);
+// ```
+// The template class `bbldc::TerminatedBasicDayCountAdapter` provides
 // convenient support for run-time polymorphic choice of day-count conventions
 // (via conventional use of a base-class pointer or reference) without having
 // to implement each derived type explicitly.  In this sense,
-// 'bbldc::TerminatedBasicDayCountAdapter' adapts the various concrete
+// `bbldc::TerminatedBasicDayCountAdapter` adapts the various concrete
 // "terminated" day-count convention classes (e.g.,
-// 'bbldc::TerminatedIsda30360Eom') to a run-time binding mechanism.
+// `bbldc::TerminatedIsda30360Eom`) to a run-time binding mechanism.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Adapting 'bbldc::TerminatedIsda30360Eom'
+///Example 1: Adapting `bbldc::TerminatedIsda30360Eom`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example shows the procedure for using
-// 'bbldc::TerminatedBasicDayCountAdapter' to adapt the
-// 'bbldc::TerminatedIsda30360Eom' day-count convention to the
-// 'bbldc::BasicDayCount' protocol, and then the use of the day-count methods.
+// `bbldc::TerminatedBasicDayCountAdapter` to adapt the
+// `bbldc::TerminatedIsda30360Eom` day-count convention to the
+// `bbldc::BasicDayCount` protocol, and then the use of the day-count methods.
 //
-// First, we define an instance of the adapted 'bbldc::TerminatedIsda30360Eom'
-// day-count convention and obtain a reference to the 'bbldc::BasicDayCount':
-//..
-//  const bbldc::TerminatedBasicDayCountAdapter<bbldc::TerminatedIsda30360Eom>
-//                                              myDcc(bdlt::Date(2004, 2, 29));
-//  const bbldc::BasicDayCount& dcc = myDcc;
-//..
-// Then, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
+// First, we define an instance of the adapted `bbldc::TerminatedIsda30360Eom`
+// day-count convention and obtain a reference to the `bbldc::BasicDayCount`:
+// ```
+// const bbldc::TerminatedBasicDayCountAdapter<bbldc::TerminatedIsda30360Eom>
+//                                             myDcc(bdlt::Date(2004, 2, 29));
+// const bbldc::BasicDayCount& dcc = myDcc;
+// ```
+// Then, create two `bdlt::Date` variables, `d1` and `d2`, with which to use
 // the day-count convention methods:
-//..
-//  const bdlt::Date d1(2003, 10, 18);
-//  const bdlt::Date d2(2003, 12, 31);
-//..
+// ```
+// const bdlt::Date d1(2003, 10, 18);
+// const bdlt::Date d2(2003, 12, 31);
+// ```
 // Now, use the base-class reference to compute the day count between the two
 // dates:
-//..
-//  const int daysDiff = dcc.daysDiff(d1, d2);
-//  assert(72 == daysDiff);
-//..
+// ```
+// const int daysDiff = dcc.daysDiff(d1, d2);
+// assert(72 == daysDiff);
+// ```
 // Finally, use the base-class reference to compute the year fraction between
 // the two dates:
-//..
-//  const double yearsDiff = dcc.yearsDiff(d1, d2);
-//  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
-//  assert(0.1999 < yearsDiff && 0.2001 > yearsDiff);
-//..
+// ```
+// const double yearsDiff = dcc.yearsDiff(d1, d2);
+// // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+// assert(0.1999 < yearsDiff && 0.2001 > yearsDiff);
+// ```
 
 #include <bblscm_version.h>
 
@@ -85,11 +85,11 @@ namespace bbldc {
                    // class TerminatedBasicDayCountAdapter
                    // ====================================
 
+/// This `class` provides an "adapter" from the specified `CONVENTION` to
+/// the `bbldc::BasicDayCount` protocol that can be used for determining
+/// values based on dates according to the day-count `CONVENTION`.
 template <class CONVENTION>
 class TerminatedBasicDayCountAdapter : public BasicDayCount {
-    // This 'class' provides an "adapter" from the specified 'CONVENTION' to
-    // the 'bbldc::BasicDayCount' protocol that can be used for determining
-    // values based on dates according to the day-count 'CONVENTION'.
 
     // DATA
     bdlt::Date d_terminationDate;  // termination date used in all calculations
@@ -102,12 +102,13 @@ class TerminatedBasicDayCountAdapter : public BasicDayCount {
 
   public:
     // CREATORS
-    TerminatedBasicDayCountAdapter(const bdlt::Date& terminationDate);
-        // Create a day-count adapter that uses the specified 'terminationDate'
-        // during.
 
+    /// Create a day-count adapter that uses the specified `terminationDate`
+    /// during.
+    TerminatedBasicDayCountAdapter(const bdlt::Date& terminationDate);
+
+    /// Destroy this object.
     ~TerminatedBasicDayCountAdapter() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object.
 
     // ACCESSORS
     int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate) const
@@ -117,15 +118,15 @@ class TerminatedBasicDayCountAdapter : public BasicDayCount {
         // 'beginDate <= endDate', then the result is non-negative.  Note that
         // reversing the order of 'beginDate' and 'endDate' negates the result.
 
+    /// Return the (signed fractional) number of years between the specified
+    /// `beginDate` and `endDate` as per the `CONVENTION` template policy.
+    /// If `beginDate <= endDate`, then the result is non-negative.  Note
+    /// that reversing the order of `beginDate` and `endDate` negates the
+    /// result; specifically,
+    /// `|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15` for all dates `b`
+    /// and `e`.
     double yearsDiff(const bdlt::Date& beginDate,
                      const bdlt::Date& endDate) const BSLS_KEYWORD_OVERRIDE;
-        // Return the (signed fractional) number of years between the specified
-        // 'beginDate' and 'endDate' as per the 'CONVENTION' template policy.
-        // If 'beginDate <= endDate', then the result is non-negative.  Note
-        // that reversing the order of 'beginDate' and 'endDate' negates the
-        // result; specifically,
-        // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
-        // and 'e'.
 };
 
 // ============================================================================

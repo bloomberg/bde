@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bbldc::BasicSia30360Eom: SIA 30/360 eom convention stateless functions
 //
-//@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicSia30360Eom',
+//@DESCRIPTION: This component provides a `struct`, `bbldc::BasicSia30360Eom`,
 // that serves as a namespace for defining a suite of date-related functions
 // used to compute the day count and year fraction between two dates as
 // prescribed by the Standard Industry Association (SIA) 30/360 day-count
@@ -24,8 +24,8 @@ BSLS_IDENT("$Id: $")
 //
 ///SIA-30/360-eom Day Count Algorithm
 ///----------------------------------
-// Given 'beginDate' and 'endDate', let:
-//..
+// Given `beginDate` and `endDate`, let:
+// ```
 // Ye =  year of earlier date           Yl =  year of later date
 // Me = month of earlier date           Ml = month of later date
 // De =   day of earlier date           Dl =   day of later date
@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 //
 // daysDiff ::= sign(endDate - beginDate) *
 //                                   (Yl - Ye) * 360 + (Ml - Me) * 30 + Dl - De
-//..
+// ```
 // Reference: Standard Securities Calculation Methods (1996)
 //            ISBN 1-882936-01-9
 //
@@ -54,22 +54,22 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Computing Day Count and Year Fraction
 /// - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::BasicSia30360Eom' methods.  First, create two 'bdlt::Date'
-// variables, 'd1' and 'd2':
-//..
-//  const bdlt::Date d1(2004,  9, 30);
-//  const bdlt::Date d2(2004, 12, 31);
-//..
+// `bbldc::BasicSia30360Eom` methods.  First, create two `bdlt::Date`
+// variables, `d1` and `d2`:
+// ```
+// const bdlt::Date d1(2004,  9, 30);
+// const bdlt::Date d2(2004, 12, 31);
+// ```
 // Then, compute the day count between the two dates:
-//..
-//  const int daysDiff = bbldc::BasicSia30360Eom::daysDiff(d1, d2);
-//  assert(90 == daysDiff);
-//..
+// ```
+// const int daysDiff = bbldc::BasicSia30360Eom::daysDiff(d1, d2);
+// assert(90 == daysDiff);
+// ```
 // Finally, compute the year fraction between the two dates:
-//..
-//  const double yearsDiff = bbldc::BasicSia30360Eom::yearsDiff(d1, d2);
-//  assert(0.25 == yearsDiff);
-//..
+// ```
+// const double yearsDiff = bbldc::BasicSia30360Eom::yearsDiff(d1, d2);
+// assert(0.25 == yearsDiff);
+// ```
 
 #include <bblscm_version.h>
 
@@ -86,29 +86,30 @@ namespace bbldc {
                          // struct BasicSia30360Eom
                          // =======================
 
+/// This `struct` provides a namespace for a suite of pure functions that
+/// compute values based on dates according to the SIA 30/360 end-of-month
+/// day-count convention.
 struct BasicSia30360Eom {
-    // This 'struct' provides a namespace for a suite of pure functions that
-    // compute values based on dates according to the SIA 30/360 end-of-month
-    // day-count convention.
 
     // CLASS METHODS
+
+    /// Return the (signed) number of days between the specified `beginDate`
+    /// and `endDate` according to the SIA 30/360 end-of-month day-count
+    /// convention.  If `beginDate <= endDate`, then the result is
+    /// non-negative.  Note that reversing the order of `beginDate` and
+    /// `endDate` negates the result.
     static int daysDiff(const bdlt::Date& beginDate,
                         const bdlt::Date& endDate);
-        // Return the (signed) number of days between the specified 'beginDate'
-        // and 'endDate' according to the SIA 30/360 end-of-month day-count
-        // convention.  If 'beginDate <= endDate', then the result is
-        // non-negative.  Note that reversing the order of 'beginDate' and
-        // 'endDate' negates the result.
 
+    /// Return the (signed fractional) number of years between the specified
+    /// `beginDate` and `endDate` according to the SIA 30/360 end-of-month
+    /// day-count convention.  If `beginDate <= endDate`, then the result is
+    /// non-negative.  Note that reversing the order of `beginDate` and
+    /// `endDate` negates the result; specifically,
+    /// `|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15` for all dates `b`
+    /// and `e`.
     static double yearsDiff(const bdlt::Date& beginDate,
                             const bdlt::Date& endDate);
-        // Return the (signed fractional) number of years between the specified
-        // 'beginDate' and 'endDate' according to the SIA 30/360 end-of-month
-        // day-count convention.  If 'beginDate <= endDate', then the result is
-        // non-negative.  Note that reversing the order of 'beginDate' and
-        // 'endDate' negates the result; specifically,
-        // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
-        // and 'e'.
 };
 
 }  // close package namespace

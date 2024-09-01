@@ -5,19 +5,19 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Support for day-count calculations of 'enum'-specified conventions.
+//@PURPOSE: Support for day-count calculations of `enum`-specified conventions.
 //
 //@CLASSES:
-//  bbldc::PeriodDayCountUtil: 'enum'-specified day-count calculations
+//  bbldc::PeriodDayCountUtil: `enum`-specified day-count calculations
 //
 //@SEE_ALSO: bbldc_daycountconvention, bbldc_periodicmaactualactual
 //
-//@DESCRIPTION: This component provides a 'struct',
-// 'bbldc::PeriodDayCountUtil', that defines a suite of date-related functions
+//@DESCRIPTION: This component provides a `struct`,
+// `bbldc::PeriodDayCountUtil`, that defines a suite of date-related functions
 // used to compute the day count and the year fraction between two dates as
 // prescribed by an enumerated day-count convention.  Specifically, the
-// 'daysDiff' and 'yearsDiff' methods defined in 'bbldc::PeriodDayCountUtil'
-// take a trailing 'DayCountConvention::Enum' argument indicating which
+// `daysDiff` and `yearsDiff` methods defined in `bbldc::PeriodDayCountUtil`
+// take a trailing `DayCountConvention::Enum` argument indicating which
 // particular period-based day-count convention to apply.
 //
 ///Usage
@@ -27,40 +27,40 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Computing Day Count and Year Fraction
 /// - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::PeriodDayCountUtil' methods.  First, create two 'bdlt::Date'
-// variables, 'd1' and 'd2':
-//..
-//  const bdlt::Date d1(2003, 10, 19);
-//  const bdlt::Date d2(2003, 12, 31);
-//..
-// Then, create a schedule of period dates, 'sched', corresponding to a
-// quarterly payment ('periodYearDiff == 0.25'):
-//..
-//  bsl::vector<bdlt::Date> sched;
-//  sched.push_back(bdlt::Date(2003, 10, 1));
-//  sched.push_back(bdlt::Date(2004,  1, 1));
-//..
-// Now, compute the day count between 'd1' and 'd2' according to the ICMA
+// `bbldc::PeriodDayCountUtil` methods.  First, create two `bdlt::Date`
+// variables, `d1` and `d2`:
+// ```
+// const bdlt::Date d1(2003, 10, 19);
+// const bdlt::Date d2(2003, 12, 31);
+// ```
+// Then, create a schedule of period dates, `sched`, corresponding to a
+// quarterly payment (`periodYearDiff == 0.25`):
+// ```
+// bsl::vector<bdlt::Date> sched;
+// sched.push_back(bdlt::Date(2003, 10, 1));
+// sched.push_back(bdlt::Date(2004,  1, 1));
+// ```
+// Now, compute the day count between `d1` and `d2` according to the ICMA
 // Actual/Actual day-count convention:
-//..
-//  const int daysDiff = bbldc::PeriodDayCountUtil::daysDiff(
-//                     d1,
-//                     d2,
-//                     bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
-//  assert(73 == daysDiff);
-//..
+// ```
+// const int daysDiff = bbldc::PeriodDayCountUtil::daysDiff(
+//                    d1,
+//                    d2,
+//                    bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
+// assert(73 == daysDiff);
+// ```
 // Finally, compute the year fraction between the two dates according to the
 // ICMA Actual/Actual day-count convention:
-//..
-//  const double yearsDiff = bbldc::PeriodDayCountUtil::yearsDiff(
-//                     d1,
-//                     d2,
-//                     sched,
-//                     0.25,
-//                     bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
-//  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
-//  assert(yearsDiff > 0.1983 && yearsDiff < 0.1985);
-//..
+// ```
+// const double yearsDiff = bbldc::PeriodDayCountUtil::yearsDiff(
+//                    d1,
+//                    d2,
+//                    sched,
+//                    0.25,
+//                    bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
+// // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+// assert(yearsDiff > 0.1983 && yearsDiff < 0.1985);
+// ```
 
 #include <bblscm_version.h>
 
@@ -81,50 +81,52 @@ namespace bbldc {
                         // struct PeriodDayCountUtil
                         // =========================
 
+/// This `struct` provides a namespace for a suite of pure functions that
+/// compute values based on dates according to enumerated day-count
+/// conventions.
 struct PeriodDayCountUtil {
-    // This 'struct' provides a namespace for a suite of pure functions that
-    // compute values based on dates according to enumerated day-count
-    // conventions.
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Return the (signed fractional) number of years between the specified
+    /// `beginDate` and `endDate` according to the specified day-count
+    /// `convention` with periods starting on the specified range
+    /// `[ periodDateBegin, periodDateEnd )` values and each period having a
+    /// duration of the specified `periodYearDiff` years (e.g., 0.25 for
+    /// quarterly periods).  If `beginDate <= endDate` then the result is
+    /// non-negative.  The behavior is undefined unless
+    /// `periodDateEnd - periodDateBegin >= 2`, the values contained in the
+    /// range are unique and sorted from minimum to maximum,
+    /// `min(beginDate, endDate) >= *periodDateBegin`,
+    /// `max(beginDate, endDate) <= *(periodDateEnd - 1)`, and
+    /// `isSupported(convention)`.  Note that reversing the order of
+    /// `beginDate` and `endDate` negates the result; specifically,
+    /// `|yearsDiff(b,e,pd,pyd,c) + yearsDiff(e,b,pd,pyd,c)| <= 1.0e-15` for
+    /// all dates `b` and `e`, periods `pd`, and year fraction per period
+    /// `pyd`.
     static double yearsDiffImp(const bdlt::Date&         beginDate,
                                const bdlt::Date&         endDate,
                                const bdlt::Date         *periodDateBegin,
                                const bdlt::Date         *periodDateEnd,
                                double                    periodYearDiff,
                                DayCountConvention::Enum  convention);
-        // Return the (signed fractional) number of years between the specified
-        // 'beginDate' and 'endDate' according to the specified day-count
-        // 'convention' with periods starting on the specified range
-        // '[ periodDateBegin, periodDateEnd )' values and each period having a
-        // duration of the specified 'periodYearDiff' years (e.g., 0.25 for
-        // quarterly periods).  If 'beginDate <= endDate' then the result is
-        // non-negative.  The behavior is undefined unless
-        // 'periodDateEnd - periodDateBegin >= 2', the values contained in the
-        // range are unique and sorted from minimum to maximum,
-        // 'min(beginDate, endDate) >= *periodDateBegin',
-        // 'max(beginDate, endDate) <= *(periodDateEnd - 1)', and
-        // 'isSupported(convention)'.  Note that reversing the order of
-        // 'beginDate' and 'endDate' negates the result; specifically,
-        // '|yearsDiff(b,e,pd,pyd,c) + yearsDiff(e,b,pd,pyd,c)| <= 1.0e-15' for
-        // all dates 'b' and 'e', periods 'pd', and year fraction per period
-        // 'pyd'.
 
   public:
     // CLASS METHODS
+
+    /// Return the (signed) number of days between the specified `beginDate`
+    /// and `endDate` according to the specified day-count `convention`.  If
+    /// `beginDate <= endDate` then the result is non-negative.  The
+    /// behavior is undefined unless `isSupported(convention)`.  Note that
+    /// reversing the order of `beginDate` and `endDate` negates the result.
     static int daysDiff(const bdlt::Date&        beginDate,
                         const bdlt::Date&        endDate,
                         DayCountConvention::Enum convention);
-        // Return the (signed) number of days between the specified 'beginDate'
-        // and 'endDate' according to the specified day-count 'convention'.  If
-        // 'beginDate <= endDate' then the result is non-negative.  The
-        // behavior is undefined unless 'isSupported(convention)'.  Note that
-        // reversing the order of 'beginDate' and 'endDate' negates the result.
 
+    /// Return `true` if the specified `convention` is valid for use in
+    /// `daysDiff` and `yearsDiff`, and `false` otherwise.
     static bool isSupported(DayCountConvention::Enum convention);
-        // Return 'true' if the specified 'convention' is valid for use in
-        // 'daysDiff' and 'yearsDiff', and 'false' otherwise.
 
     static double yearsDiff(const bdlt::Date&                   beginDate,
                             const bdlt::Date&                   endDate,
