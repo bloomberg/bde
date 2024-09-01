@@ -9,61 +9,61 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a thread-aware single producer queue of values.
 //
 //@CLASSES:
-//  bdlcc::SingleProducerQueue: thread-aware single producer queue of 'TYPE'
+//  bdlcc::SingleProducerQueue: thread-aware single producer queue of `TYPE`
 //
-//@DESCRIPTION: This component defines a type, 'bdlcc::SingleProducerQueue',
+//@DESCRIPTION: This component defines a type, `bdlcc::SingleProducerQueue`,
 // that provides an efficient, thread-aware queue of values assuming a single
-// producer (the use of 'pushBack' and 'tryPushBack' is done by one thread or a
+// producer (the use of `pushBack` and `tryPushBack` is done by one thread or a
 // group of threads using external synchronization).  The behavior of the
-// methods 'pushBack' and 'tryPushBack' is undefined unless the use is by a
+// methods `pushBack` and `tryPushBack` is undefined unless the use is by a
 // single producer.  This class is ideal for synchronization and communication
 // between threads in a producer-consumer model when there is only one producer
 // thread.
 //
-// The queue provides 'pushBack' and 'popFront' methods for pushing data into
+// The queue provides `pushBack` and `popFront` methods for pushing data into
 // the queue and popping data from the queue.  The queue will allocate memory
-// as necessary to accommodate 'pushBack' invocations ('pushBack' will never
+// as necessary to accommodate `pushBack` invocations (`pushBack` will never
 // block and is provided for consistency with other containers).  When the
-// queue is empty, the 'popFront' methods block until data appears in the
-// queue.  Non-blocking methods 'tryPushBack' and 'tryPopFront' are also
-// provided.  The 'tryPopFront' method fails immediately, returning a non-zero
+// queue is empty, the `popFront` methods block until data appears in the
+// queue.  Non-blocking methods `tryPushBack` and `tryPopFront` are also
+// provided.  The `tryPopFront` method fails immediately, returning a non-zero
 // value, if the queue is empty.
 //
 // The queue may be placed into a "enqueue disabled" state using the
-// 'disablePushBack' method.  When disabled, 'pushBack' and 'tryPushBack' fail
+// `disablePushBack` method.  When disabled, `pushBack` and `tryPushBack` fail
 // immediately and return an error code.  The queue may be restored to normal
-// operation with the 'enablePushBack' method.
+// operation with the `enablePushBack` method.
 //
 // The queue may be placed into a "dequeue disabled" state using the
-// 'disablePopFront' method.  When dequeue disabled, 'popFront' and
-// 'tryPopFront' fail immediately and return an error code.  Any threads
-// blocked in 'popFront' when the queue is dequeue disabled return from
-// 'popFront' immediately and return an error code.
+// `disablePopFront` method.  When dequeue disabled, `popFront` and
+// `tryPopFront` fail immediately and return an error code.  Any threads
+// blocked in `popFront` when the queue is dequeue disabled return from
+// `popFront` immediately and return an error code.
 //
 ///Template Requirements
 ///---------------------
-// 'bdlcc::SingleProducerQueue' is a template that is parameterized on the type
+// `bdlcc::SingleProducerQueue` is a template that is parameterized on the type
 // of element contained within the queue.  The supplied template argument,
-// 'TYPE', must provide both a default constructor and a copy constructor, as
+// `TYPE`, must provide both a default constructor and a copy constructor, as
 // well as an assignment operator.  If the default constructor accepts a
-// 'bslma::Allocator *', 'TYPE' must declare the uses 'bslma::Allocator' trait
-// (see 'bslma_usesbslmaallocator') so that the allocator of the queue is
+// `bslma::Allocator *`, `TYPE` must declare the uses `bslma::Allocator` trait
+// (see `bslma_usesbslmaallocator`) so that the allocator of the queue is
 // propagated to the elements contained in the queue.
 //
 ///Exception safety
 ///----------------
-// A 'bdlcc::SingleProducerQueue' is exception neutral, and all of the methods
-// of 'bdlcc::SingleProducerQueue' provide the basic exception safety guarantee
-// (see 'bsldoc_glossary').
+// A `bdlcc::SingleProducerQueue` is exception neutral, and all of the methods
+// of `bdlcc::SingleProducerQueue` provide the basic exception safety guarantee
+// (see `bsldoc_glossary`).
 //
 ///Move Semantics in C++03
 ///-----------------------
-// Move-only types are supported by 'bdlcc::SingleProducerQueue' on C++11
-// platforms only (where 'BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES' is defined),
+// Move-only types are supported by `bdlcc::SingleProducerQueue` on C++11
+// platforms only (where `BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES` is defined),
 // and are not supported on C++03 platforms.  Unfortunately, in C++03, there
-// are user types where a 'bslmf::MovableRef' will not safely degrade to a
+// are user types where a `bslmf::MovableRef` will not safely degrade to a
 // lvalue reference when a move constructor is not available (types providing a
-// constructor template taking any type), so 'bslmf::MovableRefUtil::move'
+// constructor template taking any type), so `bslmf::MovableRefUtil::move`
 // cannot be used directly on a user supplied template type.  See internal bug
 // report 99039150 for more information.
 //
@@ -73,101 +73,101 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: A Simple Thread Pool
 ///- - - - - - - - - - - - - - - -
-// In the following example a 'bdlcc::SingleProducerQueue' is used to
+// In the following example a `bdlcc::SingleProducerQueue` is used to
 // communicate between a single "producer" thread and multiple "consumer"
 // threads.  The "producer" will push work requests onto the queue, and each
 // "consumer" will iteratively take a work request from the queue and service
 // the request.  This example shows a partial, simplified implementation of the
-// 'bdlmt::FixedThreadPool' class.  See component 'bdlmt_fixedthreadpool' for
+// `bdlmt::FixedThreadPool` class.  See component `bdlmt_fixedthreadpool` for
 // more information.
 //
 // First, we define a utility classes that handles a simple "work item":
-//..
-//  struct my_WorkData {
-//      // Work data...
-//  };
+// ```
+// struct my_WorkData {
+//     // Work data...
+// };
 //
-//  struct my_WorkRequest {
-//      enum RequestType {
-//          e_WORK = 1,
-//          e_STOP = 2
-//      };
+// struct my_WorkRequest {
+//     enum RequestType {
+//         e_WORK = 1,
+//         e_STOP = 2
+//     };
 //
-//      RequestType d_type;
-//      my_WorkData d_data;
-//      // Work data...
+//     RequestType d_type;
+//     my_WorkData d_data;
+//     // Work data...
 //
-//      // CREATORS
-//      my_WorkRequest() : d_type(), d_data() {}
-//  };
-//..
+//     // CREATORS
+//     my_WorkRequest() : d_type(), d_data() {}
+// };
+// ```
 // Next, we provide a simple function to service an individual work item.  The
 // details are unimportant for this example:
-//..
-//  void myDoWork(my_WorkData& data)
-//  {
-//      // do some stuff...
-//      (void)data;
-//  }
-//..
-// Then, we define a 'myConsumer' function that will pop elements off the queue
-// and process them.  Note that the call to 'queue->popFront(&item)' will block
+// ```
+// void myDoWork(my_WorkData& data)
+// {
+//     // do some stuff...
+//     (void)data;
+// }
+// ```
+// Then, we define a `myConsumer` function that will pop elements off the queue
+// and process them.  Note that the call to `queue->popFront(&item)` will block
 // until there is an element available on the queue.  This function will be
 // executed in multiple threads, so that each thread waits in
-// 'queue->popFront(&item)', and 'bdlcc::SingleProducerQueue' guarantees that
+// `queue->popFront(&item)`, and `bdlcc::SingleProducerQueue` guarantees that
 // each thread gets a unique element from the queue:
-//..
-//  void myConsumer(bdlcc::SingleProducerQueue<my_WorkRequest> *queue)
-//  {
-//      while (1) {
-//          // 'popFront()' will wait for a 'my_WorkRequest' until available.
+// ```
+// void myConsumer(bdlcc::SingleProducerQueue<my_WorkRequest> *queue)
+// {
+//     while (1) {
+//         // 'popFront()' will wait for a 'my_WorkRequest' until available.
 //
-//          my_WorkRequest item;
-//          queue->popFront(&item);
-//          if (item.d_type == my_WorkRequest::e_STOP) { break; }
-//          myDoWork(item.d_data);
-//      }
-//  }
-//..
-// Finally, we define a 'myProducer' function that serves multiple roles: it
-// creates the 'bdlcc::SingleProducerQueue', starts the consumer threads, and
+//         my_WorkRequest item;
+//         queue->popFront(&item);
+//         if (item.d_type == my_WorkRequest::e_STOP) { break; }
+//         myDoWork(item.d_data);
+//     }
+// }
+// ```
+// Finally, we define a `myProducer` function that serves multiple roles: it
+// creates the `bdlcc::SingleProducerQueue`, starts the consumer threads, and
 // then produces and enqueues work items.  When work requests are exhausted,
-// this function enqueues one 'e_STOP' item for each consumer queue.  This
-// 'e_STOP' item indicates to the consumer thread to terminate its
+// this function enqueues one `e_STOP` item for each consumer queue.  This
+// `e_STOP` item indicates to the consumer thread to terminate its
 // thread-handling function.
 //
-// Note that, although the producer cannot control which thread 'pop's a
+// Note that, although the producer cannot control which thread `pop`s a
 // particular work item, it can rely on the knowledge that each consumer thread
-// will read a single 'e_STOP' item and then terminate.
-//..
-//  void myProducer(int numThreads)
-//  {
-//      enum {
-//          k_NUM_WORK_ITEMS = 1000
-//      };
+// will read a single `e_STOP` item and then terminate.
+// ```
+// void myProducer(int numThreads)
+// {
+//     enum {
+//         k_NUM_WORK_ITEMS = 1000
+//     };
 //
-//      bdlcc::SingleProducerQueue<my_WorkRequest> queue;
+//     bdlcc::SingleProducerQueue<my_WorkRequest> queue;
 //
-//      bslmt::ThreadGroup consumerThreads;
-//      consumerThreads.addThreads(bdlf::BindUtil::bind(&myConsumer, &queue),
-//                                 numThreads);
+//     bslmt::ThreadGroup consumerThreads;
+//     consumerThreads.addThreads(bdlf::BindUtil::bind(&myConsumer, &queue),
+//                                numThreads);
 //
-//      for (int i = 0; i < k_NUM_WORK_ITEMS; ++i) {
-//          my_WorkRequest item;
-//          item.d_type = my_WorkRequest::e_WORK;
-//          item.d_data = my_WorkData(); // some stuff to do
-//          queue.pushBack(item);
-//      }
+//     for (int i = 0; i < k_NUM_WORK_ITEMS; ++i) {
+//         my_WorkRequest item;
+//         item.d_type = my_WorkRequest::e_WORK;
+//         item.d_data = my_WorkData(); // some stuff to do
+//         queue.pushBack(item);
+//     }
 //
-//      for (int i = 0; i < numThreads; ++i) {
-//          my_WorkRequest item;
-//          item.d_type = my_WorkRequest::e_STOP;
-//          queue.pushBack(item);
-//      }
+//     for (int i = 0; i < numThreads; ++i) {
+//         my_WorkRequest item;
+//         item.d_type = my_WorkRequest::e_STOP;
+//         queue.pushBack(item);
+//     }
 //
-//      consumerThreads.joinAll();
-//  }
-//..
+//     consumerThreads.joinAll();
+// }
+// ```
 
 #include <bdlscm_version.h>
 
@@ -192,10 +192,10 @@ namespace bdlcc {
                         // class SingleProducerQueue
                         // =========================
 
+/// This class provides a thread-safe unbounded queue of values that assumes
+/// a single producer thread.
 template <class TYPE>
 class SingleProducerQueue {
-    // This class provides a thread-safe unbounded queue of values that assumes
-    // a single producer thread.
 
     // PRIVATE TYPES
     typedef SingleProducerQueueImpl<TYPE,
@@ -226,131 +226,134 @@ class SingleProducerQueue {
     };
 
     // CREATORS
-    explicit SingleProducerQueue(bslma::Allocator *basicAllocator = 0);
-        // Create a thread-aware queue.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Create a thread-aware queue.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
+    explicit SingleProducerQueue(bslma::Allocator *basicAllocator = 0);
+
+    /// Create a thread-aware queue with, at least, the specified
+    /// `capacity`.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.
     SingleProducerQueue(bsl::size_t       capacity,
                         bslma::Allocator *basicAllocator = 0);
-        // Create a thread-aware queue with, at least, the specified
-        // 'capacity'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
 
     //! ~SingleProducerQueue() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Remove the element from the front of this queue and load that
+    /// element into the specified `value`.  If the queue is empty, block
+    /// until it is not empty.  Return 0 on success, and a non-zero value
+    /// otherwise.  Specifically, return `e_DISABLED` if
+    /// `isPopFrontDisabled()`.  On failure, `value` is not changed.
+    /// Threads blocked due to the queue being empty will return
+    /// `e_DISABLED` if `disablePopFront` is invoked.
     int popFront(TYPE* value);
-        // Remove the element from the front of this queue and load that
-        // element into the specified 'value'.  If the queue is empty, block
-        // until it is not empty.  Return 0 on success, and a non-zero value
-        // otherwise.  Specifically, return 'e_DISABLED' if
-        // 'isPopFrontDisabled()'.  On failure, 'value' is not changed.
-        // Threads blocked due to the queue being empty will return
-        // 'e_DISABLED' if 'disablePopFront' is invoked.
 
+    /// Append the specified `value` to the back of this queue.  Return 0 on
+    /// success, and a non-zero value otherwise.  Specifically, return
+    /// `e_DISABLED` if `isPushBackDisabled()`.  The behavior is undefined
+    /// unless the invoker of this method is the single producer.
     int pushBack(const TYPE& value);
-        // Append the specified 'value' to the back of this queue.  Return 0 on
-        // success, and a non-zero value otherwise.  Specifically, return
-        // 'e_DISABLED' if 'isPushBackDisabled()'.  The behavior is undefined
-        // unless the invoker of this method is the single producer.
 
+    /// Append the specified move-insertable `value` to the back of this
+    /// queue.  `value` is left in a valid but unspecified state.  Return 0
+    /// on success, and a non-zero value otherwise.  Specifically, return
+    /// `e_DISABLED` if `isPushBackDisabled()`.  On failure, `value` is not
+    /// changed.  The behavior is undefined unless the invoker of this
+    /// method is the single producer.
     int pushBack(bslmf::MovableRef<TYPE> value);
-        // Append the specified move-insertable 'value' to the back of this
-        // queue.  'value' is left in a valid but unspecified state.  Return 0
-        // on success, and a non-zero value otherwise.  Specifically, return
-        // 'e_DISABLED' if 'isPushBackDisabled()'.  On failure, 'value' is not
-        // changed.  The behavior is undefined unless the invoker of this
-        // method is the single producer.
 
+    /// Remove all items currently in this queue.  Note that this operation
+    /// is not atomic; if other threads are concurrently pushing items into
+    /// the queue the result of `numElements()` after this function returns
+    /// is not guaranteed to be 0.
     void removeAll();
-        // Remove all items currently in this queue.  Note that this operation
-        // is not atomic; if other threads are concurrently pushing items into
-        // the queue the result of 'numElements()' after this function returns
-        // is not guaranteed to be 0.
 
+    /// Attempt to remove the element from the front of this queue without
+    /// blocking, and, if successful, load the specified `value` with the
+    /// removed element.  Return 0 on success, and a non-zero value
+    /// otherwise.  Specifically, return `e_DISABLED` if
+    /// `isPopFrontDisabled()`, and `e_EMPTY` if `!isPopFrontDisabled()` and
+    /// the queue was empty.  On failure, `value` is not changed.
     int tryPopFront(TYPE *value);
-        // Attempt to remove the element from the front of this queue without
-        // blocking, and, if successful, load the specified 'value' with the
-        // removed element.  Return 0 on success, and a non-zero value
-        // otherwise.  Specifically, return 'e_DISABLED' if
-        // 'isPopFrontDisabled()', and 'e_EMPTY' if '!isPopFrontDisabled()' and
-        // the queue was empty.  On failure, 'value' is not changed.
 
+    /// Append the specified `value` to the back of this queue.  Return 0 on
+    /// success, and a non-zero value otherwise.  Specifically, return
+    /// `e_DISABLED` if `isPushBackDisabled()`.  The behavior is undefined
+    /// unless the invoker of this method is the single producer.
     int tryPushBack(const TYPE& value);
-        // Append the specified 'value' to the back of this queue.  Return 0 on
-        // success, and a non-zero value otherwise.  Specifically, return
-        // 'e_DISABLED' if 'isPushBackDisabled()'.  The behavior is undefined
-        // unless the invoker of this method is the single producer.
 
+    /// Append the specified move-insertable `value` to the back of this
+    /// queue.  `value` is left in a valid but unspecified state.  Return 0
+    /// on success, and a non-zero value otherwise.  Specifically, return
+    /// `e_DISABLED` if `isPushBackDisabled()`.  On failure, `value` is not
+    /// changed.  The behavior is undefined unless the invoker of this
+    /// method is the single producer.
     int tryPushBack(bslmf::MovableRef<TYPE> value);
-        // Append the specified move-insertable 'value' to the back of this
-        // queue.  'value' is left in a valid but unspecified state.  Return 0
-        // on success, and a non-zero value otherwise.  Specifically, return
-        // 'e_DISABLED' if 'isPushBackDisabled()'.  On failure, 'value' is not
-        // changed.  The behavior is undefined unless the invoker of this
-        // method is the single producer.
 
                        // Enqueue/Dequeue State
 
+    /// Disable dequeueing from this queue.  All subsequent invocations of
+    /// `popFront` or `tryPopFront` will fail immediately.  All blocked
+    /// invocations of `popFront` and `waitUntilEmpty` will fail
+    /// immediately.  If the queue is already dequeue disabled, this method
+    /// has no effect.
     void disablePopFront();
-        // Disable dequeueing from this queue.  All subsequent invocations of
-        // 'popFront' or 'tryPopFront' will fail immediately.  All blocked
-        // invocations of 'popFront' and 'waitUntilEmpty' will fail
-        // immediately.  If the queue is already dequeue disabled, this method
-        // has no effect.
 
+    /// Disable enqueueing into this queue.  All subsequent invocations of
+    /// `pushBack` or `tryPushBack` will fail immediately.  All blocked
+    /// invocations of `pushBack` will fail immediately.  If the queue is
+    /// already enqueue disabled, this method has no effect.
     void disablePushBack();
-        // Disable enqueueing into this queue.  All subsequent invocations of
-        // 'pushBack' or 'tryPushBack' will fail immediately.  All blocked
-        // invocations of 'pushBack' will fail immediately.  If the queue is
-        // already enqueue disabled, this method has no effect.
 
+    /// Enable queuing.  If the queue is not enqueue disabled, this call has
+    /// no effect.
     void enablePushBack();
-        // Enable queuing.  If the queue is not enqueue disabled, this call has
-        // no effect.
 
+    /// Enable dequeueing.  If the queue is not dequeue disabled, this call
+    /// has no effect.
     void enablePopFront();
-        // Enable dequeueing.  If the queue is not dequeue disabled, this call
-        // has no effect.
 
     // ACCESSORS
+
+    /// Return `true` if this queue is empty (has no elements), or `false`
+    /// otherwise.
     bool isEmpty() const;
-        // Return 'true' if this queue is empty (has no elements), or 'false'
-        // otherwise.
 
+    /// Return `true` if this queue is full (has no available capacity), or
+    /// `false` otherwise.  Note that for unbounded queues, this method
+    /// always returns `false`.
     bool isFull() const;
-        // Return 'true' if this queue is full (has no available capacity), or
-        // 'false' otherwise.  Note that for unbounded queues, this method
-        // always returns 'false'.
 
+    /// Return `true` if this queue is dequeue disabled, and `false`
+    /// otherwise.  Note that the queue is created in the "dequeue enabled"
+    /// state.
     bool isPopFrontDisabled() const;
-        // Return 'true' if this queue is dequeue disabled, and 'false'
-        // otherwise.  Note that the queue is created in the "dequeue enabled"
-        // state.
 
+    /// Return `true` if this queue is enqueue disabled, and `false`
+    /// otherwise.  Note that the queue is created in the "enqueue enabled"
+    /// state.
     bool isPushBackDisabled() const;
-        // Return 'true' if this queue is enqueue disabled, and 'false'
-        // otherwise.  Note that the queue is created in the "enqueue enabled"
-        // state.
 
+    /// Returns the number of elements currently in this queue.
     bsl::size_t numElements() const;
-        // Returns the number of elements currently in this queue.
 
+    /// Block until all the elements in this queue are removed.  Return 0 on
+    /// success, and a non-zero value otherwise.  Specifically, return
+    /// `e_DISABLED` if `!isEmpty() && isPopFrontDisabled()`.  A blocked
+    /// thread waiting for the queue to empty will return `e_DISABLED` if
+    /// `disablePopFront` is invoked.  The behavior is undefined unless the
+    /// invoker of this method is the single producer.
     int waitUntilEmpty() const;
-        // Block until all the elements in this queue are removed.  Return 0 on
-        // success, and a non-zero value otherwise.  Specifically, return
-        // 'e_DISABLED' if '!isEmpty() && isPopFrontDisabled()'.  A blocked
-        // thread waiting for the queue to empty will return 'e_DISABLED' if
-        // 'disablePopFront' is invoked.  The behavior is undefined unless the
-        // invoker of this method is the single producer.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 };
 
 // ============================================================================

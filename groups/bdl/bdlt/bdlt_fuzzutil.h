@@ -5,48 +5,48 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide creation of 'bdlt' data types from fuzz data.
+//@PURPOSE: Provide creation of `bdlt` data types from fuzz data.
 //
 //@CLASSES:
-//   bdlt::FuzzUtil: functions to create 'bdlt' data types from fuzz data
+//   bdlt::FuzzUtil: functions to create `bdlt` data types from fuzz data
 //
 //@SEE_ALSO: bslim_fuzzdataview, bslim_fuzzutil
 //
-//@DESCRIPTION: This component defines a struct, 'bdlt::FuzzUtil', which serves
-// as a namespace for functions to create 'bdlt' data types from supplied fuzz
+//@DESCRIPTION: This component defines a struct, `bdlt::FuzzUtil`, which serves
+// as a namespace for functions to create `bdlt` data types from supplied fuzz
 // input data.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Provide 'bdlt::Datetime' within a Range
+///Example 1: Provide `bdlt::Datetime` within a Range
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // The provided fuzz data is here represented by an array of bytes:
-//..
-//  const uint8_t data[] = {0x8A, 0x19, 0x0D, 0x44, 0x37, 0x0D,
-//                          0x38, 0x5E, 0x9B, 0xAA, 0xF3, 0xDA};
-//..
-// First, we default construct a 'bslim::FuzzDataView' object, 'fdv':
-//..
-//  bslim::FuzzDataView fdv(data, sizeof(data));
+// ```
+// const uint8_t data[] = {0x8A, 0x19, 0x0D, 0x44, 0x37, 0x0D,
+//                         0x38, 0x5E, 0x9B, 0xAA, 0xF3, 0xDA};
+// ```
+// First, we default construct a `bslim::FuzzDataView` object, `fdv`:
+// ```
+// bslim::FuzzDataView fdv(data, sizeof(data));
 //
-//  assert(12 == fdv.length());
-//..
-// Next, we construct 'Date' objects to represent the 'begin' and 'end' of the
-// time interval in which we wish to construct our new 'Date' from the fuzz
+// assert(12 == fdv.length());
+// ```
+// Next, we construct `Date` objects to represent the `begin` and `end` of the
+// time interval in which we wish to construct our new `Date` from the fuzz
 // data:
-//..
-//   bdlt::Date begin(1833, 5, 7);
-//   bdlt::Date end(1897, 4, 3);
-//..
-// Finally, we create a 'Date' object, 'within', by employing 'bdlt_fuzzutil':
-//..
-//  bdlt::Date within = bdlt::FuzzUtil::consumeDateInRange(&fdv, begin, end);
+// ```
+//  bdlt::Date begin(1833, 5, 7);
+//  bdlt::Date end(1897, 4, 3);
+// ```
+// Finally, we create a `Date` object, `within`, by employing `bdlt_fuzzutil`:
+// ```
+// bdlt::Date within = bdlt::FuzzUtil::consumeDateInRange(&fdv, begin, end);
 //
-//  assert(begin  <= within);
-//  assert(within <= end);
-//..
+// assert(begin  <= within);
+// assert(within <= end);
+// ```
 
 #include <bdlscm_version.h>
 
@@ -62,32 +62,34 @@ namespace bdlt {
                             // struct FuzzUtil
                             // ===============
 
+/// This utility `struct` provides a namespace for a suite of functions that
+/// produce objects of date and time values from fuzz data.
 struct FuzzUtil {
-    // This utility 'struct' provides a namespace for a suite of functions that
-    // produce objects of date and time values from fuzz data.
 
   private:
     // PRIVATE CLASS METHODS
-    static Date firstValidDate();
-        // Return the first valid date represented by 'Date' objects.
 
+    /// Return the first valid date represented by `Date` objects.
+    static Date firstValidDate();
+
+    /// Return the last valid date represented by `Date` objects.
     static Date lastValidDate();
-        // Return the last valid date represented by 'Date' objects.
 
   public:
     // CLASS METHODS
-    static bdlt::Date consumeDate(bslim::FuzzDataView *fuzzDataView);
-        // Return a 'Date' based on the next bytes from the specified
-        // 'fuzzDataView', and update 'fuzzDataView' to reflect the bytes
-        // consumed.
 
+    /// Return a `Date` based on the next bytes from the specified
+    /// `fuzzDataView`, and update `fuzzDataView` to reflect the bytes
+    /// consumed.
+    static bdlt::Date consumeDate(bslim::FuzzDataView *fuzzDataView);
+
+    /// Return a `Date` between the specified `begin` and `end` dates based
+    /// on the next bytes from the specified `fuzzDataView`, and update
+    /// `fuzzDataView` to reflect the bytes consumed.  The behavior is
+    /// undefined unless `begin <= end`.
     static bdlt::Date consumeDateInRange(bslim::FuzzDataView *fuzzDataView,
                                          const bdlt::Date&    begin,
                                          const bdlt::Date&    end);
-        // Return a 'Date' between the specified 'begin' and 'end' dates based
-        // on the next bytes from the specified 'fuzzDataView', and update
-        // 'fuzzDataView' to reflect the bytes consumed.  The behavior is
-        // undefined unless 'begin <= end'.
 };
 
 // ============================================================================

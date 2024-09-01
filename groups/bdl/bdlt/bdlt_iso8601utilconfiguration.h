@@ -13,36 +13,33 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlt_iso8601util, bdlt_iso8601utilparseconfiguration
 //
 //@DESCRIPTION: This component provides an unconstrained (value-semantic)
-// attribute class, 'bdlt::Iso8601UtilConfiguration', that may be used to
+// attribute class, `bdlt::Iso8601UtilConfiguration`, that may be used to
 // configure various aspects of generated ISO 8601 strings.
 //
 ///Attributes
 ///----------
-//..
-//             Name             Type   Default
-//  -------------------------   ----   -------
-//  fractionalSecondPrecision   int     3
-//  omitColonInZoneDesignator   bool    false
-//  useCommaForDecimalSign      bool    false
-//  useZAbbreviationForUtc      bool    false
-//..
-//: o 'fractionalSecondPrecision': number of digits used to represent
-//:   fractional seconds; must be in the range '0 .. 6'.
-//:
-//: o 'omitColonInZoneDesignator': 'true' if ':' should be omitted from zone
-//:   designators.
-//:
-//: o 'useCommaForDecimalSign': 'true' if ',' should be used as the decimal
-//:   sign in fractional seconds; otherwise, '.' should be used.
-//:
-//: o 'useZAbbreviationForUtc': 'true' if 'Z' should be used for the zone
-//:   designator instead of '+00:00' (specific to UTC).
+// ```
+//            Name             Type   Default
+// -------------------------   ----   -------
+// fractionalSecondPrecision   int     3
+// omitColonInZoneDesignator   bool    false
+// useCommaForDecimalSign      bool    false
+// useZAbbreviationForUtc      bool    false
+// ```
+// * `fractionalSecondPrecision`: number of digits used to represent
+//   fractional seconds; must be in the range `0 .. 6`.
+// * `omitColonInZoneDesignator`: `true` if `:` should be omitted from zone
+//   designators.
+// * `useCommaForDecimalSign`: `true` if `,` should be used as the decimal
+//   sign in fractional seconds; otherwise, `.` should be used.
+// * `useZAbbreviationForUtc`: `true` if `Z` should be used for the zone
+//   designator instead of `+00:00` (specific to UTC).
 //
 ///Default Configuration
 ///---------------------
 // This component also provides a (process-wide) default configuration that may
-// be set and retrieved via the 'setDefaultConfiguration' and
-// 'defaultConfiguration' class methods, respectively.  See Usage Example 2 for
+// be set and retrieved via the `setDefaultConfiguration` and
+// `defaultConfiguration` class methods, respectively.  See Usage Example 2 for
 // further details.
 //
 ///Usage
@@ -51,58 +48,58 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Configuring ISO 8601 String Generation
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates creation of a 'bdlt::Iso8601UtilConfiguration'
+// This example demonstrates creation of a `bdlt::Iso8601UtilConfiguration`
 // object that may be used to influence the format of the output produced by a
-// hypothetical utility, 'my::Iso8601Util', that generates and parses ISO 8601
-// strings for 'bdlt' vocabulary types (see 'bdlt_iso8601util', which provides
+// hypothetical utility, `my::Iso8601Util`, that generates and parses ISO 8601
+// strings for `bdlt` vocabulary types (see `bdlt_iso8601util`, which provides
 // just such functionality).  In particular, suppose that given a sample
-// 'bdlt::TimeTz' object:
-//..
-//  const bdlt::TimeTz timeTz(bdlt::Time(8, 59, 59, 123), 240);
-//..
-// 'my::Iso8601Util' produces, by default, the following (valid) ISO 8601
+// `bdlt::TimeTz` object:
+// ```
+// const bdlt::TimeTz timeTz(bdlt::Time(8, 59, 59, 123), 240);
+// ```
+// `my::Iso8601Util` produces, by default, the following (valid) ISO 8601
 // string:
-//..
-//  08:59:59.123+04:00
-//..
+// ```
+// 08:59:59.123+04:00
+// ```
 // However, we would like to produce the following (also valid) ISO 8601 string
 // instead:
-//..
-//  08:59:59,123+0400
-//..
-// 'bdlt::Iso8601UtilConfiguration' can be used to obtain the desired result
-// assuming that 'my::Iso8601Util' uses 'bdlt::Iso8601UtilConfiguration' to
+// ```
+// 08:59:59,123+0400
+// ```
+// `bdlt::Iso8601UtilConfiguration` can be used to obtain the desired result
+// assuming that `my::Iso8601Util` uses `bdlt::Iso8601UtilConfiguration` to
 // affect the format of generated strings in this fashion (e.g., again see
-// 'bdlt_iso8601util').
+// `bdlt_iso8601util`).
 //
-// First, we construct a 'bdlt::Iso8601UtilConfiguration' object that has the
+// First, we construct a `bdlt::Iso8601UtilConfiguration` object that has the
 // default value:
-//..
-//  bdlt::Iso8601UtilConfiguration configuration;
-//  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert(!configuration.omitColonInZoneDesignator());
-//  assert(!configuration.useCommaForDecimalSign());
-//  assert(!configuration.useZAbbreviationForUtc());
-//..
-// Then, we modify 'configuration' to indicate that we want to use ',' as the
+// ```
+// bdlt::Iso8601UtilConfiguration configuration;
+// assert( configuration.fractionalSecondPrecision() == 3);
+// assert(!configuration.omitColonInZoneDesignator());
+// assert(!configuration.useCommaForDecimalSign());
+// assert(!configuration.useZAbbreviationForUtc());
+// ```
+// Then, we modify `configuration` to indicate that we want to use `,` as the
 // decimal sign (in fractional seconds):
-//..
-//  configuration.setUseCommaForDecimalSign(true);
-//  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert(!configuration.omitColonInZoneDesignator());
-//  assert( configuration.useCommaForDecimalSign());
-//  assert(!configuration.useZAbbreviationForUtc());
-//..
-// Finally, we modify 'configuration' to indicate that we want to omit the ':'
+// ```
+// configuration.setUseCommaForDecimalSign(true);
+// assert( configuration.fractionalSecondPrecision() == 3);
+// assert(!configuration.omitColonInZoneDesignator());
+// assert( configuration.useCommaForDecimalSign());
+// assert(!configuration.useZAbbreviationForUtc());
+// ```
+// Finally, we modify `configuration` to indicate that we want to omit the `:`
 // in zone designators:
-//..
-//  configuration.setOmitColonInZoneDesignator(true);
-//  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert( configuration.omitColonInZoneDesignator());
-//  assert( configuration.useCommaForDecimalSign());
-//  assert(!configuration.useZAbbreviationForUtc());
-//..
-// Our 'configuration' object can now be supplied to 'my::Iso8601Util' to
+// ```
+// configuration.setOmitColonInZoneDesignator(true);
+// assert( configuration.fractionalSecondPrecision() == 3);
+// assert( configuration.omitColonInZoneDesignator());
+// assert( configuration.useCommaForDecimalSign());
+// assert(!configuration.useZAbbreviationForUtc());
+// ```
+// Our `configuration` object can now be supplied to `my::Iso8601Util` to
 // produce the desired result.
 //
 ///Example 2: Setting the Process-Wide Default Configuration
@@ -112,48 +109,48 @@ BSLS_IDENT("$Id: $")
 //
 // First, we retrieve the default configuration in effect at process start-up
 // and note that it has the default-constructed value:
-//..
-//  bdlt::Iso8601UtilConfiguration configuration =
-//                      bdlt::Iso8601UtilConfiguration::defaultConfiguration();
-//  assert(bdlt::Iso8601UtilConfiguration() == configuration);
-//  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert(!configuration.omitColonInZoneDesignator());
-//  assert(!configuration.useCommaForDecimalSign());
-//  assert(!configuration.useZAbbreviationForUtc());
-//..
-// Next, we modify 'configuration' to indicate that we want to output 'Z' when
-// the zone designator is UTC (i.e., instead of '+00:00'):
-//..
-//  configuration.setUseZAbbreviationForUtc(true);
-//  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert(!configuration.omitColonInZoneDesignator());
-//  assert(!configuration.useCommaForDecimalSign());
-//  assert( configuration.useZAbbreviationForUtc());
-//..
-// Then, we modify 'configuration' to display milliseconds:
-//..
-//  configuration.setFractionalSecondPrecision(6);
-//  assert( configuration.fractionalSecondPrecision() == 6);
-//  assert(!configuration.omitColonInZoneDesignator());
-//  assert(!configuration.useCommaForDecimalSign());
-//  assert( configuration.useZAbbreviationForUtc());
-//..
-// Now, we set the default configuration to the value of our 'configuration'
+// ```
+// bdlt::Iso8601UtilConfiguration configuration =
+//                     bdlt::Iso8601UtilConfiguration::defaultConfiguration();
+// assert(bdlt::Iso8601UtilConfiguration() == configuration);
+// assert( configuration.fractionalSecondPrecision() == 3);
+// assert(!configuration.omitColonInZoneDesignator());
+// assert(!configuration.useCommaForDecimalSign());
+// assert(!configuration.useZAbbreviationForUtc());
+// ```
+// Next, we modify `configuration` to indicate that we want to output `Z` when
+// the zone designator is UTC (i.e., instead of `+00:00`):
+// ```
+// configuration.setUseZAbbreviationForUtc(true);
+// assert( configuration.fractionalSecondPrecision() == 3);
+// assert(!configuration.omitColonInZoneDesignator());
+// assert(!configuration.useCommaForDecimalSign());
+// assert( configuration.useZAbbreviationForUtc());
+// ```
+// Then, we modify `configuration` to display milliseconds:
+// ```
+// configuration.setFractionalSecondPrecision(6);
+// assert( configuration.fractionalSecondPrecision() == 6);
+// assert(!configuration.omitColonInZoneDesignator());
+// assert(!configuration.useCommaForDecimalSign());
+// assert( configuration.useZAbbreviationForUtc());
+// ```
+// Now, we set the default configuration to the value of our `configuration`
 // object:
-//..
-//  bdlt::Iso8601UtilConfiguration::setDefaultConfiguration(configuration);
-//..
+// ```
+// bdlt::Iso8601UtilConfiguration::setDefaultConfiguration(configuration);
+// ```
 // Finally, we verify that the default configuration was updated as expected:
-//..
-//  const bdlt::Iso8601UtilConfiguration newConfiguration =
-//                      bdlt::Iso8601UtilConfiguration::defaultConfiguration();
-//  assert( newConfiguration.fractionalSecondPrecision() == 6);
-//  assert(!newConfiguration.omitColonInZoneDesignator());
-//  assert(!newConfiguration.useCommaForDecimalSign());
-//  assert( newConfiguration.useZAbbreviationForUtc());
-//..
+// ```
+// const bdlt::Iso8601UtilConfiguration newConfiguration =
+//                     bdlt::Iso8601UtilConfiguration::defaultConfiguration();
+// assert( newConfiguration.fractionalSecondPrecision() == 6);
+// assert(!newConfiguration.omitColonInZoneDesignator());
+// assert(!newConfiguration.useCommaForDecimalSign());
+// assert( newConfiguration.useZAbbreviationForUtc());
+// ```
 // Note that the expected usage is that the process-wide configuration will be
-// established *once*, early in 'main', and not changed throughout the lifetime
+// established *once*, early in `main`, and not changed throughout the lifetime
 // of a process.
 
 #include <bdlscm_version.h>
@@ -171,13 +168,13 @@ namespace bdlt {
                       // class Iso8601UtilConfiguration
                       // ==============================
 
+/// This unconstrained (value-semantic) attribute class characterizes how to
+/// configure certain behavior in `Iso8601Util` functions.  Currently, only
+/// the `generate` and `generateRaw` methods of that utility are affected by
+/// `Iso8601UtilConfiguration` settings.  See the Attributes section under
+/// @DESCRIPTION in the component-level documentation for information on the
+/// class attributes.
 class Iso8601UtilConfiguration {
-    // This unconstrained (value-semantic) attribute class characterizes how to
-    // configure certain behavior in 'Iso8601Util' functions.  Currently, only
-    // the 'generate' and 'generateRaw' methods of that utility are affected by
-    // 'Iso8601UtilConfiguration' settings.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation for information on the
-    // class attributes.
 
   private:
     // PRIVATE TYPES
@@ -206,129 +203,135 @@ class Iso8601UtilConfiguration {
 
   private:
     // PRIVATE CREATORS
+
+    /// Create an `Iso8601UtilConfiguration` object having the value
+    /// indicated by the specified `configurationMask`.  The behavior is
+    /// undefined unless `configurationMask` represents a valid
+    /// `Iso8601UtilConfiguration` value.
     explicit Iso8601UtilConfiguration(int configurationMask);
-        // Create an 'Iso8601UtilConfiguration' object having the value
-        // indicated by the specified 'configurationMask'.  The behavior is
-        // undefined unless 'configurationMask' represents a valid
-        // 'Iso8601UtilConfiguration' value.
 
   public:
     // CLASS METHODS
-    static Iso8601UtilConfiguration defaultConfiguration();
-        // Return the value of the process-wide 'Iso8601UtilConfiguration' that
-        // is currently in effect.
 
+    /// Return the value of the process-wide `Iso8601UtilConfiguration` that
+    /// is currently in effect.
+    static Iso8601UtilConfiguration defaultConfiguration();
+
+    /// Set the value of the process-wide `Iso8601UtilConfiguration` to the
+    /// specified `configuration`.  Note that the expected usage is that the
+    /// process-wide configuration will be established *once*, early in
+    /// `main`, and not changed throughout the lifetime of a process.
     static void setDefaultConfiguration(
                                 const Iso8601UtilConfiguration& configuration);
-        // Set the value of the process-wide 'Iso8601UtilConfiguration' to the
-        // specified 'configuration'.  Note that the expected usage is that the
-        // process-wide configuration will be established *once*, early in
-        // 'main', and not changed throughout the lifetime of a process.
 
     // CREATORS
+
+    /// Create an `Iso8601UtilConfiguration` object having the (default)
+    /// attribute values:
+    /// ```
+    /// fractionalSecondPrecision() == 3
+    /// omitColonInZoneDesignator() == false
+    /// useCommaForDecimalSign()    == false
+    /// useZAbbreviationForUtc()    == false
+    /// ```
     Iso8601UtilConfiguration();
-        // Create an 'Iso8601UtilConfiguration' object having the (default)
-        // attribute values:
-        //..
-        //  fractionalSecondPrecision() == 3
-        //  omitColonInZoneDesignator() == false
-        //  useCommaForDecimalSign()    == false
-        //  useZAbbreviationForUtc()    == false
-        //..
 
+    /// Create an `Iso8601UtilConfiguration` object having the value of the
+    /// specified `original` configuration.
     Iso8601UtilConfiguration(const Iso8601UtilConfiguration& original);
-        // Create an 'Iso8601UtilConfiguration' object having the value of the
-        // specified 'original' configuration.
 
+    /// Destroy this object.
     ~Iso8601UtilConfiguration();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs`
+    /// configuration, and return a reference providing modifiable access to
+    /// this object.
     Iso8601UtilConfiguration& operator=(const Iso8601UtilConfiguration& rhs);
-        // Assign to this object the value of the specified 'rhs'
-        // configuration, and return a reference providing modifiable access to
-        // this object.
 
+    /// Set the `fractionalSecondPrecision` attribute of this object to the
+    /// specified `value`.  The behavior is undefined unless `0 <= value`
+    /// and `6 >= value`.
     void setFractionalSecondPrecision(int value);
-        // Set the 'fractionalSecondPrecision' attribute of this object to the
-        // specified 'value'.  The behavior is undefined unless '0 <= value'
-        // and '6 >= value'.
 
+    /// Set the `omitColonInZoneDesignator` attribute of this object to the
+    /// specified `value`.
     void setOmitColonInZoneDesignator(bool value);
-        // Set the 'omitColonInZoneDesignator' attribute of this object to the
-        // specified 'value'.
 
+    /// Set the `useCommaForDecimalSign` attribute of this object to the
+    /// specified `value`.
     void setUseCommaForDecimalSign(bool value);
-        // Set the 'useCommaForDecimalSign' attribute of this object to the
-        // specified 'value'.
 
+    /// Set the `useZAbbreviationForUtc` attribute of this object to the
+    /// specified `value`.
     void setUseZAbbreviationForUtc(bool value);
-        // Set the 'useZAbbreviationForUtc' attribute of this object to the
-        // specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `fractionalSecondPrecision` attribute of
+    /// this object.
     int fractionalSecondPrecision() const;
-        // Return the value of the 'fractionalSecondPrecision' attribute of
-        // this object.
 
+    /// Return the value of the `omitColonInZoneDesignator` attribute of
+    /// this object.
     bool omitColonInZoneDesignator() const;
-        // Return the value of the 'omitColonInZoneDesignator' attribute of
-        // this object.
 
+    /// Return the value of the `useCommaForDecimalSign` attribute of this
+    /// object.
     bool useCommaForDecimalSign() const;
-        // Return the value of the 'useCommaForDecimalSign' attribute of this
-        // object.
 
+    /// Return the value of the `useZAbbreviationForUtc` attribute of this
+    /// object.
     bool useZAbbreviationForUtc() const;
-        // Return the value of the 'useZAbbreviationForUtc' attribute of this
-        // object.
 
                                   // Aspects
 
+    /// Write the value of this object to the specified output `stream` in a
+    /// human-readable format, and return a reference to `stream`.
+    /// Optionally specify an initial indentation `level`, whose absolute
+    /// value is incremented recursively for nested objects.  If `level` is
+    /// specified, optionally specify `spacesPerLevel`, whose absolute value
+    /// indicates the number of spaces per indentation level for this and
+    /// all of its nested objects.  If `level` is negative, suppress
+    /// indentation of the first line.  If `spacesPerLevel` is negative,
+    /// format the entire output on one line, suppressing all but the
+    /// initial indentation (as governed by `level`).  If `stream` is not
+    /// valid on entry, this operation has no effect.  Note that this
+    /// human-readable format is not fully specified, and can change without
+    /// notice.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in a
-        // human-readable format, and return a reference to 'stream'.
-        // Optionally specify an initial indentation 'level', whose absolute
-        // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute value
-        // indicates the number of spaces per indentation level for this and
-        // all of its nested objects.  If 'level' is negative, suppress
-        // indentation of the first line.  If 'spacesPerLevel' is negative,
-        // format the entire output on one line, suppressing all but the
-        // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that this
-        // human-readable format is not fully specified, and can change without
-        // notice.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `Iso8601UtilConfiguration` objects
+/// have the same value if each of their `fractionalSecondPrecision`,
+/// `omitColonInZoneDesignator`, `useCommaForDecimalSign`, and
+/// `useZAbbreviationForUtc` attributes (respectively) have the same value.
 bool operator==(const Iso8601UtilConfiguration& lhs,
                 const Iso8601UtilConfiguration& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'Iso8601UtilConfiguration' objects
-    // have the same value if each of their 'fractionalSecondPrecision',
-    // 'omitColonInZoneDesignator', 'useCommaForDecimalSign', and
-    // 'useZAbbreviationForUtc' attributes (respectively) have the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `Iso8601UtilConfiguration`
+/// objects do not have the same value if any of their
+/// `fractionalSecondPrecision`, `omitColonInZoneDesignator`,
+/// `useCommaForDecimalSign`, or `useZAbbreviationForUtc` attributes
+/// (respectively) do not have the same value.
 bool operator!=(const Iso8601UtilConfiguration& lhs,
                 const Iso8601UtilConfiguration& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'Iso8601UtilConfiguration'
-    // objects do not have the same value if any of their
-    // 'fractionalSecondPrecision', 'omitColonInZoneDesignator',
-    // 'useCommaForDecimalSign', or 'useZAbbreviationForUtc' attributes
-    // (respectively) do not have the same value.
 
+/// Write the value of the specified `object` to the specified output
+/// `stream` in a single-line format, and return a reference to `stream`.
+/// If `stream` is not valid on entry, this operation has no effect.  Note
+/// that this human-readable format is not fully specified and can change
+/// without notice.  Also note that this method has the same behavior as
+/// `object.print(stream, 0, -1)`, but with the attribute names elided.
 bsl::ostream& operator<<(bsl::ostream&                   stream,
                          const Iso8601UtilConfiguration& object);
-    // Write the value of the specified 'object' to the specified output
-    // 'stream' in a single-line format, and return a reference to 'stream'.
-    // If 'stream' is not valid on entry, this operation has no effect.  Note
-    // that this human-readable format is not fully specified and can change
-    // without notice.  Also note that this method has the same behavior as
-    // 'object.print(stream, 0, -1)', but with the attribute names elided.
 
 // ============================================================================
 //                             INLINE DEFINITIONS

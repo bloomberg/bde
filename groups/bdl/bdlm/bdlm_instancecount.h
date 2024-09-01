@@ -9,45 +9,45 @@
 //@CLASSES:
 // bdlm::InstanceCount: type specific instance count
 //
-//@DESCRIPTION: This component provides a mechanism, 'bdlm::InstanceCount', for
+//@DESCRIPTION: This component provides a mechanism, `bdlm::InstanceCount`, for
 // providing type specific instance counts.
 //
 ///Thread Safety
 ///-------------
-// This class is *thread-safe* (see {'bsldoc_glossary'|Thread-Safe}).
+// This class is *thread-safe* (see {`bsldoc_glossary`|Thread-Safe}).
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bdlm::InstanceCount'
+///Example 1: Using `bdlm::InstanceCount`
 ///- - - - - - - - - - - - - - - - - - -
-// This example demonstrates the usage of 'bdlm::InstanceCount' to obtain type
+// This example demonstrates the usage of `bdlm::InstanceCount` to obtain type
 // specific instance counts.
 //
 // First, we obtain and verify the instance counts for a few types:
-//..
-//  assert(1 == bdlm::InstanceCount::nextInstanceNumber<char>());
-//  assert(1 == bdlm::InstanceCount::nextInstanceNumber<int>());
-//  assert(1 == bdlm::InstanceCount::nextInstanceNumber<double>());
-//..
+// ```
+// assert(1 == bdlm::InstanceCount::nextInstanceNumber<char>());
+// assert(1 == bdlm::InstanceCount::nextInstanceNumber<int>());
+// assert(1 == bdlm::InstanceCount::nextInstanceNumber<double>());
+// ```
 // Then, we obtain and verify the instance counts for the previous types and
 // some new types:
-//..
-//  assert(2 == bdlm::InstanceCount::nextInstanceNumber<char>());
-//  assert(2 == bdlm::InstanceCount::nextInstanceNumber<int>());
-//  assert(1 == bdlm::InstanceCount::nextInstanceNumber<unsigned>());
-//  assert(1 == bdlm::InstanceCount::nextInstanceNumber<float>());
-//  assert(2 == bdlm::InstanceCount::nextInstanceNumber<double>());
-//..
+// ```
+// assert(2 == bdlm::InstanceCount::nextInstanceNumber<char>());
+// assert(2 == bdlm::InstanceCount::nextInstanceNumber<int>());
+// assert(1 == bdlm::InstanceCount::nextInstanceNumber<unsigned>());
+// assert(1 == bdlm::InstanceCount::nextInstanceNumber<float>());
+// assert(2 == bdlm::InstanceCount::nextInstanceNumber<double>());
+// ```
 // Finally, we obtain and verify the next instance counts for these types:
-//..
-//  assert(3 == bdlm::InstanceCount::nextInstanceNumber<char>());
-//  assert(3 == bdlm::InstanceCount::nextInstanceNumber<int>());
-//  assert(2 == bdlm::InstanceCount::nextInstanceNumber<unsigned>());
-//  assert(2 == bdlm::InstanceCount::nextInstanceNumber<float>());
-//  assert(3 == bdlm::InstanceCount::nextInstanceNumber<double>());
-//..
+// ```
+// assert(3 == bdlm::InstanceCount::nextInstanceNumber<char>());
+// assert(3 == bdlm::InstanceCount::nextInstanceNumber<int>());
+// assert(2 == bdlm::InstanceCount::nextInstanceNumber<unsigned>());
+// assert(2 == bdlm::InstanceCount::nextInstanceNumber<float>());
+// assert(3 == bdlm::InstanceCount::nextInstanceNumber<double>());
+// ```
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$")
@@ -62,16 +62,17 @@ namespace bdlm {
                            // class InstanceCount
                            // ===================
 
+/// This mechanism provides type specific instance counts.
 struct InstanceCount {
-    // This mechanism provides type specific instance counts.
 
     // TYPES
     typedef bsls::Types::Uint64 Value;  // storage type for instance counts
 
     // CLASS METHODS
+
+    /// Return the next instance number for the specified `OBJECT_TYPE`.
     template <class OBJECT_TYPE>
     static Value nextInstanceNumber();
-        // Return the next instance number for the specified 'OBJECT_TYPE'.
 };
 
 // ============================================================================

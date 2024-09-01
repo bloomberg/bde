@@ -10,18 +10,18 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdljsn::NumberUtil: conversion between JSON text and numeric types
 //
-//@DESCRIPTION: This component provides a struct, 'bdljsn::NumberUtil', that is
+//@DESCRIPTION: This component provides a struct, `bdljsn::NumberUtil`, that is
 // a namespace for a suite of functions for working with the JSON number text
-// format.  'bdljsn::NumberUtil' provides a function 'isValidNumber' to
+// format.  `bdljsn::NumberUtil` provides a function `isValidNumber` to
 // determine whether a string is a valid JSON number.  Many of the other
-// operations in this component have, as a precondition, that 'isValidNumber'
-// is 'true' for the text.  For information about the JSON number specification
-// and additional background on the behavior of numbers in 'bdljsn' see
+// operations in this component have, as a precondition, that `isValidNumber`
+// is `true` for the text.  For information about the JSON number specification
+// and additional background on the behavior of numbers in `bdljsn` see
 // {bdljsn_jsonnumber}.
 //
-// Many of the operations in this component have 'isValidNumber' as a
+// Many of the operations in this component have `isValidNumber` as a
 // precondition in order to provide simpler and more efficient implementations.
-// In the context of 'JsonNumber', the text will always be validated prior to
+// In the context of `JsonNumber`, the text will always be validated prior to
 // performing other operations.
 //
 ///Usage
@@ -30,85 +30,85 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Interpreting a JSON Number String
 /// - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using 'bdljsn::NumberUtil' to work with a JSON
+// This example demonstrates using `bdljsn::NumberUtil` to work with a JSON
 // number string.  Imagine we are given and array of strings for numbers we
 // expect to be integers, for each string we want to render some properties for
 // that number.
 //
 // First, we define an interesting set of example data:
-//..
-//  const char *EXAMPLE_DATA[] = {
-//     // value                               converted int value & notes
-//     // -----                               ---------------------------
-//     "NaN",                                // invalid number
-//     "INF",                                // invalid number
-//     "1",                                  // 1,         exact
-//     "1.5",                                // 1,         not an integer
-//     "-9223372036854775809",               // INT64_MIN, underflow
-//     "1.5e27",                             // INT64_MAX, overflow
-//  };
-//  const int NUM_DATA = sizeof(EXAMPLE_DATA) / sizeof(*EXAMPLE_DATA);
-//..
+// ```
+// const char *EXAMPLE_DATA[] = {
+//    // value                               converted int value & notes
+//    // -----                               ---------------------------
+//    "NaN",                                // invalid number
+//    "INF",                                // invalid number
+//    "1",                                  // 1,         exact
+//    "1.5",                                // 1,         not an integer
+//    "-9223372036854775809",               // INT64_MIN, underflow
+//    "1.5e27",                             // INT64_MAX, overflow
+// };
+// const int NUM_DATA = sizeof(EXAMPLE_DATA) / sizeof(*EXAMPLE_DATA);
+// ```
 // Then, for each number, we first check whether it is a valid JSON Number
 // (note that the behavior for the other methods is undefined unless the text
 // is a valid JSON Number):
-//..
-//  for (int i = 0; i < NUM_DATA; ++i) {
-//      const char *EXAMPLE = EXAMPLE_DATA[i];
-//      bsl::cout << "\"" << EXAMPLE << "\": " << bsl::endl;
-//      if (!bdljsn::NumberUtil::isValidNumber(EXAMPLE)) {
-//          bsl::cout << "  * is NOT a JSON Number" << bsl::endl;
-//          continue;                                               // CONTINUE
-//      }
-//..
+// ```
+// for (int i = 0; i < NUM_DATA; ++i) {
+//     const char *EXAMPLE = EXAMPLE_DATA[i];
+//     bsl::cout << "\"" << EXAMPLE << "\": " << bsl::endl;
+//     if (!bdljsn::NumberUtil::isValidNumber(EXAMPLE)) {
+//         bsl::cout << "  * is NOT a JSON Number" << bsl::endl;
+//         continue;                                               // CONTINUE
+//     }
+// ```
 // Next we verify that the number is an integer.  This will return an accurate
 // result even when the integer cannot be represented.
-//..
-//      if (bdljsn::NumberUtil::isIntegralNumber(EXAMPLE)) {
-//          bsl::cout << "  * is an integer" << bsl::endl;
-//      }
-//      else {
-//          bsl::cout << "  * is not an integer" << bsl::endl;
-//      }
-//..
+// ```
+//     if (bdljsn::NumberUtil::isIntegralNumber(EXAMPLE)) {
+//         bsl::cout << "  * is an integer" << bsl::endl;
+//     }
+//     else {
+//         bsl::cout << "  * is not an integer" << bsl::endl;
+//     }
+// ```
 // Finally, we convert that number to an integer:
-//..
-//      bsls::Types::Int64 value;
-//      int rc = bdljsn::NumberUtil::asInt64(&value, EXAMPLE);
+// ```
+//     bsls::Types::Int64 value;
+//     int rc = bdljsn::NumberUtil::asInt64(&value, EXAMPLE);
 //
-//      bsl::cout << "  * value: " << value;
+//     bsl::cout << "  * value: " << value;
 //
-//      if (bdljsn::NumberUtil::k_NOT_INTEGRAL == rc) {
-//          bsl::cout << "  (truncated)";
-//      }
-//      if (bdljsn::NumberUtil::k_OVERFLOW == rc) {
-//          bsl::cout << "  (overflow)";
-//      }
-//      if (bdljsn::NumberUtil::k_UNDERFLOW == rc) {
-//          bsl::cout << "  (underflow)";
-//      }
-//      bsl::cout << bsl::endl;
-//  }
-//..
+//     if (bdljsn::NumberUtil::k_NOT_INTEGRAL == rc) {
+//         bsl::cout << "  (truncated)";
+//     }
+//     if (bdljsn::NumberUtil::k_OVERFLOW == rc) {
+//         bsl::cout << "  (overflow)";
+//     }
+//     if (bdljsn::NumberUtil::k_UNDERFLOW == rc) {
+//         bsl::cout << "  (underflow)";
+//     }
+//     bsl::cout << bsl::endl;
+// }
+// ```
 // This will output the text:
-//..
-//  "NaN":
-//    * is NOT a JSON Number
-//  "INF":
-//    * is NOT a JSON Number
-//  "1":
-//    * is an integer
-//    * value: 1
-//  "1.5":
-//    * is not an integer
-//    * value: 1  (truncated)
-//  "-9223372036854775809":
-//    * is an integer
-//    * value: -9223372036854775808  (underflow)
-//  "1.5e27":
-//    * is an integer
-//    * value: 9223372036854775807  (overflow)
-//..
+// ```
+// "NaN":
+//   * is NOT a JSON Number
+// "INF":
+//   * is NOT a JSON Number
+// "1":
+//   * is an integer
+//   * value: 1
+// "1.5":
+//   * is not an integer
+//   * value: 1  (truncated)
+// "-9223372036854775809":
+//   * is an integer
+//   * value: -9223372036854775808  (underflow)
+// "1.5e27":
+//   * is an integer
+//   * value: 9223372036854775807  (overflow)
+// ```
 
 #include <bdlscm_version.h>
 
@@ -138,11 +138,11 @@ struct NumberUtil_ImpUtil;
                            // struct NumberUtil
                            // =================
 
+/// This `struct` provides a namespace for a suite of functions that convert
+/// between a JSON formated numeric value and various numerical types.  The
+/// valid syntax for a JSON formatted numeric value is spelled out in
+/// `https://www.rfc-editor.org/rfc/rfc8259#section-6`.
 struct NumberUtil {
-    // This 'struct' provides a namespace for a suite of functions that convert
-    // between a JSON formated numeric value and various numerical types.  The
-    // valid syntax for a JSON formatted numeric value is spelled out in
-    // 'https://www.rfc-editor.org/rfc/rfc8259#section-6'.
 
     // PUBLIC TYPES
     typedef bsls::Types::Uint64 Uint64;
@@ -163,136 +163,138 @@ struct NumberUtil {
 
            // validation
 
+    /// Return `true` if the specified `value` is a valid integral JSON
+    /// number.  Note that this function may return `true` even if `value`
+    /// cannot be represented in a fundamental integral type.  The behavior
+    /// is undefined unless `isValidNumber(value)` is `true`.
     static bool isIntegralNumber(const bsl::string_view& value);
-        // Return 'true' if the specified 'value' is a valid integral JSON
-        // number.  Note that this function may return 'true' even if 'value'
-        // cannot be represented in a fundamental integral type.  The behavior
-        // is undefined unless 'isValidNumber(value)' is 'true'.
 
+    /// Return `true` if the specified `value` is a valid JSON number.  Note
+    /// that this function may return `true` even if `value` cannot be
+    /// represented in any particular number type.
     static bool isValidNumber(const bsl::string_view& value);
-        // Return 'true' if the specified 'value' is a valid JSON number.  Note
-        // that this function may return 'true' even if 'value' cannot be
-        // represented in any particular number type.
 
            // basic floating point conversions
 
     static bdldfp::Decimal64 asDecimal64(const bsl::string_view& value);
     static double asDouble(const bsl::string_view& value);
+
+    /// Return the closest floating point representation to the specified
+    /// `value`.  If `value` is outside the representable range, return +INF
+    /// or -INF (as appropriate).  The behavior is undefined unless
+    /// `isValidNumber(value)` is `true`.
     static float asFloat(const bsl::string_view& value);
-        // Return the closest floating point representation to the specified
-        // 'value'.  If 'value' is outside the representable range, return +INF
-        // or -INF (as appropriate).  The behavior is undefined unless
-        // 'isValidNumber(value)' is 'true'.
 
            // exact floating point conversions
 
+    /// Load the specified `result` with the specified `value`, even if a
+    /// non-zero status is returned.  Return 0 if `value` can be represented
+    /// exactly, and return `k_INEXACT` and load `result` with the closest
+    /// approximation of `value` if `value` cannot be represented exactly.
+    /// A `value` can be represented exactly as a `Decimal64` if, for the
+    /// significand and exponent of `value`,
+    /// `abs(significand) <= 9,999,999,999,999,999` and
+    /// `-398 <= exponent <= 369`.  The behavior is undefined unless
+    /// `isValidNumber(value)` is `true`.
     static int asDecimal64Exact(bdldfp::Decimal64       *result,
                                 const bsl::string_view&  value);
-        // Load the specified 'result' with the specified 'value', even if a
-        // non-zero status is returned.  Return 0 if 'value' can be represented
-        // exactly, and return 'k_INEXACT' and load 'result' with the closest
-        // approximation of 'value' if 'value' cannot be represented exactly.
-        // A 'value' can be represented exactly as a 'Decimal64' if, for the
-        // significand and exponent of 'value',
-        // 'abs(significand) <= 9,999,999,999,999,999' and
-        // '-398 <= exponent <= 369'.  The behavior is undefined unless
-        // 'isValidNumber(value)' is 'true'.
 
            // typed integer conversions
 
     static int asInt(int *result, const bsl::string_view& value);
     static int asInt64(Int64 *result, const bsl::string_view& value);
     static int asUint(unsigned int *result, const bsl::string_view& value);
+
+    /// Load the specified `result` with the specified `value`, even if a
+    /// non-zero status is returned (truncating fractional digits if
+    /// necessary).  Return 0 on success, `k_OVERFLOW` if `value` is larger
+    /// than can be represented by `result`, `k_UNDERFLOW` if `value` is
+    /// smaller than can be represented by `result`,  and `k_NOT_INTEGRAL`
+    /// if `value` is not an integral number (i.e., there is a fractional
+    /// part).  For underflow, `result` will be loaded with the minimum
+    /// representable value, for overflow, `result` will be loaded with the
+    /// maximum representable value, for non-integral values `result` will
+    /// be loaded with the integer part of `value` (truncating the
+    /// fractional part of `value`).  The behavior is undefined unless
+    /// `isValidNumber(value)` is `true`.  Note that this operation will
+    /// correctly handle exponents (e.g., a `value` of
+    /// "0.00000000000000000001e20" will produce a `result` of
+    /// 1).
     static int asUint64(Uint64 *result, const bsl::string_view& value);
-        // Load the specified 'result' with the specified 'value', even if a
-        // non-zero status is returned (truncating fractional digits if
-        // necessary).  Return 0 on success, 'k_OVERFLOW' if 'value' is larger
-        // than can be represented by 'result', 'k_UNDERFLOW' if 'value' is
-        // smaller than can be represented by 'result',  and 'k_NOT_INTEGRAL'
-        // if 'value' is not an integral number (i.e., there is a fractional
-        // part).  For underflow, 'result' will be loaded with the minimum
-        // representable value, for overflow, 'result' will be loaded with the
-        // maximum representable value, for non-integral values 'result' will
-        // be loaded with the integer part of 'value' (truncating the
-        // fractional part of 'value').  The behavior is undefined unless
-        // 'isValidNumber(value)' is 'true'.  Note that this operation will
-        // correctly handle exponents (e.g., a 'value' of
-        // "0.00000000000000000001e20" will produce a 'result' of
-        // 1).
 
             // generic integer conversion
 
+    /// Load into the specified `result` (of the template parameter type
+    /// `t_INTEGER_TYPE`) with the specified `value`, even if a non-zero
+    /// status is returned (truncating fractional digits if necessary).
+    /// Return 0 on success, `k_OVERFLOW` if `value` is larger than can be
+    /// represented by `result`, `k_UNDERFLOW` if `value` is smaller than
+    /// can be represented by `result`,  and `k_NOT_INTEGRAL` if `value` is
+    /// not an integral number (i.e., there is a fractional part).  For
+    /// underflow, `result` will be loaded with the minimum representable
+    /// value, for overflow, `result` will be loaded with the maximum
+    /// representable value, for non-integral values `result` will be loaded
+    /// with the integer part of `value` (truncating the value to the
+    /// nearest integer).  If the result is not an integer and also either
+    /// overflows or underflows, it is treated as an overflow or underflow
+    /// (respectively).  The (template parameter) `t_INTEGER_TYPE` shall be
+    /// either a signed or unsigned integer type (that is not `bool`) where
+    /// `sizeof(t_INTEGER_TYPE) <= 8`. The behavior is undefined unless
+    /// `isValidNumber(value)` is `true`.  Note that this operation will
+    /// correctly handle exponents (e.g., a `value` of
+    /// "0.00000000000000000001e20" will produce a `result` of
+    /// 1).
     template <class t_INTEGER_TYPE>
     static int asInteger(t_INTEGER_TYPE          *result,
                          const bsl::string_view&  value);
-        // Load into the specified 'result' (of the template parameter type
-        // 't_INTEGER_TYPE') with the specified 'value', even if a non-zero
-        // status is returned (truncating fractional digits if necessary).
-        // Return 0 on success, 'k_OVERFLOW' if 'value' is larger than can be
-        // represented by 'result', 'k_UNDERFLOW' if 'value' is smaller than
-        // can be represented by 'result',  and 'k_NOT_INTEGRAL' if 'value' is
-        // not an integral number (i.e., there is a fractional part).  For
-        // underflow, 'result' will be loaded with the minimum representable
-        // value, for overflow, 'result' will be loaded with the maximum
-        // representable value, for non-integral values 'result' will be loaded
-        // with the integer part of 'value' (truncating the value to the
-        // nearest integer).  If the result is not an integer and also either
-        // overflows or underflows, it is treated as an overflow or underflow
-        // (respectively).  The (template parameter) 't_INTEGER_TYPE' shall be
-        // either a signed or unsigned integer type (that is not 'bool') where
-        // 'sizeof(t_INTEGER_TYPE) <= 8'. The behavior is undefined unless
-        // 'isValidNumber(value)' is 'true'.  Note that this operation will
-        // correctly handle exponents (e.g., a 'value' of
-        // "0.00000000000000000001e20" will produce a 'result' of
-        // 1).
 
            // conversions to string
 
+    /// Load into the specified `result` a string representation of
+    /// specified numerical `value`.
     static void stringify(bsl::string *result, Int64 value);
     static void stringify(bsl::string *result, Uint64 value);
     static void stringify(bsl::string *result, double value);
     static void stringify(bsl::string *result, const bdldfp::Decimal64& value);
-        // Load into the specified 'result' a string representation of
-        // specified numerical 'value'.
 
            // comparison
 
+    /// Return `true` if the specified `lhs` and `rhs` represent the same
+    /// numeric value, and `false` otherwise.  This function will return
+    /// `true` for differing representations of the same number (e.g.,
+    /// `1.0`, "1", "0.1e+1" are all equivalent) *except* in cases where the
+    /// exponent cannot be represented by a 64-bit integer.  If the exponent
+    /// is outside the range of a 64-bit integer, `true` will be returned if
+    /// `lhs == rhs`.  For example, comparing "1e18446744073709551615" with
+    /// itself will return `true`, but comparing it to
+    /// "10e18446744073709551614" will return `false`.  The behavior is
+    /// undefined unless `isValidNumber(lhs)` and `isValidNumber(rhs)`.
     static bool areEqual(const bsl::string_view& lhs,
                          const bsl::string_view& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' represent the same
-        // numeric value, and 'false' otherwise.  This function will return
-        // 'true' for differing representations of the same number (e.g.,
-        // '1.0', "1", "0.1e+1" are all equivalent) *except* in cases where the
-        // exponent cannot be represented by a 64-bit integer.  If the exponent
-        // is outside the range of a 64-bit integer, 'true' will be returned if
-        // 'lhs == rhs'.  For example, comparing "1e18446744073709551615" with
-        // itself will return 'true', but comparing it to
-        // "10e18446744073709551614" will return 'false'.  The behavior is
-        // undefined unless 'isValidNumber(lhs)' and 'isValidNumber(rhs)'.
 };
 
                          // ==========================
                          // struct NumberUtil_IsSigned
                          // ==========================
 
+/// This class will be a `bsl::true_type` if the specified (template
+/// parameter type) `t_TYPE` is a signed type, and `bsl::false_type`
+/// otherwise.  `t_TYPE` shall be an integral type.  Note that currently
+/// bsl::is_signed is not available for C++03 platforms.
 template <class t_TYPE>
 struct NumberUtil_IsSigned
 : bsl::integral_constant<bool, (t_TYPE(-1) < t_TYPE(0))> {
-    // This class will be a 'bsl::true_type' if the specified (template
-    // parameter type) 't_TYPE' is a signed type, and 'bsl::false_type'
-    // otherwise.  't_TYPE' shall be an integral type.  Note that currently
-    // bsl::is_signed is not available for C++03 platforms.
 };
 
                          // =========================
                          // struct NumberUtil_ImpUtil
                          // =========================
 
+/// [**PRIVATE**] This private implementation `struct` provides a namespace
+/// for a suite of functions used to help implement `NumberUtil`.  These
+/// functions are private to this component and should not be used by
+/// clients.
 struct NumberUtil_ImpUtil {
-    // [!PRIVATE!] This private implementation 'struct' provides a namespace
-    // for a suite of functions used to help implement 'NumberUtil'.  These
-    // functions are private to this component and should not be used by
-    // clients.
 
     // PUBLIC CONSTANTS
     enum {
@@ -300,23 +302,29 @@ struct NumberUtil_ImpUtil {
     };
 
     // CLASS METHODS
+
+    /// Load the specified `result` by appending the specified `digits` to
+    /// the specified `startingValue`.  Return 0 on success,
+    /// `NumberUtil::k_OVERFLOW` if the result cannot be represented in a
+    /// `Uint64`.  For example, appending "345" to 12 will return a `result`
+    /// of 12345.
     static int appendDigits(bsls::Types::Uint64     *result,
                             bsls::Types::Uint64      startingValue,
                             const bsl::string_view&  digits);
-        // Load the specified 'result' by appending the specified 'digits' to
-        // the specified 'startingValue'.  Return 0 on success,
-        // 'NumberUtil::k_OVERFLOW' if the result cannot be represented in a
-        // 'Uint64'.  For example, appending "345" to 12 will return a 'result'
-        // of 12345.
 
+    /// These function overloads implement `NumberUtil::asInteger`, and are
+    /// documented there.
     static int asInteger(bsls::Types::Uint64     *result,
                          const bsl::string_view&  value);
     template <class t_INTEGER_TYPE>
     static int asInteger(t_INTEGER_TYPE          *result,
                          const bsl::string_view&  value);
-        // These function overloads implement 'NumberUtil::asInteger', and are
-        // documented there.
 
+    /// These functions are the template dispatched implementations for the
+    /// `NumberUtil_ImpUtil::asInteger` template function, and serve
+    /// distinguish the signed from the (default-case) unsigned
+    /// implementation.  These functions are documented by
+    /// `NumberUtil::asInteger`.
     template <class t_INTEGER_TYPE>
     static int asIntegerDispatchImp(
                            t_INTEGER_TYPE                    *result,
@@ -326,12 +334,61 @@ struct NumberUtil_ImpUtil {
     static int asIntegerDispatchImp(t_INTEGER_TYPE           *result,
                                     const bsl::string_view&   value,
                                     bslmf::SelectTraitCase<>);
-        // These functions are the template dispatched implementations for the
-        // 'NumberUtil_ImpUtil::asInteger' template function, and serve
-        // distinguish the signed from the (default-case) unsigned
-        // implementation.  These functions are documented by
-        // 'NumberUtil::asInteger'.
 
+    /// Decompose the specified `value` into constituent elements, loading
+    /// the specified `isNegative` with a flag indicating if `value` is
+    /// negative, the specified `isExponentNegative` with a flag indicating
+    /// whether the exponent of `value` is negative, the specified `integer`
+    /// with the integer portion of `value`, the specified `fraction` with
+    /// the fraction portion of `value`, the specified `exponent` with the
+    /// exponent portion of `value`, the specified `significantDigits` with
+    /// the significant digits of `value`, the specified
+    /// `significantDigitsBias` with a bias to add to the exponent when
+    /// considering the value of the significant digits, and the
+    /// `significantDigitsDotOffset` with the offset of the `.` character in
+    /// `significantDigits` (if one exists).  The returned
+    /// `significantDigits` may include a `.` character (whose offset into
+    /// `significantDigits` is given by `significantDigitsOffset`) which
+    /// should simply be ignored when considering the significant digits.
+    /// If `significantDigits` does not include a `.` character,
+    /// `significantDigitsOffset` will be `bsl::string_view::npos`.  The
+    /// behavior is undefined unless `NumberUtil::isValidNumber(value)` is
+    /// `true`.  Note that if `significantDigits[0]` is `0` then `value`
+    /// must be 0.
+    ///
+    /// For example, here are some examples of decompose results for an
+    /// input `value` (`isNegative` and `isExpNegative` are omitted for
+    /// readability):
+    /// ```
+    /// | value    | int   | frac  | exp | sigDigit | sigDotOff | sigBias |
+    /// |----------|-------|-------|-----|----------|-----------|---------|
+    /// | "0.00"   | "0"   | "00"  | ""  | "0"      | npos      | 0       |
+    /// | "100e+1" | "100" | ""    | "1" | "1"      | npos      | 2       |
+    /// | "0.020"  | "0"   | "020" | ""  | "2"      | npos      | -2      |
+    /// | "1.12e5" | "1"   | "12"  | "5" | "1.12"   | 1         | -2      |
+    /// | "34.50"  | "34"  | "50"  | ""  | "34.5"   | 2         | -1      |
+    /// | "0.060"  | "0"   | "060" | ""  | "6"      | npos      | -2      |
+    /// | "10e-2"  | "0"   | "1"   | "2" | "1"      | npos      | 1       |
+    /// ```
+    /// Notice that the `.` is ignored when considering `significantDigits`
+    /// (so "34.5" is treated as "345", and the bias is -1).
+    ///
+    /// Finally, note that `significantDigits`, `significantDigitBias`, and
+    /// `significantDigitsDotOffset` are useful when considering a canonical
+    /// representation for a JSON Number, which consists of a whole number
+    /// (with leading and trailing zeros removed) and an exponent.   This
+    /// canonical representation can be used when determining whether two
+    /// JSON numbers are equal.  For example, "-12.30e-4" would have a
+    /// canonical representation -123e-5.  This canonical representation can
+    /// be computed by taking the returned `significantDigits`, "12.3",
+    /// ignoring the `.` character at `significantDigitsOffset` and
+    /// incorporating `isNegative` to get the canonical significant digits
+    /// -123, then combining `exponent` ("4") with `isExponentNegative` to
+    /// get the exponent of -4 and then adding the returned
+    /// `significantDigitsBias` of -1 to that exponent to get the canonical
+    /// exponent of -5.  Combining the canonical significant digits (-123)
+    /// and the canonical exponent (-5) results in the canonical
+    /// representation -123e-5.
     static void decompose(
                        bool                        *isNegative,
                        bool                        *isExpNegative,
@@ -342,69 +399,15 @@ struct NumberUtil_ImpUtil {
                        bsls::Types::Int64          *significantDigitsBias,
                        bsl::string_view::size_type *significantDigitsDotOffset,
                        const bsl::string_view&      value);
-        // Decompose the specified 'value' into constituent elements, loading
-        // the specified 'isNegative' with a flag indicating if 'value' is
-        // negative, the specified 'isExponentNegative' with a flag indicating
-        // whether the exponent of 'value' is negative, the specified 'integer'
-        // with the integer portion of 'value', the specified 'fraction' with
-        // the fraction portion of 'value', the specified 'exponent' with the
-        // exponent portion of 'value', the specified 'significantDigits' with
-        // the significant digits of 'value', the specified
-        // 'significantDigitsBias' with a bias to add to the exponent when
-        // considering the value of the significant digits, and the
-        // 'significantDigitsDotOffset' with the offset of the '.' character in
-        // 'significantDigits' (if one exists).  The returned
-        // 'significantDigits' may include a '.' character (whose offset into
-        // 'significantDigits' is given by 'significantDigitsOffset') which
-        // should simply be ignored when considering the significant digits.
-        // If 'significantDigits' does not include a '.' character,
-        // 'significantDigitsOffset' will be 'bsl::string_view::npos'.  The
-        // behavior is undefined unless 'NumberUtil::isValidNumber(value)' is
-        // 'true'.  Note that if 'significantDigits[0]' is '0' then 'value'
-        // must be 0.
-        //
-        // For example, here are some examples of decompose results for an
-        // input 'value' ('isNegative' and 'isExpNegative' are omitted for
-        // readability):
-        //..
-        // | value    | int   | frac  | exp | sigDigit | sigDotOff | sigBias |
-        // |----------|-------|-------|-----|----------|-----------|---------|
-        // | "0.00"   | "0"   | "00"  | ""  | "0"      | npos      | 0       |
-        // | "100e+1" | "100" | ""    | "1" | "1"      | npos      | 2       |
-        // | "0.020"  | "0"   | "020" | ""  | "2"      | npos      | -2      |
-        // | "1.12e5" | "1"   | "12"  | "5" | "1.12"   | 1         | -2      |
-        // | "34.50"  | "34"  | "50"  | ""  | "34.5"   | 2         | -1      |
-        // | "0.060"  | "0"   | "060" | ""  | "6"      | npos      | -2      |
-        // | "10e-2"  | "0"   | "1"   | "2" | "1"      | npos      | 1       |
-        //..
-        // Notice that the '.' is ignored when considering 'significantDigits'
-        // (so "34.5" is treated as "345", and the bias is -1).
-        //
-        // Finally, note that 'significantDigits', 'significantDigitBias', and
-        // 'significantDigitsDotOffset' are useful when considering a canonical
-        // representation for a JSON Number, which consists of a whole number
-        // (with leading and trailing zeros removed) and an exponent.   This
-        // canonical representation can be used when determining whether two
-        // JSON numbers are equal.  For example, "-12.30e-4" would have a
-        // canonical representation -123e-5.  This canonical representation can
-        // be computed by taking the returned 'significantDigits', "12.3",
-        // ignoring the '.' character at 'significantDigitsOffset' and
-        // incorporating 'isNegative' to get the canonical significant digits
-        // -123, then combining 'exponent' ("4") with 'isExponentNegative' to
-        // get the exponent of -4 and then adding the returned
-        // 'significantDigitsBias' of -1 to that exponent to get the canonical
-        // exponent of -5.  Combining the canonical significant digits (-123)
-        // and the canonical exponent (-5) results in the canonical
-        // representation -123e-5.
 
+    /// Log the specified `value` (for which `isValidNumber` should be
+    /// `true`) could not be correctly parsed into a binary floating point
+    /// representation.  Note that this function should be unreachable (and
+    /// no test input has been found for which it is needed) but exists to
+    /// record an issue in case some gap were found between the JSON number
+    /// specification and the underlying floating point parsing functions
+    /// (whose quality may be outside of our control and vary by platform).
     static void logUnparseableJsonNumber(const bsl::string_view& value);
-        // Log the specified 'value' (for which 'isValidNumber' should be
-        // 'true') could not be correctly parsed into a binary floating point
-        // representation.  Note that this function should be unreachable (and
-        // no test input has been found for which it is needed) but exists to
-        // record an issue in case some gap were found between the JSON number
-        // specification and the underlying floating point parsing functions
-        // (whose quality may be outside of our control and vary by platform).
 };
 
 // ============================================================================

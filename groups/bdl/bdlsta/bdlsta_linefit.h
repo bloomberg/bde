@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlsta::LineFit: online calculation of least squares regression line
 //
-//@DESCRIPTION: This component provides a mechanism, 'bdlsta::LineFit', that
+//@DESCRIPTION: This component provides a mechanism, `bdlsta::LineFit`, that
 // provides online calculation of the least squares line fit.  Online
 // algorithms process the data in one pass, while maintaining accuracy.  The
 // online algorithm used is developed in the implementation notes (it is
@@ -33,29 +33,29 @@ BSLS_IDENT("$Id: $")
 // line fit parameters, variance, and mean.
 //
 // First, we create example input and instantiate the appropriate mechanism:
-//..
-//  double inputX[] = { 1.0, 2.0, 4.0, 5.0 };
-//  double inputY[] = { 1.0, 2.0, 4.0, 4.5 };
-//  bdlsta::LineFit lineFit;
-//..
-// Then, we invoke the 'add' routine to accumulate the data:
-//..
-//  for(int i = 0; i < 4; ++i) {
-//      lineFit.add(inputX[i], inputY[i]);
-//  }
-//..
+// ```
+// double inputX[] = { 1.0, 2.0, 4.0, 5.0 };
+// double inputY[] = { 1.0, 2.0, 4.0, 4.5 };
+// bdlsta::LineFit lineFit;
+// ```
+// Then, we invoke the `add` routine to accumulate the data:
+// ```
+// for(int i = 0; i < 4; ++i) {
+//     lineFit.add(inputX[i], inputY[i]);
+// }
+// ```
 // Finally, we assert that the alpha, beta, variance, and mean are what we
 // expect:
-//..
-//  double alpha, beta;
-//  ASSERT(4    == lineFit.count());
-//  ASSERT(3.0  == lineFit.xMean());
-//  ASSERT(1e-3 >  fabs(2.875    - lineFit.yMean()));
-//  ASSERT(1e-3 >  fabs(3.33333  - lineFit.variance()));
-//  ASSERT(0    == lineFit.fitIfValid(&alpha, &beta));
-//  ASSERT(1e-3 >  fabs(0.175 - alpha));
-//  ASSERT(1e-3 >  fabs(0.9   - beta ));
-//..
+// ```
+// double alpha, beta;
+// ASSERT(4    == lineFit.count());
+// ASSERT(3.0  == lineFit.xMean());
+// ASSERT(1e-3 >  fabs(2.875    - lineFit.yMean()));
+// ASSERT(1e-3 >  fabs(3.33333  - lineFit.variance()));
+// ASSERT(0    == lineFit.fitIfValid(&alpha, &beta));
+// ASSERT(1e-3 >  fabs(0.175 - alpha));
+// ASSERT(1e-3 >  fabs(0.9   - beta ));
+// ```
 
 // BDE_VERIFY pragma: +LL01
 
@@ -73,11 +73,11 @@ namespace bdlsta {
                             // class LineFit
                             // =============
 
+/// This class provides an efficient online algorithm for calculating linear
+/// square line fit.  The class also calculates the mean for the X's and
+/// Y's, and variance for the X's. These are byproducts of calculating the
+/// line fit.  The online algorithm is detailed in the implementation notes.
 class LineFit {
-    // This class provides an efficient online algorithm for calculating linear
-    // square line fit.  The class also calculates the mean for the X's and
-    // Y's, and variance for the X's. These are byproducts of calculating the
-    // line fit.  The online algorithm is detailed in the implementation notes.
   private:
     // DATA
     int    d_count; // Number of data points.
@@ -95,54 +95,57 @@ class LineFit {
     };
 
     // CREATORS
+
+    /// Create an empty `LineFit` object.
     LineFit();
-        // Create an empty 'LineFit' object.
 
     // MANIPULATORS
+
+    /// Add the specified `(xValue, yValue)` point to the data set.
     void add(double xValue, double yValue);
-        // Add the specified '(xValue, yValue)' point to the data set.
 
     // ACCESSORS
+
+    /// Returns the number of elements in the data set.
     int count() const;
-        // Returns the number of elements in the data set.
 
+    /// Calculate line fit coefficients `Y = Alpha + Beta * X`, and populate
+    /// the specified `alpha` (intercept) and `beta` (slope).  The behavior
+    /// is undefined if `2 > count` or all X's are identical.
     void fit(double *alpha, double *beta) const;
-        // Calculate line fit coefficients 'Y = Alpha + Beta * X', and populate
-        // the specified 'alpha' (intercept) and 'beta' (slope).  The behavior
-        // is undefined if '2 > count' or all X's are identical.
 
+    /// Calculate line fit coefficients `Y = Alpha + Beta * X`, and populate
+    /// the specified `alpha` (intercept) and `beta` (slope).  Return 0 on
+    /// success, and non-zero otherwise.  The computations is unsuccessful
+    /// if `2 > count` or all X's are identical.
     int fitIfValid(double *alpha, double *beta) const;
-        // Calculate line fit coefficients 'Y = Alpha + Beta * X', and populate
-        // the specified 'alpha' (intercept) and 'beta' (slope).  Return 0 on
-        // success, and non-zero otherwise.  The computations is unsuccessful
-        // if '2 > count' or all X's are identical.
 
+    /// Return the variance of the data set X's.  The behavior is undefined
+    /// unless `2 <= count`.
     double variance() const;
-        // Return the variance of the data set X's.  The behavior is undefined
-        // unless '2 <= count'.
 
+    /// Load into the specified `result`, the variance of the data set X's.
+    /// Return 0 on success, and a non-zero value otherwise.  Specifically,
+    /// `e_INADEQUATE_DATA` is returned if `2 > count`.
     int varianceIfValid(double *result) const;
-        // Load into the specified 'result', the variance of the data set X's.
-        // Return 0 on success, and a non-zero value otherwise.  Specifically,
-        // 'e_INADEQUATE_DATA' is returned if '2 > count'.
 
+    /// Return the mean of the data set X's.  The behavior is undefined
+    /// unless `1 <= count`.
     double xMean() const;
-        // Return the mean of the data set X's.  The behavior is undefined
-        // unless '1 <= count'.
 
+    /// Load into the specified `result`, the mean of the data set X's.
+    /// Return 0 on success, and a non-zero value otherwise.  Specifically,
+    /// `e_INADEQUATE_DATA` is returned if `1 > count`.
     int xMeanIfValid(double *result) const;
-        // Load into the specified 'result', the mean of the data set X's.
-        // Return 0 on success, and a non-zero value otherwise.  Specifically,
-        // 'e_INADEQUATE_DATA' is returned if '1 > count'.
 
+    /// Return the mean of the data set Y's.  The behavior is undefined
+    /// unless `1 <= count`.
     double yMean() const;
-        // Return the mean of the data set Y's.  The behavior is undefined
-        // unless '1 <= count'.
 
+    /// Load into the specified `result`, the mean of the data set Y's.
+    /// Return 0 on success, and a non-zero value otherwise.  Specifically,
+    /// `e_INADEQUATE_DATA` is returned if `1 > count`.
     int yMeanIfValid(double *result) const;
-        // Load into the specified 'result', the mean of the data set Y's.
-        // Return 0 on success, and a non-zero value otherwise.  Specifically,
-        // 'e_INADEQUATE_DATA' is returned if '1 > count'.
 };
 
 // ============================================================================

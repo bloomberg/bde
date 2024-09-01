@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlat_choicefunctions
 //
-//@DESCRIPTION: This component provides the 'bdlat_SelectionInfo' 'struct',
+//@DESCRIPTION: This component provides the `bdlat_SelectionInfo` `struct`,
 // which is a container for holding information (properties) about a choice
 // selection.  The properties of a selection include its name and the length of
 // its name, its distinct id within its containing type, its formatting mode,
@@ -20,11 +20,11 @@ BSLS_IDENT("$Id: $")
 // accessible, a manipulator and accessor is also supplied for each.
 //
 // When accessing or manipulating a selection of a "choice" type (using one of
-// the functions from the 'bdlat_ChoiceFunctions' namespace), an instance of
-// this 'struct' will be passed as the second argument to the accessor or
+// the functions from the `bdlat_ChoiceFunctions` namespace), an instance of
+// this `struct` will be passed as the second argument to the accessor or
 // manipulator.
 //
-// Note that this 'struct' needs to be a POD type.
+// Note that this `struct` needs to be a POD type.
 //
 ///Usage
 ///-----
@@ -34,38 +34,38 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // Suppose you create an accessor for choice selections that prints the
 // selection to an output stream:
-//..
-//  #include <bdlat_selectioninfo.h>
-//  #include <ostream>
+// ```
+// #include <bdlat_selectioninfo.h>
+// #include <ostream>
 //
-//  using namespace BloombergLP;
+// using namespace BloombergLP;
 //
-//  class PrintSelectionWithInfo {
-//      // Print the selection along with its name and annotation.
+// class PrintSelectionWithInfo {
+//     // Print the selection along with its name and annotation.
 //
-//      // PRIVATE DATA MEMBERS
-//      bsl::ostream *d_stream_p;
+//     // PRIVATE DATA MEMBERS
+//     bsl::ostream *d_stream_p;
 //
-//    public:
-//      // CREATORS
-//      PrintSelectionWithInfo(bsl::ostream *stream)
-//      : d_stream_p(stream)
-//      {
-//      }
+//   public:
+//     // CREATORS
+//     PrintSelectionWithInfo(bsl::ostream *stream)
+//     : d_stream_p(stream)
+//     {
+//     }
 //
-//      // OPERATIONS
-//      template <typename TYPE>
-//      int operator()(const TYPE&                selection,
-//                     const bdlat_SelectionInfo& info)
-//      {
-//          (*d_stream_p) << selection << " ("
-//                        << bsl::string(info.name(),
-//                                       info.nameLength())
-//                        << ", "
-//                        << info.annotation() << ")\n";
-//      }
-//  };
-//..
+//     // OPERATIONS
+//     template <typename TYPE>
+//     int operator()(const TYPE&                selection,
+//                    const bdlat_SelectionInfo& info)
+//     {
+//         (*d_stream_p) << selection << " ("
+//                       << bsl::string(info.name(),
+//                                      info.nameLength())
+//                       << ", "
+//                       << info.annotation() << ")\n";
+//     }
+// };
+// ```
 
 #include <bdlscm_version.h>
 
@@ -91,9 +91,9 @@ namespace BloombergLP {
                          // struct bdlat_SelectionInfo
                          // ==========================
 
+/// This `struct` holds information about an selection.  Its data members
+/// are `public` by design so that instances may be statically initialized.
 struct bdlat_SelectionInfo {
-    // This 'struct' holds information about an selection.  Its data members
-    // are 'public' by design so that instances may be statically initialized.
 
     // PUBLIC DATA -- DO *NOT* REORDER
     int         d_id;              // distinct id of selection
@@ -127,48 +127,49 @@ struct bdlat_SelectionInfo {
     //..
     // The assignment operator supplied by the compiler is sufficient.
 
+    /// Return a reference to the modifiable annotation of this selection
+    /// info object.
     const char *& annotation();
-        // Return a reference to the modifiable annotation of this selection
-        // info object.
 
+    /// Return a reference to the modifiable formatting mode of this
+    /// selection info object.
     int& formattingMode();
-        // Return a reference to the modifiable formatting mode of this
-        // selection info object.
 
+    /// Return a reference to the modifiable id of this selection info
+    /// object.
     int& id();
-        // Return a reference to the modifiable id of this selection info
-        // object.
 
+    /// Return a reference to the modifiable name of this selection info
+    /// object.
     const char *& name();
-        // Return a reference to the modifiable name of this selection info
-        // object.
 
+    /// Return a reference to the modifiable length of the name of this
+    /// selection info object.  Note that the 0-terminator is not included
+    /// in the length.
     int& nameLength();
-        // Return a reference to the modifiable length of the name of this
-        // selection info object.  Note that the 0-terminator is not included
-        // in the length.
 
     // ACCESSORS
+
+    /// Return the non-modifiable annotation of this selection info object.
     BSLS_KEYWORD_CONSTEXPR
     const char *annotation() const;
-        // Return the non-modifiable annotation of this selection info object.
 
+    /// Return the formatting mode of this selection info object.
     BSLS_KEYWORD_CONSTEXPR
     int formattingMode() const;
-        // Return the formatting mode of this selection info object.
 
+    /// Return the id of this selection info object.
     BSLS_KEYWORD_CONSTEXPR
     int id() const;
-        // Return the id of this selection info object.
 
+    /// Return the non-modifiable name of this selection info object.
     BSLS_KEYWORD_CONSTEXPR
     const char *name() const;
-        // Return the non-modifiable name of this selection info object.
 
+    /// Return the length of the name of this selection info object.  Note
+    /// that the 0-terminator is not included in the length.
     BSLS_KEYWORD_CONSTEXPR
     int nameLength() const;
-        // Return the length of the name of this selection info object.  Note
-        // that the 0-terminator is not included in the length.
 };
 
 // ============================================================================
@@ -176,26 +177,27 @@ struct bdlat_SelectionInfo {
 // ============================================================================
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` selection info objects
+/// have the same value, and `false` otherwise.  Two selection info objects
+/// have the same value if each of their respective properties are
+/// identical.
 inline
 bool operator==(const bdlat_SelectionInfo& lhs,
                 const bdlat_SelectionInfo& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' selection info objects
-    // have the same value, and 'false' otherwise.  Two selection info objects
-    // have the same value if each of their respective properties are
-    // identical.
 
+/// Return `true` if the specified `lhs` and `rhs` selection info objects do
+/// not have the same value, and `false` otherwise.  Two selection info
+/// objects do not have the same value if at least one of their respective
+/// properties is not identical.
 inline
 bool operator!=(const bdlat_SelectionInfo& lhs,
                 const bdlat_SelectionInfo& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' selection info objects do
-    // not have the same value, and 'false' otherwise.  Two selection info
-    // objects do not have the same value if at least one of their respective
-    // properties is not identical.
 
+/// Write the value of the specified `selectionInfo` to the specified
+/// `stream`.
 bsl::ostream& operator<<(bsl::ostream&              stream,
                          const bdlat_SelectionInfo& selectionInfo);
-    // Write the value of the specified 'selectionInfo' to the specified
-    // 'stream'.
 
 // MANIPULATORS
 inline

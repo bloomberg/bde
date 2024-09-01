@@ -5,14 +5,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a simple implementation of 'bdlbb::BlobBufferFactory'.
+//@PURPOSE: Provide a simple implementation of `bdlbb::BlobBufferFactory`.
 //
 //@CLASSES:
-//  bdlbb::SimpleBlobBufferFactory: a simple 'bdlbb::BlobBufferFactory'
+//  bdlbb::SimpleBlobBufferFactory: a simple `bdlbb::BlobBufferFactory`
 //
 //@DESCRIPTION: This component provides a mechanism,
-// 'bdlbb::SimpleBlobBufferFactory', that implements the
-// 'bdlbb::BlobBufferFactory' protocol and creates 'bdlbb::BlobBuffer' objects
+// `bdlbb::SimpleBlobBufferFactory`, that implements the
+// `bdlbb::BlobBufferFactory` protocol and creates `bdlbb::BlobBuffer` objects
 // of a fixed sized specified at the time the factory is constructed.  The blob
 // buffers created by this factory refer the a (shared) buffer allocated by the
 // allocator supplied at construction, or the default allocator if no allocator
@@ -24,47 +24,47 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Simple Blob Buffer Factory
 ///- - - - - - - - - - - - - - - - - - -
-// Suppose we want to make a blob that can be grown via calls to 'setLength',
+// Suppose we want to make a blob that can be grown via calls to `setLength`,
 // meaning that it must have a factory, and suppose you want all the memory for
 // the blob buffers created for the factory to be allocated directly from a
 // certain test allocator for test purposes.  We use a
-// 'SimpleBlobBufferFactory'.
+// `SimpleBlobBufferFactory`.
 //
 // First, we create our allocator:
-//..
-//  bslma::TestAllocator testAllocator;
-//..
+// ```
+// bslma::TestAllocator testAllocator;
+// ```
 // Then, we create our factor using that allocator:
-//..
-//  bdlbb::SimpleBlobBufferFactory factory(1024, &testAllocator);
-//  assert(factory.bufferSize() == 1024);
-//..
+// ```
+// bdlbb::SimpleBlobBufferFactory factory(1024, &testAllocator);
+// assert(factory.bufferSize() == 1024);
+// ```
 // Next, we create our blob using that factory:
-//..
-//  bdlbb::Blob blob(&factory);
-//..
+// ```
+// bdlbb::Blob blob(&factory);
+// ```
 // Next, we set the length big enough to require 20 blob buffers:
-//..
-//  blob.setLength(1024 * 20);
-//..
-// Then, we verify that the memory came from 'testAllocator'.  Note that since
+// ```
+// blob.setLength(1024 * 20);
+// ```
+// Then, we verify that the memory came from `testAllocator`.  Note that since
 // the blob buffers contain shared pointers, additional memory other than the
 // writable areas of the blob buffers is allocated:
-//..
-//  assert(1024 * 20 < testAllocator.numBytesInUse());
-//..
+// ```
+// assert(1024 * 20 < testAllocator.numBytesInUse());
+// ```
 // Now, we examine the state of the blob:
-//..
-//  assert(20 == blob.numDataBuffers());
-//  assert(20 == blob.numBuffers());
-//  assert(1024 * 20 == blob.length());
-//..
+// ```
+// assert(20 == blob.numDataBuffers());
+// assert(20 == blob.numBuffers());
+// assert(1024 * 20 == blob.length());
+// ```
 // Finally, we examine the blob buffers:
-//..
-//  for (int ii = 0; ii < blob.numDataBuffers(); ++ii) {
-//      assert(1024 == blob.buffer(ii).size());
-//  }
-//..
+// ```
+// for (int ii = 0; ii < blob.numDataBuffers(); ++ii) {
+//     assert(1024 == blob.buffer(ii).size());
+// }
+// ```
 
 #include <bdlscm_version.h>
 
@@ -86,11 +86,11 @@ namespace bdlbb {
                        // class SimpleBlobBufferFactory
                        // =============================
 
+/// This `class` declares an implementation of `BlobBufferFactory` where
+/// each segment loaded to a `BlobBuffer` is created with a separate calls
+/// to the allocator specified at construction, or the default allocator is
+/// no allocator was specified.
 class SimpleBlobBufferFactory : public BlobBufferFactory {
-    // This 'class' declares an implementation of 'BlobBufferFactory' where
-    // each segment loaded to a 'BlobBuffer' is created with a separate calls
-    // to the allocator specified at construction, or the default allocator is
-    // no allocator was specified.
 
     // PRIVATE DATA
     int               d_size;
@@ -109,30 +109,33 @@ class SimpleBlobBufferFactory : public BlobBufferFactory {
 
   public:
     // CREATORS
+
+    /// Create a `SimpleBlobBufferFactory` object that will create blob
+    /// buffers of specified length `bufferSize`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     explicit
     SimpleBlobBufferFactory(int               bufferSize,
                             bslma::Allocator *basicAllocator = 0);
-        // Create a 'SimpleBlobBufferFactory' object that will create blob
-        // buffers of specified length 'bufferSize'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Destroy this `SimpleBlobBufferFactory` object.
     ~SimpleBlobBufferFactory() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this 'SimpleBlobBufferFactory' object.
 
     // MANIPULATORS
-    void allocate(bdlbb::BlobBuffer *buffer) BSLS_KEYWORD_OVERRIDE;
-        // Allocate a blob buffer from this blob buffer factory, and load it
-        // into the specified 'buffer'.
 
+    /// Allocate a blob buffer from this blob buffer factory, and load it
+    /// into the specified `buffer`.
+    void allocate(bdlbb::BlobBuffer *buffer) BSLS_KEYWORD_OVERRIDE;
+
+    /// Set the buffer size for future buffers created by this factory to
+    /// the specified `bufferSize`.
     void setBufferSize(int bufferSize);
-        // Set the buffer size for future buffers created by this factory to
-        // the specified 'bufferSize'.
 
     // ACCESSORS
+
+    /// Return the current size with which this factory will allocate
+    /// buffers.
     int bufferSize() const;
-        // Return the current size with which this factory will allocate
-        // buffers.
 };
 
 }  // close package namespace

@@ -13,35 +13,34 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlt_time, bdlt_datetimetz
 //
 //@DESCRIPTION: This component provides a single, simply constrained
-// value-semantic class, 'bdlt::TimeTz', that represents a time value in a
-// particular time zone.  Each 'bdlt::TimeTz' object contains a time zone
-// offset from UTC (in minutes) and a 'bdlt::Time' value in that time zone.
+// value-semantic class, `bdlt::TimeTz`, that represents a time value in a
+// particular time zone.  Each `bdlt::TimeTz` object contains a time zone
+// offset from UTC (in minutes) and a `bdlt::Time` value in that time zone.
 // For logical consistency, the time value and offset should correspond to a
 // geographically valid time zone, but such consistency is the user's
 // responsibility.  This component does not enforce logical constraints on any
 // values.
 //
-// The 'localTime' and 'utcTime' methods return 'bdlt::Time' values
+// The `localTime` and `utcTime` methods return `bdlt::Time` values
 // corresponding to the local time and UTC time represented by the object,
-// respectively.  In addition, the 'offset' method returns the time zone offset
-// in minutes from UTC (i.e., 'UTC + offset' equals local time).
+// respectively.  In addition, the `offset` method returns the time zone offset
+// in minutes from UTC (i.e., `UTC + offset` equals local time).
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type         Default         Simple Constraints
-//  ------------------  -----------  --------------  ------------------
-//  localTime           bdlt::Time   '24:00:00.000'  none
-//  offset              int          0               ( -1440 .. 1440 )
-//..
-//: o 'localTime': local time in the timezone described by 'offset'.
-//:
-//: o 'offset': offset from UTC (in minutes) of the time zone in which
-//:   'localTime' occurs.
+// ```
+// Name                Type         Default         Simple Constraints
+// ------------------  -----------  --------------  ------------------
+// localTime           bdlt::Time   '24:00:00.000'  none
+// offset              int          0               ( -1440 .. 1440 )
+// ```
+// * `localTime`: local time in the timezone described by `offset`.
+// * `offset`: offset from UTC (in minutes) of the time zone in which
+//   `localTime` occurs.
 //
 ///Caveats on Time Zone Support
 ///----------------------------
-// A 'bdlt::TimeTz' value is intended to be interpreted as a value in a local
+// A `bdlt::TimeTz` value is intended to be interpreted as a value in a local
 // time zone, along with the offset of that value from UTC.  However, there are
 // some problems with this simple interpretation.  First of all, the offset
 // value may not correspond to any time zone that has ever existed.  For
@@ -56,7 +55,7 @@ BSLS_IDENT("$Id: $")
 ///ISO Standard Text Representation
 ///--------------------------------
 // A common standard text representation of a date and time value is described
-// by ISO 8601.  BDE provides the 'bdlt_iso8601util' component for conversion
+// by ISO 8601.  BDE provides the `bdlt_iso8601util` component for conversion
 // to and from the standard ISO8601 format.
 //
 ///Usage
@@ -70,41 +69,41 @@ BSLS_IDENT("$Id: $")
 // dates on which points in time occur can be inferred from context.  Assuming
 // that we know that two such times fall on the same (local) calendar date, we
 // can determine whether or not the two times coincide by comparing their
-// 'bdlt::TimeTz' representations.
+// `bdlt::TimeTz` representations.
 //
-// First, we define three 'bdlt::TimeTz' objects representing the time in three
+// First, we define three `bdlt::TimeTz` objects representing the time in three
 // different time zones on the same (local) date:
-//..
-//  bdlt::TimeTz newYorkTime(bdlt::Time(9, 30, 0, 0.0),
-//                           -5 * bdlt::TimeUnitRatio::k_MINUTES_PER_HOUR);
-//  bdlt::TimeTz chicagoTime(bdlt::Time(8, 30, 0, 0.0),
-//                           -6 * bdlt::TimeUnitRatio::k_MINUTES_PER_HOUR);
-//  bdlt::TimeTz phoenixTime(bdlt::Time(6, 30, 0, 0.0),
-//                           -7 * bdlt::TimeUnitRatio::k_MINUTES_PER_HOUR);
-//..
+// ```
+// bdlt::TimeTz newYorkTime(bdlt::Time(9, 30, 0, 0.0),
+//                          -5 * bdlt::TimeUnitRatio::k_MINUTES_PER_HOUR);
+// bdlt::TimeTz chicagoTime(bdlt::Time(8, 30, 0, 0.0),
+//                          -6 * bdlt::TimeUnitRatio::k_MINUTES_PER_HOUR);
+// bdlt::TimeTz phoenixTime(bdlt::Time(6, 30, 0, 0.0),
+//                          -7 * bdlt::TimeUnitRatio::k_MINUTES_PER_HOUR);
+// ```
 // Then, we observe that the local times are distinct:
-//..
-//  assert(newYorkTime.localTime() != chicagoTime.localTime());
-//  assert(chicagoTime.localTime() != phoenixTime.localTime());
-//  assert(phoenixTime.localTime() != newYorkTime.localTime());
-//..
-// Next, we observe that 'newYorkTime' and 'chicagoTime' actually represent the
+// ```
+// assert(newYorkTime.localTime() != chicagoTime.localTime());
+// assert(chicagoTime.localTime() != phoenixTime.localTime());
+// assert(phoenixTime.localTime() != newYorkTime.localTime());
+// ```
+// Next, we observe that `newYorkTime` and `chicagoTime` actually represent the
 // same point in time:
-//..
-//  assert(newYorkTime.utcTime() == chicagoTime.utcTime());
-//..
-// Finally, we observe that 'phoenixTime' is one hour earlier than
-// 'newYorkTime':
-//..
-//  bdlt::DatetimeInterval delta =
-//                               newYorkTime.utcTime() - phoenixTime.utcTime();
+// ```
+// assert(newYorkTime.utcTime() == chicagoTime.utcTime());
+// ```
+// Finally, we observe that `phoenixTime` is one hour earlier than
+// `newYorkTime`:
+// ```
+// bdlt::DatetimeInterval delta =
+//                              newYorkTime.utcTime() - phoenixTime.utcTime();
 //
-//  assert(0 == delta.days());
-//  assert(1 == delta.hours());
-//  assert(0 == delta.minutes());
-//  assert(0 == delta.seconds());
-//  assert(0 == delta.milliseconds());
-//..
+// assert(0 == delta.days());
+// assert(1 == delta.hours());
+// assert(0 == delta.minutes());
+// assert(0 == delta.seconds());
+// assert(0 == delta.milliseconds());
+// ```
 
 #include <bdlscm_version.h>
 
@@ -129,18 +128,18 @@ namespace bdlt {
                                 // class TimeTz
                                 // ============
 
+/// This value-semantic class describes a time value in a particular time
+/// zone, which is indicated using an offset from UTC (in minutes).  The
+/// offset is available via the `offset` method, and is defined by the
+/// relationship: `localTime() - offset() == utcTime`.  The time and offset
+/// values are logically assumed to correspond to geographically valid
+/// values, however, this constraint is not enforced.
+///
+/// This class:
+/// * supports a complete set of *value-semantic* operations
+/// * supports BDEX streaming
+/// For terminology see `bsldoc_glossary`.
 class TimeTz {
-    // This value-semantic class describes a time value in a particular time
-    // zone, which is indicated using an offset from UTC (in minutes).  The
-    // offset is available via the 'offset' method, and is defined by the
-    // relationship: 'localTime() - offset() == utcTime'.  The time and offset
-    // values are logically assumed to correspond to geographically valid
-    // values, however, this constraint is not enforced.
-    //
-    // This class:
-    //: o supports a complete set of *value-semantic* operations
-    //: o supports BDEX streaming
-    // For terminology see 'bsldoc_glossary'.
 
     // PRIVATE TYPES
     enum ValidOffsetRange {
@@ -157,188 +156,195 @@ class TimeTz {
 
   public:
     // CLASS METHODS
+
+    /// Return `true` if the specified `localTime` and the specified time
+    /// zone `offset` represent a valid `TimeTz` value, and `false`
+    /// otherwise.  A `localTime` and `offset` represent a valid `TimeTz`
+    /// value if `offset` is in the range `( -1440 .. 1440 )`, and `offset`
+    /// is 0 if `localTime` has the value `24:00:00.000`.  Note that a
+    /// `true` result from this function does not guarantee that `offset`
+    /// corresponds to any geographical or historical time zone.  Also note
+    /// that a `true` result from this function does not guarantee that
+    /// `localTime` itself is a valid `Time` object.
     static bool isValid(const Time& localTime, int offset);
-        // Return 'true' if the specified 'localTime' and the specified time
-        // zone 'offset' represent a valid 'TimeTz' value, and 'false'
-        // otherwise.  A 'localTime' and 'offset' represent a valid 'TimeTz'
-        // value if 'offset' is in the range '( -1440 .. 1440 )', and 'offset'
-        // is 0 if 'localTime' has the value '24:00:00.000'.  Note that a
-        // 'true' result from this function does not guarantee that 'offset'
-        // corresponds to any geographical or historical time zone.  Also note
-        // that a 'true' result from this function does not guarantee that
-        // 'localTime' itself is a valid 'Time' object.
 
                                // BDEX Streaming
 
+    /// Return the maximum valid BDEX format version, as indicated by the
+    /// specified `versionSelector`, to be passed to the `bdexStreamOut`
+    /// method.  Note that it is highly recommended that `versionSelector`
+    /// be formatted as "YYYYMMDD", a date representation.  Also note that
+    /// `versionSelector` should be a *compile*-time-chosen value that
+    /// selects a format version supported by both externalizer and
+    /// unexternalizer.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     static int maxSupportedBdexVersion(int versionSelector);
-        // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
-        // method.  Note that it is highly recommended that 'versionSelector'
-        // be formatted as "YYYYMMDD", a date representation.  Also note that
-        // 'versionSelector' should be a *compile*-time-chosen value that
-        // selects a format version supported by both externalizer and
-        // unexternalizer.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
     // CREATORS
+
+    /// Create a `TimeTz` object having the (default) attribute values.
     TimeTz();
-        // Create a 'TimeTz' object having the (default) attribute values.
 
+    /// Create a `TimeTz` object whose local time and offset attributes have
+    /// the specified `localTime` and `offset` values respectively.  The
+    /// behavior is undefined unless `offset` is in the range
+    /// `( -1440 .. 1440 )`, and `offset` is 0 if `localTime` has the value
+    /// `24:00:00.000`.  Note that this method provides no validation, and
+    /// it is the user's responsibility to ensure that `offset` represents a
+    /// valid time zone and that `localTime` represents a valid time in that
+    /// time zone.
     TimeTz(const Time& localTime, int offset);
-        // Create a 'TimeTz' object whose local time and offset attributes have
-        // the specified 'localTime' and 'offset' values respectively.  The
-        // behavior is undefined unless 'offset' is in the range
-        // '( -1440 .. 1440 )', and 'offset' is 0 if 'localTime' has the value
-        // '24:00:00.000'.  Note that this method provides no validation, and
-        // it is the user's responsibility to ensure that 'offset' represents a
-        // valid time zone and that 'localTime' represents a valid time in that
-        // time zone.
 
+    /// Construct a `TimeTz` object having the same value as the specified
+    /// `original` `TimeTz` object.
     TimeTz(const TimeTz& original);
-        // Construct a 'TimeTz' object having the same value as the specified
-        // 'original' 'TimeTz' object.
 
+    /// Destroy this object.
     ~TimeTz();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
     TimeTz& operator=(const TimeTz& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Set the local time and time zone offset attributes of this object to
+    /// the specified `localTime` and `offset` values respectively.  The
+    /// behavior is undefined unless `offset` is in the range
+    /// `( -1440 .. 1440 )`.  Note that this method provides no validation,
+    /// and it is the user's responsibility to assure the consistency of the
+    /// resulting value.
     void setTimeTz(const Time& localTime, int offset);
-        // Set the local time and time zone offset attributes of this object to
-        // the specified 'localTime' and 'offset' values respectively.  The
-        // behavior is undefined unless 'offset' is in the range
-        // '( -1440 .. 1440 )'.  Note that this method provides no validation,
-        // and it is the user's responsibility to assure the consistency of the
-        // resulting value.
 
+    /// Set the local time and the time zone offset of this object to the
+    /// specified `localTime` and `offset` values respectively if
+    /// `localTime` and `offset` represent a valid `TimeTz` value, and leave
+    /// the object unmodified otherwise.  Return 0 on success, and a
+    /// non-zero value otherwise.
     int setTimeTzIfValid(const Time& localTime, int offset);
-        // Set the local time and the time zone offset of this object to the
-        // specified 'localTime' and 'offset' values respectively if
-        // 'localTime' and 'offset' represent a valid 'TimeTz' value, and leave
-        // the object unmodified otherwise.  Return 0 on success, and a
-        // non-zero value otherwise.
 
                                   // Aspects
 
+    /// Assign to this object the value read from the specified input
+    /// `stream` using the specified `version` format, and return a
+    /// reference to `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `version` is not supported, this object
+    /// is unaltered and `stream` is invalidated, but otherwise unmodified.
+    /// If `version` is supported but `stream` becomes invalid during this
+    /// operation, this object has an undefined, but valid, state.  Note
+    /// that no version is read from `stream`.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format, and return a
-        // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, this object
-        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
-        // If 'version' is supported but 'stream' becomes invalid during this
-        // operation, this object has an undefined, but valid, state.  Note
-        // that no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
     // ACCESSORS
+
+    /// Return a `Time` object having the value of the local time attribute
+    /// of this object.  Note that the `Time` value returned is the value
+    /// stored in this object, and may be different from the local time of
+    /// the system.
     Time localTime() const;
-        // Return a 'Time' object having the value of the local time attribute
-        // of this object.  Note that the 'Time' value returned is the value
-        // stored in this object, and may be different from the local time of
-        // the system.
 
+    /// Return the time zone offset of this object in minutes from UTC.
     int offset() const;
-        // Return the time zone offset of this object in minutes from UTC.
 
+    /// Return a `Time` object having the value of the UTC time represented
+    /// by this object.  Note that the returned value is equal to
+    /// `localTime() - offset()` minutes.
     Time utcTime() const;
-        // Return a 'Time' object having the value of the UTC time represented
-        // by this object.  Note that the returned value is equal to
-        // 'localTime() - offset()' minutes.
 
                                   // Aspects
 
+    /// Write the value of this object, using the specified `version`
+    /// format, to the specified output `stream`, and return a reference to
+    /// `stream`.  If `stream` is initially invalid, this operation has no
+    /// effect.  If `version` is not supported, `stream` is invalidated, but
+    /// otherwise unmodified.  Note that `version` is not written to
+    /// `stream`.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object, using the specified 'version'
-        // format, to the specified output 'stream', and return a reference to
-        // 'stream'.  If 'stream' is initially invalid, this operation has no
-        // effect.  If 'version' is not supported, 'stream' is invalidated, but
-        // otherwise unmodified.  Note that 'version' is not written to
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Write the value of this object to the specified output `stream` in a
+    /// human-readable format, and return a reference to `stream`.
+    /// Optionally specify an initial indentation `level`, whose absolute
+    /// value is incremented recursively for nested objects.  If `level` is
+    /// specified, optionally specify `spacesPerLevel`, whose absolute value
+    /// indicates the number of spaces per indentation level for this and
+    /// all of its nested objects.  If `level` is negative, suppress
+    /// indentation of the first line.  If `spacesPerLevel` is negative,
+    /// format the entire output on one line, suppressing all but the
+    /// initial indentation (as governed by `level`).  If `stream` is not
+    /// valid on entry, this operation has no effect.  Note that the format
+    /// is not fully specified, and can change without notice.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in a
-        // human-readable format, and return a reference to 'stream'.
-        // Optionally specify an initial indentation 'level', whose absolute
-        // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute value
-        // indicates the number of spaces per indentation level for this and
-        // all of its nested objects.  If 'level' is negative, suppress
-        // indentation of the first line.  If 'spacesPerLevel' is negative,
-        // format the entire output on one line, suppressing all but the
-        // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the format
-        // is not fully specified, and can change without notice.
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
     // DEPRECATED
+
+    /// **DEPRECATED**: replaced by `utcTime`.
+    ///
+    /// Return a `Time` object having the value of the UTC time represented
+    /// by this object.  Note that the returned value is equal to
+    /// `localTime() - offset()` minutes.
     Time gmtTime() const;
-        // !DEPRECATED!: replaced by 'utcTime'.
-        //
-        // Return a 'Time' object having the value of the UTC time represented
-        // by this object.  Note that the returned value is equal to
-        // 'localTime() - offset()' minutes.
 
+    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
+    ///
+    /// Return the most current BDEX streaming version number supported by
+    /// this class.
     static int maxSupportedBdexVersion();
-        // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
-        //
-        // Return the most current BDEX streaming version number supported by
-        // this class.
 
+    /// **DEPRECATED**: replaced by `setTimeTzIfValid`.
+    ///
+    /// Set the local time and the time zone offset of this object to the
+    /// specified `localTime` and `offset` values respectively if
+    /// `localTime` and `offset` represent a valid `TimeTz` value.  Return 0
+    /// on success, and a non-zero value with no effect on this object
+    /// otherwise.
     int validateAndSetTimeTz(const Time& localTime, int offset);
-        // !DEPRECATED!: replaced by 'setTimeTzIfValid'.
-        //
-        // Set the local time and the time zone offset of this object to the
-        // specified 'localTime' and 'offset' values respectively if
-        // 'localTime' and 'offset' represent a valid 'TimeTz' value.  Return 0
-        // on success, and a non-zero value with no effect on this object
-        // otherwise.
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `TimeTz` objects have the same value
+/// if their corresponding `localTime` and `offset` attributes have the same
+/// values.
 bool operator==(const TimeTz& lhs, const TimeTz& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'TimeTz' objects have the same value
-    // if their corresponding 'localTime' and 'offset' attributes have the same
-    // values.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `TimeTz` objects do not have the
+/// same value if any of their corresponding `localTime` and `offset`
+/// attributes have different values.
 bool operator!=(const TimeTz& lhs, const TimeTz& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'TimeTz' objects do not have the
-    // same value if any of their corresponding 'localTime' and 'offset'
-    // attributes have different values.
 
+/// Write the value of the specified `object` to the specified output
+/// `stream` in a single-line format, and return a reference providing
+/// modifiable access to `stream`.  If `stream` is not valid on entry, this
+/// operation has no effect.  Note that this human-readable format is not
+/// fully specified and can change without notice.  Also note that this
+/// method has the same behavior as `object.print(stream, 0, -1)`, but with
+/// the attribute names elided.
 bsl::ostream& operator<<(bsl::ostream& stream, const TimeTz& object);
-    // Write the value of the specified 'object' to the specified output
-    // 'stream' in a single-line format, and return a reference providing
-    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
-    // operation has no effect.  Note that this human-readable format is not
-    // fully specified and can change without notice.  Also note that this
-    // method has the same behavior as 'object.print(stream, 0, -1)', but with
-    // the attribute names elided.
 
 // FREE FUNCTIONS
+
+/// Pass the specified `object` to the specified `hashAlg`.  This function
+/// integrates with the `bslh` modular hashing system and effectively
+/// provides a `bsl::hash` specialization for `TimeTz`.  Note that two
+/// objects which represent the same UTC time but have different offsets
+/// will not (necessarily) hash to the same value.
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const TimeTz& object);
-    // Pass the specified 'object' to the specified 'hashAlg'.  This function
-    // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for 'TimeTz'.  Note that two
-    // objects which represent the same UTC time but have different offsets
-    // will not (necessarily) hash to the same value.
 
 // ============================================================================
 //                            INLINE DEFINITIONS
@@ -566,10 +572,11 @@ void bdlt::hashAppend(HASHALG& hashAlg, const TimeTz& object)
 namespace bslmf {
 
 // TRAITS
+
+/// This template specialization for `IsBitwiseCopyable` indicates that
+/// `bdlt::TimeTz` is a bitwise copyable type.
 template <>
 struct IsBitwiseCopyable<BloombergLP::bdlt::TimeTz> : bsl::true_type {
-    // This template specialization for 'IsBitwiseCopyable' indicates that
-    // 'bdlt::TimeTz' is a bitwise copyable type.
 };
 
 }  // close namespace bslmf

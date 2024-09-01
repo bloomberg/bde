@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a representation of a 128-bit 'int' for bitwise operations.
+//@PURPOSE: Provide a representation of a 128-bit `int` for bitwise operations.
 //
 //@CLASSES:
 //  bdldfp::Uint128: A representation of a 128-bit unsigned integer
@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsl::bitset
 //
 //@DESCRIPTION: This component provides a value-semantic type,
-// 'bdldfp::Uint128', that is used to represent a 128-bit unsigned integer
+// `bdldfp::Uint128`, that is used to represent a 128-bit unsigned integer
 // having host-native byte order.  This component also provides a set of useful
 // bitwise manipulation operators for this type.
 //
@@ -35,24 +35,24 @@ BSLS_IDENT("$Id: $")
 // First, we forward declare the "addRouter" function that takes an IPv6
 // address indicating a router, and an IPv6 network address (a partial IP
 // address, with trailing 0's) that the router covers:
-//..
-//  void addRouter(bdldfp::Uint128 router, bdldfp::Uint128 network);
-//..
+// ```
+// void addRouter(bdldfp::Uint128 router, bdldfp::Uint128 network);
+// ```
 // Now we create a function that loads a set of networks and routers:
-//..
-//  void setupNetwork()
-//  {
-//      bdldfp::Uint128 network;
-//      network.setHigh(0x4242000042420000L);
-//      network.setLow(0x0);
+// ```
+// void setupNetwork()
+// {
+//     bdldfp::Uint128 network;
+//     network.setHigh(0x4242000042420000L);
+//     network.setLow(0x0);
 //
-//      bdldfp::Uint128 router(0x000012345678ABCDL, 0xDCBA000087654321L);
-//..
+//     bdldfp::Uint128 router(0x000012345678ABCDL, 0xDCBA000087654321L);
+// ```
 // Finally we invoke addRouter, on our network and router.
-//..
-//      addRouter(router, network);
-//  }
-//..
+// ```
+//     addRouter(router, network);
+// }
+// ```
 // Notice that Uint128 values can be created from high/low pairs.
 //
 ///Example 2: Checking a 128-bit IPv6 Network Mask
@@ -66,54 +66,54 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define a function that checks a passed IPv6 address and indicates
 // the sub-address, and network membership:
-//..
-//  bool checkNetworkAddress(bdldfp::Uint128 *subAddress,
-//                           bdldfp::Uint128  network,
-//                           int              maskLength
-//                           bdldfp::Uint128  address)
+// ```
+// bool checkNetworkAddress(bdldfp::Uint128 *subAddress,
+//                          bdldfp::Uint128  network,
+//                          int              maskLength
+//                          bdldfp::Uint128  address)
 // {
-//..
-// Then, we compute a net mask for the specified 'maskLength':
-//..
-//      bdldfp::Uint128 netMask;
-//      for (int i = 0; i < maskLength; ++i) {
-//          netMask |= 1;
-//          if (i != maskLength - 1) {
-//              netMask <<= 1;
-//          }
-//      }
-//..
-// Notice that it is possible to shift 'Uint128' values as if they were a
-// native type.  Meaning that it is possible to shift a 'Uint128' by 64-bits,
-// or more, in single operation, because 'Uint128' functions just like a
+// ```
+// Then, we compute a net mask for the specified `maskLength`:
+// ```
+//     bdldfp::Uint128 netMask;
+//     for (int i = 0; i < maskLength; ++i) {
+//         netMask |= 1;
+//         if (i != maskLength - 1) {
+//             netMask <<= 1;
+//         }
+//     }
+// ```
+// Notice that it is possible to shift `Uint128` values as if they were a
+// native type.  Meaning that it is possible to shift a `Uint128` by 64-bits,
+// or more, in single operation, because `Uint128` functions just like a
 // built-in 128-bit integer type would.
 //
 // Next, we calculate whether the passed address is within the network:
-//..
-//      bool inNetwork = network == (address & ~netMask);
-//..
+// ```
+//     bool inNetwork = network == (address & ~netMask);
+// ```
 // Then, we compute the subAddress, if the address is in the network:
-//..
-//      if (inNetwork) {
-//          *subAddress = address & netMask;
-//      }
-//..
+// ```
+//     if (inNetwork) {
+//         *subAddress = address & netMask;
+//     }
+// ```
 // Now, we return whether the address is in the network, and close the
 // function:
-//..
-//      return inNetwork
-//  }
-//..
-// Finally, we call 'checkNetworkAddress' on a test network and address:
-//..
-//  bdldfp::Uint128 subAddress;
-//  assert(checkNetworkAddress(
-//              &subAddress,
-//              bdldfp::Uint128(0xABCD424200001234L,0x22FF12345678L),
-//              bdldfp::Uint128(0xABCD424200001234L,0x22FF00000000L),
-//              32); // The network has a 32-bit internal address mask.
-//  assert(subAddress == 0x12345678L);
-//..
+// ```
+//     return inNetwork
+// }
+// ```
+// Finally, we call `checkNetworkAddress` on a test network and address:
+// ```
+// bdldfp::Uint128 subAddress;
+// assert(checkNetworkAddress(
+//             &subAddress,
+//             bdldfp::Uint128(0xABCD424200001234L,0x22FF12345678L),
+//             bdldfp::Uint128(0xABCD424200001234L,0x22FF00000000L),
+//             32); // The network has a 32-bit internal address mask.
+// assert(subAddress == 0x12345678L);
+// ```
 // Notice that primitive 64-bit words can be promoted to 128-bit addresses.
 
 #include <bsls_types.h>
@@ -126,9 +126,9 @@ namespace bdldfp {
                              // class Uint128
                              // =============
 
+/// This value-semantic type represents a 128-bit integer, with host machine
+/// byte order.
 class Uint128 {
-    // This value-semantic type represents a 128-bit integer, with host machine
-    // byte order.
 
   private:
     // DATA
@@ -149,16 +149,17 @@ class Uint128 {
 
   public:
     // CREATORS
+
+    /// Create an Uint128 object having the value `0`
     Uint128();
-        // Create an Uint128 object having the value '0'
 
+    /// Create an `Uint128` object having the 128-bit integer bit pattern of
+    /// the value of the specified `initialValue`.
     Uint128(bsls::Types::Uint64 initialValue);                      // IMPLICIT
-        // Create an 'Uint128' object having the 128-bit integer bit pattern of
-        // the value of the specified 'initialValue'.
 
+    /// Create an `Uint128` object having the 128-bit pattern specified by
+    /// `initialHigh..initialLow`
     Uint128(bsls::Types::Uint64 initialHigh, bsls::Types::Uint64 initialLow);
-        // Create an 'Uint128' object having the 128-bit pattern specified by
-        // 'initialHigh..initialLow'
 
     //! ~Uint128() = default;
         // Destroy this object.
@@ -168,85 +169,87 @@ class Uint128 {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
+    /// Set the value of this object to the value of a the bitwise or
+    /// between this 128 bit integer and the specified `rhs` value, and
+    /// return a reference providing mofifiable access to this object.
     Uint128& operator|=(const Uint128& rhs);
-        // Set the value of this object to the value of a the bitwise or
-        // between this 128 bit integer and the specified 'rhs' value, and
-        // return a reference providing mofifiable access to this object.
 
+    /// Set the value of this object to the value of a the bitwise and
+    /// between this 128 bit integer and the specified `rhs` value, and
+    /// return a reference providing mofifiable access to this object.
     Uint128& operator&=(const Uint128& rhs);
-        // Set the value of this object to the value of a the bitwise and
-        // between this 128 bit integer and the specified 'rhs' value, and
-        // return a reference providing mofifiable access to this object.
 
+    /// Set the value of this object to the value of a the bitwise xor
+    /// between this 128 bit integer and the specified `rhs` value, and
+    /// return a reference providing mofifiable access to this object.
     Uint128& operator^=(const Uint128& rhs);
-        // Set the value of this object to the value of a the bitwise xor
-        // between this 128 bit integer and the specified 'rhs' value, and
-        // return a reference providing mofifiable access to this object.
 
+    /// Set the value of this object to the value of a bitwise right shift
+    /// of this 128 bit integer shifted by the specified `rhs` value, and
+    /// return a reference providing mofifiable access to this object.  The
+    /// behavior is undefined unless `0 <= rhs < 128`.
     Uint128& operator>>=(int rhs);
-        // Set the value of this object to the value of a bitwise right shift
-        // of this 128 bit integer shifted by the specified 'rhs' value, and
-        // return a reference providing mofifiable access to this object.  The
-        // behavior is undefined unless '0 <= rhs < 128'.
 
+    /// Set the value of this object to the value of a bitwise left shift of
+    /// this 128 bit integer shifted by the specified `rhs` value, and
+    /// return a reference providing mofifiable access to this object.  The
+    /// behavior is undefined unless `0 <= rhs < 128`.
     Uint128& operator<<=(int rhs);
-        // Set the value of this object to the value of a bitwise left shift of
-        // this 128 bit integer shifted by the specified 'rhs' value, and
-        // return a reference providing mofifiable access to this object.  The
-        // behavior is undefined unless '0 <= rhs < 128'.
 
+    /// Set the high order bits of this integer to the specified `value`.
     void setHigh(bsls::Types::Uint64 value);
-        // Set the high order bits of this integer to the specified 'value'.
 
+    /// Set the low order bits of this integer to the specified `value`.
     void setLow(bsls::Types::Uint64 value);
-        // Set the low order bits of this integer to the specified 'value'.
 
     // ACCESSORS
-    bsls::Types::Uint64 high() const;
-        // Return the high order bits of this integer.
 
+    /// Return the high order bits of this integer.
+    bsls::Types::Uint64 high() const;
+
+    /// Return the low order bits of this integer.
     bsls::Types::Uint64 low() const;
-        // Return the low order bits of this integer.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and the specified `rhs` objects
+/// have the same value, and `false` otherwise.  Two `Uint128` objects have
+/// the same value if both of their `low` and `high` attributes are the
+/// same.
 bool operator==(const Uint128& lhs, const Uint128& rhs);
-    // Return 'true' if the specified 'lhs' and the specified 'rhs' objects
-    // have the same value, and 'false' otherwise.  Two 'Uint128' objects have
-    // the same value if both of their 'low' and 'high' attributes are the
-    // same.
 
+/// Return `true` if the specified `lhs` and the specified `rhs` objects do
+/// not have the same value, and `false` otherwise.  Two `Uint128` objects
+/// do not have the same value if either of their `low` and `high`
+/// attributes are not the same.
 bool operator!=(const Uint128& lhs, const Uint128& rhs);
-    // Return 'true' if the specified 'lhs' and the specified 'rhs' objects do
-    // not have the same value, and 'false' otherwise.  Two 'Uint128' objects
-    // do not have the same value if either of their 'low' and 'high'
-    // attributes are not the same.
 
+/// Return an Uint128 object having the value of a the bitwise or between
+/// the specified `lhs` and the specified `rhs` value.
 Uint128 operator|(Uint128 lhs, const Uint128& rhs);
-    // Return an Uint128 object having the value of a the bitwise or between
-    // the specified 'lhs' and the specified 'rhs' value.
 
+/// Return an Uint128 object having the value of a the bitwise and between
+/// the specified `lhs` and the specified `rhs` value.
 Uint128 operator&(Uint128 lhs, const Uint128& rhs);
-    // Return an Uint128 object having the value of a the bitwise and between
-    // the specified 'lhs' and the specified 'rhs' value.
 
+/// Return an Uint128 object having the value of a the bitwise xor between
+/// the specified `lhs` and the specified `rhs` value.
 Uint128 operator^(Uint128 lhs, const Uint128& rhs);
-    // Return an Uint128 object having the value of a the bitwise xor between
-    // the specified 'lhs' and the specified 'rhs' value.
 
+/// Return an `Uint128` value equal to the value of a bitwise left shift of
+/// the specified `lhs` 128-bit integer shifted by the specified `rhs`
+/// value.  The behavior is undefined unless `0 <= rhs < 128`.
 Uint128 operator<<(Uint128 lhs, int rhs);
-    // Return an 'Uint128' value equal to the value of a bitwise left shift of
-    // the specified 'lhs' 128-bit integer shifted by the specified 'rhs'
-    // value.  The behavior is undefined unless '0 <= rhs < 128'.
 
+/// Return an `Uint128` value equal to the value of a bitwise right shift of
+/// the specified `lhs` 128-bit integer shifted by the specified `rhs`
+/// value.  The behavior is undefined unless `0 <= rhs < 128`.
 Uint128 operator>>(Uint128 lhs, int rhs);
-    // Return an 'Uint128' value equal to the value of a bitwise right shift of
-    // the specified 'lhs' 128-bit integer shifted by the specified 'rhs'
-    // value.  The behavior is undefined unless '0 <= rhs < 128'.
 
+/// Return an `Uint128` value equal to the bitwise ones compliment of the
+/// specified `value`.
 Uint128 operator ~(Uint128 value);
-    // Return an 'Uint128' value equal to the bitwise ones compliment of the
-    // specified 'value'.
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS

@@ -12,29 +12,29 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_alignmentutil
 //
-//@DESCRIPTION: The 'bdlma::HeapBypassAllocator' class provided by this
+//@DESCRIPTION: The `bdlma::HeapBypassAllocator` class provided by this
 // component implements a concrete allocator derived from the
-// 'bslma::Allocator' interface that allocates memory directly from virtual
+// `bslma::Allocator` interface that allocates memory directly from virtual
 // memory, bypassing the heap.  Reserves virtual memory in chunks so as to grow
 // infrequently.  The chunk size can optionally be chosen by providing an
-// argument for 'replenishHint' in the constructor (see documentation for the
-// constructor for advice on how to choose a good value for 'replenishHint').
+// argument for `replenishHint` in the constructor (see documentation for the
+// constructor for advice on how to choose a good value for `replenishHint`).
 // All memory allocated by this allocator is freed when the allocator's
 // destructor is called, but not before.  A natural use case is for backing
 // large, long-lived object pools, or cases where the heap may be corrupt.
-//..
-//                   ,---------------------------.
-//                  (  bdlma::HeapBypassAllocator )
-//                   `---------------------------'
-//                                 |         ctor
-//                                 V
-//                        ,-----------------.
-//                       (  bslma::Allocator )
-//                        `-----------------'
-//                                           dtor
-//                                           allocate
-//                                           deallocate      // no-op
-//..
+// ```
+//                  ,---------------------------.
+//                 (  bdlma::HeapBypassAllocator )
+//                  `---------------------------'
+//                                |         ctor
+//                                V
+//                       ,-----------------.
+//                      (  bslma::Allocator )
+//                       `-----------------'
+//                                          dtor
+//                                          allocate
+//                                          deallocate      // no-op
+// ```
 //
 ///Usage
 ///-----
@@ -44,51 +44,51 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // Here we allocate some memory using a heap bypass allocator, then write to
 // that memory, then read from it and verify the values written are preserved.
-//..
-//  {
-//      enum {
-//          k_LENGTH       = 10 * 1000,
-//          k_NUM_SEGMENTS = 60
-//      };
+// ```
+// {
+//     enum {
+//         k_LENGTH       = 10 * 1000,
+//         k_NUM_SEGMENTS = 60
+//     };
 //
-//      bdlma::HeapBypassAllocator hbpa;
-//..
+//     bdlma::HeapBypassAllocator hbpa;
+// ```
 // First, we allocate some segments:
-//..
-//      char *segments[k_NUM_SEGMENTS];
-//      for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
-//          segments[i] = static_cast<char *>(hbpa.allocate(k_LENGTH));
-//          BSLS_ASSERT(segments[i]);
-//      }
-//..
+// ```
+//     char *segments[k_NUM_SEGMENTS];
+//     for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
+//         segments[i] = static_cast<char *>(hbpa.allocate(k_LENGTH));
+//         BSLS_ASSERT(segments[i]);
+//     }
+// ```
 // Next, we write to the segments:
-//..
-//      char c = 'a';
-//      for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
-//          char *segment = segments[i];
-//          for (int j = 0; j < k_LENGTH; ++j) {
-//              c = (c + 1) & 0x7f;
-//              segment[j] = c;
-//          }
-//      }
-//..
+// ```
+//     char c = 'a';
+//     for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
+//         char *segment = segments[i];
+//         for (int j = 0; j < k_LENGTH; ++j) {
+//             c = (c + 1) & 0x7f;
+//             segment[j] = c;
+//         }
+//     }
+// ```
 // Finally, we read from the segments and verify the written data is still
 // there:
-//..
-//      c = 'a';
-//      for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
-//          char *segment = segments[i];
-//          for (int j = 0; j < k_LENGTH; ++j) {
-//              c = (c + 1) & 0x7f;
-//              BSLS_ASSERT(segment[j] == c);  (void)segment;
-//          }
-//      }
-//..
-// Memory is released upon destruction of object 'hbpa' when it goes out of
+// ```
+//     c = 'a';
+//     for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
+//         char *segment = segments[i];
+//         for (int j = 0; j < k_LENGTH; ++j) {
+//             c = (c + 1) & 0x7f;
+//             BSLS_ASSERT(segment[j] == c);  (void)segment;
+//         }
+//     }
+// ```
+// Memory is released upon destruction of object `hbpa` when it goes out of
 // scope.
-//..
-//  }
-//..
+// ```
+// }
+// ```
 
 #include <bdlscm_version.h>
 
@@ -107,18 +107,19 @@ namespace bdlma {
                         // class HeapBypassAllocator
                         // =========================
 
+/// This class allows the caller to allocate memory directly from virtual
+/// memory, without going through the heap like `malloc` or `new` would.
+/// Note that the only way to free any memory allocated with this object is
+/// to destroy the object, at which point all memory it has allocated is
+/// freed.  Thread-safe.
 class HeapBypassAllocator : public bslma::Allocator {
-    // This class allows the caller to allocate memory directly from virtual
-    // memory, without going through the heap like 'malloc' or 'new' would.
-    // Note that the only way to free any memory allocated with this object is
-    // to destroy the object, at which point all memory it has allocated is
-    // freed.  Thread-safe.
 
     // PRIVATE TYPES
+
+    /// Represents a chunk of memory from which allocations are subsequently
+    /// carved out.  Chunks are chained in order to allow iterating over
+    /// them so they can be freed when the allocator is destroyed.
     struct Chunk {
-        // Represents a chunk of memory from which allocations are subsequently
-        // carved out.  Chunks are chained in order to allow iterating over
-        // them so they can be freed when the allocator is destroyed.
 
         // PUBLIC DATA
         bsls::AtomicUint64  d_offset;  // byte offset from 'this' to free bytes
@@ -140,57 +141,61 @@ class HeapBypassAllocator : public bslma::Allocator {
 
   private:
     // PRIVATE CLASS METHODS
-    static void *systemAllocate(size_type size);
-        // Acquire a chunk of virtual memory of the specified 'size' bytes from
-        // the operating system.  'size' must be a multiple of 'd_chunkSize'
-        // and must be greater than 0.  Return the address of the allocated
-        // chunk, or null if allocation fails.  Each successful call to
-        // 'systemAllocate' must eventually be paired with a matching call to
-        // 'systemFree'.
 
+    /// Acquire a chunk of virtual memory of the specified `size` bytes from
+    /// the operating system.  `size` must be a multiple of `d_chunkSize`
+    /// and must be greater than 0.  Return the address of the allocated
+    /// chunk, or null if allocation fails.  Each successful call to
+    /// `systemAllocate` must eventually be paired with a matching call to
+    /// `systemFree`.
+    static void *systemAllocate(size_type size);
+
+    /// Free the specified `chunk` of memory of the specified `size` bytes
+    /// back to the operating system.  `chunk` must have been returned by a
+    /// previous call to `systemAllocate` of the same size, and not
+    /// previously freed.
     static void systemFree(void *chunk, size_type size);
-        // Free the specified 'chunk' of memory of the specified 'size' bytes
-        // back to the operating system.  'chunk' must have been returned by a
-        // previous call to 'systemAllocate' of the same size, and not
-        // previously freed.
 
     // PRIVATE MANIPULATORS
-    void init();
-        // Initialize the linked list of chunks and round up 'd_chunkSize' to
-        // a multiple of the system's page size.
 
+    /// Initialize the linked list of chunks and round up `d_chunkSize` to
+    /// a multiple of the system's page size.
+    void init();
+
+    /// Allocate a new chunk of at least the specified `size` bytes and make
+    /// it available for subsequent calls of `allocate` to carve out memory
+    /// from.  Return a pointer to the chunk on success, null otherwise.
     Chunk *replenish(size_type size);
-        // Allocate a new chunk of at least the specified 'size' bytes and make
-        // it available for subsequent calls of 'allocate' to carve out memory
-        // from.  Return a pointer to the chunk on success, null otherwise.
 
   public:
     // CREATORS
+
+    /// Create an empty allocator object.  Optionally specify
+    /// `replenishHint` as the minimum number of bytes to allocate at a time
+    /// when the allocator's memory needs to grow.  In a multi-threaded
+    /// scenario, the programmer should ensure that `replenishHint` is large
+    /// enough so that multiple threads will rarely need to replenish at the
+    /// same time in order to minimize contention.
     HeapBypassAllocator();
     explicit HeapBypassAllocator(size_type replenishHint);
-        // Create an empty allocator object.  Optionally specify
-        // 'replenishHint' as the minimum number of bytes to allocate at a time
-        // when the allocator's memory needs to grow.  In a multi-threaded
-        // scenario, the programmer should ensure that 'replenishHint' is large
-        // enough so that multiple threads will rarely need to replenish at the
-        // same time in order to minimize contention.
 
+    /// Destroy this object, releasing all managed buffers of memory that it
+    /// has allocated.
     ~HeapBypassAllocator() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object, releasing all managed buffers of memory that it
-        // has allocated.
 
     // MANIPULATORS
-    void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
-        // Allocate a buffer of memory having the specified 'size' (in bytes),
-        // and alignment defined by 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT',
-        // from virtual memory.  If 'size' is 0, return a null pointer with no
-        // other effect.  If this allocator cannot return the requested number
-        // of bytes, then it will throw a 'std::bad_alloc' exception in an
-        // exception-enabled build, or else will abort the program in a non-
-        // exception build.  The behavior is undefined unless '0 <= size'.
 
+    /// Allocate a buffer of memory having the specified `size` (in bytes),
+    /// and alignment defined by `bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT`,
+    /// from virtual memory.  If `size` is 0, return a null pointer with no
+    /// other effect.  If this allocator cannot return the requested number
+    /// of bytes, then it will throw a `std::bad_alloc` exception in an
+    /// exception-enabled build, or else will abort the program in a non-
+    /// exception build.  The behavior is undefined unless `0 <= size`.
+    void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
+
+    /// This method has no effect for this heap bypass allocator.
     void deallocate(void *) BSLS_KEYWORD_OVERRIDE;
-        // This method has no effect for this heap bypass allocator.
 };
 
 //=============================================================================

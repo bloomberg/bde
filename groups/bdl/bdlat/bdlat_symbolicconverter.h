@@ -12,124 +12,124 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: The 'bdlat_SymbolicConverter' utility provided by this
-// component defines a single parameterized function 'convert'.  The 'convert'
+//@DESCRIPTION: The `bdlat_SymbolicConverter` utility provided by this
+// component defines a single parameterized function `convert`.  The `convert`
 // function takes two arguments: a destination and a source object.  The
 // destination and source objects may be of different types.
 //
 // Each type can fall into one of the following categories:
-//..
-//  Category          Reference
-//  --------          ---------
-//  Sequence          bdlat_sequencefunctions
-//  Choice            bdlat_choicefunctions
-//  Array             bdlat_arrayfunctions
-//  Enumeration       bdlat_enumfunctions
-//  NullableValue     bdlat_nullablevaluefunctions
-//  CustomizedType    bdlat_customizedtypefunctions
-//  Simple            basic C++ fundamental types & other value-semantic types
-//..
-// The 'bdlat_SymbolicConverter' utility converts from one type to another
+// ```
+// Category          Reference
+// --------          ---------
+// Sequence          bdlat_sequencefunctions
+// Choice            bdlat_choicefunctions
+// Array             bdlat_arrayfunctions
+// Enumeration       bdlat_enumfunctions
+// NullableValue     bdlat_nullablevaluefunctions
+// CustomizedType    bdlat_customizedtypefunctions
+// Simple            basic C++ fundamental types & other value-semantic types
+// ```
+// The `bdlat_SymbolicConverter` utility converts from one type to another
 // using the following criteria:
-//..
-//  Destination Category  Source Category   Comments
-//  --------------------  ---------------   --------
-//  Sequence              Sequence          The conversion will fail if each
-//                                          attribute in the set of attributes
-//                                          from the source does not have a
-//                                          corresponding attribute (with the
-//                                          same name) in the destination.  The
-//                                          conversion will also fail if any
-//                                          attributes from the source fail to
-//                                          convert to the corresponding
-//                                          attribute in the destination.  Any
-//                                          attribute in the destination that
-//                                          does not have a corresponding
-//                                          attribute in the source will be set
-//                                          to its default value.
+// ```
+// Destination Category  Source Category   Comments
+// --------------------  ---------------   --------
+// Sequence              Sequence          The conversion will fail if each
+//                                         attribute in the set of attributes
+//                                         from the source does not have a
+//                                         corresponding attribute (with the
+//                                         same name) in the destination.  The
+//                                         conversion will also fail if any
+//                                         attributes from the source fail to
+//                                         convert to the corresponding
+//                                         attribute in the destination.  Any
+//                                         attribute in the destination that
+//                                         does not have a corresponding
+//                                         attribute in the source will be set
+//                                         to its default value.
 //
-//  Choice                Choice            The conversion will fail if the
-//                                          destination does not have a
-//                                          selection with the same name as the
-//                                          current selection in the source.
-//                                          The conversion will also fail if
-//                                          the selection from the source fails
-//                                          to convert to the corresponding
-//                                          selection in the destination.  If
-//                                          nothing is selected in the source,
-//                                          then the destination will be reset.
+// Choice                Choice            The conversion will fail if the
+//                                         destination does not have a
+//                                         selection with the same name as the
+//                                         current selection in the source.
+//                                         The conversion will also fail if
+//                                         the selection from the source fails
+//                                         to convert to the corresponding
+//                                         selection in the destination.  If
+//                                         nothing is selected in the source,
+//                                         then the destination will be reset.
 //
-//  Array                 Array             The conversion will fail if the
-//                                          elements in the source fail to
-//                                          convert to the elements in the
-//                                          destination.  Upon completion, the
-//                                          destination array will contain the
-//                                          same number of elements as the
-//                                          source array.
+// Array                 Array             The conversion will fail if the
+//                                         elements in the source fail to
+//                                         convert to the elements in the
+//                                         destination.  Upon completion, the
+//                                         destination array will contain the
+//                                         same number of elements as the
+//                                         source array.
 //
-//  Enumeration           Enumeration       The conversion will fail if the
-//                                          destination does not have a string
-//                                          value that is identical to the
-//                                          string value of the source.
+// Enumeration           Enumeration       The conversion will fail if the
+//                                         destination does not have a string
+//                                         value that is identical to the
+//                                         string value of the source.
 //
-//  Enumeration           char/short/int    The conversion will fail if the
-//                                          destination does not have an
-//                                          enumerator with the numeric value
-//                                          of the source.
+// Enumeration           char/short/int    The conversion will fail if the
+//                                         destination does not have an
+//                                         enumerator with the numeric value
+//                                         of the source.
 //
-//  char/short/int        Enumeration       The conversion will fail if the
-//                                          numeric value of the enumeration is
-//                                          outside the bounds of the
-//                                          destination type.
+// char/short/int        Enumeration       The conversion will fail if the
+//                                         numeric value of the enumeration is
+//                                         outside the bounds of the
+//                                         destination type.
 //
-//  Enumeration           bsl::string       The conversion will fail if the
-//                                          destination does not have an
-//                                          enumerator with the symbolic string
-//                                          name of the source.
+// Enumeration           bsl::string       The conversion will fail if the
+//                                         destination does not have an
+//                                         enumerator with the symbolic string
+//                                         name of the source.
 //
-//  bsl::string           Enumeration       This conversion always succeeds.
+// bsl::string           Enumeration       This conversion always succeeds.
 //
-//  NullableValue         NullableValue     The conversion will fail if the
-//                                          source has a value that fails to
-//                                          convert to the destination value.
-//                                          If the source is null, then the
-//                                          destination is nulled.
+// NullableValue         NullableValue     The conversion will fail if the
+//                                         source has a value that fails to
+//                                         convert to the destination value.
+//                                         If the source is null, then the
+//                                         destination is nulled.
 //
-//  NullableValue         AnyType           The conversion will fail if the
-//                                          source fails to convert to the
-//                                          destination value.
+// NullableValue         AnyType           The conversion will fail if the
+//                                         source fails to convert to the
+//                                         destination value.
 //
-//  AnyType               NullableValue     The conversion will fail if the
-//                                          source is not null and the value in
-//                                          the source fails to convert to the
-//                                          destination.  If the source is
-//                                          null, then the destination will
-//                                          be set to its default value.
+// AnyType               NullableValue     The conversion will fail if the
+//                                         source is not null and the value in
+//                                         the source fails to convert to the
+//                                         destination.  If the source is
+//                                         null, then the destination will
+//                                         be set to its default value.
 //
-//  CustomizedType        CustomizedType    The conversion will fail if the
-//                                          base value in the source fails to
-//                                          convert to the base value in the
-//                                          destination and the base value is
-//                                          able to convert to the customized
-//                                          value.
+// CustomizedType        CustomizedType    The conversion will fail if the
+//                                         base value in the source fails to
+//                                         convert to the base value in the
+//                                         destination and the base value is
+//                                         able to convert to the customized
+//                                         value.
 //
-//  CustomizedType        AnyType           The conversion will fail if the
-//                                          source fails to convert to the base
-//                                          value in the destination and the
-//                                          base value is able to convert to
-//                                          the customized value.
+// CustomizedType        AnyType           The conversion will fail if the
+//                                         source fails to convert to the base
+//                                         value in the destination and the
+//                                         base value is able to convert to
+//                                         the customized value.
 //
-//  AnyType               CustomizedType    The conversion will fail if the
-//                                          base value in the source fails to
-//                                          convert to the destination.
+// AnyType               CustomizedType    The conversion will fail if the
+//                                         base value in the source fails to
+//                                         convert to the destination.
 //
-//  SimpleType            SimpleType        The conversion will fail if there
-//                                          is no accessible compile-time
-//                                          assignment operator from the
-//                                          destination to the source.  This is
-//                                          determined using
-//                                          'bslmf_isconvertible'.
-//..
+// SimpleType            SimpleType        The conversion will fail if there
+//                                         is no accessible compile-time
+//                                         assignment operator from the
+//                                         destination to the source.  This is
+//                                         determined using
+//                                         'bslmf_isconvertible'.
+// ```
 // Any other combination of destination and source categories will fail to
 // convert.
 //
@@ -139,85 +139,85 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// This component can be used with types supported by the 'bdlat' framework.
-// In particular, types generated by the 'bas_codegen.pl' tool can be used.
+// This component can be used with types supported by the `bdlat` framework.
+// In particular, types generated by the `bas_codegen.pl` tool can be used.
 // For example, suppose we have the following XML schema inside a file called
-// 'xsdfile.xsd':
-//..
-//  <?xml version='1.0' encoding='UTF-8'?>
-//  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
-//             xmlns:bdem='http://bloomberg.com/schemas/bdem'
-//             elementFormDefault='unqualified'>
+// `xsdfile.xsd`:
+// ```
+// <?xml version='1.0' encoding='UTF-8'?>
+// <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+//            xmlns:bdem='http://bloomberg.com/schemas/bdem'
+//            elementFormDefault='unqualified'>
 //
-//      <xs:complexType name='Employee'>
-//          <xs:sequence>
-//              <xs:element name='Name'   type='string'/>
-//              <xs:element name='Dept'   type='string'/>
-//              <xs:element name='Age'    type='int'/>
-//              <xs:element name='Salary' type='float'/>
-//          </xs:sequence>
-//      </xs:complexType>
+//     <xs:complexType name='Employee'>
+//         <xs:sequence>
+//             <xs:element name='Name'   type='string'/>
+//             <xs:element name='Dept'   type='string'/>
+//             <xs:element name='Age'    type='int'/>
+//             <xs:element name='Salary' type='float'/>
+//         </xs:sequence>
+//     </xs:complexType>
 //
-//      <xs:complexType name='Trainee'>
-//          <xs:sequence>
-//              <xs:element name='Name' type='string'/>
-//              <xs:element name='Dept' type='string'/>
-//              <xs:element name='Age'  type='int'/>
-//          </xs:sequence>
-//      </xs:complexType>
+//     <xs:complexType name='Trainee'>
+//         <xs:sequence>
+//             <xs:element name='Name' type='string'/>
+//             <xs:element name='Dept' type='string'/>
+//             <xs:element name='Age'  type='int'/>
+//         </xs:sequence>
+//     </xs:complexType>
 //
-//  </xs:schema>
-//..
-// Using the 'bas_codegen.pl' tool, we can generate C++ classes for this
+// </xs:schema>
+// ```
+// Using the `bas_codegen.pl` tool, we can generate C++ classes for this
 // schema:
-//..
-//  $ bas_codegen.pl -g h -g cpp -p test xsdfile.xsd
-//..
+// ```
+// $ bas_codegen.pl -g h -g cpp -p test xsdfile.xsd
+// ```
 // This tool will generate the header and implementation files for the
-// 'test_employee' and 'test_trainee' components in the current directory.
+// `test_employee` and `test_trainee` components in the current directory.
 //
-// Now suppose we want to create a 'hireTrainee' function, that converts a
+// Now suppose we want to create a `hireTrainee` function, that converts a
 // trainee to an employee.  Such a function could be written as follows:
-//..
-//  #include <test_employee.h>
-//  #include <test_trainee.h>
+// ```
+// #include <test_employee.h>
+// #include <test_trainee.h>
 //
-//  #include <bdlat_symbolicconverter.h>
+// #include <bdlat_symbolicconverter.h>
 //
-//  using namespace BloombergLP;
+// using namespace BloombergLP;
 //
-//  int hireTrainee(test::Employee       *result,
-//                  const test::Trainee&  trainee,
-//                  float                 salary)
-//  {
-//      int retCode = bdlat_SymbolicConverter::convert(result, trainee);
+// int hireTrainee(test::Employee       *result,
+//                 const test::Trainee&  trainee,
+//                 float                 salary)
+// {
+//     int retCode = bdlat_SymbolicConverter::convert(result, trainee);
 //
-//      result->salary() = salary;
+//     result->salary() = salary;
 //
-//      return retCode;
-//  }
-//..
-//  The 'hireTrainee' function can be used as follows:
-//..
-//  void usageExample()
-//  {
-//      test::Trainee trainee;
+//     return retCode;
+// }
+// ```
+//  The `hireTrainee` function can be used as follows:
+// ```
+// void usageExample()
+// {
+//     test::Trainee trainee;
 //
-//      trainee.name() = "Bob";
-//      trainee.dept() = "RnD";
-//      trainee.age()  = 24;
+//     trainee.name() = "Bob";
+//     trainee.dept() = "RnD";
+//     trainee.age()  = 24;
 //
-//      test::Employee employee;
+//     test::Employee employee;
 //
-//      int result = hireTrainee(&employee, trainee, 20000.00f);
+//     int result = hireTrainee(&employee, trainee, 20000.00f);
 //
-//      assert(0         == result);
-//      assert("Bob"     == employee.name());
-//      assert("RnD"     == employee.dept());
-//      assert(24        == employee.age());
-//      assert(20000.00f == employee.salary());
-//  }
-//..
+//     assert(0         == result);
+//     assert("Bob"     == employee.name());
+//     assert("RnD"     == employee.dept());
+//     assert(24        == employee.age());
+//     assert(20000.00f == employee.salary());
+// }
+// ```
 
 #include <bdlscm_version.h>
 
@@ -247,21 +247,21 @@ namespace BloombergLP {
                        // struct bdlat_SymbolicConverter
                        // ==============================
 
+/// This utility contains a single `convert` function that converts a value
+/// from one type to another compatible type.
 struct bdlat_SymbolicConverter {
-    // This utility contains a single 'convert' function that converts a value
-    // from one type to another compatible type.
 
+    /// Convert the value of the specified `rhs` object to the specified
+    /// (modifiable) `lhs` object.  Optionally specify an `errorStream` to
+    /// print error messages.  Return 0 on success and a non-zero value
+    /// otherwise.  The supported conversions are described in the
+    /// `bdlat_symbolicconverter` component-level documentation.
     template <class LHS_TYPE, class RHS_TYPE>
     static
     int convert(LHS_TYPE *lhs, const RHS_TYPE &rhs);
     template <class LHS_TYPE, class RHS_TYPE>
     static
     int convert(LHS_TYPE *lhs, const RHS_TYPE &rhs, bsl::ostream &errorStream);
-        // Convert the value of the specified 'rhs' object to the specified
-        // (modifiable) 'lhs' object.  Optionally specify an 'errorStream' to
-        // print error messages.  Return 0 on success and a non-zero value
-        // otherwise.  The supported conversions are described in the
-        // 'bdlat_symbolicconverter' component-level documentation.
 };
 
 // ---  Anything below this line is implementation specific.  Do not use.  ----
@@ -270,124 +270,127 @@ struct bdlat_SymbolicConverter {
                      // class bdlat_SymbolicConverter_Imp
                      // =================================
 
+/// This class contains implementation functions for this component.
 class bdlat_SymbolicConverter_Imp {
-    // This class contains implementation functions for this component.
 
     // PRIVATE DATA MEMBERS
     bsl::ostream *d_errorStream_p;  // held, not owned
 
   public:
     // IMPLEMENTATION MANIPULATORS
+
+    /// Convert to sequence from sequence.
     template <class LHS_TYPE, class RHS_TYPE>
     int convert(LHS_TYPE                     *lhs,
                 bdlat_TypeCategory::Sequence  lhsCategory,
                 const RHS_TYPE&               rhs,
                 bdlat_TypeCategory::Sequence  rhsCategory);
-        // Convert to sequence from sequence.
 
+    /// Convert to choice from choice.
     template <class LHS_TYPE, class RHS_TYPE>
     int convert(LHS_TYPE                   *lhs,
                 bdlat_TypeCategory::Choice  lhsCategory,
                 const RHS_TYPE&             rhs,
                 bdlat_TypeCategory::Choice  rhsCategory);
-        // Convert to choice from choice.
 
+    /// Convert to array from array.
     template <class LHS_TYPE, class RHS_TYPE>
     int convert(LHS_TYPE                  *lhs,
                 bdlat_TypeCategory::Array  lhsCategory,
                 const RHS_TYPE&            rhs,
                 bdlat_TypeCategory::Array  rhsCategory);
-        // Convert to array from array.
 
+    /// Convert to enum from enum.
     template <class LHS_TYPE, class RHS_TYPE>
     int convert(LHS_TYPE                        *lhs,
                 bdlat_TypeCategory::Enumeration  lhsCategory,
                 const RHS_TYPE&                  rhs,
                 bdlat_TypeCategory::Enumeration  rhsCategory);
-        // Convert to enum from enum.
 
+    /// Convert to enum from simple type.
     template <class LHS_TYPE, class RHS_TYPE>
     int convert(LHS_TYPE                        *lhs,
                 bdlat_TypeCategory::Enumeration  lhsCategory,
                 const RHS_TYPE&                  rhs,
                 bdlat_TypeCategory::Simple       rhsCategory);
-        // Convert to enum from simple type.
 
+    /// Convert to simple type from enum.
     template <class LHS_TYPE, class RHS_TYPE>
     int convert(LHS_TYPE                        *lhs,
                 bdlat_TypeCategory::Simple       lhsCategory,
                 const RHS_TYPE&                  rhs,
                 bdlat_TypeCategory::Enumeration  rhsCategory);
-        // Convert to simple type from enum.
 
+    /// Convert to nullable from nullable.
     template <class LHS_TYPE, class RHS_TYPE>
     int convert(LHS_TYPE                          *lhs,
                 bdlat_TypeCategory::NullableValue  lhsCategory,
                 const RHS_TYPE&                    rhs,
                 bdlat_TypeCategory::NullableValue  rhsCategory);
-        // Convert to nullable from nullable.
 
+    /// Convert to nullable from non-nullable.
     template <class LHS_TYPE, class RHS_TYPE, class RHS_CATEGORY>
     int convert(LHS_TYPE                          *lhs,
                 bdlat_TypeCategory::NullableValue  lhsCategory,
                 const RHS_TYPE&                    rhs,
                 RHS_CATEGORY                       rhsCategory);
-        // Convert to nullable from non-nullable.
 
+    /// Convert to non-nullable from nullable.
     template <class LHS_TYPE, class LHS_CATEGORY, class RHS_TYPE>
     int convert(LHS_TYPE                          *lhs,
                 LHS_CATEGORY                       lhsCategory,
                 const RHS_TYPE&                    rhs,
                 bdlat_TypeCategory::NullableValue  rhsCategory);
-        // Convert to non-nullable from nullable.
 
+    /// Convert to customized type from nullable.  Note that this overload
+    /// is required to resolve ambiguities when there are nullable and
+    /// customized types in the same sequence.
     template <class LHS_TYPE, class RHS_TYPE>
     int convert(LHS_TYPE                           *lhs,
                 bdlat_TypeCategory::CustomizedType  lhsCategory,
                 const RHS_TYPE&                     rhs,
                 bdlat_TypeCategory::NullableValue   rhsCategory);
-        // Convert to customized type from nullable.  Note that this overload
-        // is required to resolve ambiguities when there are nullable and
-        // customized types in the same sequence.
 
+    /// Convert to customized from customized.
     template <class LHS_TYPE, class RHS_TYPE>
     int convert(LHS_TYPE                           *lhs,
                 bdlat_TypeCategory::CustomizedType  lhsCategory,
                 const RHS_TYPE&                     rhs,
                 bdlat_TypeCategory::CustomizedType  rhsCategory);
-        // Convert to customized from customized.
 
+    /// Convert to customized from non-customized.
     template <class LHS_TYPE, class RHS_TYPE, class RHS_CATEGORY>
     int convert(LHS_TYPE                           *lhs,
                 bdlat_TypeCategory::CustomizedType  lhsCategory,
                 const RHS_TYPE&                     rhs,
                 RHS_CATEGORY                        rhsCategory);
-        // Convert to customized from non-customized.
 
+    /// Convert to non-customized from customized.
     template <class LHS_TYPE, class LHS_CATEGORY, class RHS_TYPE>
     int convert(LHS_TYPE                           *lhs,
                 LHS_CATEGORY                        lhsCategory,
                 const RHS_TYPE&                     rhs,
                 bdlat_TypeCategory::CustomizedType  rhsCategory);
-        // Convert to non-customized from customized.
 
+    /// Convert to nullable from customized.  Note that this overload is
+    /// required to resolve ambiguities when there are nullable and
+    /// customized types in the same sequence.
     template <class LHS_TYPE, class RHS_TYPE>
     int convert(LHS_TYPE                           *lhs,
                 bdlat_TypeCategory::NullableValue   lhsCategory,
                 const RHS_TYPE&                     rhs,
                 bdlat_TypeCategory::CustomizedType  rhsCategory);
-        // Convert to nullable from customized.  Note that this overload is
-        // required to resolve ambiguities when there are nullable and
-        // customized types in the same sequence.
 
+    /// Convert to simple from simple of the same type.  Note that this just
+    /// evaluates to an assignment using the assignment operator.
     template <class LHS_TYPE, class RHS_TYPE>
     int convert(LHS_TYPE                   *lhs,
                 bdlat_TypeCategory::Simple  lhsCategory,
                 const RHS_TYPE&             rhs,
                 bdlat_TypeCategory::Simple  rhsCategory);
-        // Convert to simple from simple of the same type.  Note that this just
-        // evaluates to an assignment using the assignment operator.
 
+    /// No match found.  This function does nothing, it just returns a
+    /// FAILURE code (to be used to detect type-mismatch at runtime).
     template <class LHS_TYPE,
               class LHS_CATEGORY,
               class RHS_TYPE,
@@ -396,9 +399,8 @@ class bdlat_SymbolicConverter_Imp {
                 LHS_CATEGORY     lhsCategory,
                 const RHS_TYPE&  rhs,
                 RHS_CATEGORY     rhsCategory);
-        // No match found.  This function does nothing, it just returns a
-        // FAILURE code (to be used to detect type-mismatch at runtime).
 
+    /// Resolve dynamic types.
     template <class LHS_TYPE, class RHS_TYPE>
     int resolveDynamicTypes(LHS_TYPE                        *lhs,
                             bdlat_TypeCategory::DynamicType  lhsCategory,
@@ -426,7 +428,6 @@ class bdlat_SymbolicConverter_Imp {
                             LHS_CATEGORY     lhsCategory,
                             const RHS_TYPE&  rhs,
                             RHS_CATEGORY     rhsCategory);
-        // Resolve dynamic types.
 
   private:
     // NOT IMPLEMENTED
@@ -435,31 +436,33 @@ class bdlat_SymbolicConverter_Imp {
 
   public:
     // CREATORS
+
+    /// Create the imp object.
     bdlat_SymbolicConverter_Imp(bsl::ostream *errorStream);
-        // Create the imp object.
 
     // ~bdlat_SymbolicConverter_Imp();
         // Destroy this object.  Note that this trivial destructor is generated
         // by the compiler.
 
     // MANIPULATORS
+
+    /// Implementation for convert function.
     template <class LHS_TYPE, class RHS_TYPE>
     int convert(LHS_TYPE        *lhs,
                 const RHS_TYPE&  rhs);
-        // Implementation for convert function.
 
+    /// Return a reference to the error stream.
     bsl::ostream& errorStream();
-        // Return a reference to the error stream.
 };
 
            // =====================================================
            // class bdlat_SymbolicConverter_StoreValue<LVALUE_TYPE>
            // =====================================================
 
+/// This visitor assigns the value of the visited member to
+/// `d_destination_p`.
 template <class LVALUE_TYPE>
 class bdlat_SymbolicConverter_StoreValue {
-    // This visitor assigns the value of the visited member to
-    // 'd_destination_p'.
 
     // PRIVATE DATA MEMBERS
     LVALUE_TYPE                 *d_destination_p;  // held, not owned
@@ -472,23 +475,24 @@ class bdlat_SymbolicConverter_StoreValue {
                                       bdlat_SymbolicConverter_Imp *imp);
 
     // ACCESSORS
+
+    /// Assign the specified `object` to `*d_lValue_p`.
     template <class RVALUE_TYPE, class INFO_TYPE>
     int operator()(const RVALUE_TYPE& object,
                    const INFO_TYPE&) const;
-        // Assign the specified 'object' to '*d_lValue_p'.
 
+    /// Assign the specified `object` to `*d_lValue_p`.
     template <class RVALUE_TYPE>
     int operator()(const RVALUE_TYPE& object) const;
-        // Assign the specified 'object' to '*d_lValue_p'.
 };
 
             // ====================================================
             // class bdlat_SymbolicConverter_LoadValue<RVALUE_TYPE>
             // ====================================================
 
+/// This visitor assigns `d_value` to the visited member.
 template <class RVALUE_TYPE>
 class bdlat_SymbolicConverter_LoadValue {
-    // This visitor assigns 'd_value' to the visited member.
 
     // PRIVATE DATA MEMBERS
     bdlat_SymbolicConverter_Imp *d_imp_p;  // held, not owned
@@ -501,28 +505,29 @@ class bdlat_SymbolicConverter_LoadValue {
                                             bdlat_SymbolicConverter_Imp *imp);
 
     // ACCESSORS
+
+    /// Assign `d_value` to the specified `*object`.
     template <class LVALUE_TYPE, class INFO_TYPE>
     int operator()(LVALUE_TYPE *object,
                    const INFO_TYPE&) const;
-        // Assign 'd_value' to the specified '*object'.
 
+    /// Assign `d_value` to the specified `*object`.
     template <class LVALUE_TYPE>
     int operator()(LVALUE_TYPE *object) const;
-        // Assign 'd_value' to the specified '*object'.
 };
 
         // ============================================================
         // class bdlat_SymbolicConverter_StoreInSequence<SEQUENCE_TYPE>
         // ============================================================
 
+/// This visitor is used when assigning to a sequence.  It will visit each
+/// member from the source object.  Each time a member is visited, it will
+/// use the `LoadValue` visitor template to visit the member with the same
+/// name in the destination sequence.  This will cause the value of the
+/// member in the source object to be assigned to the member (with the same
+/// name) of the destination sequence object.
 template <class SEQUENCE_TYPE>
 class bdlat_SymbolicConverter_StoreInSequence {
-    // This visitor is used when assigning to a sequence.  It will visit each
-    // member from the source object.  Each time a member is visited, it will
-    // use the 'LoadValue' visitor template to visit the member with the same
-    // name in the destination sequence.  This will cause the value of the
-    // member in the source object to be assigned to the member (with the same
-    // name) of the destination sequence object.
 
     // PRIVATE DATA MEMBERS
     SEQUENCE_TYPE               *d_destination_p;  // held, not owned
@@ -544,9 +549,9 @@ class bdlat_SymbolicConverter_StoreInSequence {
           // class bdlat_SymbolicConverter_StoreInChoice<CHOICE_TYPE>
           // ========================================================
 
+/// Similar to `StoreInSequence` but this is for choice.
 template <class CHOICE_TYPE>
 class bdlat_SymbolicConverter_StoreInChoice {
-    // Similar to 'StoreInSequence' but this is for choice.
 
     // PRIVATE DATA MEMBERS
     CHOICE_TYPE                 *d_destination_p;  // held, not owned
@@ -568,10 +573,10 @@ class bdlat_SymbolicConverter_StoreInChoice {
        // class bdlat_SymbolicConverter_StoreInArrayElement<ARRAY_TYPE>
        // =============================================================
 
+/// Assign the value of the visited object to the `d_index`th element inside
+/// `d_array_p`.
 template <class ARRAY_TYPE>
 class bdlat_SymbolicConverter_StoreInArrayElement {
-    // Assign the value of the visited object to the 'd_index'th element inside
-    // 'd_array_p'.
 
     // PRIVATE DATA MEMBERS
     ARRAY_TYPE                  *d_array_p;  // held, not owned
@@ -594,9 +599,9 @@ class bdlat_SymbolicConverter_StoreInArrayElement {
         // class bdlat_SymbolicConverter_StoreInNullable<NULLABLE_TYPE>
         // ============================================================
 
+/// Similar to `StoreInSequence` but this is for nullable.
 template <class NULLABLE_TYPE>
 class bdlat_SymbolicConverter_StoreInNullable {
-    // Similar to 'StoreInSequence' but this is for nullable.
 
     // PRIVATE DATA MEMBERS
     NULLABLE_TYPE               *d_destination_p;  // held, not owned
@@ -621,9 +626,9 @@ class bdlat_SymbolicConverter_StoreInNullable {
          // struct bdlat_SymbolicConverter_Imp_resolveDynamicRhsProxy
          // =========================================================
 
+/// Component-private struct.  Do not use.
 template <class LHS_TYPE, class LHS_CATEGORY>
 struct bdlat_SymbolicConverter_Imp_resolveDynamicRhsProxy {
-    // Component-private struct.  Do not use.
 
     // DATA MEMBERS
     bdlat_SymbolicConverter_Imp *d_instance_p;
@@ -658,9 +663,9 @@ struct bdlat_SymbolicConverter_Imp_resolveDynamicRhsProxy {
          // struct bdlat_SymbolicConverter_Imp_resolveDynamicLhsProxy
          // =========================================================
 
+/// Component-private struct.  Do not use.
 template <class RHS_TYPE, class RHS_CATEGORY>
 struct bdlat_SymbolicConverter_Imp_resolveDynamicLhsProxy {
-    // Component-private struct.  Do not use.
 
     // DATA MEMBERS
     bdlat_SymbolicConverter_Imp *d_instance_p;

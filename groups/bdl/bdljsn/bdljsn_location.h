@@ -13,20 +13,20 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdljsn_jsonutil, bdljsn_json
 //
 //@DESCRIPTION: This component provides a single, unconstrained
-// (value-semantic) attribute class, 'bdljsn::Location', that is used to
+// (value-semantic) attribute class, `bdljsn::Location`, that is used to
 // describe a location in a (JSON) document.  Location is expressed by the
-// 'offset' (attrbute) in bytes from the start of the document.  See
-// {'jsonutil'} for utilities that may provide 'bdljsn::Location' values when
+// `offset` (attrbute) in bytes from the start of the document.  See
+// {`jsonutil`} for utilities that may provide `bdljsn::Location` values when
 // reporting error states.
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type           Default
-//  ------------------  -------------  -------
-//  offset              bsl::uint64_t  0
-//..
-//: o 'offset': the offset into the JSON document
+// ```
+// Name                Type           Default
+// ------------------  -------------  -------
+// offset              bsl::uint64_t  0
+// ```
+// * `offset`: the offset into the JSON document
 //
 ///Usage
 ///-----
@@ -34,68 +34,68 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
-// This example exercises each of the methods of the 'bdljsn::Location' class.
+// This example exercises each of the methods of the `bdljsn::Location` class.
 //
-// First, create a 'bdljsn::Location' object (having the default value):
-//..
-//  bdljsn::Location locationA;
-//  assert(0 == locationA.offset());
-//..
-// Then, set 'locationA' to some other offset:
-//..
-//  locationA.setOffset(1);
-//  assert(1 == locationA.offset());
-//..
+// First, create a `bdljsn::Location` object (having the default value):
+// ```
+// bdljsn::Location locationA;
+// assert(0 == locationA.offset());
+// ```
+// Then, set `locationA` to some other offset:
+// ```
+// locationA.setOffset(1);
+// assert(1 == locationA.offset());
+// ```
 // Next, use the value constructor to create a second location having the same
 // offset as the first:
-//..
-//      bdljsn::Location locationB(1);
-//      assert(1         == locationB.offset());
-//      assert(locationA == locationB);
-//..
+// ```
+//     bdljsn::Location locationB(1);
+//     assert(1         == locationB.offset());
+//     assert(locationA == locationB);
+// ```
 // Then, set the second location to the maximum offset:
-//..
-//  const bsl::uint64_t maxOffset = bsl::numeric_limits<bsl::uint64_t>::max();
+// ```
+// const bsl::uint64_t maxOffset = bsl::numeric_limits<bsl::uint64_t>::max();
 //
-//  locationB.setOffset(maxOffset);
-//  assert(maxOffset == locationB.offset());
-//..
-// Next, create another 'Location` that is a copy of the one at 'maxOffset':
-//..
-//  bdljsn::Location locationC(locationB);
-//  assert(locationB == locationC);
-//..
+// locationB.setOffset(maxOffset);
+// assert(maxOffset == locationB.offset());
+// ```
+// Next, create another `Location` that is a copy of the one at `maxOffset':
+// ```
+// bdljsn::Location locationC(locationB);
+// assert(locationB == locationC);
+// ```
 // Then, set the first location back to the default state:
-//..
-//  locationA.reset();
-//  assert(0                  == locationA.offset());
-//  assert(bdljsn::Location() == locationA);
-//..
+// ```
+// locationA.reset();
+// assert(0                  == locationA.offset());
+// assert(bdljsn::Location() == locationA);
+// ```
 //  Next, print the value of each:
-//..
-//  bsl::cout << locationA << "\n"
-//            << locationB << bsl::endl;
+// ```
+// bsl::cout << locationA << "\n"
+//           << locationB << bsl::endl;
 //
-//  bsl::cout << "\n";
+// bsl::cout << "\n";
 //
-//  locationC.print(bsl::cout, 2, 3);
-//..
+// locationC.print(bsl::cout, 2, 3);
+// ```
 // and observe:
-//..
-//   0
-//   18446744073709551615
+// ```
+//  0
+//  18446744073709551615
 //
-//        [
-//           offset = 18446744073709551615
-//        ]
-//..
+//       [
+//          offset = 18446744073709551615
+//       ]
+// ```
 // Finally, set each location equal to the first:
-//..
-//  locationC = locationB = locationA;
-//  assert(0 == locationA.offset());
-//  assert(0 == locationB.offset());
-//  assert(0 == locationC.offset());
-//..
+// ```
+// locationC = locationB = locationA;
+// assert(0 == locationA.offset());
+// assert(0 == locationB.offset());
+// assert(0 == locationC.offset());
+// ```
 
 #include <bdlscm_version.h>
 
@@ -116,12 +116,12 @@ namespace bdljsn {
                                // class Location
                                // ==============
 
+/// This unconstrained (value-semantic) attribute class specifies a location
+/// in a (JSON) document.  See the {Attributes} section under {DESCRIPTION}
+/// in the component-level documentation for information on the class
+/// attributes.  Note that the class invariants are identically the
+/// constraints on the individual attributes.
 class Location {
-    // This unconstrained (value-semantic) attribute class specifies a location
-    // in a (JSON) document.  See the {Attributes} section under {DESCRIPTION}
-    // in the component-level documentation for information on the class
-    // attributes.  Note that the class invariants are identically the
-    // constraints on the individual attributes.
 
     // DATA
     bsl::uint64_t d_offset; // offset in bytes into a document
@@ -135,92 +135,97 @@ class Location {
     BSLMF_NESTED_TRAIT_DECLARATION(Location, bslmf::IsBitwiseMoveable);
 
     // CREATORS
+
+    /// Create a `Location` object having the default value, 0.
     Location();
-        // Create a 'Location' object having the default value, 0.
 
+    /// Create a `Location` object having the specified `offset`.
     explicit Location(bsl::uint64_t offset);
-        // Create a 'Location' object having the specified 'offset'.
 
+    /// Create a `Location` object having the same value as the specified
+    /// `original` object.
     Location(const Location& original);
-        // Create a 'Location' object having the same value as the specified
-        // 'original' object.
 
     //! ~Location() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Location& operator=(const Location& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Reset this object to the default value (i.e., its value upon default
+    /// construction).
     Location& reset();
-        // Reset this object to the default value (i.e., its value upon default
-        // construction).
 
+    /// Set the "offset" attribute of this object to the specified `value`.
     Location& setOffset(bsl::uint64_t value);
-        // Set the "offset" attribute of this object to the specified 'value'.
 
                                   // Aspects
 
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.
     void swap(Location& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.
 
     // ACCESSORS
+
+    /// Return the `offset` attribute of this object.
     bsl::uint64_t offset() const;
-        // Return the 'offset' attribute of this object.
 
                                   // Aspects
 
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const Location& lhs, const Location& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const Location& lhs, const Location& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Write the value of the specified `object` to the specified output
+/// `stream` in a single-line format, and return a non-`const` reference to
+/// `stream`.  If `stream` is not valid on entry, this operation has no
+/// effect.  Note that this human-readable format is not fully specified and
+/// can change without notice.  Also note that this method has the same
+/// behavior as `object.print(stream, 0, -1)`, but with the attribute names
+/// elided.
 bsl::ostream& operator<<(bsl::ostream& stream, const Location& object);
-    // Write the value of the specified 'object' to the specified output
-    // 'stream' in a single-line format, and return a non-'const' reference to
-    // 'stream'.  If 'stream' is not valid on entry, this operation has no
-    // effect.  Note that this human-readable format is not fully specified and
-    // can change without notice.  Also note that this method has the same
-    // behavior as 'object.print(stream, 0, -1)', but with the attribute names
-    // elided.
 
 // FREE FUNCTIONS
+
+/// Pass the specified `object` to the specified `hashAlg`.  This function
+/// integrates with the `bslh` modular hashing system and effectively
+/// provides a `bsl::hash` specialization for `Location`.
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const Location& object);
-    // Pass the specified 'object' to the specified 'hashAlg'.  This function
-    // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for 'Location'.
 
+/// Exchange the values of the specified `a` and `b` objects.  This function
+/// provides the no-throw exception-safety guarantee.
 void swap(Location& a, Location& b);
-    // Exchange the values of the specified 'a' and 'b' objects.  This function
-    // provides the no-throw exception-safety guarantee.
 
 // ============================================================================
 //                         INLINE DEFINITIONS

@@ -5,17 +5,17 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a concrete implementation of 'bdlbb::BlobBufferFactory'.
+//@PURPOSE: Provide a concrete implementation of `bdlbb::BlobBufferFactory`.
 //
 //@CLASSES:
-//  bdlbb::PooledBlobBufferFactory: mechanism pooling 'bdlbb::BlobBuffer's
+//  bdlbb::PooledBlobBufferFactory: mechanism pooling `bdlbb::BlobBuffer`s
 //
 //@SEE_ALSO: bdlbb_blob, bdlma_concurrentpool
 //
 //@DESCRIPTION: This component provides a mechanism for allocating
-// 'bdlbb::BlobBuffer' objects of a fixed specified size.  The size is passed
-// at construction of the 'bdlbb::PooledBlobBufferFactory' instance.  A
-// 'bdlbb::BlobBuffer' is basically a shared pointer to a buffer of 'char' of
+// `bdlbb::BlobBuffer` objects of a fixed specified size.  The size is passed
+// at construction of the `bdlbb::PooledBlobBufferFactory` instance.  A
+// `bdlbb::BlobBuffer` is basically a shared pointer to a buffer of `char` of
 // the prescribed size.  Thus it is generally more efficient to create them
 // with a uniform size, for the same reason as a pool is more efficient than a
 // general-purpose memory allocator.  In order to gain further efficiency, this
@@ -24,28 +24,28 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// The 'bdlbb::PooledBlobBufferFactory' class is *fully thread-safe* (i.e., all
+// The `bdlbb::PooledBlobBufferFactory` class is *fully thread-safe* (i.e., all
 // non-creator methods can correctly execute concurrently).  See
-// 'bsldoc_glossary' for complete definitions of *fully thread-safe*.
+// `bsldoc_glossary` for complete definitions of *fully thread-safe*.
 //
 // It is safe to access and modify factory from multiple threads.  However, it
-// is *not* safe to allocate and load a new buffer into the same 'BlobBuffer'
+// is *not* safe to allocate and load a new buffer into the same `BlobBuffer`
 // object simultaneously from multiple threads.
 //
 ///Potential Lifetime Issues
 ///-------------------------
-// Be aware that the destruction of a 'bdlbb::PooledBlobBufferFactory' object
-// releases all the 'BlobBuffer' objects allocated by that factory. A common
-// misconception is that, because of the use of 'shared_ptr', the data referred
-// to in 'BlobBuffer' objects created will remain valid until the last shared
+// Be aware that the destruction of a `bdlbb::PooledBlobBufferFactory` object
+// releases all the `BlobBuffer` objects allocated by that factory. A common
+// misconception is that, because of the use of `shared_ptr`, the data referred
+// to in `BlobBuffer` objects created will remain valid until the last shared
 // reference is destroyed, even if a reference outlives the
-// 'PooledBlobBufferFactory' that created it. This is *not* the case.
-// Destroying a 'PooledBlobBufferFactory' releases any memory created by that
+// `PooledBlobBufferFactory` that created it. This is *not* the case.
+// Destroying a `PooledBlobBufferFactory` releases any memory created by that
 // pool, even if shared references remain to the data, and it is therefore
-// undefined behavior to use any 'BlobBuffer' created by a pool after that pool
+// undefined behavior to use any `BlobBuffer` created by a pool after that pool
 // is destroyed. A user must clearly understand the lifetime of memory
 // allocated by a subsystem, and scope the lifetime of the
-// 'PooledBlobBufferFactory' to be greater than the active lifetime of that
+// `PooledBlobBufferFactory` to be greater than the active lifetime of that
 // subsystem.
 
 #include <bdlscm_version.h>
@@ -63,10 +63,10 @@ namespace bdlbb {
                        // class PooledBlobBufferFactory
                        // =============================
 
+/// This class implements the `BlobBufferFactory` protocol and provides a
+/// mechanism for allocating `BlobBuffer` objects of a fixed size passed at
+/// construction.
 class PooledBlobBufferFactory : public BlobBufferFactory {
-    // This class implements the 'BlobBufferFactory' protocol and provides a
-    // mechanism for allocating 'BlobBuffer' objects of a fixed size passed at
-    // construction.
 
     // DATA
     int d_bufferSize;                         // size of allocated blob buffers
@@ -76,6 +76,23 @@ class PooledBlobBufferFactory : public BlobBufferFactory {
                                               // contiguously
   public:
     // CREATORS
+
+    /// Create a pooled factory for allocating `BlobBuffer` objects of the
+    /// specified `bufferSize`.  Optionally specify a `growthStrategy` used
+    /// to control the growth of internal memory chunks (from which memory
+    /// blocks are dispensed).  If `growthStrategy` is not specified,
+    /// geometric growth is used.  If `growthStrategy` is specified,
+    /// optionally specify a `maxBlocksPerChunk`, indicating the maximum
+    /// number of blocks to be allocated at once when the underlying pool
+    /// must be replenished.  If `maxBlocksPerChunk` is not specified, an
+    /// implementation-defined value is used.  If geometric growth is used,
+    /// the chunk size grows starting at the value returned by `blockSize`,
+    /// doubling in size until the size is exactly
+    /// `blockSize() * maxBlocksPerChunk`.  If constant growth is used, the
+    /// chunk size is always `maxBlocksPerChunk`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.  The behavior is
+    /// undefined unless `0 < bufferSize`, and `1 <= maxBlocksPerChunk`.
     PooledBlobBufferFactory(int               bufferSize,
                             bslma::Allocator *basicAllocator = 0);
     PooledBlobBufferFactory(int                          bufferSize,
@@ -85,37 +102,23 @@ class PooledBlobBufferFactory : public BlobBufferFactory {
                             bsls::BlockGrowth::Strategy  growthStrategy,
                             int                          maxBlocksPerChunk,
                             bslma::Allocator            *basicAllocator = 0);
-        // Create a pooled factory for allocating 'BlobBuffer' objects of the
-        // specified 'bufferSize'.  Optionally specify a 'growthStrategy' used
-        // to control the growth of internal memory chunks (from which memory
-        // blocks are dispensed).  If 'growthStrategy' is not specified,
-        // geometric growth is used.  If 'growthStrategy' is specified,
-        // optionally specify a 'maxBlocksPerChunk', indicating the maximum
-        // number of blocks to be allocated at once when the underlying pool
-        // must be replenished.  If 'maxBlocksPerChunk' is not specified, an
-        // implementation-defined value is used.  If geometric growth is used,
-        // the chunk size grows starting at the value returned by 'blockSize',
-        // doubling in size until the size is exactly
-        // 'blockSize() * maxBlocksPerChunk'.  If constant growth is used, the
-        // chunk size is always 'maxBlocksPerChunk'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The behavior is
-        // undefined unless '0 < bufferSize', and '1 <= maxBlocksPerChunk'.
 
+    /// Destroy this factory.  This operation releases all `BlobBuffer`
+    /// objects allocated via this factory.
     ~PooledBlobBufferFactory() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this factory.  This operation releases all 'BlobBuffer'
-        // objects allocated via this factory.
 
     // MANIPULATORS
+
+    /// Allocate a new buffer with the buffer size specified at construction
+    /// and load it into the specified `buffer`.  Note that destruction of
+    /// the `bdlbb::PooledBlobBufferFactory` object releases all
+    /// `BlobBuffer` objects allocated via this factory.
     void allocate(BlobBuffer *buffer) BSLS_KEYWORD_OVERRIDE;
-        // Allocate a new buffer with the buffer size specified at construction
-        // and load it into the specified 'buffer'.  Note that destruction of
-        // the 'bdlbb::PooledBlobBufferFactory' object releases all
-        // 'BlobBuffer' objects allocated via this factory.
 
     // ACCESSORS
+
+    /// Return the buffer size specified at construction of this factory.
     int bufferSize() const;
-        // Return the buffer size specified at construction of this factory.
 };
 
 // ============================================================================

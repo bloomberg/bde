@@ -13,9 +13,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlf_bind
 //
 //@DESCRIPTION: This component provides a parameterized placeholder,
-// 'bdlf::PlaceHolder', and fourteen placeholder objects ('_1', '_2', etc.),
-// each of a distinct type.  '_1' is of type 'const bdlf::PlaceHolder<1>', '_2'
-// is of type 'const bdlf::PlaceHolder<2>', and so on.
+// `bdlf::PlaceHolder`, and fourteen placeholder objects (`_1`, `_2`, etc.),
+// each of a distinct type.  `_1` is of type `const bdlf::PlaceHolder<1>`, `_2`
+// is of type `const bdlf::PlaceHolder<2>`, and so on.
 //
 ///Usage
 ///-----

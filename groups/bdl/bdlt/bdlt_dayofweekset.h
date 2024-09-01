@@ -5,42 +5,42 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an ordered set of (unique) 'bdlt::DayOfWeek::Enum' values.
+//@PURPOSE: Provide an ordered set of (unique) `bdlt::DayOfWeek::Enum` values.
 //
 //@CLASSES:
-//  bdlt::DayOfWeekSet: ordered set of (unique) 'bdlt::DayOfWeek::Enum' values
+//  bdlt::DayOfWeekSet: ordered set of (unique) `bdlt::DayOfWeek::Enum` values
 //
 //@SEE_ALSO: bdlt_dayofweek
 //
 //@DESCRIPTION: This component implements an efficient value-semantic, ordered
-// set class, 'bdlt::DayOfWeekSet', for elements of the 'bdlt::DayOfWeek::Enum'
+// set class, `bdlt::DayOfWeekSet`, for elements of the `bdlt::DayOfWeek::Enum`
 // enumeration.  As there are only seven possible element values, asymptotic
 // performance characterization is not appropriate; all operations implicitly
 // run in constant time and provide the no-throw guarantee.
 //
 ///Supplementary Overloaded Operators
 ///----------------------------------
-// In addition to the standard value-semantic operators '=', '==', '!=', and
-// '<<', the following canonical set of binary and unary (free) operators are
-// defined on 'bdlt::DayOfWeekSet' objects:
-//..
-//                   set S: { e_MON, e_TUE, e_WED }
-//                   set T: { e_MON, e_WED, e_FRI }
+// In addition to the standard value-semantic operators `=`, `==`, `!=`, and
+// `<<`, the following canonical set of binary and unary (free) operators are
+// defined on `bdlt::DayOfWeekSet` objects:
+// ```
+//                  set S: { e_MON, e_TUE, e_WED }
+//                  set T: { e_MON, e_WED, e_FRI }
 //
-//           Union:  S | T  { e_MON, e_TUE, e_WED, e_FRI }
+//          Union:  S | T  { e_MON, e_TUE, e_WED, e_FRI }
 //
-//    Intersection:  S & T  { e_MON, e_WED }
+//   Intersection:  S & T  { e_MON, e_WED }
 //
-//    Exclusive Or:  S ^ T  { e_TUE, e_FRI }
+//   Exclusive Or:  S ^ T  { e_TUE, e_FRI }
 //
-//     Subtraction:  S - T  { e_TUE }
-//                   T - S  { e_FRI }
+//    Subtraction:  S - T  { e_TUE }
+//                  T - S  { e_FRI }
 //
-//  Unary Negation:     ~S  { e_SUN, e_THU, e_FRI, e_SAT }
-//                      ~T  { e_SUN, e_TUE, e_THU, e_SAT }
-//..
-// The corresponding assignment (member) operators '|=' , '&=', '^=', and '-='
-// (but not '~=') are also provided.
+// Unary Negation:     ~S  { e_SUN, e_THU, e_FRI, e_SAT }
+//                     ~T  { e_SUN, e_TUE, e_THU, e_SAT }
+// ```
+// The corresponding assignment (member) operators `|=` , `&=`, `^=`, and `-=`
+// (but not `~=`) are also provided.
 //
 ///Usage
 ///-----
@@ -48,167 +48,167 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Manipulation and Traversal of Day of Week Sets
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// A 'bdlt::DayOfWeekSet' is useful for recording recurring appointments, or
+// A `bdlt::DayOfWeekSet` is useful for recording recurring appointments, or
 // special days (e.g., weekend days), in a calendar.  The following snippets of
-// code illustrate how to create and use a 'bdlt::DayOfWeek' set.
+// code illustrate how to create and use a `bdlt::DayOfWeek` set.
 //
 // First, we create a couple of commonly useful sets.  First we define the
-// 'bdlt::DayOfWeekSet' 'weekendDays':
-//..
-//  bdlt::DayOfWeekSet weekendDays;
-//..
+// `bdlt::DayOfWeekSet` `weekendDays`:
+// ```
+// bdlt::DayOfWeekSet weekendDays;
+// ```
 // Then, we notice that this set is initially empty.
-//..
-//  assert(0 == weekendDays.length());
-//..
+// ```
+// assert(0 == weekendDays.length());
+// ```
 // Next, we add the days that characterize weekends:
-//..
-//  weekendDays.add(bdlt::DayOfWeek::e_SUN);
-//  assert(1 == weekendDays.length());
+// ```
+// weekendDays.add(bdlt::DayOfWeek::e_SUN);
+// assert(1 == weekendDays.length());
 //
-//  weekendDays.add(bdlt::DayOfWeek::e_SAT);
-//  assert(2 == weekendDays.length());
-//..
-// Then, we observe that 'weekendDays' now contains precisely the days we
+// weekendDays.add(bdlt::DayOfWeek::e_SAT);
+// assert(2 == weekendDays.length());
+// ```
+// Then, we observe that `weekendDays` now contains precisely the days we
 // expect it to contain:
-//..
-//  assert(true  == weekendDays.isMember(bdlt::DayOfWeek::e_SUN));
-//  assert(false == weekendDays.isMember(bdlt::DayOfWeek::e_MON));
-//  assert(false == weekendDays.isMember(bdlt::DayOfWeek::e_TUE));
-//  assert(false == weekendDays.isMember(bdlt::DayOfWeek::e_WED));
-//  assert(false == weekendDays.isMember(bdlt::DayOfWeek::e_THU));
-//  assert(false == weekendDays.isMember(bdlt::DayOfWeek::e_FRI));
-//  assert(true  == weekendDays.isMember(bdlt::DayOfWeek::e_SAT));
-//..
-// Next, we create the complementary 'bdlt::DayOfWeekSet' 'weekDays' directly
-// from 'weekendDays' via a combination of unary negation and copy
+// ```
+// assert(true  == weekendDays.isMember(bdlt::DayOfWeek::e_SUN));
+// assert(false == weekendDays.isMember(bdlt::DayOfWeek::e_MON));
+// assert(false == weekendDays.isMember(bdlt::DayOfWeek::e_TUE));
+// assert(false == weekendDays.isMember(bdlt::DayOfWeek::e_WED));
+// assert(false == weekendDays.isMember(bdlt::DayOfWeek::e_THU));
+// assert(false == weekendDays.isMember(bdlt::DayOfWeek::e_FRI));
+// assert(true  == weekendDays.isMember(bdlt::DayOfWeek::e_SAT));
+// ```
+// Next, we create the complementary `bdlt::DayOfWeekSet` `weekDays` directly
+// from `weekendDays` via a combination of unary negation and copy
 // construction:
-//..
-//  bdlt::DayOfWeekSet weekDays(~weekendDays);
+// ```
+// bdlt::DayOfWeekSet weekDays(~weekendDays);
 //
-//  assert(5 == weekDays.length());
+// assert(5 == weekDays.length());
 //
-//  assert(false == weekDays.isMember(bdlt::DayOfWeek::e_SUN));
-//  assert(true  == weekDays.isMember(bdlt::DayOfWeek::e_MON));
-//  assert(true  == weekDays.isMember(bdlt::DayOfWeek::e_TUE));
-//  assert(true  == weekDays.isMember(bdlt::DayOfWeek::e_WED));
-//  assert(true  == weekDays.isMember(bdlt::DayOfWeek::e_THU));
-//  assert(true  == weekDays.isMember(bdlt::DayOfWeek::e_FRI));
-//  assert(false == weekDays.isMember(bdlt::DayOfWeek::e_SAT));
-//..
+// assert(false == weekDays.isMember(bdlt::DayOfWeek::e_SUN));
+// assert(true  == weekDays.isMember(bdlt::DayOfWeek::e_MON));
+// assert(true  == weekDays.isMember(bdlt::DayOfWeek::e_TUE));
+// assert(true  == weekDays.isMember(bdlt::DayOfWeek::e_WED));
+// assert(true  == weekDays.isMember(bdlt::DayOfWeek::e_THU));
+// assert(true  == weekDays.isMember(bdlt::DayOfWeek::e_FRI));
+// assert(false == weekDays.isMember(bdlt::DayOfWeek::e_SAT));
+// ```
 // Then, to create a set containing all of the days in the week, we do so via
 // unary negation of the default constructed value:
-//..
-//  const bdlt::DayOfWeekSet NO_DAYS;
-//  const bdlt::DayOfWeekSet ALL_DAYS(~NO_DAYS);
+// ```
+// const bdlt::DayOfWeekSet NO_DAYS;
+// const bdlt::DayOfWeekSet ALL_DAYS(~NO_DAYS);
 //
-//  assert(7 == ALL_DAYS.length());
-//..
-// Next, we observe that neither 'weekDays' nor 'weekendDays' represent the
-// same value as 'ALL_DAYS', but their union does:
-//..
-//  assert(ALL_DAYS != weekendDays);
-//  assert(ALL_DAYS != weekDays);
-//  assert(ALL_DAYS == (weekDays | weekendDays));
-//  assert(ALL_DAYS == (weekDays ^ weekendDays));
+// assert(7 == ALL_DAYS.length());
+// ```
+// Next, we observe that neither `weekDays` nor `weekendDays` represent the
+// same value as `ALL_DAYS`, but their union does:
+// ```
+// assert(ALL_DAYS != weekendDays);
+// assert(ALL_DAYS != weekDays);
+// assert(ALL_DAYS == (weekDays | weekendDays));
+// assert(ALL_DAYS == (weekDays ^ weekendDays));
 //
-//  assert(weekendDays == ALL_DAYS - weekDays);
+// assert(weekendDays == ALL_DAYS - weekDays);
 //
-//  assert(weekDays    == ALL_DAYS - weekendDays);
+// assert(weekDays    == ALL_DAYS - weekendDays);
 //
-//  assert(weekDays    == ALL_DAYS - weekendDays);
-//..
-// Then, we observe that similarly, neither 'weekDays' nor 'weekendDays'
-// represents the same value as 'NO_DAYS', but their intersection does:
-//..
-//  assert(NO_DAYS != weekendDays);
-//  assert(NO_DAYS != weekDays);
-//  assert(NO_DAYS == (weekDays & weekendDays));
+// assert(weekDays    == ALL_DAYS - weekendDays);
+// ```
+// Then, we observe that similarly, neither `weekDays` nor `weekendDays`
+// represents the same value as `NO_DAYS`, but their intersection does:
+// ```
+// assert(NO_DAYS != weekendDays);
+// assert(NO_DAYS != weekDays);
+// assert(NO_DAYS == (weekDays & weekendDays));
 //
-//  assert(weekendDays == weekendDays - weekDays);
+// assert(weekendDays == weekendDays - weekDays);
 //
-//  assert(weekDays    == weekDays - weekendDays);
-//..
-// Next, we create the corresponding set 'eDays' consisting of the only days of
-// the week that have an 'E' in them: 'TUESDAY' and 'WEDNESDAY':
-//..
-//  bdlt::DayOfWeekSet eDays;                 assert(0 == eDays.length());
-//  eDays.add(bdlt::DayOfWeek::e_TUE);     assert(1 == eDays.length());
-//  eDays.add(bdlt::DayOfWeek::e_WED);     assert(2 == eDays.length());
+// assert(weekDays    == weekDays - weekendDays);
+// ```
+// Next, we create the corresponding set `eDays` consisting of the only days of
+// the week that have an `E` in them: `TUESDAY` and `WEDNESDAY`:
+// ```
+// bdlt::DayOfWeekSet eDays;                 assert(0 == eDays.length());
+// eDays.add(bdlt::DayOfWeek::e_TUE);     assert(1 == eDays.length());
+// eDays.add(bdlt::DayOfWeek::e_WED);     assert(2 == eDays.length());
 //
-//  assert(false == eDays.isMember(bdlt::DayOfWeek::e_SUN));
-//  assert(false == eDays.isMember(bdlt::DayOfWeek::e_MON));
-//  assert(true  == eDays.isMember(bdlt::DayOfWeek::e_TUE));
-//  assert(true  == eDays.isMember(bdlt::DayOfWeek::e_WED));
-//  assert(false == eDays.isMember(bdlt::DayOfWeek::e_THU));
-//  assert(false == eDays.isMember(bdlt::DayOfWeek::e_FRI));
-//  assert(false == eDays.isMember(bdlt::DayOfWeek::e_SAT));
-//..
-// Then, we create a set consisting of days that have an 'n' in them: 'MONDAY',
-// 'WEDNESDAY', and 'SUNDAY'.  We create the corresponding set 'nDays' starting
-// with the value of 'eDays' by first removing 'TUESDAY', and then adding
-// 'SUNDAY' and 'MONDAY':
-//..
-//  bdlt::DayOfWeekSet nDays(eDays);          assert(2 == nDays.length());
+// assert(false == eDays.isMember(bdlt::DayOfWeek::e_SUN));
+// assert(false == eDays.isMember(bdlt::DayOfWeek::e_MON));
+// assert(true  == eDays.isMember(bdlt::DayOfWeek::e_TUE));
+// assert(true  == eDays.isMember(bdlt::DayOfWeek::e_WED));
+// assert(false == eDays.isMember(bdlt::DayOfWeek::e_THU));
+// assert(false == eDays.isMember(bdlt::DayOfWeek::e_FRI));
+// assert(false == eDays.isMember(bdlt::DayOfWeek::e_SAT));
+// ```
+// Then, we create a set consisting of days that have an `n` in them: `MONDAY`,
+// `WEDNESDAY`, and `SUNDAY`.  We create the corresponding set `nDays` starting
+// with the value of `eDays` by first removing `TUESDAY`, and then adding
+// `SUNDAY` and `MONDAY`:
+// ```
+// bdlt::DayOfWeekSet nDays(eDays);          assert(2 == nDays.length());
 //
-//  nDays.remove(bdlt::DayOfWeek::e_TUE);  assert(1 == nDays.length());
+// nDays.remove(bdlt::DayOfWeek::e_TUE);  assert(1 == nDays.length());
 //
-//  nDays.add(bdlt::DayOfWeek::e_SUN);     assert(2 == nDays.length());
-//  nDays.add(bdlt::DayOfWeek::e_MON);     assert(3 == nDays.length());
+// nDays.add(bdlt::DayOfWeek::e_SUN);     assert(2 == nDays.length());
+// nDays.add(bdlt::DayOfWeek::e_MON);     assert(3 == nDays.length());
 //
-//  assert(true  == nDays.isMember(bdlt::DayOfWeek::e_SUN));
-//  assert(true  == nDays.isMember(bdlt::DayOfWeek::e_MON));
-//  assert(false == nDays.isMember(bdlt::DayOfWeek::e_TUE));
-//  assert(true  == nDays.isMember(bdlt::DayOfWeek::e_WED));
-//  assert(false == nDays.isMember(bdlt::DayOfWeek::e_THU));
-//  assert(false == nDays.isMember(bdlt::DayOfWeek::e_FRI));
-//  assert(false == nDays.isMember(bdlt::DayOfWeek::e_SAT));
-//..
-// Next, we observe that all 'eDays' are 'weekDays', but that's not true of
-// 'nDays':
-//..
-//  assert(true  == weekDays.areMembers(eDays));
-//  assert(false == weekDays.areMembers(nDays));
-//..
+// assert(true  == nDays.isMember(bdlt::DayOfWeek::e_SUN));
+// assert(true  == nDays.isMember(bdlt::DayOfWeek::e_MON));
+// assert(false == nDays.isMember(bdlt::DayOfWeek::e_TUE));
+// assert(true  == nDays.isMember(bdlt::DayOfWeek::e_WED));
+// assert(false == nDays.isMember(bdlt::DayOfWeek::e_THU));
+// assert(false == nDays.isMember(bdlt::DayOfWeek::e_FRI));
+// assert(false == nDays.isMember(bdlt::DayOfWeek::e_SAT));
+// ```
+// Next, we observe that all `eDays` are `weekDays`, but that's not true of
+// `nDays`:
+// ```
+// assert(true  == weekDays.areMembers(eDays));
+// assert(false == weekDays.areMembers(nDays));
+// ```
 // Now, we observe that iteration order is defined by increasing enumerated
-// 'bdlt::DayOfWeek::Day' value '[ SUN .. SAT ]'.  The following use of the
+// `bdlt::DayOfWeek::Day` value `[ SUN .. SAT ]`.  The following use of the
 // *forward* (bi-directional) iterator:
-//..
-//  for (bdlt::DayOfWeekSet::iterator it  = ALL_DAYS.begin();
-//                                    it != ALL_DAYS.end();
-//                                    ++it) {
-//      bsl::cout << *it << bsl::endl;
-//  }
-//..
+// ```
+// for (bdlt::DayOfWeekSet::iterator it  = ALL_DAYS.begin();
+//                                   it != ALL_DAYS.end();
+//                                   ++it) {
+//     bsl::cout << *it << bsl::endl;
+// }
+// ```
 // produces:
-//..
-//  SUN
-//  MON
-//  TUE
-//  WED
-//  THU
-//  FRI
-//  SAT
-//..
+// ```
+// SUN
+// MON
+// TUE
+// WED
+// THU
+// FRI
+// SAT
+// ```
 // on standard output.
 //
 // Finally, we observe that, similarly, the following use of the *reverse*
 // iterator:
-//..
-//  for (bdlt::DayOfWeekSet::reverse_iterator it  = weekDays.rbegin();
-//                                            it != weekDays.rend();
-//                                            ++it) {
-//      bsl::cout << *it << bsl::endl;
-//  }
-//..
+// ```
+// for (bdlt::DayOfWeekSet::reverse_iterator it  = weekDays.rbegin();
+//                                           it != weekDays.rend();
+//                                           ++it) {
+//     bsl::cout << *it << bsl::endl;
+// }
+// ```
 // produces:
-//..
-//  FRI
-//  THU
-//  WED
-//  TUE
-//  MON
-//..
+// ```
+// FRI
+// THU
+// WED
+// TUE
+// MON
+// ```
 
 #include <bdlscm_version.h>
 
@@ -236,6 +236,9 @@ namespace bdlt {
                           // class DayOfWeekSet_Iter
                           // =======================
 
+/// Implementation of standard bidirectional iterator for `DayOfWeekSet`.
+/// Any modification of a `DayOfWeekSet` will invalidate any iterators
+/// referring to that `DayOfWeekSet`.
 class DayOfWeekSet_Iter
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
 // Sun CC workaround: iterators must be derived from 'std::iterator' to work
@@ -246,9 +249,6 @@ class DayOfWeekSet_Iter
                                                const DayOfWeek::Enum>
 #endif  // BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
 {
-    // Implementation of standard bidirectional iterator for 'DayOfWeekSet'.
-    // Any modification of a 'DayOfWeekSet' will invalidate any iterators
-    // referring to that 'DayOfWeekSet'.
 
   public:
     // PUBLIC TYPES
@@ -272,82 +272,86 @@ class DayOfWeekSet_Iter
 
   public:
     // CREATORS
+
+    /// Create a default (invalid) iterator.
     DayOfWeekSet_Iter();
-        // Create a default (invalid) iterator.
 
+    /// Create an iterator using the specified `data` and `index`.  If
+    /// `index` is 1, this iterator references the first valid element of
+    /// `data`; if `index` is 8, then this iterator references one past the
+    /// last possible element in `data`.  The behavior is undefined unless
+    /// `0 == (data & 1)`, `index >= 0`, and `index <= 8`.
     DayOfWeekSet_Iter(int data, int index);
-        // Create an iterator using the specified 'data' and 'index'.  If
-        // 'index' is 1, this iterator references the first valid element of
-        // 'data'; if 'index' is 8, then this iterator references one past the
-        // last possible element in 'data'.  The behavior is undefined unless
-        // '0 == (data & 1)', 'index >= 0', and 'index <= 8'.
 
+    /// Create an iterator having the value of the specified `original`
+    /// iterator.
     DayOfWeekSet_Iter(const DayOfWeekSet_Iter& original);
-        // Create an iterator having the value of the specified 'original'
-        // iterator.
 
+    /// Destroy this iterator.
     ~DayOfWeekSet_Iter();
-        // Destroy this iterator.
 
     // MANIPULATORS
+
+    /// Assign to this iterator the value of the specified `rhs` iterator,
+    /// and return a reference providing modifiable access to this iterator.
     DayOfWeekSet_Iter& operator=(const DayOfWeekSet_Iter& rhs);
-        // Assign to this iterator the value of the specified 'rhs' iterator,
-        // and return a reference providing modifiable access to this iterator.
 
+    /// Advance this iterator to the next valid data element, and return a
+    /// reference providing modifiable access to this iterator.  If there is
+    /// no next valid data element, this iterator will be set equal to
+    /// `end()`.
     DayOfWeekSet_Iter& operator++();
-        // Advance this iterator to the next valid data element, and return a
-        // reference providing modifiable access to this iterator.  If there is
-        // no next valid data element, this iterator will be set equal to
-        // 'end()'.
 
+    /// Advance this iterator to the next valid data element, and return by
+    /// value the value of this iterator before it was incremented.  If
+    /// there is no next valid data element, this iterator will be set equal
+    /// to `end()`.
     DayOfWeekSet_Iter operator++(int);
-        // Advance this iterator to the next valid data element, and return by
-        // value the value of this iterator before it was incremented.  If
-        // there is no next valid data element, this iterator will be set equal
-        // to 'end()'.
 
+    /// Regress this iterator to the previous valid data element, and return
+    /// a reference providing modifiable access to this iterator.  If there
+    /// is no preceding data element, the value of `reverse_iterator(*this)`
+    /// will be `rend()`.
     DayOfWeekSet_Iter& operator--();
-        // Regress this iterator to the previous valid data element, and return
-        // a reference providing modifiable access to this iterator.  If there
-        // is no preceding data element, the value of 'reverse_iterator(*this)'
-        // will be 'rend()'.
 
+    /// Regress this iterator to the previous valid data element, and return
+    /// by value the value of this iterator before it was decremented.  If
+    /// there is no preceding data element, the value of
+    /// `reverse_iterator(*this)` will be `rend()`.
     DayOfWeekSet_Iter operator--(int);
-        // Regress this iterator to the previous valid data element, and return
-        // by value the value of this iterator before it was decremented.  If
-        // there is no preceding data element, the value of
-        // 'reverse_iterator(*this)' will be 'rend()'.
 
     // ACCESSORS
+
+    /// Return a reference providing non-modifiable access to the day of
+    /// week value referenced by this iterator.  The behavior is undefined
+    /// unless the iterator refers to a valid day of the week, specifically,
+    /// the behavior is undefined if `*this == end()`.
     const DayOfWeek::Enum& operator*() const;
-        // Return a reference providing non-modifiable access to the day of
-        // week value referenced by this iterator.  The behavior is undefined
-        // unless the iterator refers to a valid day of the week, specifically,
-        // the behavior is undefined if '*this == end()'.
 };
 
 // FREE OPERATORS
-bool operator==(const DayOfWeekSet_Iter& lhs, const DayOfWeekSet_Iter& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators have the same
-    // value, and 'false' otherwise.  Two iterators have the same value if they
-    // refer to data at the same index position.  The behavior is undefined
-    // unless 'lhs' and 'rhs' both reference into the same set of data.
 
+/// Return `true` if the specified `lhs` and `rhs` iterators have the same
+/// value, and `false` otherwise.  Two iterators have the same value if they
+/// refer to data at the same index position.  The behavior is undefined
+/// unless `lhs` and `rhs` both reference into the same set of data.
+bool operator==(const DayOfWeekSet_Iter& lhs, const DayOfWeekSet_Iter& rhs);
+
+/// Return `true` if the specified `lhs` and `rhs` iterators do not have the
+/// same value, and `false` otherwise.  Two iterators do not have the same
+/// value if they do not refer to data at the same index position.  The
+/// behavior is undefined unless `lhs` and `rhs` both reference into the
+/// same set of data.
 bool operator!=(const DayOfWeekSet_Iter& lhs, const DayOfWeekSet_Iter& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators do not have the
-    // same value, and 'false' otherwise.  Two iterators do not have the same
-    // value if they do not refer to data at the same index position.  The
-    // behavior is undefined unless 'lhs' and 'rhs' both reference into the
-    // same set of data.
 
                           // ==================
                           // class DayOfWeekSet
                           // ==================
 
+/// This class implements an efficient value-semantic, ordered set of
+/// `DayOfWeek` values.  This set requires a fixed capacity, and all
+/// operations operate in constant time, and provide the no-throw guarantee.
 class DayOfWeekSet {
-    // This class implements an efficient value-semantic, ordered set of
-    // 'DayOfWeek' values.  This set requires a fixed capacity, and all
-    // operations operate in constant time, and provide the no-throw guarantee.
 
     // DATA
     unsigned char d_days;  // bits '1 .. 7' reflect '[ SUN, MON, ..., SAT ]';
@@ -362,214 +366,220 @@ class DayOfWeekSet {
 
   public:
     // TYPES
+
+    /// Standard nested alias for set container's iterator.
     typedef DayOfWeekSet_Iter iterator;
-        // Standard nested alias for set container's iterator.
 
+    /// Standard nested alias for set container's constant iterator.
     typedef iterator const_iterator;
-        // Standard nested alias for set container's constant iterator.
 
+    /// Standard nested alias for set container's reverse iterator.
     typedef bsl::reverse_iterator<iterator> reverse_iterator;
-        // Standard nested alias for set container's reverse iterator.
 
+    /// Standard nested alias for set container's constant reverse iterator.
     typedef reverse_iterator const_reverse_iterator;
-        // Standard nested alias for set container's constant reverse iterator.
 
     // CLASS METHODS
 
                                   // Aspects
 
+    /// Return the maximum valid BDEX format version, as indicated by the
+    /// specified `versionSelector`, to be passed to the `bdexStreamOut`
+    /// method.  Note that it is highly recommended that `versionSelector`
+    /// be formatted as "YYYYMMDD", a date representation.  Also note that
+    /// `versionSelector` should be a *compile*-time-chosen value that
+    /// selects a format version supported by both externalizer and
+    /// unexternalizer.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     static int maxSupportedBdexVersion(int versionSelector);
-        // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
-        // method.  Note that it is highly recommended that 'versionSelector'
-        // be formatted as "YYYYMMDD", a date representation.  Also note that
-        // 'versionSelector' should be a *compile*-time-chosen value that
-        // selects a format version supported by both externalizer and
-        // unexternalizer.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
     // CREATORS
+
+    /// Create an empty set.
     DayOfWeekSet();
-        // Create an empty set.
 
+    /// Create a set initialized to the value of the specified `original`
+    /// set.
     DayOfWeekSet(const DayOfWeekSet& original);
-        // Create a set initialized to the value of the specified 'original'
-        // set.
 
+    /// Destroy this object.
     ~DayOfWeekSet();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this set the value of the specified `rhs` set, and return
+    /// a reference providing modifiable access to this set.
     DayOfWeekSet& operator=(const DayOfWeekSet& rhs);
-        // Assign to this set the value of the specified 'rhs' set, and return
-        // a reference providing modifiable access to this set.
 
+    /// Assign to this set the union of this set with the specified `rhs`
+    /// set (i.e., a set containing elements that are in either this set or
+    /// the `rhs` set, or in both sets), and return a reference providing
+    /// modifiable access to this set.
     DayOfWeekSet& operator|=(const DayOfWeekSet& rhs);
-        // Assign to this set the union of this set with the specified 'rhs'
-        // set (i.e., a set containing elements that are in either this set or
-        // the 'rhs' set, or in both sets), and return a reference providing
-        // modifiable access to this set.
 
+    /// Assign to this set the intersection of this set with the specified
+    /// `rhs` set (i.e., a set containing elements that are in both this
+    /// set and the `rhs` set), and return a reference providing modifiable
+    /// access to this set.
     DayOfWeekSet& operator&=(const DayOfWeekSet& rhs);
-        // Assign to this set the intersection of this set with the specified
-        // 'rhs' set (i.e., a set containing elements that are in both this
-        // set and the 'rhs' set), and return a reference providing modifiable
-        // access to this set.
 
+    /// Assign to this set the exclusive-or of this set with the specified
+    /// `rhs` set (i.e., a set containing elements that are either in this
+    /// set, but not `rhs`, or in `rhs`, but not in this set), and return a
+    /// reference providing modifiable access to this set.
     DayOfWeekSet& operator^=(const DayOfWeekSet& rhs);
-        // Assign to this set the exclusive-or of this set with the specified
-        // 'rhs' set (i.e., a set containing elements that are either in this
-        // set, but not 'rhs', or in 'rhs', but not in this set), and return a
-        // reference providing modifiable access to this set.
 
+    /// Assign to this set the subtraction of the specified `rhs` set from
+    /// this set (i.e., a set containing elements that are in this set, but
+    /// not in the `rhs` set), and return a reference providing modifiable
+    /// access to this set.
     DayOfWeekSet& operator-=(const DayOfWeekSet& rhs);
-        // Assign to this set the subtraction of the specified 'rhs' set from
-        // this set (i.e., a set containing elements that are in this set, but
-        // not in the 'rhs' set), and return a reference providing modifiable
-        // access to this set.
 
+    /// Add the specified `value` to this set.
     void add(DayOfWeek::Enum value);
-        // Add the specified 'value' to this set.
 
+    /// Remove the specified `value` from this set.  Return `true` if
+    /// `value` was a member of this set, and `false` otherwise.
     bool remove(DayOfWeek::Enum value);
-        // Remove the specified 'value' from this set.  Return 'true' if
-        // 'value' was a member of this set, and 'false' otherwise.
 
+    /// Remove all members of this set.
     void removeAll();
-        // Remove all members of this set.
 
                                   // Aspects
 
+    /// Assign to this object the value read from the specified input
+    /// `stream` using the specified `version` format, and return a
+    /// reference to `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `version` is not supported, this object
+    /// is unaltered and `stream` is invalidated, but otherwise unmodified.
+    /// If `version` is supported but `stream` becomes invalid during this
+    /// operation, this object has an undefined, but valid, state.  Note
+    /// that no version is read from `stream`.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format, and return a
-        // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, this object
-        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
-        // If 'version' is supported but 'stream' becomes invalid during this
-        // operation, this object has an undefined, but valid, state.  Note
-        // that no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
     // ACCESSORS
+
+    /// Return `true` if this set contains all elements of the specified
+    /// `set`, and `false` otherwise.
     bool areMembers(const DayOfWeekSet& set) const;
-        // Return 'true' if this set contains all elements of the specified
-        // 'set', and 'false' otherwise.
 
+    /// Return an iterator referencing the first valid element in this set.
     iterator begin() const;
-        // Return an iterator referencing the first valid element in this set.
 
+    /// Return an iterator indicating one position past the last possible
+    /// element in this set.
     iterator end() const;
-        // Return an iterator indicating one position past the last possible
-        // element in this set.
 
+    /// Return `true` if there are no elements in this set, and `false`
+    /// otherwise.
     bool isEmpty() const;
-        // Return 'true' if there are no elements in this set, and 'false'
-        // otherwise.
 
+    /// Return `true` if the specified `value` is an element of this set,
+    /// and `false` otherwise.
     bool isMember(DayOfWeek::Enum value) const;
-        // Return 'true' if the specified 'value' is an element of this set,
-        // and 'false' otherwise.
 
+    /// Return the number of elements in this set.
     int length() const;
-        // Return the number of elements in this set.
 
+    /// Return a reverse iterator referencing the last valid element in this
+    /// set.
     reverse_iterator rbegin() const;
-        // Return a reverse iterator referencing the last valid element in this
-        // set.
 
+    /// Return a reverse iterator indicating one position before the first
+    /// possible element in this set.
     reverse_iterator rend() const;
-        // Return a reverse iterator indicating one position before the first
-        // possible element in this set.
 
                                   // Aspects
 
+    /// Write the value of this object, using the specified `version`
+    /// format, to the specified output `stream`, and return a reference to
+    /// `stream`.  If `stream` is initially invalid, this operation has no
+    /// effect.  If `version` is not supported, `stream` is invalidated, but
+    /// otherwise unmodified.  Note that `version` is not written to
+    /// `stream`.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object, using the specified 'version'
-        // format, to the specified output 'stream', and return a reference to
-        // 'stream'.  If 'stream' is initially invalid, this operation has no
-        // effect.  If 'version' is not supported, 'stream' is invalidated, but
-        // otherwise unmodified.  Note that 'version' is not written to
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level`, and return a
+    /// reference to `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for
+    /// this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  If `stream` is
+    /// not valid on entry, this operation has no effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level', and return a
-        // reference to 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
+    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
+    ///
+    /// Return the most current BDEX streaming version number supported by
+    /// this class.
     static int maxSupportedBdexVersion();
-        // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
-        //
-        // Return the most current BDEX streaming version number supported by
-        // this class.
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
 };
 
 // FREE OPERATORS
+
+/// Return a set containing the complement of the specified `set` (i.e.,
+/// those members *not* contained in `set`).
 DayOfWeekSet operator~(const DayOfWeekSet& set);
-    // Return a set containing the complement of the specified 'set' (i.e.,
-    // those members *not* contained in 'set').
 
+/// Return a set containing the union of the specified `lhs` and `rhs` sets
+/// (i.e., a set containing elements that are in either `lhs` or `rhs` or
+/// both).
 DayOfWeekSet operator|(const DayOfWeekSet& lhs, const DayOfWeekSet& rhs);
-    // Return a set containing the union of the specified 'lhs' and 'rhs' sets
-    // (i.e., a set containing elements that are in either 'lhs' or 'rhs' or
-    // both).
 
+/// Return a set containing the intersection of the specified `lhs` and
+/// `rhs` sets (i.e., a set containing elements that are in both `lhs` and
+/// `rhs`).
 DayOfWeekSet operator&(const DayOfWeekSet& lhs, const DayOfWeekSet& rhs);
-    // Return a set containing the intersection of the specified 'lhs' and
-    // 'rhs' sets (i.e., a set containing elements that are in both 'lhs' and
-    // 'rhs').
 
+/// Return a set containing the exclusive-or of the specified `lhs` and
+/// `rhs` sets (i.e., a set containing elements that are either in `lhs`,
+/// but not `rhs`, or in `rhs`, but not `lhs`).
 DayOfWeekSet operator^(const DayOfWeekSet& lhs, const DayOfWeekSet& rhs);
-    // Return a set containing the exclusive-or of the specified 'lhs' and
-    // 'rhs' sets (i.e., a set containing elements that are either in 'lhs',
-    // but not 'rhs', or in 'rhs', but not 'lhs').
 
+/// Return a set containing the subtraction of the specified `rhs` set from
+/// the specified `lhs` set (i.e., a set containing elements that are in
+/// `lhs`, but not in `rhs`).
 DayOfWeekSet operator-(const DayOfWeekSet& lhs, const DayOfWeekSet& rhs);
-    // Return a set containing the subtraction of the specified 'rhs' set from
-    // the specified 'lhs' set (i.e., a set containing elements that are in
-    // 'lhs', but not in 'rhs').
 
+/// Return `true` if the specified `lhs` and `rhs` sets have the same value,
+/// and `false` otherwise.  Two sets have the same value if they have the
+/// same length and all the elements of one set are members of the other
+/// set.
 bool operator==(const DayOfWeekSet& lhs, const DayOfWeekSet& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' sets have the same value,
-    // and 'false' otherwise.  Two sets have the same value if they have the
-    // same length and all the elements of one set are members of the other
-    // set.
 
+/// Return `true` if the specified `lhs` and `rhs` sets do not have the same
+/// value, and `false` otherwise.  Two sets do not have the same value if
+/// they differ in length or there exists an element of one set that is not
+/// a member of the other set.
 bool operator!=(const DayOfWeekSet& lhs, const DayOfWeekSet& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' sets do not have the same
-    // value, and 'false' otherwise.  Two sets do not have the same value if
-    // they differ in length or there exists an element of one set that is not
-    // a member of the other set.
 
+/// Write the specified `rhs` set to the specified output `stream` in some
+/// reasonable (single-line) format, and return a reference to `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const DayOfWeekSet& rhs);
-    // Write the specified 'rhs' set to the specified output 'stream' in some
-    // reasonable (single-line) format, and return a reference to 'stream'.
 
 // FREE FUNCTIONS
+
+/// Pass the specified `object` to the specified `hashAlg`.  This function
+/// integrates with the `bslh` modular hashing system and effectively
+/// provides a `bsl::hash` specialization for `DayOfWeekSet`.
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const DayOfWeekSet& object);
-    // Pass the specified 'object' to the specified 'hashAlg'.  This function
-    // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for 'DayOfWeekSet'.
 
 // ============================================================================
 //                            INLINE DEFINITIONS

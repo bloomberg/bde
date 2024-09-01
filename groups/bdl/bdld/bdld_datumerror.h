@@ -14,83 +14,83 @@ BSLS_IDENT("$Id$ $CSID$")
 //@SEE_ALSO: bdld_datum, bdld_datumudt
 //
 //@DESCRIPTION: This component defines a *complex-constrained* *value-semantic*
-// *attribute* class 'bdld::DatumError' representing an error code with an
+// *attribute* class `bdld::DatumError` representing an error code with an
 // optional descriptive error message.  This component holds a reference to the
-// error message that was supplied at construction.  Accessors inside 'Datum'
+// error message that was supplied at construction.  Accessors inside `Datum`
 // class that need to return an error value, return an instance of
-// 'DatumError'.
+// `DatumError`.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic 'DatumError' usage
+///Example 1: Basic `DatumError` usage
 ///- - - - - - - - - - - - - - - - - -
 // Suppose we need a function to verify if newly created password meets basic
 // security requirements.  Password must contain at least one uppercase letter,
 // one lowercase letter, one numeral and one special symbol.  The following
-// code illustrates how to use 'bdld::DatumError' to notify user about
+// code illustrates how to use `bdld::DatumError` to notify user about
 // password weaknesses.
 //
 // First, we need to write a verification function:
-//..
-//  bdld::DatumError verifyNewPassword(const char *password)
-//      // Verify if specified 'password' meets basic security requirements.
-//  {
-//      bool uppercasePresence     = false;
-//      bool lowercasePresence     = false;
-//      bool numeralPresence       = false;
-//      bool specialSymbolPresence = false;
-//..
+// ```
+// bdld::DatumError verifyNewPassword(const char *password)
+//     // Verify if specified 'password' meets basic security requirements.
+// {
+//     bool uppercasePresence     = false;
+//     bool lowercasePresence     = false;
+//     bool numeralPresence       = false;
+//     bool specialSymbolPresence = false;
+// ```
 // Passed string analysis:
-//..
-//      while (*password) {
-//          if (*password >= 'A' && *password <= 'Z') {
-//              uppercasePresence = true;
-//          }
-//          if (*password >= 'a' && *password <= 'z') {
-//              lowercasePresence = true;
-//          }
-//          if (*password >= '0' && *password <= '9') {
-//              numeralPresence = true;
-//          }
-//          if (*password >= '!' && *password <= '.') {
-//              specialSymbolPresence = true;
-//          }
-//          ++password;
-//      }
-//..
+// ```
+//     while (*password) {
+//         if (*password >= 'A' && *password <= 'Z') {
+//             uppercasePresence = true;
+//         }
+//         if (*password >= 'a' && *password <= 'z') {
+//             lowercasePresence = true;
+//         }
+//         if (*password >= '0' && *password <= '9') {
+//             numeralPresence = true;
+//         }
+//         if (*password >= '!' && *password <= '.') {
+//             specialSymbolPresence = true;
+//         }
+//         ++password;
+//     }
+// ```
 // Result compilation:
-//..
-//      bdld::DatumError result;
+// ```
+//     bdld::DatumError result;
 //
-//      if (!uppercasePresence) {
-//          result = bdld::DatumError(1, bslstl::StringRef("Uppercase"));
-//      } else if (!lowercasePresence) {
-//          result = bdld::DatumError(2, bslstl::StringRef("Lowercase"));
-//      } else if (!numeralPresence) {
-//          result = bdld::DatumError(3, bslstl::StringRef("Numeral"));
-//      } else if (!specialSymbolPresence) {
-//          result = bdld::DatumError(4, bslstl::StringRef("Special"));
-//      }
+//     if (!uppercasePresence) {
+//         result = bdld::DatumError(1, bslstl::StringRef("Uppercase"));
+//     } else if (!lowercasePresence) {
+//         result = bdld::DatumError(2, bslstl::StringRef("Lowercase"));
+//     } else if (!numeralPresence) {
+//         result = bdld::DatumError(3, bslstl::StringRef("Numeral"));
+//     } else if (!specialSymbolPresence) {
+//         result = bdld::DatumError(4, bslstl::StringRef("Special"));
+//     }
 //
-//      return result;
-//  }
-//..
+//     return result;
+// }
+// ```
 // Next, we need to create password for verification and call our function:
-//..
-//  bdld::DatumError error = verifyNewPassword("Test");
-//..
+// ```
+// bdld::DatumError error = verifyNewPassword("Test");
+// ```
 // Then, check the results:
-//..
-//  assert(bdld::DatumError() != error);
-//  assert(3                  == error.code());
-//..
+// ```
+// assert(bdld::DatumError() != error);
+// assert(3                  == error.code());
+// ```
 // Finally, we can print the result to the output stream:
-//..
-//  ostringstream out;
-//  error.print(out);
-//..
+// ```
+// ostringstream out;
+// error.print(out);
+// ```
 
 #include <bdlscm_version.h>
 
@@ -110,11 +110,12 @@ namespace bdld {
                                // ================
                                // class DatumError
                                // ================
+
+/// This component `class` provides a *complex constrained* attribute type,
+/// `bdld::DatumError`, that represents an error code with an optional
+/// descriptive error message.  Note that this class holds a reference to
+/// the error message and does not make a copy of it.
 class DatumError {
-    // This component 'class' provides a *complex constrained* attribute type,
-    // 'bdld::DatumError', that represents an error code with an optional
-    // descriptive error message.  Note that this class holds a reference to
-    // the error message and does not make a copy of it.
 
   private:
     // DATA
@@ -127,18 +128,19 @@ class DatumError {
     BSLMF_NESTED_TRAIT_DECLARATION(DatumError, bdlb::HasPrintMethod);
 
     // CREATORS
+
+    /// Create a `DatumError` object having the default error code of 0 and
+    /// an empty error message.
     DatumError();
-        // Create a 'DatumError' object having the default error code of 0 and
-        // an empty error message.
 
+    /// Create a `DatumError` object having the specified error `code` value
+    /// and and empty error message.
     explicit DatumError(int code);
-        // Create a 'DatumError' object having the specified error 'code' value
-        // and and empty error message.
 
+    /// Create a `DatumError` object having the specified error `code` value
+    /// and the specified error `message` value.  Note that the `message` is
+    /// held by the reference and not copied.
     DatumError(int code, const bslstl::StringRef& message);
-        // Create a 'DatumError' object having the specified error 'code' value
-        // and the specified error 'message' value.  Note that the 'message' is
-        // held by the reference and not copied.
 
     //! DatumError(const DatumError& origin) = default;
     //! ~DatumError() = default;
@@ -147,94 +149,96 @@ class DatumError {
     //! DatumError& operator=(const DatumError& rhs) = default;
 
     // ACCESSORS
+
+    /// Return the error code.
     int code() const;
-        // Return the error code.
 
+    /// Return a reference to the non-modifyable error message.  The
+    /// returned reference remains valid as long as the underlying message
+    /// is not modified or destroyed -- irrespective of the state (or
+    /// existence) of this object.  The behavior is undefined unless the
+    /// underlying error message has been modified or destroyed since this
+    /// object was created.
     bslstl::StringRef message() const;
-        // Return a reference to the non-modifyable error message.  The
-        // returned reference remains valid as long as the underlying message
-        // is not modified or destroyed -- irrespective of the state (or
-        // existence) of this object.  The behavior is undefined unless the
-        // underlying error message has been modified or destroyed since this
-        // object was created.
 
+    /// Write the value of this object to the specified output `stream` in a
+    /// human-readable format, and return a reference to the modifyable
+    /// `stream`.  Optionally specify an initial indentation `level`, whose
+    /// absolute value is incremented recursively for nested objects.  If
+    /// `level` is specified, optionally specify `spacesPerLevel`, whose
+    /// absolute value indicates the number of spaces per indentation level
+    /// for this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, suppress all but the initial indentation (as governed by
+    /// `level`).  For readability the entire output is formatted on one
+    /// line, regardless of the `spacesPerLevel` value. If `stream` is not
+    /// valid on entry, this operation has no effect.  Note that this
+    /// human-readable format is not fully specified, and can change without
+    /// notice.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in a
-        // human-readable format, and return a reference to the modifyable
-        // 'stream'.  Optionally specify an initial indentation 'level', whose
-        // absolute value is incremented recursively for nested objects.  If
-        // 'level' is specified, optionally specify 'spacesPerLevel', whose
-        // absolute value indicates the number of spaces per indentation level
-        // for this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, suppress all but the initial indentation (as governed by
-        // 'level').  For readability the entire output is formatted on one
-        // line, regardless of the 'spacesPerLevel' value. If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that this
-        // human-readable format is not fully specified, and can change without
-        // notice.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` have the same value and
+/// `false` otherwise.  Two `DatumError` objects have the same value if they
+/// have same error code and message values.
 bool operator==(const DatumError& lhs, const DatumError& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' have the same value and
-    // 'false' otherwise.  Two 'DatumError' objects have the same value if they
-    // have same error code and message values.
 
+/// Return `true` if the specified `lhs` and `rhs` have different values and
+/// `false` otherwise.  Two `DatumError` objects have different values if
+/// they have different error code or message values.
 bool operator!=(const DatumError& lhs, const DatumError& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' have different values and
-    // 'false' otherwise.  Two 'DatumError' objects have different values if
-    // they have different error code or message values.
 
+/// Return `true` if value of the specified `lhs` is less than value of the
+/// specified `rhs` and `false` otherwise.  Value of `lhs` is less than
+/// value of `rhs` if error code value of `lhs` is less than error code
+/// value of `rhs`, or they have the same error code value and error message
+/// value of `lhs` is less than error message value of `rhs`.
 bool operator<(const DatumError& lhs, const DatumError& rhs);
-    // Return 'true' if value of the specified 'lhs' is less than value of the
-    // specified 'rhs' and 'false' otherwise.  Value of 'lhs' is less than
-    // value of 'rhs' if error code value of 'lhs' is less than error code
-    // value of 'rhs', or they have the same error code value and error message
-    // value of 'lhs' is less than error message value of 'rhs'.
 
+/// Return `true` if value of the specified `lhs` is less than or equal to
+/// value of the specified `rhs` and `false` otherwise.  Value of `lhs` is
+/// less than or equal to value of `rhs` if error code value of `lhs` is
+/// less than or equal to error code value of `rhs`, or they have the same
+/// error code value and error message value of `lhs` is less than or equal
+/// to error message value of `rhs`.
 bool operator<=(const DatumError& lhs, const DatumError& rhs);
-    // Return 'true' if value of the specified 'lhs' is less than or equal to
-    // value of the specified 'rhs' and 'false' otherwise.  Value of 'lhs' is
-    // less than or equal to value of 'rhs' if error code value of 'lhs' is
-    // less than or equal to error code value of 'rhs', or they have the same
-    // error code value and error message value of 'lhs' is less than or equal
-    // to error message value of 'rhs'.
 
+/// Return `true` if value of the specified `lhs` is greater than value of
+/// the specified `rhs` and `false` otherwise.  Value of `lhs` is greater
+/// than value of `rhs` if error code value of `lhs` is greater than error
+/// code value of `rhs`, or they have the same error code value and error
+/// message value of `lhs` is greater than error message value of `rhs`.
 bool operator>(const DatumError& lhs, const DatumError& rhs);
-    // Return 'true' if value of the specified 'lhs' is greater than value of
-    // the specified 'rhs' and 'false' otherwise.  Value of 'lhs' is greater
-    // than value of 'rhs' if error code value of 'lhs' is greater than error
-    // code value of 'rhs', or they have the same error code value and error
-    // message value of 'lhs' is greater than error message value of 'rhs'.
 
+/// Return `true` if value of the specified `lhs` is greater than or equal
+/// to value of the specified `rhs` and `false` otherwise.  Value of `lhs`
+/// is greater than or equal to value of `rhs` if error code value of `lhs`
+/// is greater than or equal to error code value of `rhs`, or they have the
+/// same error code value and error message value of `lhs` is greater than
+/// or equal to error message value of `rhs`.
 bool operator>=(const DatumError& lhs, const DatumError& rhs);
-    // Return 'true' if value of the specified 'lhs' is greater than or equal
-    // to value of the specified 'rhs' and 'false' otherwise.  Value of 'lhs'
-    // is greater than or equal to value of 'rhs' if error code value of 'lhs'
-    // is greater than or equal to error code value of 'rhs', or they have the
-    // same error code value and error message value of 'lhs' is greater than
-    // or equal to error message value of 'rhs'.
 
+/// Write the value of the specified `rhs` object to the specified output
+/// `stream` in a single-line format, and return a reference to the
+/// modifyable `stream`.  If `stream` is not valid on entry, this operation
+/// has no effect.  Note that this human-readable format is not fully
+/// specified, can change without notice, and is logically equivalent to:
+/// ```
+/// print(stream, 0, -1);
+/// ```
+/// Single line output format for the `DatumError` object is shown below:
+/// ```
+/// error(n)
+/// error(n,'msg')
+/// ```
+/// (where n is the integer error code value and `msg` is the error message
+/// value in single quotes).  Note that the first version will be output if
+/// there is no error message string.
 bsl::ostream& operator<<(bsl::ostream& stream, const DatumError& rhs);
-    // Write the value of the specified 'rhs' object to the specified output
-    // 'stream' in a single-line format, and return a reference to the
-    // modifyable 'stream'.  If 'stream' is not valid on entry, this operation
-    // has no effect.  Note that this human-readable format is not fully
-    // specified, can change without notice, and is logically equivalent to:
-    //..
-    //  print(stream, 0, -1);
-    //..
-    // Single line output format for the 'DatumError' object is shown below:
-    //..
-    //  error(n)
-    //  error(n,'msg')
-    //..
-    // (where n is the integer error code value and 'msg' is the error message
-    // value in single quotes).  Note that the first version will be output if
-    // there is no error message string.
 
 // ============================================================================
 //                               INLINE DEFINITIONS

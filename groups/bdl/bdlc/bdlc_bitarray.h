@@ -10,422 +10,422 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlc::BitArray: vector-like, sequential container of boolean values
 //
-//@DESCRIPTION: This component implements 'bdlc::BitArray', an efficient
+//@DESCRIPTION: This component implements `bdlc::BitArray`, an efficient
 // value-semantic, sequential container of boolean values (i.e., 0 or 1) of
-// type 'bool'.  A 'BitArray' may be thought of as an arbitrary-precision
-// 'unsigned int'.  This metaphor is used to motivate the rich set of "bitwise"
-// operations on 'BitArray' objects provided by this component, as well as the
+// type `bool`.  A `BitArray` may be thought of as an arbitrary-precision
+// `unsigned int`.  This metaphor is used to motivate the rich set of "bitwise"
+// operations on `BitArray` objects provided by this component, as well as the
 // notion of "zero extension" of a (shorter) bit array during binary operations
 // on bit arrays having lengths that are not the same.
 //
 ///Bit-Array-Specific Functionality
 ///--------------------------------
 // In addition to many typical vector-like container methods, this component
-// supports "boolean" functionality unique to 'BitArray'.  However, unlike
-// other standard container types such as 'bsl::bitset', there is no
-// 'operator[](bsl::size_t index)' that returns a reference to a (modifiable)
+// supports "boolean" functionality unique to `BitArray`.  However, unlike
+// other standard container types such as `bsl::bitset`, there is no
+// `operator[](bsl::size_t index)` that returns a reference to a (modifiable)
 // boolean element at the specified index position.  This difference is due to
 // the densely-packed internal representation of bits within bit arrays:
-//..
-//  bdlc::BitArray mA(128);
-//  assert(0 == mA[13]);             // Ok
-//  mA[13] = 'false';                // Error -- 'mA[13]' is not an lvalue.
-//  mA.assign(13, 1);                // Ok
+// ```
+// bdlc::BitArray mA(128);
+// assert(0 == mA[13]);             // Ok
+// mA[13] = 'false';                // Error -- 'mA[13]' is not an lvalue.
+// mA.assign(13, 1);                // Ok
 //
-//  const bdlc::BitArray& A = mA;    // Ok
-//  assert(1 == A[13]);              // Ok
-//  const bool *bp  = &A[13]         // Error -- 'A[13]' is not an lvalue.
-//  const bool  bit = A[13];         // Ok
-//..
-// Also note that there is no 'data' method returning a contiguous sequence of
-// 'bool'.
+// const bdlc::BitArray& A = mA;    // Ok
+// assert(1 == A[13]);              // Ok
+// const bool *bp  = &A[13]         // Error -- 'A[13]' is not an lvalue.
+// const bool  bit = A[13];         // Ok
+// ```
+// Also note that there is no `data` method returning a contiguous sequence of
+// `bool`.
 //
 // Finally note that, wherever an argument of non-boolean type -- e.g., the
-// literal '5' (of type 'int') -- is used in a 'BitArray' method to specify a
+// literal `5` (of type `int`) -- is used in a `BitArray` method to specify a
 // boolean (bit) value, every non-zero value is automatically converted (via a
-// standard conversion) to a 'bool' value 'true', before the method of the
-// 'BitArray' is invoked:
-//..
-//  bdlc::BitArray a(10);
-//  assert(0 == a[5]);
-//  a.assign(5, 24);            // Ok -- non-boolean value converted to 'true'.
-//  assert(1 == a[5]);
-//..
+// standard conversion) to a `bool` value `true`, before the method of the
+// `BitArray` is invoked:
+// ```
+// bdlc::BitArray a(10);
+// assert(0 == a[5]);
+// a.assign(5, 24);            // Ok -- non-boolean value converted to 'true'.
+// assert(1 == a[5]);
+// ```
 //
 ///Performance and Exception-Safety Guarantees
 ///-------------------------------------------
 // The asymptotic worst-case performance of representative operations is
-// characterized using big-O notation, 'O[f(N,M)]', where 'N' and 'M' refer to
-// the number of respective bits (i.e., 'length') of arrays 'X' and 'Y',
-// respectively.  Here, *Amortized* *Case* complexity, denoted by 'A[f(N)]', is
-// defined as the average of 'N' successive invocations, as 'N' gets very
+// characterized using big-O notation, `O[f(N,M)]`, where `N` and `M` refer to
+// the number of respective bits (i.e., `length`) of arrays `X` and `Y`,
+// respectively.  Here, *Amortized* *Case* complexity, denoted by `A[f(N)]`, is
+// defined as the average of `N` successive invocations, as `N` gets very
 // large.
-//..
-//                                        Average   Exception-Safety
-//  Operation                Worst Case    Case        Guarantee
-//  ---------                ----------   -------   ----------------
-//  DEFAULT CTOR             O[1]                   No-Throw
-//  COPY CTOR(Y)             O[M]                   Exception Safe
+// ```
+//                                       Average   Exception-Safety
+// Operation                Worst Case    Case        Guarantee
+// ---------                ----------   -------   ----------------
+// DEFAULT CTOR             O[1]                   No-Throw
+// COPY CTOR(Y)             O[M]                   Exception Safe
 //
-//  X.DTOR()                 O[1]                   No-Throw
+// X.DTOR()                 O[1]                   No-Throw
 //
-//  X.OP=(Y)                 O[M]                   Basic <*>
-//  X.insert(index, value)   O[N]                   Basic <*>
+// X.OP=(Y)                 O[M]                   Basic <*>
+// X.insert(index, value)   O[N]                   Basic <*>
 //
-//  X.reserveCapacity(M)     O[N]                   Strong <*>
-//  X.append(value)          O[N]         A[1]      Strong <*>
+// X.reserveCapacity(M)     O[N]                   Strong <*>
+// X.append(value)          O[N]         A[1]      Strong <*>
 //
-//  X.assign(index, value)   O[1]                   No-Throw
-//  X.assign1(value)         O[1]                   No-Throw
-//  X.assign0(value)         O[1]                   No-Throw
+// X.assign(index, value)   O[1]                   No-Throw
+// X.assign1(value)         O[1]                   No-Throw
+// X.assign0(value)         O[1]                   No-Throw
 //
-//  X.remove(index)          O[N]                   No-Throw
-//  X.assignAll0()           O[N]                   No-Throw
-//  X.assignAll1()           O[N]                   No-Throw
+// X.remove(index)          O[N]                   No-Throw
+// X.assignAll0()           O[N]                   No-Throw
+// X.assignAll1()           O[N]                   No-Throw
 //
-//  X.length()               O[1]                   No-Throw
-//  X.OP[](index)            O[1]                   No-Throw
+// X.length()               O[1]                   No-Throw
+// X.OP[](index)            O[1]                   No-Throw
 //
-//  X.isAny1                 O[N]                   No-Throw
-//  X.isAny0                 O[N]                   No-Throw
+// X.isAny1                 O[N]                   No-Throw
+// X.isAny0                 O[N]                   No-Throw
 //
-//  other 'const' methods    O[1] .. O[N]           No-Throw
+// other 'const' methods    O[1] .. O[N]           No-Throw
 //
-//  OP==(X, Y)               O[min(N, M)]           No-Throw
-//  OP!=(X, Y)               O[min(N, M)]           No-Throw
+// OP==(X, Y)               O[min(N, M)]           No-Throw
+// OP!=(X, Y)               O[min(N, M)]           No-Throw
 //
-//                <*> No-Throw guarantee when capacity is sufficient.
-//..
-// Note that *all* of the non-creator methods of 'BitArray' provide the
+//               <*> No-Throw guarantee when capacity is sufficient.
+// ```
+// Note that *all* of the non-creator methods of `BitArray` provide the
 // *No-Throw* guarantee whenever sufficient capacity is already available.
 //
 ///Usage
 ///-----
 // This section illustrates the intended use of this component.
 //
-///Example 1: Creating a 'NullableVector' Class
+///Example 1: Creating a `NullableVector` Class
 /// - - - - - - - - - - - - - - - - - - - - - -
 // An efficient implementation of an arbitrary precision bit sequence container
-// has myriad applications.  For example, a 'bdlc::BitArray' can be used
+// has myriad applications.  For example, a `bdlc::BitArray` can be used
 // effectively as a parallel array of flags indicating some special property,
-// such as 'isNull', 'isBusinessDay', etc.; its use is especially indicated
+// such as `isNull`, `isBusinessDay`, etc.; its use is especially indicated
 // when (1) the number of elements of the primary array can grow large, and (2)
 // the individual elements do not have the capacity or capability to store the
 // information directly.
 //
 // As a simple example, we'll implement a (heavily elided) value-semantic
-// template class, 'NullableVector<TYPE>', that behaves like a
-// 'bsl::vector<TYPE>' but additionally allows storing a nullness flag to
+// template class, `NullableVector<TYPE>`, that behaves like a
+// `bsl::vector<TYPE>` but additionally allows storing a nullness flag to
 // signify that the corresponding element was not specified.  Elements added to
-// a 'NullableVector' are null by default, although there are manipulator
+// a `NullableVector` are null by default, although there are manipulator
 // functions that allow appending a non-null element.  Each null element
-// stores the default value for 'TYPE'.
+// stores the default value for `TYPE`.
 //
 // Note that this class has a minimal interface (suitable for illustration
-// purpose only) that allows users to either append a (non-null) 'TYPE' value
-// or a null value.  A real 'NullableVector' class would support a complete set
+// purpose only) that allows users to either append a (non-null) `TYPE` value
+// or a null value.  A real `NullableVector` class would support a complete set
 // of *value* *semantic* operations, including copy construction, assignment,
-// equality comparison, 'ostream' printing, and BDEX serialization.  Also note
+// equality comparison, `ostream` printing, and BDEX serialization.  Also note
 // that, for simplicity, exception-neutrality is ignored (some methods are
 // clearly not exception-neutral).
 //
-// First, we define the interface of 'NullableVector':
-//..
-//  template <class TYPE>
-//  class NullableVector {
-//      // This class implements a sequential container of elements of the
-//      // template parameter 'TYPE'.
+// First, we define the interface of `NullableVector`:
+// ```
+// template <class TYPE>
+// class NullableVector {
+//     // This class implements a sequential container of elements of the
+//     // template parameter 'TYPE'.
 //
-//      // DATA
-//      bsl::vector<TYPE>  d_values;       // data elements
-//      bdlc::BitArray     d_nullFlags;    // 'true' indicates i'th element is
-//                                         // null
+//     // DATA
+//     bsl::vector<TYPE>  d_values;       // data elements
+//     bdlc::BitArray     d_nullFlags;    // 'true' indicates i'th element is
+//                                        // null
 //
-//    private:
-//      // NOT IMPLEMENTED
-//      NullableVector(const NullableVector&);
-//      NullableVector& operator=(const NullableVector&);
+//   private:
+//     // NOT IMPLEMENTED
+//     NullableVector(const NullableVector&);
+//     NullableVector& operator=(const NullableVector&);
 //
-//    public:
-//      // TRAITS
-//      BSLMF_NESTED_TRAIT_DECLARATION(NullableVector,
-//                                     bslma::UsesBslmaAllocator);
+//   public:
+//     // TRAITS
+//     BSLMF_NESTED_TRAIT_DECLARATION(NullableVector,
+//                                    bslma::UsesBslmaAllocator);
 //
-//    public:
-//      // CREATORS
-//      explicit
-//      NullableVector(bsl::size_t       initialLength,
-//                     bslma::Allocator *basicAllocator = 0);
-//          // Construct a vector having the specified 'initialLength' null
-//          // elements.  Optionally specify a 'basicAllocator' used to supply
-//          // memory.  If 'basicAllocator' is 0, the currently supplied
-//          // default allocator is used.
+//   public:
+//     // CREATORS
+//     explicit
+//     NullableVector(bsl::size_t       initialLength,
+//                    bslma::Allocator *basicAllocator = 0);
+//         // Construct a vector having the specified 'initialLength' null
+//         // elements.  Optionally specify a 'basicAllocator' used to supply
+//         // memory.  If 'basicAllocator' is 0, the currently supplied
+//         // default allocator is used.
 //
-//      // ...
+//     // ...
 //
-//      ~NullableVector();
-//          // Destroy this vector.
+//     ~NullableVector();
+//         // Destroy this vector.
 //
-//      // MANIPULATORS
-//      void appendNullElement();
-//          // Append a null element to this vector.  Note that the appended
-//          // element will have the same value as a default constructed 'TYPE'
-//          // object.
+//     // MANIPULATORS
+//     void appendNullElement();
+//         // Append a null element to this vector.  Note that the appended
+//         // element will have the same value as a default constructed 'TYPE'
+//         // object.
 //
-//      void appendElement(const TYPE& value);
-//          // Append an element having the specified 'value' to the end of
-//          // this vector.
+//     void appendElement(const TYPE& value);
+//         // Append an element having the specified 'value' to the end of
+//         // this vector.
 //
-//      void makeNonNull(bsl::size_t index);
-//          // Make the element at the specified 'index' in this vector
-//          // non-null.  The behavior is undefined unless 'index < length()'.
+//     void makeNonNull(bsl::size_t index);
+//         // Make the element at the specified 'index' in this vector
+//         // non-null.  The behavior is undefined unless 'index < length()'.
 //
-//      void makeNull(bsl::size_t index);
-//          // Make the element at the specified 'index' in this vector null.
-//          // The behavior is undefined unless 'index < length()'.  Note that
-//          // the new value of the element will be the default constructed
-//          // value for 'TYPE'.
+//     void makeNull(bsl::size_t index);
+//         // Make the element at the specified 'index' in this vector null.
+//         // The behavior is undefined unless 'index < length()'.  Note that
+//         // the new value of the element will be the default constructed
+//         // value for 'TYPE'.
 //
-//      TYPE& modifiableElement(bsl::size_t index);
-//          // Return a reference providing modifiable access to the (valid)
-//          // element at the specified 'index' in this vector.  The behavior
-//          // is undefined unless 'index < length()'.  Note that if the
-//          // element at 'index' is null then the nullness flag is reset and
-//          // the returned value is the default constructed value for 'TYPE'.
+//     TYPE& modifiableElement(bsl::size_t index);
+//         // Return a reference providing modifiable access to the (valid)
+//         // element at the specified 'index' in this vector.  The behavior
+//         // is undefined unless 'index < length()'.  Note that if the
+//         // element at 'index' is null then the nullness flag is reset and
+//         // the returned value is the default constructed value for 'TYPE'.
 //
-//      void removeElement(bsl::size_t index);
-//          // Remove the element at the specified 'index' in this vector.  The
-//          // behavior is undefined unless 'index < length()'.
+//     void removeElement(bsl::size_t index);
+//         // Remove the element at the specified 'index' in this vector.  The
+//         // behavior is undefined unless 'index < length()'.
 //
-//      // ACCESSORS
-//      const TYPE& constElement(bsl::size_t index) const;
-//          // Return a reference providing non-modifiable access to the
-//          // element at the specified 'index' in this vector.  The behavior
-//          // is undefined unless 'index < length()'.  Note that if the
-//          // element at 'index' is null then the nullness flag is not reset
-//          // and the returned value is the default constructed value for
-//          // 'TYPE'.
+//     // ACCESSORS
+//     const TYPE& constElement(bsl::size_t index) const;
+//         // Return a reference providing non-modifiable access to the
+//         // element at the specified 'index' in this vector.  The behavior
+//         // is undefined unless 'index < length()'.  Note that if the
+//         // element at 'index' is null then the nullness flag is not reset
+//         // and the returned value is the default constructed value for
+//         // 'TYPE'.
 //
-//      bool isAnyElementNonNull() const;
-//          // Return 'true' if any element in this vector is non-null, and
-//          // 'false' otherwise.
+//     bool isAnyElementNonNull() const;
+//         // Return 'true' if any element in this vector is non-null, and
+//         // 'false' otherwise.
 //
-//      bool isAnyElementNull() const;
-//          // Return 'true' if any element in this vector is null, and 'false'
-//          // otherwise.
+//     bool isAnyElementNull() const;
+//         // Return 'true' if any element in this vector is null, and 'false'
+//         // otherwise.
 //
-//      bool isElementNull(bsl::size_t index) const;
-//          // Return 'true' if the element at the specified 'index' in this
-//          // vector is null, and 'false' otherwise.  The behavior is
-//          // undefined unless 'index < length()'.
+//     bool isElementNull(bsl::size_t index) const;
+//         // Return 'true' if the element at the specified 'index' in this
+//         // vector is null, and 'false' otherwise.  The behavior is
+//         // undefined unless 'index < length()'.
 //
-//      bsl::size_t length() const;
-//          // Return the number of elements in this vector.
+//     bsl::size_t length() const;
+//         // Return the number of elements in this vector.
 //
-//      bsl::size_t numNullElements() const;
-//          // Return the number of null elements in this vector.
-//  };
-//..
+//     bsl::size_t numNullElements() const;
+//         // Return the number of null elements in this vector.
+// };
+// ```
 // Then, we implement, in turn, each of the methods declared above:
-//..
-//                   // --------------------
-//                   // class NullableVector
-//                   // --------------------
+// ```
+//                  // --------------------
+//                  // class NullableVector
+//                  // --------------------
 //
-//  // CREATORS
-//  template <class TYPE>
-//  NullableVector<TYPE>::NullableVector(bsl::size_t       initialLength,
-//                                       bslma::Allocator *basicAllocator)
-//  : d_values(initialLength, TYPE(), basicAllocator)
-//  , d_nullFlags(initialLength, true, basicAllocator)
-//  {
-//  }
+// // CREATORS
+// template <class TYPE>
+// NullableVector<TYPE>::NullableVector(bsl::size_t       initialLength,
+//                                      bslma::Allocator *basicAllocator)
+// : d_values(initialLength, TYPE(), basicAllocator)
+// , d_nullFlags(initialLength, true, basicAllocator)
+// {
+// }
 //
-//  template <class TYPE>
-//  NullableVector<TYPE>::~NullableVector()
-//  {
-//      BSLS_ASSERT(d_values.size() == d_nullFlags.length());
-//  }
+// template <class TYPE>
+// NullableVector<TYPE>::~NullableVector()
+// {
+//     BSLS_ASSERT(d_values.size() == d_nullFlags.length());
+// }
 //
-//  // MANIPULATORS
-//  template <class TYPE>
-//  inline
-//  void NullableVector<TYPE>::appendElement(const TYPE& value)
-//  {
-//      d_values.push_back(value);
-//      d_nullFlags.append(false);
-//  }
+// // MANIPULATORS
+// template <class TYPE>
+// inline
+// void NullableVector<TYPE>::appendElement(const TYPE& value)
+// {
+//     d_values.push_back(value);
+//     d_nullFlags.append(false);
+// }
 //
-//  template <class TYPE>
-//  inline
-//  void NullableVector<TYPE>::appendNullElement()
-//  {
-//      d_values.push_back(TYPE());
-//      d_nullFlags.append(true);
-//  }
+// template <class TYPE>
+// inline
+// void NullableVector<TYPE>::appendNullElement()
+// {
+//     d_values.push_back(TYPE());
+//     d_nullFlags.append(true);
+// }
 //
-//  template <class TYPE>
-//  inline
-//  void NullableVector<TYPE>::makeNonNull(bsl::size_t index)
-//  {
-//      BSLS_ASSERT_SAFE(index < length());
+// template <class TYPE>
+// inline
+// void NullableVector<TYPE>::makeNonNull(bsl::size_t index)
+// {
+//     BSLS_ASSERT_SAFE(index < length());
 //
-//      d_nullFlags.assign(index, false);
-//  }
+//     d_nullFlags.assign(index, false);
+// }
 //
-//  template <class TYPE>
-//  inline
-//  void NullableVector<TYPE>::makeNull(bsl::size_t index)
-//  {
-//      BSLS_ASSERT_SAFE(index < length());
+// template <class TYPE>
+// inline
+// void NullableVector<TYPE>::makeNull(bsl::size_t index)
+// {
+//     BSLS_ASSERT_SAFE(index < length());
 //
-//      d_values[index] = TYPE();
-//      d_nullFlags.assign(index, true);
-//  }
+//     d_values[index] = TYPE();
+//     d_nullFlags.assign(index, true);
+// }
 //
-//  template <class TYPE>
-//  inline
-//  TYPE& NullableVector<TYPE>::modifiableElement(bsl::size_t index)
-//  {
-//      BSLS_ASSERT_SAFE(index < length());
+// template <class TYPE>
+// inline
+// TYPE& NullableVector<TYPE>::modifiableElement(bsl::size_t index)
+// {
+//     BSLS_ASSERT_SAFE(index < length());
 //
-//      d_nullFlags.assign(index, false);
-//      return d_values[index];
-//  }
+//     d_nullFlags.assign(index, false);
+//     return d_values[index];
+// }
 //
-//  template <class TYPE>
-//  inline
-//  void NullableVector<TYPE>::removeElement(bsl::size_t index)
-//  {
-//      BSLS_ASSERT_SAFE(index < length());
+// template <class TYPE>
+// inline
+// void NullableVector<TYPE>::removeElement(bsl::size_t index)
+// {
+//     BSLS_ASSERT_SAFE(index < length());
 //
-//      d_values.erase(d_values.begin() + index);
-//      d_nullFlags.remove(index);
-//  }
+//     d_values.erase(d_values.begin() + index);
+//     d_nullFlags.remove(index);
+// }
 //
-//  // ACCESSORS
-//  template <class TYPE>
-//  inline
-//  const TYPE& NullableVector<TYPE>::constElement(bsl::size_t index) const
-//  {
-//      BSLS_ASSERT_SAFE(index < length());
+// // ACCESSORS
+// template <class TYPE>
+// inline
+// const TYPE& NullableVector<TYPE>::constElement(bsl::size_t index) const
+// {
+//     BSLS_ASSERT_SAFE(index < length());
 //
-//      return d_values[index];
-//  }
+//     return d_values[index];
+// }
 //
-//  template <class TYPE>
-//  inline
-//  bool NullableVector<TYPE>::isAnyElementNonNull() const
-//  {
-//      return d_nullFlags.isAny0();
-//  }
+// template <class TYPE>
+// inline
+// bool NullableVector<TYPE>::isAnyElementNonNull() const
+// {
+//     return d_nullFlags.isAny0();
+// }
 //
-//  template <class TYPE>
-//  inline
-//  bool NullableVector<TYPE>::isAnyElementNull() const
-//  {
-//      return d_nullFlags.isAny1();
-//  }
+// template <class TYPE>
+// inline
+// bool NullableVector<TYPE>::isAnyElementNull() const
+// {
+//     return d_nullFlags.isAny1();
+// }
 //
-//  template <class TYPE>
-//  inline
-//  bool NullableVector<TYPE>::isElementNull(bsl::size_t index) const
-//  {
-//      BSLS_ASSERT_SAFE(index < length());
+// template <class TYPE>
+// inline
+// bool NullableVector<TYPE>::isElementNull(bsl::size_t index) const
+// {
+//     BSLS_ASSERT_SAFE(index < length());
 //
-//      return d_nullFlags[index];
-//  }
+//     return d_nullFlags[index];
+// }
 //
-//  template <class TYPE>
-//  inline
-//  bsl::size_t NullableVector<TYPE>::length() const
-//  {
-//      return d_values.size();
-//  }
+// template <class TYPE>
+// inline
+// bsl::size_t NullableVector<TYPE>::length() const
+// {
+//     return d_values.size();
+// }
 //
-//  template <class TYPE>
-//  inline
-//  bsl::size_t NullableVector<TYPE>::numNullElements() const
-//  {
-//      return d_nullFlags.num1();
-//  }
-//..
-// Next, we create an empty 'NullableVector':
-//..
-//  NullableVector<int>        array(0);
-//  const NullableVector<int>& ARRAY       = array;
-//  const int                  DEFAULT_INT = 0;
+// template <class TYPE>
+// inline
+// bsl::size_t NullableVector<TYPE>::numNullElements() const
+// {
+//     return d_nullFlags.num1();
+// }
+// ```
+// Next, we create an empty `NullableVector`:
+// ```
+// NullableVector<int>        array(0);
+// const NullableVector<int>& ARRAY       = array;
+// const int                  DEFAULT_INT = 0;
 //
-//  assert(0       == ARRAY.length());
-//  assert(0       == ARRAY.numNullElements());
-//  assert(false   == ARRAY.isAnyElementNonNull());
-//  assert(false   == ARRAY.isAnyElementNull());
-//..
+// assert(0       == ARRAY.length());
+// assert(0       == ARRAY.numNullElements());
+// assert(false   == ARRAY.isAnyElementNonNull());
+// assert(false   == ARRAY.isAnyElementNull());
+// ```
 // Then, we append a non-null element to it:
-//..
-//  array.appendElement(5);
-//  assert(1       == ARRAY.length());
-//  assert(5       == ARRAY.constElement(0));
-//  assert(false   == ARRAY.isElementNull(0));
-//  assert(0       == ARRAY.numNullElements());
-//  assert(true    == ARRAY.isAnyElementNonNull());
-//  assert(false   == ARRAY.isAnyElementNull());
-//..
+// ```
+// array.appendElement(5);
+// assert(1       == ARRAY.length());
+// assert(5       == ARRAY.constElement(0));
+// assert(false   == ARRAY.isElementNull(0));
+// assert(0       == ARRAY.numNullElements());
+// assert(true    == ARRAY.isAnyElementNonNull());
+// assert(false   == ARRAY.isAnyElementNull());
+// ```
 // Next, we append a null element:
-//..
-//  array.appendNullElement();
-//  assert(2           == ARRAY.length());
-//  assert(5           == ARRAY.constElement(0));
-//  assert(DEFAULT_INT == ARRAY.constElement(1));
-//  assert(false       == ARRAY.isElementNull(0));
-//  assert(true        == ARRAY.isElementNull(1));
-//  assert(1           == ARRAY.numNullElements());
-//  assert(true        == ARRAY.isAnyElementNonNull());
-//  assert(true        == ARRAY.isAnyElementNull());
-//..
+// ```
+// array.appendNullElement();
+// assert(2           == ARRAY.length());
+// assert(5           == ARRAY.constElement(0));
+// assert(DEFAULT_INT == ARRAY.constElement(1));
+// assert(false       == ARRAY.isElementNull(0));
+// assert(true        == ARRAY.isElementNull(1));
+// assert(1           == ARRAY.numNullElements());
+// assert(true        == ARRAY.isAnyElementNonNull());
+// assert(true        == ARRAY.isAnyElementNull());
+// ```
 // Then, we make the null element non-null:
-//..
-//  array.makeNonNull(1);
-//  assert(2           == ARRAY.length());
-//  assert(5           == ARRAY.constElement(0));
-//  assert(DEFAULT_INT == ARRAY.constElement(1));
-//  assert(false       == ARRAY.isElementNull(0));
-//  assert(false       == ARRAY.isElementNull(1));
-//  assert(0           == ARRAY.numNullElements());
-//  assert(true        == ARRAY.isAnyElementNonNull());
-//  assert(false       == ARRAY.isAnyElementNull());
-//..
+// ```
+// array.makeNonNull(1);
+// assert(2           == ARRAY.length());
+// assert(5           == ARRAY.constElement(0));
+// assert(DEFAULT_INT == ARRAY.constElement(1));
+// assert(false       == ARRAY.isElementNull(0));
+// assert(false       == ARRAY.isElementNull(1));
+// assert(0           == ARRAY.numNullElements());
+// assert(true        == ARRAY.isAnyElementNonNull());
+// assert(false       == ARRAY.isAnyElementNull());
+// ```
 // Next, we make the first element null:
-//..
-//  array.makeNull(0);
-//  assert(2           == ARRAY.length());
-//  assert(DEFAULT_INT == ARRAY.constElement(0));
-//  assert(DEFAULT_INT == ARRAY.constElement(1));
-//  assert(true        == ARRAY.isElementNull(0));
-//  assert(false       == ARRAY.isElementNull(1));
-//  assert(1           == ARRAY.numNullElements());
-//  assert(true        == ARRAY.isAnyElementNonNull());
-//  assert(true        == ARRAY.isAnyElementNull());
-//..
+// ```
+// array.makeNull(0);
+// assert(2           == ARRAY.length());
+// assert(DEFAULT_INT == ARRAY.constElement(0));
+// assert(DEFAULT_INT == ARRAY.constElement(1));
+// assert(true        == ARRAY.isElementNull(0));
+// assert(false       == ARRAY.isElementNull(1));
+// assert(1           == ARRAY.numNullElements());
+// assert(true        == ARRAY.isAnyElementNonNull());
+// assert(true        == ARRAY.isAnyElementNull());
+// ```
 // Now, we remove the front element:
-//..
-//  array.removeElement(0);
-//  assert(1           == ARRAY.length());
-//  assert(DEFAULT_INT == ARRAY.constElement(0));
-//  assert(false       == ARRAY.isElementNull(0));
-//  assert(0           == ARRAY.numNullElements());
-//  assert(true        == ARRAY.isAnyElementNonNull());
-//  assert(false       == ARRAY.isAnyElementNull());
-//..
+// ```
+// array.removeElement(0);
+// assert(1           == ARRAY.length());
+// assert(DEFAULT_INT == ARRAY.constElement(0));
+// assert(false       == ARRAY.isElementNull(0));
+// assert(0           == ARRAY.numNullElements());
+// assert(true        == ARRAY.isAnyElementNonNull());
+// assert(false       == ARRAY.isAnyElementNull());
+// ```
 // Finally, we remove the last remaining element and observe that the object is
 // empty again:
-//..
-//  array.removeElement(0);
-//  assert(0       == ARRAY.length());
-//  assert(0       == ARRAY.numNullElements());
-//  assert(false   == ARRAY.isAnyElementNonNull());
-//  assert(false   == ARRAY.isAnyElementNull());
-//..
+// ```
+// array.removeElement(0);
+// assert(0       == ARRAY.length());
+// assert(0       == ARRAY.numNullElements());
+// assert(false   == ARRAY.isAnyElementNonNull());
+// assert(false   == ARRAY.isAnyElementNull());
+// ```
 
 #include <bdlscm_version.h>
 
@@ -462,17 +462,17 @@ namespace bdlc {
                                 // class BitArray
                                 // ==============
 
+/// This class implements an efficient, value-semantic array of boolean
+/// (a.k.a. bit, i.e., binary digit) values stored in contiguous memory.
+/// The physical capacity of this array may grow, but never shrinks.
+/// Capacity may be reserved initially via a constructor, or at any time
+/// thereafter by using the `reserveCapacity` method; otherwise, capacity
+/// will be increased automatically as needed.  Note that capacity is not a
+/// *salient* attribute of this object, and, as such, does not contribute to
+/// overall value.  Also note that this class provides an implicit no-throw
+/// guarantee for all methods (including manipulators) that do not attempt
+/// to alter capacity.
 class BitArray {
-    // This class implements an efficient, value-semantic array of boolean
-    // (a.k.a. bit, i.e., binary digit) values stored in contiguous memory.
-    // The physical capacity of this array may grow, but never shrinks.
-    // Capacity may be reserved initially via a constructor, or at any time
-    // thereafter by using the 'reserveCapacity' method; otherwise, capacity
-    // will be increased automatically as needed.  Note that capacity is not a
-    // *salient* attribute of this object, and, as such, does not contribute to
-    // overall value.  Also note that this class provides an implicit no-throw
-    // guarantee for all methods (including manipulators) that do not attempt
-    // to alter capacity.
 
   public:
     // PUBLIC TYPES
@@ -497,37 +497,50 @@ class BitArray {
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Return the size, in 64-bit words, of the integer array required to
+    /// store the specified `numBits`.
     static bsl::size_t arraySize(bsl::size_t numBits);
-        // Return the size, in 64-bit words, of the integer array required to
-        // store the specified 'numBits'.
 
     // PRIVATE MANIPULATORS
+
+    /// Return an address providing modifiable access to the array of
+    /// `uint64_t` values managed by this array.
     bsl::uint64_t *data();
-        // Return an address providing modifiable access to the array of
-        // 'uint64_t' values managed by this array.
 
     // PRIVATE ACCESSORS
+
+    /// Return an address providing non-modifiable access to the array of
+    /// `uint64_t` values managed by this array.
     const bsl::uint64_t *data() const;
-        // Return an address providing non-modifiable access to the array of
-        // 'uint64_t' values managed by this array.
 
   public:
     // CLASS METHODS
 
                                 // Aspects
 
+    /// Return the maximum valid BDEX format version, as indicated by the
+    /// specified `versionSelector`, to be passed to the `bdexStreamOut`
+    /// method.  Note that it is highly recommended that `versionSelector`
+    /// be formatted as "YYYYMMDD", a date representation.  Also note that
+    /// `versionSelector` should be a *compile*-time-chosen value that
+    /// selects a format version supported by both externalizer and
+    /// unexternalizer.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     static int maxSupportedBdexVersion(int versionSelector);
-        // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
-        // method.  Note that it is highly recommended that 'versionSelector'
-        // be formatted as "YYYYMMDD", a date representation.  Also note that
-        // 'versionSelector' should be a *compile*-time-chosen value that
-        // selects a format version supported by both externalizer and
-        // unexternalizer.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
     // CREATORS
+
+    /// Create an array of binary digits (bits).  By default, the array is
+    /// empty and has a capacity of 0 bits.  Optionally specify the
+    /// `initialLength` (in bits) of the array.  If `initialLength` is not
+    /// specified, the default length is 0.  If `initialLength` is
+    /// specified, optionally specify the `value` for each bit in the
+    /// `initialLength`.  If `value` is not specified, the default value for
+    /// each bit is `false` (0).  Optionally specify a `basicAllocator` used
+    /// to supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     explicit
     BitArray(bslma::Allocator *basicAllocator = 0);
     explicit
@@ -536,548 +549,544 @@ class BitArray {
     BitArray(bsl::size_t       initialLength,
              bool              value,
              bslma::Allocator *basicAllocator = 0);
-        // Create an array of binary digits (bits).  By default, the array is
-        // empty and has a capacity of 0 bits.  Optionally specify the
-        // 'initialLength' (in bits) of the array.  If 'initialLength' is not
-        // specified, the default length is 0.  If 'initialLength' is
-        // specified, optionally specify the 'value' for each bit in the
-        // 'initialLength'.  If 'value' is not specified, the default value for
-        // each bit is 'false' (0).  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create an array of binary digits (bits) having the same value as the
+    /// specified `original` array.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     BitArray(const BitArray&   original,
              bslma::Allocator *basicAllocator = 0);
-        // Create an array of binary digits (bits) having the same value as the
-        // specified 'original' array.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Destroy this object.
     ~BitArray();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this array the value of the specified `rhs` array, and
+    /// return a non-`const` reference to this array.
     BitArray& operator=(const BitArray& rhs);
-        // Assign to this array the value of the specified 'rhs' array, and
-        // return a non-'const' reference to this array.
 
+    /// Bitwise AND the value of the specified `rhs` array with the value of
+    /// this array (retaining the results), and return a non-`const`
+    /// reference to this object.  The length of the result will be the
+    /// maximum of the lengths of this object and `rhs`, where any
+    /// most-significant bits that are represented in one of the two but not
+    /// the other will be set to 0.  Note that `a &= b;` will result in the
+    /// same value of `a` as `a = a & b;`.
     BitArray& operator&=(const BitArray& rhs);
-        // Bitwise AND the value of the specified 'rhs' array with the value of
-        // this array (retaining the results), and return a non-'const'
-        // reference to this object.  The length of the result will be the
-        // maximum of the lengths of this object and 'rhs', where any
-        // most-significant bits that are represented in one of the two but not
-        // the other will be set to 0.  Note that 'a &= b;' will result in the
-        // same value of 'a' as 'a = a & b;'.
 
+    /// Bitwise MINUS the value of the specified `rhs` array from the value
+    /// of this array (retaining the results), and return a non-`const`
+    /// reference to this object.  The length of the result will be the
+    /// maximum of the lengths of this object and `rhs`.  If
+    /// `length() > rhs.length()`, the unmatched most-significant bits in
+    /// this array are left unchanged; otherwise, any high-order bits of the
+    /// result that were not present in this object prior to the operation
+    /// will be set to 0.  Note that `a -= b;` will result in the same value
+    /// of `a` as `a = a - b;` and if `a` and `b` are the same length,
+    /// `a -= b;` will result in the same value of `a` as `a &= ~b;` or
+    /// `a = a & ~b;`.
     BitArray& operator-=(const BitArray& rhs);
-        // Bitwise MINUS the value of the specified 'rhs' array from the value
-        // of this array (retaining the results), and return a non-'const'
-        // reference to this object.  The length of the result will be the
-        // maximum of the lengths of this object and 'rhs'.  If
-        // 'length() > rhs.length()', the unmatched most-significant bits in
-        // this array are left unchanged; otherwise, any high-order bits of the
-        // result that were not present in this object prior to the operation
-        // will be set to 0.  Note that 'a -= b;' will result in the same value
-        // of 'a' as 'a = a - b;' and if 'a' and 'b' are the same length,
-        // 'a -= b;' will result in the same value of 'a' as 'a &= ~b;' or
-        // 'a = a & ~b;'.
 
+    /// Bitwise OR the value of the specified `rhs` array with the value of
+    /// this array (retaining the results), and return a non-`const`
+    /// reference to this object.  If `length() > rhs.length()`, the
+    /// unmatched most-significant bits in this array are left unchanged;
+    /// otherwise, any unmatched most-significant bits in `rhs` are
+    /// propagated to the result without modification.  Note that `a |= b;`
+    /// will result in the same value of `a` as `a = a | b;`.
     BitArray& operator|=(const BitArray& rhs);
-        // Bitwise OR the value of the specified 'rhs' array with the value of
-        // this array (retaining the results), and return a non-'const'
-        // reference to this object.  If 'length() > rhs.length()', the
-        // unmatched most-significant bits in this array are left unchanged;
-        // otherwise, any unmatched most-significant bits in 'rhs' are
-        // propagated to the result without modification.  Note that 'a |= b;'
-        // will result in the same value of 'a' as 'a = a | b;'.
 
+    /// Bitwise XOR the value of the specified `rhs` array with the value of
+    /// this array (retaining the results), and return a non-`const`
+    /// reference to this object.  If `length() > rhs.length()`, the
+    /// unmatched most-significant bits in this array are left unchanged;
+    /// otherwise, any unmatched most-significant bits in `rhs` are
+    /// propagated to the result without modification.  Note that `a ^= b;`
+    /// will result in the same value of `a` as `a = a ^ b;`.
     BitArray& operator^=(const BitArray& rhs);
-        // Bitwise XOR the value of the specified 'rhs' array with the value of
-        // this array (retaining the results), and return a non-'const'
-        // reference to this object.  If 'length() > rhs.length()', the
-        // unmatched most-significant bits in this array are left unchanged;
-        // otherwise, any unmatched most-significant bits in 'rhs' are
-        // propagated to the result without modification.  Note that 'a ^= b;'
-        // will result in the same value of 'a' as 'a = a ^ b;'.
 
+    /// Shift the bits in this array LEFT by the specified `numBits`,
+    /// filling lower-order bits with zeros (retaining the results), and
+    /// return a non-`const` reference to this object.  The behavior is
+    /// undefined unless `numBits <= length()`.  Note that the length of
+    /// this array is unchanged and the highest-order `numBits` are
+    /// discarded.
     BitArray& operator<<=(bsl::size_t numBits);
-        // Shift the bits in this array LEFT by the specified 'numBits',
-        // filling lower-order bits with zeros (retaining the results), and
-        // return a non-'const' reference to this object.  The behavior is
-        // undefined unless 'numBits <= length()'.  Note that the length of
-        // this array is unchanged and the highest-order 'numBits' are
-        // discarded.
 
+    /// Shift the bits in this array RIGHT by the specified `numBits`,
+    /// filling higher-order bits with zeros and discarding low-order bits,
+    /// and return a non-`const` reference to this object.  The behavior is
+    /// undefined unless `numBits <= length()`.  Note that the length of
+    /// this array is unchanged.
     BitArray& operator>>=(bsl::size_t numBits);
-        // Shift the bits in this array RIGHT by the specified 'numBits',
-        // filling higher-order bits with zeros and discarding low-order bits,
-        // and return a non-'const' reference to this object.  The behavior is
-        // undefined unless 'numBits <= length()'.  Note that the length of
-        // this array is unchanged.
 
+    /// AND the bit at the specified `index` in this array with the
+    /// specified `value` (retaining the result).  The behavior is undefined
+    /// unless `index < length()`.
     void andEqual(bsl::size_t index, bool value);
-        // AND the bit at the specified 'index' in this array with the
-        // specified 'value' (retaining the result).  The behavior is undefined
-        // unless 'index < length()'.
 
+    /// Bitwise AND the specified `numBits` in this array, beginning at the
+    /// specified `dstIndex`, with values from the specified `srcArray`,
+    /// beginning at the specified `srcIndex` (retaining the results).  The
+    /// behavior is undefined unless `dstIndex + numBits <= length()` and
+    /// `srcIndex + numBits <= srcArray.length()`.
     void andEqual(bsl::size_t     dstIndex,
                   const BitArray& srcArray,
                   bsl::size_t     srcIndex,
                   bsl::size_t     numBits);
-        // Bitwise AND the specified 'numBits' in this array, beginning at the
-        // specified 'dstIndex', with values from the specified 'srcArray',
-        // beginning at the specified 'srcIndex' (retaining the results).  The
-        // behavior is undefined unless 'dstIndex + numBits <= length()' and
-        // 'srcIndex + numBits <= srcArray.length()'.
 
+    /// Append to this array the specified `value`.  Note that this method
+    /// has the same behavior as:
+    /// ```
+    /// insert(length(), value);
+    /// ```
     void append(bool value);
-        // Append to this array the specified 'value'.  Note that this method
-        // has the same behavior as:
-        //..
-        //  insert(length(), value);
-        //..
 
+    /// Append to this array the specified `numBits` having the specified
+    /// `value`.  Note that this method has the same behavior as:
+    /// ```
+    /// insert(length(), value, numBits);
+    /// ```
     void append(bool value, bsl::size_t numBits);
-        // Append to this array the specified 'numBits' having the specified
-        // 'value'.  Note that this method has the same behavior as:
-        //..
-        //  insert(length(), value, numBits);
-        //..
 
+    /// Append to this array the values from the specified `srcArray`.  Note
+    /// that this method has the same behavior as:
+    /// ```
+    /// insert(length(), srcArray);
+    /// ```
     void append(const BitArray& srcArray);
-        // Append to this array the values from the specified 'srcArray'.  Note
-        // that this method has the same behavior as:
-        //..
-        //  insert(length(), srcArray);
-        //..
 
+    /// Append to this array the specified `numBits` from the specified
+    /// `srcArray`, beginning at the specified `srcIndex`.  The behavior is
+    /// undefined unless `srcIndex + numBits <= srcArray.length()`.  Note
+    /// that this method has the same behavior as:
+    /// ```
+    /// insert(length(), srcArray, srcIndex, numBits);
+    /// ```
     void append(const BitArray& srcArray,
                 bsl::size_t     srcIndex,
                 bsl::size_t     numBits);
-        // Append to this array the specified 'numBits' from the specified
-        // 'srcArray', beginning at the specified 'srcIndex'.  The behavior is
-        // undefined unless 'srcIndex + numBits <= srcArray.length()'.  Note
-        // that this method has the same behavior as:
-        //..
-        //  insert(length(), srcArray, srcIndex, numBits);
-        //..
 
+    /// Set the value at the specified `index` in this array to the
+    /// specified `value`.  The behavior is undefined unless
+    /// `index < length()`.
     void assign(bsl::size_t index, bool value);
-        // Set the value at the specified 'index' in this array to the
-        // specified 'value'.  The behavior is undefined unless
-        // 'index < length()'.
 
+    /// Set the value of the specified `numBits` bits starting at the
+    /// specified `index` in this array to the specified `value`.  The
+    /// behavior is undefined unless `index + numBits < length()`.
     void assign(bsl::size_t index, bool value, bsl::size_t numBits);
-        // Set the value of the specified 'numBits' bits starting at the
-        // specified 'index' in this array to the specified 'value'.  The
-        // behavior is undefined unless 'index + numBits < length()'.
 
+    /// Replace the specified `numBits` in this array, beginning at the
+    /// specified `dstIndex`, with values from the specified `srcArray`
+    /// beginning at the specified `srcIndex`.  The behavior is undefined
+    /// unless `dstIndex + numBits <= length()` and
+    /// `srcIndex + numBits <= srcArray.length()`.  Note that, absent
+    /// aliasing, this method has the same behavior as, but is more
+    /// efficient than:
+    /// ```
+    /// remove(dstIndex, numBits);
+    /// insert(dstIndex, srcArray, srcIndex, numBits);
+    /// ```
     void assign(bsl::size_t     dstIndex,
                 const BitArray& srcArray,
                 bsl::size_t     srcIndex,
                 bsl::size_t     numBits);
-        // Replace the specified 'numBits' in this array, beginning at the
-        // specified 'dstIndex', with values from the specified 'srcArray'
-        // beginning at the specified 'srcIndex'.  The behavior is undefined
-        // unless 'dstIndex + numBits <= length()' and
-        // 'srcIndex + numBits <= srcArray.length()'.  Note that, absent
-        // aliasing, this method has the same behavior as, but is more
-        // efficient than:
-        //..
-        //  remove(dstIndex, numBits);
-        //  insert(dstIndex, srcArray, srcIndex, numBits);
-        //..
 
+    /// Set to 0 the value of the bit at the specified `index` in this
+    /// array.  The behavior is undefined unless `index < length()`.
     void assign0(bsl::size_t index);
-        // Set to 0 the value of the bit at the specified 'index' in this
-        // array.  The behavior is undefined unless 'index < length()'.
 
+    /// Set to 0 the specified `numBits` values in this array, beginning at
+    /// the specified `index`.  The behavior is undefined unless
+    /// `index + numBits <= length()`.
     void assign0(bsl::size_t index, bsl::size_t numBits);
-        // Set to 0 the specified 'numBits' values in this array, beginning at
-        // the specified 'index'.  The behavior is undefined unless
-        // 'index + numBits <= length()'.
 
+    /// Set to 1 the value of the bit at the specified `index` in this
+    /// array.  The behavior is undefined unless `index < length()`.
     void assign1(bsl::size_t index);
-        // Set to 1 the value of the bit at the specified 'index' in this
-        // array.  The behavior is undefined unless 'index < length()'.
 
+    /// Set to 1 the specified `numBits` values in this array, beginning at
+    /// the specified `index`.  The behavior is undefined unless
+    /// `index + numBits <= length()`.
     void assign1(bsl::size_t index, bsl::size_t numBits);
-        // Set to 1 the specified 'numBits' values in this array, beginning at
-        // the specified 'index'.  The behavior is undefined unless
-        // 'index + numBits <= length()'.
 
+    /// Set all bits in this array to the specified `value`.
     void assignAll(bool value);
-        // Set all bits in this array to the specified 'value'.
 
+    /// Set to 0 the value of every bit in this array.
     void assignAll0();
-        // Set to 0 the value of every bit in this array.
 
+    /// Set to 1 the value of every bit in this array.
     void assignAll1();
-        // Set to 1 the value of every bit in this array.
 
+    /// Assign the low-order specified `numBits` from the specified
+    /// `srcBits` to this object, starting at the specified `index`.  The
+    /// behavior is undefined unless `numBits <= k_BITS_PER_UINT64` and
+    /// `index + numBits <= length()`.
     void assignBits(bsl::size_t   index,
                     bsl::uint64_t srcBits,
                     bsl::size_t   numBits);
-        // Assign the low-order specified 'numBits' from the specified
-        // 'srcBits' to this object, starting at the specified 'index'.  The
-        // behavior is undefined unless 'numBits <= k_BITS_PER_UINT64' and
-        // 'index + numBits <= length()'.
 
+    /// Insert into this array at the specified `dstIndex` the specified
+    /// `value`.  All values with indices at or above `dstIndex` in this
+    /// array are shifted up by one bit position.  The behavior is undefined
+    /// unless `dstIndex <= length()`.
     void insert(bsl::size_t dstIndex, bool value);
-        // Insert into this array at the specified 'dstIndex' the specified
-        // 'value'.  All values with indices at or above 'dstIndex' in this
-        // array are shifted up by one bit position.  The behavior is undefined
-        // unless 'dstIndex <= length()'.
 
+    /// Insert into this array at the specified `dstIndex` the specified
+    /// `numBits` having the specified `value`.  All values with indices at
+    /// or above `dstIndex` in this array are shifted up by `numBits` bit
+    /// positions.  The behavior is undefined unless `dstIndex <= length()`.
     void insert(bsl::size_t dstIndex, bool value, bsl::size_t numBits);
-        // Insert into this array at the specified 'dstIndex' the specified
-        // 'numBits' having the specified 'value'.  All values with indices at
-        // or above 'dstIndex' in this array are shifted up by 'numBits' bit
-        // positions.  The behavior is undefined unless 'dstIndex <= length()'.
 
+    /// Insert into this array, beginning at the specified `dstIndex`, the
+    /// values from the specified `srcArray`.  All values with indices at or
+    /// above `dstIndex` in this array are shifted up by `srcArray.length()`
+    /// bit positions.  The behavior is undefined unless
+    /// `dstIndex <= length()`.
     void insert(bsl::size_t dstIndex, const BitArray& srcArray);
-        // Insert into this array, beginning at the specified 'dstIndex', the
-        // values from the specified 'srcArray'.  All values with indices at or
-        // above 'dstIndex' in this array are shifted up by 'srcArray.length()'
-        // bit positions.  The behavior is undefined unless
-        // 'dstIndex <= length()'.
 
+    /// Insert into this array, beginning at the specified `dstIndex`, the
+    /// specified `numBits` from the specified `srcArray` beginning at the
+    /// specified `srcIndex`.  All values with initial indices at or above
+    /// `dstIndex` are shifted up by `numBits` positions.  The behavior is
+    /// undefined unless `dstIndex <= length()` and
+    /// `srcIndex + numBits <= srcArray.length()`.
     void insert(bsl::size_t     dstIndex,
                 const BitArray& srcArray,
                 bsl::size_t     srcIndex,
                 bsl::size_t     numBits);
-        // Insert into this array, beginning at the specified 'dstIndex', the
-        // specified 'numBits' from the specified 'srcArray' beginning at the
-        // specified 'srcIndex'.  All values with initial indices at or above
-        // 'dstIndex' are shifted up by 'numBits' positions.  The behavior is
-        // undefined unless 'dstIndex <= length()' and
-        // 'srcIndex + numBits <= srcArray.length()'.
 
+    /// MINUS (subtract) from the bit at the specified `index` in this array
+    /// the specified `value` (retaining the result).  The behavior is
+    /// undefined unless `index < length()`.  Note that the logical
+    /// difference `A - B` is defined to be `A & !B`.
     void minusEqual(bsl::size_t index, bool value);
-        // MINUS (subtract) from the bit at the specified 'index' in this array
-        // the specified 'value' (retaining the result).  The behavior is
-        // undefined unless 'index < length()'.  Note that the logical
-        // difference 'A - B' is defined to be 'A & !B'.
 
+    /// Bitwise MINUS (subtract) from the specified `numBits` in this array,
+    /// beginning at the specified `dstIndex`, values from the specified
+    /// `srcArray` beginning at the specified `srcIndex` (retaining the
+    /// results).  The behavior is undefined unless
+    /// `dstIndex + numBits <= length()` and
+    /// `srcIndex + numBits <= srcArray.length()`.  Note that the logical
+    /// difference `A - B` is defined to be `A & !B`.
     void minusEqual(bsl::size_t     dstIndex,
                     const BitArray& srcArray,
                     bsl::size_t     srcIndex,
                     bsl::size_t     numBits);
-        // Bitwise MINUS (subtract) from the specified 'numBits' in this array,
-        // beginning at the specified 'dstIndex', values from the specified
-        // 'srcArray' beginning at the specified 'srcIndex' (retaining the
-        // results).  The behavior is undefined unless
-        // 'dstIndex + numBits <= length()' and
-        // 'srcIndex + numBits <= srcArray.length()'.  Note that the logical
-        // difference 'A - B' is defined to be 'A & !B'.
 
+    /// OR the bit at the specified `index` in this array with the specified
+    /// `value` (retaining the result).  The behavior is undefined unless
+    /// `index < length()`.
     void orEqual(bsl::size_t index, bool value);
-        // OR the bit at the specified 'index' in this array with the specified
-        // 'value' (retaining the result).  The behavior is undefined unless
-        // 'index < length()'.
 
+    /// Bitwise OR the specified `numBits` in this array, beginning at the
+    /// specified `dstIndex`, with values from the specified `srcArray`
+    /// beginning at the specified `srcIndex` (retaining the results).  The
+    /// behavior is undefined unless `dstIndex + numBits <= length()` and
+    /// `srcIndex + numBits <= srcArray.length()`.
     void orEqual(bsl::size_t     dstIndex,
                  const BitArray& srcArray,
                  bsl::size_t     srcIndex,
                  bsl::size_t     numBits);
-        // Bitwise OR the specified 'numBits' in this array, beginning at the
-        // specified 'dstIndex', with values from the specified 'srcArray'
-        // beginning at the specified 'srcIndex' (retaining the results).  The
-        // behavior is undefined unless 'dstIndex + numBits <= length()' and
-        // 'srcIndex + numBits <= srcArray.length()'.
 
+    /// Remove from this array the bit at the specified `index`.  All values
+    /// at indices above `index` in this array are shifted down by one bit
+    /// position.  The length of this array is reduced by 1.  The behavior
+    /// is undefined unless `index < length()`.
     void remove(bsl::size_t index);
-        // Remove from this array the bit at the specified 'index'.  All values
-        // at indices above 'index' in this array are shifted down by one bit
-        // position.  The length of this array is reduced by 1.  The behavior
-        // is undefined unless 'index < length()'.
 
+    /// Remove from this array the specified `numBits`, beginning at the
+    /// specified `index`.  All values at indices above `index` in this
+    /// array are shifted down by `numBits` positions.  The length of this
+    /// array is reduced by `numBits`.  The behavior is undefined unless
+    /// `index + numBits <= length()`.
     void remove(bsl::size_t index, bsl::size_t numBits);
-        // Remove from this array the specified 'numBits', beginning at the
-        // specified 'index'.  All values at indices above 'index' in this
-        // array are shifted down by 'numBits' positions.  The length of this
-        // array is reduced by 'numBits'.  The behavior is undefined unless
-        // 'index + numBits <= length()'.
 
+    /// Remove all of the bits in this array, leaving the length 0, but
+    /// having no effect on capacity.
     void removeAll();
-        // Remove all of the bits in this array, leaving the length 0, but
-        // having no effect on capacity.
 
+    /// Reserve sufficient internal capacity to accommodate a length of at
+    /// least the specified `numBits` without reallocation.  If an exception
+    /// is thrown during this reallocation attempt (i.e., by the memory
+    /// allocator indicated at construction) the value of this array is
+    /// guaranteed to be unchanged.
     void reserveCapacity(bsl::size_t numBits);
-        // Reserve sufficient internal capacity to accommodate a length of at
-        // least the specified 'numBits' without reallocation.  If an exception
-        // is thrown during this reallocation attempt (i.e., by the memory
-        // allocator indicated at construction) the value of this array is
-        // guaranteed to be unchanged.
 
+    /// Shift the values in this array to the left by the specified
+    /// `numBits` positions, with the high-order values "rotating" into the
+    /// low-order bits.  The behavior is undefined unless
+    /// `numBits <= length()`.  Note that the length of this array remains
+    /// unchanged.
     void rotateLeft(bsl::size_t numBits);
-        // Shift the values in this array to the left by the specified
-        // 'numBits' positions, with the high-order values "rotating" into the
-        // low-order bits.  The behavior is undefined unless
-        // 'numBits <= length()'.  Note that the length of this array remains
-        // unchanged.
 
+    /// Shift the values in this array to the right by the specified
+    /// `numBits` positions, with the low-order values "rotating" into the
+    /// high-order bits.  The behavior is undefined unless
+    /// `numBits <= length()`.  Note that the length of this array remains
+    /// unchanged.
     void rotateRight(bsl::size_t numBits);
-        // Shift the values in this array to the right by the specified
-        // 'numBits' positions, with the low-order values "rotating" into the
-        // high-order bits.  The behavior is undefined unless
-        // 'numBits <= length()'.  Note that the length of this array remains
-        // unchanged.
 
+    /// Set the number of bits in this array to the specified `newLength`.
+    /// If `newLength < length()`, bits at index positions at or above
+    /// `newLength` are removed; otherwise, any new bits (at or above the
+    /// current length) are initialized to the optionally specified `value`,
+    /// or to 0 if `value` is not specified.
     void setLength(bsl::size_t newLength, bool value = false);
-        // Set the number of bits in this array to the specified 'newLength'.
-        // If 'newLength < length()', bits at index positions at or above
-        // 'newLength' are removed; otherwise, any new bits (at or above the
-        // current length) are initialized to the optionally specified 'value',
-        // or to 0 if 'value' is not specified.
 
+    /// Efficiently exchange the values of the bits at the specified
+    /// `index1` and `index2` indices.  The behavior is undefined unless
+    /// `index1 < length()` and `index2 < length()`.
     void swapBits(bsl::size_t index1, bsl::size_t index2);
-        // Efficiently exchange the values of the bits at the specified
-        // 'index1' and 'index2' indices.  The behavior is undefined unless
-        // 'index1 < length()' and 'index2 < length()'.
 
+    /// Complement the value of the bit at the specified `index` in this
+    /// array.  The behavior is undefined unless `index < length()`.
     void toggle(bsl::size_t index);
-        // Complement the value of the bit at the specified 'index' in this
-        // array.  The behavior is undefined unless 'index < length()'.
 
+    /// Complement the values of each of the specified `numBits` in this
+    /// array, beginning at the specified `index`.  The behavior is
+    /// undefined unless `index + numBits <= length()`.
     void toggle(bsl::size_t index, bsl::size_t numBits);
-        // Complement the values of each of the specified 'numBits' in this
-        // array, beginning at the specified 'index'.  The behavior is
-        // undefined unless 'index + numBits <= length()'.
 
+    /// Complement the value of every bit in this array.  Note that the
+    /// behavior is analogous to applying the `~` operator to an object of
+    /// fundamental type `unsigned int`.
     void toggleAll();
-        // Complement the value of every bit in this array.  Note that the
-        // behavior is analogous to applying the '~' operator to an object of
-        // fundamental type 'unsigned int'.
 
+    /// XOR the bit at the specified `index` in this array with the
+    /// specified `value` (retaining the result).  The behavior is undefined
+    /// unless `index < length()`.
     void xorEqual(bsl::size_t index, bool value);
-        // XOR the bit at the specified 'index' in this array with the
-        // specified 'value' (retaining the result).  The behavior is undefined
-        // unless 'index < length()'.
 
+    /// Bitwise XOR the specified `numBits` in this array, beginning at the
+    /// specified `dstIndex`, with values from the specified `srcArray`
+    /// beginning at the specified `srcIndex` (retaining the results).  The
+    /// behavior is undefined unless `dstIndex + numBits <= length()` and
+    /// `srcIndex + numBits <= srcArray.length()`.
     void xorEqual(bsl::size_t     dstIndex,
                   const BitArray& srcArray,
                   bsl::size_t     srcIndex,
                   bsl::size_t     numBits);
-        // Bitwise XOR the specified 'numBits' in this array, beginning at the
-        // specified 'dstIndex', with values from the specified 'srcArray'
-        // beginning at the specified 'srcIndex' (retaining the results).  The
-        // behavior is undefined unless 'dstIndex + numBits <= length()' and
-        // 'srcIndex + numBits <= srcArray.length()'.
 
                                 // Aspects
 
+    /// Assign to this object the value read from the specified input
+    /// `stream` using the specified `version` format, and return a
+    /// reference to `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `version` is not supported, this object
+    /// is unaltered and `stream` is invalidated, but otherwise unmodified.
+    /// If `version` is supported but `stream` becomes invalid during this
+    /// operation, this object has an undefined, but valid, state.  Note
+    /// that no version is read from `stream`.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format, and return a
-        // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, this object
-        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
-        // If 'version' is supported but 'stream' becomes invalid during this
-        // operation, this object has an undefined, but valid, state.  Note
-        // that no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.  The behavior is undefined unless this
+    /// object was created with the same allocator as `other`.
     void swap(BitArray& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless this
-        // object was created with the same allocator as 'other'.
 
     // ACCESSORS
+
+    /// Return the value of the bit at the specified `index` in this array.
+    /// The behavior is undefined unless `index < length()`.
     bool operator[](bsl::size_t index) const;
-        // Return the value of the bit at the specified 'index' in this array.
-        // The behavior is undefined unless 'index < length()'.
 
+    /// Return the specified `numBits` beginning at the specified `index` in
+    /// this array as the low-order bits of the returned value.  The
+    /// behavior is undefined unless
+    /// `numBits <= sizeof(uint64_t) * CHAR_BIT` and
+    /// `index + numBits <= length()`.
     bsl::uint64_t bits(bsl::size_t index, bsl::size_t numBits) const;
-        // Return the specified 'numBits' beginning at the specified 'index' in
-        // this array as the low-order bits of the returned value.  The
-        // behavior is undefined unless
-        // 'numBits <= sizeof(uint64_t) * CHAR_BIT' and
-        // 'index + numBits <= length()'.
 
+    /// Return the index of the most-significant 0 bit in this array in the
+    /// range optionally specified by `begin` and `end`, and
+    /// `k_INVALID_INDEX` otherwise.  The range is
+    /// `[begin .. effectiveEnd)`, where `effectiveEnd == length()` if `end`
+    /// is not specified and `effectiveEnd == end` otherwise.  The behavior
+    /// is undefined unless `begin <= effectiveEnd <= length()`.
     bsl::size_t find0AtMaxIndex(bsl::size_t begin = 0,
                                 bsl::size_t end   = k_INVALID_INDEX) const;
-        // Return the index of the most-significant 0 bit in this array in the
-        // range optionally specified by 'begin' and 'end', and
-        // 'k_INVALID_INDEX' otherwise.  The range is
-        // '[begin .. effectiveEnd)', where 'effectiveEnd == length()' if 'end'
-        // is not specified and 'effectiveEnd == end' otherwise.  The behavior
-        // is undefined unless 'begin <= effectiveEnd <= length()'.
 
+    /// Return the index of the least-significant 0 bit in this array in the
+    /// range optionally specified by `begin` and `end`, and
+    /// `k_INVALID_INDEX` otherwise.  The range is
+    /// `[begin .. effectiveEnd)`, where `effectiveEnd == length()` if `end`
+    /// is not specified and `effectiveEnd == end` otherwise.  The behavior
+    /// is undefined unless `begin <= effectiveEnd <= length()`.
     bsl::size_t find0AtMinIndex(bsl::size_t begin = 0,
                                 bsl::size_t end   = k_INVALID_INDEX) const;
-        // Return the index of the least-significant 0 bit in this array in the
-        // range optionally specified by 'begin' and 'end', and
-        // 'k_INVALID_INDEX' otherwise.  The range is
-        // '[begin .. effectiveEnd)', where 'effectiveEnd == length()' if 'end'
-        // is not specified and 'effectiveEnd == end' otherwise.  The behavior
-        // is undefined unless 'begin <= effectiveEnd <= length()'.
 
+    /// Return the index of the most-significant 1 bit in this array in the
+    /// range optionally specified by `begin` and `end`, and
+    /// `k_INVALID_INDEX` otherwise.  The range is
+    /// `[begin .. effectiveEnd)`, where `effectiveEnd == length()` if `end`
+    /// is not specified and `effectiveEnd == end` otherwise.  The behavior
+    /// is undefined unless `begin <= effectiveEnd <= length()`.
     bsl::size_t find1AtMaxIndex(bsl::size_t begin = 0,
                                 bsl::size_t end   = k_INVALID_INDEX) const;
-        // Return the index of the most-significant 1 bit in this array in the
-        // range optionally specified by 'begin' and 'end', and
-        // 'k_INVALID_INDEX' otherwise.  The range is
-        // '[begin .. effectiveEnd)', where 'effectiveEnd == length()' if 'end'
-        // is not specified and 'effectiveEnd == end' otherwise.  The behavior
-        // is undefined unless 'begin <= effectiveEnd <= length()'.
 
+    /// Return the index of the least-significant 1 bit in this array in the
+    /// range optionally specified by `begin` and `end`, and
+    /// `k_INVALID_INDEX` otherwise.  The range is
+    /// `[begin .. effectiveEnd)`, where `effectiveEnd == length()` if `end`
+    /// is not specified and `effectiveEnd == end` otherwise.  The behavior
+    /// is undefined unless `begin <= effectiveEnd <= length()`.
     bsl::size_t find1AtMinIndex(bsl::size_t begin = 0,
                                 bsl::size_t end   = k_INVALID_INDEX) const;
-        // Return the index of the least-significant 1 bit in this array in the
-        // range optionally specified by 'begin' and 'end', and
-        // 'k_INVALID_INDEX' otherwise.  The range is
-        // '[begin .. effectiveEnd)', where 'effectiveEnd == length()' if 'end'
-        // is not specified and 'effectiveEnd == end' otherwise.  The behavior
-        // is undefined unless 'begin <= effectiveEnd <= length()'.
 
+    /// Return `true` if the value of any bit in this array is 0, and
+    /// `false` otherwise.
     bool isAny0() const;
-        // Return 'true' if the value of any bit in this array is 0, and
-        // 'false' otherwise.
 
+    /// Return `true` if the value of any bit in this array is 1, and
+    /// `false` otherwise.
     bool isAny1() const;
-        // Return 'true' if the value of any bit in this array is 1, and
-        // 'false' otherwise.
 
+    /// Return `true` if the length of this bit array is 0, and `false`
+    /// otherwise.
     bool isEmpty() const;
-        // Return 'true' if the length of this bit array is 0, and 'false'
-        // otherwise.
 
+    /// Return the number of bits in this array.
     bsl::size_t length() const;
-        // Return the number of bits in this array.
 
+    /// Return the number of bits in the range optionally specified by
+    /// `begin` and `end` having a value of 0.  The range is
+    /// `[begin .. effectiveEnd)`, where `effectiveEnd == length()` if `end`
+    /// is not specified and `effectiveEnd == end` otherwise.  The behavior
+    /// is undefined unless `begin <= effectiveEnd <= length()`.
     bsl::size_t num0(bsl::size_t begin = 0,
                      bsl::size_t end   = k_INVALID_INDEX) const;
-        // Return the number of bits in the range optionally specified by
-        // 'begin' and 'end' having a value of 0.  The range is
-        // '[begin .. effectiveEnd)', where 'effectiveEnd == length()' if 'end'
-        // is not specified and 'effectiveEnd == end' otherwise.  The behavior
-        // is undefined unless 'begin <= effectiveEnd <= length()'.
 
+    /// Return the number of bits in the range optionally specified by
+    /// `begin` and `end` having a value of 1.  The range is
+    /// `[begin .. effectiveEnd)`, where `effectiveEnd == length()` if `end`
+    /// is not specified and `effectiveEnd == end` otherwise.  The behavior
+    /// is undefined unless `begin <= effectiveEnd <= length()`.
     bsl::size_t num1(bsl::size_t begin = 0,
                      bsl::size_t end   = k_INVALID_INDEX) const;
-        // Return the number of bits in the range optionally specified by
-        // 'begin' and 'end' having a value of 1.  The range is
-        // '[begin .. effectiveEnd)', where 'effectiveEnd == length()' if 'end'
-        // is not specified and 'effectiveEnd == end' otherwise.  The behavior
-        // is undefined unless 'begin <= effectiveEnd <= length()'.
 
                                 // Aspects
 
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 
+    /// Write the value of this object, using the specified `version`
+    /// format, to the specified output `stream`, and return a reference to
+    /// `stream`.  If `stream` is initially invalid, this operation has no
+    /// effect.  If `version` is not supported, `stream` is invalidated, but
+    /// otherwise unmodified.  Note that `version` is not written to
+    /// `stream`.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object, using the specified 'version'
-        // format, to the specified output 'stream', and return a reference to
-        // 'stream'.  If 'stream' is initially invalid, this operation has no
-        // effect.  If 'version' is not supported, 'stream' is invalidated, but
-        // otherwise unmodified.  Note that 'version' is not written to
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a non-`const`
+    /// reference to `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for
+    /// this and all of its nested objects.  Each line is indented by the
+    /// absolute value of `level * spacesPerLevel`.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, suppress line breaks and format the entire output on one
+    /// line.  If `stream` is initially invalid, this operation has no
+    /// effect.  Note that a trailing newline is provided in multiline mode
+    /// only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a non-'const'
-        // reference to 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this and all of its nested objects.  Each line is indented by the
-        // absolute value of 'level * spacesPerLevel'.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, suppress line breaks and format the entire output on one
-        // line.  If 'stream' is initially invalid, this operation has no
-        // effect.  Note that a trailing newline is provided in multiline mode
-        // only.
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
     // DEPRECATED METHODS
+
+    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
+    ///
+    /// Return the most current BDEX streaming version number supported by
+    /// this class.
     static int maxSupportedBdexVersion();
-        // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
-        //
-        // Return the most current BDEX streaming version number supported by
-        // this class.
 
 #endif  // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` arrays have the same
+/// value, and `false` otherwise.  Two arrays have the same value if they
+/// have the same length, and corresponding bits at each bit position have
+/// the same value.
 bool operator==(const BitArray& lhs, const BitArray& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' arrays have the same
-    // value, and 'false' otherwise.  Two arrays have the same value if they
-    // have the same length, and corresponding bits at each bit position have
-    // the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` arrays do not have the
+/// same value, and `false` otherwise.  Two arrays do not have the same
+/// value if they do not have the same length, or there is at least one
+/// valid index position at which corresponding bits do not have the same
+/// value.
 bool operator!=(const BitArray& lhs, const BitArray& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' arrays do not have the
-    // same value, and 'false' otherwise.  Two arrays do not have the same
-    // value if they do not have the same length, or there is at least one
-    // valid index position at which corresponding bits do not have the same
-    // value.
 
+/// Return the bitwise complement ("toggle") of the specified `array`.
 BitArray operator~(const BitArray& array);
-    // Return the bitwise complement ("toggle") of the specified 'array'.
 
+/// Return the value that is the bitwise AND of the specified `lhs` and
+/// `rhs` arrays.  The length of the resulting bit array will be the maximum
+/// of that of `lhs` and `rhs`, with any unmatched high-order bits set to 0.
+/// Note that this behavior is consistent with zero-extending a copy of the
+/// shorter array.
 BitArray operator&(const BitArray& lhs, const BitArray& rhs);
-    // Return the value that is the bitwise AND of the specified 'lhs' and
-    // 'rhs' arrays.  The length of the resulting bit array will be the maximum
-    // of that of 'lhs' and 'rhs', with any unmatched high-order bits set to 0.
-    // Note that this behavior is consistent with zero-extending a copy of the
-    // shorter array.
 
+/// Return the value that is the bitwise MINUS of the specified `lhs` and
+/// `rhs` arrays.  The length of the resulting bit array will be the maximum
+/// of that of `lhs` and `rhs`, with any unmatched high-order `lhs` bits
+/// copied unchanged, and any unmatched high-order `rhs` bits set to 0.
+/// Note that this behavior is consistent with zero-extending a copy of the
+/// shorter array.
 BitArray operator-(const BitArray& lhs, const BitArray& rhs);
-    // Return the value that is the bitwise MINUS of the specified 'lhs' and
-    // 'rhs' arrays.  The length of the resulting bit array will be the maximum
-    // of that of 'lhs' and 'rhs', with any unmatched high-order 'lhs' bits
-    // copied unchanged, and any unmatched high-order 'rhs' bits set to 0.
-    // Note that this behavior is consistent with zero-extending a copy of the
-    // shorter array.
 
+/// Return the value that is the bitwise OR of the specified `lhs` and `rhs`
+/// arrays.  The length of the resulting bit array will be the maximum of
+/// that of `lhs` and `rhs`, with any unmatched high-order bits copied
+/// unchanged.  Note that this behavior is consistent with zero-extending a
+/// copy of the shorter array.
 BitArray operator|(const BitArray& lhs, const BitArray& rhs);
-    // Return the value that is the bitwise OR of the specified 'lhs' and 'rhs'
-    // arrays.  The length of the resulting bit array will be the maximum of
-    // that of 'lhs' and 'rhs', with any unmatched high-order bits copied
-    // unchanged.  Note that this behavior is consistent with zero-extending a
-    // copy of the shorter array.
 
+/// Return the value that is the bitwise XOR of the specified `lhs` and
+/// `rhs` arrays.  The length of the resulting bit array will be the maximum
+/// of that of `lhs` and `rhs`, with any unmatched high-order bits copied
+/// unchanged.  Note that this behavior is consistent with zero-extending a
+/// copy of the shorter array.
 BitArray operator^(const BitArray& lhs, const BitArray& rhs);
-    // Return the value that is the bitwise XOR of the specified 'lhs' and
-    // 'rhs' arrays.  The length of the resulting bit array will be the maximum
-    // of that of 'lhs' and 'rhs', with any unmatched high-order bits copied
-    // unchanged.  Note that this behavior is consistent with zero-extending a
-    // copy of the shorter array.
 
+/// Return the value of the specified `array` left-shifted by the specified
+/// `numBits` positions, having filled the lower-index positions with zeros.
+/// The behavior is undefined unless `numBits <= array.length()`.  Note that
+/// the length of the result equals the length of the original array, and
+/// that the highest-order `numBits` are discarded in the result.
 BitArray operator<<(const BitArray& array, bsl::size_t numBits);
-    // Return the value of the specified 'array' left-shifted by the specified
-    // 'numBits' positions, having filled the lower-index positions with zeros.
-    // The behavior is undefined unless 'numBits <= array.length()'.  Note that
-    // the length of the result equals the length of the original array, and
-    // that the highest-order 'numBits' are discarded in the result.
 
+/// Return the value of the specified `array` right-shifted by the specified
+/// `numBits` positions, having filled the higher-index positions with
+/// zeros.  The behavior is undefined unless `numBits <= array.length()`.
+/// Note that the length of the result equals the length of the original
+/// array, and that the lowest-order `numBits` are discarded in the result.
 BitArray operator>>(const BitArray& array, bsl::size_t numBits);
-    // Return the value of the specified 'array' right-shifted by the specified
-    // 'numBits' positions, having filled the higher-index positions with
-    // zeros.  The behavior is undefined unless 'numBits <= array.length()'.
-    // Note that the length of the result equals the length of the original
-    // array, and that the lowest-order 'numBits' are discarded in the result.
 
+/// Format the bits in the specified `rhs` bit array to the specified output
+/// `stream` in a single-line format, and return a reference to `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const BitArray& rhs);
-    // Format the bits in the specified 'rhs' bit array to the specified output
-    // 'stream' in a single-line format, and return a reference to 'stream'.
 
 // FREE FUNCTIONS
+
+/// Exchange the values of the specified `a` and `b` objects.  This function
+/// provides the no-throw exception-safety guarantee if the two objects were
+/// created with the same allocator and the basic guarantee otherwise.
 void swap(BitArray& a, BitArray& b);
-    // Exchange the values of the specified 'a' and 'b' objects.  This function
-    // provides the no-throw exception-safety guarantee if the two objects were
-    // created with the same allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -1916,22 +1925,22 @@ bsl::ostream& bdlc::operator<<(bsl::ostream& stream, const BitArray& rhs)
 
 namespace bslmf {
 
+/// This template specialization for `IsBitwiseMoveable` indicates that
+/// `BitArray` is a bitwise movable type if `vector<uint64_t>` is a bitwise
+/// movable type.
 template <>
 struct IsBitwiseMoveable<bdlc::BitArray> :
                         public IsBitwiseMoveable<bsl::vector<bsl::uint64_t> > {
-    // This template specialization for 'IsBitwiseMoveable' indicates that
-    // 'BitArray' is a bitwise movable type if 'vector<uint64_t>' is a bitwise
-    // movable type.
 };
 
 }  // close namespace bslmf
 
 namespace bslma {
 
+/// This template specialization for `UsesBslmaAllocator` indicates that
+/// `BitArray` uses `bslma::Allocator`.
 template <>
 struct UsesBslmaAllocator<bdlc::BitArray> : bsl::true_type {
-    // This template specialization for 'UsesBslmaAllocator' indicates that
-    // 'BitArray' uses 'bslma::Allocator'.
 };
 
 }  // close namespace bslma

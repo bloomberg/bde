@@ -5,64 +5,64 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide common non-primitive operations on 'bdlc::PackedIntArray'.
+//@PURPOSE: Provide common non-primitive operations on `bdlc::PackedIntArray`.
 //
 //@CLASSES:
-//  bdlc::PackedIntArrayUtil: non-primitive 'bdlc::PackedIntArray' operations
+//  bdlc::PackedIntArrayUtil: non-primitive `bdlc::PackedIntArray` operations
 //
 //@SEE_ALSO: bdlc_packedintarray
 //
-//@DESCRIPTION: This component provides a 'struct', 'bdlc::PackedIntArrayUtil',
+//@DESCRIPTION: This component provides a `struct`, `bdlc::PackedIntArrayUtil`,
 // that serves as a namespace for utility functions that operate on
-// 'bdlc::PackedIntArray' objects.
+// `bdlc::PackedIntArray` objects.
 //
-// The following list of methods are provided by 'bdlc::PackedIntArrayUtil':
-//..
-//  'isSorted'         Returns 'true' if the range from a
-//                     'bdlc::PackedIntArray' is sorted, and 'false' otherwise.
+// The following list of methods are provided by `bdlc::PackedIntArrayUtil`:
+// ```
+// 'isSorted'         Returns 'true' if the range from a
+//                    'bdlc::PackedIntArray' is sorted, and 'false' otherwise.
 //
-//  'lowerBound'       Returns an iterator to the first element in a sorted
-//                     range from a 'bdlc::PackedIntArray' that compares
-//                     greater than or equal to a specified value.
+// 'lowerBound'       Returns an iterator to the first element in a sorted
+//                    range from a 'bdlc::PackedIntArray' that compares
+//                    greater than or equal to a specified value.
 //
-//  'upperBound'       Returns an iterator to the first element in a sorted
-//                     range from a 'bdlc::PackedIntArray' that compares
-//                     greater than a specified value.
-//..
+// 'upperBound'       Returns an iterator to the first element in a sorted
+//                    range from a 'bdlc::PackedIntArray' that compares
+//                    greater than a specified value.
+// ```
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: 'lowerBound'
+///Example 1: `lowerBound`
 ///- - - - - - - - - - - -
-// Suppose that given a sorted 'bdlc::PackedIntArray', we want to find the
+// Suppose that given a sorted `bdlc::PackedIntArray`, we want to find the
 // first value greater than or equal to the value 17.  First, create and
-// populate with sorted data the 'bdlc::PackedIntArray' to be searched:
-//..
-//  bdlc::PackedIntArray<int> array;
+// populate with sorted data the `bdlc::PackedIntArray` to be searched:
+// ```
+// bdlc::PackedIntArray<int> array;
 //
-//  array.push_back( 5);
-//  array.push_back( 9);
-//  array.push_back(15);
-//  array.push_back(19);
-//  array.push_back(23);
-//  array.push_back(36);
-//  assert(6 == array.length());
-//..
+// array.push_back( 5);
+// array.push_back( 9);
+// array.push_back(15);
+// array.push_back(19);
+// array.push_back(23);
+// array.push_back(36);
+// assert(6 == array.length());
+// ```
 // Then, verify the array's data has sorted values:
-//..
-//  assert(bdlc::PackedIntArrayUtil::isSorted(array.begin(), array.end()));
-//..
-// Finally, use 'bdlc::PackedIntArrayUtil::lowerBound' to find the desired
+// ```
+// assert(bdlc::PackedIntArrayUtil::isSorted(array.begin(), array.end()));
+// ```
+// Finally, use `bdlc::PackedIntArrayUtil::lowerBound` to find the desired
 // value:
-//..
-//  bdlc::PackedIntArrayConstIterator<int> iterator =
-//                          bdlc::PackedIntArrayUtil::lowerBound(array.begin(),
-//                                                               array.end(),
-//                                                               17);
-//  assert(iterator != array.end() && 19 == *iterator);
-//..
+// ```
+// bdlc::PackedIntArrayConstIterator<int> iterator =
+//                         bdlc::PackedIntArrayUtil::lowerBound(array.begin(),
+//                                                              array.end(),
+//                                                              17);
+// assert(iterator != array.end() && 19 == *iterator);
+// ```
 
 #include <bdlscm_version.h>
 
@@ -77,40 +77,41 @@ namespace bdlc {
                       // struct PackedIntArrayUtil
                       // =========================
 
+/// This `struct` provides a namespace for utility functions that provide
+/// non-primitive operations on `bdlc::PackedIntArray`.
 struct PackedIntArrayUtil {
-    // This 'struct' provides a namespace for utility functions that provide
-    // non-primitive operations on 'bdlc::PackedIntArray'.
 
   public:
     // CLASS METHODS
+
+    /// Return `true` if the range from the specified `first` (inclusive) to
+    /// the specified `last` (exclusive) is sorted or empty, and `false`
+    /// otherwise.  The behavior is undefined unless `first <= last`.
     template <class TYPE>
     static bool isSorted(PackedIntArrayConstIterator<TYPE> first,
                          PackedIntArrayConstIterator<TYPE> last);
-        // Return 'true' if the range from the specified 'first' (inclusive) to
-        // the specified 'last' (exclusive) is sorted or empty, and 'false'
-        // otherwise.  The behavior is undefined unless 'first <= last'.
 
+    /// Return an iterator to the first element in the sorted range from the
+    /// specified `first` (inclusive) to the specified `last` (exclusive)
+    /// that compares greater than or equal to the specified `value`, and
+    /// `last` if no such element exists.  The behavior is undefined unless
+    /// `first <= last` and the range is sorted.
     template <class TYPE>
     static PackedIntArrayConstIterator<TYPE> lowerBound(
                                       PackedIntArrayConstIterator<TYPE> first,
                                       PackedIntArrayConstIterator<TYPE> last,
                                       TYPE                              value);
-        // Return an iterator to the first element in the sorted range from the
-        // specified 'first' (inclusive) to the specified 'last' (exclusive)
-        // that compares greater than or equal to the specified 'value', and
-        // 'last' if no such element exists.  The behavior is undefined unless
-        // 'first <= last' and the range is sorted.
 
+    /// Return an iterator to the first element in the sorted range from the
+    /// specified `first` (inclusive) to the specified `last` (exclusive)
+    /// that compares greater than the specified `value`, and `last` if no
+    /// such element exists.  The behavior is undefined unless
+    /// `first <= last` and the range is sorted.
     template <class TYPE>
     static PackedIntArrayConstIterator<TYPE> upperBound(
                                       PackedIntArrayConstIterator<TYPE> first,
                                       PackedIntArrayConstIterator<TYPE> last,
                                       TYPE                              value);
-        // Return an iterator to the first element in the sorted range from the
-        // specified 'first' (inclusive) to the specified 'last' (exclusive)
-        // that compares greater than the specified 'value', and 'last' if no
-        // such element exists.  The behavior is undefined unless
-        // 'first <= last' and the range is sorted.
 };
 
 // ============================================================================

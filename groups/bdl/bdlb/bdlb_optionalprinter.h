@@ -5,27 +5,27 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a suite of helper classes for printing 'bsl::optional'.
+//@PURPOSE: Provide a suite of helper classes for printing `bsl::optional`.
 //
 //@CLASSES:
-//  bdlb::OptionalPrinter: utility for printing 'bsl::optional'
-//  bdlb::OptionalPrinterUtil: factory for constructing 'bdlb::OptionalPrinter'
+//  bdlb::OptionalPrinter: utility for printing `bsl::optional`
+//  bdlb::OptionalPrinterUtil: factory for constructing `bdlb::OptionalPrinter`
 //
-//@DESCRIPTION: This component provides utility classes 'bdlb::OptionalPrinter'
-// and 'bdlb::OptionalPrinterUtil' for printing 'bsl::optional'.
+//@DESCRIPTION: This component provides utility classes `bdlb::OptionalPrinter`
+// and `bdlb::OptionalPrinterUtil` for printing `bsl::optional`.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Printing 'bsl::optional' to a stream
+///Example 1: Printing `bsl::optional` to a stream
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we demonstrate how to use 'bdlb::OptionalPrinterUtil' to
-// print 'bsl::optional' to a stream:
-//..
-//  bsl::optional<int> value(42);
-//  bsl::cout << bdlb::OptionalPrinterUtil::makePrinter(value);
-//..
+// In this example, we demonstrate how to use `bdlb::OptionalPrinterUtil` to
+// print `bsl::optional` to a stream:
+// ```
+// bsl::optional<int> value(42);
+// bsl::cout << bdlb::OptionalPrinterUtil::makePrinter(value);
+// ```
 
 #include <bdlscm_version.h>
 
@@ -42,61 +42,66 @@ namespace bdlb {
                           // ======================
                           // struct OptionalPrinter
                           // ======================
+
+/// Utility for printing `bsl::optional` to standard output streams.  This
+/// class has `operator<<` defined for it, so it can be used, for example,
+/// in `ball` logs.
 template <class TYPE>
 class OptionalPrinter {
-    // Utility for printing 'bsl::optional' to standard output streams.  This
-    // class has 'operator<<' defined for it, so it can be used, for example,
-    // in 'ball' logs.
 
     // DATA
     const bsl::optional<TYPE>* d_data_p;
 
   public:
     // CREATORS
+
+    /// Create `OptionalPrinter` with the specified `data`.
     explicit OptionalPrinter(const bsl::optional<TYPE> *data);
-        // Create 'OptionalPrinter' with the specified 'data'.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level` and return a
+    /// reference to `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for
+    /// this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  If `stream` is
+    /// not valid on entry, this operation has no effect.
     bsl::ostream& print(bsl::ostream&              stream,
                         int                        level          = 0,
                         int                        spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level' and return a
-        // reference to 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.
 };
 
 // FREE OPERATORS
+
+/// Write the value of the specified `printer` object to the specified
+/// output `stream` in a single-line format, and return a reference to
+/// `stream`.  If `stream` is not valid on entry, this operation has no
+/// effect.  Note that this human-readable format is not fully specified,
+/// can change without notice, and is logically equivalent to:
+/// ```
+/// print(stream, 0, -1);
+/// ```
 template <class TYPE>
 bsl::ostream&
 operator<<(bsl::ostream& stream, const OptionalPrinter<TYPE>& printer);
-    // Write the value of the specified 'printer' object to the specified
-    // output 'stream' in a single-line format, and return a reference to
-    // 'stream'.  If 'stream' is not valid on entry, this operation has no
-    // effect.  Note that this human-readable format is not fully specified,
-    // can change without notice, and is logically equivalent to:
-    //..
-    //  print(stream, 0, -1);
-    //..
 
                           // ==========================
                           // struct OptionalPrinterUtil
                           // ==========================
 
+/// This utility `struct` provides a namespace for a function that creates a
+/// `bdlb::OptionalPrinter` with its template argument deduced from a given
+/// instance of `bsl::optional`.
 struct OptionalPrinterUtil {
-    // This utility 'struct' provides a namespace for a function that creates a
-    // 'bdlb::OptionalPrinter' with its template argument deduced from a given
-    // instance of 'bsl::optional'.
   public:
     // CLASS METHODS
+
+    /// Return an `OptionalPrinter` that prints the specified `data`.
     template <class TYPE>
     static OptionalPrinter<TYPE> makePrinter(const bsl::optional<TYPE>& data);
-        // Return an 'OptionalPrinter' that prints the specified 'data'.
 };
 
 // ============================================================================

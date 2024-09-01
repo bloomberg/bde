@@ -5,17 +5,17 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an open-addressed hash table like Abseil 'flat_hash_map'.
+//@PURPOSE: Provide an open-addressed hash table like Abseil `flat_hash_map`.
 //
 //@CLASSES:
-//  bdlc::FlatHashTable: open-addressed hash table like Abseil 'flat_hash_map'
+//  bdlc::FlatHashTable: open-addressed hash table like Abseil `flat_hash_map`
 //
 //@SEE_ALSO: bdlc_flathashmap, bdlc_flathashset
 //
 //@DESCRIPTION: This component provides the class template
-// 'bdlc::FlatHashTable', which forms the underlying implementation of
-// 'bdlc::FlatHashMap' and 'bdlc::FlatHashSet'.  It is based on the Abseil
-// implementation of 'flat_hash_map'.  The data structure is an open-addressed
+// `bdlc::FlatHashTable`, which forms the underlying implementation of
+// `bdlc::FlatHashMap` and `bdlc::FlatHashSet`.  It is based on the Abseil
+// implementation of `flat_hash_map`.  The data structure is an open-addressed
 // hash table.  (In "open addressing", entries are kept in an array, the hash
 // value of an entry points to its possible initial location, and searches for
 // an entry proceed by stepping to other positions in the table.  This differs
@@ -29,85 +29,85 @@ BSLS_IDENT("$Id: $")
 // use of platform-specific instructions to optimize various methods (e.g.,
 // through use of SSE instructions).
 //
-// The implemented data structure is inspired by Google's 'flat_hash_map'
+// The implemented data structure is inspired by Google's `flat_hash_map`
 // CppCon presentations (available on YouTube).  The implementation draws from
-// Google's open source 'raw_hash_set.h' file at:
+// Google's open source `raw_hash_set.h` file at:
 // https://github.com/abseil/abseil-cpp/blob/master/absl/container/internal.
 //
 ///Load Factor and Resizing
 ///------------------------
-// An invariant of 'bdlc::FlatHashTable' is that
-// '0 <= load_factor() <= max_load_factor() <= 1.0'.  Any operation that would
-// result in 'load_factor() > max_load_factor()' for a 'bdlc::FlatHashTable'
+// An invariant of `bdlc::FlatHashTable` is that
+// `0 <= load_factor() <= max_load_factor() <= 1.0`.  Any operation that would
+// result in `load_factor() > max_load_factor()` for a `bdlc::FlatHashTable`
 // instance causes the capacity to increase.  This resizing allocates new
 // memory, copies or moves all elements to the new memory, and reclaims the
 // original memory.  The transfer of elements involves rehashing the element to
 // determine its new location.  As such, all iterators, pointers, and
-// references to elements of the 'bdlc::FlatHashTable' are invalidated.
+// references to elements of the `bdlc::FlatHashTable` are invalidated.
 //
-// Note that the value returned by 'max_load_factor' is implementation
+// Note that the value returned by `max_load_factor` is implementation
 // dependent and cannot be changed by the user.
 //
-///Requirements on 'KEY', 'ENTRY', 'ENTRY_UTIL', 'HASH', and 'EQUAL'
+///Requirements on `KEY`, `ENTRY`, `ENTRY_UTIL`, `HASH`, and `EQUAL`
 ///-----------------------------------------------------------------
-// The template parameter type 'ENTRY' must be copy or move constructible.  The
-// template parameter types 'HASH' and 'EQUAL' must be default and copy
+// The template parameter type `ENTRY` must be copy or move constructible.  The
+// template parameter types `HASH` and `EQUAL` must be default and copy
 // constructible function objects.
 //
-// 'ENTRY_UTIL' must support static methods 'constructFromKey', 'construct',
-// and 'key' compatible with the following statements for objects 'entry' of
-// type 'ENTRY', 'key' of type 'KEY', and 'allocator' of type
-// 'bslma::Allocator':
-//..
-//  ENTRY_UTIL::constructFromKey(&entry, &allocator, key);
-//  ENTRY_UTIL::construct(&entry, &allocator, args...);
-//  const KEY& keyOfEntry = ENTRY_UTIL::key(entry);
-//..
+// `ENTRY_UTIL` must support static methods `constructFromKey`, `construct`,
+// and `key` compatible with the following statements for objects `entry` of
+// type `ENTRY`, `key` of type `KEY`, and `allocator` of type
+// `bslma::Allocator`:
+// ```
+// ENTRY_UTIL::constructFromKey(&entry, &allocator, key);
+// ENTRY_UTIL::construct(&entry, &allocator, args...);
+// const KEY& keyOfEntry = ENTRY_UTIL::key(entry);
+// ```
 //
-// 'HASH' must support a function call operator compatible with the following
-// statements for an object 'key' of type 'KEY':
-//..
-//  HASH        hash;
-//  bsl::size_t result = hash(key);
-//..
+// `HASH` must support a function call operator compatible with the following
+// statements for an object `key` of type `KEY`:
+// ```
+// HASH        hash;
+// bsl::size_t result = hash(key);
+// ```
 //
-// 'EQUAL' must support a function call operator compatible with the
-//  following statements for objects 'key1' and 'key2' of type 'KEY':
-//..
-//  EQUAL equal;
-//  bool  result = equal(key1, key2);
-//..
+// `EQUAL` must support a function call operator compatible with the
+//  following statements for objects `key1` and `key2` of type `KEY`:
+// ```
+// EQUAL equal;
+// bool  result = equal(key1, key2);
+// ```
 // where the definition of the called function defines an equivalence
 // relationship on keys that is both reflexive and transitive.
 //
-// 'HASH' and 'EQUAL' function-objects are further constrained; if the
+// `HASH` and `EQUAL` function-objects are further constrained; if the
 // comparator claims that two values are equal, the hasher must produce the
 // same hash value for each.
 //
-// If support for 'operator==' is required, the type 'ENTRY' must be
+// If support for `operator==` is required, the type `ENTRY` must be
 // equality-comparable.
 //
 ///Iterator, Pointer, and Reference Invalidation
 ///---------------------------------------------
-// Any change in capacity of a 'bdlc::FlatHashTable' invalidates all pointers,
-// references, and iterators.  A 'bdlc::FlatHashTable' manipulator that erases
+// Any change in capacity of a `bdlc::FlatHashTable` invalidates all pointers,
+// references, and iterators.  A `bdlc::FlatHashTable` manipulator that erases
 // an element invalidates all pointers, references, and iterators to the erased
 // elements.
 //
 ///Exception Safety
 ///----------------
-// A 'bdlc::FlatHashTable' is exception neutral, and all of the methods of
-// 'bdlc::FlatHashTable' provide the basic exception safety guarantee (see
-// {'bsldoc_glossary'|Basic Guarantee}).
+// A `bdlc::FlatHashTable` is exception neutral, and all of the methods of
+// `bdlc::FlatHashTable` provide the basic exception safety guarantee (see
+// {`bsldoc_glossary`|Basic Guarantee}).
 //
 ///Move Semantics in C++03
 ///-----------------------
-// Move-only types are supported by 'bdlc::FlatHashTable' on C++11, and later,
-// platforms only (where 'BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES' is defined),
+// Move-only types are supported by `bdlc::FlatHashTable` on C++11, and later,
+// platforms only (where `BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES` is defined),
 // and are not supported on C++03 platforms.  Unfortunately, in C++03, there
-// are user types where a 'bslmf::MovableRef' will not safely degrade to a
+// are user types where a `bslmf::MovableRef` will not safely degrade to a
 // lvalue reference when a move constructor is not available (types providing a
-// constructor template taking any type), so 'bslmf::MovableRefUtil::move'
+// constructor template taking any type), so `bslmf::MovableRefUtil::move`
 // cannot be used directly on a user supplied template type.  See internal bug
 // report 99039150 for more information.
 //
@@ -183,12 +183,12 @@ bool operator==(const class FlatHashTable_IteratorImp<ENTRY>&,
                      // class FlatHashTable_IteratorImp
                      // ===============================
 
+/// This class implements the methods required by `bsl::ForwardIterator` to
+/// provide forward iterators.  As such, an instance of this class
+/// represents a position within a flat hash table.  This class uses no
+/// features of the `ENTRY` type except for addresses of `ENTRY` objects.
 template <class ENTRY>
 class FlatHashTable_IteratorImp
-    // This class implements the methods required by 'bsl::ForwardIterator' to
-    // provide forward iterators.  As such, an instance of this class
-    // represents a position within a flat hash table.  This class uses no
-    // features of the 'ENTRY' type except for addresses of 'ENTRY' objects.
 {
     // PRIVATE TYPES
     typedef FlatHashTable_GroupControl GroupControl;
@@ -204,64 +204,68 @@ class FlatHashTable_IteratorImp
 
   public:
     // CREATORS
-    FlatHashTable_IteratorImp();
-        // Create a 'FlatHashTable_IteratorImp' having the default,
-        // non-dereferencable value.
 
+    /// Create a `FlatHashTable_IteratorImp` having the default,
+    /// non-dereferencable value.
+    FlatHashTable_IteratorImp();
+
+    /// Create a `FlatHashTable_IteratorImp` referencing the first element
+    /// of the specified `entries` and `controls`, which have the specified
+    /// `additionalLength` values.  The behavior is undefined unless
+    /// `entries` points to at least `1 + additionalLength` entry values and
+    /// `controls` points to at least
+    /// `1 + additionalLength + ControlGroup::k_SIZE` control values.
     FlatHashTable_IteratorImp(ENTRY              *entries,
                               const bsl::uint8_t *controls,
                               bsl::size_t         additionalLength);
-        // Create a 'FlatHashTable_IteratorImp' referencing the first element
-        // of the specified 'entries' and 'controls', which have the specified
-        // 'additionalLength' values.  The behavior is undefined unless
-        // 'entries' points to at least '1 + additionalLength' entry values and
-        // 'controls' points to at least
-        // '1 + additionalLength + ControlGroup::k_SIZE' control values.
 
+    /// Create a `FlatHashTable_IteratorImp` having the same value as the
+    /// specified `original`.
     FlatHashTable_IteratorImp(const FlatHashTable_IteratorImp& original);
-        // Create a 'FlatHashTable_IteratorImp' having the same value as the
-        // specified 'original'.
 
     //! ~FlatHashTable_IteratorImp() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    FlatHashTable_IteratorImp& operator=(const FlatHashTable_IteratorImp& rhs);
-        // Assign to this 'FlatHashTable_IteratorImp' the value of the
-        // specified 'rhs'.
 
+    /// Assign to this `FlatHashTable_IteratorImp` the value of the
+    /// specified `rhs`.
+    FlatHashTable_IteratorImp& operator=(const FlatHashTable_IteratorImp& rhs);
+
+    /// Advance the `FlatHashTable_IteratorImp` to the next present element
+    /// in the underlying flat hash table.  If there is no such element,
+    /// assign this object to `FlatHashTable_InteratorImp()`.  The behavior
+    /// is undefined unless this `FlatHashTable_IteratorImp` refers to a
+    /// valid element of the underlying sequence.
     void operator++();
-        // Advance the 'FlatHashTable_IteratorImp' to the next present element
-        // in the underlying flat hash table.  If there is no such element,
-        // assign this object to 'FlatHashTable_InteratorImp()'.  The behavior
-        // is undefined unless this 'FlatHashTable_IteratorImp' refers to a
-        // valid element of the underlying sequence.
 
     // ACCESSORS
+
+    /// Return a reference to the element referred to by this
+    /// `FlatHashTable_IteratorImp`.  The behavior is undefined unless this
+    /// `FlatHashTable_IteratorImp() != *this`.
     ENTRY& operator*() const;
-        // Return a reference to the element referred to by this
-        // 'FlatHashTable_IteratorImp'.  The behavior is undefined unless this
-        // 'FlatHashTable_IteratorImp() != *this'.
 };
 
 // FREE OPERATORS
+
+/// Return true if the specified `a` and `b` are equal.  Two
+/// `FlatHashTable_IteratorImp` objects are equal if they both refer to the
+/// same element of the underlying flat hash table, or are both not
+/// dereferenceable.  The behavior is undefined unless `a` and `b` refer to
+/// the same `FlatHashTable`.
 template <class ENTRY>
 bool operator==(const FlatHashTable_IteratorImp<ENTRY>& a,
                 const FlatHashTable_IteratorImp<ENTRY>& b);
-    // Return true if the specified 'a' and 'b' are equal.  Two
-    // 'FlatHashTable_IteratorImp' objects are equal if they both refer to the
-    // same element of the underlying flat hash table, or are both not
-    // dereferenceable.  The behavior is undefined unless 'a' and 'b' refer to
-    // the same 'FlatHashTable'.
 
                            // ===================
                            // class FlatHashTable
                            // ===================
 
+/// This class template provides a flat hash table implementation useful for
+/// implementing a flat hash set and flat hash map.
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 class FlatHashTable
-    // This class template provides a flat hash table implementation useful for
-    // implementing a flat hash set and flat hash map.
 {
     // PRIVATE TYPES
     typedef FlatHashTable_GroupControl       GroupControl;
@@ -293,47 +297,50 @@ class FlatHashTable
     bslma::Allocator *d_allocator_p;        // allocator
 
     // PRIVATE CLASS METHODS
+
+    /// Return the index of the first available entry indicated by the
+    /// specified `controls` at or after the specified `index`, assuming
+    /// `controls` has the specified `capacity`.  The behavior is undefined
+    /// unless `index < capacity` and `controls` has at least `capacity`
+    /// entries.
     static bsl::size_t findAvailable(bsl::uint8_t *controls,
                                      bsl::size_t   index,
                                      bsl::size_t   capacity);
-        // Return the index of the first available entry indicated by the
-        // specified 'controls' at or after the specified 'index', assuming
-        // 'controls' has the specified 'capacity'.  The behavior is undefined
-        // unless 'index < capacity' and 'controls' has at least 'capacity'
-        // entries.
 
     // PRIVATE MANIPULATORS
+
+    /// Load `true` into the specified `notFound` if there is no entry in
+    /// this table having the specified `key` with the specified
+    /// `hashValue`, and `false` otherwise.  Return the index of the entry
+    /// within `d_entries_p` which contains the `key` if such an entry
+    /// exists, otherwise insert an entry with value obtained from
+    /// `ENTRY_UTIL::construct` and return the index of this entry.  This
+    /// method rehashes the table if the `key` was not present and the
+    /// addition of an entry would cause the load factor to exceed
+    /// `max_load_factor()`.  The behavior is undefined unless
+    /// `hashValue == d_hasher(key)`.
     bsl::size_t indexOfKey(bool        *notFound,
                            const KEY&   key,
                            bsl::size_t  hashValue);
-        // Load 'true' into the specified 'notFound' if there is no entry in
-        // this table having the specified 'key' with the specified
-        // 'hashValue', and 'false' otherwise.  Return the index of the entry
-        // within 'd_entries_p' which contains the 'key' if such an entry
-        // exists, otherwise insert an entry with value obtained from
-        // 'ENTRY_UTIL::construct' and return the index of this entry.  This
-        // method rehashes the table if the 'key' was not present and the
-        // addition of an entry would cause the load factor to exceed
-        // 'max_load_factor()'.  The behavior is undefined unless
-        // 'hashValue == d_hasher(key)'.
 
+    /// Change the capacity of this table to the specified `newCapacity`,
+    /// and redistribute all the contained elements into the new sequence of
+    /// entries, according to their hash values.  The behavior is undefined
+    /// unless `0 < newCapacity` and `newCapacity` satisfies all class
+    /// invariants.
     void rehashRaw(bsl::size_t newCapacity);
-        // Change the capacity of this table to the specified 'newCapacity',
-        // and redistribute all the contained elements into the new sequence of
-        // entries, according to their hash values.  The behavior is undefined
-        // unless '0 < newCapacity' and 'newCapacity' satisfies all class
-        // invariants.
 
     // PRIVATE ACCESSORS
-    bsl::size_t findKey(const KEY& key, bsl::size_t hashValue) const;
-        // Return the index of the entry within 'd_entries_p' containing the
-        // specified 'key', which has the specified 'hashValue', or
-        // 'd_capacity' if the 'key' is not present.  The behavior is undefined
-        // unless 'hashValue == d_hasher(key)'.
 
+    /// Return the index of the entry within `d_entries_p` containing the
+    /// specified `key`, which has the specified `hashValue`, or
+    /// `d_capacity` if the `key` is not present.  The behavior is undefined
+    /// unless `hashValue == d_hasher(key)`.
+    bsl::size_t findKey(const KEY& key, bsl::size_t hashValue) const;
+
+    /// Return the minimum capacity that satisfies all class invariants, and
+    /// is at least the specified `minimumCapacity`.
     bsl::size_t minimumCompliantCapacity(bsl::size_t minimumCapacity) const;
-        // Return the minimum capacity that satisfies all class invariants, and
-        // is at least the specified 'minimumCapacity'.
 
     // NOT IMPLEMENTED
     FlatHashTable();
@@ -357,155 +364,157 @@ class FlatHashTable
                                                       // load factor
 
     // CREATORS
+
+    /// Create an empty table having at least the specified `capacity`, that
+    /// will use the specified `hash` to generate hash values for the keys
+    /// of the entries contained in this table, and the specified `equal` to
+    /// verify that the keys of the two entries are the same.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  If `0 == capacity`, no memory is allocated and the object is
+    /// defined to be in the "zero-capacity" state.
     FlatHashTable(bsl::size_t       capacity,
                   const HASH&       hash,
                   const EQUAL&      equal,
                   bslma::Allocator *basicAllocator = 0);
-        // Create an empty table having at least the specified 'capacity', that
-        // will use the specified 'hash' to generate hash values for the keys
-        // of the entries contained in this table, and the specified 'equal' to
-        // verify that the keys of the two entries are the same.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  If '0 == capacity', no memory is allocated and the object is
-        // defined to be in the "zero-capacity" state.
 
+    /// Create a table having the same value, hasher, and key-equality
+    /// comparator as the specified `original`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     FlatHashTable(const FlatHashTable&  original,
                   bslma::Allocator     *basicAllocator = 0);
-        // Create a table having the same value, hasher, and key-equality
-        // comparator as the specified 'original'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Create an table having the same value as the specified `original`
+    /// object by moving (in constant time) the contents of `original` to
+    /// the new table.  Use a copy of `original.hash_function()` to generate
+    /// hash values for the keys of the entries contained in this table.
+    /// Use a copy of `original.key_eq()` to verify that two keys are equal.
+    /// The allocator associated with `original` is propagated for use in
+    /// the newly-created table.  `original` is left in a (valid)
+    /// unspecified state.
     explicit FlatHashTable(bslmf::MovableRef<FlatHashTable> original);
-        // Create an table having the same value as the specified 'original'
-        // object by moving (in constant time) the contents of 'original' to
-        // the new table.  Use a copy of 'original.hash_function()' to generate
-        // hash values for the keys of the entries contained in this table.
-        // Use a copy of 'original.key_eq()' to verify that two keys are equal.
-        // The allocator associated with 'original' is propagated for use in
-        // the newly-created table.  'original' is left in a (valid)
-        // unspecified state.
 
+    /// Create a table having the same value, hasher, and key-equality
+    /// comparator as the specified `original` object by moving the contents
+    /// of `original` to the new table, and using the specified
+    /// `basicAllocator` to supply memory.  Use a copy of
+    /// `original.hash_function()` to generate hash values for the entries
+    /// contained in this table.  Use a copy of `original.key_eq()` to
+    /// verify that the keys of two entries are equal.  This method requires
+    /// that the (template parameter) type `ENTRY` be `move-insertable` into
+    /// this `FlatHashTable`.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.  If `original` and the newly
+    /// created object have the same allocator then the value of `original`
+    /// becomes unspecified but valid, and no exceptions will be thrown;
+    /// otherwise `original` is unchanged (and an exception may be thrown).
     FlatHashTable(bslmf::MovableRef<FlatHashTable>  original,
                   bslma::Allocator                 *basicAllocator);
-        // Create a table having the same value, hasher, and key-equality
-        // comparator as the specified 'original' object by moving the contents
-        // of 'original' to the new table, and using the specified
-        // 'basicAllocator' to supply memory.  Use a copy of
-        // 'original.hash_function()' to generate hash values for the entries
-        // contained in this table.  Use a copy of 'original.key_eq()' to
-        // verify that the keys of two entries are equal.  This method requires
-        // that the (template parameter) type 'ENTRY' be 'move-insertable' into
-        // this 'FlatHashTable'.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  If 'original' and the newly
-        // created object have the same allocator then the value of 'original'
-        // becomes unspecified but valid, and no exceptions will be thrown;
-        // otherwise 'original' is unchanged (and an exception may be thrown).
 
+    /// Destroy this object and each of its entries.
     ~FlatHashTable();
-        // Destroy this object and each of its entries.
 
     // MANIPULATORS
+
+    /// Assign to this object the value, hasher, and key-equality functor of
+    /// the specified `rhs` object and return a reference offering
+    /// modifiable access to this object.
     FlatHashTable& operator=(const FlatHashTable& rhs);
-        // Assign to this object the value, hasher, and key-equality functor of
-        // the specified 'rhs' object and return a reference offering
-        // modifiable access to this object.
 
+    /// Assign to this object the value, hash function, and key-equality
+    /// comparator of the specified `rhs` object and return a reference
+    /// offering modifiable access to this object.  The entries of `rhs` are
+    /// moved (in constant time) to this object if the two have the same
+    /// allocator, otherwise entries from `rhs` are moved into this table.
+    /// In either case, `rhs` is left in a valid but unspecified state.  If
+    /// an exception is thrown, this object is left in a valid but
+    /// unspecified state.
     FlatHashTable& operator=(bslmf::MovableRef<FlatHashTable> rhs);
-        // Assign to this object the value, hash function, and key-equality
-        // comparator of the specified 'rhs' object and return a reference
-        // offering modifiable access to this object.  The entries of 'rhs' are
-        // moved (in constant time) to this object if the two have the same
-        // allocator, otherwise entries from 'rhs' are moved into this table.
-        // In either case, 'rhs' is left in a valid but unspecified state.  If
-        // an exception is thrown, this object is left in a valid but
-        // unspecified state.
 
+    /// If an entry with the specified `key` is not already present in this
+    /// table, insert an entry having the value defined by
+    /// `ENTRY_UTIL::construct`; otherwise, this method has no effect.
+    /// Return an iterator referring to the (possibly newly inserted) object
+    /// in this table with the `key`.
     template <class KEY_TYPE>
     ENTRY& operator[](BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) key);
-        // If an entry with the specified 'key' is not already present in this
-        // table, insert an entry having the value defined by
-        // 'ENTRY_UTIL::construct'; otherwise, this method has no effect.
-        // Return an iterator referring to the (possibly newly inserted) object
-        // in this table with the 'key'.
 
+    /// Remove all entries from this table.  Note that this table will be
+    /// empty after calling this method, but allocated memory may be
+    /// retained for future use.  See the `capacity` method.
     void clear();
-        // Remove all entries from this table.  Note that this table will be
-        // empty after calling this method, but allocated memory may be
-        // retained for future use.  See the 'capacity' method.
 
+    /// Return a pair of iterators providing modifiable access to the
+    /// sequence of objects in this flat hash table having the specified
+    /// `key`, where the first iterator is positioned at the start of the
+    /// sequence, and the second is positioned one past the end of the
+    /// sequence.  If this table contains no object having `key`, then the
+    /// two returned iterators will have the same value, `end()`.  Note that
+    /// since each key in a flat hash table is unique, the returned range
+    /// contains at most one element.
     bsl::pair<iterator, iterator> equal_range(const KEY& key);
-        // Return a pair of iterators providing modifiable access to the
-        // sequence of objects in this flat hash table having the specified
-        // 'key', where the first iterator is positioned at the start of the
-        // sequence, and the second is positioned one past the end of the
-        // sequence.  If this table contains no object having 'key', then the
-        // two returned iterators will have the same value, 'end()'.  Note that
-        // since each key in a flat hash table is unique, the returned range
-        // contains at most one element.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// Create an `ENTRY` object from the specified `args`, and attempt to
+    /// add it to this flat hash table.  Return a `bsl::pair` containing an
+    /// iterator to the newly inserted object and `true` if the element was
+    /// added.  If an entry with the same key already exists in this flat
+    /// hash table, return an iterator to that entry and `false`.  This
+    /// method requires that the `ENTRY` be `copy-constructible`.
     template< class... ARGS>
     bsl::pair<iterator, bool> emplace(ARGS&&... args);
-        // Create an 'ENTRY' object from the specified 'args', and attempt to
-        // add it to this flat hash table.  Return a 'bsl::pair' containing an
-        // iterator to the newly inserted object and 'true' if the element was
-        // added.  If an entry with the same key already exists in this flat
-        // hash table, return an iterator to that entry and 'false'.  This
-        // method requires that the 'ENTRY' be 'copy-constructible'.
 #endif
 
+    /// Remove from this table the object having the specified `key`, if it
+    /// exists, and return 1; otherwise (there is no object with a key equal
+    /// to `key` in this table) return 0 with no other effect.  This method
+    /// invalidates all iterators, and references to the removed element.
     bsl::size_t erase(const KEY& key);
-        // Remove from this table the object having the specified 'key', if it
-        // exists, and return 1; otherwise (there is no object with a key equal
-        // to 'key' in this table) return 0 with no other effect.  This method
-        // invalidates all iterators, and references to the removed element.
 
+    /// Remove from this table the object at the specified `position`, and
+    /// return an iterator referring to the element immediately following
+    /// the removed element, or to the past-the-end position if the removed
+    /// element was the last element in the sequence of elements maintained
+    /// by this table.  This method invalidates all iterators, and
+    /// references to the removed element.  The behavior is undefined unless
+    /// `position` refers to an object in this table.
     iterator erase(const_iterator position);
     iterator erase(iterator position);
-        // Remove from this table the object at the specified 'position', and
-        // return an iterator referring to the element immediately following
-        // the removed element, or to the past-the-end position if the removed
-        // element was the last element in the sequence of elements maintained
-        // by this table.  This method invalidates all iterators, and
-        // references to the removed element.  The behavior is undefined unless
-        // 'position' refers to an object in this table.
 
+    /// Remove from this table the objects starting at the specified `first`
+    /// position up to, but not including, the specified `last` position,
+    /// and return `last`.  This method invalidates all iterators, and
+    /// references to the removed element.  The behavior is undefined unless
+    /// `first` and `last` either refer to elements in this table or are the
+    /// `end` iterator, and the `first` position is at or before the `last`
+    /// position in the iteration sequence provided by this container.
     iterator erase(const_iterator first, const_iterator last);
-        // Remove from this table the objects starting at the specified 'first'
-        // position up to, but not including, the specified 'last' position,
-        // and return 'last'.  This method invalidates all iterators, and
-        // references to the removed element.  The behavior is undefined unless
-        // 'first' and 'last' either refer to elements in this table or are the
-        // 'end' iterator, and the 'first' position is at or before the 'last'
-        // position in the iteration sequence provided by this container.
 
+    /// Return an iterator providing modifiable access to the object in this
+    /// flat hash table with a key equal to the specified `key`, if such an
+    /// entry exists, and `end()` otherwise.
     iterator find(const KEY& key);
-        // Return an iterator providing modifiable access to the object in this
-        // flat hash table with a key equal to the specified 'key', if such an
-        // entry exists, and 'end()' otherwise.
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class ENTRY_TYPE>
     bsl::pair<iterator, bool> insert(
                            BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_TYPE) entry)
 #else
+    /// Insert the specified `entry` into this table if the key of the
+    /// `entry` does not already exist in this table; otherwise, this method
+    /// has no effect.  Return a `pair` whose `first` member is an iterator
+    /// referring to the (possibly newly inserted) object in this table
+    /// whose key is the equal to that of the object to be inserted, and
+    /// whose `second` member is `true` if a new entry was inserted, and
+    /// `false` if a entry having an equal key was already present.  Bitwise
+    /// movable types that are not bitwise copyable will be copied (to avoid
+    /// confusion with regard to calling the `entry` destructor after this
+    /// call).
     template <class ENTRY_TYPE>
     typename bsl::enable_if<bsl::is_convertible<ENTRY_TYPE, ENTRY>::value,
                             bsl::pair<iterator, bool> >::type
                     insert(BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_TYPE) entry)
 #endif
-        // Insert the specified 'entry' into this table if the key of the
-        // 'entry' does not already exist in this table; otherwise, this method
-        // has no effect.  Return a 'pair' whose 'first' member is an iterator
-        // referring to the (possibly newly inserted) object in this table
-        // whose key is the equal to that of the object to be inserted, and
-        // whose 'second' member is 'true' if a new entry was inserted, and
-        // 'false' if a entry having an equal key was already present.  Bitwise
-        // movable types that are not bitwise copyable will be copied (to avoid
-        // confusion with regard to calling the 'entry' destructor after this
-        // call).
     {
         // Note that some compilers require functions declared with 'enable_if'
         // to be defined inline.
@@ -534,234 +543,270 @@ class FlatHashTable
                                          notFound);
     }
 
+    /// Create an object for each iterator in the range starting at the
+    /// specified `first` iterator and ending immediately before the
+    /// specified `last` iterator, by converting from the object referred to
+    /// by each iterator.  Insert into this table each such object whose key
+    /// is not already contained.  The (template parameter) type
+    /// `INPUT_ITERATOR` shall meet the requirements of an input iterator
+    /// defined in the C++11 standard [24.2.3] providing access to values of
+    /// a type convertible to `ENTRY`.  The behavior is undefined unless
+    /// `first` and `last` refer to a sequence of valid values where `first`
+    /// is at a position at or before `last`.
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
-        // Create an object for each iterator in the range starting at the
-        // specified 'first' iterator and ending immediately before the
-        // specified 'last' iterator, by converting from the object referred to
-        // by each iterator.  Insert into this table each such object whose key
-        // is not already contained.  The (template parameter) type
-        // 'INPUT_ITERATOR' shall meet the requirements of an input iterator
-        // defined in the C++11 standard [24.2.3] providing access to values of
-        // a type convertible to 'ENTRY'.  The behavior is undefined unless
-        // 'first' and 'last' refer to a sequence of valid values where 'first'
-        // is at a position at or before 'last'.
 
+    /// Change the capacity of this table to at least the specified
+    /// `minimumCapacity`, and redistribute all the contained elements into
+    /// a new sequence of entries, according to their hash values.  If
+    /// `0 == minimumCapacity` and `0 == size()`, the table is returned to
+    /// the zero-capacity state.  On return, `load_factor()` is less than or
+    /// equal to `max_load_factor()` and all iterators, pointers, and
+    /// references to elements of this `FlatHashTable` are invalidated.
     void rehash(bsl::size_t minimumCapacity);
-        // Change the capacity of this table to at least the specified
-        // 'minimumCapacity', and redistribute all the contained elements into
-        // a new sequence of entries, according to their hash values.  If
-        // '0 == minimumCapacity' and '0 == size()', the table is returned to
-        // the zero-capacity state.  On return, 'load_factor()' is less than or
-        // equal to 'max_load_factor()' and all iterators, pointers, and
-        // references to elements of this 'FlatHashTable' are invalidated.
 
+    /// Change the capacity of this table to at least a capacity that can
+    /// accommodate the specified `numEntries` (accounting for the load
+    /// factor invariant), and redistribute all the contained elements into
+    /// a new sequence of entries, according to their hash values.  If
+    /// `0 == numEntries` and `0 == size()`, the table is returned to the
+    /// zero-capacity state.  After this call, `load_factor()` will be less
+    /// than or equal to `max_load_factor()`.  Note that this method is
+    /// effectively equivalent to:
+    /// ```
+    ///    rehash(bsl::ceil(numEntries / max_load_factor()))
+    /// ```
     void reserve(bsl::size_t numEntries);
-        // Change the capacity of this table to at least a capacity that can
-        // accommodate the specified 'numEntries' (accounting for the load
-        // factor invariant), and redistribute all the contained elements into
-        // a new sequence of entries, according to their hash values.  If
-        // '0 == numEntries' and '0 == size()', the table is returned to the
-        // zero-capacity state.  After this call, 'load_factor()' will be less
-        // than or equal to 'max_load_factor()'.  Note that this method is
-        // effectively equivalent to:
-        //..
-        //     rehash(bsl::ceil(numEntries / max_load_factor()))
-        //..
 
+    /// Remove all entries from this table and release all memory from this
+    /// table, returning the table to the zero-capacity state.
     void reset();
-        // Remove all entries from this table and release all memory from this
-        // table, returning the table to the zero-capacity state.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// If a key equivalent to the specified `key` already exists in this
+    /// map, return a pair containing an iterator referring to the existing
+    /// item, and `false`.  Otherwise, insert into this map a newly-created
+    /// `ENTRY` object, constructed from `key` and the specified `args`, and
+    /// return a pair containing an iterator referring to the newly-created
+    /// entry and `true`.  This method requires that the (template
+    /// parameter) types `KEY` and `VALUE` are `emplace-constructible` from
+    /// `key` and `args` respectively.  For C++03, `VALUE` must also be
+    /// `copy-constructible`.
     template< class... ARGS>
     bsl::pair<iterator, bool> try_emplace(const KEY& key, ARGS&&... args);
-        // If a key equivalent to the specified 'key' already exists in this
-        // map, return a pair containing an iterator referring to the existing
-        // item, and 'false'.  Otherwise, insert into this map a newly-created
-        // 'ENTRY' object, constructed from 'key' and the specified 'args', and
-        // return a pair containing an iterator referring to the newly-created
-        // entry and 'true'.  This method requires that the (template
-        // parameter) types 'KEY' and 'VALUE' are 'emplace-constructible' from
-        // 'key' and 'args' respectively.  For C++03, 'VALUE' must also be
-        // 'copy-constructible'.
 
+    /// If a key equivalent to the specified `key` already exists in this
+    /// map, return a pair containing an iterator referring to the existing
+    /// item, and `false`.  Otherwise, insert into this map a newly-created
+    /// `ENTRY` object, constructed from `std::forward<KEY>(key)` and the
+    /// specified `args`, and return a pair containing an iterator referring
+    /// to the newly-created entry and `true`.  This method requires that
+    /// the (template parameter) types `KEY` and `VALUE` are
+    /// `emplace-constructible` from `key` and `args` respectively.  For
+    /// C++03, `VALUE` must also be `copy-constructible`.
     template <class... ARGS>
     bsl::pair<iterator, bool> try_emplace(
                                      BloombergLP::bslmf::MovableRef<KEY> key,
                                      ARGS&&...                           args);
-        // If a key equivalent to the specified 'key' already exists in this
-        // map, return a pair containing an iterator referring to the existing
-        // item, and 'false'.  Otherwise, insert into this map a newly-created
-        // 'ENTRY' object, constructed from 'std::forward<KEY>(key)' and the
-        // specified 'args', and return a pair containing an iterator referring
-        // to the newly-created entry and 'true'.  This method requires that
-        // the (template parameter) types 'KEY' and 'VALUE' are
-        // 'emplace-constructible' from 'key' and 'args' respectively.  For
-        // C++03, 'VALUE' must also be 'copy-constructible'.
 #endif
 
                           // Iterators
 
+    /// Return an iterator representing the beginning of the sequence of
+    /// entries held by this container.
     iterator begin();
-        // Return an iterator representing the beginning of the sequence of
-        // entries held by this container.
 
+    /// Return an iterator representing one past the end of the sequence of
+    /// entries held by this container.
     iterator end();
-        // Return an iterator representing one past the end of the sequence of
-        // entries held by this container.
 
                            // Aspects
 
+    /// Efficiently exchange the value of this table with the value of the
+    /// specified `other` table.  This method provides the no-throw
+    /// exception-safety guarantee.  The behavior is undefined unless this
+    /// array was created with the same allocator as `other`.
     void swap(FlatHashTable& other);
-        // Efficiently exchange the value of this table with the value of the
-        // specified 'other' table.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless this
-        // array was created with the same allocator as 'other'.
 
     // ACCESSORS
+
+    /// Return the number of elements this table could hold if the load
+    /// factor were 1.
     bsl::size_t capacity() const;
-        // Return the number of elements this table could hold if the load
-        // factor were 1.
 
+    /// Return `true` if this table contains an entry having the specified
+    /// `key`, and `false` otherwise.
     bool contains(const KEY& key) const;
-        // Return 'true' if this table contains an entry having the specified
-        // 'key', and 'false' otherwise.
 
+    /// Return the address of the first element of the underlying array of
+    /// control values in this table, or 0 if this table is in the
+    /// zero-capacity state.  An element of this array has the value
+    /// `FlatHashTable_GroupControl::k_EMPTY`,
+    /// `FlatHashTable_GroupControl::k_ERASED`, or a seven bit hashlet value
+    /// for the in-use position (the highest-order bit is unset).
     const bsl::uint8_t *controls() const;
-        // Return the address of the first element of the underlying array of
-        // control values in this table, or 0 if this table is in the
-        // zero-capacity state.  An element of this array has the value
-        // 'FlatHashTable_GroupControl::k_EMPTY',
-        // 'FlatHashTable_GroupControl::k_ERASED', or a seven bit hashlet value
-        // for the in-use position (the highest-order bit is unset).
 
+    /// Return the number of objects contained within this table having the
+    /// specified `key`.  Note that since a table maintains unique keys, the
+    /// returned value will be either 0 or 1.
     bsl::size_t count(const KEY& key) const;
-        // Return the number of objects contained within this table having the
-        // specified 'key'.  Note that since a table maintains unique keys, the
-        // returned value will be either 0 or 1.
 
+    /// Return `true` if this table contains no entries, and `false`
+    /// otherwise.
     bool empty() const;
-        // Return 'true' if this table contains no entries, and 'false'
-        // otherwise.
 
+    /// Return the address of the first element of the underlying array of
+    /// entries in this table, or 0 if this table is in the zero-capacity
+    /// state.  The behavior is undefined unless the address is verified
+    /// in-use through use of the `controls` array before dereferencing an
+    /// entry in this array.
     const ENTRY *entries() const;
-        // Return the address of the first element of the underlying array of
-        // entries in this table, or 0 if this table is in the zero-capacity
-        // state.  The behavior is undefined unless the address is verified
-        // in-use through use of the 'controls' array before dereferencing an
-        // entry in this array.
 
+    /// Return a pair of iterators providing non-modifiable access to the
+    /// sequence of objects in this table having the specified `key`, where
+    /// the first iterator is positioned at the start of the sequence, and
+    /// the second is positioned one past the end of the sequence.  If this
+    /// table contains no objects having `key`, then the two returned
+    /// iterators will have the same value, `end()`.  Note that since a
+    /// table maintains unique keys, the range will contain at most one
+    /// entry.
     bsl::pair<const_iterator, const_iterator> equal_range(
                                                          const KEY& key) const;
-        // Return a pair of iterators providing non-modifiable access to the
-        // sequence of objects in this table having the specified 'key', where
-        // the first iterator is positioned at the start of the sequence, and
-        // the second is positioned one past the end of the sequence.  If this
-        // table contains no objects having 'key', then the two returned
-        // iterators will have the same value, 'end()'.  Note that since a
-        // table maintains unique keys, the range will contain at most one
-        // entry.
 
+    /// Return an iterator representing the position of the entry in this
+    /// flat hash table having the specified `key`, or `end()` if no such
+    /// entry exists in this table.
     const_iterator find(const KEY& key) const;
-        // Return an iterator representing the position of the entry in this
-        // flat hash table having the specified 'key', or 'end()' if no such
-        // entry exists in this table.
 
+    /// Return (a copy of) the unary hash functor used by this flat hash
+    /// table to generate a hash value (of type `bsl::size_t) for a `KEY'
+    /// object.
     HASH hash_function() const;
-        // Return (a copy of) the unary hash functor used by this flat hash
-        // table to generate a hash value (of type 'bsl::size_t) for a 'KEY'
-        // object.
 
+    /// Return (a copy of) the binary key-equality functor used by this flat
+    /// hash table that returns `true` if two `KEY` objects are equal, and
+    /// `false` otherwise.
     EQUAL key_eq() const;
-        // Return (a copy of) the binary key-equality functor used by this flat
-        // hash table that returns 'true' if two 'KEY' objects are equal, and
-        // 'false' otherwise.
 
+    /// Return the current ratio between the number of elements in this
+    /// table and its capacity.
     float load_factor() const;
-        // Return the current ratio between the number of elements in this
-        // table and its capacity.
 
+    /// Return the maximum load factor allowed for this table.  Note that if
+    /// an insert operation would cause the load factor to exceed the
+    /// `max_load_factor`, that same insert operation will increase the
+    /// capacity and rehash the entries of the container (see `insert` and
+    /// `rehash`).  Note that the value returned by `max_load_factor` is
+    /// implementation dependent and cannot be changed by the user.
     float max_load_factor() const;
-        // Return the maximum load factor allowed for this table.  Note that if
-        // an insert operation would cause the load factor to exceed the
-        // 'max_load_factor', that same insert operation will increase the
-        // capacity and rehash the entries of the container (see 'insert' and
-        // 'rehash').  Note that the value returned by 'max_load_factor' is
-        // implementation dependent and cannot be changed by the user.
 
+    /// Return the number of entries in this table.
     bsl::size_t size() const;
-        // Return the number of entries in this table.
 
                           // Iterators
 
     const_iterator begin() const;
+
+    /// Return an iterator representing the beginning of the sequence of
+    /// entries held by this container.
     const_iterator cbegin() const;
-        // Return an iterator representing the beginning of the sequence of
-        // entries held by this container.
 
     const_iterator cend() const;
+
+    /// Return an iterator representing one past the end of the sequence of
+    /// entries held by this container.
     const_iterator end() const;
-        // Return an iterator representing one past the end of the sequence of
-        // entries held by this container.
 
                            // Aspects
 
+    /// Return the allocator used by this hash table to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this hash table to supply memory.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `FlatHashTable` objects have the same
+/// value if they have the same number of entries, and for each entry that
+/// is contained in `lhs` there is a entry contained in `rhs` having the
+/// same value.  Note that this method requires the (template parameter)
+/// type `ENTRY` to be equality-comparable.
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 bool operator==(const FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>& lhs,
                 const FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'FlatHashTable' objects have the same
-    // value if they have the same number of entries, and for each entry that
-    // is contained in 'lhs' there is a entry contained in 'rhs' having the
-    // same value.  Note that this method requires the (template parameter)
-    // type 'ENTRY' to be equality-comparable.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `FlatHashTable` objects do not
+/// have the same value if they do not have the same number of entries, or
+/// that for some entry contained in `lhs` there is not a entry in `rhs`
+/// having the same value.  Note that this method requires the (template
+/// parameter) type `ENTRY` to be equality-comparable.
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 bool operator!=(const FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>& lhs,
                 const FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'FlatHashTable' objects do not
-    // have the same value if they do not have the same number of entries, or
-    // that for some entry contained in 'lhs' there is not a entry in 'rhs'
-    // having the same value.  Note that this method requires the (template
-    // parameter) type 'ENTRY' to be equality-comparable.
 
 // FREE FUNCTIONS
+
+/// Exchange the values of the specified `a` and `b` objects.  This function
+/// provides the no-throw exception-safety guarantee if the two objects were
+/// created with the same allocator and the basic guarantee otherwise.
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 void swap(FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>& a,
           FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>& b);
-    // Exchange the values of the specified 'a' and 'b' objects.  This function
-    // provides the no-throw exception-safety guarantee if the two objects were
-    // created with the same allocator and the basic guarantee otherwise.
 
                        // =============================
                        // struct FlatHashTable_ImplUtil
                        // =============================
 
+/// This component-private, utility `struct` provides a namespace for a
+/// suite of operations used in the implementation of the `FlatHashTable`
+/// class template.
 struct FlatHashTable_ImplUtil {
-    // This component-private, utility 'struct' provides a namespace for a
-    // suite of operations used in the implementation of the 'FlatHashTable'
-    // class template.
 
   private:
     // PRIVATE TYPES
     typedef FlatHashTable_GroupControl GroupControl;
 
+    /// This component-private, mechanism class template provides a proctor
+    /// that, unless its `release` method has been previously invoked, on
+    /// destruction automatically destroys the populated `ENTRY_TYPE`
+    /// elements of an `ENTRY_TYPE` array supplied on construction as
+    /// indicated by a "control" byte array supplied on construction.
     template <class ENTRY_TYPE>
     class DestroyEntryArrayProctor;
-        // This component-private, mechanism class template provides a proctor
-        // that, unless its 'release' method has been previously invoked, on
-        // destruction automatically destroys the populated 'ENTRY_TYPE'
-        // elements of an 'ENTRY_TYPE' array supplied on construction as
-        // indicated by a "control" byte array supplied on construction.
 
     // PRIVATE CLASS METHODS
+
+    /// Copy the specified range `[firstSourceControl, lastSourceControl)`
+    /// to the array specified by `firstDestinationControl`, and copy each
+    /// element in the specified range `[firstSourceEntry, lastSourceEntry)`
+    /// at the same index as each byte in the range '[firstSourceControl,
+    /// lastSourceControl)' that has its most-significant bit unset, to the
+    /// corresponding location in the contiguous storage for `ENTRY_TYPE`
+    /// objects specified by `firstDestinationEntry`.  Use the specified
+    /// `entryAllocator` as the object allocator for each newly-constructed
+    /// `ENTRY_TYPE` object if `ENTRY_TYPE` is allocator-aware.  If
+    /// `entryAllocator` is 0, the currently-installed default allocator is
+    /// used.  No exception is thrown if the specified `ENTRY_TYPE` is
+    /// nothrow-copyable, otherwise an exception may be thrown.  The
+    /// behavior is undefined unless
+    /// `bslmf::IsBitwiseCopyable<ENTRY_TYPE>::value` is equal to the
+    /// `value` member of the type of the specified `tag`,
+    /// `firstDestinationEntry` is a pointer to the first byte of
+    /// uninitialized and correctly aligned storage for at least
+    /// `bsl::distance(firstSourceEntry, lastSourceEntry)` `ENTRY_TYPE`
+    /// objects, `firstDestinationControl` is a pointer to the first byte of
+    /// `bsl::distance(firstSourceEntry, lastSourceEntry)` bytes of
+    /// uninitialized storage, the range '[firstSourceEntry,
+    /// lastSourceEntry)' denotes a contiguous array of storage for
+    /// optionally-constructed `ENTRY_TYPE` objects, the range
+    /// `[firstSourceControl, lastSourceControl)` denotes a contiguous array
+    /// of `bsl::uint8_t` objects, an `ENTRY_TYPE` object exists at the same
+    /// index in the `[firstSourceEntry, lastSourceEntry)` storage range as
+    /// each byte in the range `[firstControlEntry, lastControlEntry)` that
+    /// has its most significant bit unset, and
+    /// `bsl::distance(firstSourceEntry, lastSourceEntry)` is equal to
+    /// `bsl::distance(firstSourceControl, lastSourceControl)`.
     template <class ENTRY_TYPE>
     static void copyEntryAndControlArrays(
                       ENTRY_TYPE                      *firstDestinationEntry,
@@ -782,38 +827,24 @@ struct FlatHashTable_ImplUtil {
                          const bsl::uint8_t           *lastSourceControl,
                          bslma::Allocator             *entryAllocator,
                          bsl::true_type                bitwiseCopyable);
-        // Copy the specified range '[firstSourceControl, lastSourceControl)'
-        // to the array specified by 'firstDestinationControl', and copy each
-        // element in the specified range '[firstSourceEntry, lastSourceEntry)'
-        // at the same index as each byte in the range '[firstSourceControl,
-        // lastSourceControl)' that has its most-significant bit unset, to the
-        // corresponding location in the contiguous storage for 'ENTRY_TYPE'
-        // objects specified by 'firstDestinationEntry'.  Use the specified
-        // 'entryAllocator' as the object allocator for each newly-constructed
-        // 'ENTRY_TYPE' object if 'ENTRY_TYPE' is allocator-aware.  If
-        // 'entryAllocator' is 0, the currently-installed default allocator is
-        // used.  No exception is thrown if the specified 'ENTRY_TYPE' is
-        // nothrow-copyable, otherwise an exception may be thrown.  The
-        // behavior is undefined unless
-        // 'bslmf::IsBitwiseCopyable<ENTRY_TYPE>::value' is equal to the
-        // 'value' member of the type of the specified 'tag',
-        // 'firstDestinationEntry' is a pointer to the first byte of
-        // uninitialized and correctly aligned storage for at least
-        // 'bsl::distance(firstSourceEntry, lastSourceEntry)' 'ENTRY_TYPE'
-        // objects, 'firstDestinationControl' is a pointer to the first byte of
-        // 'bsl::distance(firstSourceEntry, lastSourceEntry)' bytes of
-        // uninitialized storage, the range '[firstSourceEntry,
-        // lastSourceEntry)' denotes a contiguous array of storage for
-        // optionally-constructed 'ENTRY_TYPE' objects, the range
-        // '[firstSourceControl, lastSourceControl)' denotes a contiguous array
-        // of 'bsl::uint8_t' objects, an 'ENTRY_TYPE' object exists at the same
-        // index in the '[firstSourceEntry, lastSourceEntry)' storage range as
-        // each byte in the range '[firstControlEntry, lastControlEntry)' that
-        // has its most significant bit unset, and
-        // 'bsl::distance(firstSourceEntry, lastSourceEntry)' is equal to
-        // 'bsl::distance(firstSourceControl, lastSourceControl)'.
 
 
+    /// Destroy each entry object in the storage specified by the range
+    /// `[firstEntry, lastEntry)` if the most-significant bit is unset in
+    /// the corresponding element in the specified range
+    /// `[firstControl, lastControl)` (i.e., the most-significant bit of the
+    /// element in the "control" array that has the same index as the
+    /// element in the "entry" array is unset).  No exception is thrown.
+    /// The behavior is undefined unless
+    /// `bslmf::IsTriviallyDestructible<ENTRY_TYPE>::value` is equal to the
+    /// `value` member of the type of the specified `tag`, the range
+    /// `[firstEntry, lastEntry)` denotes a contiguous array of storage for
+    /// optionally-constructed `ENTRY_TYPE` objects, the range
+    /// `[firstControl, lastControl)` denotes a contiguous array of
+    /// `bsl::uint8_t` objects, the two arrays have the same number of
+    /// elements, and an `ENTRY_TYPE` object exists at the same index in the
+    /// `[firstEntry, lastEntry)` storage range for each element in the
+    /// `[firstControl, lastControl)` range that has its first bit unset.
     template <class ENTRY_TYPE>
     static void destroyEntryArray(ENTRY_TYPE         *firstEntry,
                                   ENTRY_TYPE         *lastEntry,
@@ -826,25 +857,37 @@ struct FlatHashTable_ImplUtil {
                                   const bsl::uint8_t *firstControl,
                                   const bsl::uint8_t *lastControl,
                                   bsl::true_type      triviallyDestructible);
-        // Destroy each entry object in the storage specified by the range
-        // '[firstEntry, lastEntry)' if the most-significant bit is unset in
-        // the corresponding element in the specified range
-        // '[firstControl, lastControl)' (i.e., the most-significant bit of the
-        // element in the "control" array that has the same index as the
-        // element in the "entry" array is unset).  No exception is thrown.
-        // The behavior is undefined unless
-        // 'bslmf::IsTriviallyDestructible<ENTRY_TYPE>::value' is equal to the
-        // 'value' member of the type of the specified 'tag', the range
-        // '[firstEntry, lastEntry)' denotes a contiguous array of storage for
-        // optionally-constructed 'ENTRY_TYPE' objects, the range
-        // '[firstControl, lastControl)' denotes a contiguous array of
-        // 'bsl::uint8_t' objects, the two arrays have the same number of
-        // elements, and an 'ENTRY_TYPE' object exists at the same index in the
-        // '[firstEntry, lastEntry)' storage range for each element in the
-        // '[firstControl, lastControl)' range that has its first bit unset.
 
   public:
     // CLASS METHODS
+
+    /// Copy the specified range `[firstSourceControl, lastSourceControl)`
+    /// to the array specified by `firstDestinationControl`, and copy each
+    /// element in the specified range `[firstSourceEntry, lastSourceEntry)`
+    /// at the same index as each byte in the range '[firstSourceControl,
+    /// lastSourceControl)' that has its most-significant bit unset, to the
+    /// corresponding location in the contiguous storage for `ENTRY_TYPE`
+    /// objects specified by `firstDestinationEntry`.  Use the specified
+    /// `entryAllocator` as the object allocator for each newly-constructed
+    /// `ENTRY_TYPE` object if `ENTRY_TYPE` is allocator-aware.  If
+    /// `entryAllocator` is 0, the currently-installed default allocator is
+    /// used.  No exception is thrown if the specified `ENTRY_TYPE` is
+    /// nothrow-copyable, otherwise an exception may be thrown.  The
+    /// behavior is undefined unless `firstDestinationEntry` is a pointer to
+    /// the first byte of uninitialized and correctly aligned storage for at
+    /// least `bsl::distance(firstSourceEntry, lastSourceEntry)`
+    /// `ENTRY_TYPE` objects, `firstDestinationControl` is a pointer to the
+    /// first byte of `bsl::distance(firstSourceEntry, lastSourceEntry)`
+    /// bytes of uninitialized storage, the range '[firstSourceEntry,
+    /// lastSourceEntry)' denotes a contiguous array of storage for
+    /// optionally-constructed `ENTRY_TYPE` objects, the range
+    /// `[firstSourceControl, lastSourceControl)` denotes a contiguous array
+    /// of `bsl::uint8_t` objects, an `ENTRY_TYPE` object exists at the same
+    /// index in the `[firstSourceEntry, lastSourceEntry)` storage range as
+    /// each byte in the range `[firstControlEntry, lastControlEntry)` that
+    /// has its most significant bit unset, and
+    /// `bsl::distance(firstSourceEntry, lastSourceEntry)` is equal to
+    /// `bsl::distance(firstSourceControl, lastSourceControl)`.
     template <class ENTRY_TYPE>
     static void
     copyEntryAndControlArrays(ENTRY_TYPE         *firstDestinationEntry,
@@ -854,83 +897,57 @@ struct FlatHashTable_ImplUtil {
                               const bsl::uint8_t *firstSourceControl,
                               const bsl::uint8_t *lastSourceControl,
                               bslma::Allocator   *entryAllocator);
-        // Copy the specified range '[firstSourceControl, lastSourceControl)'
-        // to the array specified by 'firstDestinationControl', and copy each
-        // element in the specified range '[firstSourceEntry, lastSourceEntry)'
-        // at the same index as each byte in the range '[firstSourceControl,
-        // lastSourceControl)' that has its most-significant bit unset, to the
-        // corresponding location in the contiguous storage for 'ENTRY_TYPE'
-        // objects specified by 'firstDestinationEntry'.  Use the specified
-        // 'entryAllocator' as the object allocator for each newly-constructed
-        // 'ENTRY_TYPE' object if 'ENTRY_TYPE' is allocator-aware.  If
-        // 'entryAllocator' is 0, the currently-installed default allocator is
-        // used.  No exception is thrown if the specified 'ENTRY_TYPE' is
-        // nothrow-copyable, otherwise an exception may be thrown.  The
-        // behavior is undefined unless 'firstDestinationEntry' is a pointer to
-        // the first byte of uninitialized and correctly aligned storage for at
-        // least 'bsl::distance(firstSourceEntry, lastSourceEntry)'
-        // 'ENTRY_TYPE' objects, 'firstDestinationControl' is a pointer to the
-        // first byte of 'bsl::distance(firstSourceEntry, lastSourceEntry)'
-        // bytes of uninitialized storage, the range '[firstSourceEntry,
-        // lastSourceEntry)' denotes a contiguous array of storage for
-        // optionally-constructed 'ENTRY_TYPE' objects, the range
-        // '[firstSourceControl, lastSourceControl)' denotes a contiguous array
-        // of 'bsl::uint8_t' objects, an 'ENTRY_TYPE' object exists at the same
-        // index in the '[firstSourceEntry, lastSourceEntry)' storage range as
-        // each byte in the range '[firstControlEntry, lastControlEntry)' that
-        // has its most significant bit unset, and
-        // 'bsl::distance(firstSourceEntry, lastSourceEntry)' is equal to
-        // 'bsl::distance(firstSourceControl, lastSourceControl)'.
 
+    /// Destroy each entry object in the storage specified by the range
+    /// `[firstEntry, lastEntry)` if the most-significant bit is unset in
+    /// the corresponding element in the specified range '[firstControl,
+    /// lastControl)' (i.e., the most-significant bit of the element in the
+    /// "control" array that has the same index as the element in the
+    /// "entry" array is unset).  No exception is thrown.  The behavior is
+    /// undefined unless the range `[firstEntry, lastEntry)` denotes a
+    /// contiguous array of storage for optionally-constructed `ENTRY_TYPE`
+    /// objects, the range `[firstControl, lastControl)` denotes a
+    /// contiguous array of `bsl::uint8_t` objects, the two arrays have the
+    /// same number of elements, and an `ENTRY_TYPE` object exists at the
+    /// same index in the `[firstEntry, lastEntry)` storage range for each
+    /// element in the `[firstControl, lastControl)` range that has its
+    /// first bit unset.
     template <class ENTRY_TYPE>
     static void destroyEntryArray(ENTRY_TYPE         *firstEntry,
                                   ENTRY_TYPE         *lastEntry,
                                   const bsl::uint8_t *firstControl,
                                   const bsl::uint8_t *lastControl);
-        // Destroy each entry object in the storage specified by the range
-        // '[firstEntry, lastEntry)' if the most-significant bit is unset in
-        // the corresponding element in the specified range '[firstControl,
-        // lastControl)' (i.e., the most-significant bit of the element in the
-        // "control" array that has the same index as the element in the
-        // "entry" array is unset).  No exception is thrown.  The behavior is
-        // undefined unless the range '[firstEntry, lastEntry)' denotes a
-        // contiguous array of storage for optionally-constructed 'ENTRY_TYPE'
-        // objects, the range '[firstControl, lastControl)' denotes a
-        // contiguous array of 'bsl::uint8_t' objects, the two arrays have the
-        // same number of elements, and an 'ENTRY_TYPE' object exists at the
-        // same index in the '[firstEntry, lastEntry)' storage range for each
-        // element in the '[firstControl, lastControl)' range that has its
-        // first bit unset.
 };
 
            // ======================================================
            // class FlatHashTable_ImplUtil::DestroyEntryArrayProctor
            // ======================================================
 
+/// This component-private, mechanism class template provides a proctor
+/// that, unless its `release` method has been previously invoked, on
+/// destruction automatically destroys the populated `ENTRY_TYPE` elements
+/// of an `ENTRY_TYPE` array supplied on construction as indicated by a
+/// "control" byte array supplied on construction.
 template <class ENTRY_TYPE>
 class FlatHashTable_ImplUtil::DestroyEntryArrayProctor {
-    // This component-private, mechanism class template provides a proctor
-    // that, unless its 'release' method has been previously invoked, on
-    // destruction automatically destroys the populated 'ENTRY_TYPE' elements
-    // of an 'ENTRY_TYPE' array supplied on construction as indicated by a
-    // "control" byte array supplied on construction.
 
     // PRIVATE TYPES
     typedef FlatHashTable_GroupControl GroupControl;
     typedef FlatHashTable_ImplUtil     ImplUtil;
 
     // DATA
+
+    // pointer to first element of entry array
     ENTRY_TYPE         *d_firstEntry_p;
-        // pointer to first element of entry array
 
+    // pointer to one-past-the-end of entry array
     ENTRY_TYPE         *d_lastEntry_p;
-        // pointer to one-past-the-end of entry array
 
+    // pointer to first element of control array
     const bsl::uint8_t *d_firstControl_p;
-        // pointer to first element of control array
 
+    // pointer to one-past-the-end of control array
     const bsl::uint8_t *d_lastControl_p;
-        // pointer to one-past-the-end of control array
 
     // NOT IMPLEMENTED
     DestroyEntryArrayProctor(const DestroyEntryArrayProctor&);
@@ -938,35 +955,37 @@ class FlatHashTable_ImplUtil::DestroyEntryArrayProctor {
 
   public:
     // CREATORS
+
+    /// Create a new `DestroyEntryArrayProctor` object for the contiguous
+    /// `ENTRY_TYPE` storage delimited by the range specified by
+    /// `[firstEntry, lastEntry)` controlled by the bytes in the range
+    /// specified by `[firstControl, lastControl)`.  The behavior is
+    /// undefined unless 'bsl::distance(firstEntry, lastEntry) ==
+    /// bsl::distance(`firstControl, lastControl)`.  Note that these ranges
+    /// may be valid sub-ranges (or "views") of larger arrays, and these
+    /// sub-ranges can be grown or shrunk by `moveEnd`.
     DestroyEntryArrayProctor(ENTRY_TYPE         *firstEntry,
                              ENTRY_TYPE         *lastEntry,
                              const bsl::uint8_t *firstControl,
                              const bsl::uint8_t *lastControl);
-        // Create a new 'DestroyEntryArrayProctor' object for the contiguous
-        // 'ENTRY_TYPE' storage delimited by the range specified by
-        // '[firstEntry, lastEntry)' controlled by the bytes in the range
-        // specified by '[firstControl, lastControl)'.  The behavior is
-        // undefined unless 'bsl::distance(firstEntry, lastEntry) ==
-        // bsl::distance('firstControl, lastControl)'.  Note that these ranges
-        // may be valid sub-ranges (or "views") of larger arrays, and these
-        // sub-ranges can be grown or shrunk by 'moveEnd'.
 
+    /// Destroy this object and each object in the entry storage array held
+    /// by this object where the most-significant bit of the corresponding
+    /// element in the control array held by this object is unset.
     ~DestroyEntryArrayProctor();
-        // Destroy this object and each object in the entry storage array held
-        // by this object where the most-significant bit of the corresponding
-        // element in the control array held by this object is unset.
 
     // MANIPULATORS
-    void moveEnd(bsl::ptrdiff_t offset);
-        // Move the end of the entry and control ranges held by this object by
-        // the specified 'offset'.
 
+    /// Move the end of the entry and control ranges held by this object by
+    /// the specified `offset`.
+    void moveEnd(bsl::ptrdiff_t offset);
+
+    /// Release the entry and control ranges held by this object from
+    /// management by this object, and set this object's held entry and
+    /// control arrays to the corresponding empty arrays.  If the entry and
+    /// control arrays held by this object are empty, this method has no
+    /// effect.
     void release();
-        // Release the entry and control ranges held by this object from
-        // management by this object, and set this object's held entry and
-        // control arrays to the corresponding empty arrays.  If the entry and
-        // control arrays held by this object are empty, this method has no
-        // effect.
 };
 
 // ============================================================================
@@ -1756,6 +1775,7 @@ void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::reset()
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+/// Note: `args` contains `key`
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class... ARGS>
 bsl::pair<typename
@@ -1764,7 +1784,6 @@ bsl::pair<typename
 FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                                const KEY& key,
                                                                ARGS&&...  args)
-    // Note: 'args' contains 'key'
 {
     bool        notFound;
     bsl::size_t hashValue = d_hasher(key);
@@ -1786,6 +1805,7 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                      notFound);
 }
 
+/// Note: `args` contains `key`
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class... ARGS>
 bsl::pair<typename
@@ -1794,7 +1814,6 @@ bsl::pair<typename
 FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                       BloombergLP::bslmf::MovableRef<KEY> key,
                                       ARGS&&...                           args)
-    // Note: 'args' contains 'key'
 {
     const KEY&  k = key;
     bool        notFound;

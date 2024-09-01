@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: hslc_lexer, hslc_parser
 //
-//@DESCRIPTION: This component provides a namespace, 'bdlb::LiteralUtil', for a
+//@DESCRIPTION: This component provides a namespace, `bdlb::LiteralUtil`, for a
 // set of utility routines that operate on (programming language) literals.
 
 #include <bdlscm_version.h>
@@ -34,31 +34,33 @@ namespace bdlb {
 struct LiteralUtil {
   private:
     // PRIVATE CLASS METHODS
+
+    /// Load into the specified `result` string the `"` delimited and
+    /// escaped C/C++ string literal equivalent representing the same value
+    /// as that of the specified `input` string.  When the C string literal
+    /// equivalent is translated by a compiler having C-compatible string
+    /// literals, it will result in a string identical to the `input`
+    /// string.  Note that this code uses the (ASCII) '\' character, rather
+    /// than Unicode code points for escapes.
     template <class OUT_STR>
     static void createQuotedEscapedCString_Impl(
                                                OUT_STR                 *result,
                                                const bsl::string_view&  input);
-        // Load into the specified 'result' string the '"' delimited and
-        // escaped C/C++ string literal equivalent representing the same value
-        // as that of the specified 'input' string.  When the C string literal
-        // equivalent is translated by a compiler having C-compatible string
-        // literals, it will result in a string identical to the 'input'
-        // string.  Note that this code uses the (ASCII) '\' character, rather
-        // than Unicode code points for escapes.
 
   public:
     // CLASS METHODS
+
+    /// Load into the specified `result` string the `"` delimited and
+    /// escaped C/C++ string literal equivalent representing the same value
+    /// as that of the specified `input` string.  When the C string literal
+    /// equivalent is translated by a compiler having C-compatible string
+    /// literals, it will result in a string identical to the `input`
+    /// string.  Note that this code uses the (ASCII) '\' character, rather
+    /// than Unicode code points for escapes.
     static void createQuotedEscapedCString(bsl::string              *result,
                                            const bsl::string_view&   input);
     static void createQuotedEscapedCString(std::string              *result,
                                            const bsl::string_view&   input);
-        // Load into the specified 'result' string the '"' delimited and
-        // escaped C/C++ string literal equivalent representing the same value
-        // as that of the specified 'input' string.  When the C string literal
-        // equivalent is translated by a compiler having C-compatible string
-        // literals, it will result in a string identical to the 'input'
-        // string.  Note that this code uses the (ASCII) '\' character, rather
-        // than Unicode code points for escapes.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void createQuotedEscapedCString(std::pmr::string         *result,

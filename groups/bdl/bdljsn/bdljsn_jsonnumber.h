@@ -11,22 +11,22 @@ BSLS_IDENT("$Id: $")
 //  bdljsn::JsonNumber: value-semantic type representing a JSON number
 //
 //@DESCRIPTION: This component provides a single value-semantic class,
-// 'bdljsn::JsonNumber', that represents a JSON number.  The value of a
-// 'bdljsn::JsonNumber' object is set at construction using a string
+// `bdljsn::JsonNumber`, that represents a JSON number.  The value of a
+// `bdljsn::JsonNumber` object is set at construction using a string
 // representation of the JSON number (see {JSON Textual Specification}) or from
 // one of several C++ arithmetic types (see {Supported Conversions}).
 //
-// Arithmetic operations are *not* defined for 'bdljsn::JsonNumber' objects.
-// For such operations, the value of a 'bdljsn::JsonNumber' object can be
+// Arithmetic operations are *not* defined for `bdljsn::JsonNumber` objects.
+// For such operations, the value of a `bdljsn::JsonNumber` object can be
 // converted to any of those supported types, though the conversion may not be
 // exact.
 //
-// The 'bdlsn::JsonNumber' equality operation returns 'true' if the string
-// representation of the number (returned by the 'value' accessor method) is
+// The `bdlsn::JsonNumber` equality operation returns `true` if the string
+// representation of the number (returned by the `value` accessor method) is
 // the same, even where the two strings represent the same number (e.g., "10"
 // and "1e1").  This definition of equality reflects the fact that the JSON
-// textual representation for the two 'JsonNumber' objects will be different.
-// The function 'isEqual' is provided for (a more expensive) numeric equality
+// textual representation for the two `JsonNumber` objects will be different.
+// The function `isEqual` is provided for (a more expensive) numeric equality
 // comparison.
 //
 ///JSON Textual Specification
@@ -34,110 +34,106 @@ BSLS_IDENT("$Id: $")
 // JSON numbers are defined by strings that match the grammar given at
 // https://www.rfc-editor.org/rfc/rfc8259#section-6.  The equivalent regular
 // expression is:
-//..
-//  /^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?\z/
-//..
+// ```
+// /^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?\z/
+// ```
 // Note that "\z" matches end-of-string but not a preceding '\n'.
 //
 // For example:
-//..
-//   1
-//   2.1
-//  -3
-//   4e1
-//   5.1e+2
-//   6.12e-3
-//   7e+04
-//  -8.1e+005
-//..
+// ```
+//  1
+//  2.1
+// -3
+//  4e1
+//  5.1e+2
+//  6.12e-3
+//  7e+04
+// -8.1e+005
+// ```
 // Notice that:
 //
-//: o Leading zeros are not allowed for the mantissa but are allowed for the
-//:   exponent.
-//:
-//: o A decimal point must be followed by at least one digit.
-//:
-//: o The grammar does *not* specify any limit on the number of digits in the
-//:   mantissa or the exponent.
+// * Leading zeros are not allowed for the mantissa but are allowed for the
+//   exponent.
+// * A decimal point must be followed by at least one digit.
+// * The grammar does *not* specify any limit on the number of digits in the
+//   mantissa or the exponent.
 //
-//:   o One can validly represent JSON numbers that are too large or too small
-//:     for conversion to any of the supported arithmetic types.
-//:
-//: o The special values, 'INF' (infinity) and 'NaN' (Not A Number) are
-//:   disallowed.
+//   - One can validly represent JSON numbers that are too large or too small
+//     for conversion to any of the supported arithmetic types.
+// * The special values, `INF` (infinity) and `NaN` (Not A Number) are
+//   disallowed.
 //
-// The value of a 'bdljsn::JsonNumber' object is determined by its given string
+// The value of a `bdljsn::JsonNumber` object is determined by its given string
 // representation, which is *not* normalized.  Unequal strings lead to unequal
-// 'bdljsn::JsonNumber' objects even if their numerical values are equal.
-// Numerical equality can be tested with the 'isEqual' method.  Note that the
-// 'isEqual' method is more computationally expensive than the equality and
+// `bdljsn::JsonNumber` objects even if their numerical values are equal.
+// Numerical equality can be tested with the `isEqual` method.  Note that the
+// `isEqual` method is more computationally expensive than the equality and
 // inequality operators:
-//..
-//  // The following 'JsonNumber' objects do not compare equal because their
-//  // string representations are different:
-//  assert(bdljsn::JsonNumber("1")      != bdljsn::JsonNumber("1.0"));
+// ```
+// // The following 'JsonNumber' objects do not compare equal because their
+// // string representations are different:
+// assert(bdljsn::JsonNumber("1")      != bdljsn::JsonNumber("1.0"));
 //
-//  // But, they are numerically equal, so 'isEqual' returns 'true':
-//  assert(bdljsn::JsonNumber("1").isEqual(bdljsn::JsonNumber("1.0")));
-//..
+// // But, they are numerically equal, so 'isEqual' returns 'true':
+// assert(bdljsn::JsonNumber("1").isEqual(bdljsn::JsonNumber("1.0")));
+// ```
 //
 ///Supported Conversions
 ///---------------------
-// The value of a 'bdljsn::JsonNumber' object can be converted to an assortment
+// The value of a `bdljsn::JsonNumber` object can be converted to an assortment
 // of useful types:
 //
-//: o 'int'
-//: o 'unsigned int'
-//: o 'bsls::Types::Int64'
-//: o 'bsls::Types::Uint64'
-//: o 'float'
-//: o 'double'
-//: o 'bdldfp::Decimal64'
+// * `int`
+// * `unsigned int`
+// * `bsls::Types::Int64`
+// * `bsls::Types::Uint64`
+// * `float`
+// * `double`
+// * `bdldfp::Decimal64`
 //
-// In addition to named conversion functions (like 'asInt' and 'asDouble') This
+// In addition to named conversion functions (like `asInt` and `asDouble`) This
 // component provides explicit conversion operations for floating point types
-// ('float', 'double', 'Decimal64') on platforms where explicit conversions are
+// (`float`, `double`, `Decimal64`) on platforms where explicit conversions are
 // supported.
 //
 ///Handling Inexact Conversions: Floating Point Vs Integral Types
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Converting a 'bdlsjn::JsonNumber' to another representation may result in a
-// value that is not the same as the original 'bdljsn::JsonNumber'.  Either the
-// 'bdljsn::JsonNumber' may represent a numeric value outside of the
+// Converting a `bdlsjn::JsonNumber` to another representation may result in a
+// value that is not the same as the original `bdljsn::JsonNumber`.  Either the
+// `bdljsn::JsonNumber` may represent a numeric value outside of the
 // representable range of the requested type (i.e., it is too large, or too
-// small), or the value may not be representable exactly.  'bdljsn::JsonNumber'
+// small), or the value may not be representable exactly.  `bdljsn::JsonNumber`
 // conversions will return the closest approximation of the
-// 'bdljsn::JsonNumber', even when a non-zero status is returned indicating an
+// `bdljsn::JsonNumber`, even when a non-zero status is returned indicating an
 // inexact conversion.
 //
 // All the provided conversions to integral types have signatures that require
 // a return status, whereas conversion functions are provided for floating
 // point types that do not return a status.  This is because:
 //
-//: 1 Floating point representations have specific values to indicate a
-//:   'bdljsn::JsonNumber' is outside of the representable range
-//:   '(-INF, +INF)'.
-//:
-//: 2 Truncating the fractional part of a number to coerce a value to an
-//:   integer is typically an error (the data being processed did not meet the
-//:   programmer's expectation), whereas returning the closest floating point
-//:   approximation to a 'bdljsn::JsonNumber' is very often not an error.
+// 1. Floating point representations have specific values to indicate a
+//    `bdljsn::JsonNumber` is outside of the representable range
+//    `(-INF, +INF)`.
+// 2. Truncating the fractional part of a number to coerce a value to an
+//    integer is typically an error (the data being processed did not meet the
+//    programmer's expectation), whereas returning the closest floating point
+//    approximation to a `bdljsn::JsonNumber` is very often not an error.
 //
-///Exact 'Decima64' Representations
+///Exact `Decima64` Representations
 /// - - - - - - - - - - - - - - - -
-// For users requiring precise conversions to 'bdldfp::Decimal64', the function
-// 'asDecimal64Exact' returns additional status indicating whether the
-// conversion is exact.  An exact conversion for a 'Decimal64' is one that
+// For users requiring precise conversions to `bdldfp::Decimal64`, the function
+// `asDecimal64Exact` returns additional status indicating whether the
+// conversion is exact.  An exact conversion for a `Decimal64` is one that
 // preserves all the significant digits resulting in a decimal representation
 // having the same numerical value as the original JSON text.  Note that
-// 'asDecimal64Exact' has very similar performance to 'asDecimal64' (i.e.,
+// `asDecimal64Exact` has very similar performance to `asDecimal64` (i.e.,
 // there is not a notable performance penalty to determining this property).
 //
-///Known Issues With 'asDecima64Exact'
+///Known Issues With `asDecima64Exact`
 ///- - - - - - - - - - - - - - - - - -
-// Currently 'asDecimal64Exact' will return 'bdljsn::JsonNumber::k_NOT_EXACT'
-// if the input is 0 with an exponent outside of the range ('[-398, 369]').
-// For example, '0e-400'.  This reflects the behavior of the underlying 3rd
+// Currently `asDecimal64Exact` will return `bdljsn::JsonNumber::k_NOT_EXACT`
+// if the input is 0 with an exponent outside of the range (`[-398, 369]`).
+// For example, `0e-400`.  This reflects the behavior of the underlying 3rd
 // party implementation.  Please contact BDE if this is a concern.
 //
 ///Usage
@@ -149,173 +145,172 @@ BSLS_IDENT("$Id: $")
 // The specification of values for JSON numbers often starts with user input
 // textual representations of those values.  As the specifications for valid
 // representation are complicated and not always intuitive it is prudent to
-// validate that input using the 'bdljsn::JsonNumber::isValidNumber' function;
-// otherwise, one might try to create a 'bdljsn::JsonNumber' object from an
+// validate that input using the `bdljsn::JsonNumber::isValidNumber` function;
+// otherwise, one might try to create a `bdljsn::JsonNumber` object from an
 // invalid specification and that leads to undefined behavior.
 //
 // First, as a expedient for this example, we organize in an array input that
 // might well be entered by some user:
-//..
-//  struct {
-//      const char *d_text_p;
-//      const char *d_description_p;
-//      bool        d_expected;
-//  } USER_INPUT[] = {
+// ```
+// struct {
+//     const char *d_text_p;
+//     const char *d_description_p;
+//     bool        d_expected;
+// } USER_INPUT[] = {
 //
-//  //  VALUE                   DESCRIPTION                             EXP
-//  //  ----------------------  --------------------------------------  ---
+// //  VALUE                   DESCRIPTION                             EXP
+// //  ----------------------  --------------------------------------  ---
 //
-//    // Invalid Input (that is valid in other contexts).
+//   // Invalid Input (that is valid in other contexts).
 //
-//    { "1.",                   "Not uncommon way to write '1'."      , 0  }
-//  , { "1,000",                "No commas allowed"                   , 0  }
-//  , { "01",                   "Leading '0',  disallowed by JSON."   , 0  }
-//  , { "",                     "0 per 'atoi', disallowed by JSON."   , 0  }
-//  , { "Hello, world!",        "0 per 'atoi', disallowed by JSON."   , 0  }
-//  , { "NaN",                  "invalid number"                      , 0  }
-//  , { "INF",                  "invalid number"                      , 0  }
-//  , { "-INF",                 "invalid number"                      , 0  }
-//  , { "+INF",                 "invalid number"                      , 0  }
+//   { "1.",                   "Not uncommon way to write '1'."      , 0  }
+// , { "1,000",                "No commas allowed"                   , 0  }
+// , { "01",                   "Leading '0',  disallowed by JSON."   , 0  }
+// , { "",                     "0 per 'atoi', disallowed by JSON."   , 0  }
+// , { "Hello, world!",        "0 per 'atoi', disallowed by JSON."   , 0  }
+// , { "NaN",                  "invalid number"                      , 0  }
+// , { "INF",                  "invalid number"                      , 0  }
+// , { "-INF",                 "invalid number"                      , 0  }
+// , { "+INF",                 "invalid number"                      , 0  }
 //
-//    // Valid input (some surprising)
+//   // Valid input (some surprising)
 //
-//  , { "1234567890",           "Integral value"                      , 1  }
-//  , { "1234567890.123456",    "Non-integral value"                  , 1  }
-//  , { "1234567890.1234567",   "Beyond Decimal64 precision"          , 1  }
-//  , { "-9223372036854775809", "INT64_MIN, underflow, but valid JSON", 1  }
-//  , { "1.5e27",               "INT64_MAX,  overflow, but valid JSON", 1  }
-//  , { "999999999999999999999999999999999999999999999999999999999999"
-//      "e"
-//      "999999999999999999999999999999999999999999999999999999999999",
-//                              "astronomic value"                    , 1 }
-//  };
+// , { "1234567890",           "Integral value"                      , 1  }
+// , { "1234567890.123456",    "Non-integral value"                  , 1  }
+// , { "1234567890.1234567",   "Beyond Decimal64 precision"          , 1  }
+// , { "-9223372036854775809", "INT64_MIN, underflow, but valid JSON", 1  }
+// , { "1.5e27",               "INT64_MAX,  overflow, but valid JSON", 1  }
+// , { "999999999999999999999999999999999999999999999999999999999999"
+//     "e"
+//     "999999999999999999999999999999999999999999999999999999999999",
+//                             "astronomic value"                    , 1 }
+// };
 //
-//  const bsl::size_t NUM_USER_INPUT = sizeof USER_INPUT / sizeof *USER_INPUT;
-//..
+// const bsl::size_t NUM_USER_INPUT = sizeof USER_INPUT / sizeof *USER_INPUT;
+// ```
 // Now, if and only if the input is valid, we use the input to construct a
-// 'bdljsn::JsonNumber' object and add that object to a vector for later
+// `bdljsn::JsonNumber` object and add that object to a vector for later
 // processing.
-//..
-//  bsl::vector<bdljsn::JsonNumber> userInput; // when valid input
+// ```
+// bsl::vector<bdljsn::JsonNumber> userInput; // when valid input
 //
-//  for (bsl::size_t ti = 0; ti < NUM_USER_INPUT; ++ti) {
-//      const char *TEXT = USER_INPUT[ti].d_text_p;
-//      const char *DESC = USER_INPUT[ti].d_description_p; (void) DESC;
-//      const bool  EXP  = USER_INPUT[ti].d_expected;
+// for (bsl::size_t ti = 0; ti < NUM_USER_INPUT; ++ti) {
+//     const char *TEXT = USER_INPUT[ti].d_text_p;
+//     const char *DESC = USER_INPUT[ti].d_description_p; (void) DESC;
+//     const bool  EXP  = USER_INPUT[ti].d_expected;
 //
-//      const bool isValid  = bdljsn::JsonNumber::isValidNumber(TEXT);
-//      assert(EXP == isValid);
+//     const bool isValid  = bdljsn::JsonNumber::isValidNumber(TEXT);
+//     assert(EXP == isValid);
 //
-//      if (isValid) {
-//          userInput.push_back(bdljsn::JsonNumber(TEXT));
-//      }
-//  }
-//..
+//     if (isValid) {
+//         userInput.push_back(bdljsn::JsonNumber(TEXT));
+//     }
+// }
+// ```
 // Finally, we confirm that the vector has the expected number of elements:
-//..
-//  assert(6 == userInput.size());
-//..
+// ```
+// assert(6 == userInput.size());
+// ```
 //
-///Example 2: Using 'bdljsn::JsonNumber' Objects
+///Example 2: Using `bdljsn::JsonNumber` Objects
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// We saw in {Example 1} that 'bdljsn::JsonNumber' objects can validly hold
+// We saw in {Example 1} that `bdljsn::JsonNumber` objects can validly hold
 // values numeric values that cannot be converted to any of the supported types
 // (e.g., the "astronomic value") for arithmetic operations.  Applications that
-// accept arbitrary 'bdljsn::JsonNumber' objects should be prepared to
+// accept arbitrary `bdljsn::JsonNumber` objects should be prepared to
 // categorize the contained value and adapt their handling accordingly.  In
 // practice, applications may have some assurances of the contents of received
-// 'bdljsn::JsonNumber' objects.  Here, we intentionally avoid such assumptions
+// `bdljsn::JsonNumber` objects.  Here, we intentionally avoid such assumptions
 // to explore the wide range of variations that can arise.
 //
 // Legend, in the output below:
 //
-//: o "OK":
-//:   o Means "OKay to use".  In some cases, the numeric value of the
-//:     arithmetic type is an approximation of JSON number and the application
-//:     may have to allow for that difference.
-//:
-//: o "NG":
-//:   o Means "No Good" (do not use).  The JSON number is outside of the valid
-//:     range of the arithmetic type.
+// * "OK":
+//   - Means "OKay to use".  In some cases, the numeric value of the
+//     arithmetic type is an approximation of JSON number and the application
+//     may have to allow for that difference.
+// * "NG":
+//   - Means "No Good" (do not use).  The JSON number is outside of the valid
+//     range of the arithmetic type.
 //
-// First, we set up a framework (in this case, a 'for' loop) for examining our
-// input, the same 'userInput' vector created in {Example 1}:
-//..
-//  for (bsl::size_t i = 0; i < userInput.size(); ++i) {
-//      const bdljsn::JsonNumber obj = userInput[i];
-//..
+// First, we set up a framework (in this case, a `for` loop) for examining our
+// input, the same `userInput` vector created in {Example 1}:
+// ```
+// for (bsl::size_t i = 0; i < userInput.size(); ++i) {
+//     const bdljsn::JsonNumber obj = userInput[i];
+// ```
 // Then, we categorize the value as integral or not:
-//..
-//      if (obj.isIntegral()) {
-//          bsl::cout << "Integral: ";
-//..
+// ```
+//     if (obj.isIntegral()) {
+//         bsl::cout << "Integral: ";
+// ```
 // If integral, we check if the value is a usable range.  Let us assume that
-// 'bslsl::Type::Int64' is as large a number as we can accept.
+// `bslsl::Type::Int64` is as large a number as we can accept.
 //
 // Then, we convert the JSON number to that type and check for overflow and
 // underflow:
-//..
-//          bsls::Types::Int64 value;
-//          int                rc = obj.asInt64(&value);
-//          switch (rc) {
-//              case 0: {
-//                  bsl::cout << value      << " : OK to USE" << bsl::endl;
-//              } break;
-//              case bdljsn::JsonNumber::k_OVERFLOW: {
-//                  bsl::cout << obj.value() << ": NG too large" << bsl::endl;
-//              } break;
-//              case bdljsn::JsonNumber::k_UNDERFLOW: {
-//                  bsl::cout << obj.value() << ": NG too small" << bsl::endl;
-//              } break;
-//              case bdljsn::JsonNumber::k_NOT_INTEGRAL: {
-//                assert(0 == "reached");
-//              } break;
-//          }
-//..
+// ```
+//         bsls::Types::Int64 value;
+//         int                rc = obj.asInt64(&value);
+//         switch (rc) {
+//             case 0: {
+//                 bsl::cout << value      << " : OK to USE" << bsl::endl;
+//             } break;
+//             case bdljsn::JsonNumber::k_OVERFLOW: {
+//                 bsl::cout << obj.value() << ": NG too large" << bsl::endl;
+//             } break;
+//             case bdljsn::JsonNumber::k_UNDERFLOW: {
+//                 bsl::cout << obj.value() << ": NG too small" << bsl::endl;
+//             } break;
+//             case bdljsn::JsonNumber::k_NOT_INTEGRAL: {
+//               assert(0 == "reached");
+//             } break;
+//         }
+// ```
 // Next, if the value is not integral, we try to handle it as a floating point
-// value -- a 'bdldfp::Decimal64' in this example -- and further categorize it
+// value -- a `bdldfp::Decimal64` in this example -- and further categorize it
 // as exact/inexact, too large/small.
-//..
-//      } else {
-//          bsl::cout << "Not-Integral: ";
+// ```
+//     } else {
+//         bsl::cout << "Not-Integral: ";
 //
-//          bdldfp::Decimal64 value;
-//          int               rc = obj.asDecimal64Exact(&value);
-//          switch (rc) {
-//              case 0: {
-//                  bsl::cout << value << " :  exact: OK to USE";
-//              } break;
-//              case bdljsn::JsonNumber::k_INEXACT: {
-//                  bsl::cout << value << ": inexact: USE approximation";
-//              } break;
-//              case bdljsn::JsonNumber::k_NOT_INTEGRAL: {
-//                assert(0 == "reached");
-//              } break;
-//          }
+//         bdldfp::Decimal64 value;
+//         int               rc = obj.asDecimal64Exact(&value);
+//         switch (rc) {
+//             case 0: {
+//                 bsl::cout << value << " :  exact: OK to USE";
+//             } break;
+//             case bdljsn::JsonNumber::k_INEXACT: {
+//                 bsl::cout << value << ": inexact: USE approximation";
+//             } break;
+//             case bdljsn::JsonNumber::k_NOT_INTEGRAL: {
+//               assert(0 == "reached");
+//             } break;
+//         }
 //
-//          const bdldfp::Decimal64 INF =
-//                          bsl::numeric_limits<bdldfp::Decimal64>::infinity();
+//         const bdldfp::Decimal64 INF =
+//                         bsl::numeric_limits<bdldfp::Decimal64>::infinity();
 //
-//          if        ( INF == value) {
-//              bsl::cout << ": NG too large" << bsl::endl;
-//          } else if (-INF == value) {
-//              bsl::cout << ": NG too small" << bsl::endl;
-//          } else {
-//              bsl::cout << bsl::endl;
-//          }
-//      }
-//  }
-//..
+//         if        ( INF == value) {
+//             bsl::cout << ": NG too large" << bsl::endl;
+//         } else if (-INF == value) {
+//             bsl::cout << ": NG too small" << bsl::endl;
+//         } else {
+//             bsl::cout << bsl::endl;
+//         }
+//     }
+// }
+// ```
 // Finally, we observe for particular input:
-//..
-//  Integral: 1234567890 : OK to USE
-//  Not-Integral: 1234567890.123456 :  exact: OK to USE
-//  Not-Integral: 1234567890.123457: inexact: USE approximation
-//  Integral: -9223372036854775809: NG too small
-//  Integral: 1.5e27: NG too large
-//  Integral: 999999999999999999999999999999999999999999999999999999999999e9999
-//  99999999999999999999999999999999999999999999999999999999: NG too large
-//..
+// ```
+// Integral: 1234567890 : OK to USE
+// Not-Integral: 1234567890.123456 :  exact: OK to USE
+// Not-Integral: 1234567890.123457: inexact: USE approximation
+// Integral: -9223372036854775809: NG too small
+// Integral: 1.5e27: NG too large
+// Integral: 999999999999999999999999999999999999999999999999999999999999e9999
+// 99999999999999999999999999999999999999999999999999999999: NG too large
+// ```
 
 #include <bdlscm_version.h>
 
@@ -349,14 +344,14 @@ namespace bdljsn {
                               // class JsonNumber
                               // ================
 
+/// This class defines a value-semantic class that represents a JSON number.
+/// Objects of this class have a value determined at construction and does
+/// not change except by assignment from or swap with another `JsonNumber`
+/// object.  The value can be specified by supplying a string that conforms
+/// to the {JSON Textual Specification} or from one of the {Supported
+/// Types}.  The value of a JSON object can be converted to any of those
+/// types; however, some of those conversions can be inexact.
 class JsonNumber {
-    // This class defines a value-semantic class that represents a JSON number.
-    // Objects of this class have a value determined at construction and does
-    // not change except by assignment from or swap with another 'JsonNumber'
-    // object.  The value can be specified by supplying a string that conforms
-    // to the {JSON Textual Specification} or from one of the {Supported
-    // Types}.  The value of a JSON object can be converted to any of those
-    // types; however, some of those conversions can be inexact.
 
     // PRIVATE TYPES
     typedef NumberUtil Nu;
@@ -386,47 +381,52 @@ class JsonNumber {
     typedef bsl::allocator<> allocator_type;
 
     // CLASS METHODS
+
+    /// Return `true` if the specified `text` complies with the grammar of a
+    /// JSON number, and `false` otherwise.  See the {JSON Textual
+    /// Specification}.
     static bool isValidNumber(const bsl::string_view& text);
-        // Return 'true' if the specified 'text' complies with the grammar of a
-        // JSON number, and 'false' otherwise.  See the {JSON Textual
-        // Specification}.
 
     // CREATORS
+
+    /// Create a `JsonNumber` having the value "0".  Optionally specify an
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) used
+    /// to supply memory.
     JsonNumber();
     explicit JsonNumber(const allocator_type& allocator);
-        // Create a 'JsonNumber' having the value "0".  Optionally specify an
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) used
-        // to supply memory.
 
+    /// Create a `JsonNumber` having the value of the specified `text`.
+    /// Optionally specify an `allocator` (e.g., the address of a
+    /// `bslma::Allocator` object) used to supply memory.  The behavior is
+    /// undefined unless `isValidJsonNumber(text)` is `true`.  See {JSON
+    /// Textual Specification}.
     explicit JsonNumber(const char            *text,
                         const allocator_type&  allocator = allocator_type());
     explicit JsonNumber(const bsl::string_view& text,
                         const allocator_type&   allocator = allocator_type());
-        // Create a 'JsonNumber' having the value of the specified 'text'.
-        // Optionally specify an 'allocator' (e.g., the address of a
-        // 'bslma::Allocator' object) used to supply memory.  The behavior is
-        // undefined unless 'isValidJsonNumber(text)' is 'true'.  See {JSON
-        // Textual Specification}.
 
+    /// Create a `JsonNumber` object having the same value and the same
+    /// allocator as the specified `text`.  The contents of the `value`
+    /// string becomes unspecified but valid, and its allocator remains
+    /// unchanged.  The behavior is undefined unless `isValidNumber(text)`
+    /// is `true`.  See {JSON Textual Specification}.
     explicit JsonNumber(bslmf::MovableRef<bsl::string> text);
-        // Create a 'JsonNumber' object having the same value and the same
-        // allocator as the specified 'text'.  The contents of the 'value'
-        // string becomes unspecified but valid, and its allocator remains
-        // unchanged.  The behavior is undefined unless 'isValidNumber(text)'
-        // is 'true'.  See {JSON Textual Specification}.
 
+    /// Create a `JsonNumber` object having the same value as the specified
+    /// `text`, using the specified `allocator` (e.g., the address of a
+    /// `bslma::Allocator` object) to supply memory.  The allocator of the
+    /// `text` string remains unchanged.  If the `text` and the newly
+    /// created object have the same allocator then the contents of `text`
+    /// string becomes unspecified but valid, and no exceptions will be
+    /// thrown; otherwise the `text` string is unchanged and an exception
+    /// may be thrown.  The behavior is undefined unless
+    /// `isValidNumber(text)` is `true`.  See {JSON Textual Specification}.
     explicit JsonNumber(bslmf::MovableRef<bsl::string>  text,
                         const allocator_type&           allocator);
-        // Create a 'JsonNumber' object having the same value as the specified
-        // 'text', using the specified 'allocator' (e.g., the address of a
-        // 'bslma::Allocator' object) to supply memory.  The allocator of the
-        // 'text' string remains unchanged.  If the 'text' and the newly
-        // created object have the same allocator then the contents of 'text'
-        // string becomes unspecified but valid, and no exceptions will be
-        // thrown; otherwise the 'text' string is unchanged and an exception
-        // may be thrown.  The behavior is undefined unless
-        // 'isValidNumber(text)' is 'true'.  See {JSON Textual Specification}.
 
+    /// Create a `JsonNumber` having the specified `value`.  Optionally
+    /// specify an `allocator` (e.g., the address of a `bslma::Allocator`
+    /// object) used to supply memory.
     explicit JsonNumber(int                   value,
                         const allocator_type& allocator = allocator_type());
     explicit JsonNumber(unsigned int          value,
@@ -435,102 +435,101 @@ class JsonNumber {
                         const allocator_type& allocator = allocator_type());
     explicit JsonNumber(bsls::Types::Uint64   value,
                         const allocator_type& allocator = allocator_type());
-        // Create a 'JsonNumber' having the specified 'value'.  Optionally
-        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
-        // object) used to supply memory.
 
+    /// Create a `JsonNumber` having the specified `value`.  Optionally
+    /// specify an `allocator` (e.g., the address of a `bslma::Allocator`
+    /// object) used to supply memory.  The behavior is undefined if the
+    /// `value` is infinite (`INF`) or not-a-number (`NaN`).
     explicit JsonNumber(float                 value,
                         const allocator_type& allocator = allocator_type());
     explicit JsonNumber(double                value,
                         const allocator_type& allocator = allocator_type());
     explicit JsonNumber(bdldfp::Decimal64     value,
                         const allocator_type& allocator = allocator_type());
-        // Create a 'JsonNumber' having the specified 'value'.  Optionally
-        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
-        // object) used to supply memory.  The behavior is undefined if the
-        // 'value' is infinite ('INF') or not-a-number ('NaN').
 
+    /// Create a `JsonNumber` object having the same value as the specified
+    /// `original` object.  Optionally specify an `allocator` (e.g., the
+    /// address of a `bslma::Allocator` object) used to supply memory.
     JsonNumber(const JsonNumber&     original,
                const allocator_type& allocator = allocator_type());
-        // Create a 'JsonNumber' object having the same value as the specified
-        // 'original' object.  Optionally specify an 'allocator' (e.g., the
-        // address of a 'bslma::Allocator' object) used to supply memory.
 
+    /// Create a `JsonNumber` object having the same value and the same
+    /// allocator as the specified `original` object.  The value of
+    /// `original` becomes unspecified but valid, and its allocator remains
+    /// unchanged.
     JsonNumber(bslmf::MovableRef<JsonNumber> original) BSLS_KEYWORD_NOEXCEPT;
-        // Create a 'JsonNumber' object having the same value and the same
-        // allocator as the specified 'original' object.  The value of
-        // 'original' becomes unspecified but valid, and its allocator remains
-        // unchanged.
 
+    /// Create a `JsonNumber` object having the same value as the specified
+    /// `original` object, using the specified `allocator` (e.g., the
+    /// address of a `bslma::Allocator` object) to supply memory.  The
+    /// allocator of `original` remains unchanged.  If `original` and the
+    /// newly created object have the same allocator then the value of
+    /// `original` becomes unspecified but valid, and no exceptions will be
+    /// thrown; otherwise `original` is unchanged (and an exception may be
+    /// thrown).
     JsonNumber(bslmf::MovableRef<JsonNumber>  original,
                const allocator_type&          allocator);
-        // Create a 'JsonNumber' object having the same value as the specified
-        // 'original' object, using the specified 'allocator' (e.g., the
-        // address of a 'bslma::Allocator' object) to supply memory.  The
-        // allocator of 'original' remains unchanged.  If 'original' and the
-        // newly created object have the same allocator then the value of
-        // 'original' becomes unspecified but valid, and no exceptions will be
-        // thrown; otherwise 'original' is unchanged (and an exception may be
-        // thrown).
 
     //! ~JsonNumber() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a non-`const` reference to this object.
     JsonNumber& operator=(const JsonNumber& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a non-'const' reference to this object.
 
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a non-`const` reference to this object.  The allocators of
+    /// this object and `rhs` both remain unchanged.  If `rhs` and this
+    /// object have the same allocator then the value of `rhs` becomes
+    /// unspecified but valid, and no exceptions will be thrown; otherwise
+    /// `rhs` is unchanged (and an exception may be thrown).
     JsonNumber& operator=(bslmf::MovableRef<JsonNumber> rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a non-'const' reference to this object.  The allocators of
-        // this object and 'rhs' both remain unchanged.  If 'rhs' and this
-        // object have the same allocator then the value of 'rhs' becomes
-        // unspecified but valid, and no exceptions will be thrown; otherwise
-        // 'rhs' is unchanged (and an exception may be thrown).
 
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// non-`const` reference to this object.
     JsonNumber& operator=(int                 rhs);
     JsonNumber& operator=(unsigned int        rhs);
     JsonNumber& operator=(bsls::Types::Int64  rhs);
     JsonNumber& operator=(bsls::Types::Uint64 rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // non-'const' reference to this object.
 
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// non-`const` reference to this object.  The behavior is undefined if
+    /// `rhs` is infinite (`INF`) or not-a-number (`NaN`).
     JsonNumber& operator=(float             rhs);
     JsonNumber& operator=(double            rhs);
     JsonNumber& operator=(bdldfp::Decimal64 rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // non-'const' reference to this object.  The behavior is undefined if
-        // 'rhs' is infinite ('INF') or not-a-number ('NaN').
 
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.  The behavior is undefined unless this
+    /// object was created with the same allocator as `other`.
     void swap(JsonNumber& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless this
-        // object was created with the same allocator as 'other'.
 
     // ACCESSORS
+
+    /// Return `true` if this number and the specified `other` number
+    /// represent the same numeric value, and `false` otherwise.  This
+    /// method will return `true` for differing representations of the same
+    /// number (e.g., `1.0`, "1", "0.1e+1" are all equivalent) *except* in
+    /// cases where the exponent cannot be represented by a 64-bit integer.
+    /// If the exponent is outside the range of a 64-bit integer, `true`
+    /// will be returned if `*this == other`.  For example, comparing
+    /// "1e18446744073709551615" with itself will return `true`, but
+    /// comparing it to "10e18446744073709551614" will return `false`. Note
+    /// that this method is more computationally expensive than the equality
+    /// and inequality operators.
     bool isEqual(const JsonNumber& other) const;
-        // Return 'true' if this number and the specified 'other' number
-        // represent the same numeric value, and 'false' otherwise.  This
-        // method will return 'true' for differing representations of the same
-        // number (e.g., '1.0', "1", "0.1e+1" are all equivalent) *except* in
-        // cases where the exponent cannot be represented by a 64-bit integer.
-        // If the exponent is outside the range of a 64-bit integer, 'true'
-        // will be returned if '*this == other'.  For example, comparing
-        // "1e18446744073709551615" with itself will return 'true', but
-        // comparing it to "10e18446744073709551614" will return 'false'. Note
-        // that this method is more computationally expensive than the equality
-        // and inequality operators.
 
+    /// Return `true` if the value of this `JsonNumber` is an (exact)
+    /// integral value, or `false` otherwise.   Note that this function may
+    /// return `true` even this number cannot be represented in a
+    /// fundamental integral type.
     bool isIntegral() const;
-        // Return 'true' if the value of this 'JsonNumber' is an (exact)
-        // integral value, or 'false' otherwise.   Note that this function may
-        // return 'true' even this number cannot be represented in a
-        // fundamental integral type.
 
+    /// Return the textual representation of this `JsonNumber`.
     const bsl::string& value() const;
-        // Return the textual representation of this 'JsonNumber'.
 
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -FABC01 // not in alphabetic order
@@ -540,120 +539,124 @@ class JsonNumber {
     int asInt   (int                 *result) const;
     int asInt64 (bsls::Types::Int64  *result) const;
     int asUint  (unsigned int        *result) const;
+
+    /// Load into the specified `result` the integer value of this number.
+    /// Return 0 on success, `k_OVERFLOW` if `value` is larger than can be
+    /// represented by `result`, `k_UNDERFLOW` if `value` is smaller than
+    /// can be represented by `result`,  and `k_NOT_INTEGRAL` if `value` is
+    /// not an integral number (i.e., there is a fractional part).  For
+    /// underflow, `result` will be loaded with the minimum representable
+    /// value, for overflow, `result` will be loaded with the maximum
+    /// representable value, for non-integral values `result` will be loaded
+    /// with the integer part of `value` (truncating the fractional part).
+    /// If the result is not an integer and also either overflows or
+    /// underflows, it is treated as an overflow or underflow
+    /// (respectively).  Note that this operation returns an error status
+    /// value (unlike similar floating point conversions) because typically
+    /// it is an error if a conversion to an integer results in an in-exact
+    /// value.
     int asUint64(bsls::Types::Uint64 *result) const;
-        // Load into the specified 'result' the integer value of this number.
-        // Return 0 on success, 'k_OVERFLOW' if 'value' is larger than can be
-        // represented by 'result', 'k_UNDERFLOW' if 'value' is smaller than
-        // can be represented by 'result',  and 'k_NOT_INTEGRAL' if 'value' is
-        // not an integral number (i.e., there is a fractional part).  For
-        // underflow, 'result' will be loaded with the minimum representable
-        // value, for overflow, 'result' will be loaded with the maximum
-        // representable value, for non-integral values 'result' will be loaded
-        // with the integer part of 'value' (truncating the fractional part).
-        // If the result is not an integer and also either overflows or
-        // underflows, it is treated as an overflow or underflow
-        // (respectively).  Note that this operation returns an error status
-        // value (unlike similar floating point conversions) because typically
-        // it is an error if a conversion to an integer results in an in-exact
-        // value.
 
     float              asFloat()     const;
     double             asDouble()    const;
+
+    /// Return the closest floating point representation to this number.  If
+    /// this number is outside the representable range, return `+INF` or
+    /// `-INF` (as appropriate).  Note that values smaller than the smallest
+    /// representable non-zero value (a.k.a, `MIN`) are rounded to `MIN`
+    /// (positive or negative, as appropriate) or 0, whichever is the better
+    /// approximation.
     bdldfp::Decimal64  asDecimal64() const;
-        // Return the closest floating point representation to this number.  If
-        // this number is outside the representable range, return '+INF' or
-        // '-INF' (as appropriate).  Note that values smaller than the smallest
-        // representable non-zero value (a.k.a, 'MIN') are rounded to 'MIN'
-        // (positive or negative, as appropriate) or 0, whichever is the better
-        // approximation.
 
                         // 'Exact' Accessors
 
+    /// Load to the specified `result` the closest floating point
+    /// representation to this number, even if a non-zero status is
+    /// returned.  Return 0 if this number can be represented exactly, and
+    /// return `k_INEXACT` and load `result` with the closest approximation
+    /// if `value` cannot be represented exactly.  If this number is outside
+    /// the representable range, load `result` with `+INF` or `-INF` (as
+    /// appropriate).  A number can be represented exactly as a `Decimal64`
+    /// if, for the significand and exponent,
+    /// `abs(significand) <= 9,999,999,999,999,999` and
+    /// `-398 <= exponent <= 369`.
     int asDecimal64Exact(bdldfp::Decimal64 *result) const;
-        // Load to the specified 'result' the closest floating point
-        // representation to this number, even if a non-zero status is
-        // returned.  Return 0 if this number can be represented exactly, and
-        // return 'k_INEXACT' and load 'result' with the closest approximation
-        // if 'value' cannot be represented exactly.  If this number is outside
-        // the representable range, load 'result' with '+INF' or '-INF' (as
-        // appropriate).  A number can be represented exactly as a 'Decimal64'
-        // if, for the significand and exponent,
-        // 'abs(significand) <= 9,999,999,999,999,999' and
-        // '-398 <= exponent <= 369'.
 
 // BDE_VERIFY pragma: pop
 
                        // 'explicit' (conversion) operators
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
+    /// Return the closest floating point representation to this number.  If
+    /// this number is outside the representable range, return `+INF` or
+    /// `-INF` (as appropriate).  Note that the values returned by these
+    /// operators match those returned by `asFloat`, `asDouble`, and
+    /// `asDecimal64`, respectively.
     explicit operator float()             const;
     explicit operator double()            const;
     explicit operator bdldfp::Decimal64() const;
-        // Return the closest floating point representation to this number.  If
-        // this number is outside the representable range, return '+INF' or
-        // '-INF' (as appropriate).  Note that the values returned by these
-        // operators match those returned by 'asFloat', 'asDouble', and
-        // 'asDecimal64', respectively.
 #endif
 
                         // Aspects
 
+    /// **DEPRECATED**: Use `get_allocator()` instead.
+    ///
+    /// Return `get_allocator().mechanism()`, i.e., the memory resource used
+    /// by this object to supply memory.
     bslma::Allocator *BSLS_ANNOTATION_DEPRECATED allocator() const;
-        // !DEPRECATED!: Use 'get_allocator()' instead.
-        //
-        // Return 'get_allocator().mechanism()', i.e., the memory resource used
-        // by this object to supply memory.
 
+    /// Return the allocator used by this object to supply memory.
     allocator_type get_allocator() const;
-        // Return the allocator used by this object to supply memory.
 
+    /// Write the value of this object to the specified output `stream` in a
+    /// human-readable format, and return a non-`const` reference to
+    /// `stream`.  Optionally specify an initial indentation `level`, whose
+    /// absolute value is incremented recursively for nested objects.  If
+    /// `level` is specified, optionally specify `spacesPerLevel`, whose
+    /// absolute value indicates the number of spaces per indentation level
+    /// for this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  If `stream` is
+    /// not valid on entry, this operation has no effect.  Note that the
+    /// format is not fully specified, and can change without notice.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in a
-        // human-readable format, and return a non-'const' reference to
-        // 'stream'.  Optionally specify an initial indentation 'level', whose
-        // absolute value is incremented recursively for nested objects.  If
-        // 'level' is specified, optionally specify 'spacesPerLevel', whose
-        // absolute value indicates the number of spaces per indentation level
-        // for this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.  Note that the
-        // format is not fully specified, and can change without notice.
 };
 
 // FREE OPERATORS
+
+/// Write the value of the specified `object` to the specified output
+/// `stream` in a single-line format, and return a non-`const` reference to
+/// `stream`.  If `stream` is not valid on entry, this operation has no
+/// effect.  Note that this human-readable format is not fully specified and
+/// can change without notice.  Also note that this method has the same
+/// behavior as `object.print(stream, 0, -1)`.
 bsl::ostream& operator<<(bsl::ostream& stream, const JsonNumber& object);
-    // Write the value of the specified 'object' to the specified output
-    // 'stream' in a single-line format, and return a non-'const' reference to
-    // 'stream'.  If 'stream' is not valid on entry, this operation has no
-    // effect.  Note that this human-readable format is not fully specified and
-    // can change without notice.  Also note that this method has the same
-    // behavior as 'object.print(stream, 0, -1)'.
 
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `JsonNumber` objects have the same
+/// value if their `value` attributes are the same.
 bool operator==(const JsonNumber& lhs, const JsonNumber& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'JsonNumber' objects have the same
-    // value if their 'value' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `JsonNumber` objects do not have
+/// the same value if their `value` attributes are not the same.
 bool operator!=(const JsonNumber& lhs, const JsonNumber& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'JsonNumber' objects do not have
-    // the same value if their 'value' attributes are not the same.
 
 // FREE FUNCTIONS
+
+/// Pass the specified `object` to the specified `hashAlgorithm`.  This
+/// function integrates with the `bslh` modular hashing system and
+/// effectively provides a `bsl::hash` specialization for `JsonNumber`.
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlgorithm, const JsonNumber& object);
-    // Pass the specified 'object' to the specified 'hashAlgorithm'.  This
-    // function integrates with the 'bslh' modular hashing system and
-    // effectively provides a 'bsl::hash' specialization for 'JsonNumber'.
 
+/// Exchange the values of the specified `a` and `b` objects.  This function
+/// provides the no-throw exception-safety guarantee if the two objects were
+/// created with the same allocator and the basic guarantee otherwise.
 void swap(JsonNumber& a, JsonNumber& b);
-    // Exchange the values of the specified 'a' and 'b' objects.  This function
-    // provides the no-throw exception-safety guarantee if the two objects were
-    // created with the same allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                            INLINE DEFINITIONS

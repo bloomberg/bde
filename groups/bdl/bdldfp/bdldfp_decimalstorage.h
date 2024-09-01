@@ -12,7 +12,7 @@ BSLS_IDENT("$Id$")
 //
 //@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform,
 //
-//@DESCRIPTION: This component provides a namespace, 'bdldfp::DecimalStorage',
+//@DESCRIPTION: This component provides a namespace, `bdldfp::DecimalStorage`,
 // that supplies the necessary types for storing a Binary Integral Decimal
 // (BID) representation of a decimal floating point value.
 //
@@ -34,9 +34,9 @@ namespace bdldfp {
                         // class DecimalStorage
                         // ====================
 
+/// This `struct` provides a namespace for types for storing Binary Integral
+/// Decimal representation of a decimal floating point value.
 struct DecimalStorage {
-    // This 'struct' provides a namespace for types for storing Binary Integral
-    // Decimal representation of a decimal floating point value.
 
     // TYPES
     typedef BID_UINT32  Type32;

@@ -5,29 +5,29 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide user-defined literals for 'bdljsn::Json' objects.
+//@PURPOSE: Provide user-defined literals for `bdljsn::Json` objects.
 //
 //@CLASSES:
 //  bdljsn::JsonLiterals: a namespace for user-defined literal operators
 //
-//@DESCRIPTION: This component provides a namespace, 'bdljsn::JsonLiterals', in
+//@DESCRIPTION: This component provides a namespace, `bdljsn::JsonLiterals`, in
 // which operators for the user-defined literal suffix "_json" are defined.
-// Users can define a using declaration for the 'JsonLiterals' namespace, and
+// Users can define a using declaration for the `JsonLiterals` namespace, and
 // apply the "_json" suffix to literal text containing JSON to create
-// 'bdljsn::Json' objects (on platforms that support user defined literals).
+// `bdljsn::Json` objects (on platforms that support user defined literals).
 //
 // For example:
-//..
-//  using namespace bdljsn::JsonLiterals;
-//  bdljsn::Json json = R"({"price": 2.1})"_json;
-//..
+// ```
+// using namespace bdljsn::JsonLiterals;
+// bdljsn::Json json = R"({"price": 2.1})"_json;
+// ```
 //
 ///Use of the Global Allocator
 ///---------------------------
-// The 'operator "" _json' returns a 'bdljsn::Json' object that allocates
+// The `operator "" _json` returns a `bdljsn::Json` object that allocates
 // memory using the currently installed global allocator.  Using the global
 // allocator prevents inadvertently locking the default allocator, as may
-// happen before 'main' when using a JSON literal to initialize an object at
+// happen before `main` when using a JSON literal to initialize an object at
 // global file-scope static storage duration.  Note that while file scoped
 // static objects can be useful in testing, we discourage their use in
 // production code.
@@ -36,25 +36,25 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates the intended use of this component.
 //
-///Example 1: Creating a 'bdljsn::Json' Object with a User Defined Literal
+///Example 1: Creating a `bdljsn::Json` Object with a User Defined Literal
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This component provides a namespace in which user-defined literal operators
-// for 'bdljsn::Json' are defined.  In this example we use a '_json' literal
-// to initialize a 'bdljsn::Json' object.
+// for `bdljsn::Json` are defined.  In this example we use a `_json` literal
+// to initialize a `bdljsn::Json` object.
 //
 // First, we define a user declaration for the appropriate namespace:
-//..
-//  using namespace bdljsn::JsonLiterals;
-//..
-// Then we create a 'bdljsn::Json' object:
-//..
-//  bdljsn::Json json = R"({ "number": 4, "array": [0, 2, null] })"_json;
+// ```
+// using namespace bdljsn::JsonLiterals;
+// ```
+// Then we create a `bdljsn::Json` object:
+// ```
+// bdljsn::Json json = R"({ "number": 4, "array": [0, 2, null] })"_json;
 //
-//  assert(bdljsn::JsonType::e_NUMBER == json["number"].type());
-//  assert(bdljsn::JsonType::e_ARRAY  == json["array"].type());
-//..
+// assert(bdljsn::JsonType::e_NUMBER == json["number"].type());
+// assert(bdljsn::JsonType::e_ARRAY  == json["array"].type());
+// ```
 // Notice that the user-defined literal operator will unconditionally invoke
-// the 'bsls::Assert' handler if the literal text is not valid JSON.
+// the `bsls::Assert` handler if the literal text is not valid JSON.
 
 #include <bdlscm_version.h>
 
@@ -69,11 +69,11 @@ namespace bdljsn {
     defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
 inline namespace literals {
 inline namespace JsonLiterals {
+/// Return a `bdljsn::Json` object having the value of the JSON described in
+/// the specified `text` of the specified `numBytes`.  If `text` is not a
+/// valid JSON document then invoke the currently installed `bsls::Assert`
+/// failure handler.
 bdljsn::Json operator "" _json (const char *text, bsl::size_t numBytes);
-    // Return a 'bdljsn::Json' object having the value of the JSON described in
-    // the specified 'text' of the specified 'numBytes'.  If 'text' is not a
-    // valid JSON document then invoke the currently installed 'bsls::Assert'
-    // failure handler.
 
 }  // close JsonLiterals namespace
 }  // close literals namespace

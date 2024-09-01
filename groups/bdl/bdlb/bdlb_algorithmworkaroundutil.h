@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: std::lower_bound, std::upper_bound
 //
-//@DESCRIPTION: This component provides a 'struct' namespace for replacement
+//@DESCRIPTION: This component provides a `struct` namespace for replacement
 // workarounds for some platform supplied faulty algorithms (particularly for
 // the Sun Studio compiler).
 //
@@ -39,70 +39,71 @@ namespace bdlb {
                     // struct AlgorithmWorkaroundUtil
                     // ==============================
 
+/// A namespace for replacement workarounds for some platform supplied
+/// faulty algorithms (particularly for the Sun Studio compiler).
 struct AlgorithmWorkaroundUtil {
-    // A namespace for replacement workarounds for some platform supplied
-    // faulty algorithms (particularly for the Sun Studio compiler).
 
     // CLASS METHODS
+
+    /// Returns an iterator pointing to the first element in the range
+    /// starting at the specified `first` iterator and ending immediately
+    /// before the specified `last` iterator, that is greater than or equal
+    /// to the specified `value`, or `last` if no such element is found.
+    /// This method works around a deficiency in the STLPort standard
+    /// library that prevents using `lower_bound` to search for a value of a
+    /// different type than that held in the range being searched (even if
+    /// an appropriate `operator<` is defined).  See DRQS 139734639.
     template<class FORWARD_IT, class TYPE>
     static
     FORWARD_IT lowerBound(FORWARD_IT  first,
                           FORWARD_IT  last,
                           const TYPE& value);
-        // Returns an iterator pointing to the first element in the range
-        // starting at the specified 'first' iterator and ending immediately
-        // before the specified 'last' iterator, that is greater than or equal
-        // to the specified 'value', or 'last' if no such element is found.
-        // This method works around a deficiency in the STLPort standard
-        // library that prevents using 'lower_bound' to search for a value of a
-        // different type than that held in the range being searched (even if
-        // an appropriate 'operator<' is defined).  See DRQS 139734639.
 
+    /// Returns an iterator pointing to the first element in the range
+    /// starting at the specified `first` iterator and ending immediately
+    /// before the specified `last` iterator, that is greater than or equal
+    /// to the specified `value` as determined by the specified `comp`, or
+    /// `last` if no such element is found.  This method works around a
+    /// deficiency in the STLPort standard library that prevents using
+    /// `lower_bound` to search for a value of a different type than that
+    /// held in the range being searched (even if an appropriate `operator<`
+    /// is defined).  See DRQS 139734639.
     template <class FORWARD_IT, class TYPE, class COMPARE>
     static
     FORWARD_IT lowerBound(FORWARD_IT  first,
                           FORWARD_IT  last,
                           const TYPE& value,
                           COMPARE     comp);
-        // Returns an iterator pointing to the first element in the range
-        // starting at the specified 'first' iterator and ending immediately
-        // before the specified 'last' iterator, that is greater than or equal
-        // to the specified 'value' as determined by the specified 'comp', or
-        // 'last' if no such element is found.  This method works around a
-        // deficiency in the STLPort standard library that prevents using
-        // 'lower_bound' to search for a value of a different type than that
-        // held in the range being searched (even if an appropriate 'operator<'
-        // is defined).  See DRQS 139734639.
 
+    /// Returns an iterator pointing to the first element in the range
+    /// starting at the specified `first` iterator and ending immediately
+    /// before the specified `last` iterator, that is greater than the
+    /// specified `value`, or `last` if no such element is found.  This
+    /// method works around a deficiency in the STLPort standard library
+    /// that prevents using `upper_bound` to search for a value of a
+    /// different type than that held in the range being searched (even if
+    /// an appropriate `operator<` is defined).  See DRQS 139734639.
     template<class FORWARD_IT, class TYPE>
     static
     FORWARD_IT upperBound(FORWARD_IT  first,
                           FORWARD_IT  last,
                           const TYPE& value);
-        // Returns an iterator pointing to the first element in the range
-        // starting at the specified 'first' iterator and ending immediately
-        // before the specified 'last' iterator, that is greater than the
-        // specified 'value', or 'last' if no such element is found.  This
-        // method works around a deficiency in the STLPort standard library
-        // that prevents using 'upper_bound' to search for a value of a
-        // different type than that held in the range being searched (even if
-        // an appropriate 'operator<' is defined).  See DRQS 139734639.
 
+    /// Returns an iterator pointing to the first element in the range
+    /// starting at the specified `first` iterator and ending immediately
+    /// before the specified `last` iterator, that is greater than the
+    /// specified `value` as determined by the specified `comp`, or `last`
+    /// if no such element is found.  This method works around a deficiency
+    /// in the STLPort standard library that prevents using `upper_bound` to
+    /// search for a value of a different type than that held in the range
+    /// being searched (even if an appropriate `operator<` is defined).  See
+    /// DRQS 139734639.
     template <class FORWARD_IT, class TYPE, class COMPARE>
     static
     FORWARD_IT upperBound(FORWARD_IT  first,
                            FORWARD_IT  last,
                            const TYPE& value,
                            COMPARE     comp);
-        // Returns an iterator pointing to the first element in the range
-        // starting at the specified 'first' iterator and ending immediately
-        // before the specified 'last' iterator, that is greater than the
-        // specified 'value' as determined by the specified 'comp', or 'last'
-        // if no such element is found.  This method works around a deficiency
-        // in the STLPort standard library that prevents using 'upper_bound' to
-        // search for a value of a different type than that held in the range
-        // being searched (even if an appropriate 'operator<' is defined).  See
-        // DRQS 139734639.
 };
 
 // ============================================================================

@@ -5,23 +5,23 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide common non-primitive operations on 'bdlt::DayOfWeek::Enum'.
+//@PURPOSE: Provide common non-primitive operations on `bdlt::DayOfWeek::Enum`.
 //
 //@CLASSES:
 //  bdlt::DayOfWeekUtil: functions operating on the day-of-week enumeration
 //
 //@SEE_ALSO: bdlt_dayofweek
 //
-//@DESCRIPTION: This utility component provides a 'struct',
-// 'bdlt::DayOfWeekUtil', that serves as a namespace for functions operating on
+//@DESCRIPTION: This utility component provides a `struct`,
+// `bdlt::DayOfWeekUtil`, that serves as a namespace for functions operating on
 // the day-of-week enumeration.
 //
 // This component provides the following (static) methods:
-//..
-//  'add'                      Determine the day of the week that results from
-//                             shifting a given 'bdlt::DayOfWeek::Enum' value
-//                             by a given (signed) number of days.
-//..
+// ```
+// 'add'                      Determine the day of the week that results from
+//                            shifting a given 'bdlt::DayOfWeek::Enum' value
+//                            by a given (signed) number of days.
+// ```
 //
 ///Usage
 ///------
@@ -33,21 +33,21 @@ BSLS_IDENT("$Id: $")
 // the performance, assumed to be a Friday, and we want to know when the
 // previous one took place and when the next one will be.
 //
-// First, we create a 'bdlt::DayOfWeek' variable for the current day:
-//..
-//  bdlt::DayOfWeek::Enum current = bdlt::DayOfWeek::e_FRI;
-//..
+// First, we create a `bdlt::DayOfWeek` variable for the current day:
+// ```
+// bdlt::DayOfWeek::Enum current = bdlt::DayOfWeek::e_FRI;
+// ```
 // Next, we calculate previous and following event days using the
-// 'bdlt::DayOfWeekUtil::add' function:
-//..
-//  bdlt::DayOfWeek::Enum previous  = bdlt::DayOfWeekUtil::add(current, -10);
-//  bdlt::DayOfWeek::Enum following = bdlt::DayOfWeekUtil::add(current,  10);
-//..
+// `bdlt::DayOfWeekUtil::add` function:
+// ```
+// bdlt::DayOfWeek::Enum previous  = bdlt::DayOfWeekUtil::add(current, -10);
+// bdlt::DayOfWeek::Enum following = bdlt::DayOfWeekUtil::add(current,  10);
+// ```
 // Finally, we verify the resultant day-of-week values:
-//..
-//  assert(bdlt::DayOfWeek::e_TUE == previous );
-//  assert(bdlt::DayOfWeek::e_MON == following);
-//..
+// ```
+// assert(bdlt::DayOfWeek::e_TUE == previous );
+// assert(bdlt::DayOfWeek::e_MON == following);
+// ```
 
 #include <bdlscm_version.h>
 
@@ -62,27 +62,28 @@ namespace bdlt {
                             // struct DayOfWeekUtil
                             // ====================
 
+/// This `struct` provides a namespace for common non-primitive procedures
+/// that operate on `bdlt::DayOfWeek::Enum` values.
 struct DayOfWeekUtil {
-    // This 'struct' provides a namespace for common non-primitive procedures
-    // that operate on 'bdlt::DayOfWeek::Enum' values.
 
     // CLASS METHODS
+
+    /// Return the `DayOfWeek::Enum` value that is the specified (signed)
+    /// `numDays` from the specified `dayOfWeek`.  Note that
+    /// `DayOfWeek::Enum` is closed under this operation (in the expected
+    /// manner).  For example, the following hold `true`:
+    /// ```
+    /// DayOfWeek::e_MON == DayOfWeekUtil::add(DayOfWeek::e_SUN,  1);
+    /// DayOfWeek::e_SAT == DayOfWeekUtil::add(DayOfWeek::e_SUN, -1);
+    /// DayOfWeek::e_SAT == DayOfWeekUtil::add(DayOfWeek::e_SUN,  6);
+    /// DayOfWeek::e_MON == DayOfWeekUtil::add(DayOfWeek::e_SUN, -6);
+    /// DayOfWeek::e_SUN == DayOfWeekUtil::add(DayOfWeek::e_SUN,  7);
+    /// DayOfWeek::e_SUN == DayOfWeekUtil::add(DayOfWeek::e_SUN, -7);
+    /// DayOfWeek::e_MON == DayOfWeekUtil::add(DayOfWeek::e_SUN,  8);
+    /// DayOfWeek::e_SAT == DayOfWeekUtil::add(DayOfWeek::e_SUN, -8);
+    /// ```
     static BSLS_CPP11_CONSTEXPR DayOfWeek::Enum add(DayOfWeek::Enum dayOfWeek,
                                                     int             numDays);
-        // Return the 'DayOfWeek::Enum' value that is the specified (signed)
-        // 'numDays' from the specified 'dayOfWeek'.  Note that
-        // 'DayOfWeek::Enum' is closed under this operation (in the expected
-        // manner).  For example, the following hold 'true':
-        //..
-        //  DayOfWeek::e_MON == DayOfWeekUtil::add(DayOfWeek::e_SUN,  1);
-        //  DayOfWeek::e_SAT == DayOfWeekUtil::add(DayOfWeek::e_SUN, -1);
-        //  DayOfWeek::e_SAT == DayOfWeekUtil::add(DayOfWeek::e_SUN,  6);
-        //  DayOfWeek::e_MON == DayOfWeekUtil::add(DayOfWeek::e_SUN, -6);
-        //  DayOfWeek::e_SUN == DayOfWeekUtil::add(DayOfWeek::e_SUN,  7);
-        //  DayOfWeek::e_SUN == DayOfWeekUtil::add(DayOfWeek::e_SUN, -7);
-        //  DayOfWeek::e_MON == DayOfWeekUtil::add(DayOfWeek::e_SUN,  8);
-        //  DayOfWeek::e_SAT == DayOfWeekUtil::add(DayOfWeek::e_SUN, -8);
-        //..
 };
 
 // ============================================================================

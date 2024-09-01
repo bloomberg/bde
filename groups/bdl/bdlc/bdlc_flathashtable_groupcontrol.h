@@ -11,13 +11,13 @@ BSLS_IDENT("$Id: $")
 //  bdlc::FlatHashTable_GroupControl: flat hash table group control inquiries
 //
 //@DESCRIPTION: This component implements the class,
-// 'bdlc::FlatHashTable_GroupControl', that provides query methods to a group
+// `bdlc::FlatHashTable_GroupControl`, that provides query methods to a group
 // of flat hash table control values.  Note that the number of entries in a
 // group control and the inquiry performance is platform dependant.
 //
 // The flat hash map/set/table data structures are inspired by Google's
 // flat_hash_map CppCon presentations (available on youtube).  The
-// implementations draw from Google's open source 'raw_hash_set.h' file at:
+// implementations draw from Google's open source `raw_hash_set.h` file at:
 // https://github.com/abseil/abseil-cpp/blob/master/absl/container/internal.
 //
 ///Usage
@@ -47,9 +47,9 @@ namespace bdlc {
                      // class FlatHashTable_GroupControl
                      // ================================
 
+/// This class provides methods for making inquires to the data of a group
+/// control loading during construction.
 class FlatHashTable_GroupControl
-    // This class provides methods for making inquires to the data of a group
-    // control loading during construction.
 {
   public:
     // TYPES
@@ -70,10 +70,11 @@ class FlatHashTable_GroupControl
     Storage d_value;  // efficiently cached value for inquiries
 
     // PRIVATE ACCESSORS
+
+    /// Return a bit mask of the `k_SIZE` entries that have the specified
+    /// `value`.  The bit at index `i` corresponds to the result for
+    /// `data[i]`.
     bsl::uint32_t matchRaw(bsl::uint8_t value) const;
-        // Return a bit mask of the 'k_SIZE' entries that have the specified
-        // 'value'.  The bit at index 'i' corresponds to the result for
-        // 'data[i]'.
 
     // NOT IMPLEMENTED
     FlatHashTable_GroupControl();
@@ -87,32 +88,34 @@ class FlatHashTable_GroupControl
     static const bsl::size_t  k_SIZE   = sizeof(Storage);
 
     // CREATORS
+
+    /// Create a group control query object using the specified `data`.  The
+    /// bytes of `data` have no alignment requirement.  The behavior is
+    /// undefined unless `data` has at least `k_SIZE` bytes available.
     explicit FlatHashTable_GroupControl(const bsl::uint8_t *data);
-        // Create a group control query object using the specified 'data'.  The
-        // bytes of 'data' have no alignment requirement.  The behavior is
-        // undefined unless 'data' has at least 'k_SIZE' bytes available.
 
     //! ~FlatHashTable_GroupControl() = default;
         // Destroy this object.
 
     // ACCESSORS
+
+    /// Return a bit mask of the `k_SIZE` entries that are empty or erased.
+    /// The bit at index `i` corresponds to the result for `data[i]`.
     bsl::uint32_t available() const;
-        // Return a bit mask of the 'k_SIZE' entries that are empty or erased.
-        // The bit at index 'i' corresponds to the result for 'data[i]'.
 
+    /// Return a bit mask of the `k_SIZE` entries that are in use (i.e., not
+    /// empty or erased).  The bit at index `i` corresponds to the result
+    /// for `data[i]`.
     bsl::uint32_t inUse() const;
-        // Return a bit mask of the 'k_SIZE' entries that are in use (i.e., not
-        // empty or erased).  The bit at index 'i' corresponds to the result
-        // for 'data[i]'.
 
+    /// Return a bit mask of the `k_SIZE` entries that have the specified
+    /// `value`.  The bit at index `i` corresponds to the result for
+    /// `data[i]`.  The behavior is undefined unless `0 == (0x80 & value)`.
     bsl::uint32_t match(bsl::uint8_t value) const;
-        // Return a bit mask of the 'k_SIZE' entries that have the specified
-        // 'value'.  The bit at index 'i' corresponds to the result for
-        // 'data[i]'.  The behavior is undefined unless '0 == (0x80 & value)'.
 
+    /// Return `true` if this group control was never full (i.e., has a
+    /// value that is empty, but not erased).
     bool neverFull() const;
-        // Return 'true' if this group control was never full (i.e., has a
-        // value that is empty, but not erased).
 };
 
 // ============================================================================

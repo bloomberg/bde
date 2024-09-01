@@ -5,111 +5,111 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide functions that operate on 'IndexSpan' and string objects.
+//@PURPOSE: Provide functions that operate on `IndexSpan` and string objects.
 //
 //@CLASSES:
-//  bdlb::IndexSpanStringUtil: namespace for methods on 'IndexSpan' and strings
+//  bdlb::IndexSpanStringUtil: namespace for methods on `IndexSpan` and strings
 //
 //@SEE_ALSO: bdlb_indexspan
 //
-//@DESCRIPTION: This component provides a struct, 'IndexSpanStringUtil', that
-// serves as a namespace for utility functions that operate on 'IndexSpan' and
+//@DESCRIPTION: This component provides a struct, `IndexSpanStringUtil`, that
+// serves as a namespace for utility functions that operate on `IndexSpan` and
 // string objects.  This component is designed to work on several
-// representations of strings, including 'bsl::string', 'bsl::string_view', and
-// it is also backwards compatible with 'bslstl::StringRef'.  Key operations of
-// this utility include 'bind', for creating a 'bsl::string_view' from an
-// 'IndexSpan' and a 'string', and the 'create' methods that provide a way to
-// create 'IndexSpan' objects of a string object (of any kind) using positions
+// representations of strings, including `bsl::string`, `bsl::string_view`, and
+// it is also backwards compatible with `bslstl::StringRef`.  Key operations of
+// this utility include `bind`, for creating a `bsl::string_view` from an
+// `IndexSpan` and a `string`, and the `create` methods that provide a way to
+// create `IndexSpan` objects of a string object (of any kind) using positions
 // defined by iterators and/or positions and/or length.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating 'IndexSpan' Objects Safely
+///Example 1: Creating `IndexSpan` Objects Safely
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we are creating a parser, and we want the results of the
-// parsing to be stored in 'IndexSpan' objects.  The parser will have either a
+// parsing to be stored in `IndexSpan` objects.  The parser will have either a
 // pointer (or "begin" iterator) into the original string input and then
 // another pointer (or iterator) or a length to identify the end of the input.
-// Turning the beginning and ending identifiers into an 'IndexSpan' is a simple
+// Turning the beginning and ending identifiers into an `IndexSpan` is a simple
 // calculation, but one that is verbose and potentially error prone.  Instead
 // of implementing the calculation ourselves we use the convenience function
-// 'create' from 'IndexSpanStringUtil'.
+// `create` from `IndexSpanStringUtil`.
 //
 // First, we define a string that we want to parse:
-//..
-//  const bsl::string full("James Tiberius Kirk");
-//..
+// ```
+// const bsl::string full("James Tiberius Kirk");
+// ```
 // Then, we implement the parsing of the first name:
-//..
-//  typedef bsl::string::const_iterator Cit;
-//  Cit it = bsl::find(full.begin(), full.end(), ' ');
-//  // Error checking omitted since we know the string
-//  bdlb::IndexSpan first = bdlb::IndexSpanStringUtil::create(full,
-//                                                            full.begin(),
-//                                                            it);
-//..
+// ```
+// typedef bsl::string::const_iterator Cit;
+// Cit it = bsl::find(full.begin(), full.end(), ' ');
+// // Error checking omitted since we know the string
+// bdlb::IndexSpan first = bdlb::IndexSpanStringUtil::create(full,
+//                                                           full.begin(),
+//                                                           it);
+// ```
 // Next, we implement the parsing of the middle name, this time using length,
-// rather than an end iterator (demonstrating an alternative 'create' overload
-// provided by 'IndexSpanStringUtil'):
-//..
-//  ++it;  // Skip the space
-//  Cit it2 = bsl::find(it, full.end(), ' ');
-//  bdlb::IndexSpan middle;
-//  if (full.end() != it2) {
-//      middle = bdlb::IndexSpanStringUtil::create(full, it, it2 - it);
-//      it = it2 + 1;
-//  }
-//..
-// Then, we create the 'IndexSpan' for the last name, using two positions:
-//..
-//  bdlb::IndexSpan last = bdlb::IndexSpanStringUtil::createFromPositions(
-//                                                           full,
-//                                                           it - full.begin(),
-//                                                           full.length());
-//..
-// Finally, we verify that the resulting 'IndexSpan' objects correctly describe
-// the parsed names of the 'full' name:
-//..
-//  assert(full.substr(first.position(), first.length()) == "James");
+// rather than an end iterator (demonstrating an alternative `create` overload
+// provided by `IndexSpanStringUtil`):
+// ```
+// ++it;  // Skip the space
+// Cit it2 = bsl::find(it, full.end(), ' ');
+// bdlb::IndexSpan middle;
+// if (full.end() != it2) {
+//     middle = bdlb::IndexSpanStringUtil::create(full, it, it2 - it);
+//     it = it2 + 1;
+// }
+// ```
+// Then, we create the `IndexSpan` for the last name, using two positions:
+// ```
+// bdlb::IndexSpan last = bdlb::IndexSpanStringUtil::createFromPositions(
+//                                                          full,
+//                                                          it - full.begin(),
+//                                                          full.length());
+// ```
+// Finally, we verify that the resulting `IndexSpan` objects correctly describe
+// the parsed names of the `full` name:
+// ```
+// assert(full.substr(first.position(), first.length()) == "James");
 //
-//  assert(full.substr(middle.position(), middle.length()) == "Tiberius");
+// assert(full.substr(middle.position(), middle.length()) == "Tiberius");
 //
-//  assert(full.substr(last.position(), last.length()) == "Kirk");
-//..
+// assert(full.substr(last.position(), last.length()) == "Kirk");
+// ```
 //
 ///Example 2: Creating String Views
 /// - - - - - - - - - - - - - - - -
-// Suppose that we have 'IndexSpan' objects that define the 'first', 'middle',
-// and 'last' part of a string that has a full name in it and we want to get
+// Suppose that we have `IndexSpan` objects that define the `first`, `middle`,
+// and `last` part of a string that has a full name in it and we want to get
 // actual string views that correspond to those parts of the string.  The
-// 'bind' functions of 'IndexSpanStringUtil' provide that functionality.  The
-// 'bind' functions return a 'bsl::string_view' into the original string (so
+// `bind` functions of `IndexSpanStringUtil` provide that functionality.  The
+// `bind` functions return a `bsl::string_view` into the original string (so
 // the characters of the string are not copied).  Note that this example builds
 // on Example 1.
 //
-// First, we define a string view of the parsed string to show that 'bind'
+// First, we define a string view of the parsed string to show that `bind`
 // works both on strings and string views:
-//..
-//  const bsl::string_view fullView(full);
-//..
-// Then we demonstrate binding 'IndexSpan' object to that view:
-//..
-//  assert(bdlb::IndexSpanStringUtil::bind(fullView, first) == "James");
+// ```
+// const bsl::string_view fullView(full);
+// ```
+// Then we demonstrate binding `IndexSpan` object to that view:
+// ```
+// assert(bdlb::IndexSpanStringUtil::bind(fullView, first) == "James");
 //
-//  assert(bdlb::IndexSpanStringUtil::bind(fullView, middle) == "Tiberius");
+// assert(bdlb::IndexSpanStringUtil::bind(fullView, middle) == "Tiberius");
 //
-//  assert(bdlb::IndexSpanStringUtil::bind(fullView, last) == "Kirk");
-//..
-// Finally we demonstrate binding 'IndexSpan' object to a 'bsl::string':
-//..
-//  assert(bdlb::IndexSpanStringUtil::bind(full, first) == "James");
+// assert(bdlb::IndexSpanStringUtil::bind(fullView, last) == "Kirk");
+// ```
+// Finally we demonstrate binding `IndexSpan` object to a `bsl::string`:
+// ```
+// assert(bdlb::IndexSpanStringUtil::bind(full, first) == "James");
 //
-//  assert(bdlb::IndexSpanStringUtil::bind(full, middle) == "Tiberius");
+// assert(bdlb::IndexSpanStringUtil::bind(full, middle) == "Tiberius");
 //
-//  assert(bdlb::IndexSpanStringUtil::bind(full, last) == "Kirk");
-//..
+// assert(bdlb::IndexSpanStringUtil::bind(full, last) == "Kirk");
+// ```
 
 #include <bdlscm_version.h>
 
@@ -132,68 +132,74 @@ namespace bdlb {
                       // struct IndexSpanStringUtil
                       // ==========================
 
+/// This struct serves as a namespace for utility functions that operate on
+/// `IndexSpan` and string objects.
 struct IndexSpanStringUtil {
-    // This struct serves as a namespace for utility functions that operate on
-    // 'IndexSpan' and string objects.
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Return a string view to the substring of the specified `string` as
+    /// described by the specified `span`, meaning the substring starting at
+    /// the `span.position()` index in `string` and having `span.length()`
+    /// characters.  The behavior is undefined unless
+    /// `span.position() <= string.length()` and
+    /// `span.position() + span.length() <= string.length()`.
     template <class CHAR_TYPE, class CHAR_TRAITS>
     static bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> bindImp(
                   const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& string,
                   const IndexSpan&                                      span);
-        // Return a string view to the substring of the specified 'string' as
-        // described by the specified 'span', meaning the substring starting at
-        // the 'span.position()' index in 'string' and having 'span.length()'
-        // characters.  The behavior is undefined unless
-        // 'span.position() <= string.length()' and
-        // 'span.position() + span.length() <= string.length()'.
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` as starting at the specified `begin` and ending at the
+    /// character preceding the specified `end`.  The behavior is undefined
+    /// unless `begin <= string.end()`, `end <= string.end()`, and
+    /// `begin <= end`.
     template <class CHAR_TYPE, class CHAR_TRAITS>
     static IndexSpan createFromPosImp(
                   const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& string,
                   IndexSpan::size_type                                  begin,
                   IndexSpan::size_type                                  end);
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' as starting at the specified 'begin' and ending at the
-        // character preceding the specified 'end'.  The behavior is undefined
-        // unless 'begin <= string.end()', 'end <= string.end()', and
-        // 'begin <= end'.
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` as starting at the specified `begin` and having the
+    /// specified `length`.  The behavior is undefined unless
+    /// `begin <= string.length()` and `begin + length <= string.length()`.
     template <class CHAR_TYPE, class CHAR_TRAITS>
     static IndexSpan createImp(
                  const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& string,
                  IndexSpan::size_type                                  begin,
                  IndexSpan::size_type                                  length);
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' as starting at the specified 'begin' and having the
-        // specified 'length'.  The behavior is undefined unless
-        // 'begin <= string.length()' and 'begin + length <= string.length()'.
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` as defined by the `begin()` and `end()` of the specified
+    /// `subString`.  The behavior is undefined unless
+    /// `subString.begin() <= string.end()`,
+    /// `subString.end() <= string.end()`,
+    /// `subString.begin() >= string.begin()`, and
+    /// `subString.end() <= string.end()`.
     template <class CHAR_TYPE, class CHAR_TRAITS>
     static IndexSpan createImp(
               const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& string,
               const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& subString);
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' as defined by the 'begin()' and 'end()' of the specified
-        // 'subString'.  The behavior is undefined unless
-        // 'subString.begin() <= string.end()',
-        // 'subString.end() <= string.end()',
-        // 'subString.begin() >= string.begin()', and
-        // 'subString.end() <= string.end()'.
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` starting at the specified `begin` and having the specified
+    /// `length`.  The behavior is undefined unless
+    /// `string.begin() <= begin`, `begin <= string.end()`, and
+    /// `begin + length <= string.end()`.
     template <class CHAR_TYPE, class CHAR_TRAITS>
     static IndexSpan createImp(
           const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>&        string,
           typename bsl::basic_string_view<CHAR_TYPE,
                                           CHAR_TRAITS>::const_iterator begin,
           IndexSpan::size_type                                         length);
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' starting at the specified 'begin' and having the specified
-        // 'length'.  The behavior is undefined unless
-        // 'string.begin() <= begin', 'begin <= string.end()', and
-        // 'begin + length <= string.end()'.
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` starting at the specified `begin` and ending (not
+    /// including) the specified `end`.  The behavior is undefined unless
+    /// `begin >= string.begin()`, `end >= string.begin()`,
+    /// `begin <= string.end()`, `end <= string.end()`, and `begin <= end`.
     template <class CHAR_TYPE, class CHAR_TRAITS>
     static IndexSpan createImp(
            const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>&        string,
@@ -201,34 +207,34 @@ struct IndexSpanStringUtil {
                                            CHAR_TRAITS>::const_iterator begin,
            typename bsl::basic_string_view<CHAR_TYPE,
                                            CHAR_TRAITS>::const_iterator end);
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' starting at the specified 'begin' and ending (not
-        // including) the specified 'end'.  The behavior is undefined unless
-        // 'begin >= string.begin()', 'end >= string.begin()',
-        // 'begin <= string.end()', 'end <= string.end()', and 'begin <= end'.
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` starting at the specified `begin` and having the specified
+    /// `length`.  The behavior is undefined unless
+    /// `string.begin() <= begin`, `begin <= string.end()`, and
+    /// `begin + length <= string.end()`.
     template <class CHAR_TYPE>
     static IndexSpan createImp(
               const bslstl::StringRefImp<CHAR_TYPE>&                   string,
               typename bslstl::StringRefImp<CHAR_TYPE>::const_iterator begin,
               IndexSpan::size_type                                     length);
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' starting at the specified 'begin' and having the specified
-        // 'length'.  The behavior is undefined unless
-        // 'string.begin() <= begin', 'begin <= string.end()', and
-        // 'begin + length <= string.end()'.
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` starting at the specified `begin` and ending (not
+    /// including) the specified `end`.  The behavior is undefined unless
+    /// `begin >= string.begin()`, `end >= string.begin()`,
+    /// `begin <= string.end()`, `end <= string.end()`, and `begin <= end`.
     template <class CHAR_TYPE>
     static IndexSpan createImp(
                const bslstl::StringRefImp<CHAR_TYPE>&                   string,
                typename bslstl::StringRefImp<CHAR_TYPE>::const_iterator begin,
                typename bslstl::StringRefImp<CHAR_TYPE>::const_iterator end);
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' starting at the specified 'begin' and ending (not
-        // including) the specified 'end'.  The behavior is undefined unless
-        // 'begin >= string.begin()', 'end >= string.begin()',
-        // 'begin <= string.end()', 'end <= string.end()', and 'begin <= end'.
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` starting at the specified `begin` and having the specified
+    /// `length`.  The behavior is undefined unless
+    /// `begin >= string.begin()`, `begin <= string.end()`, and
+    /// `begin + length <= string.end()`.
     template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
     static IndexSpan createImp(
                  const bsl::basic_string<CHAR_TYPE,
@@ -247,12 +253,12 @@ struct IndexSpanStringUtil {
                                             CHAR_TRAITS,
                                             ALLOCATOR>::const_iterator begin,
                  IndexSpan::size_type                                  length);
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' starting at the specified 'begin' and having the specified
-        // 'length'.  The behavior is undefined unless
-        // 'begin >= string.begin()', 'begin <= string.end()', and
-        // 'begin + length <= string.end()'.
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` starting at the specified `begin` and ending (not
+    /// including) the specified `end`.  The behavior is undefined unless
+    /// `begin >= string.begin()`, `begin <= string.end()`,
+    /// `end <= string.end()`, and `begin <= end`.
     template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
     static IndexSpan createImp(
                   const bsl::basic_string<CHAR_TYPE,
@@ -275,58 +281,54 @@ struct IndexSpanStringUtil {
                   typename std::basic_string<CHAR_TYPE,
                                              CHAR_TRAITS,
                                              ALLOCATOR>::const_iterator end);
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' starting at the specified 'begin' and ending (not
-        // including) the specified 'end'.  The behavior is undefined unless
-        // 'begin >= string.begin()', 'begin <= string.end()',
-        // 'end <= string.end()', and 'begin <= end'.
 
   public:
     // CLASS METHODS
+
+    /// Return a string reference to the substring of the specified `string`
+    /// as described by the specified `span`, meaning the substring starting
+    /// at the `span.position()` index in `string` and having
+    /// `span.length()` characters.  The behavior is undefined unless
+    /// `span.position() <= string.length()` and
+    /// `span.position() + span.length() <= string.length()`.
     static bsl::string_view  bind(const bsl::string_view&  string,
                                   const IndexSpan&         span);
     static bsl::wstring_view bind(const bsl::wstring_view& string,
                                   const IndexSpan&         span);
-        // Return a string reference to the substring of the specified 'string'
-        // as described by the specified 'span', meaning the substring starting
-        // at the 'span.position()' index in 'string' and having
-        // 'span.length()' characters.  The behavior is undefined unless
-        // 'span.position() <= string.length()' and
-        // 'span.position() + span.length() <= string.length()'.
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` starting at the specified `begin` and ending (not
+    /// including) the specified `end`.  The behavior is undefined unless
+    /// `begin <= string.length()` and `end <= string.length()`.
     static IndexSpan createFromPositions(const bsl::string_view&  string,
                                          IndexSpan::size_type     begin,
                                          IndexSpan::size_type     end);
     static IndexSpan createFromPositions(const bsl::wstring_view& string,
                                          IndexSpan::size_type     begin,
                                          IndexSpan::size_type     end);
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' starting at the specified 'begin' and ending (not
-        // including) the specified 'end'.  The behavior is undefined unless
-        // 'begin <= string.length()' and 'end <= string.length()'.
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` starting at the specified `begin` and having the specified
+    /// `length`.  The behavior is undefined unless
+    /// `begin <= string.length()` and `begin + length <= string.length()`.
     static IndexSpan create(const bsl::string_view&  string,
                             IndexSpan::size_type     begin,
                             IndexSpan::size_type     length);
     static IndexSpan create(const bsl::wstring_view& string,
                             IndexSpan::size_type     begin,
                             IndexSpan::size_type     length);
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' starting at the specified 'begin' and having the specified
-        // 'length'.  The behavior is undefined unless
-        // 'begin <= string.length()' and 'begin + length <= string.length()'.
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` as defined by the `begin()` and `end()` of the specified
+    /// `subString`.  The behavior is undefined unless
+    /// `subString.begin() <= string.end()`,
+    /// `subString.end() <= string.end()`,
+    /// `subString.begin() >= string.begin()`, and
+    /// `subString.end() <= string.begin()`.
     static IndexSpan create(const bsl::string_view&  string,
                             const bsl::string_view&  subString);
     static IndexSpan create(const bsl::wstring_view& string,
                             const bsl::wstring_view& subString);
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' as defined by the 'begin()' and 'end()' of the specified
-        // 'subString'.  The behavior is undefined unless
-        // 'subString.begin() <= string.end()',
-        // 'subString.end() <= string.end()',
-        // 'subString.begin() >= string.begin()', and
-        // 'subString.end() <= string.begin()'.
 
     static IndexSpan create(const bsl::string_view&               string,
                             bsl::string_view::const_iterator      begin,

@@ -12,96 +12,96 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: http://www.w3.org/TR/xmlschema-2/#built-in-datatypes
 //
-//@DESCRIPTION: This component defines a structure 'bdlat_TypeName' which
+//@DESCRIPTION: This component defines a structure `bdlat_TypeName` which
 // provides a namespace for functions returning information about the object
 // types.  Functions in this namespace allow users to get access to three
 // categories of information:
 //
-//: o class name from the metadata associated with the object type
-//: o generic type name
-//: o XML/XSD type name, based on object type and formatting mode.
+// * class name from the metadata associated with the object type
+// * generic type name
+// * XML/XSD type name, based on object type and formatting mode.
 //
 ///Class Name Information
 ///----------------------
-// The template function 'className' returns the object class name from the
+// The template function `className` returns the object class name from the
 // metadata associated with given object type.  Metadata is available for the
 // C++ types that have one the following traits:
-//..
-//  'bdlat_TypeTraitBasicChoice'
-//  'bdlat_TypeTraitBasicSequence'
-//  'bdlat_TypeTraitBasicCustomizedType'
-//  'bdlat_TypeTraitBasicEnumeration'
-//..
-// If metadata is not available for the object type, the function 'className'
-// returns 0 unless the function 'bdlat_TypeName_className' is overloaded by
+// ```
+// 'bdlat_TypeTraitBasicChoice'
+// 'bdlat_TypeTraitBasicSequence'
+// 'bdlat_TypeTraitBasicCustomizedType'
+// 'bdlat_TypeTraitBasicEnumeration'
+// ```
+// If metadata is not available for the object type, the function `className`
+// returns 0 unless the function `bdlat_TypeName_className` is overloaded by
 // developer.
 //
 ///Overloable Class Name Functions For User Defined Classes
 ///--------------------------------------------------------
 // To provide the custom name for the given user-defined C++ class, the
-// developer should overload the template function 'bdlat_TypeName_className'
+// developer should overload the template function `bdlat_TypeName_className`
 // for this type in the namespace where the type is defined.
 //
-//WARNING! Do not extend 'bdlat_TypeName_Overloadable' namespace.
+//WARNING! Do not extend `bdlat_TypeName_Overloadable` namespace.
 //
 ///Generic Type Name Information
 ///-----------------------------
-// The template functions 'name' returns the generic type name for the given
+// The template functions `name` returns the generic type name for the given
 // object.  The generic type name is one of the following:
-//..
-//  o predefined name for fundamental types
-//  o class name from 'bdlat_TypeName_className', if such function returns a
-//    non-null value
-//  o name obtained from 'type_info' object provided by C++ runtime, if no
-//    class name is available
-//..
+// ```
+// o predefined name for fundamental types
+// o class name from 'bdlat_TypeName_className', if such function returns a
+//   non-null value
+// o name obtained from 'type_info' object provided by C++ runtime, if no
+//   class name is available
+// ```
 //
 ///XSD Type Name Information
 ///-------------------------
-// The template functions 'xsdName' returns the XML/XSD type name, based on
+// The template functions `xsdName` returns the XML/XSD type name, based on
 // the object type and formatting mode.  The returned value is one of the
 // following:
-//..
-//   o predefined name for built-in XSD types
-//   o class name from 'bdlat_TypeName_className', if such function returns
-//     a non-null value
-//   o the "anyType" string, if no class name is available
-//..
+// ```
+//  o predefined name for built-in XSD types
+//  o class name from 'bdlat_TypeName_className', if such function returns
+//    a non-null value
+//  o the "anyType" string, if no class name is available
+// ```
 // This component also defines the XSD names for the following C++ types and
 // formatting modes:
-//..
-//  C++ Type                      Formatting Mode             XML Name
-//  --------                      ---------------             --------
-//  bool                          DEFAULT/DEC/TEXT            boolean
-//  char                          DEFAULT/DEC                 byte
-//  char                          TEXT                        string
-//  unsigned char                 DEFAULT/DEC                 unsignedByte
-//  short                         DEFAULT/DEC                 short
-//  short                         TEXT                        string
-//  unsigned short                DEFAULT/DEC                 unsignedShort
-//  int                           DEFAULT/DEC                 int
-//  unsigned int                  DEFAULT/DEC                 unsignedInt
-//  bsls::Types::Int64            DEFAULT/DEC                 long
-//  bsls::Types::Uint64           DEFAULT/DEC                 unsignedLong
-//  float                         DEFAULT                     float
-//  float                         DEC                         decimal
-//  double                        DEFAULT                     double
-//  double                        DEC                         decimal
-//  bdldflp::Decimal64            DEFAULT                     Decimal64
-//  bsl::string                   DEFAULT/TEXT                string
-//  bsl::string                   BASE64                      base64Binary
-//  bsl::string                   HEX                         hexBinary
-//  bdlt::Date                     DEFAULT                     date
-//  bdlt::DateTz                   DEFAULT                     date
-//  bdlt::Datetime                 DEFAULT                     dateTime
-//  bdlt::DatetimeTz               DEFAULT                     dateTime
-//  bdlt::Time                     DEFAULT                     time
-//  bdlt::TimeTz                   DEFAULT                     time
-//  bsl::vector<char>             DEFAULT/BASE64              base64Binary
-//  bsl::vector<char>             HEX                         hexBinary
-//  bsl::vector<char>             TEXT                        string
-//  bsl::vector<short>            TEXT                        string
-//..
+// ```
+// C++ Type                      Formatting Mode             XML Name
+// --------                      ---------------             --------
+// bool                          DEFAULT/DEC/TEXT            boolean
+// char                          DEFAULT/DEC                 byte
+// char                          TEXT                        string
+// unsigned char                 DEFAULT/DEC                 unsignedByte
+// short                         DEFAULT/DEC                 short
+// short                         TEXT                        string
+// unsigned short                DEFAULT/DEC                 unsignedShort
+// int                           DEFAULT/DEC                 int
+// unsigned int                  DEFAULT/DEC                 unsignedInt
+// bsls::Types::Int64            DEFAULT/DEC                 long
+// bsls::Types::Uint64           DEFAULT/DEC                 unsignedLong
+// float                         DEFAULT                     float
+// float                         DEC                         decimal
+// double                        DEFAULT                     double
+// double                        DEC                         decimal
+// bdldflp::Decimal64            DEFAULT                     Decimal64
+// bsl::string                   DEFAULT/TEXT                string
+// bsl::string                   BASE64                      base64Binary
+// bsl::string                   HEX                         hexBinary
+// bdlt::Date                     DEFAULT                     date
+// bdlt::DateTz                   DEFAULT                     date
+// bdlt::Datetime                 DEFAULT                     dateTime
+// bdlt::DatetimeTz               DEFAULT                     dateTime
+// bdlt::Time                     DEFAULT                     time
+// bdlt::TimeTz                   DEFAULT                     time
+// bsl::vector<char>             DEFAULT/BASE64              base64Binary
+// bsl::vector<char>             HEX                         hexBinary
+// bsl::vector<char>             TEXT                        string
+// bsl::vector<short>            TEXT                        string
+// ```
 //
 ///Usage
 ///-----
@@ -111,125 +111,125 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // We begin by creating abbreviations for formatting modes and by declaring
 // objects of a number of types:
-//..
-//  int main() {
+// ```
+// int main() {
 //
-//      static const int DEFAULT = bdlat_FormattingMode::DEFAULT;
-//      static const int DEC     = bdlat_FormattingMode::DEC;
-//      static const int HEX     = bdlat_FormattingMode::HEX;
-//      static const int BASE64  = bdlat_FormattingMode::BASE64;
-//      static const int TEXT    = bdlat_FormattingMode::TEXT;
+//     static const int DEFAULT = bdlat_FormattingMode::DEFAULT;
+//     static const int DEC     = bdlat_FormattingMode::DEC;
+//     static const int HEX     = bdlat_FormattingMode::HEX;
+//     static const int BASE64  = bdlat_FormattingMode::BASE64;
+//     static const int TEXT    = bdlat_FormattingMode::TEXT;
 //
-//      short                    theShort;
-//      unsigned                 theUint;
-//      float                    theFloat;
-//      const char              *theCharPtr;
-//      bsl::string              theString;
+//     short                    theShort;
+//     unsigned                 theUint;
+//     float                    theFloat;
+//     const char              *theCharPtr;
+//     bsl::string              theString;
 //
-//      bdlt::Date                theDate;
-//      bdlt::DatetimeTz          theDatetime;
-//      bsl::vector<char>        theCharVector;
-//      bsl::vector<bsl::string> theStrVector;
-//..
-// None of these types are generated types with metadata, so 'className' will
+//     bdlt::Date                theDate;
+//     bdlt::DatetimeTz          theDatetime;
+//     bsl::vector<char>        theCharVector;
+//     bsl::vector<bsl::string> theStrVector;
+// ```
+// None of these types are generated types with metadata, so `className` will
 // return a null pointer for each of them:
-//..
-//      assert(0 == bdlat_TypeName::className(theShort));
-//      assert(0 == bdlat_TypeName::className(theUint));
-//      assert(0 == bdlat_TypeName::className(theFloat));
-//      assert(0 == bdlat_TypeName::className(theCharPtr));
-//      assert(0 == bdlat_TypeName::className(theString));
+// ```
+//     assert(0 == bdlat_TypeName::className(theShort));
+//     assert(0 == bdlat_TypeName::className(theUint));
+//     assert(0 == bdlat_TypeName::className(theFloat));
+//     assert(0 == bdlat_TypeName::className(theCharPtr));
+//     assert(0 == bdlat_TypeName::className(theString));
 //
-//      assert(0 == bdlat_TypeName::className(theDate));
-//      assert(0 == bdlat_TypeName::className(theDatetime));
-//      assert(0 == bdlat_TypeName::className(theCharVector));
-//      assert(0 == bdlat_TypeName::className(theStrVector));
-//..
-// The 'name' function will never return a null pointer.  For each of the
+//     assert(0 == bdlat_TypeName::className(theDate));
+//     assert(0 == bdlat_TypeName::className(theDatetime));
+//     assert(0 == bdlat_TypeName::className(theCharVector));
+//     assert(0 == bdlat_TypeName::className(theStrVector));
+// ```
+// The `name` function will never return a null pointer.  For each of the
 // fundamental and vocabulary types, it returns the known type name.  For
 // vector types, it returns the appropriate "vector<X>" string:
-//..
-//      assert(0 == bsl::strcmp("short", bdlat_TypeName::name(theShort)));
-//      assert(0 == bsl::strcmp("unsigned int",
-//                              bdlat_TypeName::name(theUint)));
-//      assert(0 == bsl::strcmp("float", bdlat_TypeName::name(theFloat)));
-//      assert(0 == bsl::strcmp("const char*",
-//                              bdlat_TypeName::name(theCharPtr)));
+// ```
+//     assert(0 == bsl::strcmp("short", bdlat_TypeName::name(theShort)));
+//     assert(0 == bsl::strcmp("unsigned int",
+//                             bdlat_TypeName::name(theUint)));
+//     assert(0 == bsl::strcmp("float", bdlat_TypeName::name(theFloat)));
+//     assert(0 == bsl::strcmp("const char*",
+//                             bdlat_TypeName::name(theCharPtr)));
 //
-//      assert(0 == bsl::strcmp("string", bdlat_TypeName::name(theString)));
-//      assert(0 == bsl::strcmp("bdlt::Date", bdlat_TypeName::name(theDate)));
-//      assert(0 == bsl::strcmp("bdlt::DatetimeTz",
-//                              bdlat_TypeName::name(theDatetime)));
-//      assert(0 == bsl::strcmp("vector<char>",
-//                              bdlat_TypeName::name(theCharVector)));
-//      assert(0 == bsl::strcmp("vector<string>",
-//                              bdlat_TypeName::name(theStrVector)));
-//..
-// Each of the above types except 'vector<string>' has one or more
+//     assert(0 == bsl::strcmp("string", bdlat_TypeName::name(theString)));
+//     assert(0 == bsl::strcmp("bdlt::Date", bdlat_TypeName::name(theDate)));
+//     assert(0 == bsl::strcmp("bdlt::DatetimeTz",
+//                             bdlat_TypeName::name(theDatetime)));
+//     assert(0 == bsl::strcmp("vector<char>",
+//                             bdlat_TypeName::name(theCharVector)));
+//     assert(0 == bsl::strcmp("vector<string>",
+//                             bdlat_TypeName::name(theStrVector)));
+// ```
+// Each of the above types except `vector<string>` has one or more
 // corresponding XSD types.  The XSD type is affected by a formatting mode so
-// that, for example, a 'vector<char>' can be represented as a text string
-// (formatting mode 'TEXT') or as a sequence of binary bytes (formatting mode
-// 'HEX' or 'BASE64').
-//..
-//      assert(0 == bsl::strcmp("short",
-//                              bdlat_TypeName::xsdName(theShort, DEFAULT)));
-//      assert(0 == bsl::strcmp("unsignedInt",
-//                              bdlat_TypeName::xsdName(theUint, DEFAULT)));
-//      assert(0 == bsl::strcmp("float",
-//                              bdlat_TypeName::xsdName(theFloat, DEFAULT)));
-//      assert(0 == bsl::strcmp("decimal",
-//                              bdlat_TypeName::xsdName(theFloat, DEC)));
-//      assert(0 == bsl::strcmp("base64Binary",
-//                           bdlat_TypeName::xsdName(theCharVector, DEFAULT)));
-//      assert(0 == bsl::strcmp("string",
-//                              bdlat_TypeName::xsdName(theCharVector, TEXT)));
-//..
-// For types that have not corresponding XSD type, 'xsdName' returns
+// that, for example, a `vector<char>` can be represented as a text string
+// (formatting mode `TEXT`) or as a sequence of binary bytes (formatting mode
+// `HEX` or `BASE64`).
+// ```
+//     assert(0 == bsl::strcmp("short",
+//                             bdlat_TypeName::xsdName(theShort, DEFAULT)));
+//     assert(0 == bsl::strcmp("unsignedInt",
+//                             bdlat_TypeName::xsdName(theUint, DEFAULT)));
+//     assert(0 == bsl::strcmp("float",
+//                             bdlat_TypeName::xsdName(theFloat, DEFAULT)));
+//     assert(0 == bsl::strcmp("decimal",
+//                             bdlat_TypeName::xsdName(theFloat, DEC)));
+//     assert(0 == bsl::strcmp("base64Binary",
+//                          bdlat_TypeName::xsdName(theCharVector, DEFAULT)));
+//     assert(0 == bsl::strcmp("string",
+//                             bdlat_TypeName::xsdName(theCharVector, TEXT)));
+// ```
+// For types that have not corresponding XSD type, `xsdName` returns
 // "anyType", regardless of formatting mode:
-//..
-//      assert(0 == bsl::strcmp("anyType",
-//                            bdlat_TypeName::xsdName(theStrVector, DEFAULT)));
+// ```
+//     assert(0 == bsl::strcmp("anyType",
+//                           bdlat_TypeName::xsdName(theStrVector, DEFAULT)));
 //
-//      return 0;
-//  }
-//..
+//     return 0;
+// }
+// ```
 // If we create our own class:
-//..
-//  namespace MyNamespace {
+// ```
+// namespace MyNamespace {
 //
-//      class MyClass {
-//          //...
-//      };
-//..
+//     class MyClass {
+//         //...
+//     };
+// ```
 // Then we can assign it a printable name by overloading the
-// 'bdlat_TypeName_className' function in the class's namespace:
-//..
-//      const char *bdlat_TypeName_className(const MyClass&) {
-//          return "MyClass";
-//      }
+// `bdlat_TypeName_className` function in the class's namespace:
+// ```
+//     const char *bdlat_TypeName_className(const MyClass&) {
+//         return "MyClass";
+//     }
 //
-//  } // Close MyNamespace
-//..
-// Note that 'bdlat_TypeName_className' must return a string that is
+// } // Close MyNamespace
+// ```
+// Note that `bdlat_TypeName_className` must return a string that is
 // valid and does not change for remaining duration the program.  The
-// overloaded 'bdlat_TypeName_className' function is automatically used for
-// 'name' and 'xsdName', as well as for 'className':
-//..
-//  int main()
-//  {
-//      static const int DEFAULT = bdlat_FormattingMode::DEFAULT;
+// overloaded `bdlat_TypeName_className` function is automatically used for
+// `name` and `xsdName`, as well as for `className`:
+// ```
+// int main()
+// {
+//     static const int DEFAULT = bdlat_FormattingMode::DEFAULT;
 //
-//      MyNamespace::MyClass myClassObj;
+//     MyNamespace::MyClass myClassObj;
 //
-//      assert(0 == bsl::strcmp("MyClass",
-//                              bdlat_TypeName::className(myClassObj)));
-//      assert(0 == bsl::strcmp("MyClass", bdlat_TypeName::name(myClassObj)));
-//      assert(0 == bsl::strcmp("MyClass",
-//                              bdlat_TypeName::xsdName(myClassObj, DEFAULT)));
+//     assert(0 == bsl::strcmp("MyClass",
+//                             bdlat_TypeName::className(myClassObj)));
+//     assert(0 == bsl::strcmp("MyClass", bdlat_TypeName::name(myClassObj)));
+//     assert(0 == bsl::strcmp("MyClass",
+//                             bdlat_TypeName::xsdName(myClassObj, DEFAULT)));
 //
-//      return 0;
-//  }
-//..
+//     return 0;
+// }
+// ```
 
 #include <bdlscm_version.h>
 
@@ -268,63 +268,63 @@ namespace BloombergLP {
                            // struct bdlat_TypeName
                            // =====================
 
+/// Static template functions for returning a string representation for the
+/// name of a type.
 struct bdlat_TypeName {
-    // Static template functions for returning a string representation for the
-    // name of a type.
 
+    /// Return a null-terminated string containing the exported name for
+    /// the specified `TYPE`, or a 0 pointer if `TYPE` does not export a
+    /// name.  A type exports a name by overloading the function
+    /// `bdlat_TypeName_className(const TYPE&)` in TYPE's namespace.  The
+    /// default implementation of `bdlat_TypeName_className` will
+    /// automatically return the `CLASS_NAME` value for types that have the
+    /// `bdlat_TypeTraitBasicChoice`, `bdlat_TypeTraitBasicSequence`,
+    /// `bdlat_TypeTraitBasicCustomizedType`, or
+    /// `bdlat_TypeTraitBasicEnumeration` trait (i.e., types generated
+    /// using `bas_codegen.pl`).
     template <class TYPE>
     static const char *className(const TYPE& object);
-        // Return a null-terminated string containing the exported name for
-        // the specified 'TYPE', or a 0 pointer if 'TYPE' does not export a
-        // name.  A type exports a name by overloading the function
-        // 'bdlat_TypeName_className(const TYPE&)' in TYPE's namespace.  The
-        // default implementation of 'bdlat_TypeName_className' will
-        // automatically return the 'CLASS_NAME' value for types that have the
-        // 'bdlat_TypeTraitBasicChoice', 'bdlat_TypeTraitBasicSequence',
-        // 'bdlat_TypeTraitBasicCustomizedType', or
-        // 'bdlat_TypeTraitBasicEnumeration' trait (i.e., types generated
-        // using 'bas_codegen.pl').
 
+    /// Return a null-terminated string containing the name of the specified
+    /// `TYPE`.  If `TYPE` is a fundamental type, string, date, time, or
+    /// datetime, then return a canonical representation of the type's name.
+    /// Otherwise, if `className` applied to the specified `object` returns
+    /// a non-null value, then return that value.  Otherwise, return
+    /// `typeid(TYPE).name()`.  Note that the returned name refers to the
+    /// *static* `TYPE`, not to the dynamic type of `object`.
     template <class TYPE>
     static const char *name(const TYPE& object);
-        // Return a null-terminated string containing the name of the specified
-        // 'TYPE'.  If 'TYPE' is a fundamental type, string, date, time, or
-        // datetime, then return a canonical representation of the type's name.
-        // Otherwise, if 'className' applied to the specified 'object' returns
-        // a non-null value, then return that value.  Otherwise, return
-        // 'typeid(TYPE).name()'.  Note that the returned name refers to the
-        // *static* 'TYPE', not to the dynamic type of 'object'.
 
+    /// Return a null-terminated text string containing the name of the
+    /// specified `TYPE` with the specified `format` as it would appear in
+    /// an XML Schema (XSD) element declaration.  The `format` is
+    /// interpreted as the bit-wise OR of one or more of the values defined
+    /// in the `bdlat_formattingmode` component.  Formatting mode bits
+    /// outside of `bdlat_FormattingMode::TYPE_MASK` are ignored.  If the
+    /// specified `object` corresponds to one of the XSD built-in types,
+    /// then return the XSD type's name.  Otherwise, if `className(object)`
+    /// returns a non-null value, then return that value.  Otherwise, return
+    /// "anyType".  The behavior is undefined unless the `format` is valid
+    /// for the specified `TYPE`.
     template <class TYPE>
     static const char *xsdName(const TYPE& object, int format);
-        // Return a null-terminated text string containing the name of the
-        // specified 'TYPE' with the specified 'format' as it would appear in
-        // an XML Schema (XSD) element declaration.  The 'format' is
-        // interpreted as the bit-wise OR of one or more of the values defined
-        // in the 'bdlat_formattingmode' component.  Formatting mode bits
-        // outside of 'bdlat_FormattingMode::TYPE_MASK' are ignored.  If the
-        // specified 'object' corresponds to one of the XSD built-in types,
-        // then return the XSD type's name.  Otherwise, if 'className(object)'
-        // returns a non-null value, then return that value.  Otherwise, return
-        // "anyType".  The behavior is undefined unless the 'format' is valid
-        // for the specified 'TYPE'.
 };
 
 namespace bdlat_TypeName_Overloadable {
     // Namespace that provides default implementations.
 
+    /// Default implementation of `className` for the specified `object`.
     template <class TYPE>
     const char *bdlat_TypeName_className(const TYPE& object);
-        // Default implementation of 'className' for the specified 'object'.
 
+    /// Default implementation of `name` for the specified `object`.
     template <class TYPE>
     const char *bdlat_TypeName_name(const TYPE& object);
-        // Default implementation of 'name' for the specified 'object'.
 
+    /// Default implementation of `xsdName` for the specified `object` and
+    /// `format`.
     template <class TYPE>
     const char *bdlat_TypeName_xsdName(const TYPE& object, int format);
-        // Default implementation of 'xsdName' for the specified 'object' and
-        // 'format'.
 }  // close namespace bdlat_TypeName_Overloadable
 
 // ---  Anything below this line is implementation specific.  Do not use.  ----
@@ -333,8 +333,8 @@ namespace bdlat_TypeName_Overloadable {
                          // struct bdlat_TypeName_Imp
                          // =========================
 
+/// Private class providing implementation of `bdlat_TypeName`.
 struct bdlat_TypeName_Imp {
-    // Private class providing implementation of 'bdlat_TypeName'.
 
   private:
     // PRIVATE TYPES
@@ -406,14 +406,16 @@ struct bdlat_TypeName_Imp {
 
   public:
     // CLASS METHODS
+
+    /// Overloads for basic class types.
     template <class TYPE>
     static const char *className(const TYPE                 *);
-        // Overloads for basic class types.
 
+    /// Generic implementation for non-fundamental types.
     template <class TYPE>
     static const char *name(const TYPE                      *);
-        // Generic implementation for non-fundamental types.
 
+    /// Overloads for fundamental types and char pointers.
     static const char *name(const bool                      *);
     static const char *name(const char                      *);
     static const char *name(const signed char               *);
@@ -439,22 +441,23 @@ struct bdlat_TypeName_Imp {
     static const char *name(const bdlt::DatetimeTz          *);
     static const char *name(const bdlt::Time                *);
     static const char *name(const bdlt::TimeTz              *);
-        // Overloads for fundamental types and char pointers.
 
+    /// Specialization for vectors.  Return the null-terminated string
+    /// constructed by replacing the "X" in the string "vector<X>" with the
+    /// result of calling `name` on an object of the specified `TYPE`.  If
+    /// the constructed string exceeds 100 characters, then truncate to 100
+    /// characters.  Note that `TYPE` may itself be a vector, leading to a
+    /// recursive call to this function.
     template <class TYPE>
     static const char *name(const bsl::vector<TYPE>         *);
-        // Specialization for vectors.  Return the null-terminated string
-        // constructed by replacing the "X" in the string "vector<X>" with the
-        // result of calling 'name' on an object of the specified 'TYPE'.  If
-        // the constructed string exceeds 100 characters, then truncate to 100
-        // characters.  Note that 'TYPE' may itself be a vector, leading to a
-        // recursive call to this function.
 
+    /// Generic implementation for non-fundamental and not predefined types
+    /// using the specified `object` and `format`.
     template <class TYPE>
     static const char *xsdName(const TYPE           *object, int format);
-        // Generic implementation for non-fundamental and not predefined types
-        // using the specified 'object' and 'format'.
 
+    /// Overloads for fundamental types and some predefined types using the
+    /// specified `format`.
     static const char *xsdName(const bool                 *, int format);
     static const char *xsdName(const char                 *, int format);
     static const char *xsdName(const signed char          *, int format);
@@ -482,18 +485,16 @@ struct bdlat_TypeName_Imp {
     static const char *xsdName(const bdlt::TimeTz         *, int format);
     static const char *xsdName(const bsl::vector<char>    *, int format);
     static const char *xsdName(const bsl::vector<short>   *, int format);
-        // Overloads for fundamental types and some predefined types using the
-        // specified 'format'.
 
+    /// Concatenate the specified `numSegments` zero-terminated strings
+    /// specified by `segments` array and load the result into the specified
+    /// `dest` buffer with the specified size `destSize`.  Return always
+    /// true.  Note that this method is idempotent and safe for
+    /// multi-threaded environment.
     static bool idempotentConcat(char       *dest,
                                  int         destSize,
                                  const char *segments[],
                                  int         numSegments);
-        // Concatenate the specified 'numSegments' zero-terminated strings
-        // specified by 'segments' array and load the result into the specified
-        // 'dest' buffer with the specified size 'destSize'.  Return always
-        // true.  Note that this method is idempotent and safe for
-        // multi-threaded environment.
 };
 
 // ============================================================================

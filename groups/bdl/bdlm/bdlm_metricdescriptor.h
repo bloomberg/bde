@@ -13,72 +13,72 @@ BSLS_IDENT("$Id$")
 //  bdlm::MetricDescriptor: descriptive information for a metric
 //
 //@DESCRIPTION: This component provides a single unconstrained attribute class,
-// 'bdlm::MetricDescriptor', that is used to supply descriptive information for
-// a metric.  A descriptor is supplied to a 'MetricsRegistry' to identify a
+// `bdlm::MetricDescriptor`, that is used to supply descriptive information for
+// a metric.  A descriptor is supplied to a `MetricsRegistry` to identify a
 // metric, which in-turn supplies that description to a higher-level metric
 // publication system (like BALM or GUTS) via a concrete implementation of the
-// 'bdlm::MetricsAdapter' protocol.
+// `bdlm::MetricsAdapter` protocol.
 //
 ///Attributes
 ///----------
-//..
-//  Name                   Type         Default
-//  ------------------     -----------  -------
-//  metricNamespace        bsl::string  [1]
-//  metricName             bsl::string  ""     
-//  instanceNumber         Uint64       0      
-//  objectTypeName         bsl::string  ""
-//  objectTypeAbbreviation bsl::string  ""
-//  objectIdentifier       bsl::string  [2]
-//..
+// ```
+// Name                   Type         Default
+// ------------------     -----------  -------
+// metricNamespace        bsl::string  [1]
+// metricName             bsl::string  ""     
+// instanceNumber         Uint64       0      
+// objectTypeName         bsl::string  ""
+// objectTypeAbbreviation bsl::string  ""
+// objectIdentifier       bsl::string  [2]
+// ```
 // [1] k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION
 // [2] k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION
-//..
-//: o 'metricNamespace' - a grouping value for published metrics, which is
-//:   expected to be have implementation specific details from the metric
-//:   publishing system.  Recommended practice is to use
-//:   'k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION' indicating concrete
-//:   implementations of 'MetricsAdapter' should determine an appropriate
-//:   value for the metrics framework it adapts (this is often a configured
-//:   value for an application, e.g., a service name).
-//:
-//: o 'metricName' - the name of the metric (e.g., "requestCount")
-//:
-//: o 'instanceCount' - an instance number expected to ensure that a unique
-//:   'MetricsDescriptor' is created for each instance of an object reporting
-//:   metrics.  Recommended practice is to use 'bdlm::InstanceCount' to
-//:   generate this value.
-//:
-//: o 'objectTypeName' - a name that uniquely identifies the type generating
-//:   the metric (e.g., "bdlmt.fixedthreadpool").
-//:
-//: o 'objectTypeAbbreviation' - a shortened, but still unique, version of the
-//:   object type name (e.g., "ftp").
-//:
-//: o 'objectIdentifier' - an application unique value for identifying a
-//:   metric.  Recommended practice is to use
-//:   'k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION' indicating concrete
-//:   implementations of 'MetricsAdapter' should determine an appropriate value
-//:   for the metrics framework it adapts (this is often a value computed from
-//:   the other descriptor properties).
-//..
+// ```
+// : o 'metricNamespace' - a grouping value for published metrics, which is
+// :   expected to be have implementation specific details from the metric
+// :   publishing system.  Recommended practice is to use
+// :   'k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION' indicating concrete
+// :   implementations of 'MetricsAdapter' should determine an appropriate
+// :   value for the metrics framework it adapts (this is often a configured
+// :   value for an application, e.g., a service name).
+// :
+// : o 'metricName' - the name of the metric (e.g., "requestCount")
+// :
+// : o 'instanceCount' - an instance number expected to ensure that a unique
+// :   'MetricsDescriptor' is created for each instance of an object reporting
+// :   metrics.  Recommended practice is to use 'bdlm::InstanceCount' to
+// :   generate this value.
+// :
+// : o 'objectTypeName' - a name that uniquely identifies the type generating
+// :   the metric (e.g., "bdlmt.fixedthreadpool").
+// :
+// : o 'objectTypeAbbreviation' - a shortened, but still unique, version of the
+// :   object type name (e.g., "ftp").
+// :
+// : o 'objectIdentifier' - an application unique value for identifying a
+// :   metric.  Recommended practice is to use
+// :   'k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION' indicating concrete
+// :   implementations of 'MetricsAdapter' should determine an appropriate value
+// :   for the metrics framework it adapts (this is often a value computed from
+// :   the other descriptor properties).
+// ```
 // For example, for GUTS (an internal Bloomberg metric framework) using a
-// 'guta::BdlmMetricsAdapter' configured with the namespace "bdlm" and object
+// `guta::BdlmMetricsAdapter` configured with the namespace "bdlm" and object
 // identifier prefix "svc", supplying (metricNamespace:
 // k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION, metricName: "backlog",
 // instanceNumber: InstanceCount::value<FixedThreadPool>(), objectTypeName:
 // "bdlmt.fixedthreadpool", objectTypeAbbreviation: "ftp",
-// objectIdentifier: '_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION') would result
+// objectIdentifier: `_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION`) would result
 // in a metric that is within the namespace "bdlm", had the metric name
 // "backlog.g", and the tags
 // {"identifier":"svc.ftp.1","type":"bdlmt.fixedthreadpool"}, assuming this
-// was the first invocation of 'InstanceCount::value<FixedThreadPool>()'.
+// was the first invocation of `InstanceCount::value<FixedThreadPool>()`.
 // Note that the ".g" in "backlock.g" indicates a guage metric type.
 //
 ///Usage
 ///-----
 // The intended use of this component is illustrated in
-// {'bdlm_metricsadapter'|Usage}.
+// {`bdlm_metricsadapter`|Usage}.
 
 #include <bdlm_instancecount.h>
 
@@ -96,8 +96,8 @@ namespace bdlm {
                           // class MetricDescriptor
                           // ======================
 
+/// This attribute class characterizes how to describe a metric.
 class MetricDescriptor {
-    // This attribute class characterizes how to describe a metric.
 
   private:
     // DATA
@@ -133,22 +133,34 @@ class MetricDescriptor {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    MetricDescriptor(bslma::Allocator *basicAllocator = 0);
-        // Create an object of this class having the default attribute values.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The default value for the namespace attribute is
-        // 'k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION' and the default value
-        // for the object identifier attribute is
-        // 'k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'.  The residual attibutes
-        // default to an empty string, except the instance number which
-        // defaults to 0.  Note that implementations of the
-        // 'bdlm::MetricsAdapter' protocal will typically use an implementation
-        // specific value for the namespace attribute when
-        // 'metricNamespace == k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION' and
-        // the object identifier attribute when
-        // 'objectIdentrifier == k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'.
 
+    /// Create an object of this class having the default attribute values.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  The default value for the namespace attribute is
+    /// `k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION` and the default value
+    /// for the object identifier attribute is
+    /// `k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION`.  The residual attibutes
+    /// default to an empty string, except the instance number which
+    /// defaults to 0.  Note that implementations of the
+    /// `bdlm::MetricsAdapter` protocal will typically use an implementation
+    /// specific value for the namespace attribute when
+    /// `metricNamespace == k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION` and
+    /// the object identifier attribute when
+    /// `objectIdentrifier == k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION`.
+    MetricDescriptor(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of this class having the specified
+    /// `metricNamespace`, `metricName`, `instanceNumber`, `objectTypeName`,
+    /// `objectTypeAbbreviation`, and `objectIdentifier` attribute values.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  Note that implementations of the `bdlm::MetricsAdapter`
+    /// protocal will typically use an implementation specific value for the
+    /// namespace attribute when
+    /// `metricNamespace == k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION` and
+    /// the object identifier attribute when
+    /// `objectIdentrifier == k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION`.
     MetricDescriptor(const bsl::string_view&  metricNamespace,
                      const bsl::string_view&  metricName,
                      InstanceCount::Value     instanceNumber,
@@ -156,92 +168,84 @@ class MetricDescriptor {
                      const bsl::string_view&  objectTypeAbbreviation,
                      const bsl::string_view&  objectIdentifier,
                      bslma::Allocator        *basicAllocator = 0);
-        // Create an object of this class having the specified
-        // 'metricNamespace', 'metricName', 'instanceNumber', 'objectTypeName',
-        // 'objectTypeAbbreviation', and 'objectIdentifier' attribute values.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Note that implementations of the 'bdlm::MetricsAdapter'
-        // protocal will typically use an implementation specific value for the
-        // namespace attribute when
-        // 'metricNamespace == k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION' and
-        // the object identifier attribute when
-        // 'objectIdentrifier == k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION'.
 
+    /// Create an object of this class having the same value as the
+    /// specified `original` one.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     MetricDescriptor(const MetricDescriptor&  original,
                      bslma::Allocator        *basicAllocator = 0);
-        // Create an object of this class having the same value as the
-        // specified 'original' one.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
     //! ~MetricDescriptor() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
     MetricDescriptor& operator=(const MetricDescriptor& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Set the `instanceNumber` attribute of this object to the specified
+    /// `value`.
     void setInstanceNumber(const InstanceCount::Value& value);
-        // Set the 'instanceNumber' attribute of this object to the specified
-        // 'value'.
 
+    /// Set the `metricName` attribute of this object to the specified
+    /// `value`.
     void setMetricName(const bsl::string_view& value);
-        // Set the 'metricName' attribute of this object to the specified
-        // 'value'.
 
+    /// Set the `metricNamespace` attribute of this object to the specified
+    /// `value`.
     void setMetricNamespace(const bsl::string_view& value);
-        // Set the 'metricNamespace' attribute of this object to the specified
-        // 'value'.
 
+    /// Set the `objectIdentifier` attribute of this object to the specified
+    /// `value`.
     void setObjectIdentifier(const bsl::string_view& value);
-        // Set the 'objectIdentifier' attribute of this object to the specified
-        // 'value'.
 
+    /// Set the `objectTypeAbbreviation` attribute of this object to the
+    /// specified `value`.
     void setObjectTypeAbbreviation(const bsl::string_view& value);
-        // Set the 'objectTypeAbbreviation' attribute of this object to the
-        // specified 'value'.
 
+    /// Set the `objectTypeName` attribute of this object to the specified
+    /// `value`.
     void setObjectTypeName(const bsl::string_view& value);
-        // Set the 'objectTypeName' attribute of this object to the specified
-        // 'value'.
 
     // ACCESSORS
+
+    /// Return the `instanceNumber` attribute.
     const InstanceCount::Value& instanceNumber() const;
-        // Return the 'instanceNumber' attribute.
 
+    /// Return the `metricName` attribute.
     const bsl::string& metricName() const;
-        // Return the 'metricName' attribute.
 
+    /// Return the `metricNamespace` attribute.
     const bsl::string& metricNamespace() const;
-        // Return the 'metricNamespace' attribute.
 
+    /// Return the `objectIdentifier` attribute.
     const bsl::string& objectIdentifier() const;
-        // Return the 'objectIdentifier' attribute.
 
+    /// Return the `objectTypeAbbreviation` attribute.
     const bsl::string& objectTypeAbbreviation() const;
-        // Return the 'objectTypeAbbreviation' attribute.
 
+    /// Return the `objectTypeName` attribute.
     const bsl::string& objectTypeName() const;
-        // Return the 'objectTypeName' attribute.
 
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 };
 
 // FREE OPERATORS
-bool operator==(const MetricDescriptor& lhs, const MetricDescriptor& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'MetricDescriptor' objects have the
-    // same value if each of their attributes (respectively) have the same
-    // value.
 
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `MetricDescriptor` objects have the
+/// same value if each of their attributes (respectively) have the same
+/// value.
+bool operator==(const MetricDescriptor& lhs, const MetricDescriptor& rhs);
+
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `MetricDescriptor` objects do
+/// not have the same value if any of their attributes (respectively) do not
+/// have the same value.
 bool operator!=(const MetricDescriptor& lhs, const MetricDescriptor& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'MetricDescriptor' objects do
-    // not have the same value if any of their attributes (respectively) do not
-    // have the same value.
 
 // ============================================================================
 //                             INLINE DEFINITIONS

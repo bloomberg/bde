@@ -27,183 +27,181 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides an assortment of related facilities
 // that fulfill different roles when writing applications that deal with
-// classes that comply with the various 'bdlat' class categories.  This
+// classes that comply with the various `bdlat` class categories.  This
 // facilities consist of:
-//: o Tags and associated enumerators
-//: o Meta-functions and traits
-//: o Utility Functions
-//: o Customization Points
+// * Tags and associated enumerators
+// * Meta-functions and traits
+// * Utility Functions
+// * Customization Points
 //
 ///Category Tags and Enumerators
 ///-----------------------------
-// This component defines tag types (e.g., 'bdlat_TypeCategory::Array',
-// 'bdlat_TypeCategory::Choice') and enumerators (e.g.,
-// 'bdlat_TypeCategory::e_ARRAY_CATEGORY'
-// 'bdlat_TypeCategory::e_CHOICE_CATEGORY') that can be used to describe how a
-// user-defined type participates in the 'bdlat' type framework and a
-// meta-function, 'bdlat_TypeCategory::Select', that can be used to access that
-// information for a parameterized 'TYPE'.
+// This component defines tag types (e.g., `bdlat_TypeCategory::Array`,
+// `bdlat_TypeCategory::Choice`) and enumerators (e.g.,
+// `bdlat_TypeCategory::e_ARRAY_CATEGORY`
+// `bdlat_TypeCategory::e_CHOICE_CATEGORY`) that can be used to describe how a
+// user-defined type participates in the `bdlat` type framework and a
+// meta-function, `bdlat_TypeCategory::Select`, that can be used to access that
+// information for a parameterized `TYPE`.
 //
 // The categories and their associated tags are:
-//..
-//  Category Tag     Assigned To
-//  ------------     -----------
-//  Array            types that expose "array" behavior through the
-//                   'bdlat_ArrayFunctions' 'namespace'.
+// ```
+// Category Tag     Assigned To
+// ------------     -----------
+// Array            types that expose "array" behavior through the
+//                  'bdlat_ArrayFunctions' 'namespace'.
 //
-//  Choice           types that expose "choice" behavior through the
-//                   'bdlat_ChoiceFunctions' 'namespace'.
+// Choice           types that expose "choice" behavior through the
+//                  'bdlat_ChoiceFunctions' 'namespace'.
 //
-//  CustomizedType   types that expose "customized type" behavior through the
-//                   'bdlat_CustomizedTypeFunctions' 'namespace'.
+// CustomizedType   types that expose "customized type" behavior through the
+//                  'bdlat_CustomizedTypeFunctions' 'namespace'.
 //
-//  DynamicType      types that can select a category at runtime
+// DynamicType      types that can select a category at runtime
 //
-//  Enumeration      types that expose "enumeration" behavior through the
-//                   'bdlat_EnumFunctions' 'namespace'.
+// Enumeration      types that expose "enumeration" behavior through the
+//                  'bdlat_EnumFunctions' 'namespace'.
 //
-//  NullableValue    types that expose "nullable" behavior through the
-//                   'bdlat_NullableValueFunctions' 'namespace'.
+// NullableValue    types that expose "nullable" behavior through the
+//                  'bdlat_NullableValueFunctions' 'namespace'.
 //
-//  Sequence         types that expose "sequence" behavior through the
-//                   'bdlat_SequenceFunctions' 'namespace'.
+// Sequence         types that expose "sequence" behavior through the
+//                  'bdlat_SequenceFunctions' 'namespace'.
 //
-//  Simple           all other types (i.e., scalars)
-//..
-// Types that belong to the 'DynamicType' category also belong to one or more
+// Simple           all other types (i.e., scalars)
+// ```
+// Types that belong to the `DynamicType` category also belong to one or more
 // other categories.  Otherwise, a type may only belong to one category.
 //
-///Meta-function: 'bdlat::TypeCategory::Select'
+///Meta-function: `bdlat::TypeCategory::Select`
 ///--------------------------------------------
-// This component defines a meta-function, 'bdlat_TypeCategory::Select', used
-// to detect at compile time the type category of a template parameter 'TYPE',
-// which must be a 'bdlat'-compatible type.  This meta-function defines two
+// This component defines a meta-function, `bdlat_TypeCategory::Select`, used
+// to detect at compile time the type category of a template parameter `TYPE`,
+// which must be a `bdlat`-compatible type.  This meta-function defines two
 // (nested) names:
 //
-//: o 'Type': The category tag type for the template parameter 'TYPE'.
-//: o 'e_SELECTION': The enumerator for the category of the template parameter
-//:   'TYPE'.
+// * `Type`: The category tag type for the template parameter `TYPE`.
+// * `e_SELECTION`: The enumerator for the category of the template parameter
+//   `TYPE`.
 //
-// This meta-function assumes that the template parameter 'TYPE' has set the
-// type trait corresponding to its 'bdlat' type category.  For example, if
-// 'TYPE' is a 'bdlat' "array" type then:
-//..
-//  1 == bdlat_ArrayFunctions::IsArray<TYPE>::value;
-//..
-// and if 'TYPE' is a 'bdlat' "choice" type then:
-//..
-//  1 == bdlat_ChoiceFunctions::IsChoice<TYPE>::value;
-//..
-// Additionally, 'TYPE' must also meet the other requirements (e.g., defined
-// functions, defined types) of its 'bdlat' type category.
+// This meta-function assumes that the template parameter `TYPE` has set the
+// type trait corresponding to its `bdlat` type category.  For example, if
+// `TYPE` is a `bdlat` "array" type then:
+// ```
+// 1 == bdlat_ArrayFunctions::IsArray<TYPE>::value;
+// ```
+// and if `TYPE` is a `bdlat` "choice" type then:
+// ```
+// 1 == bdlat_ChoiceFunctions::IsChoice<TYPE>::value;
+// ```
+// Additionally, `TYPE` must also meet the other requirements (e.g., defined
+// functions, defined types) of its `bdlat` type category.
 //
 // There are two special cases:
 //
-//: o If none of these traits have been set for 'TYPE', it is assumed to be in
-//:   the 'Simple' (scalar) category.
-//:
-//: o If more than one of these traits have been set of 'TYPE', 'TYPE' is
-//:   classified as 'Dynamic'.
-//:
-//:   o The recommended practice is *also* set the
-//:     'bdlat_TypeCategoryDeclareDynamic' trait.
+// * If none of these traits have been set for `TYPE`, it is assumed to be in
+//   the `Simple` (scalar) category.
+// * If more than one of these traits have been set of `TYPE`, `TYPE` is
+//   classified as `Dynamic`.
+//   - The recommended practice is *also* set the
+//     `bdlat_TypeCategoryDeclareDynamic` trait.
 //
-///Utility: 'bdlat_TypeCategoryUtil'
+///Utility: `bdlat_TypeCategoryUtil`
 ///---------------------------------
-// This component defines a utility 'struct', 'bdlat_TypeCategoryUtil', that
-// provides two function templates: 'manipulateByCategory' and
-// 'accessByCategory' that invoke a 'MANIPULATOR' or 'ACCESSOR' functor,
+// This component defines a utility `struct`, `bdlat_TypeCategoryUtil`, that
+// provides two function templates: `manipulateByCategory` and
+// `accessByCategory` that invoke a `MANIPULATOR` or `ACCESSOR` functor,
 // respectively.  Both of these functor types provide an overload for each of
-// the 'bdlat' type categories (see {'MANIPULATOR' Functors} and {'ACCESSOR'
-// Functors}).  These utility functions determine the 'bdlat' type category
-// (see {'bdlat_TypeCategoryFunctions::select'}) of a given object and then
+// the `bdlat` type categories (see {`MANIPULATOR` Functors} and {`ACCESSOR`
+// Functors}).  These utility functions determine the `bdlat` type category
+// (see {`bdlat_TypeCategoryFunctions::select`}) of a given object and then
 // invoke the corresponding overload of the given functor.
 //
-///'MANIPULATOR' Functors
+///`MANIPULATOR` Functors
 /// - - - - - - - - - - -
-// A 'MANIPULATOR' functor must be invocable by one or more of these seven
+// A `MANIPULATOR` functor must be invocable by one or more of these seven
 // overloads:
-//..
-//  int MANIPULATOR(TYPE *object, bdlat_TypeCategory::Array          category);
-//  int MANIPULATOR(TYPE *object, bdlat_TypeCategory::Choice         category);
-//  int MANIPULATOR(TYPE *object, bdlat_TypeCategory::CustomizedType category);
-//  int MANIPULATOR(TYPE *object, bdlat_TypeCategory::Enumeration    category);
-//  int MANIPULATOR(TYPE *object, bdlat_TypeCategory::NullableValue  category);
-//  int MANIPULATOR(TYPE *object, bdlat_TypeCategory::Sequence       category);
-//  int MANIPULATOR(TYPE *object, bdlat_TypeCategory::Simple         category);
-//      // Modify the specified 'object' that matches the specified 'category'.
-//      // Return 0 on success and a non-zero value otherwise.  On failure,
-//      // 'object' is left in a valid but unspecified state.  The behavior is
-//      // undefined unless the type category of 'object' matches 'category'.
-//..
+// ```
+// int MANIPULATOR(TYPE *object, bdlat_TypeCategory::Array          category);
+// int MANIPULATOR(TYPE *object, bdlat_TypeCategory::Choice         category);
+// int MANIPULATOR(TYPE *object, bdlat_TypeCategory::CustomizedType category);
+// int MANIPULATOR(TYPE *object, bdlat_TypeCategory::Enumeration    category);
+// int MANIPULATOR(TYPE *object, bdlat_TypeCategory::NullableValue  category);
+// int MANIPULATOR(TYPE *object, bdlat_TypeCategory::Sequence       category);
+// int MANIPULATOR(TYPE *object, bdlat_TypeCategory::Simple         category);
+//     // Modify the specified 'object' that matches the specified 'category'.
+//     // Return 0 on success and a non-zero value otherwise.  On failure,
+//     // 'object' is left in a valid but unspecified state.  The behavior is
+//     // undefined unless the type category of 'object' matches 'category'.
+// ```
 // Notice that, potentially, one can have an overload for each of the "static"
-// 'bdlat' type categories (i.e., all except for the "dynamic" category).
+// `bdlat` type categories (i.e., all except for the "dynamic" category).
 //
-// Additionally, the functor *must* provide an overload for 'bslmf::Nil'
+// Additionally, the functor *must* provide an overload for `bslmf::Nil`
 // (required for compilation):
-//..
+// ```
 //
-//  int MANIPULATOR(TYPE *object, bslmf::Nil);
-//      // Modify the specified 'object'.  Return 0 on success and a non-zero
-//      // value otherwise.  On failure, 'object' is left in a valid but
-//      // unspecified state.  The behavior is undefined if 'TYPE' is 'bdlat'
-//      // compatible (i.e., belongs in one or more of the seven 'bdlat'
-//      // categories).  Note that 'bdlat' compatible types are expected to be
-//      // dispatched to one of the seven overloads declared above.
-//..
+//   int MANIPULATOR(TYPE *object, bslmf::Nil);
+//       // Modify the specified 'object'.  Return 0 on success and a non-zero
+//       // value otherwise.  On failure, 'object' is left in a valid but
+//       // unspecified state.  The behavior is undefined if 'TYPE' is 'bdlat'
+//       // compatible (i.e., belongs in one or more of the seven 'bdlat'
+//       // categories).  Note that 'bdlat' compatible types are expected to be
+//       // dispatched to one of the seven overloads declared above.
+// ```
 // Typically, the "Nil" overload returns an error code (or even aborts).
 //
-///'ACCESSOR' Functors
+///`ACCESSOR` Functors
 ///- - - - - - - - - -
-// A 'ACCESSOR' functor must invocable by one or more of these seven overloads:
-//..
-//  int ACCESSOR(const TYPE& object, bdlat_TypeCategory::Array          cat);
-//  int ACCESSOR(const TYPE& object, bdlat_TypeCategory::Choice         cat);
-//  int ACCESSOR(const TYPE& object, bdlat_TypeCategory::CustomizedType cat);
-//  int ACCESSOR(const TYPE& object, bdlat_TypeCategory::Enumeration    cat);
-//  int ACCESSOR(const TYPE& object, bdlat_TypeCategory::NullableValue  cat);
-//  int ACCESSOR(const TYPE& object, bdlat_TypeCategory::Sequence       cat);
-//  int ACCESSOR(const TYPE& object, bdlat_TypeCategory::Simple         cat);
-//      // Access the specified 'object' that matches the specified 'cat'
-//      // (category).  Return 0 on success and a non-zero value otherwise.
-//      // The behavior is undefined unless the type category of 'object'
-//      // matches 'cat' (category).  Note that, in typical use, invocation of
-//      // this functor object changes its state based on the state of
-//      // 'object'.
-//..
+// A `ACCESSOR` functor must invocable by one or more of these seven overloads:
+// ```
+// int ACCESSOR(const TYPE& object, bdlat_TypeCategory::Array          cat);
+// int ACCESSOR(const TYPE& object, bdlat_TypeCategory::Choice         cat);
+// int ACCESSOR(const TYPE& object, bdlat_TypeCategory::CustomizedType cat);
+// int ACCESSOR(const TYPE& object, bdlat_TypeCategory::Enumeration    cat);
+// int ACCESSOR(const TYPE& object, bdlat_TypeCategory::NullableValue  cat);
+// int ACCESSOR(const TYPE& object, bdlat_TypeCategory::Sequence       cat);
+// int ACCESSOR(const TYPE& object, bdlat_TypeCategory::Simple         cat);
+//     // Access the specified 'object' that matches the specified 'cat'
+//     // (category).  Return 0 on success and a non-zero value otherwise.
+//     // The behavior is undefined unless the type category of 'object'
+//     // matches 'cat' (category).  Note that, in typical use, invocation of
+//     // this functor object changes its state based on the state of
+//     // 'object'.
+// ```
 // Notice that, potentially, one can have an overload for each of the "static"
-// 'bdlat' type categories (i.e., all except for the "dyanamic" category).
+// `bdlat` type categories (i.e., all except for the "dyanamic" category).
 //
-// Additionally, the functor *must* provide an overload for 'bslmf::Nil'
+// Additionally, the functor *must* provide an overload for `bslmf::Nil`
 // (required for compilation):
-//..
-//  int ACCESSOR(const TYPE& object, bslmf::Nil);
-//      // Access the specified 'object'.  Return 0 on success and a non-zero
-//      // value otherwise.  The behavior is undefined if 'TYPE' is 'bdlat'
-//      // compatible (i.e., belongs in one or more of the seven 'bdlat'
-//      // categories).  Note that 'bdlat' compatible types are expected to be
-//      // dispatched to one of the seven overloads declared above.
-//..
+// ```
+// int ACCESSOR(const TYPE& object, bslmf::Nil);
+//     // Access the specified 'object'.  Return 0 on success and a non-zero
+//     // value otherwise.  The behavior is undefined if 'TYPE' is 'bdlat'
+//     // compatible (i.e., belongs in one or more of the seven 'bdlat'
+//     // categories).  Note that 'bdlat' compatible types are expected to be
+//     // dispatched to one of the seven overloads declared above.
+// ```
 // Typically, the "Nil" overload returns an error code (or even aborts).
 //
-///Namespace: 'bdlat_TypeCategoryFunctions'
+///Namespace: `bdlat_TypeCategoryFunctions`
 ///---------------------------------------
-// The namespace 'bdlat_TypeCategoryFunctions' defines a suite of function
-// templates for working with types that conform to one or more of the 'bdlat'
+// The namespace `bdlat_TypeCategoryFunctions` defines a suite of function
+// templates for working with types that conform to one or more of the `bdlat`
 // type categories.  For each of the seven type categories there are a pair of
 // function templates: one to "manipulate" and one to "access" objects of
-// (template parameter) 'TYPE'.  For example, for 'bdlat' "array" types there
-// are function templates: 'bdlat_TypeCategoryFunctions::manipulateArray' and
-// 'bdlat_TypeCategoryFunctions::accessArray'.
+// (template parameter) `TYPE`.  For example, for `bdlat` "array" types there
+// are function templates: `bdlat_TypeCategoryFunctions::manipulateArray` and
+// `bdlat_TypeCategoryFunctions::accessArray`.
 //
 // Additionally, there is a function template,
-// 'bdlat_TypeCategoryFunctions::select', that reports at runtime the type
+// `bdlat_TypeCategoryFunctions::select`, that reports at runtime the type
 // category of a specified object.
 //
 // These function templates provide a uniform interface for operations on a
 // wide variety of types.  The details of what occurs in each "manipulate" or
 // "access" action depends on a user-provided functor object.  See
-// {'MANIPULATOR' Functors} and {'ACCESSOR' Functors} for the requirements on
+// {`MANIPULATOR` Functors} and {`ACCESSOR` Functors} for the requirements on
 // those functors.
 //
 // For a user-defined type to operate in the type category framework, that type
@@ -215,206 +213,205 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - -
 // For a type to work with the "type category" framework, one must create, in
 // the namespace where the type is defined, overloads for the "manipulator" and
-// "accessor" function templates (described below) for the 'bdlat' type
+// "accessor" function templates (described below) for the `bdlat` type
 // category of the type.  For example, if the type being plugged into the
-// framework is a 'bdlat' "array" type, then overloads for
-// 'bdlat_typeCategoryManipulateArray' and 'bdlat_typeCategoryAccessArray' are
+// framework is a `bdlat` "array" type, then overloads for
+// `bdlat_typeCategoryManipulateArray` and `bdlat_typeCategoryAccessArray` are
 // required.  If the type being plugged into the infrastructure belongs to more
-// than one 'bdlat' type category, the "manipulate" and "accessor" function
+// than one `bdlat` type category, the "manipulate" and "accessor" function
 // templates for each of those type categories is required.
 //
 // Every type plugged into the framework must implement an overload of
-// 'bdlat_typeCategorySelect' function.
+// `bdlat_typeCategorySelect` function.
 //
-// Note that the placeholder 'YOUR_TYPE' is not a template argument and should
+// Note that the placeholder `YOUR_TYPE` is not a template argument and should
 // be replaced with the name of the type being plugged into the framework.
-//..
-//  // MANIPULATORS
-//  template <class MANIPULATOR>
-//  int bdlat_typeCategoryManipulateArray(YOUR_TYPE    *object,
+// ```
+// // MANIPULATORS
+// template <class MANIPULATOR>
+// int bdlat_typeCategoryManipulateArray(YOUR_TYPE    *object,
+//                                       MANIPULATOR&  manipulator);
+//     // Return the result of invoking the specified 'manipulator' with the
+//     // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Array'
+//     // tag object (2nd argument).  If 'object' is not a 'bdlat' "array"
+//     // type, pass a 'bslmf::Nil' tag object as the second argument.  See
+//     // {'MANIPULATOR' Functors} for the requirements on 'manipulator'.
+//
+// template <class MANIPULATOR>
+// int bdlat_typeCategoryManipulateChoice(YOUR_TYPE    *object,
 //                                        MANIPULATOR&  manipulator);
-//      // Return the result of invoking the specified 'manipulator' with the
-//      // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Array'
-//      // tag object (2nd argument).  If 'object' is not a 'bdlat' "array"
-//      // type, pass a 'bslmf::Nil' tag object as the second argument.  See
-//      // {'MANIPULATOR' Functors} for the requirements on 'manipulator'.
+//     // Return the result of invoking the specified 'manipulator' with the
+//     // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Choice'
+//     // tag object (2nd argument).  If 'object' is not a 'bdlat' "choice"
+//     // type, pass a 'bslmf::Nil' tag object as the second argument.  See
+//     // {'MANIPULATOR' Functors} for the requirements on 'manipulator'.
 //
-//  template <class MANIPULATOR>
-//  int bdlat_typeCategoryManipulateChoice(YOUR_TYPE    *object,
-//                                         MANIPULATOR&  manipulator);
-//      // Return the result of invoking the specified 'manipulator' with the
-//      // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Choice'
-//      // tag object (2nd argument).  If 'object' is not a 'bdlat' "choice"
-//      // type, pass a 'bslmf::Nil' tag object as the second argument.  See
-//      // {'MANIPULATOR' Functors} for the requirements on 'manipulator'.
-//
-//  template <class MANIPULATOR>
-//  int bdlat_typeCategoryManipulateCustomizedType(YOUR_TYPE    *object,
-//                                                 MANIPULATOR&  manipulator);
-//      // Return the result of invoking the specified 'manipulator' with the
-//      // specified 'object' (1st argument) and a
-//      // 'bdlat_TypeCategory::CustomizedType' tag object (2nd argument).  If
-//      // 'object' is not a 'bdlat' "customized type" type, pass a
-//      // 'bslmf::Nil' tag object as the second argument.  See {'MANIPULATOR'
-//      // Functors} for the requirements on 'manipulator'.
-//
-//  template <class MANIPULATOR>
-//  int bdlat_typeCategoryManipulateEnumeration(YOUR_TYPE    *object,
-//                                              MANIPULATOR&  manipulator);
-//      // Return the result of invoking the specified 'manipulator' with the
-//      // specified 'object' (1st argument) and a
-//      // 'bdlat_TypeCategory::Enumeration' tag object (2nd argument).  If
-//      // 'object' is not a 'bdlat' "enumeration" type, pass a 'bslmf::Nil'
-//      // tag object as the second argument.  See {'MANIPULATOR' Functors} for
-//      // the requirements on 'manipulator'.
-//
-//  template <class MANIPULATOR>
-//  int bdlat_typeCategoryManipulateNullableValue(YOUR_TYPE    *object,
+// template <class MANIPULATOR>
+// int bdlat_typeCategoryManipulateCustomizedType(YOUR_TYPE    *object,
 //                                                MANIPULATOR&  manipulator);
-//      // Return the result of invoking the specified 'manipulator' with the
-//      // specified 'object' (1st argument) and a
-//      // 'bdlat_TypeCategory::NullableValue' tag object (2nd argument).  If
-//      // 'object' is not a 'bdlat' "nullable value" type, pass a 'bslmf::Nil'
-//      // tag object as the second argument.  See {'MANIPULATOR' Functors} for
-//      // the requirements on 'manipulator'.
+//     // Return the result of invoking the specified 'manipulator' with the
+//     // specified 'object' (1st argument) and a
+//     // 'bdlat_TypeCategory::CustomizedType' tag object (2nd argument).  If
+//     // 'object' is not a 'bdlat' "customized type" type, pass a
+//     // 'bslmf::Nil' tag object as the second argument.  See {'MANIPULATOR'
+//     // Functors} for the requirements on 'manipulator'.
 //
-//  template <class MANIPULATOR>
-//  int bdlat_typeCategoryManipulateSequence(YOUR_TYPE    *object,
-//                                           MANIPULATOR&  manipulator);
-//      // Return the result of invoking the specified 'manipulator' with the
-//      // specified 'object' (1st argument) and a
-//      // 'bdlat_TypeCategory::Sequence' tag object (2nd argument).  If
-//      // 'object' is not a 'bdlat' "sequence" type, pass a 'bslmf::Nil' tag
-//      // object as the second argument.  See {'MANIPULATOR' Functors} for the
-//      // requirements on 'manipulator'.
+// template <class MANIPULATOR>
+// int bdlat_typeCategoryManipulateEnumeration(YOUR_TYPE    *object,
+//                                             MANIPULATOR&  manipulator);
+//     // Return the result of invoking the specified 'manipulator' with the
+//     // specified 'object' (1st argument) and a
+//     // 'bdlat_TypeCategory::Enumeration' tag object (2nd argument).  If
+//     // 'object' is not a 'bdlat' "enumeration" type, pass a 'bslmf::Nil'
+//     // tag object as the second argument.  See {'MANIPULATOR' Functors} for
+//     // the requirements on 'manipulator'.
 //
-//  template <class MANIPULATOR>
-//  int bdlat_typeCategoryManipulateSimple(YOUR_TYPE    *object,
-//                                         MANIPULATOR&  manipulator);
-//      // Return the result of invoking the specified 'manipulator' with the
-//      // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Simple'
-//      // tag object (2nd argument).  If 'object' is not a 'bdlat' "simple"
-//      // type, pass a 'bslmf::Nil' tag object as the second argument.  See
-//      // {'MANIPULATOR' Functors} for the requirements on 'manipulator'.
+// template <class MANIPULATOR>
+// int bdlat_typeCategoryManipulateNullableValue(YOUR_TYPE    *object,
+//                                               MANIPULATOR&  manipulator);
+//     // Return the result of invoking the specified 'manipulator' with the
+//     // specified 'object' (1st argument) and a
+//     // 'bdlat_TypeCategory::NullableValue' tag object (2nd argument).  If
+//     // 'object' is not a 'bdlat' "nullable value" type, pass a 'bslmf::Nil'
+//     // tag object as the second argument.  See {'MANIPULATOR' Functors} for
+//     // the requirements on 'manipulator'.
 //
-//  // ACCESSORS
-//  template <class ACCESSOR>
-//  int bdlat_typeCategoryAccessArray(const YOUR_TYPE& object,
+// template <class MANIPULATOR>
+// int bdlat_typeCategoryManipulateSequence(YOUR_TYPE    *object,
+//                                          MANIPULATOR&  manipulator);
+//     // Return the result of invoking the specified 'manipulator' with the
+//     // specified 'object' (1st argument) and a
+//     // 'bdlat_TypeCategory::Sequence' tag object (2nd argument).  If
+//     // 'object' is not a 'bdlat' "sequence" type, pass a 'bslmf::Nil' tag
+//     // object as the second argument.  See {'MANIPULATOR' Functors} for the
+//     // requirements on 'manipulator'.
+//
+// template <class MANIPULATOR>
+// int bdlat_typeCategoryManipulateSimple(YOUR_TYPE    *object,
+//                                        MANIPULATOR&  manipulator);
+//     // Return the result of invoking the specified 'manipulator' with the
+//     // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Simple'
+//     // tag object (2nd argument).  If 'object' is not a 'bdlat' "simple"
+//     // type, pass a 'bslmf::Nil' tag object as the second argument.  See
+//     // {'MANIPULATOR' Functors} for the requirements on 'manipulator'.
+//
+// // ACCESSORS
+// template <class ACCESSOR>
+// int bdlat_typeCategoryAccessArray(const YOUR_TYPE& object,
+//                                   ACCESSOR&        accessor);
+//     // Return the result of invoking the specified 'accessor' with the
+//     // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Array'
+//     // tag object (2nd argument).  If 'object' is not a 'bdlat' "array"
+//     // type, pass a 'bslmf::Nil' tag object as the second argument.  See
+//     // {'ACCESSOR' Functors} for the requirements on 'accessor'.
+//
+// template <class ACCESSOR>
+// int bdlat_typeCategoryAccessChoice(const YOUR_TYPE& object,
 //                                    ACCESSOR&        accessor);
-//      // Return the result of invoking the specified 'accessor' with the
-//      // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Array'
-//      // tag object (2nd argument).  If 'object' is not a 'bdlat' "array"
-//      // type, pass a 'bslmf::Nil' tag object as the second argument.  See
-//      // {'ACCESSOR' Functors} for the requirements on 'accessor'.
+//     // Return the result of invoking the specified 'accessor' with the
+//     // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Choice'
+//     // tag object (2nd argument).  If 'object' is not a 'bdlat' "choice"
+//     // type, pass a 'bslmf::Nil' tag object as the second argument.  See
+//     // {'ACCESSOR' Functors} for the requirements on 'accessor'.
 //
-//  template <class ACCESSOR>
-//  int bdlat_typeCategoryAccessChoice(const YOUR_TYPE& object,
-//                                     ACCESSOR&        accessor);
-//      // Return the result of invoking the specified 'accessor' with the
-//      // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Choice'
-//      // tag object (2nd argument).  If 'object' is not a 'bdlat' "choice"
-//      // type, pass a 'bslmf::Nil' tag object as the second argument.  See
-//      // {'ACCESSOR' Functors} for the requirements on 'accessor'.
-//
-//  template <class ACCESSOR>
-//  int bdlat_typeCategoryAccessCustomizedType(const YOUR_TYPE& object,
-//                                             ACCESSOR&        accessor);
-//      // Return the result of invoking the specified 'accessor' with the
-//      // specified 'object' (1st argument) and a
-//      // 'bdlat_TypeCategory::CustomizedType' tag object (2nd argument).  If
-//      // 'object' is not a 'bdlat' "customized type" type, pass a
-//      // 'bslmf::Nil' tag object as the second argument.  See {'ACCESSOR'
-//      // Functors} for the requirements on 'accessor'.
-//
-//  template <class ACCESSOR>
-//  int bdlat_typeCategoryAccessEnumeration(const YOUR_TYPE& object,
-//                                          ACCESSOR&        accessor);
-//      // Return the result of invoking the specified 'accessor' with the
-//      // specified 'object' (1st argument) and a
-//      // 'bdlat_TypeCategory::Enumeration' tag object (2nd argument).  If
-//      // 'object' is not a 'bdlat' "enumeration type" type, pass a
-//      // 'bslmf::Nil' tag object as the second argument.  See {'ACCESSOR'
-//      // Functors} for the requirements on 'accessor'.
-//
-//  template <class ACCESSOR>
-//  int bdlat_typeCategoryAccessNullableValue(const YOUR_TYPE& object,
+// template <class ACCESSOR>
+// int bdlat_typeCategoryAccessCustomizedType(const YOUR_TYPE& object,
 //                                            ACCESSOR&        accessor);
-//      // Return the result of invoking the specified 'accessor' with the
-//      // specified 'object' (1st argument) and a
-//      // 'bdlat_TypeCategory::NullableValue' tag object (2nd argument).  If
-//      // 'object' is not a 'bdlat' "nullable value" type, pass a 'bslmf::Nil'
-//      // tag object as the second argument.  See {'ACCESSOR' Functors} for
-//      // the requirements on 'accessor'.
+//     // Return the result of invoking the specified 'accessor' with the
+//     // specified 'object' (1st argument) and a
+//     // 'bdlat_TypeCategory::CustomizedType' tag object (2nd argument).  If
+//     // 'object' is not a 'bdlat' "customized type" type, pass a
+//     // 'bslmf::Nil' tag object as the second argument.  See {'ACCESSOR'
+//     // Functors} for the requirements on 'accessor'.
 //
-//  template <class ACCESSOR>
-//  int bdlat_typeCategoryAccessSequence(const YOUR_TYPE& object,
-//                                       ACCESSOR&        accessor);
-//      // Return the result of invoking the specified 'accessor' with the
-//      // specified 'object' (1st argument) and a
-//      // 'bdlat_TypeCategory::Sequence' tag object (2nd argument).  If
-//      // 'object' is not a 'bdlat' "sequence" type, pass a 'bslmf::Nil' tag
-//      // object as the second argument.  See {'ACCESSOR' Functors} for the
-//      // requirements on 'accessor'.
+// template <class ACCESSOR>
+// int bdlat_typeCategoryAccessEnumeration(const YOUR_TYPE& object,
+//                                         ACCESSOR&        accessor);
+//     // Return the result of invoking the specified 'accessor' with the
+//     // specified 'object' (1st argument) and a
+//     // 'bdlat_TypeCategory::Enumeration' tag object (2nd argument).  If
+//     // 'object' is not a 'bdlat' "enumeration type" type, pass a
+//     // 'bslmf::Nil' tag object as the second argument.  See {'ACCESSOR'
+//     // Functors} for the requirements on 'accessor'.
 //
-//  template <class ACCESSOR>
-//  int bdlat_typeCategoryAccessSimple(const YOUR_TYPE& object,
-//                                     ACCESSOR&        accessor);
-//      // Return the result of invoking the specified 'accessor' with the
-//      // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Simple'
-//      // tag object (2nd argument).  If 'object' is not a 'bdlat' "simple"
-//      // type, pass a 'bslmf::Nil' tag object as the second argument.  See
-//      // {'ACCESSOR' Functors} for the requirements on 'accessor'.
+// template <class ACCESSOR>
+// int bdlat_typeCategoryAccessNullableValue(const YOUR_TYPE& object,
+//                                           ACCESSOR&        accessor);
+//     // Return the result of invoking the specified 'accessor' with the
+//     // specified 'object' (1st argument) and a
+//     // 'bdlat_TypeCategory::NullableValue' tag object (2nd argument).  If
+//     // 'object' is not a 'bdlat' "nullable value" type, pass a 'bslmf::Nil'
+//     // tag object as the second argument.  See {'ACCESSOR' Functors} for
+//     // the requirements on 'accessor'.
 //
-//  bdlat_TypeCategory::Value bdlat_typeCategorySelect(
-//                                                    const YOUR_TYPE& object);
-//      // Return the *runtime* type category for the specified 'object'.  The
-//      // behavior is undefined if 'bdlat_TypeCategory::e_DYNAMIC_CATEGORY' is
-//      // returned.  Note that the compile time analog to this function
-//      // (template) is 'bdlat_TypeCategory::Select', a meta-function that
-//      // defines a type corresponding to the category tag class of
-//      // 'YOUR_TYPE'.
-//..
+// template <class ACCESSOR>
+// int bdlat_typeCategoryAccessSequence(const YOUR_TYPE& object,
+//                                      ACCESSOR&        accessor);
+//     // Return the result of invoking the specified 'accessor' with the
+//     // specified 'object' (1st argument) and a
+//     // 'bdlat_TypeCategory::Sequence' tag object (2nd argument).  If
+//     // 'object' is not a 'bdlat' "sequence" type, pass a 'bslmf::Nil' tag
+//     // object as the second argument.  See {'ACCESSOR' Functors} for the
+//     // requirements on 'accessor'.
+//
+// template <class ACCESSOR>
+// int bdlat_typeCategoryAccessSimple(const YOUR_TYPE& object,
+//                                    ACCESSOR&        accessor);
+//     // Return the result of invoking the specified 'accessor' with the
+//     // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Simple'
+//     // tag object (2nd argument).  If 'object' is not a 'bdlat' "simple"
+//     // type, pass a 'bslmf::Nil' tag object as the second argument.  See
+//     // {'ACCESSOR' Functors} for the requirements on 'accessor'.
+//
+// bdlat_TypeCategory::Value bdlat_typeCategorySelect(
+//                                                   const YOUR_TYPE& object);
+//     // Return the *runtime* type category for the specified 'object'.  The
+//     // behavior is undefined if 'bdlat_TypeCategory::e_DYNAMIC_CATEGORY' is
+//     // returned.  Note that the compile time analog to this function
+//     // (template) is 'bdlat_TypeCategory::Select', a meta-function that
+//     // defines a type corresponding to the category tag class of
+//     // 'YOUR_TYPE'.
+// ```
 //
 ///Dynamic Types
 ///-------------
 // "Dynamic" types allow the type category of an object to be determined at
 // runtime.  Of course, such types must meet all of the requirements of each of
-// the 'bdlat' type categories to which they belong.
+// the `bdlat` type categories to which they belong.
 //
 // There are two ways that a type can be recognized as a dynamic type:
 //
-//: o specializing the 'bdlat_TypeCategoryDeclareDynamic' trait and providing a
-//:   'value' of 1, and
-//:
-//: o implementing all of the requirements (i.e., setting of required traits)
-//:   of each of the 'bdlat' categories the type can assume.
+// * specializing the `bdlat_TypeCategoryDeclareDynamic` trait and providing a
+//   `value` of 1, and
+// * implementing all of the requirements (i.e., setting of required traits)
+//   of each of the `bdlat` categories the type can assume.
 //
-// If a type 'T' is recognized as a "dynamic" 'bdlat' type then
-// 'bdlat_TypeCategory::Select<T>::Type' is an alias for
-// 'bdlat_TypeCategory::DynamicType'
+// If a type `T` is recognized as a "dynamic" `bdlat` type then
+// `bdlat_TypeCategory::Select<T>::Type` is an alias for
+// `bdlat_TypeCategory::DynamicType`
 //
 // When a type is categorized as a dynamic type, it *must* overload the
-// 'bdlat_TypeCategoryFunctions::select' function to provide the necessary
+// `bdlat_TypeCategoryFunctions::select` function to provide the necessary
 // runtime logic that determines its current runtime category.  See
 // {Customization Points}.
 //
-// A type of the 'bdlat' "dyanmic" category is illustrated in {Example 3}.
+// A type of the `bdlat` "dyanmic" category is illustrated in {Example 3}.
 //
-///Trait: 'bdlat_TypeCategoryDeclareDynamic'
+///Trait: `bdlat_TypeCategoryDeclareDynamic`
 ///- - - - - - - - - - - - - - - - - - - - -
 // Although one is not required to specialize the
-// 'bdlat_TypeCategoryDeclareDynamic' trait to designate a user-defined class
+// `bdlat_TypeCategoryDeclareDynamic` trait to designate a user-defined class
 // as a "dynamic" type, doing so is the recommended practice.
 //
 // Note that AIX and GCC compilers *require* that trait be specialized; setting
-// multiple 'bdlat' category traits does not work on those platforms.
+// multiple `bdlat` category traits does not work on those platforms.
 //
 // Also note that setting that trait is the only way to create a "dynamic" type
-// that implements just one of the 'bdlat' type categories -- an unusual
+// that implements just one of the `bdlat` type categories -- an unusual
 // configuration, but one that is allowed by the 'bdlat" type category
 // framework.
 //
-// Finally note that the 'bdlat_TypeCategoryDeclareDynamic' trait is the *only*
+// Finally note that the `bdlat_TypeCategoryDeclareDynamic` trait is the *only*
 // trait in this component that users are allowed to specialize.  The behavior
 // is undefined if any of the other meta-functions are specialized.
 //
@@ -424,355 +421,355 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Compile-Time Dispatch by Category Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// The 'bdlat_typecategory' framework provides facilities to control actions
-// based on the 'bdlat' type category of the objects being used.  Dispatching
+// The `bdlat_typecategory` framework provides facilities to control actions
+// based on the `bdlat` type category of the objects being used.  Dispatching
 // on type category can be achieved both at compile time and at runtime.
 // Depending on that context, different facilities, having different
 // restrictions/requirements are used.  There are interesting differences when
 // dealing with objects in the "dynamic" type category.
 //
 // This first example explores compile-time dispatch.  Suppose we have an
-// object that is compliant with one of the 'bdlat' type categories and that we
+// object that is compliant with one of the `bdlat` type categories and that we
 // wish to examine it to the extent of determining into which type category it
 // falls and what value it has.
 //
-// First, we declare a 'printCategoryAndValue' function that has a template
-// parameter 'TYPE':
-//..
-//  namespace BloombergLP {
-//  namespace mine {
+// First, we declare a `printCategoryAndValue` function that has a template
+// parameter `TYPE`:
+// ```
+// namespace BloombergLP {
+// namespace mine {
 //
-//  template <class TYPE>
-//  void printCategoryAndValue(bsl::ostream& stream, const TYPE& object);
-//      // Print the category of the specified 'object' followed by the value
-//      // of 'object' to the specified output 'stream'.
-//..
+// template <class TYPE>
+// void printCategoryAndValue(bsl::ostream& stream, const TYPE& object);
+//     // Print the category of the specified 'object' followed by the value
+//     // of 'object' to the specified output 'stream'.
+// ```
 // Then, to implement this function, we will use a set of helper functions that
 // are overloaded based on the category tag.  The first set of helper functions
 // address the category aspect of our assigned goal:
-//..
-//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Array)
-//  {
-//      stream << "Array";
-//  }
+// ```
+// void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Array)
+// {
+//     stream << "Array";
+// }
 //
-//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Choice)
-//  {
-//      stream << "Choice";
-//  }
+// void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Choice)
+// {
+//     stream << "Choice";
+// }
 //
-//  void printCategory(bsl::ostream& stream,
-//                     bdlat_TypeCategory::CustomizedType)
-//  {
-//      stream << "CustomizedType";
-//  }
+// void printCategory(bsl::ostream& stream,
+//                    bdlat_TypeCategory::CustomizedType)
+// {
+//     stream << "CustomizedType";
+// }
 //
-//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::DynamicType)
-//  {
-//      stream << "DynamicType";
-//  }
+// void printCategory(bsl::ostream& stream, bdlat_TypeCategory::DynamicType)
+// {
+//     stream << "DynamicType";
+// }
 //
-//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Enumeration)
-//  {
-//      stream << "Enumeration";
-//  }
+// void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Enumeration)
+// {
+//     stream << "Enumeration";
+// }
 //
-//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::NullableValue)
-//  {
-//      stream << "NullableValue";
-//  }
+// void printCategory(bsl::ostream& stream, bdlat_TypeCategory::NullableValue)
+// {
+//     stream << "NullableValue";
+// }
 //
-//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Sequence)
-//  {
-//      stream << "Sequence";
-//  }
+// void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Sequence)
+// {
+//     stream << "Sequence";
+// }
 //
-//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Simple)
-//  {
-//      stream << "Simple";
-//  }
-//..
+// void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Simple)
+// {
+//     stream << "Simple";
+// }
+// ```
 // Next, we implement another helper function template to handle the value
 // aspect of our goal:
-//..
-//  template <class TYPE, class CATEGORY>
-//  void printValue(bsl::ostream& stream,
-//                  const TYPE&   object,
-//                  CATEGORY      )
-//  {
-//      bdlb::PrintMethods::print(stream, object, 0, -1);
-//  }
+// ```
+// template <class TYPE, class CATEGORY>
+// void printValue(bsl::ostream& stream,
+//                 const TYPE&   object,
+//                 CATEGORY      )
+// {
+//     bdlb::PrintMethods::print(stream, object, 0, -1);
+// }
 //
-//  template <class TYPE>
-//  void printValue(bsl::ostream&                   stream,
-//                  const TYPE&                     ,
-//                  bdlat_TypeCategory::DynamicType )
-//  {
-//      stream << "Printing dynamic types requires extra work.";
-//  }
-//..
+// template <class TYPE>
+// void printValue(bsl::ostream&                   stream,
+//                 const TYPE&                     ,
+//                 bdlat_TypeCategory::DynamicType )
+// {
+//     stream << "Printing dynamic types requires extra work.";
+// }
+// ```
 // Notice that a partial specialization was created for objects falling into
 // the "dynamic" category.  Determining the value of such objects will be
 // explored in {Example 3}.
 //
-// Now, we can implement the 'printCategoryAndValue' function in terms of the
-// 'printCategory' and 'printValue' helper functions:
-//..
+// Now, we can implement the `printCategoryAndValue` function in terms of the
+// `printCategory` and `printValue` helper functions:
+// ```
 //
-//  template <class TYPE>
-//  void printCategoryAndValue(bsl::ostream& stream, const TYPE& object)
-//  {
-//      typedef typename
-//      bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
+//   template <class TYPE>
+//   void printCategoryAndValue(bsl::ostream& stream, const TYPE& object)
+//   {
+//       typedef typename
+//       bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 //
-//      printCategory(stream, TypeCategory());
+//       printCategory(stream, TypeCategory());
 //
-//      stream << ": ";
+//       stream << ": ";
 //
-//      printValue(stream, object, TypeCategory());
-//  }
+//       printValue(stream, object, TypeCategory());
+//   }
 //
-//  }  // close package namespace
-//  }  // close enterprise namespace
-//..
-// Finally, we can exercise the 'printCategoryAndValue' function on objects
+//   }  // close package namespace
+//   }  // close enterprise namespace
+// ```
+// Finally, we can exercise the `printCategoryAndValue` function on objects
 // that fall in different (non-dynamic) type categories.
-//..
-//  using namespace BloombergLP;
+// ```
+// using namespace BloombergLP;
 //
-//  void runUsageExample1()
-//  {
-//      bsl::ostringstream oss;
+// void runUsageExample1()
+// {
+//     bsl::ostringstream oss;
 //
-//      int intVal = 123;
+//     int intVal = 123;
 //
-//      mine::printCategoryAndValue(oss, intVal);
-//      assert("Simple: 123" == oss.str());
-//      oss.str("");
+//     mine::printCategoryAndValue(oss, intVal);
+//     assert("Simple: 123" == oss.str());
+//     oss.str("");
 //
-//      bdlb::NullableValue<int> nullableInt;
+//     bdlb::NullableValue<int> nullableInt;
 //
-//      mine::printCategoryAndValue(oss, nullableInt);
-//      assert("NullableValue: NULL" == oss.str());
-//      oss.str("");
+//     mine::printCategoryAndValue(oss, nullableInt);
+//     assert("NullableValue: NULL" == oss.str());
+//     oss.str("");
 //
-//      nullableInt = 321;
+//     nullableInt = 321;
 //
-//      mine::printCategoryAndValue(oss, nullableInt);
-//      assert("NullableValue: 321" == oss.str());
-//      oss.str("");
+//     mine::printCategoryAndValue(oss, nullableInt);
+//     assert("NullableValue: 321" == oss.str());
+//     oss.str("");
 //
-//      bsl::vector<int> vec;
+//     bsl::vector<int> vec;
 //
-//      vec.push_back(123);
-//      vec.push_back(345);
-//      vec.push_back(987);
+//     vec.push_back(123);
+//     vec.push_back(345);
+//     vec.push_back(987);
 //
-//      mine::printCategoryAndValue(oss, vec);
-//      assert("Array: [ 123 345 987 ]" == oss.str());
-//  }
-//..
+//     mine::printCategoryAndValue(oss, vec);
+//     assert("Array: [ 123 345 987 ]" == oss.str());
+// }
+// ```
 //
-///Example 2: Run-Time Dispatch by 'bdlat_TypeCategoryUtil'
+///Example 2: Run-Time Dispatch by `bdlat_TypeCategoryUtil`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // For run-time dispatching we can use the utility functions provided by
-// 'bdlat_TypeCategoryUtil'.  Suppose we wish to examine the type category and
-// value of an arbitrary 'bdlat' compatible object, as we did in {Example 1}.
+// `bdlat_TypeCategoryUtil`.  Suppose we wish to examine the type category and
+// value of an arbitrary `bdlat` compatible object, as we did in {Example 1}.
 //
-// First, we define 'mine::PrintAccessor', a functor that encapsulates the
+// First, we define `mine::PrintAccessor`, a functor that encapsulates the
 // action to be taken:
-//..
-//  namespace BloombergLP {
-//  namespace mine {
+// ```
+// namespace BloombergLP {
+// namespace mine {
 //
-//  class PrintAccessor {
+// class PrintAccessor {
 //
-//      bsl::ostream  *d_stream_p;
+//     bsl::ostream  *d_stream_p;
 //
-//    public:
-//      PrintAccessor(bsl::ostream *stream)
-//      : d_stream_p(stream) { assert(stream); }
+//   public:
+//     PrintAccessor(bsl::ostream *stream)
+//     : d_stream_p(stream) { assert(stream); }
 //
-//      template <class TYPE>
-//      int operator()(const TYPE& , bslmf::Nil )
-//      {
-//          *d_stream_p << "Nil";
-//          return -1;
-//      }
+//     template <class TYPE>
+//     int operator()(const TYPE& , bslmf::Nil )
+//     {
+//         *d_stream_p << "Nil";
+//         return -1;
+//     }
 //
-//      template <class TYPE>
-//      int operator()(const TYPE& object, bdlat_TypeCategory::Array)
-//      {
-//          *d_stream_p << "Array" << ": ";
-//          bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-//          return 0;
-//      }
+//     template <class TYPE>
+//     int operator()(const TYPE& object, bdlat_TypeCategory::Array)
+//     {
+//         *d_stream_p << "Array" << ": ";
+//         bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+//         return 0;
+//     }
 //
-//      template <class TYPE>
-//      int operator()(const TYPE& object, bdlat_TypeCategory::Choice)
-//      {
-//          *d_stream_p << "Choice" << ": ";
-//          bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-//          return 0;
-//      }
+//     template <class TYPE>
+//     int operator()(const TYPE& object, bdlat_TypeCategory::Choice)
+//     {
+//         *d_stream_p << "Choice" << ": ";
+//         bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+//         return 0;
+//     }
 //
-//      template <class TYPE>
-//      int operator()(const TYPE& object, bdlat_TypeCategory::CustomizedType)
-//      {
-//          *d_stream_p << "CustomizedType" << ": ";
-//          bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-//          return 0;
-//      }
+//     template <class TYPE>
+//     int operator()(const TYPE& object, bdlat_TypeCategory::CustomizedType)
+//     {
+//         *d_stream_p << "CustomizedType" << ": ";
+//         bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+//         return 0;
+//     }
 //
-//      template <class TYPE>
-//      int operator()(const TYPE& object, bdlat_TypeCategory::Enumeration)
-//      {
-//          *d_stream_p << "Enumeration" << ": ";
-//          bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-//          return 0;
-//      }
+//     template <class TYPE>
+//     int operator()(const TYPE& object, bdlat_TypeCategory::Enumeration)
+//     {
+//         *d_stream_p << "Enumeration" << ": ";
+//         bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+//         return 0;
+//     }
 //
-//      template <class TYPE>
-//      int operator()(const TYPE& object, bdlat_TypeCategory::NullableValue)
-//      {
-//          *d_stream_p << "NullableValue" << ": ";
-//          bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-//          return 0;
-//      }
+//     template <class TYPE>
+//     int operator()(const TYPE& object, bdlat_TypeCategory::NullableValue)
+//     {
+//         *d_stream_p << "NullableValue" << ": ";
+//         bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+//         return 0;
+//     }
 //
-//      template <class TYPE>
-//      int operator()(const TYPE& object, bdlat_TypeCategory::Sequence)
-//      {
-//          *d_stream_p << "Sequence" << ": ";
-//          bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-//          return 0;
-//      }
+//     template <class TYPE>
+//     int operator()(const TYPE& object, bdlat_TypeCategory::Sequence)
+//     {
+//         *d_stream_p << "Sequence" << ": ";
+//         bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+//         return 0;
+//     }
 //
-//      template <class TYPE>
-//      int operator()(const TYPE& object, bdlat_TypeCategory::Simple)
-//      {
-//          *d_stream_p << "Simple" << ": ";
-//          bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-//          return 0;
-//      }
-//  };
+//     template <class TYPE>
+//     int operator()(const TYPE& object, bdlat_TypeCategory::Simple)
+//     {
+//         *d_stream_p << "Simple" << ": ";
+//         bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+//         return 0;
+//     }
+// };
 //
-//  }  // close package namespace
-//  }  // close enterprise namespace
-//..
-// Notice that this overload set for 'operator()' includes an overload for
-// 'bslmf::Nil' (as required) but does *not* include an overload for
-// 'bdlat_TypeCategory::DynamicType' which is never reported as a runtime type
+// }  // close package namespace
+// }  // close enterprise namespace
+// ```
+// Notice that this overload set for `operator()` includes an overload for
+// `bslmf::Nil` (as required) but does *not* include an overload for
+// `bdlat_TypeCategory::DynamicType` which is never reported as a runtime type
 // category.
 //
-// Now, we can simply use 'bdlat_TypeCategoryUtil' to determine the type of a
+// Now, we can simply use `bdlat_TypeCategoryUtil` to determine the type of a
 // given object dispatch control to the corresponding overload of the accessor
 // functor:
-//..
-//  using namespace BloombergLP;
+// ```
+// using namespace BloombergLP;
 //
-//  void runUsageExample2()
-//  {
-//      bsl::ostringstream oss;
-//      mine::PrintAccessor accessor(&oss);
+// void runUsageExample2()
+// {
+//     bsl::ostringstream oss;
+//     mine::PrintAccessor accessor(&oss);
 //
-//      int intVal = 123;
+//     int intVal = 123;
 //
-//      bdlat_TypeCategoryUtil::accessByCategory(intVal, accessor);
-//      assert("Simple: 123" == oss.str());
-//      oss.str("");
+//     bdlat_TypeCategoryUtil::accessByCategory(intVal, accessor);
+//     assert("Simple: 123" == oss.str());
+//     oss.str("");
 //
-//      bdlb::NullableValue<int> nullableInt;
+//     bdlb::NullableValue<int> nullableInt;
 //
-//      bdlat_TypeCategoryUtil::accessByCategory(nullableInt, accessor);
-//      assert("NullableValue: NULL" == oss.str());
-//      oss.str("");
+//     bdlat_TypeCategoryUtil::accessByCategory(nullableInt, accessor);
+//     assert("NullableValue: NULL" == oss.str());
+//     oss.str("");
 //
-//      nullableInt = 321;
+//     nullableInt = 321;
 //
-//      bdlat_TypeCategoryUtil::accessByCategory(nullableInt, accessor);
-//      assert("NullableValue: 321" == oss.str());
-//      oss.str("");
+//     bdlat_TypeCategoryUtil::accessByCategory(nullableInt, accessor);
+//     assert("NullableValue: 321" == oss.str());
+//     oss.str("");
 //
-//      bsl::vector<int> vec;
+//     bsl::vector<int> vec;
 //
-//      vec.push_back(123);
-//      vec.push_back(345);
-//      vec.push_back(987);
+//     vec.push_back(123);
+//     vec.push_back(345);
+//     vec.push_back(987);
 //
-//      bdlat_TypeCategoryUtil::accessByCategory(vec, accessor);
-//      LOOP_ASSERT(oss.str(), "Array: [ 123 345 987 ]" == oss.str());
-//      oss.str("");
-//  }
-//..
+//     bdlat_TypeCategoryUtil::accessByCategory(vec, accessor);
+//     LOOP_ASSERT(oss.str(), "Array: [ 123 345 987 ]" == oss.str());
+//     oss.str("");
+// }
+// ```
 //
 ///Example 3: Dynamic (Run-Time) Typing and Dispatch
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we introduce a class that is the 'bdlat' "dyanmic" type
+// In this example, we introduce a class that is the `bdlat` "dyanmic" type
 // category and show how its behavior is a generalization of what we have seen
-// for the "static" 'bdlat' types.
+// for the "static" `bdlat` types.
 //
-// First, we define a class, 'mine::MyDynamicType', that can hold one of two
-// value types: either a 'bsl::vector<char>' or a 'bsl::string'.
-//..
-//  namespace BloombergLP {
-//  namespace mine {
+// First, we define a class, `mine::MyDynamicType`, that can hold one of two
+// value types: either a `bsl::vector<char>` or a `bsl::string`.
+// ```
+// namespace BloombergLP {
+// namespace mine {
 //
-//  class MyDynamicType {
-//      // This class can represent data in two forms: either a 'bsl::string'
-//      // or as a 'bsl::vector' of 'char' values.
+// class MyDynamicType {
+//     // This class can represent data in two forms: either a 'bsl::string'
+//     // or as a 'bsl::vector' of 'char' values.
 //
-//      // PRIVATE DATA MEMBERS
-//      bsl::vector<char> d_vectorChar;  // Note: Production code should use a
-//      bsl::string       d_string;      //       union of object buffers.
-//      int               d_selector;    // 0 = vectorChar, 1 = string
+//     // PRIVATE DATA MEMBERS
+//     bsl::vector<char> d_vectorChar;  // Note: Production code should use a
+//     bsl::string       d_string;      //       union of object buffers.
+//     int               d_selector;    // 0 = vectorChar, 1 = string
 //
-//    public:
-//      // MANIPULATORS
-//      void makeVectorChar() { d_selector = 0; }
-//      void makeString()     { d_selector = 1; }
+//   public:
+//     // MANIPULATORS
+//     void makeVectorChar() { d_selector = 0; }
+//     void makeString()     { d_selector = 1; }
 //
-//      bsl::vector<char>& theVectorChar()
-//                             { assert(isVectorChar()); return d_vectorChar; }
-//      bsl::string& theString()
-//                             { assert(isString());     return d_string;     }
+//     bsl::vector<char>& theVectorChar()
+//                            { assert(isVectorChar()); return d_vectorChar; }
+//     bsl::string& theString()
+//                            { assert(isString());     return d_string;     }
 //
-//      // ACCESSORS
-//      bool isVectorChar() const { return 0 == d_selector; }
-//      bool isString()     const { return 1 == d_selector; }
+//     // ACCESSORS
+//     bool isVectorChar() const { return 0 == d_selector; }
+//     bool isString()     const { return 1 == d_selector; }
 //
-//      const bsl::vector<char>& theVectorChar() const
-//                             { assert(isVectorChar()); return d_vectorChar; }
-//      const bsl::string& theString() const
-//                             { assert(isString());     return d_string;     }
+//     const bsl::vector<char>& theVectorChar() const
+//                            { assert(isVectorChar()); return d_vectorChar; }
+//     const bsl::string& theString() const
+//                            { assert(isString());     return d_string;     }
 //
-//  };
+// };
 //
-//  }  // close package namespace
-//  }  // close enterprise namespace
-//..
-// When acting as a vector this class is a 'bdlat' "array" type and when
-// holding a string, the class is a 'bdlat' "simple" type.  Since this type can
+// }  // close package namespace
+// }  // close enterprise namespace
+// ```
+// When acting as a vector this class is a `bdlat` "array" type and when
+// holding a string, the class is a `bdlat` "simple" type.  Since this type can
 // be in two type categories (determined at runtime) this class is deemed a
 // "dynamic" class (for calculations at compile time).
 //
 // Then, to denote that this class is a dynamic type, we specialize the
-// 'bdlat_TypeCategoryDeclareDynamic' meta-function in the 'BloombergLP'
+// `bdlat_TypeCategoryDeclareDynamic` meta-function in the `BloombergLP`
 // namespace:
-//..
-//  namespace BloombergLP {
+// ```
+// namespace BloombergLP {
 //
-//      template <>
-//      struct bdlat_TypeCategoryDeclareDynamic<mine::MyDynamicType>
-//      : bsl::true_type {
-//      };
+//     template <>
+//     struct bdlat_TypeCategoryDeclareDynamic<mine::MyDynamicType>
+//     : bsl::true_type {
+//     };
 //
-//  }  // close enterprise namespace
-//..
+// }  // close enterprise namespace
+// ```
 // Now, we define bdlat_typeCategorySelect', and a suite of four functions,
-// 'bdlat_typeCategory(Manipulate|Access)(Array|Simple)', each overloaded for
-// our type, 'MyDynamicType'.
-//..
+// `bdlat_typeCategory(Manipulate|Access)(Array|Simple)`, each overloaded for
+// our type, `MyDynamicType`.
+// ```
 // namespace BloombergLP {
 // namespace mine {
 //
@@ -844,77 +841,77 @@ BSLS_IDENT("$Id: $")
 //
 //  }  // close package namespace
 //  }  // close enterprise namespace
-//..
+// ```
 // Notice that the customization points were implemented for just the two type
-// categories that 'MyDynamicType' can achieve: "array" and "simple".
+// categories that `MyDynamicType` can achieve: "array" and "simple".
 //
 // Finally, we can see how the facilities we developed in {Example 1} and
 // {Example 2} behave when given a "dynamic" type;
-//..
-//  void runUsageExample3()
-//  {
-//..
-// We see that the 'Select' meta-function returns the expected value:
-//..
-//      assert(bdlat_TypeCategory::e_DYNAMIC_CATEGORY
-//          == static_cast<bdlat_TypeCategory::Value>(
-//             bdlat_TypeCategory::Select<mine::MyDynamicType>::e_SELECTION));
-//..
+// ```
+// void runUsageExample3()
+// {
+// ```
+// We see that the `Select` meta-function returns the expected value:
+// ```
+//     assert(bdlat_TypeCategory::e_DYNAMIC_CATEGORY
+//         == static_cast<bdlat_TypeCategory::Value>(
+//            bdlat_TypeCategory::Select<mine::MyDynamicType>::e_SELECTION));
+// ```
 // We create an object of our dynamic type and observe that the specialization
 // we created for printing the values (actually, for *not* printing the value
 // of) "dynamic" types is invoked:
-//..
-//      bsl::ostringstream  oss;
-//      mine::MyDynamicType object;
+// ```
+//     bsl::ostringstream  oss;
+//     mine::MyDynamicType object;
 //
-//      mine::printCategoryAndValue(oss, object);
-//      assert("DynamicType: Printing dynamic types requires extra work."
-//             == oss.str());
-//      oss.str("");
-//..
-// We instruct object to behave as a vector and see that the 'bdlat' framework
+//     mine::printCategoryAndValue(oss, object);
+//     assert("DynamicType: Printing dynamic types requires extra work."
+//            == oss.str());
+//     oss.str("");
+// ```
+// We instruct object to behave as a vector and see that the `bdlat` framework
 // treats the object as a member of the "array" category and the
-// 'PrintAccessor' we defined in {Example 2} treats 'object' as a member of the
+// `PrintAccessor` we defined in {Example 2} treats `object` as a member of the
 // "array" category:
-//..
-//      object.makeVectorChar();
+// ```
+//     object.makeVectorChar();
 //
-//      assert(bdlat_TypeCategory::e_ARRAY_CATEGORY
-//          == bdlat_TypeCategoryFunctions::select(object));
+//     assert(bdlat_TypeCategory::e_ARRAY_CATEGORY
+//         == bdlat_TypeCategoryFunctions::select(object));
 //
-//      object.theVectorChar().push_back('H');
-//      object.theVectorChar().push_back('e');
-//      object.theVectorChar().push_back('l');
-//      object.theVectorChar().push_back('l');
-//      object.theVectorChar().push_back('o');
+//     object.theVectorChar().push_back('H');
+//     object.theVectorChar().push_back('e');
+//     object.theVectorChar().push_back('l');
+//     object.theVectorChar().push_back('l');
+//     object.theVectorChar().push_back('o');
 //
-//      mine::PrintAccessor accessor(&oss);
-//      int                 ret;
+//     mine::PrintAccessor accessor(&oss);
+//     int                 ret;
 //
-//      ret = bdlat_TypeCategoryUtil::accessByCategory(object, accessor);
-//      assert(0 == ret);
-//      LOOP_ASSERT(oss.str(), "Array: \"Hello\"" == oss.str());
-//      oss.str("");
-//..
-// Lastly, we instruct 'object' to behave as a string and find that the 'bdlat'
-// framework now considers 'object' to be the "simple" category:
-//..
-//      object.makeString();
+//     ret = bdlat_TypeCategoryUtil::accessByCategory(object, accessor);
+//     assert(0 == ret);
+//     LOOP_ASSERT(oss.str(), "Array: \"Hello\"" == oss.str());
+//     oss.str("");
+// ```
+// Lastly, we instruct `object` to behave as a string and find that the `bdlat`
+// framework now considers `object` to be the "simple" category:
+// ```
+//     object.makeString();
 //
-//      assert(bdlat_TypeCategory::e_SIMPLE_CATEGORY
-//          == bdlat_TypeCategoryFunctions::select(object));
+//     assert(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+//         == bdlat_TypeCategoryFunctions::select(object));
 //
-//      object.theString() = "World";
+//     object.theString() = "World";
 //
-//      ret = bdlat_TypeCategoryUtil::accessByCategory(object, accessor);
-//      assert(0 == ret);
-//      assert("Simple: World" == oss.str());
-//      oss.str("");
-//  }
-//..
+//     ret = bdlat_TypeCategoryUtil::accessByCategory(object, accessor);
+//     assert(0 == ret);
+//     assert("Simple: World" == oss.str());
+//     oss.str("");
+// }
+// ```
 // Notice that the output of the accessor matches the state of the object,
-// reporting an "array" type when the object 'isVector' and a "simple" type
-// when the object 'isString'.
+// reporting an "array" type when the object `isVector` and a "simple" type
+// when the object `isString`.
 
 #include <bdlscm_version.h>
 
@@ -939,37 +936,37 @@ namespace BloombergLP {
                          // struct bdlat_TypeCategoryDeclareDynamic
                          // =======================================
 
+/// Types that have more than one of the following traits:
+///
+/// * `bdlat_ArrayFunctions::IsArray<TYPE>::value`
+/// * `bdlat_ChoiceFunctions::IsChoice<TYPE>::value`
+/// * `bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::value`
+/// * `bdlat_EnumFunctions::IsEnumeration<TYPE>::value`
+/// * `bdlat_NullableValueFunctions::IsNullableValue<TYPE>::value`
+/// * `bdlat_SequenceFunctions::IsSequence<TYPE>::value`
+///
+/// are automatically recognized as dynamic types.  However, there may exist
+/// types that have *none* or only one of the above traits and still be
+/// considered dynamic (e.g., "variants" of simple types etc).  In order for
+/// the `bdlat` framework to treat these types as dynamic types, this
+/// `struct` must be specialized with a `value` of 1 or inheritance from
+/// bsl::true_type, and the `bdlat_TypeCategoryFunctions::select` function
+/// must be implemented, along with the appropriate
+/// `bdlat_TypeCategoryFunctions::manipulate*` and
+/// `bdlat_TypeCategoryFunctions::access*` functions.  Inside these
+/// `manipulate*` and `access*` functions, the dynamic object should expose
+/// its real type.
 template <class TYPE>
 struct bdlat_TypeCategoryDeclareDynamic : public bsl::false_type {
-    // Types that have more than one of the following traits:
-    //
-    //: o 'bdlat_ArrayFunctions::IsArray<TYPE>::value'
-    //: o 'bdlat_ChoiceFunctions::IsChoice<TYPE>::value'
-    //: o 'bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::value'
-    //: o 'bdlat_EnumFunctions::IsEnumeration<TYPE>::value'
-    //: o 'bdlat_NullableValueFunctions::IsNullableValue<TYPE>::value'
-    //: o 'bdlat_SequenceFunctions::IsSequence<TYPE>::value'
-    //
-    // are automatically recognized as dynamic types.  However, there may exist
-    // types that have *none* or only one of the above traits and still be
-    // considered dynamic (e.g., "variants" of simple types etc).  In order for
-    // the 'bdlat' framework to treat these types as dynamic types, this
-    // 'struct' must be specialized with a 'value' of 1 or inheritance from
-    // bsl::true_type, and the 'bdlat_TypeCategoryFunctions::select' function
-    // must be implemented, along with the appropriate
-    // 'bdlat_TypeCategoryFunctions::manipulate*' and
-    // 'bdlat_TypeCategoryFunctions::access*' functions.  Inside these
-    // 'manipulate*' and 'access*' functions, the dynamic object should expose
-    // its real type.
 };
 
                          // =========================
                          // struct bdlat_TypeCategory
                          // =========================
 
+/// This struct provides the different category tags and also a
+/// meta-function for selecting the tags based on the parameterized `TYPE`.
 struct bdlat_TypeCategory {
-    // This struct provides the different category tags and also a
-    // meta-function for selecting the tags based on the parameterized 'TYPE'.
 
     // TAGS
     struct DynamicType    { };  // tag for dynamic types
@@ -1015,13 +1012,13 @@ struct bdlat_TypeCategory {
 
     // META-FUNCTION
 
+    /// This meta-function contains a typedef `Type` that specifies the
+    /// category tag for the parameterized `TYPE`.  Note that the runtime
+    /// analog to this meta-function is
+    /// `bdlat_TypeCategoryFunctions::select` that returns the enumerator
+    /// corresponding to the `bdlat` category.
     template <class TYPE>
     struct Select {
-        // This meta-function contains a typedef 'Type' that specifies the
-        // category tag for the parameterized 'TYPE'.  Note that the runtime
-        // analog to this meta-function is
-        // 'bdlat_TypeCategoryFunctions::select' that returns the enumerator
-        // corresponding to the 'bdlat' category.
 
       private:
         static const int k_IS_ARRAY =
@@ -1079,52 +1076,52 @@ struct bdlat_TypeCategory {
                        // struct bdlat_TypeCategoryUtil
                        // =============================
 
+/// This `struct` contains utility functions that operate on `bdlat`
+/// compatible objects, implicitly dispatching to the action appropriate for
+/// the `bdlat` type category of the object.
 struct bdlat_TypeCategoryUtil {
-    // This 'struct' contains utility functions that operate on 'bdlat'
-    // compatible objects, implicitly dispatching to the action appropriate for
-    // the 'bdlat' type category of the object.
 
+    /// Invoke one of the following functions, based on the result of
+    /// `bdlat_TypeCategoryFunctions::select(object)`:
+    ///
+    /// * `bdlat_TypeCategoryFunctions::manipulateArray`
+    /// * `bdlat_TypeCategoryFunctions::manipulateChoice`
+    /// * `bdlat_TypeCategoryFunctions::manipulateCustomizedType`
+    /// * `bdlat_TypeCategoryFunctions::manipulateEnumeration`
+    /// * `bdlat_TypeCategoryFunctions::manipulateNullableValue`
+    /// * `bdlat_TypeCategoryFunctions::manipulateSequence`
+    /// * `bdlat_TypeCategoryFunctions::manipulateSimple`
+    ///
+    /// where each function is invoked with the specified `object` and
+    /// `manipulator`.  See {`MANIPULATOR` Functors} for the requirements on
+    /// `manipulator`.  Return the value returned by the invoked function.
+    /// The behavior is undefined unless the parameterized `TYPE` supports
+    /// the type category returned by the call to the
+    /// `bdlat_TypeCategoryFunctions::select` function.
     template <class TYPE, class MANIPULATOR>
     static int manipulateByCategory(TYPE         *object,
                                     MANIPULATOR&  manipulator);
-        // Invoke one of the following functions, based on the result of
-        // 'bdlat_TypeCategoryFunctions::select(object)':
-        //
-        //: o 'bdlat_TypeCategoryFunctions::manipulateArray'
-        //: o 'bdlat_TypeCategoryFunctions::manipulateChoice'
-        //: o 'bdlat_TypeCategoryFunctions::manipulateCustomizedType'
-        //: o 'bdlat_TypeCategoryFunctions::manipulateEnumeration'
-        //: o 'bdlat_TypeCategoryFunctions::manipulateNullableValue'
-        //: o 'bdlat_TypeCategoryFunctions::manipulateSequence'
-        //: o 'bdlat_TypeCategoryFunctions::manipulateSimple'
-        //
-        // where each function is invoked with the specified 'object' and
-        // 'manipulator'.  See {'MANIPULATOR' Functors} for the requirements on
-        // 'manipulator'.  Return the value returned by the invoked function.
-        // The behavior is undefined unless the parameterized 'TYPE' supports
-        // the type category returned by the call to the
-        // 'bdlat_TypeCategoryFunctions::select' function.
 
+    /// Invoke one of the following functions, based on the result of
+    /// `bdlat_TypeCategoryFunctions::select`:
+    ///
+    /// * `bdlat_TypeCategoryFunctions::accessArray`
+    /// * `bdlat_TypeCategoryFunctions::accessChoice`
+    /// * `bdlat_TypeCategoryFunctions::accessCustomizedType`
+    /// * `bdlat_TypeCategoryFunctions::accessEnumeration`
+    /// * `bdlat_TypeCategoryFunctions::accessNullableValue`
+    /// * `bdlat_TypeCategoryFunctions::accessSequence`
+    /// * `bdlat_TypeCategoryFunctions::accessSimple`
+    ///
+    /// where each function is invoked with the specified `object` and
+    /// `accessor`.  See {`ACCESSOR` Functors} for the requirements on
+    /// `accessor`.  Return the value returned by the invoked function.  The
+    /// behavior is undefined unless the parameterized `TYPE` supports the
+    /// type category returned by the call to the
+    /// `bdlat_TypeCategoryFunctions::select` function.
     template <class TYPE, class ACCESSOR>
     static int accessByCategory(const TYPE& object,
                                 ACCESSOR&   accessor);
-        // Invoke one of the following functions, based on the result of
-        // 'bdlat_TypeCategoryFunctions::select':
-        //
-        //: o 'bdlat_TypeCategoryFunctions::accessArray'
-        //: o 'bdlat_TypeCategoryFunctions::accessChoice'
-        //: o 'bdlat_TypeCategoryFunctions::accessCustomizedType'
-        //: o 'bdlat_TypeCategoryFunctions::accessEnumeration'
-        //: o 'bdlat_TypeCategoryFunctions::accessNullableValue'
-        //: o 'bdlat_TypeCategoryFunctions::accessSequence'
-        //: o 'bdlat_TypeCategoryFunctions::accessSimple'
-        //
-        // where each function is invoked with the specified 'object' and
-        // 'accessor'.  See {'ACCESSOR' Functors} for the requirements on
-        // 'accessor'.  Return the value returned by the invoked function.  The
-        // behavior is undefined unless the parameterized 'TYPE' supports the
-        // type category returned by the call to the
-        // 'bdlat_TypeCategoryFunctions::select' function.
 };
 
                    // =====================================
@@ -1139,135 +1136,137 @@ namespace bdlat_TypeCategoryFunctions {
     // given object.
 
     // MANIPULATORS
+
+    /// Return the result of invoking the specified `manipulator` with the
+    /// specified `object` (1st argument) and a `bdlat_TypeCategory::Array`
+    /// tag object (2nd argument).  If `object` is not a `bdlat` "array"
+    /// type, pass a `bslmf::Nil` tag object as the second argument.  See
+    /// {`MANIPULATOR` Functors} for the requirements on `manipulator`.
     template <class TYPE, class MANIPULATOR>
     int manipulateArray(TYPE *object, MANIPULATOR& manipulator);
-        // Return the result of invoking the specified 'manipulator' with the
-        // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Array'
-        // tag object (2nd argument).  If 'object' is not a 'bdlat' "array"
-        // type, pass a 'bslmf::Nil' tag object as the second argument.  See
-        // {'MANIPULATOR' Functors} for the requirements on 'manipulator'.
 
+    /// Return the result of invoking the specified `manipulator` with the
+    /// specified `object` (1st argument) and a `bdlat_TypeCategory::Choice`
+    /// tag object (2nd argument).  If `object` is not a `bdlat` "choice"
+    /// type, pass a `bslmf::Nil` tag object as the second argument.  See
+    /// {`MANIPULATOR` Functors} for the requirements on `manipulator`.
     template <class TYPE, class MANIPULATOR>
     int manipulateChoice(TYPE *object, MANIPULATOR& manipulator);
-        // Return the result of invoking the specified 'manipulator' with the
-        // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Choice'
-        // tag object (2nd argument).  If 'object' is not a 'bdlat' "choice"
-        // type, pass a 'bslmf::Nil' tag object as the second argument.  See
-        // {'MANIPULATOR' Functors} for the requirements on 'manipulator'.
 
+    /// Return the result of invoking the specified `manipulator` with the
+    /// specified `object` (1st argument) and a
+    /// `bdlat_TypeCategory::CustomizedType` tag object (2nd argument).  If
+    /// `object` is not a `bdlat` "customized type" type, pass a
+    /// `bslmf::Nil` tag object as the second argument.  See {`MANIPULATOR`
+    /// Functors} for the requirements on `manipulator`.
     template <class TYPE, class MANIPULATOR>
     int manipulateCustomizedType(TYPE *object, MANIPULATOR& manipulator);
-        // Return the result of invoking the specified 'manipulator' with the
-        // specified 'object' (1st argument) and a
-        // 'bdlat_TypeCategory::CustomizedType' tag object (2nd argument).  If
-        // 'object' is not a 'bdlat' "customized type" type, pass a
-        // 'bslmf::Nil' tag object as the second argument.  See {'MANIPULATOR'
-        // Functors} for the requirements on 'manipulator'.
 
+    /// Return the result of invoking the specified `manipulator` with the
+    /// specified `object` (1st argument) and a
+    /// `bdlat_TypeCategory::Enumeration` tag object (2nd argument).  If
+    /// `object` is not a `bdlat` "enumeration" type, pass a `bslmf::Nil`
+    /// tag object as the second argument.  See {`MANIPULATOR` Functors} for
+    /// the requirements on `manipulator`.
     template <class TYPE, class MANIPULATOR>
     int manipulateEnumeration(TYPE *object, MANIPULATOR& manipulator);
-        // Return the result of invoking the specified 'manipulator' with the
-        // specified 'object' (1st argument) and a
-        // 'bdlat_TypeCategory::Enumeration' tag object (2nd argument).  If
-        // 'object' is not a 'bdlat' "enumeration" type, pass a 'bslmf::Nil'
-        // tag object as the second argument.  See {'MANIPULATOR' Functors} for
-        // the requirements on 'manipulator'.
 
+    /// Return the result of invoking the specified `manipulator` with the
+    /// specified `object` (1st argument) and a
+    /// `bdlat_TypeCategory::NullableValue` tag object (2nd argument).  If
+    /// `object` is not a `bdlat` "nullable value" type, pass a `bslmf::Nil`
+    /// tag object as the second argument.  See {`MANIPULATOR` Functors} for
+    /// the requirements on `manipulator`.
     template <class TYPE, class MANIPULATOR>
     int manipulateNullableValue(TYPE *object, MANIPULATOR& manipulator);
-        // Return the result of invoking the specified 'manipulator' with the
-        // specified 'object' (1st argument) and a
-        // 'bdlat_TypeCategory::NullableValue' tag object (2nd argument).  If
-        // 'object' is not a 'bdlat' "nullable value" type, pass a 'bslmf::Nil'
-        // tag object as the second argument.  See {'MANIPULATOR' Functors} for
-        // the requirements on 'manipulator'.
 
+    /// Return the result of invoking the specified `manipulator` with the
+    /// specified `object` (1st argument) and a
+    /// `bdlat_TypeCategory::Sequence` tag object (2nd argument).  If
+    /// `object` is not a `bdlat` "sequence" type, pass a `bslmf::Nil` tag
+    /// object as the second argument.  See {`MANIPULATOR` Functors} for the
+    /// requirements on `manipulator`.
     template <class TYPE, class MANIPULATOR>
     int manipulateSequence(TYPE *object, MANIPULATOR& manipulator);
-        // Return the result of invoking the specified 'manipulator' with the
-        // specified 'object' (1st argument) and a
-        // 'bdlat_TypeCategory::Sequence' tag object (2nd argument).  If
-        // 'object' is not a 'bdlat' "sequence" type, pass a 'bslmf::Nil' tag
-        // object as the second argument.  See {'MANIPULATOR' Functors} for the
-        // requirements on 'manipulator'.
 
+    /// Return the result of invoking the specified `manipulator` with the
+    /// specified `object` (1st argument) and a `bdlat_TypeCategory::Simple`
+    /// tag object (2nd argument).  If `object` is not a `bdlat` "simple"
+    /// type, pass a `bslmf::Nil` tag object as the second argument.  See
+    /// {`MANIPULATOR` Functors} for the requirements on `manipulator`.
     template <class TYPE, class MANIPULATOR>
     int manipulateSimple(TYPE *object, MANIPULATOR& manipulator);
-        // Return the result of invoking the specified 'manipulator' with the
-        // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Simple'
-        // tag object (2nd argument).  If 'object' is not a 'bdlat' "simple"
-        // type, pass a 'bslmf::Nil' tag object as the second argument.  See
-        // {'MANIPULATOR' Functors} for the requirements on 'manipulator'.
 
     // ACCESSORS
+
+    /// Return the result of invoking the specified `accessor` with the
+    /// specified `object` (1st argument) and a `bdlat_TypeCategory::Array`
+    /// tag object (2nd argument).  If `object` is not a `bdlat` "array"
+    /// type, pass a `bslmf::Nil` tag object as the second argument.  See
+    /// {`ACCESSOR` Functors} for the requirements on `accessor`.
     template <class TYPE, class ACCESSOR>
     int accessArray(const TYPE& object, ACCESSOR& accessor);
-        // Return the result of invoking the specified 'accessor' with the
-        // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Array'
-        // tag object (2nd argument).  If 'object' is not a 'bdlat' "array"
-        // type, pass a 'bslmf::Nil' tag object as the second argument.  See
-        // {'ACCESSOR' Functors} for the requirements on 'accessor'.
 
+    /// Return the result of invoking the specified `accessor` with the
+    /// specified `object` (1st argument) and a `bdlat_TypeCategory::Choice`
+    /// tag object (2nd argument).  If `object` is not a `bdlat` "choice"
+    /// type, pass a `bslmf::Nil` tag object as the second argument.  See
+    /// {`ACCESSOR` Functors} for the requirements on `accessor`.
     template <class TYPE, class ACCESSOR>
     int accessChoice(const TYPE& object, ACCESSOR& accessor);
-        // Return the result of invoking the specified 'accessor' with the
-        // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Choice'
-        // tag object (2nd argument).  If 'object' is not a 'bdlat' "choice"
-        // type, pass a 'bslmf::Nil' tag object as the second argument.  See
-        // {'ACCESSOR' Functors} for the requirements on 'accessor'.
 
+    /// Return the result of invoking the specified `accessor` with the
+    /// specified `object` (1st argument) and a
+    /// `bdlat_TypeCategory::CustomizedType` tag object (2nd argument).  If
+    /// `object` is not a `bdlat` "customized type" type, pass a
+    /// `bslmf::Nil` tag object as the second argument.  See {`ACCESSOR`
+    /// Functors} for the requirements on `accessor`.
     template <class TYPE, class ACCESSOR>
     int accessCustomizedType(const TYPE& object, ACCESSOR& accessor);
-        // Return the result of invoking the specified 'accessor' with the
-        // specified 'object' (1st argument) and a
-        // 'bdlat_TypeCategory::CustomizedType' tag object (2nd argument).  If
-        // 'object' is not a 'bdlat' "customized type" type, pass a
-        // 'bslmf::Nil' tag object as the second argument.  See {'ACCESSOR'
-        // Functors} for the requirements on 'accessor'.
 
+    /// Return the result of invoking the specified `accessor` with the
+    /// specified `object` (1st argument) and a
+    /// `bdlat_TypeCategory::Enumeration` tag object (2nd argument).  If
+    /// `object` is not a `bdlat` "enumeration type" type, pass a
+    /// `bslmf::Nil` tag object as the second argument.  See {`ACCESSOR`
+    /// Functors} for the requirements on `accessor`.
     template <class TYPE, class ACCESSOR>
     int accessEnumeration(const TYPE& object, ACCESSOR& accessor);
-        // Return the result of invoking the specified 'accessor' with the
-        // specified 'object' (1st argument) and a
-        // 'bdlat_TypeCategory::Enumeration' tag object (2nd argument).  If
-        // 'object' is not a 'bdlat' "enumeration type" type, pass a
-        // 'bslmf::Nil' tag object as the second argument.  See {'ACCESSOR'
-        // Functors} for the requirements on 'accessor'.
 
+    /// Return the result of invoking the specified `accessor` with the
+    /// specified `object` (1st argument) and a
+    /// `bdlat_TypeCategory::NullableValue` tag object (2nd argument).  If
+    /// `object` is not a `bdlat` "nullable value" type, pass a `bslmf::Nil`
+    /// tag object as the second argument.  See {`ACCESSOR` Functors} for
+    /// the requirements on `accessor`.
     template <class TYPE, class ACCESSOR>
     int accessNullableValue(const TYPE& object, ACCESSOR& accessor);
-        // Return the result of invoking the specified 'accessor' with the
-        // specified 'object' (1st argument) and a
-        // 'bdlat_TypeCategory::NullableValue' tag object (2nd argument).  If
-        // 'object' is not a 'bdlat' "nullable value" type, pass a 'bslmf::Nil'
-        // tag object as the second argument.  See {'ACCESSOR' Functors} for
-        // the requirements on 'accessor'.
 
+    /// Return the result of invoking the specified `accessor` with the
+    /// specified `object` (1st argument) and a
+    /// `bdlat_TypeCategory::Sequence` tag object (2nd argument).  If
+    /// `object` is not a `bdlat` "sequence" type, pass a `bslmf::Nil` tag
+    /// object as the second argument.  See {`ACCESSOR` Functors} for the
+    /// requirements on `accessor`.
     template <class TYPE, class ACCESSOR>
     int accessSequence(const TYPE& object, ACCESSOR& accessor);
-        // Return the result of invoking the specified 'accessor' with the
-        // specified 'object' (1st argument) and a
-        // 'bdlat_TypeCategory::Sequence' tag object (2nd argument).  If
-        // 'object' is not a 'bdlat' "sequence" type, pass a 'bslmf::Nil' tag
-        // object as the second argument.  See {'ACCESSOR' Functors} for the
-        // requirements on 'accessor'.
 
+    /// Return the result of invoking the specified `accessor` with the
+    /// specified `object` (1st argument) and a `bdlat_TypeCategory::Simple`
+    /// tag object (2nd argument).  If `object` is not a `bdlat` "simple"
+    /// type, pass a `bslmf::Nil` tag object as the second argument.  See
+    /// {`ACCESSOR` Functors} for the requirements on `accessor`.
     template <class TYPE, class ACCESSOR>
     int accessSimple(const TYPE& object, ACCESSOR& accessor);
-        // Return the result of invoking the specified 'accessor' with the
-        // specified 'object' (1st argument) and a 'bdlat_TypeCategory::Simple'
-        // tag object (2nd argument).  If 'object' is not a 'bdlat' "simple"
-        // type, pass a 'bslmf::Nil' tag object as the second argument.  See
-        // {'ACCESSOR' Functors} for the requirements on 'accessor'.
 
+    /// Return the *runtime* type category for the specified `object`.  The
+    /// value returned is never `bdlat_TypeCategory::e_DYNAMIC_CATEGORY` (as
+    /// "dynamic" is a compile-time distinction).  Note that the compile
+    /// time analog to this function (template) is
+    /// `bdlat_TypeCategory::Select`, a meta-function that defines a type
+    /// corresponding to the category tag class of `TYPE`.
     template <class TYPE>
     bdlat_TypeCategory::Value select(const TYPE& object);
-        // Return the *runtime* type category for the specified 'object'.  The
-        // value returned is never 'bdlat_TypeCategory::e_DYNAMIC_CATEGORY' (as
-        // "dynamic" is a compile-time distinction).  Note that the compile
-        // time analog to this function (template) is
-        // 'bdlat_TypeCategory::Select', a meta-function that defines a type
-        // corresponding to the category tag class of 'TYPE'.
 
     // OVERLOADABLE FUNCTIONS
 

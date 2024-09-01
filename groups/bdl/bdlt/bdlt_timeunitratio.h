@@ -10,55 +10,55 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::TimeUnitRatio: namespace for common time-unit-ratio constants
 //
-//@DESCRIPTION: This component provides a utility 'struct',
-// 'bdlt::TimeUnitRatio', that defines a namespace for constants that
+//@DESCRIPTION: This component provides a utility `struct`,
+// `bdlt::TimeUnitRatio`, that defines a namespace for constants that
 // characterize the ratios between commonly used time units.  Ratios are
 // provided for combinations of all time units from a nanosecond up through a
 // day.
 //
 // Each constant defined in this namespace has at least two forms, a full form
 // and an abbreviated form following the patterns:
-//..
-//  bdlt::TimeUnitRatio::k_SMALLUNITS_PER_LARGEUNIT
-//  bdlt::TimeUnitRatio::k_SU_PER_LU
-//..
-// Where 'SMALLUNIT' and 'LARGEUNIT' are members of the following group:
-//..
-//  NANOSECOND
-//  MICROSECOND
-//  MILLISECOND
-//  SECOND
-//  MINUTE
-//  HOUR
-//  DAY
-//..
-// and 'SU' and 'LU' are abbreviations in the following group:
-//..
-//  NS // abbreviation for 'NANOSECOND'
-//  US // abbreviation for 'MICROSECOND'
-//  MS // abbreviation for 'MILLISECOND'
-//  S  // abbreviation for 'SECOND'
-//  M  // abbreviation for 'MINUTE'
-//  H  // abbreviation for 'HOUR'
-//  D  // abbreviation for 'DAY'
-//..
-// Note that 'SMALLUNIT' ('SU') is always a smaller unit than 'LARGEUNIT'
-// ('LU').  Thus, the (whole) number of microseconds in an hour is
+// ```
+// bdlt::TimeUnitRatio::k_SMALLUNITS_PER_LARGEUNIT
+// bdlt::TimeUnitRatio::k_SU_PER_LU
+// ```
+// Where `SMALLUNIT` and `LARGEUNIT` are members of the following group:
+// ```
+// NANOSECOND
+// MICROSECOND
+// MILLISECOND
+// SECOND
+// MINUTE
+// HOUR
+// DAY
+// ```
+// and `SU` and `LU` are abbreviations in the following group:
+// ```
+// NS // abbreviation for 'NANOSECOND'
+// US // abbreviation for 'MICROSECOND'
+// MS // abbreviation for 'MILLISECOND'
+// S  // abbreviation for 'SECOND'
+// M  // abbreviation for 'MINUTE'
+// H  // abbreviation for 'HOUR'
+// D  // abbreviation for 'DAY'
+// ```
+// Note that `SMALLUNIT` (`SU`) is always a smaller unit than `LARGEUNIT`
+// (`LU`).  Thus, the (whole) number of microseconds in an hour is
 // characterized by the constants:
-//..
-//  bdlt::TimeUnitRatio::k_MICROSECONDS_PER_HOUR
-//  bdlt::TimeUnitRatio::k_US_PER_H'
-//..
+// ```
+// bdlt::TimeUnitRatio::k_MICROSECONDS_PER_HOUR
+// bdlt::TimeUnitRatio::k_US_PER_H'
+// ```
 // Additionally, ratios that can be represented by a 32-bit integer also have
 // two corresponding 32-bit constants, having the same names as the constants
-// described above, but incorporate a '_32' suffix.  Thus, the number of
+// described above, but incorporate a `_32` suffix.  Thus, the number of
 // milliseconds per minute is characterized by four constants:
-//..
-//  bdlt::TimeUnitRatio::k_MILLISECONDS_PER_MINUTE
-//  bdlt::TimeUnitRatio::k_MS_PER_M
-//  bdlt::TimeUnitRatio::k_MILLISECONDS_PER_MINUTE_32
-//  bdlt::TimeUnitRatio::k_MS_PER_M_32
-//..
+// ```
+// bdlt::TimeUnitRatio::k_MILLISECONDS_PER_MINUTE
+// bdlt::TimeUnitRatio::k_MS_PER_M
+// bdlt::TimeUnitRatio::k_MILLISECONDS_PER_MINUTE_32
+// bdlt::TimeUnitRatio::k_MS_PER_M_32
+// ```
 // By providing both 64- and 32-bit versions of the constants, this component
 // allows the programmer to minimize the use of casts in time unit
 // calculations.
@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 // Each component that needs to perform such conversions could derive the
 // constants needed locally, but doing so would result in an inconsistent
 // vocabulary across components, and multiple opportunities for bugs.
-// 'bdlt::TimeUnitRatio' achieves the desired consistency and avoids bugs by
+// `bdlt::TimeUnitRatio` achieves the desired consistency and avoids bugs by
 // providing a single location for the constants used in such conversions.
 //
 // Suppose we have a time interval described as an integral number of
@@ -82,63 +82,63 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define a variable representing the number of nanoseconds that have
 // elapsed since a particular event:
-//..
-//  bsls::Types::Int64 interval = 62003004005;  // nanoseconds since event
-//..
+// ```
+// bsls::Types::Int64 interval = 62003004005;  // nanoseconds since event
+// ```
 // Then, we extract the minutes part from the total, using the constant
-// 'bdlt::TimeUnitRatio::k_NS_PER_M':
-//..
-//  bsls::Types::Int64 minutesPart =
-//                                  interval / bdlt::TimeUnitRatio::k_NS_PER_M;
-//..
+// `bdlt::TimeUnitRatio::k_NS_PER_M`:
+// ```
+// bsls::Types::Int64 minutesPart =
+//                                 interval / bdlt::TimeUnitRatio::k_NS_PER_M;
+// ```
 // Next, we calculate the remaining nanoseconds using the same constant:
-//..
-//  bsls::Types::Int64 remainder = interval % bdlt::TimeUnitRatio::k_NS_PER_M;
-//..
+// ```
+// bsls::Types::Int64 remainder = interval % bdlt::TimeUnitRatio::k_NS_PER_M;
+// ```
 // Then, we extract the seconds part from the remainder, using the constant
-// 'bdlt::TimeUnitRatio::k_NS_PER_S':
-//..
-//  bsls::Types::Int64 secondsPart =
-//                                 remainder / bdlt::TimeUnitRatio::k_NS_PER_S;
-//..
+// `bdlt::TimeUnitRatio::k_NS_PER_S`:
+// ```
+// bsls::Types::Int64 secondsPart =
+//                                remainder / bdlt::TimeUnitRatio::k_NS_PER_S;
+// ```
 // Next, we calculate the remaining nanoseconds using the same constant:
-//..
-//  remainder %= bdlt::TimeUnitRatio::k_NS_PER_S;
-//..
+// ```
+// remainder %= bdlt::TimeUnitRatio::k_NS_PER_S;
+// ```
 // Then, we extract the milliseconds part from the remainder, using the
-// constant 'bdlt::TimeUnitRatio::k_NS_PER_MS':
-//..
-//  bsls::Types::Int64 millisecondsPart =
-//                                remainder / bdlt::TimeUnitRatio::k_NS_PER_MS;
-//..
+// constant `bdlt::TimeUnitRatio::k_NS_PER_MS`:
+// ```
+// bsls::Types::Int64 millisecondsPart =
+//                               remainder / bdlt::TimeUnitRatio::k_NS_PER_MS;
+// ```
 // Next, we calculate the remaining nanoseconds using the same constant:
-//..
-//  remainder %= bdlt::TimeUnitRatio::k_NS_PER_MS;
-//..
+// ```
+// remainder %= bdlt::TimeUnitRatio::k_NS_PER_MS;
+// ```
 // Then, we extract the microseconds part from the remainder, using the
-// constant 'bdlt::TimeUnitRatio::k_NS_PER_US':
-//..
-//  bsls::Types::Int64 microsecondsPart =
-//                                remainder / bdlt::TimeUnitRatio::k_NS_PER_US;
-//..
+// constant `bdlt::TimeUnitRatio::k_NS_PER_US`:
+// ```
+// bsls::Types::Int64 microsecondsPart =
+//                               remainder / bdlt::TimeUnitRatio::k_NS_PER_US;
+// ```
 // Next, we calculate the remaining nanoseconds using the same constant:
-//..
-//  remainder %= bdlt::TimeUnitRatio::k_NS_PER_US;
-//..
+// ```
+// remainder %= bdlt::TimeUnitRatio::k_NS_PER_US;
+// ```
 // Now, we extract the nanoseconds part, which is exactly the remainder we
 // already have:
-//..
-//  bsls::Types::Int64 nanosecondsPart = remainder;
-//..
+// ```
+// bsls::Types::Int64 nanosecondsPart = remainder;
+// ```
 // Finally, we confirm that the parts we have extracted all have the correct
 // values:
-//..
-//  assert(1 == minutesPart);
-//  assert(2 == secondsPart);
-//  assert(3 == millisecondsPart);
-//  assert(4 == microsecondsPart);
-//  assert(5 == nanosecondsPart);
-//..
+// ```
+// assert(1 == minutesPart);
+// assert(2 == secondsPart);
+// assert(3 == millisecondsPart);
+// assert(4 == microsecondsPart);
+// assert(5 == nanosecondsPart);
+// ```
 // Note that in practice, the number of nanoseconds since the event would be
 // provided by some system utility, and not a constant as was shown here for
 // purposes of exposition.
@@ -154,9 +154,9 @@ namespace bdlt {
                             // struct TimeUnitRatio
                             // ====================
 
+/// This `struct` provides a namespace for constants characterizing ratios
+/// between commonly-used time units.
 struct TimeUnitRatio {
-    // This 'struct' provides a namespace for constants characterizing ratios
-    // between commonly-used time units.
 
     // CLASS DATA
 

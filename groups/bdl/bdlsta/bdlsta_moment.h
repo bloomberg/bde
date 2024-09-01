@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlsta::Moment: online calculation of mean, variance, skew, and kurtosis
 //
-//@DESCRIPTION: This component provides a mechanism, 'bdlsta::Moment', that
+//@DESCRIPTION: This component provides a mechanism, `bdlsta::Moment`, that
 // provides online calculation of basic statistics: mean, variance, skew, and
 // kurtosis while maintaining accuracy.  Online algorithms process the data in
 // one pass, while keeping good accuracy.  The online algorithms used are
@@ -26,12 +26,12 @@ BSLS_IDENT("$Id: $")
 //
 // The template parameter is a value from the provided enum and having the
 // following interpretation:
-//..
-//  M1 - mean
-//  M2 - variance+mean
-//  M3 - skew+variance+mean
-//  M4 - kurtosis+skew+variance+mean
-//..
+// ```
+// M1 - mean
+// M2 - variance+mean
+// M3 - skew+variance+mean
+// M4 - kurtosis+skew+variance+mean
+// ```
 //
 ///Usage
 ///-----
@@ -43,24 +43,24 @@ BSLS_IDENT("$Id: $")
 // skew, variance, and kurtosis.
 //
 // First, we create example input and instantiate the appropriate mechanism:
-//..
-//  double input[] = { 1.0, 2.0, 4.0, 5.0 };
+// ```
+// double input[] = { 1.0, 2.0, 4.0, 5.0 };
 //
-//  bdlsta::Moment<bdlsta::MomentLevel::e_M3> m3;
-//..
-// Then, we invoke the 'add' routine to accumulate the data:
-//..
-//  for(int i = 0; i < 4; ++i) {
-//      m3.add(input[i]);
-//  }
-//..
+// bdlsta::Moment<bdlsta::MomentLevel::e_M3> m3;
+// ```
+// Then, we invoke the `add` routine to accumulate the data:
+// ```
+// for(int i = 0; i < 4; ++i) {
+//     m3.add(input[i]);
+// }
+// ```
 // Finally, we assert that the mean, variance, and skew are what we expect:
-//..
-//  ASSERT(4   == m3.count());
-//  ASSERT(3.0 == m3.mean());
-//  ASSERT(1e-5 > fabs(3.33333 - m3.variance()));
-//  ASSERT(1e-5 > fabs(0.0     - m3.skew()));
-//..
+// ```
+// ASSERT(4   == m3.count());
+// ASSERT(3.0 == m3.mean());
+// ASSERT(1e-5 > fabs(3.33333 - m3.variance()));
+// ASSERT(1e-5 > fabs(0.0     - m3.skew()));
+// ```
 
 // BDE_VERIFY pragma: +LL01
 
@@ -93,22 +93,23 @@ struct MomentLevel {
 template <MomentLevel::Enum ML>
 struct Moment_Data;
 
+/// Data members for Mean only.
 template<>
 struct Moment_Data<MomentLevel::e_M1> {
-    // Data members for Mean only.
 
     // PUBLIC DATA
     int    d_count; // Number of entries.
     double d_sum;   // Sum of entries.
 
     // CREATORS
+
+    /// Constructor initializes all members to zero.
     Moment_Data();
-        // Constructor initializes all members to zero.
 };
 
+/// Data members for Variance and below.
 template<>
 struct Moment_Data<MomentLevel::e_M2> {
-    // Data members for Variance and below.
 
     // PUBLIC DATA
     int    d_count; // Number of entries.
@@ -117,13 +118,14 @@ struct Moment_Data<MomentLevel::e_M2> {
     double d_M2;    // 2nd moment, for variance.
 
     // CREATORS
+
+    /// Constructor initializes all members to zero.
     Moment_Data();
-        // Constructor initializes all members to zero.
 };
 
+/// Data members for Skew and below
 template<>
 struct Moment_Data<MomentLevel::e_M3> {
-    // Data members for Skew and below
 
     // PUBLIC DATA
     int    d_count; // Number of entries.
@@ -133,13 +135,14 @@ struct Moment_Data<MomentLevel::e_M3> {
     double d_M3;    // 3rd moment, for skew
 
     // CREATORS
+
+    /// Constructor initializes all members to zero.
     Moment_Data();
-        // Constructor initializes all members to zero.
 };
 
+/// Data members for Kurtosis and below
 template<>
 struct Moment_Data<MomentLevel::e_M4> {
-    // Data members for Kurtosis and below
 
     // PUBLIC DATA
     int    d_count; // Number of entries.
@@ -150,8 +153,9 @@ struct Moment_Data<MomentLevel::e_M4> {
     double d_M4;    // 4th moment, for kurtosis
 
     // CREATORS
+
+    /// Constructor initializes all members to zero.
     Moment_Data();
-        // Constructor initializes all members to zero.
 };
 
                             // ============
@@ -160,20 +164,20 @@ struct Moment_Data<MomentLevel::e_M4> {
 
 // BDE_VERIFY pragma: -LL01 // Link is just too long
 
+/// This class provides efficient and accurate online algorithms for
+/// calculating mean, variance, skew, and kurtosis.  The class provides
+/// template specializations, so that no unnecessary data members will be
+/// kept or unnecessary calculations done.  The online algorithms used are
+/// Welford for variance, and the stable M3 and M4 are taken from:
+/// https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Higher-order_statistics
+///
+/// The formula for sample skewness is taken from:
+/// http://www.macroption.com/skewness-formula/
+///
+/// The formula for sample excess kurtosis is taken from:
+/// http://www.macroption.com/kurtosis-formula/
 template <MomentLevel::Enum ML>
 class Moment {
-    // This class provides efficient and accurate online algorithms for
-    // calculating mean, variance, skew, and kurtosis.  The class provides
-    // template specializations, so that no unnecessary data members will be
-    // kept or unnecessary calculations done.  The online algorithms used are
-    // Welford for variance, and the stable M3 and M4 are taken from:
-    // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Higher-order_statistics
-    //
-    // The formula for sample skewness is taken from:
-    // http://www.macroption.com/skewness-formula/
-    //
-    // The formula for sample excess kurtosis is taken from:
-    // http://www.macroption.com/kurtosis-formula/
 
     // BDE_VERIFY pragma: +LL01
 
@@ -192,50 +196,52 @@ class Moment {
     };
 
     // MANIPULATORS
+
+    /// Add the specified `value` to the data set.
     void add(double value);
-        // Add the specified 'value' to the data set.
 
     // ACCESSORS
+
+    /// Returns the number of elements in the data set.
     int count() const;
-        // Returns the number of elements in the data set.
 
+    /// Return the kurtosis of the data set.  The behavior is undefined
+    /// unless `4 <= count` and the variance is not zero.
     double kurtosis() const;
-        // Return the kurtosis of the data set.  The behavior is undefined
-        // unless '4 <= count' and the variance is not zero.
 
+    /// Load into the specified `result`, the kurtosis of the data set.
+    /// Return 0 on success, and a non-zero value otherwise.  Specifically,
+    /// `e_INADEQUATE_DATA` is returned if `4 > count` or the variance is
+    /// zero.
     int kurtosisIfValid(double *result) const;
-        // Load into the specified 'result', the kurtosis of the data set.
-        // Return 0 on success, and a non-zero value otherwise.  Specifically,
-        // 'e_INADEQUATE_DATA' is returned if '4 > count' or the variance is
-        // zero.
 
+    /// Return the mean of the data set.  The behavior is undefined unless
+    /// `1 <= count`.
     double mean() const;
-        // Return the mean of the data set.  The behavior is undefined unless
-        // '1 <= count'.
 
+    /// Load into the specified `result`, the mean of the data set.  Return
+    /// 0 on success, and a non-zero value otherwise.  Specifically,
+    /// `e_INADEQUATE_DATA` is returned if `1 > count`.
     int meanIfValid(double *result) const;
-        // Load into the specified 'result', the mean of the data set.  Return
-        // 0 on success, and a non-zero value otherwise.  Specifically,
-        // 'e_INADEQUATE_DATA' is returned if '1 > count'.
 
+    /// Return skew of the data set.  The behavior is undefined unless
+    /// `3 <= count` or the variance is zero.
     double skew() const;
-        // Return skew of the data set.  The behavior is undefined unless
-        // '3 <= count' or the variance is zero.
 
+    /// Load into the specified `result`, the skew of the data set.  Return
+    /// 0 on success, and a non-zero value otherwise.  Specifically,
+    /// `e_INADEQUATE_DATA` is returned if `3 > count` or the variance is
+    /// zero.
     int skewIfValid(double *result) const;
-        // Load into the specified 'result', the skew of the data set.  Return
-        // 0 on success, and a non-zero value otherwise.  Specifically,
-        // 'e_INADEQUATE_DATA' is returned if '3 > count' or the variance is
-        // zero.
 
+    /// Return the variance of the data set.  The behavior is undefined
+    /// unless `2 <= count`.
     double variance() const;
-        // Return the variance of the data set.  The behavior is undefined
-        // unless '2 <= count'.
 
+    /// Load into the specified `result`, the variance of the data set.
+    /// Return 0 on success, and a non-zero value otherwise.  Specifically,
+    /// `e_INADEQUATE_DATA` is returned if `2 > count`.
     int varianceIfValid(double *result) const;
-        // Load into the specified 'result', the variance of the data set.
-        // Return 0 on success, and a non-zero value otherwise.  Specifically,
-        // 'e_INADEQUATE_DATA' is returned if '2 > count'.
 };
 
 // ============================================================================

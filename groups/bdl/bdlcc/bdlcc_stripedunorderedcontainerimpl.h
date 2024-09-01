@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlcc_stripedunorderedmap, bdlcc_stripedunorderedmultimap
 //
-//@DESCRIPTION: This component provides 'bdlcc::StripedUnorderedContainerImpl',
-// a common implementation for 'bdlcc::StripedUnorderedMap' and
-// 'bdlcc::StripedUnorderedMultiMap', that are concurrent (fully thread-safe)
+//@DESCRIPTION: This component provides `bdlcc::StripedUnorderedContainerImpl`,
+// a common implementation for `bdlcc::StripedUnorderedMap` and
+// `bdlcc::StripedUnorderedMultiMap`, that are concurrent (fully thread-safe)
 // associative containers that partition their underlying hash tables into a
 // (user-defined) number of "bucket groups" and control access to each part of
 // their hash tables by separate read-write locks.  For most methods, the "map"
@@ -24,37 +24,37 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// The 'bdlcc::StripedUnorderedContrainerImpl' class template is fully
-// thread-safe (see {'bsldoc_glossary'|Fully Thread-Safe}), assuming that the
+// The `bdlcc::StripedUnorderedContrainerImpl` class template is fully
+// thread-safe (see {`bsldoc_glossary`|Fully Thread-Safe}), assuming that the
 // allocator is fully thread-safe.  Each method is executed by the calling
 // thread.
 //
 ///Runtime Complexity
 ///------------------
-//..
-//  +----------------------------------------------------+--------------------+
-//  | Operation                                          | Complexity         |
-//  +====================================================+====================+
-//  | insert, setValue, setComputedValue, update         | Average: O[1]      |
-//  |                                                    | Worst:   O[n]      |
-//  +----------------------------------------------------+--------------------+
-//  | erase, getValue                                    | Average: O[1]      |
-//  |                                                    | Worst:   O[n]      |
-//  +----------------------------------------------------+--------------------+
-//  | visit(key, visitor)                                | Average: O[1]      |
-//  | visitReadOnly(key, visitor)                        | Worst:   O[n]      |
-//  +----------------------------------------------------+--------------------+
-//  | insertBulk, k elements                             | Average: O[k]      |
-//  |                                                    | Worst:   O[n*k]    |
-//  +----------------------------------------------------+--------------------+
-//  | eraseBulk, k elements                              | Average: O[k]      |
-//  |                                                    | Worst:   O[n*k]    |
-//  +----------------------------------------------------+--------------------+
-//  | rehash                                             | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//  | visit(visitor), visitReadOnly(visitor)             | O[n]               |
-//  +----------------------------------------------------+--------------------+
-//..
+// ```
+// +----------------------------------------------------+--------------------+
+// | Operation                                          | Complexity         |
+// +====================================================+====================+
+// | insert, setValue, setComputedValue, update         | Average: O[1]      |
+// |                                                    | Worst:   O[n]      |
+// +----------------------------------------------------+--------------------+
+// | erase, getValue                                    | Average: O[1]      |
+// |                                                    | Worst:   O[n]      |
+// +----------------------------------------------------+--------------------+
+// | visit(key, visitor)                                | Average: O[1]      |
+// | visitReadOnly(key, visitor)                        | Worst:   O[n]      |
+// +----------------------------------------------------+--------------------+
+// | insertBulk, k elements                             | Average: O[k]      |
+// |                                                    | Worst:   O[n*k]    |
+// +----------------------------------------------------+--------------------+
+// | eraseBulk, k elements                              | Average: O[k]      |
+// |                                                    | Worst:   O[n*k]    |
+// +----------------------------------------------------+--------------------+
+// | rehash                                             | O[n]               |
+// +----------------------------------------------------+--------------------+
+// | visit(visitor), visitReadOnly(visitor)             | O[n]               |
+// +----------------------------------------------------+--------------------+
+// ```
 //
 ///Number of Stripes
 ///-----------------
@@ -73,20 +73,20 @@ BSLS_IDENT("$Id: $")
 // *not* disallow, other operations on the container.  Rehash is warranted when
 // the current load factor exceeds the current maximum allowed load factor.
 // Expressed explicitly:
-//..
-//  bucketCount() <= maxLoadFactor() * size();
-//..
+// ```
+// bucketCount() <= maxLoadFactor() * size();
+// ```
 // This above condition is tested implicitly by several methods and if found
 // true (and if rehash is enabled and rehash is not underway), a rehash is
 // started.  The methods that check the load factor are:
 //
-//: o All methods that insert elements (i.e., increase 'size()').
-//: o The 'maxLoadFactor(newMaxLoadFactor)' method.
-//: o The 'rehash' method.
+// * All methods that insert elements (i.e., increase `size()`).
+// * The `maxLoadFactor(newMaxLoadFactor)` method.
+// * The `rehash` method.
 //
 ///Rehash Control
 /// - - - - - - -
-// 'enableRehash' and 'disableRehash' methods are provided to control the
+// `enableRehash` and `disableRehash` methods are provided to control the
 // rehash enable flag.  Note that disabling rehash does not impact a rehash in
 // progress.
 //
@@ -148,24 +148,25 @@ class StripedUnorderedContainerImpl;
                  // class StripedUnorderedContainerImpl_Node
                  // ========================================
 
+/// This class template represents a node in the singly-linked list of
+/// `(KEY, VALUE)` elements for each bucket of a hash map.
 template <class KEY, class VALUE>
 class StripedUnorderedContainerImpl_Node {
-    // This class template represents a node in the singly-linked list of
-    // '(KEY, VALUE)' elements for each bucket of a hash map.
 
   private:
     // DATA
+
+    // Pointer to next element of the bucket
     mutable StripedUnorderedContainerImpl_Node *d_next_p;
-        // Pointer to next element of the bucket
 
+    // footprint of key
     bsls::ObjectBuffer<KEY>            d_key;
-        // footprint of key
 
+    // Footprint of value
     bsls::ObjectBuffer<VALUE>          d_value;
-        // Footprint of value
 
+    // memory allocator (held, not owned).
     bslma::Allocator                  *d_allocator_p;
-        // memory allocator (held, not owned).
 
     // NOT IMPLEMENTED
     StripedUnorderedContainerImpl_Node(
@@ -177,6 +178,12 @@ class StripedUnorderedContainerImpl_Node {
 
   public:
     // CREATORS
+
+    /// Create a `bdlcc::StripedUnorderedContainerImpl_Node` object having
+    /// the specified `key` and `value`, and with the specified `nextPtr`
+    /// pointer to the next node.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     StripedUnorderedContainerImpl_Node(
                        const KEY&                          key,
                        const VALUE&                        value,
@@ -187,82 +194,81 @@ class StripedUnorderedContainerImpl_Node {
                        bslmf::MovableRef<VALUE>            value,
                        StripedUnorderedContainerImpl_Node *nextPtr,
                        bslma::Allocator                   *basicAllocator = 0);
-        // Create a 'bdlcc::StripedUnorderedContainerImpl_Node' object having
-        // the specified 'key' and 'value', and with the specified 'nextPtr'
-        // pointer to the next node.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Create a `bdlcc::StripedUnorderedContainerImpl_Node` object having
+    /// the specified `key` and a value initialized to `VALUE()`, and with
+    /// the specified `nextPtr` pointer to the next node.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     StripedUnorderedContainerImpl_Node(
                        const KEY&                          key,
                        StripedUnorderedContainerImpl_Node *nextPtr,
                        bslma::Allocator                   *basicAllocator = 0);
-        // Create a 'bdlcc::StripedUnorderedContainerImpl_Node' object having
-        // the specified 'key' and a value initialized to 'VALUE()', and with
-        // the specified 'nextPtr' pointer to the next node.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Destroy this object.
     ~StripedUnorderedContainerImpl_Node();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Return the address of the pointer to the next node.
     StripedUnorderedContainerImpl_Node **nextAddress();
-        // Return the address of the pointer to the next node.
 
+    /// Set this node's pointer-to-next-node to the specified `nextPtr`.
     void setNext(StripedUnorderedContainerImpl_Node *nextPtr);
-        // Set this node's pointer-to-next-node to the specified 'nextPtr'.
 
+    /// Return a reference providing modifiable access to the `value`
+    /// attribute of this object.
     VALUE& value();
-        // Return a reference providing modifiable access to the 'value'
-        // attribute of this object.
 
     // ACCESSORS
+
+    /// Return a `const` reference to the `key` attribute of this object.
     const KEY& key() const;
-        // Return a 'const' reference to the 'key' attribute of this object.
 
+    /// Return the pointer to the next node.
     StripedUnorderedContainerImpl_Node *next() const;
-        // Return the pointer to the next node.
 
+    /// Return a `const` reference to the `value` attribute of this object.
     const VALUE& value() const;
-        // Return a 'const' reference to the 'value' attribute of this object.
 
                                // Aspects
 
+    /// Return the allocator used by `StripedUnorderedContainerImpl_Node` to
+    /// allocate memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by 'StripedUnorderedContainerImpl_Node' to
-        // allocate memory.
 };
 
                 // ==========================================
                 // class StripedUnorderedContainerImpl_Bucket
                 // ==========================================
 
+/// This class represents a bucket of the hash map.  This class template
+/// represents the head of in the singly-linked list of `(KEY, VALUE)`
+/// elements in a hash map.
 template <class KEY, class VALUE>
 class StripedUnorderedContainerImpl_Bucket {
-    // This class represents a bucket of the hash map.  This class template
-    // represents the head of in the singly-linked list of '(KEY, VALUE)'
-    // elements in a hash map.
 
   private:
     // PRIVATE TYPES
+
+    /// This `typedef` is a convenient alias for the utility associated with
+    /// movable references.
     typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
-        // This 'typedef' is a convenient alias for the utility associated with
-        // movable references.
 
     // DATA
+
+    // Pointer to the first element in the bucket
     StripedUnorderedContainerImpl_Node<KEY, VALUE> *d_head_p;
-        // Pointer to the first element in the bucket
 
+    // Pointer to the last element in the bucket
     StripedUnorderedContainerImpl_Node<KEY, VALUE> *d_tail_p;
-        // Pointer to the last element in the bucket
 
+    // Number of nodes in this bucket
     bsl::size_t                            d_size;
-        // Number of nodes in this bucket
 
+    // memory allocator (held, not owned).
     bslma::Allocator                      *d_allocator_p;
-        // memory allocator (held, not owned).
 
     // NOT IMPLEMENTED
     StripedUnorderedContainerImpl_Bucket(
@@ -285,106 +291,109 @@ class StripedUnorderedContainerImpl_Bucket {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create an empty `bdlcc::StripedUnorderedContainerImpl_Bucket`
+    /// object.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.
     explicit StripedUnorderedContainerImpl_Bucket(
                                          bslma::Allocator *basicAllocator = 0);
-        // Create an empty 'bdlcc::StripedUnorderedContainerImpl_Bucket'
-        // object.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
 
+    /// Create a `bdlcc::StripedUnorderedContainerImpl_Bucket` object having
+    /// the same value as the specified `original` object.  The `original`
+    /// object is left in a valid but unspecified state.
     StripedUnorderedContainerImpl_Bucket(
            bslmf::MovableRef<StripedUnorderedContainerImpl_Bucket<KEY, VALUE> >
                                                                       original,
            bslma::Allocator                                          *);
-        // Create a 'bdlcc::StripedUnorderedContainerImpl_Bucket' object having
-        // the same value as the specified 'original' object.  The 'original'
-        // object is left in a valid but unspecified state.
 
+    /// Destroy this object.
     ~StripedUnorderedContainerImpl_Bucket();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Add the specified `nodePtr` node at the end of this bucket.
     void addNode(StripedUnorderedContainerImpl_Node<KEY, VALUE> *nodePtr);
-        // Add the specified 'nodePtr' node at the end of this bucket.
 
+    /// Empty `StripedUnorderedContainerImpl_Bucket` and delete all nodes.
     void clear();
-        // Empty 'StripedUnorderedContainerImpl_Bucket' and delete all nodes.
 
+    /// Return the address of the head (node) of this bucket list.
     StripedUnorderedContainerImpl_Node<KEY, VALUE> **headAddress();
-        // Return the address of the head (node) of this bucket list.
 
+    /// Increment the `size` attribute of this bucket by the specified
+    /// `amount`.
     void incrementSize(int amount);
-        // Increment the 'size' attribute of this bucket by the specified
-        // 'amount'.
 
+    /// Set the address of the head of this bucket list to the specified
+    /// `value`.
     void setHead(StripedUnorderedContainerImpl_Node<KEY, VALUE> *value);
-        // Set the address of the head of this bucket list to the specified
-        // 'value'.
 
+    /// Set the `size` attribute of this bucket to the specified `value`.
     void setSize(bsl::size_t value);
-        // Set the 'size' attribute of this bucket to the specified 'value'.
 
+    /// Set the pointer of the tail of this bucket list to the specified
+    /// `value`.
     void setTail(StripedUnorderedContainerImpl_Node<KEY, VALUE> *value);
-        // Set the pointer of the tail of this bucket list to the specified
-        // 'value'.
 
+    /// Set the value attribute of the element in this bucket having the
+    /// specified `key` to the specified `value`, using the specified
+    /// `equal` to compare keys.  If no such element exists, insert
+    /// `(key, value)`.  The behavior with respect to duplicate key values
+    /// in the bucket depends on the specified `scope`:
+    ///
+    ///: `e_BUCKETSCOPE_ALL`:
+    ///:   Set `value` to every element in the bucket having `key`.
+    ///:
+    ///: `e_BUCKETSCOPE_FIRST`:
+    ///:   Set `value` to the first element found having `key`.
+    ///
+    /// Return the number of elements found having `key` that had their
+    /// value set.  Note that, when there are multiple elements having
+    /// `key`, the selection of "first" is unspecified and subject to
+    /// change.  Also note that specifying `e_BUCKETSCOPE_FIRST` is more
+    /// performant when there is a single element in the bucket having
+    /// `key`.
     template <class EQUAL>
     bsl::size_t setValue(const KEY&   key,
                          const EQUAL& equal,
                          const VALUE& value,
                          BucketScope  scope);
-        // Set the value attribute of the element in this bucket having the
-        // specified 'key' to the specified 'value', using the specified
-        // 'equal' to compare keys.  If no such element exists, insert
-        // '(key, value)'.  The behavior with respect to duplicate key values
-        // in the bucket depends on the specified 'scope':
-        //
-        //: 'e_BUCKETSCOPE_ALL':
-        //:   Set 'value' to every element in the bucket having 'key'.
-        //:
-        //: 'e_BUCKETSCOPE_FIRST':
-        //:   Set 'value' to the first element found having 'key'.
-        //
-        // Return the number of elements found having 'key' that had their
-        // value set.  Note that, when there are multiple elements having
-        // 'key', the selection of "first" is unspecified and subject to
-        // change.  Also note that specifying 'e_BUCKETSCOPE_FIRST' is more
-        // performant when there is a single element in the bucket having
-        // 'key'.
 
+    /// Set the value attribute of the element in this bucket having the
+    /// specified `key` to the specified `value`, using the specified
+    /// `equal` to compare keys.  If no such element exists, insert
+    /// `(key, value)`.  If there are multiple elements in this hash map
+    /// having `key` then set the value of the first such element found.
+    /// Return the number of elements found having `key` that had their
+    /// value set.  Note that, when there are multiple elements having
+    /// `key`, the selection of "first" is unspecified and subject to
+    /// change.
     template <class EQUAL>
     bsl::size_t setValue(const KEY&               key,
                          const EQUAL&             equal,
                          bslmf::MovableRef<VALUE> value);
-        // Set the value attribute of the element in this bucket having the
-        // specified 'key' to the specified 'value', using the specified
-        // 'equal' to compare keys.  If no such element exists, insert
-        // '(key, value)'.  If there are multiple elements in this hash map
-        // having 'key' then set the value of the first such element found.
-        // Return the number of elements found having 'key' that had their
-        // value set.  Note that, when there are multiple elements having
-        // 'key', the selection of "first" is unspecified and subject to
-        // change.
 
     // ACCESSORS
+
+    /// Return `true` if this bucket contains no elements, and `false`
+    /// otherwise.
     bool empty() const;
-        // Return 'true' if this bucket contains no elements, and 'false'
-        // otherwise.
 
+    /// Return the head (node) of this bucket list.
     StripedUnorderedContainerImpl_Node<KEY, VALUE> *head() const;
-        // Return the head (node) of this bucket list.
 
+    /// Return the current number of elements in this bucket.
     bsl::size_t size() const;
-        // Return the current number of elements in this bucket.
 
+    /// Return address of the tail (node) of this bucket list.
     StripedUnorderedContainerImpl_Node<KEY, VALUE> *tail() const;
-        // Return address of the tail (node) of this bucket list.
 
                                // Aspects
 
+    /// Return the allocator used by `StripedUnorderedContainerImpl_Bucket`
+    /// to allocate memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by 'StripedUnorderedContainerImpl_Bucket'
-        // to allocate memory.
 };
 
 template <class KEY,
@@ -401,10 +410,10 @@ class StripedUnorderedContainerImpl_LockElementWriteGuard;
                      // class StripedUnorderedContainerImpl
                      // ===================================
 
+/// This class implements the logic for a striped hash multimap with logic
+/// that supports a (unique) map as a special case.
 template <class KEY, class VALUE, class HASH, class EQUAL>
 class StripedUnorderedContainerImpl {
-    // This class implements the logic for a striped hash multimap with logic
-    // that supports a (unique) map as a special case.
 
   public:
     // TYPES
@@ -413,44 +422,44 @@ class StripedUnorderedContainerImpl {
         k_DEFAULT_NUM_STRIPES  =  4  // Default # of stripes
     };
 
+    /// Node in a bucket.
     typedef StripedUnorderedContainerImpl_Node<KEY, VALUE> Node;
-        // Node in a bucket.
 
+    /// Value type of a bulk insert entry.
     typedef bsl::pair<KEY, VALUE> KVType;
-        // Value type of a bulk insert entry.
 
+    /// An alias to a function meeting the following contract:
+    /// ```
+    /// bool visitorFunction(VALUE *value, const KEY& key);
+    ///     // Visit the specified 'value' attribute associated with the
+    ///     // specified 'key'.  Return 'true' if this function may be
+    ///     // called on additional elements, and 'false' otherwise (i.e.,
+    ///     // if no other elements should be visited).  Note that this
+    ///     // functor can change the value associated with 'key'.
+    /// ```
     typedef bsl::function<bool (VALUE *, const KEY&)> VisitorFunction;
-        // An alias to a function meeting the following contract:
-        //..
-        //  bool visitorFunction(VALUE *value, const KEY& key);
-        //      // Visit the specified 'value' attribute associated with the
-        //      // specified 'key'.  Return 'true' if this function may be
-        //      // called on additional elements, and 'false' otherwise (i.e.,
-        //      // if no other elements should be visited).  Note that this
-        //      // functor can change the value associated with 'key'.
-        //..
 
+    /// An alias to a function meeting the following contract:
+    /// ```
+    /// bool visitorFunction(const VALUE& value, const KEY& key);
+    ///     // Visit the specified 'value' attribute associated with the
+    ///     // specified 'key'.  Return 'true' if this function may be
+    ///     // called on additional elements, and 'false' otherwise (i.e.,
+    ///     // if no other elements should be visited).  Note that this
+    ///     // functor can *not* change the values associated with 'key'
+    ///     // and 'value'.
+    /// ```
     typedef bsl::function<bool (const VALUE&, const KEY&)>
                                                        ReadOnlyVisitorFunction;
-        // An alias to a function meeting the following contract:
-        //..
-        //  bool visitorFunction(const VALUE& value, const KEY& key);
-        //      // Visit the specified 'value' attribute associated with the
-        //      // specified 'key'.  Return 'true' if this function may be
-        //      // called on additional elements, and 'false' otherwise (i.e.,
-        //      // if no other elements should be visited).  Note that this
-        //      // functor can *not* change the values associated with 'key'
-        //      // and 'value'.
-        //..
 
+    /// An alias to a function meeting the following contract:
+    /// ```
+    /// bool eraseIfValuePredicate(const VALUE& value);
+    ///     // Return 'true' if the specified 'value' is to be removed from
+    ///     // the container, and 'false' otherwise.  Note that this
+    ///     // functor can *not* change the values associated with 'value'.
+    /// ```
     typedef bsl::function<bool(const VALUE&)> EraseIfValuePredicate;
-        // An alias to a function meeting the following contract:
-        //..
-        //  bool eraseIfValuePredicate(const VALUE& value);
-        //      // Return 'true' if the specified 'value' is to be removed from
-        //      // the container, and 'false' otherwise.  Note that this
-        //      // functor can *not* change the values associated with 'value'.
-        //..
 
   private:
     // PRIVATE CONSTANTS
@@ -497,49 +506,50 @@ class StripedUnorderedContainerImpl {
     typedef StripedUnorderedContainerImpl_LockElementWriteGuard LEWGuard;
 
     // DATA
+
+    // number of stripes
     bsl::size_t                       d_numStripes;
-        // number of stripes
 
+    // number of buckets
     bsl::size_t                       d_numBuckets;
-        // number of buckets
 
+    // d_numStripes - 1; this value is used to provide an efficient modulo
+    // (using bit-wise `&`) of d_numStripes (where d_numStripes must be a
+    // power of 2).
     bsl::size_t                       d_hashMask;
-        // d_numStripes - 1; this value is used to provide an efficient modulo
-        // (using bit-wise '&') of d_numStripes (where d_numStripes must be a
-        // power of 2).
 
+    // maxLoadFactor (defaults to 1.0)
     float                             d_maxLoadFactor;
-        // maxLoadFactor (defaults to 1.0)
 
+    // hashing function for keys
     HASH                              d_hasher;
-        // hashing function for keys
 
+    // comparison function for keys
     EQUAL                             d_comparator;
-        // comparison function for keys
 
+    // * bit 0: 0-rehash not in progress; 1-rehash in progress.
+    // * bit 1: 0-rehash disabled;        1-rehash enabled.
     mutable bsls::AtomicInt           d_state;
-        //: o bit 0: 0-rehash not in progress; 1-rehash in progress.
-        //: o bit 1: 0-rehash disabled;        1-rehash enabled.
 
+    // padding, so that `d_state` will have its own cache line
     const char                        d_statePad[k_INT_PADDING];
-        // padding, so that 'd_state' will have its own cache line
 
+    // # of elements in the hash map
     bsls::AtomicInt                   d_numElements;
-        // # of elements in the hash map
 
+    // padding, so that `d_numElements` will have its own cache line
     const char                        d_numElementsPad[k_INT_PADDING];
-        // padding, so that 'd_numElements' will have its own cache line
 
+    // hash table data, storing key-value pairs
     bsl::vector<StripedUnorderedContainerImpl_Bucket<KEY,VALUE> >
                                       d_buckets;
-        // hash table data, storing key-value pairs
 
+    // Pointer to an array of locks for the stripes.  Note that mutex can't
+    // be moved or copied, hence can't be in a vector.
     LockElement                      *d_locks_p;
-        // Pointer to an array of locks for the stripes.  Note that mutex can't
-        // be moved or copied, hence can't be in a vector.
 
+    // memory allocator (held, not owned)
     bslma::Allocator                 *d_allocator_p;
-        // memory allocator (held, not owned)
 
     // FRIENDS
     friend class
@@ -555,496 +565,502 @@ class StripedUnorderedContainerImpl {
                                                                     // = delete
 
     // PRIVATE CLASS METHODS
+
+    /// Return the number of buckets needed by this implementation for the
+    /// specified `numBuckets` and `numStripes`.  That value is the lowest
+    /// integer that is a power of 2 that is greater than or equal
+    /// `numBuckets`, `numStripes`, and 2.
     static bsl::size_t adjustBuckets(bsl::size_t numBuckets,
                                      bsl::size_t numStripes);
-        // Return the number of buckets needed by this implementation for the
-        // specified 'numBuckets' and 'numStripes'.  That value is the lowest
-        // integer that is a power of 2 that is greater than or equal
-        // 'numBuckets', 'numStripes', and 2.
 
+    /// Return `true`
     static bool alwaysTrue(const VALUE&);
-        // Return 'true'
 
+    /// Return the nearest higher power of 2 for the specified `num`.
     static bsl::size_t powerCeil(bsl::size_t num);
-        // Return the nearest higher power of 2 for the specified 'num'.
 
     // PRIVATE MANIPULATORS
+
+    /// Perform a rehash if the `loadFactor() > maxLoadFactor()`, and
+    /// `true == canRehash()`.
     void checkRehash();
-        // Perform a rehash if the 'loadFactor() > maxLoadFactor()', and
-        // 'true == canRehash()'.
 
+    /// Remove from this hash map the element, if any, having the specified
+    /// `key`.  If there a multiple elements having `key` and the specified
+    /// `scope` is `e_SCOPE_ALL`, erase them all; otherwise; erase just the
+    /// first element found.  Return the number of elements erased.  Note
+    /// that, when there are multiple elements having `key`, the selection
+    /// of "first" is unspecified and subject to change.
     bsl::size_t erase(const KEY& key, Scope scope);
-        // Remove from this hash map the element, if any, having the specified
-        // 'key'.  If there a multiple elements having 'key' and the specified
-        // 'scope' is 'e_SCOPE_ALL', erase them all; otherwise; erase just the
-        // first element found.  Return the number of elements erased.  Note
-        // that, when there are multiple elements having 'key', the selection
-        // of "first" is unspecified and subject to change.
 
+    /// Erase from this hash map elements in this hash map having any of the
+    /// values in the keys contained between the specified `first`
+    /// (inclusive) and `last` (exclusive) random-access iterators.  The
+    /// iterators provide read access to a sequence of `KEY` objects.  If
+    /// there are multiple elements for any key value and the specified
+    /// `scope` is `e_SCOPE_ALL` then erase them all; otherwise, erase just
+    /// the first such element found.  Return the number of elements erased.
+    /// The behavior is undefined unless `first <= last`.  Note that, when
+    /// there are multiple elements having `key`, the selection of "first"
+    /// is unspecified and subject to change.
     template <class RANDOM_ITER>
     bsl::size_t eraseBulk(RANDOM_ITER first,
                           RANDOM_ITER last,
                           Scope       scope);
-        // Erase from this hash map elements in this hash map having any of the
-        // values in the keys contained between the specified 'first'
-        // (inclusive) and 'last' (exclusive) random-access iterators.  The
-        // iterators provide read access to a sequence of 'KEY' objects.  If
-        // there are multiple elements for any key value and the specified
-        // 'scope' is 'e_SCOPE_ALL' then erase them all; otherwise, erase just
-        // the first such element found.  Return the number of elements erased.
-        // The behavior is undefined unless 'first <= last'.  Note that, when
-        // there are multiple elements having 'key', the selection of "first"
-        // is unspecified and subject to change.
 
+    /// Remove from this hash map the element, if any, having the specified
+    /// `key`, where specified `predicate` holds true.  If there are
+    /// multiple elements having the `key` for which the `predicate` holds
+    /// true and the specified `scope` is `e_SCOPE_ALL`, erase them all;
+    /// otherwise, erase just the first element found.  Return the number of
+    /// elements erased.  Note that, when there are multiple elements for
+    /// which `predicate` holds true, the selection of "first" is
+    /// unspecified and subject to change.
     bsl::size_t eraseIf(const KEY&                   key,
                         Scope                        scope,
                         const EraseIfValuePredicate& predicate);
-        // Remove from this hash map the element, if any, having the specified
-        // 'key', where specified 'predicate' holds true.  If there are
-        // multiple elements having the 'key' for which the 'predicate' holds
-        // true and the specified 'scope' is 'e_SCOPE_ALL', erase them all;
-        // otherwise, erase just the first element found.  Return the number of
-        // elements erased.  Note that, when there are multiple elements for
-        // which 'predicate' holds true, the selection of "first" is
-        // unspecified and subject to change.
 
+    /// Insert into this hash map an element having the specified `key` and
+    /// `value`.  The behavior with respect to duplicate key values in the
+    /// hash map depends on the specified `multiplicity`:
+    ///
+    ///: `e_INSERT_ALWAYS`:
+    ///:   The insertion occurs irrespective of other elements in the hash
+    ///:   map having the same `key` value.
+    ///:
+    ///: `e_INSERT_UNIQUE`:
+    ///:   Insert a new element if no element in the hash map has the `key`
+    ///:   value; otherwise, update the value attribute of the first element
+    ///:   found having `key` to `value`.
+    ///
+    /// Return the number of elements inserted.  Note that, when there are
+    /// multiple elements having `key`, the selection of "first" is
+    /// unspecified and subject to change.
     bsl::size_t insert(const KEY&    key,
                        const VALUE&  value,
                        Multiplicity  multiplicity);
     bsl::size_t insert(const KEY&               key,
                        bslmf::MovableRef<VALUE> value,
                        Multiplicity             multiplicity);
-        // Insert into this hash map an element having the specified 'key' and
-        // 'value'.  The behavior with respect to duplicate key values in the
-        // hash map depends on the specified 'multiplicity':
-        //
-        //: 'e_INSERT_ALWAYS':
-        //:   The insertion occurs irrespective of other elements in the hash
-        //:   map having the same 'key' value.
-        //:
-        //: 'e_INSERT_UNIQUE':
-        //:   Insert a new element if no element in the hash map has the 'key'
-        //:   value; otherwise, update the value attribute of the first element
-        //:   found having 'key' to 'value'.
-        //
-        // Return the number of elements inserted.  Note that, when there are
-        // multiple elements having 'key', the selection of "first" is
-        // unspecified and subject to change.
 
+    /// Insert into this hash map elements having the key-value pairs
+    /// obtained between the specified `first` (inclusive) and `last`
+    /// (exclusive) random-access iterators.  The iterators provide read
+    /// access to a sequence of `bsl::pair<KEY, VALUE>` objects.  The
+    /// behavior with respect to duplicate key values in the hash map
+    /// depends on the specified `multiplicity`:
+    ///
+    ///: `e_INSERT_ALWAYS`:
+    ///:   The insertion occurs irrespective of other elements in the hash
+    ///:   map having the same `key` value.  Note that this is the only
+    ///:   way to adding elements with non-unique keys to the hash map.
+    ///:
+    ///: `e_INSERT_UNIQUE`:
+    ///:   Insert a new element if no element in the hash map has the `key`
+    ///:   value; otherwise, update the value attribute of the first element
+    ///:   found having `key` to `value`.
+    ///
+    /// Return the number of elements inserted.  The behavior is undefined
+    /// unless `first <= last`.  Note that, when there are multiple elements
+    /// having `key`, the selection of "first" is unspecified and subject to
+    /// change.
     template <class RANDOM_ITER>
     bsl::size_t insertBulk(RANDOM_ITER  first,
                            RANDOM_ITER  last,
                            Multiplicity multiplicity);
-        // Insert into this hash map elements having the key-value pairs
-        // obtained between the specified 'first' (inclusive) and 'last'
-        // (exclusive) random-access iterators.  The iterators provide read
-        // access to a sequence of 'bsl::pair<KEY, VALUE>' objects.  The
-        // behavior with respect to duplicate key values in the hash map
-        // depends on the specified 'multiplicity':
-        //
-        //: 'e_INSERT_ALWAYS':
-        //:   The insertion occurs irrespective of other elements in the hash
-        //:   map having the same 'key' value.  Note that this is the only
-        //:   way to adding elements with non-unique keys to the hash map.
-        //:
-        //: 'e_INSERT_UNIQUE':
-        //:   Insert a new element if no element in the hash map has the 'key'
-        //:   value; otherwise, update the value attribute of the first element
-        //:   found having 'key' to 'value'.
-        //
-        // Return the number of elements inserted.  The behavior is undefined
-        // unless 'first <= last'.  Note that, when there are multiple elements
-        // having 'key', the selection of "first" is unspecified and subject to
-        // change.
 
+    /// Invoke the specified `visitor` passing the specified `key`, and the
+    /// address of the attribute part of an element (of possibly many
+    /// elements) found in this hash map having `key`.  That is, for
+    /// `(key, value)`, invoke:
+    /// ```
+    /// bool visitor(&value, key);
+    /// ```
+    /// If no element in the hash map has `key`, insert `(key, VALUE())` and
+    /// invoke to `visitor` with `value` pointing to the defsult constructed
+    /// value.  If there are multiple elements having `key` and the
+    /// specified `scope` is `e_SCOPE_ALL` then apply `visitor` to each of
+    /// them; otherwise, `visitor` is applied to just the first such element
+    /// found.  Return the number of elements visited or the negation of
+    /// that value if visitations stopped because `visitor` returned
+    /// `false`.  `visitor` has exclusive access (i.e., write access) to the
+    /// element.  The behavior is undefined if hash map manipulators and
+    /// `getValue*` methods are invoked from within `visitor`, as it may
+    /// lead to a deadlock.  Note that, when there are multiple elements
+    /// having `key`, the selection of "first" and the order applying
+    /// `visitor` are unspecified and subject to change.  Also note that a
+    /// return value of `0` implies that an element was inserted.
     int setComputedValue(const KEY&             key,
                          const VisitorFunction& visitor,
                          Scope                  scope);
-        // Invoke the specified 'visitor' passing the specified 'key', and the
-        // address of the attribute part of an element (of possibly many
-        // elements) found in this hash map having 'key'.  That is, for
-        // '(key, value)', invoke:
-        //..
-        //  bool visitor(&value, key);
-        //..
-        // If no element in the hash map has 'key', insert '(key, VALUE())' and
-        // invoke to 'visitor' with 'value' pointing to the defsult constructed
-        // value.  If there are multiple elements having 'key' and the
-        // specified 'scope' is 'e_SCOPE_ALL' then apply 'visitor' to each of
-        // them; otherwise, 'visitor' is applied to just the first such element
-        // found.  Return the number of elements visited or the negation of
-        // that value if visitations stopped because 'visitor' returned
-        // 'false'.  'visitor' has exclusive access (i.e., write access) to the
-        // element.  The behavior is undefined if hash map manipulators and
-        // 'getValue*' methods are invoked from within 'visitor', as it may
-        // lead to a deadlock.  Note that, when there are multiple elements
-        // having 'key', the selection of "first" and the order applying
-        // 'visitor' are unspecified and subject to change.  Also note that a
-        // return value of '0' implies that an element was inserted.
 
+    /// Set the value attribute of the element in this hash map having the
+    /// specified `key` to the specified `value`.  If no such element
+    /// exists, insert `(key, value)`.  The behavior with respect to
+    /// duplicate key values in the bucket depends on the specified
+    /// `scope`:
+    ///
+    ///: `e_SCOPE_ALL`:
+    ///:   Set `value` to every element in the bucket having `key`.
+    ///:
+    ///: `e_SCOPE_FIRST`:
+    ///:   Set `value` to the first element found having `key`.
+    ///
+    /// Return the number of elements found having `key`.  Note that if no
+    /// elements were found, and a new value was inserted, `0` is returned.
+    /// Also note that, when there are multiple elements having `key`, the
+    /// selection of "first" is unspecified and subject to change.  Also
+    /// note that specifying `e_SCOPE_FIRST` is more performant when there
+    /// is a single element in the bucket having `key`.
     bsl::size_t setValue(const KEY&   key,
                          const VALUE& value,
                          Scope        scope);
-        // Set the value attribute of the element in this hash map having the
-        // specified 'key' to the specified 'value'.  If no such element
-        // exists, insert '(key, value)'.  The behavior with respect to
-        // duplicate key values in the bucket depends on the specified
-        // 'scope':
-        //
-        //: 'e_SCOPE_ALL':
-        //:   Set 'value' to every element in the bucket having 'key'.
-        //:
-        //: 'e_SCOPE_FIRST':
-        //:   Set 'value' to the first element found having 'key'.
-        //
-        // Return the number of elements found having 'key'.  Note that if no
-        // elements were found, and a new value was inserted, '0' is returned.
-        // Also note that, when there are multiple elements having 'key', the
-        // selection of "first" is unspecified and subject to change.  Also
-        // note that specifying 'e_SCOPE_FIRST' is more performant when there
-        // is a single element in the bucket having 'key'.
 
     // PRIVATE ACCESSORS
+
+    /// Return the index of the bucket, in the array of buckets maintained
+    /// by this hash map, where values having a key equivalent to the
+    /// specified `key` would be inserted using the specified `numBuckets`.
+    /// This operation does not lock the related stripe or check the rehash
+    /// state.  Note that `numBuckets` does not have to be the current
+    /// number of buckets in this hash map.
     bsl::size_t bucketIndex(const KEY& key, bsl::size_t numBuckets) const;
-        // Return the index of the bucket, in the array of buckets maintained
-        // by this hash map, where values having a key equivalent to the
-        // specified 'key' would be inserted using the specified 'numBuckets'.
-        // This operation does not lock the related stripe or check the rehash
-        // state.  Note that 'numBuckets' does not have to be the current
-        // number of buckets in this hash map.
 
+    /// Return the stripe index associated with the specified `bucketIndex`.
     bsl::size_t bucketToStripe(bsl::size_t bucketIndex) const;
-        // Return the stripe index associated with the specified 'bucketIndex'.
 
+    /// Load, into the specified `*valuesPtr`, the value attributes of every
+    /// element in this hash map having the specified `key`.  Return the
+    /// number of elements found with `key`.  Note that the order of the
+    /// values returned is not specified.
     template <class VECTOR>
     bsl::size_t getValueImpl(VECTOR *valuesPtr, const KEY& key) const;
-        // Load, into the specified '*valuesPtr', the value attributes of every
-        // element in this hash map having the specified 'key'.  Return the
-        // number of elements found with 'key'.  Note that the order of the
-        // values returned is not specified.
 
+    /// Lock for read the stripe related to the specified `key`, setting the
+    /// specified `bucketIdx` to the bucket index associated with `key`.
+    /// Return the address to the lock-element associated with the returned
+    /// `bucketIdx`.
     LockElement *lockRead(bsl::size_t *bucketIdx, const KEY& key) const;
-        // Lock for read the stripe related to the specified 'key', setting the
-        // specified 'bucketIdx' to the bucket index associated with 'key'.
-        // Return the address to the lock-element associated with the returned
-        // 'bucketIdx'.
 
+    /// Lock for write the stripe related to the specified `key`, setting
+    /// the specified `bucketIdx` to the bucket index associated with `key`.
+    /// Return the address to the lock-element associated with the returned
+    /// `bucketIdx`.
     LockElement *lockWrite(bsl::size_t *bucketIdx, const KEY& key) const;
-        // Lock for write the stripe related to the specified 'key', setting
-        // the specified 'bucketIdx' to the bucket index associated with 'key'.
-        // Return the address to the lock-element associated with the returned
-        // 'bucketIdx'.
 
   public:
     // CREATORS
+
+    /// Create an empty `StripedUnorderedContainerImpl` object, a fully
+    /// thread-safe hash map where access is divided into "stripes" (a group
+    /// of buckets protected by a reader-write mutex).  Optionally specify
+    /// `numInitialBuckets` and `numStripes` which define the minimum number
+    /// of buckets and the (fixed) number of stripes in this map.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  The hash map has rehash enabled.
     explicit StripedUnorderedContainerImpl(
                    bsl::size_t       numInitialBuckets = k_DEFAULT_NUM_BUCKETS,
                    bsl::size_t       numStripes        = k_DEFAULT_NUM_STRIPES,
                    bslma::Allocator *basicAllocator = 0);
-        // Create an empty 'StripedUnorderedContainerImpl' object, a fully
-        // thread-safe hash map where access is divided into "stripes" (a group
-        // of buckets protected by a reader-write mutex).  Optionally specify
-        // 'numInitialBuckets' and 'numStripes' which define the minimum number
-        // of buckets and the (fixed) number of stripes in this map.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The hash map has rehash enabled.
 
+    /// Destroy this hash map.  This method is *not* thread-safe.
     ~StripedUnorderedContainerImpl();
-        // Destroy this hash map.  This method is *not* thread-safe.
 
     // MANIPULATORS
+
+    /// Remove all elements from this striped hash map.  If rehash is in
+    /// progress, block until it completes.
     void clear();
-        // Remove all elements from this striped hash map.  If rehash is in
-        // progress, block until it completes.
 
+    /// Prevent rehash until the `enableRehash` method is called.
     void disableRehash();
-        // Prevent rehash until the 'enableRehash' method is called.
 
+    /// Allow rehash.  If conditions warrant, rehash will be started by the
+    /// *next* method call that observes the load factor is exceeded (see
+    /// {Concurrent Rehash}).  Note that calling
+    /// `maxLoadFactor(maxLoadFactor())` (i.e., setting the maximum load
+    /// factor to its current value) will trigger a rehash if needed but
+    /// otherwise does not change the hash map.
     void enableRehash();
-        // Allow rehash.  If conditions warrant, rehash will be started by the
-        // *next* method call that observes the load factor is exceeded (see
-        // {Concurrent Rehash}).  Note that calling
-        // 'maxLoadFactor(maxLoadFactor())' (i.e., setting the maximum load
-        // factor to its current value) will trigger a rehash if needed but
-        // otherwise does not change the hash map.
 
+    /// Erase from this hash map the elements having the specified `key`.
+    /// Return the number of elements erased.
     bsl::size_t eraseAll(const KEY& key);
-        // Erase from this hash map the elements having the specified 'key'.
-        // Return the number of elements erased.
 
+    /// Erase from this hash map the elements having the specified `key` for
+    /// which the specified `predicate` holds true.  Return the number of
+    /// elements erased.
     bsl::size_t eraseAllIf(const KEY&                   key,
                            const EraseIfValuePredicate& predicate);
-        // Erase from this hash map the elements having the specified 'key' for
-        // which the specified 'predicate' holds true.  Return the number of
-        // elements erased.
 
+    /// Erase from this hash map elements in this hash map having any of the
+    /// values in the keys contained between the specified `first`
+    /// (inclusive) and `last` (exclusive) random-access iterators.  The
+    /// iterators provide read access to a sequence of `KEY` objects.  All
+    /// erasures are done by the calling thread and the order of erasure is
+    /// not specified.  Return the number of elements removed.  The behavior
+    /// is undefined unless `first <= last`.  Note that the map may not have
+    /// an element for every value in `keys`.
     template <class RANDOM_ITER>
     bsl::size_t eraseBulkAll(RANDOM_ITER first, RANDOM_ITER last);
-        // Erase from this hash map elements in this hash map having any of the
-        // values in the keys contained between the specified 'first'
-        // (inclusive) and 'last' (exclusive) random-access iterators.  The
-        // iterators provide read access to a sequence of 'KEY' objects.  All
-        // erasures are done by the calling thread and the order of erasure is
-        // not specified.  Return the number of elements removed.  The behavior
-        // is undefined unless 'first <= last'.  Note that the map may not have
-        // an element for every value in 'keys'.
 
+    /// Erase from this hash map elements in this hash map having any of the
+    /// values in the keys contained between the specified `first`
+    /// (inclusive) and `last` (exclusive) random-access iterators.  The
+    /// iterators provide read access to a sequence of `KEY` objects.  If
+    /// there are multiple elements for any key value, erase just the first
+    /// such element found.  All erasures are done by the calling thread and
+    /// the order of erasure is not specified.  Return the number of
+    /// elements removed.  The behavior is undefined unless `first <= last`.
+    /// Note that the map may not have an element for every value in `keys`.
     template <class RANDOM_ITER>
     bsl::size_t eraseBulkFirst(RANDOM_ITER first, RANDOM_ITER last);
-        // Erase from this hash map elements in this hash map having any of the
-        // values in the keys contained between the specified 'first'
-        // (inclusive) and 'last' (exclusive) random-access iterators.  The
-        // iterators provide read access to a sequence of 'KEY' objects.  If
-        // there are multiple elements for any key value, erase just the first
-        // such element found.  All erasures are done by the calling thread and
-        // the order of erasure is not specified.  Return the number of
-        // elements removed.  The behavior is undefined unless 'first <= last'.
-        // Note that the map may not have an element for every value in 'keys'.
 
+    /// Erase from this hash map the *first* element (of possibly many)
+    /// found to the specified `key`.  Return the number of elements erased.
+    /// Note that method is more performant than `eraseAll` when there is
+    /// one element having `key`.
     bsl::size_t eraseFirst(const KEY& key);
-        // Erase from this hash map the *first* element (of possibly many)
-        // found to the specified 'key'.  Return the number of elements erased.
-        // Note that method is more performant than 'eraseAll' when there is
-        // one element having 'key'.
 
+    /// Erase from this hash map the *first* element with specified `key`
+    /// (of possibly many) found, for which the specified `predicate` holds
+    /// true.  Return the number of elements erased.
     bsl::size_t eraseFirstIf(const KEY&                   key,
                              const EraseIfValuePredicate& predicate);
-        // Erase from this hash map the *first* element with specified 'key'
-        // (of possibly many) found, for which the specified 'predicate' holds
-        // true.  Return the number of elements erased.
 
+    /// Insert into this hash map an element having the specified `key` and
+    /// `value`.  Note that other elements having the same `key` may exist
+    /// in this hash map.
     void insertAlways(const KEY& key, const VALUE& value);
-        // Insert into this hash map an element having the specified 'key' and
-        // 'value'.  Note that other elements having the same 'key' may exist
-        // in this hash map.
 
+    /// Insert into this hash map an element having the specified `key` and
+    /// the specified move-insertable `value`.  The `value` object is left
+    /// in a valid but unspecified state.  If `value` is allocator-enabled
+    /// and `allocator() != value.allocator()` this operation may cost as
+    /// much as a copy.  Note that other elements having the same `key` may
+    /// exist in this hash map.
     void insertAlways(const KEY& key, bslmf::MovableRef<VALUE> value);
-        // Insert into this hash map an element having the specified 'key' and
-        // the specified move-insertable 'value'.  The 'value' object is left
-        // in a valid but unspecified state.  If 'value' is allocator-enabled
-        // and 'allocator() != value.allocator()' this operation may cost as
-        // much as a copy.  Note that other elements having the same 'key' may
-        // exist in this hash map.
 
+    /// Insert into this hash map elements having the key-value pairs
+    /// obtained between the specified `first` (inclusive) and `last`
+    /// (exclusive) random-access iterators.  The iterators provide read
+    /// access to a sequence of `bsl::pair<KEY, VALUE>` objects.  All
+    /// insertions are done by the calling thread and the order of insertion
+    /// is not specified.  The behavior is undefined unless `first <= last`.
     template <class RANDOM_ITER>
     void insertBulkAlways(RANDOM_ITER first, RANDOM_ITER last);
-        // Insert into this hash map elements having the key-value pairs
-        // obtained between the specified 'first' (inclusive) and 'last'
-        // (exclusive) random-access iterators.  The iterators provide read
-        // access to a sequence of 'bsl::pair<KEY, VALUE>' objects.  All
-        // insertions are done by the calling thread and the order of insertion
-        // is not specified.  The behavior is undefined unless 'first <= last'.
 
+    /// Insert into this hash map elements having the key-value pairs
+    /// obtained between the specified `first` (inclusive) and `last`
+    /// (exclusive) random-access iterators.  The iterators provide read
+    /// access to a sequence of `bsl::pair<KEY, VALUE>` objects.  If an
+    /// element having one of the keys already exists in this hash map, set
+    /// the value attribute to the corresponding value from `data`.  All
+    /// insertions are done by the calling thread and the order of insertion
+    /// is not specified.  Return the number of elements inserted.  The
+    /// behavior is undefined unless `first <= last`.
     template <class RANDOM_ITER>
     bsl::size_t insertBulkUnique(RANDOM_ITER first, RANDOM_ITER last);
-        // Insert into this hash map elements having the key-value pairs
-        // obtained between the specified 'first' (inclusive) and 'last'
-        // (exclusive) random-access iterators.  The iterators provide read
-        // access to a sequence of 'bsl::pair<KEY, VALUE>' objects.  If an
-        // element having one of the keys already exists in this hash map, set
-        // the value attribute to the corresponding value from 'data'.  All
-        // insertions are done by the calling thread and the order of insertion
-        // is not specified.  Return the number of elements inserted.  The
-        // behavior is undefined unless 'first <= last'.
 
+    /// Insert into this hash map an element having the specified `key` and
+    /// `value`.  If `key` already exists in this hash map, the value
+    /// attribute of that element is set to `value`.  Return 1 if an element
+    /// is inserted, and 0 if an existing element is updated.  Note that the
+    /// return value equals the number of elements inserted.
     bsl::size_t insertUnique(const KEY& key, const VALUE& value);
-        // Insert into this hash map an element having the specified 'key' and
-        // 'value'.  If 'key' already exists in this hash map, the value
-        // attribute of that element is set to 'value'.  Return 1 if an element
-        // is inserted, and 0 if an existing element is updated.  Note that the
-        // return value equals the number of elements inserted.
 
+    /// Insert into this hash map an element having the specified `key` and
+    /// the specified move-insertable `value`.  If `key` already exists in
+    /// this hash map, the value attribute of that element is set to
+    /// `value`.  Return 1 if an element is inserted, and 0 if an existing
+    /// element is updated.  The `value` object is left in a valid but
+    /// unspecified state.  If `value` is allocator-enabled and
+    /// `allocator() != value.allocator()` this operation may cost as much
+    /// as a copy.  Note that the return value equals the number of elements
+    /// inserted.
     bsl::size_t insertUnique(const KEY& key, bslmf::MovableRef<VALUE> value);
-        // Insert into this hash map an element having the specified 'key' and
-        // the specified move-insertable 'value'.  If 'key' already exists in
-        // this hash map, the value attribute of that element is set to
-        // 'value'.  Return 1 if an element is inserted, and 0 if an existing
-        // element is updated.  The 'value' object is left in a valid but
-        // unspecified state.  If 'value' is allocator-enabled and
-        // 'allocator() != value.allocator()' this operation may cost as much
-        // as a copy.  Note that the return value equals the number of elements
-        // inserted.
 
+    /// Set the maximum load factor of this hash map to the specified
+    /// `newMaxLoadFactor`.  If `newMaxLoadFactor < loadFactor()`, this
+    /// operation will cause an immediate rehash; otherwise, this operation
+    /// has a constant-time cost.  The rehash will increase the number of
+    /// buckets by a power of 2.  The behavior is undefined unless
+    /// `0 < newMaxLoadFactor`.
     void maxLoadFactor(float newMaxLoadFactor);
-        // Set the maximum load factor of this hash map to the specified
-        // 'newMaxLoadFactor'.  If 'newMaxLoadFactor < loadFactor()', this
-        // operation will cause an immediate rehash; otherwise, this operation
-        // has a constant-time cost.  The rehash will increase the number of
-        // buckets by a power of 2.  The behavior is undefined unless
-        // '0 < newMaxLoadFactor'.
 
+    /// Recreate this hash map to one having at least the specified
+    /// `numBuckets`.  This operation is a no-op if *any* of the following
+    /// are true: 1) rehash is disabled; 2) `numBuckets` less or equals the
+    /// current number of buckets.  See {Rehash}.
     void rehash(bsl::size_t numBuckets);
-        // Recreate this hash map to one having at least the specified
-        // 'numBuckets'.  This operation is a no-op if *any* of the following
-        // are true: 1) rehash is disabled; 2) 'numBuckets' less or equals the
-        // current number of buckets.  See {Rehash}.
 
+    /// Serially invoke the specified `visitor` passing the specified `key`,
+    /// and the address of the value of each element in this hash map having
+    /// `key`.  If `key` is not in the map, `value` will be default
+    /// constructed.  That is, for each `(key, value)` found, invoke:
+    /// ```
+    /// bool visitor(VALUE *value, const Key& key);
+    /// ```
+    /// If no element in the map has `key`, insert `(key, VALUE())` and
+    /// invoke `visitor` with `value` pointing to the defsult constructed
+    /// value.  Return the number of elements visited or the negation of
+    /// that value if visitations stopped because `visitor` returned
+    /// `false`.  `visitor`, when invoked, has exclusive access (i.e., write
+    /// access) to each element during each invocation.  The behavior is
+    /// undefined if hash map manipulators and `getValue*` methods are
+    /// invoked from within `visitor`, as it may lead to a deadlock.  Note
+    /// that the `setComputedValueFirst` method is more performant than the
+    /// when the hash map contains a single element for `key`.  Also note
+    /// that a return value of `0` implies that an element was inserted.
     int setComputedValueAll(const KEY&             key,
                             const VisitorFunction& visitor);
-        // Serially invoke the specified 'visitor' passing the specified 'key',
-        // and the address of the value of each element in this hash map having
-        // 'key'.  If 'key' is not in the map, 'value' will be default
-        // constructed.  That is, for each '(key, value)' found, invoke:
-        //..
-        //  bool visitor(VALUE *value, const Key& key);
-        //..
-        // If no element in the map has 'key', insert '(key, VALUE())' and
-        // invoke 'visitor' with 'value' pointing to the defsult constructed
-        // value.  Return the number of elements visited or the negation of
-        // that value if visitations stopped because 'visitor' returned
-        // 'false'.  'visitor', when invoked, has exclusive access (i.e., write
-        // access) to each element during each invocation.  The behavior is
-        // undefined if hash map manipulators and 'getValue*' methods are
-        // invoked from within 'visitor', as it may lead to a deadlock.  Note
-        // that the 'setComputedValueFirst' method is more performant than the
-        // when the hash map contains a single element for 'key'.  Also note
-        // that a return value of '0' implies that an element was inserted.
 
+    /// Invoke the specified `visitor` passing the specified `key`, and the
+    /// address of the value attribute of the *first* element (of possibly
+    /// many elements) found in this hash map having `key`.  If `key` is not
+    /// in the map, `value` will be default constructed.  That is, for
+    /// `(key, value)`, invoke:
+    /// ```
+    /// bool visitor(VALUE *value, const Key& key);
+    /// ```
+    /// If no element in the map has `key`, insert `(key, VALUE())` and
+    /// invoke `visitor` with `value` pointing to the defsult constructed
+    /// value.  Return 1 if `key` was found and `visitor` returned `true`, 0
+    /// if `key` was not found, and -1 if `key` was found and `visitor`
+    /// returned `false`.  `visitor`, when invoked, has exclusive access
+    /// (i.e., write access) to the element.  The behavior is undefined if
+    /// hash map manipulators and `getValue*` methods are invoked from
+    /// within `visitor`, as it may lead to a deadlock.  Note that the
+    /// return value equals the number of elements inserted.  Also note
+    /// that, when there are multiple elements having `key`, the selection
+    /// of "first" is implementation specific and subject to change.  Also
+    /// note that this method is more performant than the
+    /// `setComputedValueAll` method when the hash map contains a single
+    /// element for `key`.  Also note that a return value of `0` implies
+    /// that an element was inserted.
     int setComputedValueFirst(const KEY&             key,
                               const VisitorFunction& visitor);
-        // Invoke the specified 'visitor' passing the specified 'key', and the
-        // address of the value attribute of the *first* element (of possibly
-        // many elements) found in this hash map having 'key'.  If 'key' is not
-        // in the map, 'value' will be default constructed.  That is, for
-        // '(key, value)', invoke:
-        //..
-        //  bool visitor(VALUE *value, const Key& key);
-        //..
-        // If no element in the map has 'key', insert '(key, VALUE())' and
-        // invoke 'visitor' with 'value' pointing to the defsult constructed
-        // value.  Return 1 if 'key' was found and 'visitor' returned 'true', 0
-        // if 'key' was not found, and -1 if 'key' was found and 'visitor'
-        // returned 'false'.  'visitor', when invoked, has exclusive access
-        // (i.e., write access) to the element.  The behavior is undefined if
-        // hash map manipulators and 'getValue*' methods are invoked from
-        // within 'visitor', as it may lead to a deadlock.  Note that the
-        // return value equals the number of elements inserted.  Also note
-        // that, when there are multiple elements having 'key', the selection
-        // of "first" is implementation specific and subject to change.  Also
-        // note that this method is more performant than the
-        // 'setComputedValueAll' method when the hash map contains a single
-        // element for 'key'.  Also note that a return value of '0' implies
-        // that an element was inserted.
 
+    /// Set the value attribute of every element in this hash map having the
+    /// specified `key` to the specified `value`.  If no such such element
+    /// exists, insert `(key, value)`.  Return the number of elements found
+    /// with `key`.  Note that if no elements were found, and a new value
+    /// was inserted, `0` is returned.
     bsl::size_t setValueAll(const KEY& key, const VALUE& value);
-        // Set the value attribute of every element in this hash map having the
-        // specified 'key' to the specified 'value'.  If no such such element
-        // exists, insert '(key, value)'.  Return the number of elements found
-        // with 'key'.  Note that if no elements were found, and a new value
-        // was inserted, '0' is returned.
 
+    /// Set the value attribute of the *first* element in this hash map (of
+    /// possibly many) found to have the specified `key` to the specified
+    /// `value`.  If no such such element exists, insert `(key, value)`.
+    /// Return the number of elements found with `key`.  Note that if no
+    /// elements were found, and a new value was inserted, `0` is returned.
+    /// Also note that this method is more performant than `setValueAll`
+    /// when there is one element having `key` in the hash map.
     bsl::size_t setValueFirst(const KEY& key, const VALUE& value);
-        // Set the value attribute of the *first* element in this hash map (of
-        // possibly many) found to have the specified 'key' to the specified
-        // 'value'.  If no such such element exists, insert '(key, value)'.
-        // Return the number of elements found with 'key'.  Note that if no
-        // elements were found, and a new value was inserted, '0' is returned.
-        // Also note that this method is more performant than 'setValueAll'
-        // when there is one element having 'key' in the hash map.
 
+    /// Set the value attribute of the element in this hash map having the
+    /// specified `key` to the specified `value`.  If no such element
+    /// exists, insert `(key, value)`.  If there are multiple elements in
+    /// this hash map having `key` then set the value of the first such
+    /// element found.  Return the number of elements found having `key`.
+    /// Note that if no elements were found, and a new value was inserted,
+    /// `0` is returned.  Also note that, when there are multiple elements
+    /// having `key`, the selection of "first" is unspecified and subject to
+    /// change.
     bsl::size_t setValueFirst(const KEY& key, bslmf::MovableRef<VALUE> value);
-        // Set the value attribute of the element in this hash map having the
-        // specified 'key' to the specified 'value'.  If no such element
-        // exists, insert '(key, value)'.  If there are multiple elements in
-        // this hash map having 'key' then set the value of the first such
-        // element found.  Return the number of elements found having 'key'.
-        // Note that if no elements were found, and a new value was inserted,
-        // '0' is returned.  Also note that, when there are multiple elements
-        // having 'key', the selection of "first" is unspecified and subject to
-        // change.
 
+    /// **DEPRECATED**: Use `visit(key, visitor)` instead.
+    ///
+    /// Serially call the specified `visitor` on each element (if one
+    /// exists) in this hash map having the specified `key` until every such
+    /// element has been updated or `visitor` returns `false`.  That is, for
+    /// `(key, value)`, invoke:
+    /// ```
+    /// bool visitor(&value, key);
+    /// ```
+    /// Return the number of elements visited or the negation of that value
+    /// if visitations stopped because `visitor` returned `false`.
+    /// `visitor` has exclusive access (i.e., write access) to each element
+    /// for duration of each invocation.  The behavior is undefined if hash
+    /// map manipulators and `getValue*` methods are invoked from within
+    /// `visitor`, as it may lead to a deadlock.
     int update(const KEY& key, const VisitorFunction& visitor);
-        // !DEPRECATED!: Use 'visit(key, visitor)' instead.
-        //
-        // Serially call the specified 'visitor' on each element (if one
-        // exists) in this hash map having the specified 'key' until every such
-        // element has been updated or 'visitor' returns 'false'.  That is, for
-        // '(key, value)', invoke:
-        //..
-        //  bool visitor(&value, key);
-        //..
-        // Return the number of elements visited or the negation of that value
-        // if visitations stopped because 'visitor' returned 'false'.
-        // 'visitor' has exclusive access (i.e., write access) to each element
-        // for duration of each invocation.  The behavior is undefined if hash
-        // map manipulators and 'getValue*' methods are invoked from within
-        // 'visitor', as it may lead to a deadlock.
 
+    /// Call the specified `visitor` (in an unspecified order) on the
+    /// elements in this hash table until each element has been visited or
+    /// `visitor` returns `false`.  That is, for `(key, value)`, invoke:
+    /// ```
+    /// bool visitor(&value, key);
+    /// ```
+    /// Return the number of elements visited or the negation of that value
+    /// if visitations stopped because `visitor` returned `false`.
+    /// `visitor` has exclusive access (i.e., write access) to each element
+    /// for duration of each invocation.  Every element present in this hash
+    /// map at the time `visit` is invoked will be visited unless it is
+    /// removed before `visitor` is called for that element.  Each
+    /// visitation is done by the calling thread and the order of visitation
+    /// is not specified.  Elements inserted during the execution of `visit`
+    /// may or may not be visited.  The behavior is undefined if hash map
+    /// manipulators and `getValue*` methods are invoked from within
+    /// `visitor`, as it may lead to a deadlock.  Note that `visitor` can
+    /// change the value of the visited elements.
     int visit(const VisitorFunction& visitor);
-        // Call the specified 'visitor' (in an unspecified order) on the
-        // elements in this hash table until each element has been visited or
-        // 'visitor' returns 'false'.  That is, for '(key, value)', invoke:
-        //..
-        //  bool visitor(&value, key);
-        //..
-        // Return the number of elements visited or the negation of that value
-        // if visitations stopped because 'visitor' returned 'false'.
-        // 'visitor' has exclusive access (i.e., write access) to each element
-        // for duration of each invocation.  Every element present in this hash
-        // map at the time 'visit' is invoked will be visited unless it is
-        // removed before 'visitor' is called for that element.  Each
-        // visitation is done by the calling thread and the order of visitation
-        // is not specified.  Elements inserted during the execution of 'visit'
-        // may or may not be visited.  The behavior is undefined if hash map
-        // manipulators and 'getValue*' methods are invoked from within
-        // 'visitor', as it may lead to a deadlock.  Note that 'visitor' can
-        // change the value of the visited elements.
 
+    /// Serially call the specified `visitor` on each element (if one
+    /// exists) in this hash map having the specified `key` until every such
+    /// element has been updated or `visitor` returns `false`.  That is, for
+    /// `(key, value)`, invoke:
+    /// ```
+    /// bool visitor(&value, key);
+    /// ```
+    /// Return the number of elements visited or the negation of that value
+    /// if visitations stopped because `visitor` returned `false`.
+    /// `visitor` has exclusive access (i.e., write access) to each element
+    /// for duration of each invocation.  The behavior is undefined if hash
+    /// map manipulators and `getValue*` methods are invoked from within
+    /// `visitor`, as it may lead to a deadlock.
     int visit(const KEY& key, const VisitorFunction& visitor);
-        // Serially call the specified 'visitor' on each element (if one
-        // exists) in this hash map having the specified 'key' until every such
-        // element has been updated or 'visitor' returns 'false'.  That is, for
-        // '(key, value)', invoke:
-        //..
-        //  bool visitor(&value, key);
-        //..
-        // Return the number of elements visited or the negation of that value
-        // if visitations stopped because 'visitor' returned 'false'.
-        // 'visitor' has exclusive access (i.e., write access) to each element
-        // for duration of each invocation.  The behavior is undefined if hash
-        // map manipulators and 'getValue*' methods are invoked from within
-        // 'visitor', as it may lead to a deadlock.
 
     // ACCESSORS
+
+    /// Return the index of the bucket, in the array of buckets maintained
+    /// by this hash map, where elements having the specified `key` are
+    /// inserted.  Note that unless rehash is disabled, the value returned
+    /// may be obsolete at the time it is returned.
     bsl::size_t bucketIndex(const KEY& key) const;
-        // Return the index of the bucket, in the array of buckets maintained
-        // by this hash map, where elements having the specified 'key' are
-        // inserted.  Note that unless rehash is disabled, the value returned
-        // may be obsolete at the time it is returned.
 
+    /// Return the number of buckets in the array of buckets maintained by
+    /// this hash map.  Note that unless rehash is disabled, the value
+    /// returned may be obsolete by the time it is received.
     bsl::size_t bucketCount() const;
-        // Return the number of buckets in the array of buckets maintained by
-        // this hash map.  Note that unless rehash is disabled, the value
-        // returned may be obsolete by the time it is received.
 
+    /// Return the number of elements contained in the bucket at the
+    /// specified `index` in the array of buckets maintained by this hash
+    /// map.  The behavior is undefined unless
+    /// `0 <= index < bucketCount()`.
     bsl::size_t bucketSize(bsl::size_t index) const;
-        // Return the number of elements contained in the bucket at the
-        // specified 'index' in the array of buckets maintained by this hash
-        // map.  The behavior is undefined unless
-        // '0 <= index < bucketCount()'.
 
+    /// Return `true` if rehash is enabled and rehash is not in progress,
+    /// and `false` otherwise.
     bool canRehash() const;
-        // Return 'true' if rehash is enabled and rehash is not in progress,
-        // and 'false' otherwise.
 
+    /// Return `true` if this hash map contains no elements, and `false`
+    /// otherwise.
     bool empty() const;
-        // Return 'true' if this hash map contains no elements, and 'false'
-        // otherwise.
 
+    /// Return (a copy of) the key-equality functor used by this hash map
+    /// that returns `true` if two `KEY` objects have the same value, and
+    /// `false` otherwise.
     EQUAL equalFunction() const;
-        // Return (a copy of) the key-equality functor used by this hash map
-        // that returns 'true' if two 'KEY' objects have the same value, and
-        // 'false' otherwise.
 
+    /// Load, into the specified `*value`, the value attribute of the first
+    /// element (of possibly many elements) found in this hash map having
+    /// the specified `key`.  Return 1 on success, and 0 if `key` does not
+    /// exist in this hash.  Note that the return value equals the number of
+    /// values returned.  Also note that, when there are multiple elements
+    /// having `key`, the selection of "first" is implementation specific
+    /// and subject to change.
     bsl::size_t getValue(VALUE *value, const KEY& key) const;
-        // Load, into the specified '*value', the value attribute of the first
-        // element (of possibly many elements) found in this hash map having
-        // the specified 'key'.  Return 1 on success, and 0 if 'key' does not
-        // exist in this hash.  Note that the return value equals the number of
-        // values returned.  Also note that, when there are multiple elements
-        // having 'key', the selection of "first" is implementation specific
-        // and subject to change.
 
     bsl::size_t getValue(bsl::vector<VALUE> *valuesPtr, const KEY& key) const;
     bsl::size_t getValue(std::vector<VALUE> *valuesPtr, const KEY& key) const;
@@ -1057,83 +1073,83 @@ class StripedUnorderedContainerImpl {
         // number of elements found with 'key'.  Note that the order of the
         // values returned is not specified.
 
+    /// Return (a copy of) the unary hash functor used by this hash map to
+    /// generate a hash value (of type `std::size_t`) for a `KEY` object.
     HASH hashFunction() const;
-        // Return (a copy of) the unary hash functor used by this hash map to
-        // generate a hash value (of type 'std::size_t') for a 'KEY' object.
 
+    /// Return `true` if rehash is enabled, or `false` otherwise.
     bool isRehashEnabled() const;
-        // Return 'true' if rehash is enabled, or 'false' otherwise.
 
+    /// Return the current quotient of the size of this hash map and the
+    /// number of buckets.  Note that the load factor is a measure of
+    /// container "fullness"; that is, a high load factor typically implies
+    /// many collisions (many elements landing in the same bucket) and that
+    /// decreases performance.
     float loadFactor() const;
-        // Return the current quotient of the size of this hash map and the
-        // number of buckets.  Note that the load factor is a measure of
-        // container "fullness"; that is, a high load factor typically implies
-        // many collisions (many elements landing in the same bucket) and that
-        // decreases performance.
 
+    /// Return the maximum load factor allowed for this hash map.  If an
+    /// insert operation would cause the load factor to exceed the
+    /// `maxLoadFactor()` and rehashing is enabled, then that insert
+    /// increases the number of buckets and rehashes the elements of the
+    /// container into that larger set of buckets.
     float maxLoadFactor() const;
-        // Return the maximum load factor allowed for this hash map.  If an
-        // insert operation would cause the load factor to exceed the
-        // 'maxLoadFactor()' and rehashing is enabled, then that insert
-        // increases the number of buckets and rehashes the elements of the
-        // container into that larger set of buckets.
 
+    /// Return the number of stripes in the hash.
     bsl::size_t numStripes() const;
-        // Return the number of stripes in the hash.
 
+    /// Call the specified `visitor` (in an unspecified order) on the
+    /// elements in this hash table until each element has been visited or
+    /// `visitor` returns `false`.  That is, for `(key, value)`, invoke:
+    /// ```
+    /// bool visitor(value, key);
+    /// ```
+    /// Return the number of elements visited or the negation of that value
+    /// if visitations stopped because `visitor` returned `false`.
+    /// `visitor` has read-only access to each element for duration of each
+    /// invocation.  Every element present in this hash map at the time
+    /// `visit` is invoked will be visited unless it is removed before
+    /// `visitor` is called for that element.  Each visitation is done by
+    /// the calling thread and the order of visitation is not specified.
+    /// The behavior is undefined if hash map manipulators are invoked from
+    /// within `visitor`, as it may lead to a deadlock.  Note that `visitor`
+    /// can *not* change the value of the visited elements.
     int visitReadOnly(const ReadOnlyVisitorFunction& visitor) const;
-        // Call the specified 'visitor' (in an unspecified order) on the
-        // elements in this hash table until each element has been visited or
-        // 'visitor' returns 'false'.  That is, for '(key, value)', invoke:
-        //..
-        //  bool visitor(value, key);
-        //..
-        // Return the number of elements visited or the negation of that value
-        // if visitations stopped because 'visitor' returned 'false'.
-        // 'visitor' has read-only access to each element for duration of each
-        // invocation.  Every element present in this hash map at the time
-        // 'visit' is invoked will be visited unless it is removed before
-        // 'visitor' is called for that element.  Each visitation is done by
-        // the calling thread and the order of visitation is not specified.
-        // The behavior is undefined if hash map manipulators are invoked from
-        // within 'visitor', as it may lead to a deadlock.  Note that 'visitor'
-        // can *not* change the value of the visited elements.
 
+    /// Serially call the specified `visitor` on each element (if one
+    /// exists) in this hash map having the specified `key` until every such
+    /// element has been visitd or `visitor` returns `false`.  That is, for
+    /// `(key, value)`, invoke:
+    /// ```
+    /// bool visitor(value, key);
+    /// ```
+    /// Return the number of elements visited or the negation of that value
+    /// if visitations stopped because `visitor` returned `false`.
+    /// `visitor` has read-only access to each element for duration of each
+    /// invocation.  The behavior is undefined if hash map manipulators are
+    /// invoked from within `visitor`, as it may lead to a deadlock.
     int visitReadOnly(const KEY&                     key,
                       const ReadOnlyVisitorFunction& visitor) const;
-        // Serially call the specified 'visitor' on each element (if one
-        // exists) in this hash map having the specified 'key' until every such
-        // element has been visitd or 'visitor' returns 'false'.  That is, for
-        // '(key, value)', invoke:
-        //..
-        //  bool visitor(value, key);
-        //..
-        // Return the number of elements visited or the negation of that value
-        // if visitations stopped because 'visitor' returned 'false'.
-        // 'visitor' has read-only access to each element for duration of each
-        // invocation.  The behavior is undefined if hash map manipulators are
-        // invoked from within 'visitor', as it may lead to a deadlock.
 
+    /// Return the current number of elements in this hash.
     bsl::size_t size() const;
-        // Return the current number of elements in this hash.
 
                                  // Aspects
 
+    /// Return the allocator used by this hash map to supply memory.  Note
+    /// that if no allocator was supplied at construction the default
+    /// allocator installed at that time is used.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this hash map to supply memory.  Note
-        // that if no allocator was supplied at construction the default
-        // allocator installed at that time is used.
 };
 
                 // ============================================
                 // class StripedUnorderedContainerImpl_TestUtil
                 // ============================================
 
+/// This class implements a test utility that gives the test driver access
+/// to the lock / unlock method of the Read/Write mutex.  Its purpose is to
+/// allow testing that the locking actually happens as planned.
 template <class KEY, class VALUE, class HASH, class EQUAL>
 class StripedUnorderedContainerImpl_TestUtil {
-    // This class implements a test utility that gives the test driver access
-    // to the lock / unlock method of the Read/Write mutex.  Its purpose is to
-    // allow testing that the locking actually happens as planned.
 
     // PRIVATE TYPES
     typedef StripedUnorderedContainerImpl_LockElement LockElement;
@@ -1143,41 +1159,43 @@ class StripedUnorderedContainerImpl_TestUtil {
 
   public:
     // CREATORS
+
+    /// Create a `StripedUnorderedContainerImpl_TestUtil` object to test
+    /// locking in the specified `hash`.
     explicit StripedUnorderedContainerImpl_TestUtil(
                  StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>& hash);
-        // Create a 'StripedUnorderedContainerImpl_TestUtil' object to test
-        // locking in the specified 'hash'.
 
     //! ~StripedUnorderedContainerImpl_TestUtil() = default;
         // Destroy this object.
 
         // MANIPULATORS
+
+    /// Call the `lockRead` method of `bdlcc::StripedUnorderedContainerImpl`
+    /// `d_locks_p` lock of the specified `key`.
     void lockRead(const KEY& key);
-        // Call the 'lockRead' method of 'bdlcc::StripedUnorderedContainerImpl'
-        // 'd_locks_p' lock of the specified 'key'.
 
+    /// Call the `lockWrite` method of
+    /// `bdlcc::StripedUnorderedContainerImpl` `d_locks_p` lock of the
+    /// specified `key`.
     void lockWrite(const KEY& key);
-        // Call the 'lockWrite' method of
-        // 'bdlcc::StripedUnorderedContainerImpl' 'd_locks_p' lock of the
-        // specified 'key'.
 
+    /// Call the `unlockWrite` method of
+    /// `bdlcc::StripedUnorderedContainerImpl` `d_locks_p` lock of the
+    /// specified `key`.
     void unlockWrite(const KEY& key);
-        // Call the 'unlockWrite' method of
-        // 'bdlcc::StripedUnorderedContainerImpl' 'd_locks_p' lock of the
-        // specified 'key'.
 
+    /// Call the `unlockRead` method of
+    /// `bdlcc::StripedUnorderedContainerImpl` `d_locks_p` lock of the
+    /// specified `key`.
     void unlockRead(const KEY& key);
-        // Call the 'unlockRead' method of
-        // 'bdlcc::StripedUnorderedContainerImpl' 'd_locks_p' lock of the
-        // specified 'key'.
 };
 
                 // ===============================================
                 // class StripedUnorderedContainerImpl_LockElement
                 // ===============================================
 
+/// A mutex + support info; padded to cacheline size, one per stripe
 class StripedUnorderedContainerImpl_LockElement {
-    // A mutex + support info; padded to cacheline size, one per stripe
 
   private:
     // PRIVATE TYPES
@@ -1205,21 +1223,23 @@ class StripedUnorderedContainerImpl_LockElement {
 
   public:
     // CREATORS
+
+    /// Create an empty `StripedUnorderedContainerImpl_LockElement` object.
     StripedUnorderedContainerImpl_LockElement();
-        // Create an empty 'StripedUnorderedContainerImpl_LockElement' object.
 
     // MANIPULATORS
+
+    /// Read lock the lock element.
     void lockR();
-        // Read lock the lock element.
 
+    /// Write lock the lock element.
     void lockW();
-        // Write lock the lock element.
 
+    /// Read unlock the lock element.
     void unlockR();
-        // Read unlock the lock element.
 
+    /// Write unlock the lock element.
     void unlockW();
-        // Write unlock the lock element.
 };
 
 
@@ -1227,65 +1247,71 @@ class StripedUnorderedContainerImpl_LockElement {
          // class StripedUnorderedContainerImpl_LockElementReadGuard
          // ========================================================
 
+/// A guard pattern on StripedUnorderedContainerImpl_LockElement, to release
+/// on exception, for a lock element locked as read.
 class StripedUnorderedContainerImpl_LockElementReadGuard {
-    // A guard pattern on StripedUnorderedContainerImpl_LockElement, to release
-    // on exception, for a lock element locked as read.
 
   private:
     // DATA
+
+    // Guarded LockElement pointer
     StripedUnorderedContainerImpl_LockElement *d_lockElement_p;
-        // Guarded LockElement pointer
 
   public:
     // CREATORS
+
+    /// Create a guard object
+    /// `StripedUnorderedContainerImpl_LockElementReadGuard` for the
+    /// specified `lockElementPtr`
+    /// `bdlcc::StripedUnorderedContainerImpl_LockElement` object.
     explicit StripedUnorderedContainerImpl_LockElementReadGuard(
                     StripedUnorderedContainerImpl_LockElement *lockElementPtr);
-        // Create a guard object
-        // 'StripedUnorderedContainerImpl_LockElementReadGuard' for the
-        // specified 'lockElementPtr'
-        // 'bdlcc::StripedUnorderedContainerImpl_LockElement' object.
 
+    /// Release the guarded object
     ~StripedUnorderedContainerImpl_LockElementReadGuard();
-        // Release the guarded object
 
     // MANIPULATORS
+
+    /// Release the guarded object
     void release();
-        // Release the guarded object
 };
 
           // =========================================================
           // class StripedUnorderedContainerImpl_LockElementWriteGuard
           // =========================================================
 
+/// A guard pattern on StripedUnorderedContainerImpl_LockElement, to release
+/// on exception, for a lock element locked as write.
 class StripedUnorderedContainerImpl_LockElementWriteGuard {
-    // A guard pattern on StripedUnorderedContainerImpl_LockElement, to release
-    // on exception, for a lock element locked as write.
 
   private:
     // DATA
+
+    // Guarded LockElement pointer
     StripedUnorderedContainerImpl_LockElement *d_lockElement_p;
-        // Guarded LockElement pointer
 
   public:
     // CREATORS
+
+    /// Create a guard object
+    /// `StripedUnorderedContainerImpl_LockElementWriteGuard` for the
+    /// specified `lockElementPtr`
+    /// `bdlcc::StripedUnorderedContainerImpl_LockElement` object.
     explicit StripedUnorderedContainerImpl_LockElementWriteGuard(
                     StripedUnorderedContainerImpl_LockElement *lockElementPtr);
-        // Create a guard object
-        // 'StripedUnorderedContainerImpl_LockElementWriteGuard' for the
-        // specified 'lockElementPtr'
-        // 'bdlcc::StripedUnorderedContainerImpl_LockElement' object.
 
+    /// Release the guarded object
     ~StripedUnorderedContainerImpl_LockElementWriteGuard();
-        // Release the guarded object
 
     // MANIPULATORS
+
+    /// Release the guarded object
     void release();
-        // Release the guarded object
 };
 
+/// A vector element needed for efficient sorting for the `insertBulk` and
+/// `eraseBulk` methods.
 struct StripedUnorderedContainerImpl_SortItem {
-    // A vector element needed for efficient sorting for the 'insertBulk' and
-    // 'eraseBulk' methods.
   public:
     // PUBLIC DATA
     int         d_stripeIdx;
@@ -1294,10 +1320,11 @@ struct StripedUnorderedContainerImpl_SortItem {
 };
 
 // FREE OPERATOR
+
+/// Return `true` if the specified `lhs` is smaller than the specified `rhs`
+/// in the order of stripe, and data.
 bool operator<(const StripedUnorderedContainerImpl_SortItem& lhs,
                const StripedUnorderedContainerImpl_SortItem& rhs);
-    // Return 'true' if the specified 'lhs' is smaller than the specified 'rhs'
-    // in the order of stripe, and data.
 
 // ============================================================================
 //                             INLINE DEFINITIONS

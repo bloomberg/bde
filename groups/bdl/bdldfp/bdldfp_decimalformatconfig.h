@@ -13,63 +13,54 @@ BSLS_IDENT("$Id$")
 //@SEE_ALSO: bdldfp_decimalutil
 //
 //@DESCRIPTION: This component provides a single, simply constrained
-// (value-semantic) attribute class, 'bdldfp::DecimalFormatConfig', that is
+// (value-semantic) attribute class, `bdldfp::DecimalFormatConfig`, that is
 // used to configure various aspects of decimal value formatting.
 //
 ///Attributes
 ///----------
-//..
-//  Name        Type      Default          Simple Constraints
-//  ---------   ------    ---------------  ------------------
-//  style       Style     e_NATURAL        none
-//  precision   int       0                >= 0
-//  sign        Sign      e_NEGATIVE_ONLY  none
-//  infinity    string    "inf"            none
-//  nan         string    "nan"            none
-//  snan        string    "snan"           none
-//  point       char      '.'              none
-//  exponent    char      'e'              none
-//  showpoint   bool      false            none
-//  expwidth    int       2                >= 1, <= 4
-//..
-//: o 'style': control how the decimal number is written.  If 'style' is
-//:   'e_SCIENTIFIC', the number is written as its sign, then a single digit,
-//:   then the decimal point, then 'precision' digits, then the 'exponent'
-//:   character, then a '-' or '+', then an exponent with no leading zeroes
-//:   (with a zero exponent written as '0').  If 'style' is 'e_FIXED', the
-//:   number is written as its sign, then one or more digits, then the decimal
-//:   point, then 'precision' digits.  If the 'precision' value equals '0' then
-//:   'precision' digits and the decimal point are not written.  If 'style' is
-//:   'e_NATURAL', the number is written according to the description of
-//:   'to-scientific-string' found in
-//:   http://speleotrove.com/decimal/decarith.pdf (and no other specified
-//:   formatting values are used, including precision).
-//:
-//: o 'precision': control how many digits are written after the decimal point
-//:   if the decimal number is rendered in 'e_FIXED' and 'e_SCIENTIFIC'
-//:   formats.  Note that 'precision' attribute is ignored in 'e_NATURAL'
-//:   format.
-//:
-//: o 'sign': control how the sign is output.  If a decimal value has its sign
-//:   bit set, a '-' is always written.  Otherwise, if 'sign' is
-//:   'e_NEGATIVE_ONLY', no sign is written.  If it is 'e_ALWAYS', a '+' is
-//:   written.
-//:
-//: o 'infinity': specify a string to output infinity value.
-//:
-//: o 'nan': specify a string to output NaN value.
-//:
-//: o 'snan': specify a string to output signaling NaN value.
-//:
-//: o 'point': specify the character to use for decimal points.
-//:
-//: o 'exponent': specify the character to use for exponent when 'style' is
-//:   'e_SCIENTIFIC' or 'e_NATURAL'.
-//:
-//: o 'showpoint': specify whether a decimal point is always displayed.
-//:
-//: o 'expwidth': control the minimum number of digits used to write the
-//:   exponent.
+// ```
+// Name        Type      Default          Simple Constraints
+// ---------   ------    ---------------  ------------------
+// style       Style     e_NATURAL        none
+// precision   int       0                >= 0
+// sign        Sign      e_NEGATIVE_ONLY  none
+// infinity    string    "inf"            none
+// nan         string    "nan"            none
+// snan        string    "snan"           none
+// point       char      '.'              none
+// exponent    char      'e'              none
+// showpoint   bool      false            none
+// expwidth    int       2                >= 1, <= 4
+// ```
+// * `style`: control how the decimal number is written.  If `style` is
+//   `e_SCIENTIFIC`, the number is written as its sign, then a single digit,
+//   then the decimal point, then `precision` digits, then the `exponent`
+//   character, then a `-` or `+`, then an exponent with no leading zeroes
+//   (with a zero exponent written as `0`).  If `style` is `e_FIXED`, the
+//   number is written as its sign, then one or more digits, then the decimal
+//   point, then `precision` digits.  If the `precision` value equals `0` then
+//   `precision` digits and the decimal point are not written.  If `style` is
+//   `e_NATURAL`, the number is written according to the description of
+//   `to-scientific-string` found in
+//   http://speleotrove.com/decimal/decarith.pdf (and no other specified
+//   formatting values are used, including precision).
+// * `precision`: control how many digits are written after the decimal point
+//   if the decimal number is rendered in `e_FIXED` and `e_SCIENTIFIC`
+//   formats.  Note that `precision` attribute is ignored in `e_NATURAL`
+//   format.
+// * `sign`: control how the sign is output.  If a decimal value has its sign
+//   bit set, a `-` is always written.  Otherwise, if `sign` is
+//   `e_NEGATIVE_ONLY`, no sign is written.  If it is `e_ALWAYS`, a `+` is
+//   written.
+// * `infinity`: specify a string to output infinity value.
+// * `nan`: specify a string to output NaN value.
+// * `snan`: specify a string to output signaling NaN value.
+// * `point`: specify the character to use for decimal points.
+// * `exponent`: specify the character to use for exponent when `style` is
+//   `e_SCIENTIFIC` or `e_NATURAL`.
+// * `showpoint`: specify whether a decimal point is always displayed.
+// * `expwidth`: control the minimum number of digits used to write the
+//   exponent.
 
 #include <bsl_cstring.h>
 
@@ -82,9 +73,9 @@ namespace bdldfp {
                         // class DecimalFormatConfig
                         // =========================
 
+/// This attribute class characterizes how to configure certain behavior of
+/// `bdldfp::DecimalUtil::format` functions.
 class DecimalFormatConfig {
-    // This attribute class characterizes how to configure certain behavior of
-    // 'bdldfp::DecimalUtil::format' functions.
 
   public:
     // TYPES
@@ -122,22 +113,47 @@ class DecimalFormatConfig {
 
   public:
     // CREATORS
-    DecimalFormatConfig();
-        // Create an object of this class having the (default) attribute
-        // values:
-        //..
-        //  precision == 0
-        //  style     == e_NATURAL
-        //  sign      == e_NEGATIVE_ONLY
-        //  infinity  == "inf"
-        //  nan       == "nan"
-        //  snan      == "snan"
-        //  point     == '.'
-        //  exponent  == 'e'
-        //  expwidth  == 2
-        //  showpoint == false
-        //..
 
+    /// Create an object of this class having the (default) attribute
+    /// values:
+    /// ```
+    /// precision == 0
+    /// style     == e_NATURAL
+    /// sign      == e_NEGATIVE_ONLY
+    /// infinity  == "inf"
+    /// nan       == "nan"
+    /// snan      == "snan"
+    /// point     == '.'
+    /// exponent  == 'e'
+    /// expwidth  == 2
+    /// showpoint == false
+    /// ```
+    DecimalFormatConfig();
+
+    /// Create an object of this class having the specified `precision` to
+    /// control how many digits are written after a decimal point.  The
+    /// behavior is undefined if `precision` is negative.  Optionally
+    /// specify `style` to control how the number is written.  If it is not
+    /// specified, `e_NATURAL` is used.  Optionally specify `sign` to
+    /// control how the sign is output.  If is not specified,
+    /// `e_NEGATIVE_ONLY` is used.  Optionally specify `infinity` as a
+    /// string to output infinity value.  If it is not specified, "inf" is
+    /// used.  Optionally specify `nan` as a string to output NaN value.  If
+    /// it is not specified, "nan" is used.  Optionally specify `snan` as a
+    /// string to output signaling NaN value.  If it is not specified,
+    /// "snan" is used.  The behavior is undefined unless the pointers to
+    /// `infinity`, `nan` and `snan` remain valid for the lifetime of this
+    /// object.  Optionally specify `point` as the character to use for
+    /// decimal points.  If it is not specified, `.` is used.  Optionally
+    /// specify `exponent` as the character to use for exponent.  If it is
+    /// not specified, `e` is used.  Optionally specify `showpoint` to force
+    /// a decimal point to always be written.  Optionally specify `expWidth`
+    /// to force at least that many digits to be written for an exponent, up
+    /// to the number of digits in the largest supported exponent.  If it is
+    /// not specified, 2 is used.  The behavior is undefined unless
+    /// `expWidth` is 1, 2, 3, or 4.  See the Attributes section under
+    /// @DESCRIPTION in the component-level documentation for information on
+    /// the class attributes.
     explicit
     DecimalFormatConfig(int         precision,
                         Style       style     = e_NATURAL,
@@ -149,120 +165,99 @@ class DecimalFormatConfig {
                         char        exponent  = 'e',
                         bool        showpoint = false,
                         int         expWidth  = 2);
-        // Create an object of this class having the specified 'precision' to
-        // control how many digits are written after a decimal point.  The
-        // behavior is undefined if 'precision' is negative.  Optionally
-        // specify 'style' to control how the number is written.  If it is not
-        // specified, 'e_NATURAL' is used.  Optionally specify 'sign' to
-        // control how the sign is output.  If is not specified,
-        // 'e_NEGATIVE_ONLY' is used.  Optionally specify 'infinity' as a
-        // string to output infinity value.  If it is not specified, "inf" is
-        // used.  Optionally specify 'nan' as a string to output NaN value.  If
-        // it is not specified, "nan" is used.  Optionally specify 'snan' as a
-        // string to output signaling NaN value.  If it is not specified,
-        // "snan" is used.  The behavior is undefined unless the pointers to
-        // 'infinity', 'nan' and 'snan' remain valid for the lifetime of this
-        // object.  Optionally specify 'point' as the character to use for
-        // decimal points.  If it is not specified, '.' is used.  Optionally
-        // specify 'exponent' as the character to use for exponent.  If it is
-        // not specified, 'e' is used.  Optionally specify 'showpoint' to force
-        // a decimal point to always be written.  Optionally specify 'expWidth'
-        // to force at least that many digits to be written for an exponent, up
-        // to the number of digits in the largest supported exponent.  If it is
-        // not specified, 2 is used.  The behavior is undefined unless
-        // 'expWidth' is 1, 2, 3, or 4.  See the Attributes section under
-        // @DESCRIPTION in the component-level documentation for information on
-        // the class attributes.
 
     // MANIPULATORS
+
+    /// Set the `precision` attribute of this object to the specified
+    /// `value`.  Behavior is undefined if `value` is negative.
     void setPrecision (int value);
-        // Set the 'precision' attribute of this object to the specified
-        // 'value'.  Behavior is undefined if 'value' is negative.
 
+    /// Set the `style` attribute of this object to the specified `value`.
     void setStyle(Style value);
-        // Set the 'style' attribute of this object to the specified 'value'.
 
+    /// Set the `sign` attribute of this object to the specified `value`.
     void setSign(Sign  value);
-        // Set the 'sign' attribute of this object to the specified 'value'.
 
+    /// Set the `infinity` attribute of this object to the specified
+    /// `value`.  The behavior is undefined unless the pointer to the
+    /// `value` remains valid for the lifetime of this object.
     void setInfinity(const char *value);
-        // Set the 'infinity' attribute of this object to the specified
-        // 'value'.  The behavior is undefined unless the pointer to the
-        // 'value' remains valid for the lifetime of this object.
 
+    /// Set the `nan` attribute of this object to the specified `value`.
+    /// The behavior is undefined unless the pointer to the `value` remains
+    /// valid for the lifetime of this object.
     void setNan(const char *value);
-        // Set the 'nan' attribute of this object to the specified 'value'.
-        // The behavior is undefined unless the pointer to the 'value' remains
-        // valid for the lifetime of this object.
 
+    /// Set the `snan` attribute of this object to the specified `value`.
+    /// The behavior is undefined unless the pointer to the `value` remains
+    /// valid for the lifetime of this object.
     void setSNan(const char *value);
-        // Set the 'snan' attribute of this object to the specified 'value'.
-        // The behavior is undefined unless the pointer to the 'value' remains
-        // valid for the lifetime of this object.
 
+    /// Set the `point` attribute of this object to the specified `value`.
     void setDecimalPoint(char value);
-        // Set the 'point' attribute of this object to the specified 'value'.
 
+    /// Set the `exponent` attribute of this object to the specified
+    /// `value`.
     void setExponent(char value);
-        // Set the 'exponent' attribute of this object to the specified
-        // 'value'.
 
+    /// Set the `showpoint` attribute of this object to the specified
+    /// `value`.
     void setShowpoint(bool value);
-        // Set the 'showpoint' attribute of this object to the specified
-        // 'value'.
 
+    /// Set the `expwidth` attribute of this object to the specified
+    /// `value`.  The behavior is undefined unless `value` is 1, 2, 3, or 4.
     void setExpWidth(int value);
-        // Set the 'expwidth' attribute of this object to the specified
-        // 'value'.  The behavior is undefined unless 'value' is 1, 2, 3, or 4.
 
     // ACCESSORS
+
+    /// Return the number of digits of precision in the outputs.
     int precision() const;
-        // Return the number of digits of precision in the outputs.
 
+    /// Return the style of output format.
     Style style() const;
-        // Return the style of output format.
 
+    /// Return the sign attribute.
     Sign sign() const;
-        // Return the sign attribute.
 
+    /// Return infinity string representation.
     const char *infinity() const;
-        // Return infinity string representation.
 
+    /// Return NaN string representation.
     const char *nan() const;
-        // Return NaN string representation.
 
+    /// Return sNaN string representation.
     const char *sNan() const;
-        // Return sNaN string representation.
 
+    /// Return point character.
     char decimalPoint() const;
-        // Return point character.
 
+    /// Return exponent character.
     char exponent() const;
-        // Return exponent character.
 
+    /// Return the `showpoint` attribute.
     bool showpoint() const;
-        // Return the 'showpoint' attribute.
 
+    /// Return the minimum exponent width.
     int expWidth() const;
-        // Return the minimum exponent width.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `DecimalFormatConfig` objects have
+/// the same value if each of their attributes (respectively) have the same
+/// value.  Note that comparison of two string type attributes are done via
+/// 'bsl::strcmp() function.
 bool operator==(const DecimalFormatConfig& lhs,
                 const DecimalFormatConfig& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'DecimalFormatConfig' objects have
-    // the same value if each of their attributes (respectively) have the same
-    // value.  Note that comparison of two string type attributes are done via
-    // 'bsl::strcmp() function.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `DecimalFormatConfig` objects
+/// do not have the same value if any of their attributes (respectively) do
+/// not have the same value.  Note that comparison of two string type
+/// attributes are done via 'bsl::strcmp() function.
 bool operator!=(const DecimalFormatConfig& lhs,
                 const DecimalFormatConfig& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'DecimalFormatConfig' objects
-    // do not have the same value if any of their attributes (respectively) do
-    // not have the same value.  Note that comparison of two string type
-    // attributes are done via 'bsl::strcmp() function.
 
 
 // ============================================================================

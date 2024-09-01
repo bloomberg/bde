@@ -33,15 +33,13 @@ BSLS_IDENT("$Id: $")
 //
 // The decoding process for this encoding scheme involves:
 //
-//: 1 transforming any encoded character triplets back into their original
-//:   representation (rule #1 and rule #4).
-//:
-//: 2 literally writing out characters that have not been changed (rule #2).
-//:
-//: 3 deleting any trailing whitespace at the end of an encoded line (rule #3).
+// 1. transforming any encoded character triplets back into their original
+//    representation (rule #1 and rule #4).
+// 2. literally writing out characters that have not been changed (rule #2).
+// 3. deleting any trailing whitespace at the end of an encoded line (rule #3).
 //
-//: 4 removing the soft line breaks including the '=' prefix (i.e.,
-//:   concatenating broken sentences) (rule #5).
+// 4. removing the soft line breaks including the `=` prefix (i.e.,
+//    concatenating broken sentences) (rule #5).
 //
 // The standard imposes a maximum of 76 characters exclusive of CRLF; however,
 // the decoder implemented in this component will handle lines of arbitrary
@@ -55,43 +53,40 @@ BSLS_IDENT("$Id: $")
 //
 // The following kinds of errors can be encountered during decoding, listed in
 // order of decreasing order of precedence:
-//..
-//  E1. BAD_DATA
-//..
-// An '=' character is not followed by either two uppercase hexadecimal digits,
+// ```
+// E1. BAD_DATA
+// ```
+// An `=` character is not followed by either two uppercase hexadecimal digits,
 // or a soft line break -- e.g.,
-//..
-//   '=4=' (only one hexadecimal)
-//   '=K3' (K3 is not a hexadecimal number)
-//   '=1f' (lower case f is a literally encoded character)
-//..
+// ```
+//  '=4=' (only one hexadecimal)
+//  '=K3' (K3 is not a hexadecimal number)
+//  '=1f' (lower case f is a literally encoded character)
+// ```
 //
 // Note that:
 //
-//: 1 In the relaxed error-reporting mode of this implementation, lowercase
-//:   hexadecimal digits are treated as valid numerals.
-//:
-//: 2 E1 can be caused by a missing or corrupted numeric, a corrupted character
-//:   disguised as an '=', or an accidental insertion of a '=' that does not
-//:   belong.
-//:
-//: 3 The case where a seemingly valid character is found in place of a missing
-//:   numeric cannot be detected, e.g., '=4F' where 'F' is actually a literally
-//:   encoded character.
-//:
-//: 4 An erroneous occurrence of a '=' character preceding 2 seemingly valid
-//:   hexadecimal numerics is also undetectable, e.g., '=4F' where '=' was
-//:   actually a 't' corrupted during transmission.
-//..
-//  E2. BAD_LINEBREAK
-//..
+// 1. In the relaxed error-reporting mode of this implementation, lowercase
+//    hexadecimal digits are treated as valid numerals.
+// 2. E1 can be caused by a missing or corrupted numeric, a corrupted character
+//    disguised as an `=`, or an accidental insertion of a `=` that does not
+//    belong.
+// 3. The case where a seemingly valid character is found in place of a missing
+//    numeric cannot be detected, e.g., `=4F` where `F` is actually a literally
+//    encoded character.
+// 4. An erroneous occurrence of a `=` character preceding 2 seemingly valid
+//    hexadecimal numerics is also undetectable, e.g., `=4F` where `=` was
+//    actually a `t` corrupted during transmission.
+// ```
+// E2. BAD_LINEBREAK
+// ```
 // A '\r' is not followed by a '\n'.  In the relaxed mode, each stand-alone
 // '\r' or '\n' will be copied straight through to the output.  For soft line
-// breaks, whitespace is ignored between the '=' character and the CRLF as they
+// breaks, whitespace is ignored between the `=` character and the CRLF as they
 // are to be treated and removed as transport padding.
-//..
-//  E3. BAD_LINELENTH
-//..
+// ```
+// E3. BAD_LINELENTH
+// ```
 // An encoded line exceeds the specified maximum line length with missing soft
 // line breaks.  (Because input of flexible line lengths is allowed in this
 // implementation, this error is not detected or reported.)
@@ -102,8 +97,8 @@ BSLS_IDENT("$Id: $")
 // the unreported errors as offending characters are copied straight through to
 // the output stream, which can be observed.
 //
-// The 'isError' method is used to detect the above anomalies, while for the
-// 'convert' method, a 'numIn' output parameter (indicating the number of input
+// The `isError` method is used to detect the above anomalies, while for the
+// `convert` method, a `numIn` output parameter (indicating the number of input
 // characters consumed) or possibly the iterator itself (for iterators with
 // reference-semantics) identifies the offending character.
 //
@@ -124,9 +119,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlde {
 
+/// This class implements a mechanism capable of converting data of
+/// arbitrary length from its corresponding Quoted-Printable representation.
 class QuotedPrintableDecoder {
-    // This class implements a mechanism capable of converting data of
-    // arbitrary length from its corresponding Quoted-Printable representation.
 
     // PRIVATE TYPES
     enum {
@@ -218,22 +213,23 @@ class QuotedPrintableDecoder {
     };
 
     // CLASS DATA
+
+    /// Name of component used when reporting errors.
     static const char s_componentName[];
-        // Name of component used when reporting errors.
 
+    /// Default error reporting mode
     static const bool s_defaultUnrecognizedIsErrorFlag;
-        // Default error reporting mode
 
+    /// Default map of `unsigned char` to equivalence class for strict mode
     static const char *s_defaultEquivClassStrict_p;
-        // Default map of 'unsigned char' to equivalence class for strict mode
 
+    /// Default map of `unsigned char` to equivalence class for CRLF line
+    /// break mode
     static const char *s_defaultEquivClassCRLF_p;
-        // Default map of 'unsigned char' to equivalence class for CRLF line
-        // break mode
 
+    /// Character map used for converting an ASCII character to the
+    /// hexadecimal value it is representing.
     static const unsigned char *const s_decodingMap_p;
-        // Character map used for converting an ASCII character to the
-        // hexadecimal value it is representing.
 
     static const int   s_defaultMaxLineLength; // Default maximum line length
     static const char* s_lineBreakModeName[];  // Names of line break mode
@@ -257,127 +253,131 @@ class QuotedPrintableDecoder {
 
   public:
     // CLASS METHODS
+
+    /// Return the ASCII string describing the specified `mode` governing
+    /// the decoding of hard linebreaks ("\r\n").  The behavior is undefined
+    /// unless `mode` is either e_CRLF_MODE or e_LF_MODE.
     static const char* lineBreakModeToAscii(LineBreakMode mode);
-        // Return the ASCII string describing the specified 'mode' governing
-        // the decoding of hard linebreaks ("\r\n").  The behavior is undefined
-        // unless 'mode' is either e_CRLF_MODE or e_LF_MODE.
 
     // CREATORS
+
+    /// Create a Quoted-Printable decoder in the initial state, set to the
+    /// strict or relaxed error-reporting mode according to whether the
+    /// specified `detectError` flag is `true` or `false`, respectively, and
+    /// also configured to the specified `lineBreakMode`.  The behavior is
+    /// undefined unless `lineBreakMode` is either e_CRLF_MODE or
+    /// e_LF_MODE.  Note that the decoder reports errors in the strict
+    /// mode and output offending characters in the relaxed mode.  Hard line
+    /// breaks ("\r\n") are decoded to "\r\n" in e_CRLF_MODE (default)
+    /// and to '\n' in e_LF_MODE.
     explicit
     QuotedPrintableDecoder(
         bool                                  detectError,
         QuotedPrintableDecoder::LineBreakMode lineBreakMode =
                                           QuotedPrintableDecoder::e_CRLF_MODE);
-        // Create a Quoted-Printable decoder in the initial state, set to the
-        // strict or relaxed error-reporting mode according to whether the
-        // specified 'detectError' flag is 'true' or 'false', respectively, and
-        // also configured to the specified 'lineBreakMode'.  The behavior is
-        // undefined unless 'lineBreakMode' is either e_CRLF_MODE or
-        // e_LF_MODE.  Note that the decoder reports errors in the strict
-        // mode and output offending characters in the relaxed mode.  Hard line
-        // breaks ("\r\n") are decoded to "\r\n" in e_CRLF_MODE (default)
-        // and to '\n' in e_LF_MODE.
 
+    /// Destroy this object.
     ~QuotedPrintableDecoder();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Append to the buffer addressed by the specified `out` all pending
+    /// output (if there is any) up to the optionally specified `maxNumOut`
+    /// limit (default is negative, meaning no limit) and, when there is no
+    /// pending output and `maxNumOut` is still not reached, begin to
+    /// consume and decode a sequence of input characters starting at the
+    /// specified `begin` position, up to but not including the specified
+    /// `end` position, writing any resulting output in the specified
+    /// `output` buffer up to the (cumulative) `maxNumOut` limit.  If
+    /// `maxNumOut` limit is reached, no further input will be consumed.
+    /// Load into the specified `numOut` and `numIn` the number of output
+    /// bytes produced and input bytes consumed, respectively.  Return a
+    /// non-negative value on success and a negative value otherwise.  A
+    /// successful return status indicates the number of characters that
+    /// would be output if `endConvert` were called with no output limit
+    /// immediately upon exit from this method.  These bytes are also
+    /// available for output if this method is called with a sufficiently
+    /// large `maxNumOut`.  Note that calling this method after `endConvert`
+    /// has been invoked without an intervening `reset` call will place this
+    /// instance in an error state, and return an error status.  Note also
+    /// that it is recommended that after all calls to `convert` are
+    /// finished, the `endConvert` method be called to complete the decoding
+    /// of any unprocessed input characters (e.g., whitespace).
     int convert(char       *out,
                 int        *numOut,
                 int        *numIn,
                 const char *begin,
                 const char *end,
                 int         maxNumOut = -1);
-        // Append to the buffer addressed by the specified 'out' all pending
-        // output (if there is any) up to the optionally specified 'maxNumOut'
-        // limit (default is negative, meaning no limit) and, when there is no
-        // pending output and 'maxNumOut' is still not reached, begin to
-        // consume and decode a sequence of input characters starting at the
-        // specified 'begin' position, up to but not including the specified
-        // 'end' position, writing any resulting output in the specified
-        // 'output' buffer up to the (cumulative) 'maxNumOut' limit.  If
-        // 'maxNumOut' limit is reached, no further input will be consumed.
-        // Load into the specified 'numOut' and 'numIn' the number of output
-        // bytes produced and input bytes consumed, respectively.  Return a
-        // non-negative value on success and a negative value otherwise.  A
-        // successful return status indicates the number of characters that
-        // would be output if 'endConvert' were called with no output limit
-        // immediately upon exit from this method.  These bytes are also
-        // available for output if this method is called with a sufficiently
-        // large 'maxNumOut'.  Note that calling this method after 'endConvert'
-        // has been invoked without an intervening 'reset' call will place this
-        // instance in an error state, and return an error status.  Note also
-        // that it is recommended that after all calls to 'convert' are
-        // finished, the 'endConvert' method be called to complete the decoding
-        // of any unprocessed input characters (e.g., whitespace).
 
+    /// Terminate encoding for this decoder; write any retained output
+    /// (e.g., from a previous call to `convert` with a non-zero `maxNumOut`
+    /// argument) to the specified `out` buffer.  Optionally specify the
+    /// `maxNumOut` limit on the number of bytes to output; if `maxNumOut`
+    /// is negative, no limit is imposed.  Load into the specified `numOut`
+    /// the number of output bytes produced.  Return 0 on success with no
+    /// pending output, the positive number of bytes (if any) that would be
+    /// output if `endConvert` were called with no output limit immediately
+    /// upon exit from this method, and a negative value otherwise.  Any
+    /// retained bytes are available on a subsequent call to `endConvert`.
+    /// Once this method is called, no additional input may be supplied
+    /// without an intervening call to `reset`; once this method returns a
+    /// zero status, a subsequent call will place this decoder in the error
+    /// state, and return an error status.
     int endConvert(char *out, int *numOut, int maxNumOut = -1);
-        // Terminate encoding for this decoder; write any retained output
-        // (e.g., from a previous call to 'convert' with a non-zero 'maxNumOut'
-        // argument) to the specified 'out' buffer.  Optionally specify the
-        // 'maxNumOut' limit on the number of bytes to output; if 'maxNumOut'
-        // is negative, no limit is imposed.  Load into the specified 'numOut'
-        // the number of output bytes produced.  Return 0 on success with no
-        // pending output, the positive number of bytes (if any) that would be
-        // output if 'endConvert' were called with no output limit immediately
-        // upon exit from this method, and a negative value otherwise.  Any
-        // retained bytes are available on a subsequent call to 'endConvert'.
-        // Once this method is called, no additional input may be supplied
-        // without an intervening call to 'reset'; once this method returns a
-        // zero status, a subsequent call will place this decoder in the error
-        // state, and return an error status.
 
+    /// Reset this decoder to its initial state (i.e., as if no input had
+    /// been consumed).
     void reset();
-        // Reset this decoder to its initial state (i.e., as if no input had
-        // been consumed).
 
     // ACCESSORS
+
+    /// Return `true` if the input read so far by this decoder is considered
+    /// syntactically complete and all resulting output has been emitted;
+    /// return `false` otherwise.  Note that there must not be any
+    /// unprocessed characters accumulated in the input buffer of this
+    /// decoder.
     bool isAccepting() const;
-        // Return 'true' if the input read so far by this decoder is considered
-        // syntactically complete and all resulting output has been emitted;
-        // return 'false' otherwise.  Note that there must not be any
-        // unprocessed characters accumulated in the input buffer of this
-        // decoder.
 
+    /// Return `true` if this decoder is in the done state (i.e.,
+    /// `endConvert` has been called and any additional input will result in
+    /// an error), and if there is no pending output; return `false`
+    /// otherwise.
     bool isDone() const;
-        // Return 'true' if this decoder is in the done state (i.e.,
-        // 'endConvert' has been called and any additional input will result in
-        // an error), and if there is no pending output; return 'false'
-        // otherwise.
 
+    /// Return `true` if this decoder has encountered an irrecoverable error
+    /// and `false` otherwise.  An irrecoverable error is one for which
+    /// there is no subsequent possibility of achieving an "acceptable"
+    /// result (as defined by the `isAccepting` method).
     bool isError() const;
-        // Return 'true' if this decoder has encountered an irrecoverable error
-        // and 'false' otherwise.  An irrecoverable error is one for which
-        // there is no subsequent possibility of achieving an "acceptable"
-        // result (as defined by the 'isAccepting' method).
 
+    /// Return `true` if this decoder is in the initial state (i.e., as if
+    /// no input had been consumed) and `false` otherwise.
     bool isInitialState() const;
-        // Return 'true' if this decoder is in the initial state (i.e., as if
-        // no input had been consumed) and 'false' otherwise.
 
+    /// Return `true` if the input to this decoder is maximal (i.e., the
+    /// input contains an end-of-input sentinel, signaling that no further
+    /// input should be expected).  *Always* returns `false` for
+    /// Quoted-Printable decoders since the encoding scheme does not specify
+    /// an end-of-input sentinel.
     bool isMaximal() const;
-        // Return 'true' if the input to this decoder is maximal (i.e., the
-        // input contains an end-of-input sentinel, signaling that no further
-        // input should be expected).  *Always* returns 'false' for
-        // Quoted-Printable decoders since the encoding scheme does not specify
-        // an end-of-input sentinel.
 
+    /// Return `true` if this decoder is currently configured to detect an
+    /// error when an unrecognizable encoding is encountered, and `false`
+    /// otherwise.
     bool isUnrecognizedAnError() const;
-        // Return 'true' if this decoder is currently configured to detect an
-        // error when an unrecognizable encoding is encountered, and 'false'
-        // otherwise.
 
+    /// Return the line break mode specified for this decoder.
     LineBreakMode lineBreakMode() const;
-        // Return the line break mode specified for this decoder.
 
+    /// Return the number of output bytes retained by this decoder and not
+    /// emitted because `maxNumOut` has been reached.
     int numOutputPending() const;
-        // Return the number of output bytes retained by this decoder and not
-        // emitted because 'maxNumOut' has been reached.
 
+    /// Return the total length of the output emitted by this decoder
+    /// (possibly after several calls to the `convert` or the `input`
+    /// methods) since its initial construction or the latest `reset`.
     int outputLength() const;
-        // Return the total length of the output emitted by this decoder
-        // (possibly after several calls to the 'convert' or the 'input'
-        // methods) since its initial construction or the latest 'reset'.
 };
 
 // ============================================================================

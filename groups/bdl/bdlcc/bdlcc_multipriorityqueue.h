@@ -13,18 +13,18 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a thread-enabled mechanism,
-// 'bdlcc::MultipriorityQueue', implementing a special-purpose priority queue
-// container of items of parameterized 'TYPE'.  Each item has a priority which,
+// `bdlcc::MultipriorityQueue`, implementing a special-purpose priority queue
+// container of items of parameterized `TYPE`.  Each item has a priority which,
 // for efficiency of implementation, is limited to a relatively small number
-// 'N' of contiguous integers '[ 0 .. N - 1 ]', with 'N' indicated at
+// `N` of contiguous integers `[ 0 .. N - 1 ]`, with `N` indicated at
 // construction, and 0 being the most urgent priority.  This queue also takes
 // an optional allocator, supplied at construction.  Once configured, these
 // instance parameters remain unchanged for the life of each multi-priority
 // queue.
 //
-///Thread-Enabled Idioms in the 'bdlcc::MultipriorityQueue' Interface
+///Thread-Enabled Idioms in the `bdlcc::MultipriorityQueue` Interface
 ///------------------------------------------------------------------
-// The thread-enabled 'bdlcc::MultipriorityQueue' is, in many regards, similar
+// The thread-enabled `bdlcc::MultipriorityQueue` is, in many regards, similar
 // to a value-semantic type in that there is an obvious abstract notion of
 // "value" that can be described in terms of salient attributes, which for this
 // type is a sequence of priority/element pairs, constrained to be in
@@ -32,24 +32,24 @@ BSLS_IDENT("$Id: $")
 // method behavior and signature that arise due to the thread-enabled nature of
 // the queue and its anticipated usage pattern.
 //
-// For example, if a queue object is empty, 'popFront' will block indefinitely
+// For example, if a queue object is empty, `popFront` will block indefinitely
 // until an element is added to the queue.  Also, since dynamic instance
 // information, such as the number of elements currently in a queue, can be
 // out-of-date by the time it is returned, some manipulators (e.g.,
-// 'tryPopFront') are deliberately combined with an accessor operation (e.g.,
-// 'isEmpty') in order to guarantee proper behavior.
+// `tryPopFront`) are deliberately combined with an accessor operation (e.g.,
+// `isEmpty`) in order to guarantee proper behavior.
 //
-// Finally, note that although the parameterized 'TYPE' is expected to at least
+// Finally, note that although the parameterized `TYPE` is expected to at least
 // support copy construction and assignment, the
-// 'bdlcc::MultipriorityQueue<TYPE>' type currently does not support any
+// `bdlcc::MultipriorityQueue<TYPE>` type currently does not support any
 // value-semantic operations, since different queues could have different
 // numbers of priorities, making comparison, assignment and copy construction
 // awkward.
 //
 ///Possible Future Enhancements
 ///----------------------------
-// In addition to 'popFront' and 'tryPopFront', a 'bdlcc::MultipriorityQueue'
-// may some day also provide a 'timedPopFront' method.  This method would block
+// In addition to `popFront` and `tryPopFront`, a `bdlcc::MultipriorityQueue`
+// may some day also provide a `timedPopFront` method.  This method would block
 // until it is able to complete successfully or until the specified time limit
 // expires.
 //
@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Simple Thread Pool
 ///- - - - - - - - - - - - - - -
-// This example demonstrates how we might use a 'bdlcc::MultipriorityQueue' to
+// This example demonstrates how we might use a `bdlcc::MultipriorityQueue` to
 // communicate between a single "producer" thread and multiple "consumer"
 // threads.  The "producer" pushes work requests of varying priority onto the
 // queue, and each "consumer" iteratively takes the highest priority work
@@ -80,156 +80,156 @@ BSLS_IDENT("$Id: $")
 //
 // We begin our example with some utility classes that define a simple "work
 // item":
-//..
-//  enum {
-//      k_MAX_CONSUMER_THREADS = 10
-//  };
+// ```
+// enum {
+//     k_MAX_CONSUMER_THREADS = 10
+// };
 //
-//  struct MyWorkData {
-//      int d_i;        // input to work to be done
+// struct MyWorkData {
+//     int d_i;        // input to work to be done
 //
-//      // Work data...
-//  };
+//     // Work data...
+// };
 //
-//  struct MyWorkRequest {
-//      enum RequestType {
-//          e_WORK = 1,
-//          e_STOP = 2
-//      };
+// struct MyWorkRequest {
+//     enum RequestType {
+//         e_WORK = 1,
+//         e_STOP = 2
+//     };
 //
-//      RequestType d_type;
-//      MyWorkData  d_data;
+//     RequestType d_type;
+//     MyWorkData  d_data;
 //
-//      // Work data...
-//  };
-//..
+//     // Work data...
+// };
+// ```
 // Next, we provide a simple function to service an individual work item, and a
 // function to get a work item.  The details are unimportant for this example:
-//..
-//  void myDoWork(MyWorkData& data)
-//  {
-//      // Do work...
-//      (void)data;
-//  }
+// ```
+// void myDoWork(MyWorkData& data)
+// {
+//     // Do work...
+//     (void)data;
+// }
 //
-//  int getWorkData(MyWorkData *result)
-//  {
-//      static int count = 0;
-//      result->d_i = rand();   // Only one thread runs this routine, so it
-//                              // does not matter that 'rand()' is not
-//                              // thread-safe, or that 'count' is 'static'.
+// int getWorkData(MyWorkData *result)
+// {
+//     static int count = 0;
+//     result->d_i = rand();   // Only one thread runs this routine, so it
+//                             // does not matter that 'rand()' is not
+//                             // thread-safe, or that 'count' is 'static'.
 //
-//      return ++count >= 100;
-//  }
-//..
-// The 'myConsumer' function (below) will pop elements off the queue in
+//     return ++count >= 100;
+// }
+// ```
+// The `myConsumer` function (below) will pop elements off the queue in
 // priority order and process them.  As discussed above, note that the call to
-// 'queue->popFront(&item)' will block until there is an element available on
+// `queue->popFront(&item)` will block until there is an element available on
 // the queue.  This function will be executed in multiple threads, so that each
-// thread waits in 'queue->popFront()'; 'bdlcc::MultipriorityQueue' guarantees
+// thread waits in `queue->popFront()`; `bdlcc::MultipriorityQueue` guarantees
 // that each thread gets a unique element from the queue:
-//..
-//  void myConsumer(bdlcc::MultipriorityQueue<MyWorkRequest> *queue)
-//  {
-//      MyWorkRequest item;
-//      while (1) {
+// ```
+// void myConsumer(bdlcc::MultipriorityQueue<MyWorkRequest> *queue)
+// {
+//     MyWorkRequest item;
+//     while (1) {
 //
-//          // The 'popFront' function will wait for a 'MyWorkRequest' until
-//          // one is available.
+//         // The 'popFront' function will wait for a 'MyWorkRequest' until
+//         // one is available.
 //
-//          queue->popFront(&item);
+//         queue->popFront(&item);
 //
-//          if (MyWorkRequest::e_STOP == item.d_type) {
-//              break;
-//          }
+//         if (MyWorkRequest::e_STOP == item.d_type) {
+//             break;
+//         }
 //
-//          myDoWork(item.d_data);
-//      }
-//  }
-//..
-// The 'myConsumerThread' function below is a callback for 'bslmt::ThreadUtil',
-// which requires a "C" signature.  'bslmt::ThreadUtil::create()' expects a
+//         myDoWork(item.d_data);
+//     }
+// }
+// ```
+// The `myConsumerThread` function below is a callback for `bslmt::ThreadUtil`,
+// which requires a "C" signature.  `bslmt::ThreadUtil::create()` expects a
 // pointer to this function, and provides that function pointer to the
 // newly-created thread.  The new thread then executes this function.
 //
-// Since 'bslmt::ThreadUtil::create()' uses the familiar "C" convention of
-// passing a 'void' pointer, our function simply casts that pointer to our
-// required type ('bdlcc::MultipriorityQueue<MyWorkRequest> *'), and then
-// delegates to the queue-specific function 'myConsumer' (above):
-//..
-//  extern "C" void *myConsumerThread(void *queuePtr)
-//  {
-//      myConsumer ((bdlcc::MultipriorityQueue<MyWorkRequest>*) queuePtr);
-//      return queuePtr;
-//  }
-//..
-// In this simple example, the 'myProducer' function (below) serves multiple
-// roles: it creates the 'bdlcc::MultipriorityQueue', starts the consumer
+// Since `bslmt::ThreadUtil::create()` uses the familiar "C" convention of
+// passing a `void` pointer, our function simply casts that pointer to our
+// required type (`bdlcc::MultipriorityQueue<MyWorkRequest> *`), and then
+// delegates to the queue-specific function `myConsumer` (above):
+// ```
+// extern "C" void *myConsumerThread(void *queuePtr)
+// {
+//     myConsumer ((bdlcc::MultipriorityQueue<MyWorkRequest>*) queuePtr);
+//     return queuePtr;
+// }
+// ```
+// In this simple example, the `myProducer` function (below) serves multiple
+// roles: it creates the `bdlcc::MultipriorityQueue`, starts the consumer
 // threads, and then produces and queues work items.  When work requests are
-// exhausted, this function queues one 'e_STOP' item for each consumer thread.
+// exhausted, this function queues one `e_STOP` item for each consumer thread.
 //
-// When each consumer thread reads a 'e_STOP', it terminates its
+// When each consumer thread reads a `e_STOP`, it terminates its
 // thread-handling function.  Note that, although the producer cannot control
 // which thread pops a particular work item, it can rely on the knowledge that
-// each consumer thread will read a single 'e_STOP' item and then terminate.
+// each consumer thread will read a single `e_STOP` item and then terminate.
 //
-// Finally, the 'myProducer' function "joins" each consumer thread, which
+// Finally, the `myProducer` function "joins" each consumer thread, which
 // ensures that the thread itself will terminate correctly (see the
-// 'bslmt_threadutil' component-level documentation for details):
-//..
-//  void myProducer()
-//  {
-//      enum {
-//          k_NUM_PRIORITIES = 8,
-//          k_NUM_THREADS    = 8
-//      };
+// `bslmt_threadutil` component-level documentation for details):
+// ```
+// void myProducer()
+// {
+//     enum {
+//         k_NUM_PRIORITIES = 8,
+//         k_NUM_THREADS    = 8
+//     };
 //
-//      MyWorkRequest item;
-//      MyWorkData    workData;
+//     MyWorkRequest item;
+//     MyWorkData    workData;
 //
-//      // Create multi-priority queue with specified number of priorities.
+//     // Create multi-priority queue with specified number of priorities.
 //
-//      bdlcc::MultipriorityQueue<MyWorkRequest> queue(k_NUM_PRIORITIES);
+//     bdlcc::MultipriorityQueue<MyWorkRequest> queue(k_NUM_PRIORITIES);
 //
-//      // Start the specified number of threads.
+//     // Start the specified number of threads.
 //
-//      assert(0 < k_NUM_THREADS
-//          && k_NUM_THREADS <= static_cast<int>(k_MAX_CONSUMER_THREADS));
-//      bslmt::ThreadUtil::Handle consumerHandles[k_MAX_CONSUMER_THREADS];
+//     assert(0 < k_NUM_THREADS
+//         && k_NUM_THREADS <= static_cast<int>(k_MAX_CONSUMER_THREADS));
+//     bslmt::ThreadUtil::Handle consumerHandles[k_MAX_CONSUMER_THREADS];
 //
-//      for (int i = 0; i < k_NUM_THREADS; ++i) {
-//          bslmt::ThreadUtil::create(&consumerHandles[i],
-//                                   myConsumerThread,
-//                                   &queue);
-//      }
+//     for (int i = 0; i < k_NUM_THREADS; ++i) {
+//         bslmt::ThreadUtil::create(&consumerHandles[i],
+//                                  myConsumerThread,
+//                                  &queue);
+//     }
 //
-//      // Load work data into work requests and push them onto the queue with
-//      // varying priority until all work data has been exhausted.
+//     // Load work data into work requests and push them onto the queue with
+//     // varying priority until all work data has been exhausted.
 //
-//      int count = 0;                          // used to generate priorities
+//     int count = 0;                          // used to generate priorities
 //
-//      while (!getWorkData(&workData)) {       // see declaration (above)
-//          item.d_type = MyWorkRequest::e_WORK;
-//          item.d_data = workData;
-//          queue.pushBack(item, count % k_NUM_PRIORITIES);  // mixed
-//                                                           // priorities
-//          ++count;
-//      }
+//     while (!getWorkData(&workData)) {       // see declaration (above)
+//         item.d_type = MyWorkRequest::e_WORK;
+//         item.d_data = workData;
+//         queue.pushBack(item, count % k_NUM_PRIORITIES);  // mixed
+//                                                          // priorities
+//         ++count;
+//     }
 //
-//      // Load as many stop requests as there are active consumer threads.
+//     // Load as many stop requests as there are active consumer threads.
 //
-//      for (int i = 0; i < k_NUM_THREADS; ++i) {
-//          item.d_type = MyWorkRequest::e_STOP;
-//          queue.pushBack(item, k_NUM_PRIORITIES - 1);  // lowest priority
-//      }
+//     for (int i = 0; i < k_NUM_THREADS; ++i) {
+//         item.d_type = MyWorkRequest::e_STOP;
+//         queue.pushBack(item, k_NUM_PRIORITIES - 1);  // lowest priority
+//     }
 //
-//      // Join all of the consumer threads back with the main thread.
+//     // Join all of the consumer threads back with the main thread.
 //
-//      for (int i = 0; i < k_NUM_THREADS; ++i) {
-//          bslmt::ThreadUtil::join(consumerHandles[i]);
-//      }
-//  }
-//..
+//     for (int i = 0; i < k_NUM_THREADS; ++i) {
+//         bslmt::ThreadUtil::join(consumerHandles[i]);
+//     }
+// }
+// ```
 //
 ///Example 2: Multi-Threaded Observer
 /// - - - - - - - - - - - - - - - - -
@@ -241,7 +241,7 @@ BSLS_IDENT("$Id: $")
 //
 // The simple strategy used in the first example works well for tasks that
 // share no state, and are completely independent of one another.  For
-// instance, a web server might use a similar strategy to distribute 'http'
+// instance, a web server might use a similar strategy to distribute `http`
 // requests across multiple worker threads.
 //
 // In more complicated examples, it is often necessary or desirable to
@@ -249,149 +249,149 @@ BSLS_IDENT("$Id: $")
 // shows a single "Observer" mechanism that receives event notification from
 // the various worker threads.
 //
-// We first create a simple 'MyEvent' data type.  Worker threads will use this
+// We first create a simple `MyEvent` data type.  Worker threads will use this
 // type to report information about their work.  In our example, we will report
 // the "worker Id", the event number, and some arbitrary text.
 //
-// As with the previous example, class 'MyEvent' also contains an 'EventType',
+// As with the previous example, class `MyEvent` also contains an `EventType`,
 // an enumeration that indicates whether the worker has completed all work.
 // The "Observer" will use this enumerated value to note when a worker thread
 // has completed its work:
-//..
-//  enum {
-//      k_MAX_CONSUMER_THREADS = 10,
-//      k_MAX_EVENT_TEXT       = 80
-//  };
+// ```
+// enum {
+//     k_MAX_CONSUMER_THREADS = 10,
+//     k_MAX_EVENT_TEXT       = 80
+// };
 //
-//  struct MyEvent {
-//      enum EventType {
-//          e_IN_PROGRESS   = 1,
-//          e_TASK_COMPLETE = 2
-//      };
+// struct MyEvent {
+//     enum EventType {
+//         e_IN_PROGRESS   = 1,
+//         e_TASK_COMPLETE = 2
+//     };
 //
-//      EventType d_type;
-//      int       d_workerId;
-//      int       d_eventNumber;
-//      char      d_eventText[k_MAX_EVENT_TEXT];
-//  };
-//..
-// As noted in the previous example, 'bslmt::ThreadUtil::create()' spawns a new
-// thread, which invokes a simple "C" function taking a 'void' pointer.  In the
-// previous example, we simply converted that 'void' pointer into a pointer to
-// 'bdlcc::MultipriorityQueue<MyWorkRequest>'.
+//     EventType d_type;
+//     int       d_workerId;
+//     int       d_eventNumber;
+//     char      d_eventText[k_MAX_EVENT_TEXT];
+// };
+// ```
+// As noted in the previous example, `bslmt::ThreadUtil::create()` spawns a new
+// thread, which invokes a simple "C" function taking a `void` pointer.  In the
+// previous example, we simply converted that `void` pointer into a pointer to
+// `bdlcc::MultipriorityQueue<MyWorkRequest>`.
 //
 // In this example, however, we want to pass an additional data item.  Each
 // worker thread is initialized with a unique integer value ("worker Id"),
-// which identifies that thread.  We therefore create a simple 'struct' that
+// which identifies that thread.  We therefore create a simple `struct` that
 // contains both of these values:
-//..
-//  struct MyWorkerData {
-//      int                               d_workerId;
-//      bdlcc::MultipriorityQueue<MyEvent> *d_queue;
-//  };
-//..
-// Function 'myWorker' (below) simulates a working thread by enqueuing multiple
-// 'MyEvent' events during execution.  In a realistic application, each
-// 'MyEvent' structure would likely contain different textual information.  For
+// ```
+// struct MyWorkerData {
+//     int                               d_workerId;
+//     bdlcc::MultipriorityQueue<MyEvent> *d_queue;
+// };
+// ```
+// Function `myWorker` (below) simulates a working thread by enqueuing multiple
+// `MyEvent` events during execution.  In a realistic application, each
+// `MyEvent` structure would likely contain different textual information.  For
 // the sake of simplicity, however, our loop uses a constant value for the text
 // field.  Note that various priorities are generated to illustrate the
 // multi-priority aspect of this particular queue:
-//..
-//  void myWorker(int workerId, bdlcc::MultipriorityQueue<MyEvent> *queue)
-//  {
-//      const int N = queue->numPriorities();
-//      const int NUM_EVENTS = 5;
-//      int eventNumber;    // used also to generate mixed priorities
+// ```
+// void myWorker(int workerId, bdlcc::MultipriorityQueue<MyEvent> *queue)
+// {
+//     const int N = queue->numPriorities();
+//     const int NUM_EVENTS = 5;
+//     int eventNumber;    // used also to generate mixed priorities
 //
-//      // First push 'NUM_EVENTS' events onto 'queue' with mixed priorities.
+//     // First push 'NUM_EVENTS' events onto 'queue' with mixed priorities.
 //
-//      for (eventNumber = 0; eventNumber < NUM_EVENTS; ++eventNumber) {
-//          MyEvent ev = {
-//              MyEvent::e_IN_PROGRESS,
-//              workerId,
-//              eventNumber,
-//              "In-Progress Event"         // constant (for simplicity)
-//          };
-//          queue->pushBack(ev, eventNumber % N);       // mixed priorities
-//      }
+//     for (eventNumber = 0; eventNumber < NUM_EVENTS; ++eventNumber) {
+//         MyEvent ev = {
+//             MyEvent::e_IN_PROGRESS,
+//             workerId,
+//             eventNumber,
+//             "In-Progress Event"         // constant (for simplicity)
+//         };
+//         queue->pushBack(ev, eventNumber % N);       // mixed priorities
+//     }
 //
-//      // Now push an event to end this task.
+//     // Now push an event to end this task.
 //
-//      MyEvent ev = {
-//          MyEvent::e_TASK_COMPLETE,
-//          workerId,
-//          eventNumber,
-//          "Task Complete"
-//      };
-//      queue->pushBack(ev, N - 1);                     // lowest priority
-//  }
-//..
-// The callback function 'myWorkerThread' (below) invoked by
-// 'bslmt::ThreadUtil::create' takes the traditional 'void' pointer.  The
-// expected data is the composite structure 'MyWorkerData'.  The callback
-// function casts the 'void' pointer to the application-specific data type and
-// then uses the referenced object to construct a call to the 'myWorker'
+//     MyEvent ev = {
+//         MyEvent::e_TASK_COMPLETE,
+//         workerId,
+//         eventNumber,
+//         "Task Complete"
+//     };
+//     queue->pushBack(ev, N - 1);                     // lowest priority
+// }
+// ```
+// The callback function `myWorkerThread` (below) invoked by
+// `bslmt::ThreadUtil::create` takes the traditional `void` pointer.  The
+// expected data is the composite structure `MyWorkerData`.  The callback
+// function casts the `void` pointer to the application-specific data type and
+// then uses the referenced object to construct a call to the `myWorker`
 // function:
-//..
-//  extern "C" void *myWorkerThread(void *vWorkerPtr)
-//  {
-//      MyWorkerData *workerPtr = (MyWorkerData *)vWorkerPtr;
-//      myWorker(workerPtr->d_workerId, workerPtr->d_queue);
-//      return vWorkerPtr;
-//  }
-//..
+// ```
+// extern "C" void *myWorkerThread(void *vWorkerPtr)
+// {
+//     MyWorkerData *workerPtr = (MyWorkerData *)vWorkerPtr;
+//     myWorker(workerPtr->d_workerId, workerPtr->d_queue);
+//     return vWorkerPtr;
+// }
+// ```
 // For the sake of simplicity, we will implement the Observer behavior (below)
-// in the main thread.  The 'void' function 'myObserver' starts multiple
-// threads running the 'myWorker' function, reads 'MyEvent' values from the
+// in the main thread.  The `void` function `myObserver` starts multiple
+// threads running the `myWorker` function, reads `MyEvent` values from the
 // queue, and logs all messages in the order of arrival.
 //
-// As each 'myWorker' thread terminates, it sends a 'e_TASK_COMPLETE' event.
-// Upon receiving this event, the 'myObserver' function uses the 'd_workerId'
+// As each `myWorker` thread terminates, it sends a `e_TASK_COMPLETE` event.
+// Upon receiving this event, the `myObserver` function uses the `d_workerId`
 // to find the relevant thread, and then "joins" that thread.
 //
-// The 'myObserver' function determines when all tasks have completed simply by
-// counting the number of 'e_TASK_COMPLETE' messages received:
-//..
-//  void myObserver()
-//  {
-//      const int k_NUM_THREADS    = 10;
-//      const int k_NUM_PRIORITIES = 4;
+// The `myObserver` function determines when all tasks have completed simply by
+// counting the number of `e_TASK_COMPLETE` messages received:
+// ```
+// void myObserver()
+// {
+//     const int k_NUM_THREADS    = 10;
+//     const int k_NUM_PRIORITIES = 4;
 //
-//      bdlcc::MultipriorityQueue<MyEvent> queue(k_NUM_PRIORITIES);
+//     bdlcc::MultipriorityQueue<MyEvent> queue(k_NUM_PRIORITIES);
 //
-//      assert(0 < k_NUM_THREADS
-//          && k_NUM_THREADS <= static_cast<int>(k_MAX_CONSUMER_THREADS));
-//      bslmt::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
+//     assert(0 < k_NUM_THREADS
+//         && k_NUM_THREADS <= static_cast<int>(k_MAX_CONSUMER_THREADS));
+//     bslmt::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
 //
-//      // Create 'k_NUM_THREADS' threads, each having a unique "worker id".
+//     // Create 'k_NUM_THREADS' threads, each having a unique "worker id".
 //
-//      MyWorkerData workerData[k_NUM_THREADS];
-//      for (int i = 0; i < k_NUM_THREADS; ++i) {
-//          workerData[i].d_queue = &queue;
-//          workerData[i].d_workerId = i;
-//          bslmt::ThreadUtil::create(&workerHandles[i],
-//                                   myWorkerThread,
-//                                   &workerData[i]);
-//      }
+//     MyWorkerData workerData[k_NUM_THREADS];
+//     for (int i = 0; i < k_NUM_THREADS; ++i) {
+//         workerData[i].d_queue = &queue;
+//         workerData[i].d_workerId = i;
+//         bslmt::ThreadUtil::create(&workerHandles[i],
+//                                  myWorkerThread,
+//                                  &workerData[i]);
+//     }
 //
-//      // Now print out each of the 'MyEvent' values as the threads complete.
-//      // This function ends after a total of 'k_NUM_THREADS'
-//      // 'MyEvent::e_TASK_COMPLETE' events have been printed.
+//     // Now print out each of the 'MyEvent' values as the threads complete.
+//     // This function ends after a total of 'k_NUM_THREADS'
+//     // 'MyEvent::e_TASK_COMPLETE' events have been printed.
 //
-//      int nStop = 0;
-//      while (nStop < k_NUM_THREADS) {
-//          MyEvent ev;
-//          queue.popFront(&ev);
-//          bsl::cout << "[" << ev.d_workerId << "] "
-//                    << ev.d_eventNumber << ". "
-//                    << ev.d_eventText << bsl::endl;
-//          if (MyEvent::e_TASK_COMPLETE == ev.d_type) {
-//              ++nStop;
-//              bslmt::ThreadUtil::join(workerHandles[ev.d_workerId]);
-//          }
-//      }
-//  }
-//..
+//     int nStop = 0;
+//     while (nStop < k_NUM_THREADS) {
+//         MyEvent ev;
+//         queue.popFront(&ev);
+//         bsl::cout << "[" << ev.d_workerId << "] "
+//                   << ev.d_eventNumber << ". "
+//                   << ev.d_eventText << bsl::endl;
+//         if (MyEvent::e_TASK_COMPLETE == ev.d_type) {
+//             ++nStop;
+//             bslmt::ThreadUtil::join(workerHandles[ev.d_workerId]);
+//         }
+//     }
+// }
+// ```
 
 #include <bdlscm_version.h>
 
@@ -434,11 +434,11 @@ namespace bdlcc {
                  // local class MultipriorityQueue_Node<TYPE>
                  // =========================================
 
+/// This class handles storage of one item of parameterized `TYPE` as a node
+/// in a linked list of items stored in a multipriority queue for a given
+/// priority.  This class is not to be used from outside this component.
 template <class TYPE>
 class MultipriorityQueue_Node {
-    // This class handles storage of one item of parameterized 'TYPE' as a node
-    // in a linked list of items stored in a multipriority queue for a given
-    // priority.  This class is not to be used from outside this component.
 
     // DATA
     bslalg::ConstructorProxy<TYPE>  d_item;    // object stored in node
@@ -455,60 +455,63 @@ class MultipriorityQueue_Node {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a node containing a copy of the specified `item` and having
+    /// the specified `next` pointer.  Use the specified `basicAllocator` to
+    /// supply memory.  The behavior is undefined unless `basicAllocator` is
+    /// non-null.  Note that `item` must be copyable and assignable.
     MultipriorityQueue_Node(const TYPE&              item,
                             bslma::Allocator        *basicAllocator);
-        // Create a node containing a copy of the specified 'item' and having
-        // the specified 'next' pointer.  Use the specified 'basicAllocator' to
-        // supply memory.  The behavior is undefined unless 'basicAllocator' is
-        // non-null.  Note that 'item' must be copyable and assignable.
 
+    /// Create a node containing the value of the specified `item` and
+    /// having the specified `next` pointer.  `item` is left in a valid but
+    /// unspecified state.  Use the specified `basicAllocator` to supply
+    /// memory.  The behavior is undefined unless `basicAllocator` is
+    /// non-null.
     MultipriorityQueue_Node(bslmf::MovableRef<TYPE>  item,
                             bslma::Allocator        *basicAllocator);
-        // Create a node containing the value of the specified 'item' and
-        // having the specified 'next' pointer.  'item' is left in a valid but
-        // unspecified state.  Use the specified 'basicAllocator' to supply
-        // memory.  The behavior is undefined unless 'basicAllocator' is
-        // non-null.
 
+    /// Destroy this node and free all memory that was allocated on its
+    /// behalf, if any.
     ~MultipriorityQueue_Node();
-        // Destroy this node and free all memory that was allocated on its
-        // behalf, if any.
 
     // MANIPULATORS
-    TYPE& item();
-        // Return a reference to the non-modifiable item stored in this node.
 
+    /// Return a reference to the non-modifiable item stored in this node.
+    TYPE& item();
+
+    /// Return a reference to the modifiable pointer to the node following
+    /// this node on the linked list.
     MultipriorityQueue_Node*& nextPtr();
-        // Return a reference to the modifiable pointer to the node following
-        // this node on the linked list.
 
     // ACCESSORS
+
+    /// Return a pointer to the non-modifiable node following this node on
+    /// the linked list, or 0 if this node has no successor.
     const MultipriorityQueue_Node *nextPtr() const;
-        // Return a pointer to the non-modifiable node following this node on
-        // the linked list, or 0 if this node has no successor.
 };
 
                        // ==============================
                        // class MultipriorityQueue<TYPE>
                        // ==============================
 
+/// This class implements a thread-enabled multipriority queue whose
+/// priorities are restricted to a (small) set of contiguous `N` integer
+/// values, `[ 0 .. N - 1 ]`, with 0 being the most urgent.
+///
+/// This class does have a notion of value, namely the sequence of
+/// priority/element pairs, constrained to be in decreasing order of urgency
+/// (i.e., monotonically increasing priority values).  However, no
+/// value-semantic operations are implemented.  Note that elements having
+/// the same priority are maintained in First-In-First-Out (FIFO) order.
+/// Note that the current implementation supports up to a maximum of
+/// `sizeof(int) * CHAR_BIT` priorities.
+///
+/// This class is implemented as a set of linked lists, one for each
+/// priority.  Two vectors are used to maintain head and tail pointers for
+/// the lists.
 template <class TYPE>
 class MultipriorityQueue {
-    // This class implements a thread-enabled multipriority queue whose
-    // priorities are restricted to a (small) set of contiguous 'N' integer
-    // values, '[ 0 .. N - 1 ]', with 0 being the most urgent.
-    //
-    // This class does have a notion of value, namely the sequence of
-    // priority/element pairs, constrained to be in decreasing order of urgency
-    // (i.e., monotonically increasing priority values).  However, no
-    // value-semantic operations are implemented.  Note that elements having
-    // the same priority are maintained in First-In-First-Out (FIFO) order.
-    // Note that the current implementation supports up to a maximum of
-    // 'sizeof(int) * CHAR_BIT' priorities.
-    //
-    // This class is implemented as a set of linked lists, one for each
-    // priority.  Two vectors are used to maintain head and tail pointers for
-    // the lists.
 
     // PRIVATE CONSTANTS
     enum {
@@ -518,13 +521,14 @@ class MultipriorityQueue {
     };
 
     // PRIVATE TYPES
-    typedef MultipriorityQueue_Node<TYPE> Node;
-        // The type of the elements on the linked lists of items that are
-        // maintained for the 'N' priorities handled by this multipriority
-        // queue.
 
+    /// The type of the elements on the linked lists of items that are
+    /// maintained for the `N` priorities handled by this multipriority
+    /// queue.
+    typedef MultipriorityQueue_Node<TYPE> Node;
+
+    /// The type of the vectors of list head and tail pointers.
     typedef bsl::vector<Node *>                NodePtrVector;
-        // The type of the vectors of list head and tail pointers.
 
     // DATA
     mutable bslmt::Mutex  d_mutex;         // used to synchronize access
@@ -562,18 +566,19 @@ class MultipriorityQueue {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Attempt to remove (immediately) the least-recently added item having
+    /// the most urgent priority (lowest value) from this multipriority
+    /// queue.  If the specified `blockFlag` is `true`, this method blocks
+    /// the calling thread until an item becomes available.  On success,
+    /// load the value of the popped item into the specified `item`; if the
+    /// specified `itemPriority` is non-null, load the priority of the
+    /// popped item into `itemPriority`; and return 0.  Otherwise, leave
+    /// `item` and `itemPriority` unmodified, and return a non-zero value
+    /// indicating that this multipriority queue was empty.  The behavior is
+    /// undefined unless `item` is non-null.  Note that a non-zero value can
+    /// be returned only if `blockFlag` is `false`.
     int tryPopFrontImpl(TYPE *item, int *itemPriority, bool blockFlag);
-        // Attempt to remove (immediately) the least-recently added item having
-        // the most urgent priority (lowest value) from this multipriority
-        // queue.  If the specified 'blockFlag' is 'true', this method blocks
-        // the calling thread until an item becomes available.  On success,
-        // load the value of the popped item into the specified 'item'; if the
-        // specified 'itemPriority' is non-null, load the priority of the
-        // popped item into 'itemPriority'; and return 0.  Otherwise, leave
-        // 'item' and 'itemPriority' unmodified, and return a non-zero value
-        // indicating that this multipriority queue was empty.  The behavior is
-        // undefined unless 'item' is non-null.  Note that a non-zero value can
-        // be returned only if 'blockFlag' is 'false'.
 
   public:
     // TRAITS
@@ -581,124 +586,127 @@ class MultipriorityQueue {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a multipriority queue.  Optionally specify `numPriorities`,
+    /// the number of distinct priorities supported by the multipriority
+    /// queue.  If `numPriorities` is not specified, the
+    /// (implementation-imposed maximum) number 32 is used.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  The behavior is undefined unless `1 <= numPriorities <= 32`
+    /// (if specified).
     explicit MultipriorityQueue(bslma::Allocator *basicAllocator = 0);
     explicit MultipriorityQueue(int               numPriorities,
                                 bslma::Allocator *basicAllocator = 0);
-        // Create a multipriority queue.  Optionally specify 'numPriorities',
-        // the number of distinct priorities supported by the multipriority
-        // queue.  If 'numPriorities' is not specified, the
-        // (implementation-imposed maximum) number 32 is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless '1 <= numPriorities <= 32'
-        // (if specified).
 
+    /// Destroy this container.  The behavior is undefined unless all access
+    /// or modification of the container has completed prior to this call.
     ~MultipriorityQueue();
-        // Destroy this container.  The behavior is undefined unless all access
-        // or modification of the container has completed prior to this call.
 
     // MANIPULATORS
+
+    /// Remove the least-recently added item having the most urgent priority
+    /// (lowest value) from this multi-priority queue and load its value
+    /// into the specified `item`.  If this queue is empty, this method
+    /// blocks the calling thread until an item becomes available.  If the
+    /// optionally specified `itemPriority` is non-null, load the priority
+    /// of the popped item into `itemPriority`.  The behavior is undefined
+    /// unless `item` is non-null.  Note this is unaffected by the enabled /
+    /// disabled state of the queue.
     void popFront(TYPE *item, int *itemPriority = 0);
-        // Remove the least-recently added item having the most urgent priority
-        // (lowest value) from this multi-priority queue and load its value
-        // into the specified 'item'.  If this queue is empty, this method
-        // blocks the calling thread until an item becomes available.  If the
-        // optionally specified 'itemPriority' is non-null, load the priority
-        // of the popped item into 'itemPriority'.  The behavior is undefined
-        // unless 'item' is non-null.  Note this is unaffected by the enabled /
-        // disabled state of the queue.
 
+    /// Insert the value of the specified `item` with the specified
+    /// `itemPriority` into this multipriority queue before any queued items
+    /// having a less urgent priority (higher value) than `itemPriority`,
+    /// and after any items having the same or more urgent priority (lower
+    /// value) than `itemPriority`.  If the multipriority queue is enabled,
+    /// the push succeeds and `0` is returned, otherwise the push fails, the
+    /// queue remains unchanged, and a nonzero value is returned.  The
+    /// behavior is undefined unless `0 <= itemPriority < numPriorities()`.
     int pushBack(const TYPE& item, int itemPriority);
-        // Insert the value of the specified 'item' with the specified
-        // 'itemPriority' into this multipriority queue before any queued items
-        // having a less urgent priority (higher value) than 'itemPriority',
-        // and after any items having the same or more urgent priority (lower
-        // value) than 'itemPriority'.  If the multipriority queue is enabled,
-        // the push succeeds and '0' is returned, otherwise the push fails, the
-        // queue remains unchanged, and a nonzero value is returned.  The
-        // behavior is undefined unless '0 <= itemPriority < numPriorities()'.
 
+    /// Insert the value of the specified `item` with the specified
+    /// `itemPriority` into this multipriority queue before any queued items
+    /// having a less urgent priority (higher value) than `itemPriority`,
+    /// and after any items having the same or more urgent priority (lower
+    /// value) than `itemPriority`.  `item` is left in a valid but
+    /// unspecified state.  If the multipriority queue is enabled, the push
+    /// succeeds and `0` is returned, otherwise the push fails, the queue
+    /// remains unchanged, and a nonzero value is returned.  The behavior is
+    /// undefined unless `0 <= itemPriority < numPriorities()`.
     int pushBack(bslmf::MovableRef<TYPE> item, int itemPriority);
-        // Insert the value of the specified 'item' with the specified
-        // 'itemPriority' into this multipriority queue before any queued items
-        // having a less urgent priority (higher value) than 'itemPriority',
-        // and after any items having the same or more urgent priority (lower
-        // value) than 'itemPriority'.  'item' is left in a valid but
-        // unspecified state.  If the multipriority queue is enabled, the push
-        // succeeds and '0' is returned, otherwise the push fails, the queue
-        // remains unchanged, and a nonzero value is returned.  The behavior is
-        // undefined unless '0 <= itemPriority < numPriorities()'.
 
+    /// Insert the value of the specified `item` with the specified
+    /// `itemPriority` onto the back of this multipriority queue before any
+    /// queued items having a less urgent priority (higher value) than
+    /// `itemPriority`, and after any items having the same or more urgent
+    /// priority (lower value) than `itemPriority`.  All of the specified
+    /// `numItems` items are pushed as a single atomic action, unless the
+    /// copy constructor for one of them throws an exception, in which case
+    /// a possibly empty subset of the pushes will have completed and no
+    /// memory will be leaked.  `Raw` means that the push will succeed even
+    /// if the multipriority queue is disabled.  Note that this method is
+    /// targeted for specific use by the class
+    /// `bdlmt::MultipriorityThreadPool`.  The behavior is undefined unless
+    /// `0 <= itemPriority < numPriorities()`.
     void pushBackMultipleRaw(const TYPE& item, int itemPriority, int numItems);
-        // Insert the value of the specified 'item' with the specified
-        // 'itemPriority' onto the back of this multipriority queue before any
-        // queued items having a less urgent priority (higher value) than
-        // 'itemPriority', and after any items having the same or more urgent
-        // priority (lower value) than 'itemPriority'.  All of the specified
-        // 'numItems' items are pushed as a single atomic action, unless the
-        // copy constructor for one of them throws an exception, in which case
-        // a possibly empty subset of the pushes will have completed and no
-        // memory will be leaked.  'Raw' means that the push will succeed even
-        // if the multipriority queue is disabled.  Note that this method is
-        // targeted for specific use by the class
-        // 'bdlmt::MultipriorityThreadPool'.  The behavior is undefined unless
-        // '0 <= itemPriority < numPriorities()'.
 
+    /// Insert the value of the specified `item` with the specified
+    /// `itemPriority` into the front of this multipriority queue the
+    /// specified `numItems` times, before any queued items having the same
+    /// or less urgent priority (higher value) than `itemPriority`, and
+    /// after any items having more urgent priority (lower value) than
+    /// `itemPriority`.  All `numItems` items are pushed as a single atomic
+    /// action, unless the copy constructor throws while creating one of
+    /// them, in which case a possibly empty subset of the pushes will have
+    /// completed and no memory will be leaked.  `Raw` means that the push
+    /// will succeed even if the multipriority queue is disabled.  The
+    /// behavior is undefined unless `0 <= itemPriority < numPriorities()`.
+    /// Note that this method is targeted at specific uses by the class
+    /// `bdlmt::MultipriorityThreadPool`.
     void pushFrontMultipleRaw(const TYPE& item,
                               int         itemPriority,
                               int         numItems);
-        // Insert the value of the specified 'item' with the specified
-        // 'itemPriority' into the front of this multipriority queue the
-        // specified 'numItems' times, before any queued items having the same
-        // or less urgent priority (higher value) than 'itemPriority', and
-        // after any items having more urgent priority (lower value) than
-        // 'itemPriority'.  All 'numItems' items are pushed as a single atomic
-        // action, unless the copy constructor throws while creating one of
-        // them, in which case a possibly empty subset of the pushes will have
-        // completed and no memory will be leaked.  'Raw' means that the push
-        // will succeed even if the multipriority queue is disabled.  The
-        // behavior is undefined unless '0 <= itemPriority < numPriorities()'.
-        // Note that this method is targeted at specific uses by the class
-        // 'bdlmt::MultipriorityThreadPool'.
 
+    /// Attempt to remove (immediately) the least-recently added item having
+    /// the most urgent priority (lowest value) from this multi-priority
+    /// queue.  On success, load the value of the popped item into the
+    /// specified `item`; if the optionally specified `itemPriority` is
+    /// non-null, load the priority of the popped item into `itemPriority`;
+    /// and return 0.  Otherwise, leave `item` and `itemPriority`
+    /// unmodified, and return a non-zero value indicating that this queue
+    /// was empty.  The behavior is undefined unless `item` is non-null.
+    /// Note this is unaffected by the enabled / disabled state of the
+    /// queue.
     int tryPopFront(TYPE *item, int *itemPriority = 0);
-        // Attempt to remove (immediately) the least-recently added item having
-        // the most urgent priority (lowest value) from this multi-priority
-        // queue.  On success, load the value of the popped item into the
-        // specified 'item'; if the optionally specified 'itemPriority' is
-        // non-null, load the priority of the popped item into 'itemPriority';
-        // and return 0.  Otherwise, leave 'item' and 'itemPriority'
-        // unmodified, and return a non-zero value indicating that this queue
-        // was empty.  The behavior is undefined unless 'item' is non-null.
-        // Note this is unaffected by the enabled / disabled state of the
-        // queue.
 
+    /// Remove and destroy all items from this multi-priority queue.
     void removeAll();
-        // Remove and destroy all items from this multi-priority queue.
 
+    /// Enable pushes to this multipriority queue.  This method has no
+    /// effect unless the queue was disabled.
     void enable();
-        // Enable pushes to this multipriority queue.  This method has no
-        // effect unless the queue was disabled.
 
+    /// Disable pushes to this multipriority queue.  This method has no
+    /// effect unless the queue was enabled.
     void disable();
-        // Disable pushes to this multipriority queue.  This method has no
-        // effect unless the queue was enabled.
 
     // ACCESSORS
+
+    /// Return the number of distinct priorities (indicated at construction)
+    /// that are supported by this multi-priority queue.
     int numPriorities() const;
-        // Return the number of distinct priorities (indicated at construction)
-        // that are supported by this multi-priority queue.
 
+    /// Return the total number of items in this multi-priority queue.
     int length() const;
-        // Return the total number of items in this multi-priority queue.
 
+    /// Return `true` if there are no items in this multi-priority queue,
+    /// and `false` otherwise.
     bool isEmpty() const;
-        // Return 'true' if there are no items in this multi-priority queue,
-        // and 'false' otherwise.
 
+    /// Return `true` if this multipriority queue is enable and `false`
+    /// otherwise.
     bool isEnabled() const;
-        // Return 'true' if this multipriority queue is enable and 'false'
-        // otherwise.
 };
 
 // ============================================================================

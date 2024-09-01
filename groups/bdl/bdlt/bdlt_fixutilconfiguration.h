@@ -13,28 +13,27 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlt_fixutil
 //
 //@DESCRIPTION: This component provides an unconstrained (value-semantic)
-// attribute class, 'bdlt::FixUtilConfiguration', that may be used to configure
+// attribute class, `bdlt::FixUtilConfiguration`, that may be used to configure
 // various aspects of generated FIX strings.
 //
 ///Attributes
 ///----------
-//..
-//             Name             Type   Default
-//  -------------------------   ----   -------
-//  fractionalSecondPrecision   int     3
-//  useZAbbreviationForUtc      bool    false
-//..
-//: o 'fractionalSecondPrecision': number of digits used to represent
-//:   fractional seconds; must be in the range '0 .. 6'.
-//:
-//: o 'useZAbbreviationForUtc': 'true' if 'Z' should be used for the timezone
-//:   offset instead of '+00:00' (specific to UTC).
+// ```
+//            Name             Type   Default
+// -------------------------   ----   -------
+// fractionalSecondPrecision   int     3
+// useZAbbreviationForUtc      bool    false
+// ```
+// * `fractionalSecondPrecision`: number of digits used to represent
+//   fractional seconds; must be in the range `0 .. 6`.
+// * `useZAbbreviationForUtc`: `true` if `Z` should be used for the timezone
+//   offset instead of `+00:00` (specific to UTC).
 //
 ///Default Configuration
 ///---------------------
 // This component also provides a (process-wide) default configuration that may
-// be set and retrieved via the 'setDefaultConfiguration' and
-// 'defaultConfiguration' class methods, respectively.  See Usage Example 2 for
+// be set and retrieved via the `setDefaultConfiguration` and
+// `defaultConfiguration` class methods, respectively.  See Usage Example 2 for
 // further details.
 //
 ///Usage
@@ -43,53 +42,53 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Configuring FIX String Generation
 ///- - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates creation of a 'bdlt::FixUtilConfiguration' object
+// This example demonstrates creation of a `bdlt::FixUtilConfiguration` object
 // that may be used to influence the format of the output produced by a
-// hypothetical utility, 'my::FixUtil', that generates and parses FIX strings
-// for 'bdlt' vocabulary types (see 'bdlt_fixutil', which provides just such
+// hypothetical utility, `my::FixUtil`, that generates and parses FIX strings
+// for `bdlt` vocabulary types (see `bdlt_fixutil`, which provides just such
 // functionality).  In particular, suppose that given a sample
-// 'bdlt::DatetimeTz' object:
-//..
-//  const bdlt::DatetimeTz datetimeTz(
-//                             bdlt::Datetime(2005, 1, 31, 8, 59, 59, 123), 0);
-//..
-// 'my::FixUtil' produces, by default, the following string (which is a valid
+// `bdlt::DatetimeTz` object:
+// ```
+// const bdlt::DatetimeTz datetimeTz(
+//                            bdlt::Datetime(2005, 1, 31, 8, 59, 59, 123), 0);
+// ```
+// `my::FixUtil` produces, by default, the following string (which is a valid
 // FIX string):
-//..
-//  20050131-08:59:59.123+00:00
-//..
+// ```
+// 20050131-08:59:59.123+00:00
+// ```
 // However, we would like to produce the following (also valid FIX) string
 // instead:
-//..
-//  20050131-08:59:59.123000Z
-//..
-// 'bdlt::FixUtilConfiguration' can be used to obtain the desired result
-// assuming that 'my::FixUtil' uses 'bdlt::FixUtilConfiguration' to affect the
+// ```
+// 20050131-08:59:59.123000Z
+// ```
+// `bdlt::FixUtilConfiguration` can be used to obtain the desired result
+// assuming that `my::FixUtil` uses `bdlt::FixUtilConfiguration` to affect the
 // format of generated strings in this fashion (e.g., again see
-// 'bdlt_fixutil').
+// `bdlt_fixutil`).
 //
-// First, we construct a 'bdlt::FixUtilConfiguration' object that has the
+// First, we construct a `bdlt::FixUtilConfiguration` object that has the
 // default value:
-//..
-//  bdlt::FixUtilConfiguration configuration;
-//  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert(!configuration.useZAbbreviationForUtc());
-//..
-// Then, we modify 'configuration' to indicate that we want to use 6 digits of
+// ```
+// bdlt::FixUtilConfiguration configuration;
+// assert( configuration.fractionalSecondPrecision() == 3);
+// assert(!configuration.useZAbbreviationForUtc());
+// ```
+// Then, we modify `configuration` to indicate that we want to use 6 digits of
 // precision in the fractional seconds:
-//..
-//  configuration.setFractionalSecondPrecision(6);
-//  assert( configuration.fractionalSecondPrecision() == 6);
-//  assert(!configuration.useZAbbreviationForUtc());
-//..
-// Finally, we modify 'configuration' to indicate that we want to use 'Z' as an
+// ```
+// configuration.setFractionalSecondPrecision(6);
+// assert( configuration.fractionalSecondPrecision() == 6);
+// assert(!configuration.useZAbbreviationForUtc());
+// ```
+// Finally, we modify `configuration` to indicate that we want to use `Z` as an
 // abbreviation for UTC:
-//..
-//  configuration.setUseZAbbreviationForUtc(true);
-//  assert( configuration.fractionalSecondPrecision() == 6);
-//  assert( configuration.useZAbbreviationForUtc());
-//..
-// Our 'configuration' object can now be supplied to 'my::FixUtil' to produce
+// ```
+// configuration.setUseZAbbreviationForUtc(true);
+// assert( configuration.fractionalSecondPrecision() == 6);
+// assert( configuration.useZAbbreviationForUtc());
+// ```
+// Our `configuration` object can now be supplied to `my::FixUtil` to produce
 // the desired result.
 //
 ///Example 2: Setting the Process-Wide Default Configuration
@@ -99,40 +98,40 @@ BSLS_IDENT("$Id: $")
 //
 // First, we retrieve the default configuration in effect at process start-up
 // and note that it has the default-constructed value:
-//..
-//  bdlt::FixUtilConfiguration configuration =
-//                          bdlt::FixUtilConfiguration::defaultConfiguration();
-//  assert(bdlt::FixUtilConfiguration() == configuration);
-//  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert(!configuration.useZAbbreviationForUtc());
-//..
-// Next, we modify 'configuration' to indicate that we want to output 'Z' when
-// the timezone offset is UTC (i.e., instead of '+00:00'):
-//..
-//  configuration.setUseZAbbreviationForUtc(true);
-//  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert( configuration.useZAbbreviationForUtc());
-//..
-// Then, we modify 'configuration' to display milliseconds:
-//..
-//  configuration.setFractionalSecondPrecision(6);
-//  assert( configuration.fractionalSecondPrecision() == 6);
-//  assert( configuration.useZAbbreviationForUtc());
-//..
-// Now, we set the default configuration to the value of our 'configuration'
+// ```
+// bdlt::FixUtilConfiguration configuration =
+//                         bdlt::FixUtilConfiguration::defaultConfiguration();
+// assert(bdlt::FixUtilConfiguration() == configuration);
+// assert( configuration.fractionalSecondPrecision() == 3);
+// assert(!configuration.useZAbbreviationForUtc());
+// ```
+// Next, we modify `configuration` to indicate that we want to output `Z` when
+// the timezone offset is UTC (i.e., instead of `+00:00`):
+// ```
+// configuration.setUseZAbbreviationForUtc(true);
+// assert( configuration.fractionalSecondPrecision() == 3);
+// assert( configuration.useZAbbreviationForUtc());
+// ```
+// Then, we modify `configuration` to display milliseconds:
+// ```
+// configuration.setFractionalSecondPrecision(6);
+// assert( configuration.fractionalSecondPrecision() == 6);
+// assert( configuration.useZAbbreviationForUtc());
+// ```
+// Now, we set the default configuration to the value of our `configuration`
 // object:
-//..
-//  bdlt::FixUtilConfiguration::setDefaultConfiguration(configuration);
-//..
+// ```
+// bdlt::FixUtilConfiguration::setDefaultConfiguration(configuration);
+// ```
 // Finally, we verify that the default configuration was updated as expected:
-//..
-//  const bdlt::FixUtilConfiguration newConfiguration =
-//                      bdlt::FixUtilConfiguration::defaultConfiguration();
-//  assert( newConfiguration.fractionalSecondPrecision() == 6);
-//  assert( newConfiguration.useZAbbreviationForUtc());
-//..
+// ```
+// const bdlt::FixUtilConfiguration newConfiguration =
+//                     bdlt::FixUtilConfiguration::defaultConfiguration();
+// assert( newConfiguration.fractionalSecondPrecision() == 6);
+// assert( newConfiguration.useZAbbreviationForUtc());
+// ```
 // Note that the expected usage is that the process-wide configuration will be
-// established *once*, early in 'main', and not changed throughout the lifetime
+// established *once*, early in `main`, and not changed throughout the lifetime
 // of a process.
 
 #include <bdlscm_version.h>
@@ -150,13 +149,13 @@ namespace bdlt {
                         // class FixUtilConfiguration
                         // ==========================
 
+/// This unconstrained (value-semantic) attribute class characterizes how to
+/// configure certain behavior in `FixUtil` functions.  Currently, only the
+/// `generate` and `generateRaw` methods of that utility are affected by
+/// `FixUtilConfiguration` settings.  See the Attributes section under
+/// @DESCRIPTION in the component-level documentation for information on the
+/// class attributes.
 class FixUtilConfiguration {
-    // This unconstrained (value-semantic) attribute class characterizes how to
-    // configure certain behavior in 'FixUtil' functions.  Currently, only the
-    // 'generate' and 'generateRaw' methods of that utility are affected by
-    // 'FixUtilConfiguration' settings.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation for information on the
-    // class attributes.
 
   private:
     // PRIVATE TYPES
@@ -183,109 +182,115 @@ class FixUtilConfiguration {
 
   private:
     // PRIVATE CREATORS
+
+    /// Create a `FixUtilConfiguration` object having the value indicated by
+    /// the specified `configurationMask`.  The behavior is undefined unless
+    /// `configurationMask` represents a valid `FixUtilConfiguration` value.
     explicit FixUtilConfiguration(int configurationMask);
-        // Create a 'FixUtilConfiguration' object having the value indicated by
-        // the specified 'configurationMask'.  The behavior is undefined unless
-        // 'configurationMask' represents a valid 'FixUtilConfiguration' value.
 
   public:
     // CLASS METHODS
-    static FixUtilConfiguration defaultConfiguration();
-        // Return the value of the process-wide 'FixUtilConfiguration' that is
-        // currently in effect.
 
+    /// Return the value of the process-wide `FixUtilConfiguration` that is
+    /// currently in effect.
+    static FixUtilConfiguration defaultConfiguration();
+
+    /// Set the value of the process-wide `FixUtilConfiguration` to the
+    /// specified `configuration`.  Note that the expected usage is that the
+    /// process-wide configuration will be established *once*, early in
+    /// `main`, and not changed throughout the lifetime of a process.
     static void setDefaultConfiguration(
                                     const FixUtilConfiguration& configuration);
-        // Set the value of the process-wide 'FixUtilConfiguration' to the
-        // specified 'configuration'.  Note that the expected usage is that the
-        // process-wide configuration will be established *once*, early in
-        // 'main', and not changed throughout the lifetime of a process.
 
     // CREATORS
+
+    /// Create a `FixUtilConfiguration` object having the (default)
+    /// attribute values:
+    /// ```
+    /// fractionalSecondPrecision() == 3
+    /// useZAbbreviationForUtc()    == false
+    /// ```
     FixUtilConfiguration();
-        // Create a 'FixUtilConfiguration' object having the (default)
-        // attribute values:
-        //..
-        //  fractionalSecondPrecision() == 3
-        //  useZAbbreviationForUtc()    == false
-        //..
 
+    /// Create a `FixUtilConfiguration` object having the value of the
+    /// specified `original` configuration.
     FixUtilConfiguration(const FixUtilConfiguration& original);
-        // Create a 'FixUtilConfiguration' object having the value of the
-        // specified 'original' configuration.
 
+    /// Destroy this object.
     ~FixUtilConfiguration();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs`
+    /// configuration, and return a reference providing modifiable access to
+    /// this object.
     FixUtilConfiguration& operator=(const FixUtilConfiguration& rhs);
-        // Assign to this object the value of the specified 'rhs'
-        // configuration, and return a reference providing modifiable access to
-        // this object.
 
+    /// Set the `fractionalSecondPrecision` attribute of this object to the
+    /// specified `value`.  The behavior is undefined unless `0 <= value`
+    /// and `6 >= value`.  Note that the FIX protocol allows for much higher
+    /// precision.
     void setFractionalSecondPrecision(int value);
-        // Set the 'fractionalSecondPrecision' attribute of this object to the
-        // specified 'value'.  The behavior is undefined unless '0 <= value'
-        // and '6 >= value'.  Note that the FIX protocol allows for much higher
-        // precision.
 
+    /// Set the `useZAbbreviationForUtc` attribute of this object to the
+    /// specified `value`.
     void setUseZAbbreviationForUtc(bool value);
-        // Set the 'useZAbbreviationForUtc' attribute of this object to the
-        // specified 'value'.
 
     // ACCESSORS
-    int fractionalSecondPrecision() const;
-        // Return the value of the 'fractionalSecondPrecision' attribute of
-        // this object.
 
+    /// Return the value of the `fractionalSecondPrecision` attribute of
+    /// this object.
+    int fractionalSecondPrecision() const;
+
+    /// Return the value of the `useZAbbreviationForUtc` attribute of this
+    /// object.
     bool useZAbbreviationForUtc() const;
-        // Return the value of the 'useZAbbreviationForUtc' attribute of this
-        // object.
 
                                   // Aspects
 
+    /// Write the value of this object to the specified output `stream` in a
+    /// human-readable format, and return a reference to `stream`.
+    /// Optionally specify an initial indentation `level`, whose absolute
+    /// value is incremented recursively for nested objects.  If `level` is
+    /// specified, optionally specify `spacesPerLevel`, whose absolute value
+    /// indicates the number of spaces per indentation level for this and
+    /// all of its nested objects.  If `level` is negative, suppress
+    /// indentation of the first line.  If `spacesPerLevel` is negative,
+    /// format the entire output on one line, suppressing all but the
+    /// initial indentation (as governed by `level`).  If `stream` is not
+    /// valid on entry, this operation has no effect.  Note that this
+    /// human-readable format is not fully specified, and can change without
+    /// notice.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in a
-        // human-readable format, and return a reference to 'stream'.
-        // Optionally specify an initial indentation 'level', whose absolute
-        // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute value
-        // indicates the number of spaces per indentation level for this and
-        // all of its nested objects.  If 'level' is negative, suppress
-        // indentation of the first line.  If 'spacesPerLevel' is negative,
-        // format the entire output on one line, suppressing all but the
-        // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that this
-        // human-readable format is not fully specified, and can change without
-        // notice.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `FixUtilConfiguration` objects have
+/// the same value if each of their `fractionalSecondPrecision` and
+/// `useZAbbreviationForUtc` attributes (respectively) have the same value.
 bool operator==(const FixUtilConfiguration& lhs,
                 const FixUtilConfiguration& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'FixUtilConfiguration' objects have
-    // the same value if each of their 'fractionalSecondPrecision' and
-    // 'useZAbbreviationForUtc' attributes (respectively) have the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `FixUtilConfiguration` objects
+/// do not have the same value if any of their `fractionalSecondPrecision`
+/// or `useZAbbreviationForUtc` attributes (respectively) do not have the
+/// same value.
 bool operator!=(const FixUtilConfiguration& lhs,
                 const FixUtilConfiguration& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'FixUtilConfiguration' objects
-    // do not have the same value if any of their 'fractionalSecondPrecision'
-    // or 'useZAbbreviationForUtc' attributes (respectively) do not have the
-    // same value.
 
+/// Write the value of the specified `object` to the specified output
+/// `stream` in a single-line format, and return a reference to `stream`.
+/// If `stream` is not valid on entry, this operation has no effect.  Note
+/// that this human-readable format is not fully specified and can change
+/// without notice.  Also note that this method has the same behavior as
+/// `object.print(stream, 0, -1)`, but with the attribute names elided.
 bsl::ostream& operator<<(bsl::ostream&               stream,
                          const FixUtilConfiguration& object);
-    // Write the value of the specified 'object' to the specified output
-    // 'stream' in a single-line format, and return a reference to 'stream'.
-    // If 'stream' is not valid on entry, this operation has no effect.  Note
-    // that this human-readable format is not fully specified and can change
-    // without notice.  Also note that this method has the same behavior as
-    // 'object.print(stream, 0, -1)', but with the attribute names elided.
 
 // ============================================================================
 //                             INLINE DEFINITIONS

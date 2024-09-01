@@ -12,14 +12,14 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlt_datetime, bdlt_datetimeinterval, bsls_timeinterval
 //
-//@DESCRIPTION: This component defines a namespace, 'bdlt::EpochUtil',
+//@DESCRIPTION: This component defines a namespace, `bdlt::EpochUtil`,
 // providing non-primitive conversions between two different concepts of time.
-// Clients can convert between absolute time ('bdlt::Datetime') and relative
-// time (such as 'bsl::time_t', 'bdlt::EpochUtil::TimeT64',
-// 'bsls::TimeInterval', and 'bdlt::DatetimeInterval') with respect to the Unix
+// Clients can convert between absolute time (`bdlt::Datetime`) and relative
+// time (such as `bsl::time_t`, `bdlt::EpochUtil::TimeT64`,
+// `bsls::TimeInterval`, and `bdlt::DatetimeInterval`) with respect to the Unix
 // standard "epoch" (1970/01/01_00:00:00.000 UTC), henceforth, simply referred
-// to as "the epoch".  Also provided is a fast, thread-safe method, 'epoch',
-// for access to a pre-instantiated 'bdlt::Datetime' object whose (constant)
+// to as "the epoch".  Also provided is a fast, thread-safe method, `epoch`,
+// for access to a pre-instantiated `bdlt::Datetime` object whose (constant)
 // value is that of the epoch.
 //
 // Due to different resolutions, conversions between absolute/relative time are
@@ -27,24 +27,24 @@ BSLS_IDENT("$Id: $")
 // with lower resolution.  The value of the type with higher resolution will be
 // truncated (not rounded).  The following table lists the resolution of the
 // types involved in this component:
-//..
-//  Type                      Reference          Resolution
-//  ---------------------     --------------     ------------
-//  bsl::time_t               relative           seconds
-//  bdlt::EpochUtil::TimeT64  relative           seconds
-//  bdlt::Datetime            absolute (UTC)     microseconds
-//  bdlt::DatetimeInterval    relative           microseconds
-//  bsls::TimeInterval        relative           nanoseconds
-//..
-// Note that the interfaces using 'bdlt::EpochUtil::TimeT64' can be validly
-// used for values before the epoch (corresponding to negative 'TimeT64'
-// values), whereas the interfaces using 'bsl::time_t' have undefined behavior
-// for such input.  Furthermore, even on platforms where 'bsl::time_t' is a
+// ```
+// Type                      Reference          Resolution
+// ---------------------     --------------     ------------
+// bsl::time_t               relative           seconds
+// bdlt::EpochUtil::TimeT64  relative           seconds
+// bdlt::Datetime            absolute (UTC)     microseconds
+// bdlt::DatetimeInterval    relative           microseconds
+// bsls::TimeInterval        relative           nanoseconds
+// ```
+// Note that the interfaces using `bdlt::EpochUtil::TimeT64` can be validly
+// used for values before the epoch (corresponding to negative `TimeT64`
+// values), whereas the interfaces using `bsl::time_t` have undefined behavior
+// for such input.  Furthermore, even on platforms where `bsl::time_t` is a
 // 64-bit value, clients of this component are strongly encouraged to use the
-// 'TimeT64'-based methods to avoid limitations imposed by the
-// 'bsl::time_t'-based methods required to ensure identical behavior on all
+// `TimeT64`-based methods to avoid limitations imposed by the
+// `bsl::time_t`-based methods required to ensure identical behavior on all
 // supported platforms (e.g., see the function-level documentation for
-// 'convertToTimeT(bsl::time_t)').
+// `convertToTimeT(bsl::time_t)`).
 //
 // Also note that these conversions do not take into account the leap seconds
 // (25 as of this writing) added to UTC by the International Earth Rotation and
@@ -56,7 +56,7 @@ BSLS_IDENT("$Id: $")
 // It is safe to invoke any function defined in this component in two or more
 // separate threads simultaneously, provided no other thread is simultaneously
 // modifying the argument passed by reference to a non-modifiable user-defined
-// type (such as 'bsls::TimeInterval' or 'bdlt::Datetime').
+// type (such as `bsls::TimeInterval` or `bdlt::Datetime`).
 //
 ///Usage
 ///-----
@@ -67,63 +67,63 @@ BSLS_IDENT("$Id: $")
 // When processing date/time data, we are often required to deal with a variety
 // of ways in which to represent that data, and therefore we need to be able to
 // convert between those representations.  We can use the methods contained in
-// 'bdlt::EpochUtil' to do this.
+// `bdlt::EpochUtil` to do this.
 //
 // First, we set up date/time input values in a variety of formats.  We'll use
 // 900ms past midnight of January 1, 2000 as the base date and time, dropping
 // the 900ms if the resolution of a format doesn't support it:
-//..
-//  const bsl::time_t            inputTime         (946684800);
-//  const bsls::TimeInterval     inputTimeInterval (946684800, 900000000);
-//  const bdlt::DatetimeInterval inputDatetimeInterval(
-//                                                0, 0, 0, 0, 946684800900LL);
-//  const bdlt::Datetime         inputDatetime     (2000, 1, 1, 0, 0, 0, 900);
-//..
+// ```
+// const bsl::time_t            inputTime         (946684800);
+// const bsls::TimeInterval     inputTimeInterval (946684800, 900000000);
+// const bdlt::DatetimeInterval inputDatetimeInterval(
+//                                               0, 0, 0, 0, 946684800900LL);
+// const bdlt::Datetime         inputDatetime     (2000, 1, 1, 0, 0, 0, 900);
+// ```
 // Then, we set up a set of output variables to receive converted values:
-//..
-//  bsl::time_t            outputTime = 0;
-//  bsls::TimeInterval     outputTimeInterval;
-//  bdlt::DatetimeInterval outputDatetimeInterval;
-//  bdlt::Datetime         outputDatetime;
-//..
-// Next, because 'bdlt::EpochUtil' uses 'bdlt::Datetime' as the common format
+// ```
+// bsl::time_t            outputTime = 0;
+// bsls::TimeInterval     outputTimeInterval;
+// bdlt::DatetimeInterval outputDatetimeInterval;
+// bdlt::Datetime         outputDatetime;
+// ```
+// Next, because `bdlt::EpochUtil` uses `bdlt::Datetime` as the common format
 // for conversion, we will set up a pair of variables in this format to
 // represent the values we expect to see:
-//..
-//  const bdlt::Datetime epochDatetimeWithMs   (2000, 1, 1, 0, 0, 0, 900);
-//  const bdlt::Datetime epochDatetimeWithoutMs(2000, 1, 1, 0, 0, 0, 0);
-//..
-// Now, we perform a set of conversions to 'bdlt::Datetime' and verify that the
+// ```
+// const bdlt::Datetime epochDatetimeWithMs   (2000, 1, 1, 0, 0, 0, 900);
+// const bdlt::Datetime epochDatetimeWithoutMs(2000, 1, 1, 0, 0, 0, 0);
+// ```
+// Now, we perform a set of conversions to `bdlt::Datetime` and verify that the
 // results are correct.  We will use the conversion methods that return by
 // value:
-//..
-//  outputDatetime = bdlt::EpochUtil::convertFromTimeT(inputTime);
-//  assert(epochDatetimeWithoutMs == outputDatetime);
+// ```
+// outputDatetime = bdlt::EpochUtil::convertFromTimeT(inputTime);
+// assert(epochDatetimeWithoutMs == outputDatetime);
 //
-//  outputDatetime =
-//                 bdlt::EpochUtil::convertFromTimeInterval(inputTimeInterval);
-//  assert(epochDatetimeWithMs    == outputDatetime);
+// outputDatetime =
+//                bdlt::EpochUtil::convertFromTimeInterval(inputTimeInterval);
+// assert(epochDatetimeWithMs    == outputDatetime);
 //
-//  outputDatetime =
-//         bdlt::EpochUtil::convertFromDatetimeInterval(inputDatetimeInterval);
-//  assert(epochDatetimeWithMs    == outputDatetime);
-//..
-// Finally, we perform a set of conversions from 'bdlt::Datetime' and verify
+// outputDatetime =
+//        bdlt::EpochUtil::convertFromDatetimeInterval(inputDatetimeInterval);
+// assert(epochDatetimeWithMs    == outputDatetime);
+// ```
+// Finally, we perform a set of conversions from `bdlt::Datetime` and verify
 // that the results are correct.  This time, for variety, we will illustrate
 // the conversion methods which return through an object pointer:
-//..
-//  assert(0 == bdlt::EpochUtil::convertToTimeT(&outputTime, inputDatetime));
-//  assert(inputTime             == outputTime);
+// ```
+// assert(0 == bdlt::EpochUtil::convertToTimeT(&outputTime, inputDatetime));
+// assert(inputTime             == outputTime);
 //
-//  assert(0 == bdlt::EpochUtil::convertToTimeInterval(&outputTimeInterval,
-//                                                     inputDatetime));
-//  assert(inputTimeInterval     == outputTimeInterval);
+// assert(0 == bdlt::EpochUtil::convertToTimeInterval(&outputTimeInterval,
+//                                                    inputDatetime));
+// assert(inputTimeInterval     == outputTimeInterval);
 //
-//  assert(0 == bdlt::EpochUtil::convertToDatetimeInterval(
-//                                                     &outputDatetimeInterval,
-//                                                     inputDatetime));
-//  assert(inputDatetimeInterval == outputDatetimeInterval);
-//..
+// assert(0 == bdlt::EpochUtil::convertToDatetimeInterval(
+//                                                    &outputDatetimeInterval,
+//                                                    inputDatetime));
+// assert(inputDatetimeInterval == outputDatetimeInterval);
+// ```
 
 #include <bdlscm_version.h>
 
@@ -146,22 +146,23 @@ namespace bdlt {
                              // struct EpochUtil
                              // ================
 
+/// This `struct` provides a namespace for a suite of non-primitive
+/// functions providing conversions between absolute `Datetime` values and
+/// corresponding relative time intervals with respect to the Unix standard
+/// epoch time, returned by the `epoch` method.  These methods are
+/// alias-safe, thread-safe, and exception-neutral.  Functions are provided
+/// for returning converted values by value or through a result pointer.
 struct EpochUtil {
-    // This 'struct' provides a namespace for a suite of non-primitive
-    // functions providing conversions between absolute 'Datetime' values and
-    // corresponding relative time intervals with respect to the Unix standard
-    // epoch time, returned by the 'epoch' method.  These methods are
-    // alias-safe, thread-safe, and exception-neutral.  Functions are provided
-    // for returning converted values by value or through a result pointer.
 
   public:
     // TYPES
+
+    /// `TimeT64` is an alias for a 64-bit integral type representing
+    /// seconds from the epoch in UTC.  Note that, in contrast with
+    /// `bsl::time_t`, this type can be used in conversions to and from
+    /// `Datetime` values that are less than the epoch (corresponding to
+    /// negative `TimeT64` values).
     typedef bsls::Types::Int64 TimeT64;
-        // 'TimeT64' is an alias for a 64-bit integral type representing
-        // seconds from the epoch in UTC.  Note that, in contrast with
-        // 'bsl::time_t', this type can be used in conversions to and from
-        // 'Datetime' values that are less than the epoch (corresponding to
-        // negative 'TimeT64' values).
 
   private:
     // CLASS DATA
@@ -170,151 +171,153 @@ struct EpochUtil {
 
   public:
     // CLASS METHODS
+
+    /// Return a reference providing non-modifiable access to the epoch
+    /// time: midnight on January 1, 1970.  Note that this value exists
+    /// before any code is executed and will continue to exist, unchanged,
+    /// until the program exits.
     static const Datetime& epoch();
-        // Return a reference providing non-modifiable access to the epoch
-        // time: midnight on January 1, 1970.  Note that this value exists
-        // before any code is executed and will continue to exist, unchanged,
-        // until the program exits.
 
                            // 'time_t'-Based Methods
 
+    /// Return, as a `Datetime`, the absolute datetime computed as the sum
+    /// of the specified relative `time` and the epoch.  The behavior is
+    /// undefined unless `0 <= time` and, for the resultant `Datetime` `dt`,
+    /// `0 == convertToTimeT(&time, dt)` (i.e., `time` is representable as a
+    /// 32-bit `int`).  Note that the returned value will use Coordinated
+    /// Universal Time (UTC) as a reference.
     static Datetime convertFromTimeT(bsl::time_t time);
-        // Return, as a 'Datetime', the absolute datetime computed as the sum
-        // of the specified relative 'time' and the epoch.  The behavior is
-        // undefined unless '0 <= time' and, for the resultant 'Datetime' 'dt',
-        // '0 == convertToTimeT(&time, dt)' (i.e., 'time' is representable as a
-        // 32-bit 'int').  Note that the returned value will use Coordinated
-        // Universal Time (UTC) as a reference.
 
+    /// Load into the specified `result` the absolute datetime converted to
+    /// a `Datetime`, computed as the sum of the specified relative `time`
+    /// and the epoch.  The behavior is undefined unless `0 <= time` and
+    /// `0 == convertToTimeT(&time, *result)` (i.e., `time` is representable
+    /// as a 32-bit `int`).  Note that `result` will use Coordinated
+    /// Universal Time (UTC) as a reference.
     static void convertFromTimeT(Datetime *result, bsl::time_t time);
-        // Load into the specified 'result' the absolute datetime converted to
-        // a 'Datetime', computed as the sum of the specified relative 'time'
-        // and the epoch.  The behavior is undefined unless '0 <= time' and
-        // '0 == convertToTimeT(&time, *result)' (i.e., 'time' is representable
-        // as a 32-bit 'int').  Note that 'result' will use Coordinated
-        // Universal Time (UTC) as a reference.
 
+    /// Return the relative time computed as the difference between the
+    /// specified absolute `datetime` and the epoch.  The behavior is
+    /// undefined unless `datetime - epoch() >= DatetimeInterval()` and the
+    /// converted `datetime` can be represented in the destination format on
+    /// all supported platforms (i.e., the resultant value is representable
+    /// as a 32-bit `int`).  Note that `datetime` is assumed to use
+    /// Coordinated Universal Time (UTC) as a reference.  Also note that if
+    /// error detection is desired, the overloaded version that loads the
+    /// converted `datetime` into a supplied destination object should be
+    /// used.
     static bsl::time_t convertToTimeT(const Datetime& datetime);
-        // Return the relative time computed as the difference between the
-        // specified absolute 'datetime' and the epoch.  The behavior is
-        // undefined unless 'datetime - epoch() >= DatetimeInterval()' and the
-        // converted 'datetime' can be represented in the destination format on
-        // all supported platforms (i.e., the resultant value is representable
-        // as a 32-bit 'int').  Note that 'datetime' is assumed to use
-        // Coordinated Universal Time (UTC) as a reference.  Also note that if
-        // error detection is desired, the overloaded version that loads the
-        // converted 'datetime' into a supplied destination object should be
-        // used.
 
+    /// Load into the specified `result` the relative time computed as the
+    /// difference between the specified absolute `datetime` and the epoch.
+    /// Return 0 on success, and a non-zero value (with no effect on
+    /// `result`) if `datetime - epoch() < DatetimeInterval()` or `datetime`
+    /// cannot be represented in the destination format on all supported
+    /// platforms (i.e., the computed `*result` is not representable as a
+    /// 32-bit `int`).  Note that `datetime` is assumed to use Coordinated
+    /// Universal Time (UTC) as a reference.
     static int convertToTimeT(bsl::time_t     *result,
                               const Datetime&  datetime);
-        // Load into the specified 'result' the relative time computed as the
-        // difference between the specified absolute 'datetime' and the epoch.
-        // Return 0 on success, and a non-zero value (with no effect on
-        // 'result') if 'datetime - epoch() < DatetimeInterval()' or 'datetime'
-        // cannot be represented in the destination format on all supported
-        // platforms (i.e., the computed '*result' is not representable as a
-        // 32-bit 'int').  Note that 'datetime' is assumed to use Coordinated
-        // Universal Time (UTC) as a reference.
 
                            // 'TimeT64'-Based Methods
 
+    /// Return, as a `Datetime`, the absolute datetime computed as the sum
+    /// of the specified relative `time` and the epoch.  The behavior is
+    /// undefined unless the converted `time` can be represented in the
+    /// destination format.  Note that the returned value will use
+    /// Coordinated Universal Time (UTC) as a reference.  Also note that if
+    /// error detection is desired, the overloaded version that loads the
+    /// converted `time` into a supplied destination object should be used.
     static Datetime convertFromTimeT64(TimeT64 time);
-        // Return, as a 'Datetime', the absolute datetime computed as the sum
-        // of the specified relative 'time' and the epoch.  The behavior is
-        // undefined unless the converted 'time' can be represented in the
-        // destination format.  Note that the returned value will use
-        // Coordinated Universal Time (UTC) as a reference.  Also note that if
-        // error detection is desired, the overloaded version that loads the
-        // converted 'time' into a supplied destination object should be used.
 
+    /// Load into the specified `result` the absolute datetime converted to
+    /// a `Datetime`, computed as the sum of the specified relative `time`
+    /// and the epoch.  Return 0 on success, and a non-zero value (with no
+    /// effect on `result`) if `time` cannot be represented in the
+    /// destination format.  Note that `result` will use Coordinated
+    /// Universal Time (UTC) as a reference.
     static int convertFromTimeT64(Datetime *result, TimeT64 time);
-        // Load into the specified 'result' the absolute datetime converted to
-        // a 'Datetime', computed as the sum of the specified relative 'time'
-        // and the epoch.  Return 0 on success, and a non-zero value (with no
-        // effect on 'result') if 'time' cannot be represented in the
-        // destination format.  Note that 'result' will use Coordinated
-        // Universal Time (UTC) as a reference.
 
+    /// Return the relative time computed as the difference between the
+    /// specified absolute `datetime` and the epoch.  Note that `datetime`
+    /// is assumed to use Coordinated Universal Time (UTC) as a reference.
     static TimeT64 convertToTimeT64(const Datetime& datetime);
-        // Return the relative time computed as the difference between the
-        // specified absolute 'datetime' and the epoch.  Note that 'datetime'
-        // is assumed to use Coordinated Universal Time (UTC) as a reference.
 
+    /// Load into the specified `result` the relative time computed as the
+    /// difference between the specified absolute `datetime` and the epoch.
+    /// Note that `datetime` is assumed to use Coordinated Universal Time
+    /// (UTC) as a reference.
     static void convertToTimeT64(TimeT64         *result,
                                  const Datetime&  datetime);
-        // Load into the specified 'result' the relative time computed as the
-        // difference between the specified absolute 'datetime' and the epoch.
-        // Note that 'datetime' is assumed to use Coordinated Universal Time
-        // (UTC) as a reference.
 
                        // 'bsls::TimeInterval'-Based Methods
 
+    /// Return, as a `Datetime`, the absolute datetime computed as the sum
+    /// of the specified relative `timeInterval` and the epoch.  The
+    /// behavior is undefined unless the conversion result can be
+    /// represented as a `Datetime`.  Note that the conversion is
+    /// potentially lossy as the resolution of `bsls::TimeInterval` is
+    /// greater than that of `Datetime`.
     static Datetime convertFromTimeInterval(
                                        const bsls::TimeInterval& timeInterval);
-        // Return, as a 'Datetime', the absolute datetime computed as the sum
-        // of the specified relative 'timeInterval' and the epoch.  The
-        // behavior is undefined unless the conversion result can be
-        // represented as a 'Datetime'.  Note that the conversion is
-        // potentially lossy as the resolution of 'bsls::TimeInterval' is
-        // greater than that of 'Datetime'.
 
+    /// Load into the specified `result` the absolute datetime converted to
+    /// a `Datetime`, computed as the sum of the specified relative
+    /// `timeInterval` and the epoch.  The behavior is undefined unless the
+    /// conversion result can be represented as a `Datetime`.  Note that the
+    /// conversion is potentially lossy as the resolution of
+    /// `bsls::TimeInterval` is greater than that of `Datetime`.
     static void convertFromTimeInterval(
                                       Datetime                  *result,
                                       const bsls::TimeInterval&  timeInterval);
-        // Load into the specified 'result' the absolute datetime converted to
-        // a 'Datetime', computed as the sum of the specified relative
-        // 'timeInterval' and the epoch.  The behavior is undefined unless the
-        // conversion result can be represented as a 'Datetime'.  Note that the
-        // conversion is potentially lossy as the resolution of
-        // 'bsls::TimeInterval' is greater than that of 'Datetime'.
 
+    /// Return, as a `bsls::TimeInterval`, the relative time computed as the
+    /// difference between the specified absolute `datetime` and the epoch.
     static bsls::TimeInterval convertToTimeInterval(const Datetime& datetime);
-        // Return, as a 'bsls::TimeInterval', the relative time computed as the
-        // difference between the specified absolute 'datetime' and the epoch.
 
                    // 'DatetimeInterval'-Based Methods
 
+    /// Return, as a `Datetime`, the absolute datetime computed as the sum
+    /// of the specified relative `datetimeInterval` and the epoch.  The
+    /// behavior is undefined unless the conversion result can be
+    /// represented as a `Datetime`.
     static Datetime convertFromDatetimeInterval(
                                      const DatetimeInterval& datetimeInterval);
-        // Return, as a 'Datetime', the absolute datetime computed as the sum
-        // of the specified relative 'datetimeInterval' and the epoch.  The
-        // behavior is undefined unless the conversion result can be
-        // represented as a 'Datetime'.
 
+    /// Load into the specified `result` the absolute datetime converted to
+    /// a `Datetime`, computed as the sum of the specified relative
+    /// `datetimeInterval` and the epoch.  The behavior is undefined unless
+    /// the conversion result can be represented as a `Datetime`.
     static void convertFromDatetimeInterval(
                                     Datetime                *result,
                                     const DatetimeInterval&  datetimeInterval);
-        // Load into the specified 'result' the absolute datetime converted to
-        // a 'Datetime', computed as the sum of the specified relative
-        // 'datetimeInterval' and the epoch.  The behavior is undefined unless
-        // the conversion result can be represented as a 'Datetime'.
 
+    /// Return, as a `DatetimeInterval`, the relative time computed as the
+    /// difference between the specified absolute `datetime` and the epoch.
     static DatetimeInterval convertToDatetimeInterval(
                                                      const Datetime& datetime);
-        // Return, as a 'DatetimeInterval', the relative time computed as the
-        // difference between the specified absolute 'datetime' and the epoch.
 
     // DEPRECATED CLASS METHODS
+
+    /// **DEPRECATED**: Use `convertToTimeInterval(datetime)` instead.
+    ///
+    /// If `datetime - epoch() >= DatetimeInterval()`, load into the
+    /// specified `result` the relative time converted to a
+    /// `bsls::TimeInterval`, computed as the difference between the
+    /// specified absolute `datetime` and the epoch, and return 0.
+    /// Otherwise, return a non-zero value (with no effect on `result`).
     static int convertToTimeInterval(bsls::TimeInterval *result,
                                      const Datetime&     datetime);
-        // !DEPRECATED!: Use 'convertToTimeInterval(datetime)' instead.
-        //
-        // If 'datetime - epoch() >= DatetimeInterval()', load into the
-        // specified 'result' the relative time converted to a
-        // 'bsls::TimeInterval', computed as the difference between the
-        // specified absolute 'datetime' and the epoch, and return 0.
-        // Otherwise, return a non-zero value (with no effect on 'result').
 
+    /// **DEPRECATED**: Use `convertToDatetimeInterval(datetime)` instead.
+    ///
+    /// If `datetime - epoch() >= DatetimeInterval()`, load into the
+    /// specified `result` the relative time converted to a
+    /// `DatetimeInterval`, computed as the difference between the specified
+    /// absolute `datetime` and the epoch, and return 0.  Otherwise, return
+    /// a non-zero value (with no effect on `result`).
     static int convertToDatetimeInterval(DatetimeInterval *result,
                                          const Datetime&   datetime);
-        // !DEPRECATED!: Use 'convertToDatetimeInterval(datetime)' instead.
-        //
-        // If 'datetime - epoch() >= DatetimeInterval()', load into the
-        // specified 'result' the relative time converted to a
-        // 'DatetimeInterval', computed as the difference between the specified
-        // absolute 'datetime' and the epoch, and return 0.  Otherwise, return
-        // a non-zero value (with no effect on 'result').
 };
 
 // ============================================================================

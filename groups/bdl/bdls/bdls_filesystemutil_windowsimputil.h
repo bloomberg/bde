@@ -5,18 +5,18 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide testable 'bdls::FilesystemUtil' operations on Windows.
+//@PURPOSE: Provide testable `bdls::FilesystemUtil` operations on Windows.
 //
 //@CLASSES:
 //  bdls::FilesystemUtil_WindowsImpUtil: testable file-system utilities
 //
 //@SEE_ALSO: bdls_filesystemutil
 //
-//@DESCRIPTION: This subordinate component to 'bdls_filesystemutil' provides a
-// utility 'struct' template, 'bdls::FilesystemUtil_WindowsImpUtil' for
-// implementing some of 'bdls::FilesystemUtil's functions on Windows
-// platforms.  'bdls::FilesystemUtil_WindowsImpUtil' accesses Windows functions
-// and types through its template parameter, 'WINDOWS_INTERFACE', in order to
+//@DESCRIPTION: This subordinate component to `bdls_filesystemutil` provides a
+// utility `struct` template, `bdls::FilesystemUtil_WindowsImpUtil` for
+// implementing some of `bdls::FilesystemUtil`s functions on Windows
+// platforms.  `bdls::FilesystemUtil_WindowsImpUtil` accesses Windows functions
+// and types through its template parameter, `WINDOWS_INTERFACE`, in order to
 // allow tests to supply mock Windows interfaces.
 
 #include <bdlt_datetime.h>
@@ -34,186 +34,174 @@ namespace bdls {
                    // struct FilesystemUtil_WindowsImpUtil
                    // ====================================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions that `FilesystemUtil` uses as implementation details.
+/// These functions have a `WINDOWS_INTERFACE` template parameter, which
+/// provides access to the entities that Windows systems declare, and that
+/// the function implementations need.
+///
+/// The program is ill-formed unless the specified `WINDOWS_INTERFACE` is
+/// a class type that meets the following requirements:
+///
+/// * `WINDOWS_INTERFACE::BOOL` is a type alias to the `BOOL`
+///   type provided by the `windows.h` header.
+/// * `WINDOWS_INTERFACE::DWORD` is a type alias to the `DWORD`
+///   type provided by the `windows.h` header.
+/// * `WINDOWS_INTERFACE::FILETIME` is a type alias to the `FILETIME`
+///   type provided by the `windows.h` header.
+/// * `WINDOWS_INTERFACE::HANDLE` is a type alias to the `HANDLE`
+///   type provided by the `windows.h` header.
+/// * `WINDOWS_INTERFACE::INT64` is a type alias to the `IN64` type
+///    provided by the `windows.h` header.
+/// * `WINDOWS_INTERFACE::LPFILETIME` is a type alias to the
+///   `LPFILETIME` type provided by the `windows.h` header.
+/// * `WINDOWS_INTERFACE::SYSTEMTIME` is a type alias to the
+///   `LPFILETIME` type provided by the `windows.h` header.
+/// * `WINDOWS_INTERFACE::ULARGE_INTEGER` is a type alias to the
+///   `ULARGE_INTEGER` type provided by the `windows.h` header.
+/// * `WINDOWS_INTERFACE::ULONG64` is a type alias to the `ULONG64`
+///   type provided by the `windows.h` header.
+/// * `WINDOWS_INTERFACE::ULONGLONG` is a type alias to the `ULONGLONG`
+///   type provided by the `windows.h` header.
+/// * `WINDOWS_INTERFACE::WORD` is a type alias to the `WORD`
+///   type provided by the `windows.h` header.
+/// * `WINDOWS_INTERFACE::FileTimeToSystemTime` is a public, static
+///   member function that has
+///   `BOOL (const FILETIME *lpFileTime, LPSYSTEMTIME lpSystemTime)` type
+///   and whose contract is to return the result of
+///   `::FileTimeToSystemTime(lpFileTime, lpSystemTime)`, where
+///   `::FileTimeToSystemTime` is the corresponding function declared in
+///   the `windows.h` header.
+/// * `WINDOWS_INTERFACE::GetFileSize` is a public, static member
+///   function that has `DWORD (HANDLE hFile, LPDWORD lpFileSizeHigh)`
+///   type and whose contract is to return the result of
+///   `::GetFileSize(hFile, lpFileSizeHigh)`, where `::GetFileSize` is the
+///   corresponding function declared in the `windows.h` header.
+/// * `WINDOWS_INTERFACE::GetFileTime` is a public, static member
+///   function that has
+///   'BOOL (HANDLE hFile, LPFILETIME lpCreationTime,
+///   LPFILETIME lpLastAccessTime, LPFILETIME, lpLastWriteTime)' type and
+///   whose contract is to return the result of
+///   '::GetFileTime(hFile, lpCreationTime, lpLastAccessTime,
+///   lpLastWriteTime)`, where `::GetFileTime' is the corresponding
+///   function declared in the `windows.h` header.
+/// * `WINDOWS_INTERFACE::GetLastError` is a public, static
+///    member function that has `DWORD ()` type and whose contract
+///    is to return the result of `::GetLastError()`, where
+///    `::GetLastError` is the corresponding function declared in the
+///    `windows.h` header.
+/// * `WINDOWS_INTERFACE::SystemTimeToFileTime` is a public, static
+///   member function that has
+///   `BOOL (const SYSTEMTIME *lpSystemTime, LPFILEMTIME lpFileTime)` type
+///   and whose contract is to return the result of
+///   `::SystemTimeToFileTime(lpSystemTime, lpFileTime)`, where
+///   `::SystemTimeToFileTime` is the corresponding function declared in
+///   the `windows.h` header.
 template <class WINDOWS_INTERFACE>
 struct FilesystemUtil_WindowsImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions that 'FilesystemUtil' uses as implementation details.
-    // These functions have a 'WINDOWS_INTERFACE' template parameter, which
-    // provides access to the entities that Windows systems declare, and that
-    // the function implementations need.
-    //
-    // The program is ill-formed unless the specified 'WINDOWS_INTERFACE' is
-    // a class type that meets the following requirements:
-    //
-    //: o 'WINDOWS_INTERFACE::BOOL' is a type alias to the 'BOOL'
-    //:   type provided by the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::DWORD' is a type alias to the 'DWORD'
-    //:   type provided by the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::FILETIME' is a type alias to the 'FILETIME'
-    //:   type provided by the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::HANDLE' is a type alias to the 'HANDLE'
-    //:   type provided by the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::INT64' is a type alias to the 'IN64' type
-    //:    provided by the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::LPFILETIME' is a type alias to the
-    //:   'LPFILETIME' type provided by the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::SYSTEMTIME' is a type alias to the
-    //:   'LPFILETIME' type provided by the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::ULARGE_INTEGER' is a type alias to the
-    //:   'ULARGE_INTEGER' type provided by the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::ULONG64' is a type alias to the 'ULONG64'
-    //:   type provided by the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::ULONGLONG' is a type alias to the 'ULONGLONG'
-    //:   type provided by the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::WORD' is a type alias to the 'WORD'
-    //:   type provided by the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::FileTimeToSystemTime' is a public, static
-    //:   member function that has
-    //:   'BOOL (const FILETIME *lpFileTime, LPSYSTEMTIME lpSystemTime)' type
-    //:   and whose contract is to return the result of
-    //:   '::FileTimeToSystemTime(lpFileTime, lpSystemTime)', where
-    //:   '::FileTimeToSystemTime' is the corresponding function declared in
-    //:   the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::GetFileSize' is a public, static member
-    //:   function that has 'DWORD (HANDLE hFile, LPDWORD lpFileSizeHigh)'
-    //:   type and whose contract is to return the result of
-    //:   '::GetFileSize(hFile, lpFileSizeHigh)', where '::GetFileSize' is the
-    //:   corresponding function declared in the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::GetFileTime' is a public, static member
-    //:   function that has
-    //:   'BOOL (HANDLE hFile, LPFILETIME lpCreationTime,
-    //:   LPFILETIME lpLastAccessTime, LPFILETIME, lpLastWriteTime)' type and
-    //:   whose contract is to return the result of
-    //:   '::GetFileTime(hFile, lpCreationTime, lpLastAccessTime,
-    //:   lpLastWriteTime)', where '::GetFileTime' is the corresponding
-    //:   function declared in the 'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::GetLastError' is a public, static
-    //:    member function that has 'DWORD ()' type and whose contract
-    //:    is to return the result of '::GetLastError()', where
-    //:    '::GetLastError' is the corresponding function declared in the
-    //:    'windows.h' header.
-    //:
-    //: o 'WINDOWS_INTERFACE::SystemTimeToFileTime' is a public, static
-    //:   member function that has
-    //:   'BOOL (const SYSTEMTIME *lpSystemTime, LPFILEMTIME lpFileTime)' type
-    //:   and whose contract is to return the result of
-    //:   '::SystemTimeToFileTime(lpSystemTime, lpFileTime)', where
-    //:   '::SystemTimeToFileTime' is the corresponding function declared in
-    //:   the 'windows.h' header.
 
     // TYPES
-    typedef typename WINDOWS_INTERFACE::HANDLE FileDescriptor;
-        // 'FileDescriptor' is an alias for operating system's native file
-        // descriptor / file handle type.
 
+    /// `FileDescriptor` is an alias for operating system's native file
+    /// descriptor / file handle type.
+    typedef typename WINDOWS_INTERFACE::HANDLE FileDescriptor;
+
+    /// `Offset` is an alias for a signed integral type, and represents the
+    /// offset of a location in a file.
     typedef typename WINDOWS_INTERFACE::INT64 Offset;
-        // 'Offset' is an alias for a signed integral type, and represents the
-        // offset of a location in a file.
 
   private:
     // PRIVATE TYPES
+
+    /// `BOOL` is an alias to the unsigned integral `BOOL` type provided
+    /// by the `windows.h` header.
     typedef typename WINDOWS_INTERFACE::BOOL BOOL;
-        // 'BOOL' is an alias to the unsigned integral 'BOOL' type provided
-        // by the 'windows.h' header.
 
+    /// `DWORD` is an alias to the unsigned integral `DWORD` type provided
+    /// by the `windows.h` header.
     typedef typename WINDOWS_INTERFACE::DWORD DWORD;
-        // 'DWORD' is an alias to the unsigned integral 'DWORD' type provided
-        // by the 'windows.h' header.
 
+    /// `FILETIME` is an alias to the `FILETIME` struct provided by the
+    /// `windows.h` header.
     typedef typename WINDOWS_INTERFACE::FILETIME FILETIME;
-        // 'FILETIME' is an alias to the 'FILETIME' struct provided by the
-        // 'windows.h' header.
 
+    /// `HANDLE` is an alias to the `HANDLE` type provided by the
+    /// `windows.h` header.
     typedef typename WINDOWS_INTERFACE::HANDLE HANDLE;
-        // 'HANDLE' is an alias to the 'HANDLE' type provided by the
-        // 'windows.h' header.
 
+    /// `INT64` is an alias to the signed integral `INT64` type provided by
+    /// the `windows.h` header.
     typedef typename WINDOWS_INTERFACE::INT64 INT64;
-        // 'INT64' is an alias to the signed integral 'INT64' type provided by
-        // the 'windows.h' header.
 
+    /// `LPDWORD` is an alias to the unsigned integral `LPDWORD` type
+    /// provided by the `windows.h` header.
     typedef typename WINDOWS_INTERFACE::LPDWORD LPDWORD;
-        // 'LPDWORD' is an alias to the unsigned integral 'LPDWORD' type
-        // provided by the 'windows.h' header.
 
+    /// `LPFILETIME` is an alias to the `LPFILETIME` type provided by the
+    /// `windows.h` header.
     typedef typename WINDOWS_INTERFACE::LPFILETIME LPFILETIME;
-        // 'LPFILETIME' is an alias to the 'LPFILETIME' type provided by the
-        // 'windows.h' header.
 
+    /// `LPSYSTEMTIME` is an alias to the `LPSYSTEMTIME` type provided by
+    /// the `windows.h` header.
     typedef typename WINDOWS_INTERFACE::LPSYSTEMTIME LPSYSTEMTIME;
-        // 'LPSYSTEMTIME' is an alias to the 'LPSYSTEMTIME' type provided by
-        // the 'windows.h' header.
 
+    /// `SYSTEMTIME` is an alias to the `SYSTEMTIME` struct provided by the
+    /// `windows.h` header.
     typedef typename WINDOWS_INTERFACE::SYSTEMTIME SYSTEMTIME;
-        // 'SYSTEMTIME' is an alias to the 'SYSTEMTIME' struct provided by the
-        // 'windows.h' header.
 
+    /// `ULARGE_INTEGER` is an alias to the unsigned integral
+    /// `ULARGE_INTEGER` type provided by the `windows.h` header.
     typedef typename WINDOWS_INTERFACE::ULARGE_INTEGER ULARGE_INTEGER;
-        // 'ULARGE_INTEGER' is an alias to the unsigned integral
-        // 'ULARGE_INTEGER' type provided by the 'windows.h' header.
 
+    /// `ULONG64` is an alias to the unsigned integral `ULONG64` type
+    /// provided by the `windows.h` header.
     typedef typename WINDOWS_INTERFACE::ULONG64 ULONG64;
-        // 'ULONG64' is an alias to the unsigned integral 'ULONG64' type
-        // provided by the 'windows.h' header.
 
+    /// `ULONGLONG` is an alias to the unsigned integral `ULONGLONG` type
+    /// provided by the `windows.h` header.
     typedef typename WINDOWS_INTERFACE::ULONGLONG ULONGLONG;
-        // 'ULONGLONG' is an alias to the unsigned integral 'ULONGLONG' type
-        // provided by the 'windows.h' header.
 
+    /// `WORD` is an alias to the unsigned integral `WORD` type provided by
+    /// the `windows.h` header.
     typedef typename WINDOWS_INTERFACE::WORD WORD;
-        // 'WORD' is an alias to the unsigned integral 'WORD' type provided by
-        // the 'windows.h' header.
 
     // PRIVATE CLASS METHODS
+
+    /// Invoke and return the result of
+    /// `::FileTimeToSystemTime(lpFileTime, lpSystemTime)` with the
+    /// specified `lpFileTime` and `lpSystemTime`, where
+    /// `::FileTimeToSystemTime` is the function provided by the `windows.h`
+    /// header.
     static BOOL FileTimeToSystemTime(const FILETIME *lpFileTime,
                                      LPSYSTEMTIME    lpSystemTime);
-        // Invoke and return the result of
-        // '::FileTimeToSystemTime(lpFileTime, lpSystemTime)' with the
-        // specified 'lpFileTime' and 'lpSystemTime', where
-        // '::FileTimeToSystemTime' is the function provided by the 'windows.h'
-        // header.
 
+    /// Invoke and return the result of
+    /// `::GetFileSize(hFile, lpFileSizeHigh)` with the specified `hFile`
+    /// and `lpFileSizeHigh`, where `::GetFileSize` is the function provided
+    /// by the `windows.h` header.
     static DWORD GetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
-        // Invoke and return the result of
-        // '::GetFileSize(hFile, lpFileSizeHigh)' with the specified 'hFile'
-        // and 'lpFileSizeHigh', where '::GetFileSize' is the function provided
-        // by the 'windows.h' header.
 
+    /// Invoke and return the result of '::GetFileTime(hFile,
+    /// lpCreationTime, lpLastAccessTime, lpLastWriteTime)' with the
+    /// specified `hFile`, `lpCreationTime`, `lpLasAccessTime`, and
+    /// `lpLastWriteTime`, where `::GetFileTime` is the function provided by
+    /// the `windows.h` header.
     static BOOL GetFileTime(HANDLE     hFile,
                             LPFILETIME lpCreationTime,
                             LPFILETIME lpLastAccessTime,
                             LPFILETIME lpLastWriteTime);
-        // Invoke and return the result of '::GetFileTime(hFile,
-        // lpCreationTime, lpLastAccessTime, lpLastWriteTime)' with the
-        // specified 'hFile', 'lpCreationTime', 'lpLasAccessTime', and
-        // 'lpLastWriteTime', where '::GetFileTime' is the function provided by
-        // the 'windows.h' header.
 
+    /// Invoke and return the result of `::GetLastError()`, where
+    /// `::GetLastError` is the function provided by the `windows.h` header.
     static DWORD GetLastError();
-        // Invoke and return the result of '::GetLastError()', where
-        // '::GetLastError' is the function provided by the 'windows.h' header.
 
+    /// Invoke and return the result of
+    /// `::SystemTimeToFileTime(lpSystemTime, lpFileTime)` with the
+    /// specified `lpFileTime` and `lpSystemTime`, where
+    /// `::SystemTimeToFileTime` is the function provided by the `windows.h`
+    /// header.
     static BOOL SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime,
                                      LPFILETIME        lpFileTime);
-        // Invoke and return the result of
-        // '::SystemTimeToFileTime(lpSystemTime, lpFileTime)' with the
-        // specified 'lpFileTime' and 'lpSystemTime', where
-        // '::SystemTimeToFileTime' is the function provided by the 'windows.h'
-        // header.
 
   public:
     // PUBLIC CLASS DATA
@@ -224,22 +212,23 @@ struct FilesystemUtil_WindowsImpUtil {
                            k_NANOSECONDS_PER_WINDOWS_TICK;
 
     // CLASS METHODS
+
+    /// Load into the specified `time` the time in the specified
+    /// `lpFileTime`.  Return 0 on success, and a non-zero value otherwise.
+    /// Note that the time is reported in UTC.
     static int convertFileTimeToDatetime(bdlt::Datetime   *time,
                                          const LPFILETIME  lpFileTime);
-        // Load into the specified 'time' the time in the specified
-        // 'lpFileTime'.  Return 0 on success, and a non-zero value otherwise.
-        // Note that the time is reported in UTC.
 
+    /// Return the size, in bytes, of the file with the specified
+    /// `descriptor`, or a negative value if an error occurs.
     static Offset getFileSize(FileDescriptor descriptor);
-        // Return the size, in bytes, of the file with the specified
-        // 'descriptor', or a negative value if an error occurs.
 
+    /// Load into the specified `time` the last modification time of the
+    /// file with the specified `descriptor`, as reported by the filesystem.
+    /// Return 0 on success, and a non-zero value otherwise.  Note that the
+    /// time is reported in UTC.
     static int getLastModificationTime(bdlt::Datetime *time,
                                        FileDescriptor  descriptor);
-        // Load into the specified 'time' the last modification time of the
-        // file with the specified 'descriptor', as reported by the filesystem.
-        // Return 0 on success, and a non-zero value otherwise.  Note that the
-        // time is reported in UTC.
 };
 
 // ============================================================================

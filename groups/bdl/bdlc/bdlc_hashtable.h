@@ -15,23 +15,23 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb_hashutil
 //
-//@DESCRIPTION: This component provides a mechanism, 'bdlc::HashTable', for
-// efficiently finding elements identified by a parameterized 'KEY'.  Elements
-// can also have an associated value by specifying an optional 'VALUE' template
-// parameter.  Also, an optional 'TRAITS' parameter can be supplied so that
+//@DESCRIPTION: This component provides a mechanism, `bdlc::HashTable`, for
+// efficiently finding elements identified by a parameterized `KEY`.  Elements
+// can also have an associated value by specifying an optional `VALUE` template
+// parameter.  Also, an optional `TRAITS` parameter can be supplied so that
 // clients can override the default traits of the hash table,
-// 'bdlc::HashTableDefaultTraits'.
+// `bdlc::HashTableDefaultTraits`.
 //
-// The 'bdlc::HashTable' class achieves efficient lookup by using a double-hash
-// algorithm, which will be explained later.  Optional 'HASH1' and 'HASH2'
+// The `bdlc::HashTable` class achieves efficient lookup by using a double-hash
+// algorithm, which will be explained later.  Optional `HASH1` and `HASH2`
 // parameters can be supplied so that clients can override the default hash
-// functions used by the hash table, 'bdlc::HashTableDefaultHash1' and
-// 'bdlc::HashTableDefaultHash2'.  Hash functors may also optionally be
+// functions used by the hash table, `bdlc::HashTableDefaultHash1` and
+// `bdlc::HashTableDefaultHash2`.  Hash functors may also optionally be
 // specified at construction time, in case the functors contain state (e.g., if
-// 'bsl::function' is used).
+// `bsl::function` is used).
 //
-// The constructor for 'bdlc::HashTable' takes a 'capacityHint' argument.  This
-// 'capacityHint' is used to calculate the capacity of the hash table (i.e.,
+// The constructor for `bdlc::HashTable` takes a `capacityHint` argument.  This
+// `capacityHint` is used to calculate the capacity of the hash table (i.e.,
 // the maximum number of elements that can be stored at any one time).  Once
 // constructed, the capacity cannot be changed.  The capacity hint can be
 // either a positive integer or a negative integer.  If the capacity hint is
@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 // prime number larger than, or equal to, the capacity hint.  Otherwise, the
 // capacity of the hash table will be the first available prime number smaller
 // than, or equal to, the capacity hint.  The list of available prime numbers
-// is obtained from an array in the 'bdlc_hashtable.cpp' file.
+// is obtained from an array in the `bdlc_hashtable.cpp` file.
 //
 ///Traditional Hash Algorithm
 ///--------------------------
@@ -49,36 +49,36 @@ BSLS_IDENT("$Id: $")
 // handle cases where there are hash collisions, the hash table needs to
 // maintain a linked list or tree of elements for each index in the table.
 // This data structure is illustrated in the diagram below:
-//..
-//               Hash Table
-//               ----------
+// ```
+//              Hash Table
+//              ----------
 //
-//                :      :
-//                :      :
-//                :......:
-//                :      :
-//     index - 2  :      :
-//                :______:
-//                |      |
-//     index - 1  |      |
-//                |______|     ______      ______      ______
-//                |      |    |      |    |      |    |      |
-//      index     |      | -> |      | -> |      | -> |      | -> NULL
-//                |______|    |______|    |______|    |______|
-//                |      |
-//     index + 1  |      |    element1    element2    element3
-//                |______|
-//                |      |
-//     index + 2  |      |
-//                |______|
-//                :      :
-//                :      :
-//                :......:
-//                :      :
-//                :      :
-//..
-// In the diagram above, 'element1', 'element2', and 'element3' hash to the
-// 'index'th bucket in the hash table.  Because of this collision, they are
+//               :      :
+//               :      :
+//               :......:
+//               :      :
+//    index - 2  :      :
+//               :______:
+//               |      |
+//    index - 1  |      |
+//               |______|     ______      ______      ______
+//               |      |    |      |    |      |    |      |
+//     index     |      | -> |      | -> |      | -> |      | -> NULL
+//               |______|    |______|    |______|    |______|
+//               |      |
+//    index + 1  |      |    element1    element2    element3
+//               |______|
+//               |      |
+//    index + 2  |      |
+//               |______|
+//               :      :
+//               :      :
+//               :......:
+//               :      :
+//               :      :
+// ```
+// In the diagram above, `element1`, `element2`, and `element3` hash to the
+// `index`th bucket in the hash table.  Because of this collision, they are
 // maintained in a linked list, which results in linear time complexity.
 //
 ///Double-Hash Algorithm
@@ -88,400 +88,400 @@ BSLS_IDENT("$Id: $")
 // incremented by the increment value until an available bucket is found.
 // This augmented algorithm is illustrated in the following diagrams.  Suppose
 // we have a hash table that is initially empty:
-//..
-//                            Hash Table
-//                            ----------
+// ```
+//                           Hash Table
+//                           ----------
 //
-//                             :      :
-//                             :      :
-//                             :......:
-//                             :      :
-//                  index - 2  :      :
-//                             :______:
-//                             |      |
-//                  index - 1  |      |
-//                             |______|
-//                             |      |
-//                   index     |      |
-//                             |______|
-//                             |      |
-//                  index + 1  |      |
-//                             |______|
-//                             |      |
-//                  index + 2  |      |
-//                             |______|
-//                             |      |
-//                  index + 3  |      |
-//                             |______|
-//                             :      :
-//                             :      :
-//                             :......:
-//                             :      :
-//                             :      :
-//..
-// Now suppose we insert 'element1'.  The first hash function evaluates to the
-// 'index'th bucket in the hash table:
-//..
-//                            Hash Table
-//                            ----------
+//                            :      :
+//                            :      :
+//                            :......:
+//                            :      :
+//                 index - 2  :      :
+//                            :______:
+//                            |      |
+//                 index - 1  |      |
+//                            |______|
+//                            |      |
+//                  index     |      |
+//                            |______|
+//                            |      |
+//                 index + 1  |      |
+//                            |______|
+//                            |      |
+//                 index + 2  |      |
+//                            |______|
+//                            |      |
+//                 index + 3  |      |
+//                            |______|
+//                            :      :
+//                            :      :
+//                            :......:
+//                            :      :
+//                            :      :
+// ```
+// Now suppose we insert `element1`.  The first hash function evaluates to the
+// `index`th bucket in the hash table:
+// ```
+//                           Hash Table
+//                           ----------
 //
-//                             :      :
-//                             :      :
-//                             :......:
-//                             :      :
-//                  index - 2  :      :
-//                             :______:
-//                             |      |
-//                  index - 1  |      |
-//                             |______|     ______
-//                             |      |    |      |
-//                   index     |      | -> |      |   element1
-//                             |______|    |______|
-//                             |      |
-//                  index + 1  |      |
-//                             |______|
-//                             |      |
-//                  index + 2  |      |
-//                             |______|
-//                             |      |
-//                  index + 3  |      |
-//                             |______|
-//                             :      :
-//                             :      :
-//                             :......:
-//                             :      :
-//                             :      :
-//..
-// Now suppose we want to insert 'element2', for which the first hash function
-// also evaluates to the 'index'th bucket in the hash table; however, there is
+//                            :      :
+//                            :      :
+//                            :......:
+//                            :      :
+//                 index - 2  :      :
+//                            :______:
+//                            |      |
+//                 index - 1  |      |
+//                            |______|     ______
+//                            |      |    |      |
+//                  index     |      | -> |      |   element1
+//                            |______|    |______|
+//                            |      |
+//                 index + 1  |      |
+//                            |______|
+//                            |      |
+//                 index + 2  |      |
+//                            |______|
+//                            |      |
+//                 index + 3  |      |
+//                            |______|
+//                            :      :
+//                            :      :
+//                            :......:
+//                            :      :
+//                            :      :
+// ```
+// Now suppose we want to insert `element2`, for which the first hash function
+// also evaluates to the `index`th bucket in the hash table; however, there is
 // a collision.  So, we will calculate an increment using the second hash
-// function.  Suppose the increment value is 3, we will insert 'element2' at
-// 'index + 3':
-//..
-//                            Hash Table
-//                            ----------
+// function.  Suppose the increment value is 3, we will insert `element2` at
+// `index + 3`:
+// ```
+//                           Hash Table
+//                           ----------
 //
-//                             :      :
-//                             :      :
-//                             :......:
-//                             :      :
-//                  index - 2  :      :
-//                             :______:
-//                             |      |
-//                  index - 1  |      |
-//                             |______|     ______
-//                             |      |    |      |
-//            .----  index     |      | -> |      |   element1
-//            |                |______|    |______|
-//            |                |      |
-//            |     index + 1  |      |
-//            |                |______|
-//            |                |      |
-//            |     index + 2  |      |
-//            |                |______|     ______
-//            |                |      |    |      |
-//            `---> index + 3  |      | -> |      |   element2
-//                             |______|    |______|
-//                             |      |
-//                  index + 4  |      |
-//                             |______|
-//                             |      |
-//                  index + 5  |      |
-//                             |______|
-//                             |      |
-//                  index + 6  |      |
-//                             |______|
-//                             |      |
-//                  index + 7  |      |
-//                             |______|
-//                             :      :
-//                             :      :
-//                             :......:
-//                             :      :
-//                             :      :
-//..
-// The entry for 'element2' is said to be "chained" through node 'index'.
+//                            :      :
+//                            :      :
+//                            :......:
+//                            :      :
+//                 index - 2  :      :
+//                            :______:
+//                            |      |
+//                 index - 1  |      |
+//                            |______|     ______
+//                            |      |    |      |
+//           .----  index     |      | -> |      |   element1
+//           |                |______|    |______|
+//           |                |      |
+//           |     index + 1  |      |
+//           |                |______|
+//           |                |      |
+//           |     index + 2  |      |
+//           |                |______|     ______
+//           |                |      |    |      |
+//           `---> index + 3  |      | -> |      |   element2
+//                            |______|    |______|
+//                            |      |
+//                 index + 4  |      |
+//                            |______|
+//                            |      |
+//                 index + 5  |      |
+//                            |______|
+//                            |      |
+//                 index + 6  |      |
+//                            |______|
+//                            |      |
+//                 index + 7  |      |
+//                            |______|
+//                            :      :
+//                            :      :
+//                            :......:
+//                            :      :
+//                            :      :
+// ```
+// The entry for `element2` is said to be "chained" through node `index`.
 //
-// Now suppose we want to insert 'element3', for which the first hash function
-// also evaluates to the 'index'th bucket in the hash table.  Again, there is a
+// Now suppose we want to insert `element3`, for which the first hash function
+// also evaluates to the `index`th bucket in the hash table.  Again, there is a
 // collision.  So, we will calculate an increment using the second hash
-// function.  Suppose the increment value is 5, we will insert 'element3' at
-// 'index + 5':
-//..
-//                            Hash Table
-//                            ----------
+// function.  Suppose the increment value is 5, we will insert `element3` at
+// `index + 5`:
+// ```
+//                           Hash Table
+//                           ----------
 //
-//                             :      :
-//                             :      :
-//                             :......:
-//                             :      :
-//                  index - 2  :      :
-//                             :______:
-//                             |      |
-//                  index - 1  |      |
-//                             |______|     ______
-//                             |      |    |      |
-//      .-----.----  index     |      | -> |      |   element1
-//      |     |                |______|    |______|
-//      |     |                |      |
-//      |     |     index + 1  |      |
-//      |     |                |______|
-//      |     |                |      |
-//      |     |     index + 2  |      |
-//      |     |                |______|     ______
-//      |     |                |      |    |      |
-//      |     `---> index + 3  |      | -> |      |   element2
-//      |                      |______|    |______|
-//      |                      |      |
-//      |           index + 4  |      |
-//      |                      |______|     ______
-//      |                      |      |    |      |
-//      `---------> index + 5  |      | -> |      |   element3
-//                             |______|    |______|
-//                             |      |
-//                  index + 6  |      |
-//                             |______|
-//                             |      |
-//                  index + 7  |      |
-//                             |______|
-//                             :      :
-//                             :      :
-//                             :......:
-//                             :      :
-//                             :      :
-//..
-// The entry for 'element3' is also "chained" through node 'index'.
+//                            :      :
+//                            :      :
+//                            :......:
+//                            :      :
+//                 index - 2  :      :
+//                            :______:
+//                            |      |
+//                 index - 1  |      |
+//                            |______|     ______
+//                            |      |    |      |
+//     .-----.----  index     |      | -> |      |   element1
+//     |     |                |______|    |______|
+//     |     |                |      |
+//     |     |     index + 1  |      |
+//     |     |                |______|
+//     |     |                |      |
+//     |     |     index + 2  |      |
+//     |     |                |______|     ______
+//     |     |                |      |    |      |
+//     |     `---> index + 3  |      | -> |      |   element2
+//     |                      |______|    |______|
+//     |                      |      |
+//     |           index + 4  |      |
+//     |                      |______|     ______
+//     |                      |      |    |      |
+//     `---------> index + 5  |      | -> |      |   element3
+//                            |______|    |______|
+//                            |      |
+//                 index + 6  |      |
+//                            |______|
+//                            |      |
+//                 index + 7  |      |
+//                            |______|
+//                            :      :
+//                            :      :
+//                            :......:
+//                            :      :
+//                            :      :
+// ```
+// The entry for `element3` is also "chained" through node `index`.
 //
 // If there is a collision even after applying the increment, then the
 // increment can be applied again to form a longer chain, until an available
-// bucket is found.  For example, suppose we want to insert 'element4', for
-// which the first hash function evaluates to the 'index'th bucket.  Since
+// bucket is found.  For example, suppose we want to insert `element4`, for
+// which the first hash function evaluates to the `index`th bucket.  Since
 // there is a collision, we calculate an increment using the second hash
 // function.  Suppose the increment value is 3, we will get another collision
-// because 'element2' occupies the bucket at 'index + 3'.  Therefore, we apply
-// the increment again and we get 'index + 3 + 3', i.e., 'index + 6'.  This
-// bucket is empty, so we can store 'element4' here:
-//..
-//                            Hash Table
-//                            ----------
+// because `element2` occupies the bucket at `index + 3`.  Therefore, we apply
+// the increment again and we get `index + 3 + 3`, i.e., `index + 6`.  This
+// bucket is empty, so we can store `element4` here:
+// ```
+//                           Hash Table
+//                           ----------
 //
-//                             :      :
-//                             :      :
-//                             :......:
-//                             :      :
-//                  index - 2  :      :
-//                             :______:
-//                             |      |
-//                  index - 1  |      |
-//                             |______|     ______
-//                             |      |    |      |
-//      .-----.----  index     |      | -> |      |   element1
-//      |     |                |______|    |______|
-//      |     |                |      |
-//      |     |     index + 1  |      |
-//      |     |                |______|
-//      |     |                |      |
-//      |     |     index + 2  |      |
-//      |     |                |______|     ______
-//      |     |                |      |    |      |
-//      |     `---> index + 3  |      | -> |      |   element2
-//      |     .----            |______|    |______|
-//      |     |                |      |
-//      |     |     index + 4  |      |
-//      |     |                |______|     ______
-//      |     |                |      |    |      |
-//      `-----+---> index + 5  |      | -> |      |   element3
-//            |                |______|    |______|
-//            |                |      |    |      |
-//            `---> index + 6  |      | -> |      |   element4
-//                             |______|    |______|
-//                             |      |
-//                  index + 7  |      |
-//                             |______|
-//                             :      :
-//                             :      :
-//                             :......:
-//                             :      :
-//                             :      :
-//..
-// The entry for 'element4' is chained through nodes 'index' and 'index + 3'.
+//                            :      :
+//                            :      :
+//                            :......:
+//                            :      :
+//                 index - 2  :      :
+//                            :______:
+//                            |      |
+//                 index - 1  |      |
+//                            |______|     ______
+//                            |      |    |      |
+//     .-----.----  index     |      | -> |      |   element1
+//     |     |                |______|    |______|
+//     |     |                |      |
+//     |     |     index + 1  |      |
+//     |     |                |______|
+//     |     |                |      |
+//     |     |     index + 2  |      |
+//     |     |                |______|     ______
+//     |     |                |      |    |      |
+//     |     `---> index + 3  |      | -> |      |   element2
+//     |     .----            |______|    |______|
+//     |     |                |      |
+//     |     |     index + 4  |      |
+//     |     |                |______|     ______
+//     |     |                |      |    |      |
+//     `-----+---> index + 5  |      | -> |      |   element3
+//           |                |______|    |______|
+//           |                |      |    |      |
+//           `---> index + 6  |      | -> |      |   element4
+//                            |______|    |______|
+//                            |      |
+//                 index + 7  |      |
+//                            |______|
+//                            :      :
+//                            :      :
+//                            :......:
+//                            :      :
+//                            :      :
+// ```
+// The entry for `element4` is chained through nodes `index` and `index + 3`.
 //
 // If the total number of buckets in the hash table and the increment value
 // are relatively prime (i.e., their greatest common divisor is 1), then it is
-// guaranteed that every bucket will be visited before looping back to 'index'.
+// guaranteed that every bucket will be visited before looping back to `index`.
 //
-// The 'bdlc::HashTable' container makes sure that the number of buckets in the
+// The `bdlc::HashTable` container makes sure that the number of buckets in the
 // hash table and the increment values are relatively prime.  The
-// 'bdlc::HashTable' container also keeps track of the maximum chain length,
+// `bdlc::HashTable` container also keeps track of the maximum chain length,
 // number of collisions, and the total chain length, which can be used for
 // statistical purposes when evaluating different hash functions.
 //
 ///Bucket Type
 ///-----------
-// The 'bdlc::HashTable' class treats individual buckets as value-semantic
-// types.  The type of the buckets depends on the 'KEY' and 'VALUE' parameters
-// used to instantiate the 'bdlc::HashTable' template.  If the 'VALUE'
-// parameter is 'bslmf::Nil', then the type of the buckets is 'KEY'.
-// Otherwise, the type of the buckets is 'bsl::pair<KEY, VALUE>'.  For
-// convenience, we will refer to the bucket type as 'Bucket' throughout this
+// The `bdlc::HashTable` class treats individual buckets as value-semantic
+// types.  The type of the buckets depends on the `KEY` and `VALUE` parameters
+// used to instantiate the `bdlc::HashTable` template.  If the `VALUE`
+// parameter is `bslmf::Nil`, then the type of the buckets is `KEY`.
+// Otherwise, the type of the buckets is `bsl::pair<KEY, VALUE>`.  For
+// convenience, we will refer to the bucket type as `Bucket` throughout this
 // documentation.
 //
-// The 'bdlc::HashTable' class reserves two distinct values from 'Bucket's
+// The `bdlc::HashTable` class reserves two distinct values from `Bucket`s
 // value-space to represent a "null" bucket and a "removed" bucket.  These
-// values are determined by the 'TRAITS' parameter, which is described in the
+// values are determined by the `TRAITS` parameter, which is described in the
 // next section.  Since these two values are reserved for the internal use of
-// the 'bdlc::HashTable' class, the behavior is undefined if one of these
+// the `bdlc::HashTable` class, the behavior is undefined if one of these
 // values is inserted into the hash table.  Taking these values from the
-// value-space of 'Bucket' allows the storage space required for each bucket to
+// value-space of `Bucket` allows the storage space required for each bucket to
 // be as compact as possible.
 //
 ///Traits
 ///------
-// An optional 'TRAITS' parameter can be specified when instantiating the
-// 'bdlc::HashTable' template.  This component provides a default traits
-// implementation, 'bdlc::HashTableDefaultTraits', which will be described
+// An optional `TRAITS` parameter can be specified when instantiating the
+// `bdlc::HashTable` template.  This component provides a default traits
+// implementation, `bdlc::HashTableDefaultTraits`, which will be described
 // later.
 //
-// The 'TRAITS' parameter allows clients to specify how to load a bucket and
+// The `TRAITS` parameter allows clients to specify how to load a bucket and
 // how to compare keys.  It also allows clients to classify two distinct values
 // to represent "null" and "removed" buckets (see "Bucket Type" for more
 // information about these reserved values).
 //
-// In the following description, 'key1' and 'key2' refer to objects of type
-// 'KEY'.  'bucket', 'dstBucket', and 'srcBucket' refer to objects of type
-// 'Bucket'.
+// In the following description, `key1` and `key2` refer to objects of type
+// `KEY`.  `bucket`, `dstBucket`, and `srcBucket` refer to objects of type
+// `Bucket`.
 //
-// The following expressions must be supported by the 'TRAITS' parameter:
-//..
-//  Expression                            Semantics
-//  ----------                            ---------
-//  TRAITS::load(&dstBucket, srcBucket)   Load the value of the specified
-//                                        'srcBucket' into the specified
-//                                        'dstBucket'.
+// The following expressions must be supported by the `TRAITS` parameter:
+// ```
+// Expression                            Semantics
+// ----------                            ---------
+// TRAITS::load(&dstBucket, srcBucket)   Load the value of the specified
+//                                       'srcBucket' into the specified
+//                                       'dstBucket'.
 //
-//  TRAITS::areEqual(key1, key2)          Return true if the specified 'key1'
-//                                        matches the specified 'key2', and
-//                                        false otherwise.
+// TRAITS::areEqual(key1, key2)          Return true if the specified 'key1'
+//                                       matches the specified 'key2', and
+//                                       false otherwise.
 //
-//  TRAITS::isNull(bucket)                Return true if the specified 'bucket'
-//                                        has the reserved "null" value, and
-//                                        false otherwise.
+// TRAITS::isNull(bucket)                Return true if the specified 'bucket'
+//                                       has the reserved "null" value, and
+//                                       false otherwise.
 //
-//  TRAITS::setToNull(&bucket)            Load the reserved "null" value into
-//                                        the specified 'bucket'.
+// TRAITS::setToNull(&bucket)            Load the reserved "null" value into
+//                                       the specified 'bucket'.
 //
-//  TRAITS::isRemoved(bucket)             Return true if the specified 'bucket'
-//                                        has the reserved "removed" value, and
-//                                        false otherwise.
+// TRAITS::isRemoved(bucket)             Return true if the specified 'bucket'
+//                                       has the reserved "removed" value, and
+//                                       false otherwise.
 //
-//  TRAITS::setToRemoved(&bucket)         Load the reserved "removed" value
-//                                        into the specified 'bucket'.
-//..
+// TRAITS::setToRemoved(&bucket)         Load the reserved "removed" value
+//                                       into the specified 'bucket'.
+// ```
 //
 ///Default Traits
 /// - - - - - - -
-// The default traits, identified by 'bdlc::HashTableDefaultTraits', can be
-// used when 'KEY' and 'VALUE' are either:
-//: o 'const char *'
-//: o 'bsl::string'
-//: o POD types
+// The default traits, identified by `bdlc::HashTableDefaultTraits`, can be
+// used when `KEY` and `VALUE` are either:
+// * `const char *`
+// * `bsl::string`
+// * POD types
 //
 // The following expressions are implemented as:
-//..
-//  Expression                                Implementation
-//  ----------                                --------------
-//  TRAITS::load(&dstBucket, srcBucket)       This function is implemented as
-//                                            '*dstBucket = srcBucket'.
+// ```
+// Expression                                Implementation
+// ----------                                --------------
+// TRAITS::load(&dstBucket, srcBucket)       This function is implemented as
+//                                           '*dstBucket = srcBucket'.
 //
-//  TRAITS::areEqual(key1, key2)              If 'KEY' is 'const char*', this
-//                                            function is implemented as
-//                                            'bsl::strcmp(key1, key2)'.
-//                                            Otherwise, this function is
-//                                            implemented as 'key1 == key2'.
-//..
-// The 'isNull', 'setToNull', 'isRemoved', and 'setToRemoved' functions are
+// TRAITS::areEqual(key1, key2)              If 'KEY' is 'const char*', this
+//                                           function is implemented as
+//                                           'bsl::strcmp(key1, key2)'.
+//                                           Otherwise, this function is
+//                                           implemented as 'key1 == key2'.
+// ```
+// The `isNull`, `setToNull`, `isRemoved`, and `setToRemoved` functions are
 // implemented by checking for and assigning the appropriate "null" or
 // "removed" values, respectively.  These values are defined in the following
 // table:
-//..
-//  Bucket Type        Null Value                    Removed Value
-//  -----------        ----------                    -------------
-//  const char*        0x00000000 address            0xFFFFFFFF address
+// ```
+// Bucket Type        Null Value                    Removed Value
+// -----------        ----------                    -------------
+// const char*        0x00000000 address            0xFFFFFFFF address
 //
-//  bsl::string        ""                            "(* REMOVED *)"
+// bsl::string        ""                            "(* REMOVED *)"
 //
-//  All other types    All bytes in the footprint    All bytes in the footprint
-//                     are 0x00                      are 0xFF
-//..
-// If 'Bucket' is of type 'bsl::pair<KEY, VALUE>', then the "null" and
-// "removed" values are applied to both the 'KEY' and the 'VALUE'.
+// All other types    All bytes in the footprint    All bytes in the footprint
+//                    are 0x00                      are 0xFF
+// ```
+// If `Bucket` is of type `bsl::pair<KEY, VALUE>`, then the "null" and
+// "removed" values are applied to both the `KEY` and the `VALUE`.
 //
 // Since the default traits may write directly into the footprint of the bucket
-// (except for 'bsl::string'), it is important to note that the 'KEY' and
-// 'VALUE' types should be POD types if the default traits are used.
+// (except for `bsl::string`), it is important to note that the `KEY` and
+// `VALUE` types should be POD types if the default traits are used.
 //
 ///Hash Functors
 ///-------------
-// Optional 'HASH1' and 'HASH2' parameters can be specified when instantiating
-// the 'bdlc::HashTable' template.  This component provides a default hash
-// functors, 'bdlc::HashTableDefaultHash1' and 'bdlc::HashTableDefaultHash2',
+// Optional `HASH1` and `HASH2` parameters can be specified when instantiating
+// the `bdlc::HashTable` template.  This component provides a default hash
+// functors, `bdlc::HashTableDefaultHash1` and `bdlc::HashTableDefaultHash2`,
 // which will be described later.
 //
-// The 'HASH1' and 'HASH2' parameters allow clients to specify hash functor
+// The `HASH1` and `HASH2` parameters allow clients to specify hash functor
 // policies for the first and second hash functions, respectively.
 //
-// In the following description, 'key' refers to an object of type 'KEY', and
-// 'functor' refers to an immutable object of type 'HASH1' or 'HASH2'.
+// In the following description, `key` refers to an object of type `KEY`, and
+// `functor` refers to an immutable object of type `HASH1` or `HASH2`.
 //
-// The following expression must be supported by the supplied 'HASH1' and
-// 'HASH2' parameters:
-//..
-//  Expression      Semantics                                      Return Type
-//  ----------      ---------                                      -----------
-//  functor(&key)   Return a hash value for the specified 'key'    unsigned int
-//..
+// The following expression must be supported by the supplied `HASH1` and
+// `HASH2` parameters:
+// ```
+// Expression      Semantics                                      Return Type
+// ----------      ---------                                      -----------
+// functor(&key)   Return a hash value for the specified 'key'    unsigned int
+// ```
 //
 ///Default Hash Functors
 ///- - - - - - - - - - -
-// The default hash functors, identified by 'bdlc::HashTableDefaultHash1' and
-// 'bdlc::HashTableDefaultHash2', can be used when 'KEY' is either:
-//..
-//    o const char*
-//    o bsl::string
-//    o a POD type
-//..
-// The 'bdlc::HashTableDefaultHash1' functor is implemented using
-// 'bdlb::HashUtil::hash1' and the 'bdlc::HashTableDefaultHash2' functor is
-// implemented using 'bdlb::HashUtil::hash2'.
+// The default hash functors, identified by `bdlc::HashTableDefaultHash1` and
+// `bdlc::HashTableDefaultHash2`, can be used when `KEY` is either:
+// ```
+//   o const char*
+//   o bsl::string
+//   o a POD type
+// ```
+// The `bdlc::HashTableDefaultHash1` functor is implemented using
+// `bdlb::HashUtil::hash1` and the `bdlc::HashTableDefaultHash2` functor is
+// implemented using `bdlb::HashUtil::hash2`.
 //
-// Note that 'bdlb::HashUtil::hash1' and 'bdlb::HashUtil::hash2' calculate hash
+// Note that `bdlb::HashUtil::hash1` and `bdlb::HashUtil::hash2` calculate hash
 // value from a fixed length block of memory.  This block of memory is obtained
 // based on the following table:
-//..
-//  KEY Type            Block Data                             Block Length
-//  --------            ----------                             ------------
-//  const char*         key                                    bsl::strlen(key)
+// ```
+// KEY Type            Block Data                             Block Length
+// --------            ----------                             ------------
+// const char*         key                                    bsl::strlen(key)
 //
-//  bsl::string         key.data()                             key.length()
+// bsl::string         key.data()                             key.length()
 //
-//  All other types     reinterpret_cast<const char *>(&key)   sizeof(key)
-//..
+// All other types     reinterpret_cast<const char *>(&key)   sizeof(key)
+// ```
 // Since the default hash functors use the footprint of the key (except for
-// 'const char*' and 'bsl::string') to compute hash values, it is important to
-// note that the 'KEY' type should be a POD type if the default hash functors
+// `const char*` and `bsl::string`) to compute hash values, it is important to
+// note that the `KEY` type should be a POD type if the default hash functors
 // are used.
 //
-///Disabling Support for 'remove'
+///Disabling Support for `remove`
 ///------------------------------
-// By default (i.e., when using the default traits), the 'remove' method can be
+// By default (i.e., when using the default traits), the `remove` method can be
 // used to remove an element from the hash table.  However, there are cases
 // when it is desirable not to allow elements to be removed.  This can be
-// achieved by supplying the 'bdlc::HashTable' template with a 'TRAITS'
+// achieved by supplying the `bdlc::HashTable` template with a `TRAITS`
 // parameter that:
-//..
-//    o always returns false for the 'TRAITS::isRemoved(bucket)' expression
-//    o AND does not implemented the 'TRAITS::setToRemoved(&bucket)' expression
-//..
+// ```
+//   o always returns false for the 'TRAITS::isRemoved(bucket)' expression
+//   o AND does not implemented the 'TRAITS::setToRemoved(&bucket)' expression
+// ```
 // This effectively describes a trait that does not define a special "removed"
 // bucket value.
 //
@@ -492,62 +492,62 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // The following snippets of code illustrate the usage of this component.
-// Suppose we wanted to store a table of 'int' keys with 'double' values.  We
+// Suppose we wanted to store a table of `int` keys with `double` values.  We
 // will use a capacity hint of 10, default traits, and default hash functors
 // for demonstration purposes:
-//..
-//  #include <bdlc_hashtable.h>
+// ```
+// #include <bdlc_hashtable.h>
 //
-//  using namespace BloombergLP;
+// using namespace BloombergLP;
 //
-//  void usageExample()
-//  {
-//      typedef bdlc::HashTable<int, double> TableType;
+// void usageExample()
+// {
+//     typedef bdlc::HashTable<int, double> TableType;
 //
-//      TableType table(10);
-//..
+//     TableType table(10);
+// ```
 // Now we can insert elements into this object:
-//..
-//      TableType::Handle handles[3];
+// ```
+//     TableType::Handle handles[3];
 //
-//      struct {
-//          int    d_key;
-//          double d_value;
-//      } DATA[] = {
-//          {  10,   2.34   },
-//          {  92,   94.2   },
-//          { 236,   9.1    },
-//      };
+//     struct {
+//         int    d_key;
+//         double d_value;
+//     } DATA[] = {
+//         {  10,   2.34   },
+//         {  92,   94.2   },
+//         { 236,   9.1    },
+//     };
 //
-//      table.insert(&handles[0], DATA[0].d_key, DATA[0].d_value);
-//      assert(DATA[0].d_key   == table.key(handles[0]));
-//      assert(DATA[0].d_value == table.value(handles[0]));
+//     table.insert(&handles[0], DATA[0].d_key, DATA[0].d_value);
+//     assert(DATA[0].d_key   == table.key(handles[0]));
+//     assert(DATA[0].d_value == table.value(handles[0]));
 //
-//      table.insert(&handles[1], DATA[1].d_key, DATA[1].d_value);
-//      assert(DATA[1].d_key   == table.key(handles[1]));
-//      assert(DATA[1].d_value == table.value(handles[1]));
+//     table.insert(&handles[1], DATA[1].d_key, DATA[1].d_value);
+//     assert(DATA[1].d_key   == table.key(handles[1]));
+//     assert(DATA[1].d_value == table.value(handles[1]));
 //
-//      table.insert(&handles[2], DATA[2].d_key, DATA[2].d_value);
-//      assert(DATA[2].d_key   == table.key(handles[2]));
-//      assert(DATA[2].d_value == table.value(handles[2]));
-//..
+//     table.insert(&handles[2], DATA[2].d_key, DATA[2].d_value);
+//     assert(DATA[2].d_key   == table.key(handles[2]));
+//     assert(DATA[2].d_value == table.value(handles[2]));
+// ```
 // Now we can find elements in this object using the key:
-//..
-//      TableType::Handle otherHandles[3];
+// ```
+//     TableType::Handle otherHandles[3];
 //
-//      table.find(&otherHandles[0], DATA[0].d_key);
-//      assert(DATA[0].d_key   == table.key(otherHandles[0]));
-//      assert(DATA[0].d_value == table.value(otherHandles[0]));
+//     table.find(&otherHandles[0], DATA[0].d_key);
+//     assert(DATA[0].d_key   == table.key(otherHandles[0]));
+//     assert(DATA[0].d_value == table.value(otherHandles[0]));
 //
-//      table.find(&otherHandles[1], DATA[1].d_key);
-//      assert(DATA[1].d_key   == table.key(otherHandles[1]));
-//      assert(DATA[1].d_value == table.value(otherHandles[1]));
+//     table.find(&otherHandles[1], DATA[1].d_key);
+//     assert(DATA[1].d_key   == table.key(otherHandles[1]));
+//     assert(DATA[1].d_value == table.value(otherHandles[1]));
 //
-//      table.find(&otherHandles[2], DATA[2].d_key);
-//      assert(DATA[2].d_key   == table.key(otherHandles[2]));
-//      assert(DATA[2].d_value == table.value(otherHandles[2]));
-//  }
-//..
+//     table.find(&otherHandles[2], DATA[2].d_key);
+//     assert(DATA[2].d_key   == table.key(otherHandles[2]));
+//     assert(DATA[2].d_value == table.value(otherHandles[2]));
+// }
+// ```
 
 #include <bdlscm_version.h>
 
@@ -593,44 +593,46 @@ struct HashTableDefaultHash2;
             // class HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>
             // =================================================
 
+/// This class is a double-hashed table.  The `VALUE` template parameter is
+/// optional.  The `capacityHint` specified at construction time will be
+/// used to compute the number of buckets (capacity) in this object.  Also,
+/// two hash functions may optionally be specified at construction time.
+/// Elements can be inserted using the `insert` method.  If the `VALUE`
+/// parameter is not `bslmf::Nil`, then both key and value must be supplied
+/// to the `insert` method.  Otherwise, only the key should be supplied.
+/// The `find` method can be used to lookup elements by a specified key.
+/// The optional `TRAITS` parameter can be used to classify "null" and
+/// "removed" values.  See the component-level documentation for more
+/// details.
 template <class KEY,
           class VALUE  = bslmf::Nil,
           class TRAITS = HashTableDefaultTraits,
           class HASH1  = HashTableDefaultHash1,
           class HASH2  = HashTableDefaultHash2>
 class HashTable {
-    // This class is a double-hashed table.  The 'VALUE' template parameter is
-    // optional.  The 'capacityHint' specified at construction time will be
-    // used to compute the number of buckets (capacity) in this object.  Also,
-    // two hash functions may optionally be specified at construction time.
-    // Elements can be inserted using the 'insert' method.  If the 'VALUE'
-    // parameter is not 'bslmf::Nil', then both key and value must be supplied
-    // to the 'insert' method.  Otherwise, only the key should be supplied.
-    // The 'find' method can be used to lookup elements by a specified key.
-    // The optional 'TRAITS' parameter can be used to classify "null" and
-    // "removed" values.  See the component-level documentation for more
-    // details.
 
   public:
     // TYPES
+
+    /// Data type to handle elements in the double-hashed table.  This value
+    /// is guaranteed to be between 0 and the capacity of the hash table.
     typedef bsls::Types::Int64 Handle;
-        // Data type to handle elements in the double-hashed table.  This value
-        // is guaranteed to be between 0 and the capacity of the hash table.
 
   private:
     // PRIVATE TYPES
+
+    /// Type of the element stored in this object.  If the `VALUE` parameter
+    /// is `bslmf::Nil`, then `Bucket` is of type `KEY`, otherwise `Bucket`
+    /// is of type `bsl::pair<KEY, VALUE>`.
     typedef typename bsl::conditional<bslmf::IsSame<bslmf::Nil, VALUE>::value,
                                       KEY,
                                       bsl::pair<KEY, VALUE> >::type Bucket;
-        // Type of the element stored in this object.  If the 'VALUE' parameter
-        // is 'bslmf::Nil', then 'Bucket' is of type 'KEY', otherwise 'Bucket'
-        // is of type 'bsl::pair<KEY, VALUE>'.
 
+    /// Constructor proxy for `HASH1`.
     typedef bslalg::ConstructorProxy<HASH1> Hash1CP;
-        // Constructor proxy for 'HASH1'.
 
+    /// Constructor proxy for `HASH2`.
     typedef bslalg::ConstructorProxy<HASH2> Hash2CP;
-        // Constructor proxy for 'HASH2'.
 
     // DATA
     bsl::vector<Bucket> d_buckets;        // array of buckets
@@ -647,164 +649,170 @@ class HashTable {
     HashTable& operator=(const HashTable&);
 
     // PRIVATE CLASS METHODS
+
+    /// Return the key from the specified `bucket`.  If `bucket` is of type
+    /// `KEY`, then `bucket` is returned.  If `bucket` is of type
+    /// `bsl::pair<KEY, VALUE>`, then `bucket.first` is returned.
     static const KEY& keyFromBucket(const KEY& bucket);
     static const KEY& keyFromBucket(const bsl::pair<KEY, VALUE>& bucket);
-        // Return the key from the specified 'bucket'.  If 'bucket' is of type
-        // 'KEY', then 'bucket' is returned.  If 'bucket' is of type
-        // 'bsl::pair<KEY, VALUE>', then 'bucket.first' is returned.
 
     // PRIVATE MANIPULATORS
+
+    /// Load the specified `element` into the bucket with the specified
+    /// `index`; load a handle to the element in the specified `handle`;
+    /// update chain statistics with the specified `chainLength`.
     void loadElementAt(Handle             *handle,
                        bsls::Types::Int64  index,
                        const Bucket&       element,
                        bsls::Types::Int64  chainLength);
-        // Load the specified 'element' into the bucket with the specified
-        // 'index'; load a handle to the element in the specified 'handle';
-        // update chain statistics with the specified 'chainLength'.
 
+    /// Insert the specified `element` into this object; load a handle to
+    /// the element into the specified `handle`.  Return true if successful,
+    /// and false otherwise.
     bool insertElement(Handle *handle, const Bucket& element);
-        // Insert the specified 'element' into this object; load a handle to
-        // the element into the specified 'handle'.  Return true if successful,
-        // and false otherwise.
 
     // PRIVATE ACCESSORS
+
+    /// Implement the double-hash algorithm to find a bucket with the
+    /// specified `key`; load true into the specified `isKeyFound` if an
+    /// element with `key` is found, and false otherwise; load the index of
+    /// the bucket into the specified `index` if an element with `key` is
+    /// found, and the index of the "null" bucket that terminates the chain
+    /// otherwise; load the chain length into the specified `chainLength`;
+    /// load the index of the first "removed" bucket along the chain into
+    /// the specified `removedIndex`, or -1 if no "removed" buckets were
+    /// found.  Note that if the key is not found and there are no "null"
+    /// buckets to terminate the chain, then -1 will be loaded into `index`.
     void findImp(bool               *isKeyFound,
                  bsls::Types::Int64 *index,
                  bsls::Types::Int64 *chainLength,
                  bsls::Types::Int64 *removedIndex,
                  const KEY&          key) const;
-        // Implement the double-hash algorithm to find a bucket with the
-        // specified 'key'; load true into the specified 'isKeyFound' if an
-        // element with 'key' is found, and false otherwise; load the index of
-        // the bucket into the specified 'index' if an element with 'key' is
-        // found, and the index of the "null" bucket that terminates the chain
-        // otherwise; load the chain length into the specified 'chainLength';
-        // load the index of the first "removed" bucket along the chain into
-        // the specified 'removedIndex', or -1 if no "removed" buckets were
-        // found.  Note that if the key is not found and there are no "null"
-        // buckets to terminate the chain, then -1 will be loaded into 'index'.
 
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(HashTable, bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a double-hash table using the specified `capacityHint`.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  The behavior is undefined unless `0 != capacityHint`.  Note
+    /// that `capacityHint` can be either a positive integer or a negative
+    /// integer.  If `capacityHint` is positive, then the capacity of the
+    /// hash table will be the first available prime number larger than, or
+    /// equal to, `capacityHint`.  Otherwise, the capacity of the hash table
+    /// will be the first available prime number smaller than, or equal to,
+    /// `capacityHint`.  Also note that `HASH1` will be used as the first
+    /// hash function, and `HASH2` will be used as the second hash
+    /// function.
     explicit HashTable(bsls::Types::Int64  capacityHint,
                        bslma::Allocator   *basicAllocator = 0);
-        // Create a double-hash table using the specified 'capacityHint'.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless '0 != capacityHint'.  Note
-        // that 'capacityHint' can be either a positive integer or a negative
-        // integer.  If 'capacityHint' is positive, then the capacity of the
-        // hash table will be the first available prime number larger than, or
-        // equal to, 'capacityHint'.  Otherwise, the capacity of the hash table
-        // will be the first available prime number smaller than, or equal to,
-        // 'capacityHint'.  Also note that 'HASH1' will be used as the first
-        // hash function, and 'HASH2' will be used as the second hash
-        // function.
 
+    /// Create a double-hash table with the specified `capacityHint`.  Use
+    /// the specified `hashFunctor1` as the first hash function; use the
+    /// specified `hashFunctor2` as the second hash function.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  The behavior is undefined unless `0 != capacityHint`, and
+    /// `hashFunction1` and `hashFunction2` are valid.  Note that
+    /// `capacityHint` can be either a positive integer or a negative
+    /// integer.  If `capacityHint` is positive, then the capacity of the
+    /// hash table will be the first available prime number larger than, or
+    /// equal to, `capacityHint`.  Otherwise, the capacity of the hash table
+    /// will be the first available prime number smaller than, or equal to,
+    /// `capacityHint`.
     HashTable(bsls::Types::Int64  capacityHint,
               const HASH1&        hashFunctor1,
               const HASH2&        hashFunctor2,
               bslma::Allocator   *basicAllocator = 0);
-        // Create a double-hash table with the specified 'capacityHint'.  Use
-        // the specified 'hashFunctor1' as the first hash function; use the
-        // specified 'hashFunctor2' as the second hash function.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless '0 != capacityHint', and
-        // 'hashFunction1' and 'hashFunction2' are valid.  Note that
-        // 'capacityHint' can be either a positive integer or a negative
-        // integer.  If 'capacityHint' is positive, then the capacity of the
-        // hash table will be the first available prime number larger than, or
-        // equal to, 'capacityHint'.  Otherwise, the capacity of the hash table
-        // will be the first available prime number smaller than, or equal to,
-        // 'capacityHint'.
 
+    /// Destroy this object.
     ~HashTable();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Insert an element with the specified `key` into this object; load a
+    /// handle to the new element into the specified `handle`.  Return true
+    /// if successful, and false otherwise.  The behavior is undefined
+    /// unless `key` does not evaluate to a "null" or "removed" bucket, as
+    /// defined by the parameterized `TRAITS` (see the component-level
+    /// documentation for more details).  Note that this method will fail to
+    /// compile unless the `VALUE` parameter is `bslmf::Nil`.
     bool insert(Handle *handle, const KEY& key);
-        // Insert an element with the specified 'key' into this object; load a
-        // handle to the new element into the specified 'handle'.  Return true
-        // if successful, and false otherwise.  The behavior is undefined
-        // unless 'key' does not evaluate to a "null" or "removed" bucket, as
-        // defined by the parameterized 'TRAITS' (see the component-level
-        // documentation for more details).  Note that this method will fail to
-        // compile unless the 'VALUE' parameter is 'bslmf::Nil'.
 
+    /// Insert an element with the specified `key` and the specified `value`
+    /// into this object; load a handle to the new element into the
+    /// specified `handle`.  Return true if successful, and false otherwise.
+    /// The behavior is undefined unless `key` and `value` do not evaluate
+    /// to a "null" or "removed" bucket, as defined by the parameterized
+    /// `TRAITS` (see the component-level documentation for more details).
+    /// This method will fail to compile unless the `VALUE` parameter is not
+    /// `bslmf::Nil`.
     bool insert(Handle *handle, const KEY& key, const VALUE& value);
-        // Insert an element with the specified 'key' and the specified 'value'
-        // into this object; load a handle to the new element into the
-        // specified 'handle'.  Return true if successful, and false otherwise.
-        // The behavior is undefined unless 'key' and 'value' do not evaluate
-        // to a "null" or "removed" bucket, as defined by the parameterized
-        // 'TRAITS' (see the component-level documentation for more details).
-        // This method will fail to compile unless the 'VALUE' parameter is not
-        // 'bslmf::Nil'.
 
+    /// Remove the element identified by the specified `handle` from this
+    /// object.  The behavior is undefined unless `handle` is valid.  Note
+    /// that `handle` will become invalid when this method returns.
     void remove(const Handle& handle);
-        // Remove the element identified by the specified 'handle' from this
-        // object.  The behavior is undefined unless 'handle' is valid.  Note
-        // that 'handle' will become invalid when this method returns.
 
+    /// Return the reference to the modifiable value of the element
+    /// identified by the specified `handle`.  The behavior is undefined
+    /// unless `handle` is valid.  Note that this method will fail to
+    /// compile unless the `VALUE` parameter is not `bslmf::Nil`.
     VALUE& value(const Handle& handle);
-        // Return the reference to the modifiable value of the element
-        // identified by the specified 'handle'.  The behavior is undefined
-        // unless 'handle' is valid.  Note that this method will fail to
-        // compile unless the 'VALUE' parameter is not 'bslmf::Nil'.
 
     // ACCESSORS
+
+    /// Return the maximum number of elements that can be stored in this
+    /// object.  Note that this value is computed based on the capacity hint
+    /// used upon construction.
     bsls::Types::Int64 capacity() const;
-        // Return the maximum number of elements that can be stored in this
-        // object.  Note that this value is computed based on the capacity hint
-        // used upon construction.
 
+    /// Return the capacity hint that was used to determine the capacity of
+    /// this object.
     bsls::Types::Int64 capacityHint() const;
-        // Return the capacity hint that was used to determine the capacity of
-        // this object.
 
+    /// Find an element having the specified `key`; load a handle to the
+    /// element into the specified `handle`.  Return true if successful, and
+    /// false otherwise.
     bool find(Handle *handle, const KEY& key) const;
-        // Find an element having the specified 'key'; load a handle to the
-        // element into the specified 'handle'.  Return true if successful, and
-        // false otherwise.
 
+    /// Return the reference to the non-modifiable key of the element
+    /// identified by the specified `handle`.  The behavior is undefined
+    /// unless `handle` is valid.
     const KEY& key(const Handle& handle) const;
-        // Return the reference to the non-modifiable key of the element
-        // identified by the specified 'handle'.  The behavior is undefined
-        // unless 'handle' is valid.
 
+    /// Return the maximum chain length encountered by this object.
     bsls::Types::Int64 maxChain() const;
-        // Return the maximum chain length encountered by this object.
 
+    /// Return the number of collisions encountered by this object.
     bsls::Types::Int64 numCollisions() const;
-        // Return the number of collisions encountered by this object.
 
+    /// Return the number of elements stored in this object.
     bsls::Types::Int64 size() const;
-        // Return the number of elements stored in this object.
 
+    /// Return the total chain length encountered by this object.
     bsls::Types::Int64 totalChain() const;
-        // Return the total chain length encountered by this object.
 
+    /// Return the reference to the non-modifiable value of the element
+    /// identified by the specified `handle`.  The behavior is undefined
+    /// unless `handle` is valid.  Note that this method will fail to
+    /// compile unless the `VALUE` parameter is not `bslmf::Nil`.
     const VALUE& value(const Handle& handle) const;
-        // Return the reference to the non-modifiable value of the element
-        // identified by the specified 'handle'.  The behavior is undefined
-        // unless 'handle' is valid.  Note that this method will fail to
-        // compile unless the 'VALUE' parameter is not 'bslmf::Nil'.
 };
 
                        // =============================
                        // struct HashTableDefaultTraits
                        // =============================
 
+/// Default traits provided by this component.  See component-level
+/// documentation for more details.  Note that this class is not intended to
+/// be used by clients, but the name of this struct must be public so that
+/// clients can explicitly specify this struct when default traits are
+/// needed.
 struct HashTableDefaultTraits {
-    // Default traits provided by this component.  See component-level
-    // documentation for more details.  Note that this class is not intended to
-    // be used by clients, but the name of this struct must be public so that
-    // clients can explicitly specify this struct when default traits are
-    // needed.
 
   private:
     // TYPES
@@ -815,107 +823,111 @@ struct HashTableDefaultTraits {
                                           // objects for 'bsl::string' types.
 
     // PRIVATE CLASS METHODS
+
+    /// Return `c != t_VALUE`.
     template <char t_VALUE>
     static bool isNot(char c);
-        // Return 'c != t_VALUE'.
 
   public:
     // CLASS METHODS
+
+    /// Load the specified `srcBucket` into the specified `dstBucket`.
     template <class BUCKET>
     static void load(BUCKET *dstBucket, const BUCKET& srcBucket);
-        // Load the specified 'srcBucket' into the specified 'dstBucket'.
 
+    /// Return true if the specified `key1` and the specified `key2` are
+    /// equal, and false otherwise.
     template <class KEY>
     static bool areEqual(const KEY& key1, const KEY& key2);
     static bool areEqual(const ConstCharPtr& key1, const ConstCharPtr& key2);
-        // Return true if the specified 'key1' and the specified 'key2' are
-        // equal, and false otherwise.
 
+    /// Return true if the specified `bucket` has a null value, and false
+    /// otherwise.
     template <class BUCKET>
     static bool isNull(const BUCKET& bucket);
     static bool isNull(const bsl::string& bucket);
     static bool isNull(const ConstCharPtr& bucket);
     template <class KEY, class VALUE>
     static bool isNull(const bsl::pair<KEY, VALUE>& bucket);
-        // Return true if the specified 'bucket' has a null value, and false
-        // otherwise.
 
+    /// Load a null value into the specified `bucket`.
     template <class BUCKET>
     static void setToNull(BUCKET *bucket);
     static void setToNull(bsl::string *bucket);
     static void setToNull(ConstCharPtr *bucket);
     template <class KEY, class VALUE>
     static void setToNull(bsl::pair<KEY, VALUE> *bucket);
-        // Load a null value into the specified 'bucket'.
 
+    /// Return true if the specified `bucket` has a removed value, and false
+    /// otherwise.
     template <class BUCKET>
     static bool isRemoved(const BUCKET& bucket);
     static bool isRemoved(const bsl::string& bucket);
     static bool isRemoved(const ConstCharPtr& bucket);
     template <class KEY, class VALUE>
     static bool isRemoved(const bsl::pair<KEY, VALUE>& bucket);
-        // Return true if the specified 'bucket' has a removed value, and false
-        // otherwise.
 
+    /// Load a removed value into the specified `bucket`.
     template <class BUCKET>
     static void setToRemoved(BUCKET *bucket);
     static void setToRemoved(bsl::string *bucket);
     static void setToRemoved(ConstCharPtr *bucket);
     template <class KEY, class VALUE>
     static void setToRemoved(bsl::pair<KEY, VALUE> *bucket);
-        // Load a removed value into the specified 'bucket'.
 };
 
                         // ============================
                         // struct HashTableDefaultHash1
                         // ============================
 
+/// Default hash function provided by this component.  See component-level
+/// documentation for more details.  Note that this class is not intended to
+/// be used by clients, but the name of this struct must be public so that
+/// clients can explicitly specify this struct when default hash function is
+/// needed.  Note that this functor is implemented using
+/// `bdlb::HashUtil::hash1`.
 struct HashTableDefaultHash1 {
-    // Default hash function provided by this component.  See component-level
-    // documentation for more details.  Note that this class is not intended to
-    // be used by clients, but the name of this struct must be public so that
-    // clients can explicitly specify this struct when default hash function is
-    // needed.  Note that this functor is implemented using
-    // 'bdlb::HashUtil::hash1'.
 
     // TYPES
     typedef const char *ConstCharPtr;  // Alias for 'const char*'.
 
     // CLASS METHODS
+
+    /// Return the result of `bdlb::HashUtil::hash1` using key data and key
+    /// length.  If the specified `key` is not of type `const char*` or
+    /// `bsl::string`, then the footprint and size of the object are used as
+    /// key data and key length, respectively.
     template <class KEY>
     unsigned int operator()(const KEY& key) const;
     unsigned int operator()(const ConstCharPtr& key) const;
     unsigned int operator()(const bsl::string& key) const;
-        // Return the result of 'bdlb::HashUtil::hash1' using key data and key
-        // length.  If the specified 'key' is not of type 'const char*' or
-        // 'bsl::string', then the footprint and size of the object are used as
-        // key data and key length, respectively.
 };
 
                         // ============================
                         // struct HashTableDefaultHash2
                         // ============================
 
+/// Default hash function provided by this component.  See component-level
+/// documentation for more details.  Note that this class is not intended to
+/// be used by clients, but the name of this struct must be public so that
+/// clients can explicitly specify this struct when default hash function is
+/// needed.  Note that this functor is implemented using
+/// `bdlb::HashUtil::hash2`.
 struct HashTableDefaultHash2 {
-    // Default hash function provided by this component.  See component-level
-    // documentation for more details.  Note that this class is not intended to
-    // be used by clients, but the name of this struct must be public so that
-    // clients can explicitly specify this struct when default hash function is
-    // needed.  Note that this functor is implemented using
-    // 'bdlb::HashUtil::hash2'.
 
     // TYPES
     typedef const char *ConstCharPtr;  // Alias for 'const char*'.
 
     // CLASS METHODS
+
+    /// Return the result of `bdlb::HashUtil::hash2` using key data and key
+    /// length.  If the specified `key` is not of type `const char*` or
+    /// `bsl::string`, then the footprint and size of the object are used as
+    /// key data and key length, respectively.
     template <class KEY>
     unsigned int operator()(const KEY& key) const;
     unsigned int operator()(const ConstCharPtr& key) const;
     unsigned int operator()(const bsl::string& key) const;
-        // Return the result of 'bdlb::HashUtil::hash2' using key data and key
-        // length.  If the specified 'key' is not of type 'const char*' or
-        // 'bsl::string', then the footprint and size of the object are used as
-        // key data and key length, respectively.
 };
 
 //  ---  Anything below this line is implementation specific.  Do not use.  ---
@@ -924,9 +936,9 @@ struct HashTableDefaultHash2 {
                       // private struct HashTable_ImpUtil
                       // ================================
 
+/// Component-private struct.  Do not use.  Implementation helper functions
+/// for this component.
 struct HashTable_ImpUtil {
-    // Component-private struct.  Do not use.  Implementation helper functions
-    // for this component.
 
     // CLASS DATA
     static const unsigned int *PRIME_NUMBERS;      // provide access to the
@@ -935,8 +947,9 @@ struct HashTable_ImpUtil {
                                                    // in the test driver
 
     // CLASS METHODS
+
+    /// Return the hash size based on the specified `hint`.
     static unsigned int hashSize(bsls::Types::Int64 hint);
-        // Return the hash size based on the specified 'hint'.
 };
 
 // ============================================================================

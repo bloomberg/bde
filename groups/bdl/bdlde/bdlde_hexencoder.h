@@ -12,10 +12,10 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlde_hexdecoder
 //
-//@DESCRIPTION: This component provides a class, 'bdlde::HexEncoder', for
+//@DESCRIPTION: This component provides a class, `bdlde::HexEncoder`, for
 // encoding plain text into its hexadecimal representation.
 //
-// 'bdlde::HexEncoder' and 'bdlde::HexDecoder' provide a pair of template
+// `bdlde::HexEncoder` and `bdlde::HexDecoder` provide a pair of template
 // functions (each parameterized separately on both input and output iterators)
 // that can be used respectively to encode and to decode byte sequences of
 // arbitrary length into and from the printable Hex representation.
@@ -32,84 +32,84 @@ BSLS_IDENT("$Id: $")
 ///------------
 // The data stream is processed one byte at a time from left to right.  Each
 // byte
-//..
-//      7 6 5 4 3 2 1 0
-//     +-+-+-+-+-+-+-+-+
-//     |               |
-//     +-+-+-+-+-+-+-+-+
-//      `------v------'
-//            Byte
-//..
+// ```
+//     7 6 5 4 3 2 1 0
+//    +-+-+-+-+-+-+-+-+
+//    |               |
+//    +-+-+-+-+-+-+-+-+
+//     `------v------'
+//           Byte
+// ```
 // is segmented into two intermediate 4-bit quantities.
-//..
-//      3 2 1 0 3 2 1 0
-//     +-+-+-+-+-+-+-+-+
-//     |       |       |
-//     +-+-+-+-+-+-+-+-+
-//      `--v--' `--v--'
-//       char0   char1
-//..
+// ```
+//     3 2 1 0 3 2 1 0
+//    +-+-+-+-+-+-+-+-+
+//    |       |       |
+//    +-+-+-+-+-+-+-+-+
+//     `--v--' `--v--'
+//      char0   char1
+// ```
 // Each 4-bit quantity is in turn used as an index into the following character
 // table to generate an 8-bit character.
-//..
-//     =================
-//     *  Hex Alphabet *
-//     -----------------
-//     Val Enc  Val Enc
-//     --- ---  --- ---
-//       0 '0'    8 '8'
-//       1 '1'    9 '9'
-//       2 '2'   10 'A'
-//       3 '3'   11 'B'
-//       4 '4'   12 'C'
-//       5 '5'   13 'D'
-//       6 '6'   14 'E'
-//       7 '7'   15 'F'
-//     =================
-//..
+// ```
+//    =================
+//    *  Hex Alphabet *
+//    -----------------
+//    Val Enc  Val Enc
+//    --- ---  --- ---
+//      0 '0'    8 '8'
+//      1 '1'    9 '9'
+//      2 '2'   10 'A'
+//      3 '3'   11 'B'
+//      4 '4'   12 'C'
+//      5 '5'   13 'D'
+//      6 '6'   14 'E'
+//      7 '7'   15 'F'
+//    =================
+// ```
 // Depending on the settings encoder represents values from 10 to 15 as
-// uppercase ('A'-'F') or lowercase letters('a'-'f').
+// uppercase (`A`-`F`) or lowercase letters(`a`-`f`).
 //
 // Input values of increasing length along with their corresponding Hex
 // encodings are illustrated below:
-//..
-//        Data: /* nothing */
-//    Encoding: /* nothing */
+// ```
+//       Data: /* nothing */
+//   Encoding: /* nothing */
 //
-//        Data: "0"     (0011 0000)
-//    Encoding: 30
+//       Data: "0"     (0011 0000)
+//   Encoding: 30
 //
-//        Data: "01"    (0011 0000 0011 0001)
-//    Encoding: 3031
+//       Data: "01"    (0011 0000 0011 0001)
+//   Encoding: 3031
 //
-//        Data: "01A"   (0011 0000 0011 0001 1000 0001)
-//    Encoding: 303141
+//       Data: "01A"   (0011 0000 0011 0001 1000 0001)
+//   Encoding: 303141
 //
-//        Data: "01A?"  (0011 0000 0011 0001 1000 0001 0011 1111)
-//    Encoding: 3031413F
-//..
+//       Data: "01A?"  (0011 0000 0011 0001 1000 0001 0011 1111)
+//   Encoding: 3031413F
+// ```
 //
 ///Hex Decoding
 ///------------
 // The data stream is processed two bytes at a time from left to right.  Each
 // sequence of two 8-bit quantities
-//..
-//      7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0
-//     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//     |               |               |
-//     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//      `------v------' `------v------'
-//           Byte0           Byte1
-//..
+// ```
+//     7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0
+//    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//    |               |               |
+//    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//     `------v------' `------v------'
+//          Byte0           Byte1
+// ```
 // is segmented into four intermediate 4-bit quantities.
-//..
-//      3 2 1 0 3 2 1 0 3 2 1 0 3 2 1 0
-//     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//     |       |       |       |       |
-//     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//      `--v--' `--v--' `--v--' `--v--'
-//      chunk0   chunk1  chunk2  chunk3
-//..
+// ```
+//     3 2 1 0 3 2 1 0 3 2 1 0 3 2 1 0
+//    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//    |       |       |       |       |
+//    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//     `--v--' `--v--' `--v--' `--v--'
+//     chunk0   chunk1  chunk2  chunk3
+// ```
 // The second and forth chunks are combined to get the resulting 8-bit
 // character.
 //
@@ -121,169 +121,169 @@ BSLS_IDENT("$Id: $")
 // Input values of increasing length along with their corresponding Hex
 // encodings are illustrated below (note that the encoded whitespace character
 // is skipped and the resulting string does not contain it):
-//..
-//        Data: /* nothing */
-//    Encoding: /* nothing */
+// ```
+//       Data: /* nothing */
+//   Encoding: /* nothing */
 //
-//        Data: "4"       (0000 0100)
-//    Encoding: /* nothing */
+//       Data: "4"       (0000 0100)
+//   Encoding: /* nothing */
 //
-//        Data: "41"      (0000 0100 0000 0001)
-//    Encoding: A
+//       Data: "41"      (0000 0100 0000 0001)
+//   Encoding: A
 //
-//        Data: "412"     (0000 0100 0000 0001 0000 0010)
-//    Encoding: A
+//       Data: "412"     (0000 0100 0000 0001 0000 0010)
+//   Encoding: A
 //
-//        Data: "4120"    (0000 0100 0000 0001 0000 0010 0000 0000)
-//    Encoding: A
+//       Data: "4120"    (0000 0100 0000 0001 0000 0010 0000 0000)
+//   Encoding: A
 //
-//        Data: "41203"   (0000 0100 0000 0001 0000 0010 0000 0000
-//                         0000 0011)
-//    Encoding: A
+//       Data: "41203"   (0000 0100 0000 0001 0000 0010 0000 0000
+//                        0000 0011)
+//   Encoding: A
 //
-//        Data: "41203F"  (0011 0000 0011 0001 1000 0001 0010 0011
-//                         0000 0011 0000 1111)
-//    Encoding: A?
-//..
+//       Data: "41203F"  (0011 0000 0011 0001 1000 0001 0010 0011
+//                        0000 0011 0000 1111)
+//   Encoding: A?
+// ```
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Usage of 'bdlde::HexEncoder'
+///Example 1: Basic Usage of `bdlde::HexEncoder`
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// The following example shows using a 'bdlde::HexEncoder' object to encode
+// The following example shows using a `bdlde::HexEncoder` object to encode
 // bytes into a hexidecimal format. For dependency reasons, a more complete
 // example, showing both encoding and decoding can be found in
-// 'bdlde_hexdecoder'.
+// `bdlde_hexdecoder`.
 //
-// In the example below, we implement a function 'streamEncoder', that reads
-// text from 'bsl::istream', encodes that text into hex representation, and
-// writes the encoded text to a 'bsl::ostream'.  'streamEncoder' returns 0 on
+// In the example below, we implement a function `streamEncoder`, that reads
+// text from `bsl::istream`, encodes that text into hex representation, and
+// writes the encoded text to a `bsl::ostream`.  `streamEncoder` returns 0 on
 // success and a negative value if the input data could not be successfully
 // encoded or if there is an I/O  error.
-//..
-//  int streamEncoder(bsl::ostream& os, bsl::istream& is)
-//      // Read the entire contents of the specified input stream 'is', convert
-//      // the input plain text to hex representation, and write the encoded
-//      // text to the specified output stream 'os'.  Return 0 on success, and
-//      // a negative value otherwise.
-//  {
-//      enum {
-//          SUCCESS      =  0,
-//          ENCODE_ERROR = -1,
-//          IO_ERROR     = -2
-//      };
-//..
+// ```
+// int streamEncoder(bsl::ostream& os, bsl::istream& is)
+//     // Read the entire contents of the specified input stream 'is', convert
+//     // the input plain text to hex representation, and write the encoded
+//     // text to the specified output stream 'os'.  Return 0 on success, and
+//     // a negative value otherwise.
+// {
+//     enum {
+//         SUCCESS      =  0,
+//         ENCODE_ERROR = -1,
+//         IO_ERROR     = -2
+//     };
+// ```
 // First we create an object, create buffers for storing data, and start loop
 // that runs while the input stream contains some data:
-//..
-//      bdlde::HexEncoder converter;
+// ```
+//     bdlde::HexEncoder converter;
 //
-//      const int INBUFFER_SIZE  = 1 << 10;
-//      const int OUTBUFFER_SIZE = 1 << 10;
+//     const int INBUFFER_SIZE  = 1 << 10;
+//     const int OUTBUFFER_SIZE = 1 << 10;
 //
-//      char inputBuffer[INBUFFER_SIZE];
-//      char outputBuffer[OUTBUFFER_SIZE];
+//     char inputBuffer[INBUFFER_SIZE];
+//     char outputBuffer[OUTBUFFER_SIZE];
 //
-//      char *output    = outputBuffer;
-//      char *outputEnd = outputBuffer + sizeof outputBuffer;
+//     char *output    = outputBuffer;
+//     char *outputEnd = outputBuffer + sizeof outputBuffer;
 //
-//      while (is.good()) {  // input stream not exhausted
-//..
+//     while (is.good()) {  // input stream not exhausted
+// ```
 // On each iteration we read some data from the input stream:
-//..
-//          is.read(inputBuffer, sizeof inputBuffer);
+// ```
+//         is.read(inputBuffer, sizeof inputBuffer);
 //
-//          const char *input    = inputBuffer;
-//          const char *inputEnd = input + is.gcount();
+//         const char *input    = inputBuffer;
+//         const char *inputEnd = input + is.gcount();
 //
-//          while (input < inputEnd) { // input encoding not complete
+//         while (input < inputEnd) { // input encoding not complete
 //
-//              int numOut;
-//              int numIn;
-//..
-// Convert obtained text using 'bdlde::HexEncoder':
-//..
-//              int status = converter.convert(
-//                                       output,
-//                                       &numOut,
-//                                       &numIn,
-//                                       input,
-//                                       inputEnd,
-//                                       static_cast<int>(outputEnd - output));
-//              if (status < 0) {
-//                  return ENCODE_ERROR;                              // RETURN
-//              }
-//
-//              output += numOut;
-//              input  += numIn;
-//..
-// And write encoded text to the output stream:
-//..
-//              if (output == outputEnd) {  // output buffer full; write data
-//                  os.write(outputBuffer, sizeof outputBuffer);
-//                  if (os.fail()) {
-//                      return IO_ERROR;                              // RETURN
-//                  }
-//                  output = outputBuffer;
-//              }
-//          }
-//      }
-//
-//      while (1) {
-//          int numOut = 0;
-//..
-// Then, we need to store the unhandled symbol (if there is one) to the output
-// buffer and complete the work of our encoder:
-//..
-//          int more = converter.endConvert(
+//             int numOut;
+//             int numIn;
+// ```
+// Convert obtained text using `bdlde::HexEncoder`:
+// ```
+//             int status = converter.convert(
 //                                      output,
 //                                      &numOut,
+//                                      &numIn,
+//                                      input,
+//                                      inputEnd,
 //                                      static_cast<int>(outputEnd - output));
-//          if (more < 0) {
-//              return ENCODE_ERROR;                                  // RETURN
-//          }
+//             if (status < 0) {
+//                 return ENCODE_ERROR;                              // RETURN
+//             }
 //
-//          output += numOut;
+//             output += numOut;
+//             input  += numIn;
+// ```
+// And write encoded text to the output stream:
+// ```
+//             if (output == outputEnd) {  // output buffer full; write data
+//                 os.write(outputBuffer, sizeof outputBuffer);
+//                 if (os.fail()) {
+//                     return IO_ERROR;                              // RETURN
+//                 }
+//                 output = outputBuffer;
+//             }
+//         }
+//     }
 //
-//          if (!more) { // no more output
-//              break;
-//          }
+//     while (1) {
+//         int numOut = 0;
+// ```
+// Then, we need to store the unhandled symbol (if there is one) to the output
+// buffer and complete the work of our encoder:
+// ```
+//         int more = converter.endConvert(
+//                                     output,
+//                                     &numOut,
+//                                     static_cast<int>(outputEnd - output));
+//         if (more < 0) {
+//             return ENCODE_ERROR;                                  // RETURN
+//         }
 //
-//          assert(output == outputEnd);  // output buffer is full
+//         output += numOut;
 //
-//          os.write(outputBuffer, sizeof outputBuffer);  // write buffer
-//          if (os.fail()) {
-//              return IO_ERROR;                                      // RETURN
-//          }
-//          output = outputBuffer;
-//      }
+//         if (!more) { // no more output
+//             break;
+//         }
 //
-//      if (output > outputBuffer) {
-//          os.write(outputBuffer, output - outputBuffer);
-//      }
+//         assert(output == outputEnd);  // output buffer is full
 //
-//      return is.eof() && os.good() ? SUCCESS : IO_ERROR;
-//  }
-//..
+//         os.write(outputBuffer, sizeof outputBuffer);  // write buffer
+//         if (os.fail()) {
+//             return IO_ERROR;                                      // RETURN
+//         }
+//         output = outputBuffer;
+//     }
+//
+//     if (output > outputBuffer) {
+//         os.write(outputBuffer, output - outputBuffer);
+//     }
+//
+//     return is.eof() && os.good() ? SUCCESS : IO_ERROR;
+// }
+// ```
 // Next, to demonstrate how our function works we need to create a stream with
 // data to encode.  Assume that we have some character buffer,
-// 'BLOOMBERG_NEWS', and a function, 'streamDecoder' mirroring the work of the
-// 'streamEncoder'.  Below we should encode this string into a hexidecimal
+// `BLOOMBERG_NEWS`, and a function, `streamDecoder` mirroring the work of the
+// `streamEncoder`.  Below we should encode this string into a hexidecimal
 // format:
-//..
-//  bsl::istringstream inStream(bsl::string(BLOOMBERG_NEWS,
-//                                          strlen(BLOOMBERG_NEWS)));
-//  bsl::stringstream  outStream;
-//  bsl::stringstream  backInStream;
-//..
+// ```
+// bsl::istringstream inStream(bsl::string(BLOOMBERG_NEWS,
+//                                         strlen(BLOOMBERG_NEWS)));
+// bsl::stringstream  outStream;
+// bsl::stringstream  backInStream;
+// ```
 // Then, we use our function to encode text:
-//..
-//  assert(0 == streamEncoder(outStream, inStream));
-//..
+// ```
+// assert(0 == streamEncoder(outStream, inStream));
+// ```
 // This example does *not* decode the resulting hexidecimal text, for a
-// more complete example, see 'bdlde_hexdecoder'.
+// more complete example, see `bdlde_hexdecoder`.
 
 #include <bdlscm_version.h>
 
@@ -296,9 +296,9 @@ namespace bdlde {
                        // class HexEncoder
                        // ================
 
+/// This class implements a mechanism capable of converting data of
+/// arbitrary length to its corresponding Hex representation.
 class HexEncoder {
-    // This class implements a mechanism capable of converting data of
-    // arbitrary length to its corresponding Hex representation.
 
     // PRIVATE TYPES
     enum States {
@@ -328,15 +328,39 @@ class HexEncoder {
 
   public:
     // CREATORS
+
+    /// Create a Hex encoder in the initial state.  Optionally specify the
+    /// `upperCaseLetters` to indicate if values from 10 to 15 are encoded
+    /// as uppercase letters(`A`-`F`) or as lowercase letters(`a`-`f`).
     explicit HexEncoder(bool upperCaseLetters = true);
-        // Create a Hex encoder in the initial state.  Optionally specify the
-        // 'upperCaseLetters' to indicate if values from 10 to 15 are encoded
-        // as uppercase letters('A'-'F') or as lowercase letters('a'-'f').
 
     // ~HexEncoder() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Append to the buffer addressed by the specified `out` pending
+    /// character (if there is such) up to the optionally specified
+    /// `maxNumOut` limit (default is negative, meaning no limit).  When
+    /// there is no pending output and `maxNumOut` is still not reached,
+    /// begin to consume and encode a sequence of input characters starting
+    /// at the specified `begin` position, up to but not including the
+    /// specified `end` position.  Any resulting output is written to the
+    /// `out` buffer up to the (cumulative) `maxNumOut` limit.  If
+    /// `maxNumOut` limit is reached, no further input will be consumed.
+    /// Load into the (optionally) specified `numOut` and `numIn` the number
+    /// of output bytes produced and input bytes consumed, respectively.
+    /// Return a non-negative value on success and a negative value
+    /// otherwise.  A successful return status indicates the number of
+    /// characters that would be output if `endConvert` were called
+    /// subsequently with no output limit.  These bytes *may* be available
+    /// for output if this method is called with a sufficiently large
+    /// `maxNumOut`.  Note that calling this method after `endConvert` has
+    /// been invoked without an intervening `reset` call will place this
+    /// instance in an error state, and return an error status.  Note also
+    /// that it is recommended that after all calls to `convert` are
+    /// finished, the `endConvert` method be called to complete the encoding
+    /// of any unprocessed input characters.
     template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
     int convert(OUTPUT_ITERATOR out,
                 INPUT_ITERATOR  begin,
@@ -348,88 +372,67 @@ class HexEncoder {
                 INPUT_ITERATOR   begin,
                 INPUT_ITERATOR   end,
                 int              maxNumOut = -1);
-        // Append to the buffer addressed by the specified 'out' pending
-        // character (if there is such) up to the optionally specified
-        // 'maxNumOut' limit (default is negative, meaning no limit).  When
-        // there is no pending output and 'maxNumOut' is still not reached,
-        // begin to consume and encode a sequence of input characters starting
-        // at the specified 'begin' position, up to but not including the
-        // specified 'end' position.  Any resulting output is written to the
-        // 'out' buffer up to the (cumulative) 'maxNumOut' limit.  If
-        // 'maxNumOut' limit is reached, no further input will be consumed.
-        // Load into the (optionally) specified 'numOut' and 'numIn' the number
-        // of output bytes produced and input bytes consumed, respectively.
-        // Return a non-negative value on success and a negative value
-        // otherwise.  A successful return status indicates the number of
-        // characters that would be output if 'endConvert' were called
-        // subsequently with no output limit.  These bytes *may* be available
-        // for output if this method is called with a sufficiently large
-        // 'maxNumOut'.  Note that calling this method after 'endConvert' has
-        // been invoked without an intervening 'reset' call will place this
-        // instance in an error state, and return an error status.  Note also
-        // that it is recommended that after all calls to 'convert' are
-        // finished, the 'endConvert' method be called to complete the encoding
-        // of any unprocessed input characters.
 
+    /// Terminate encoding for this encoder; write any retained output
+    /// (e.g., from a previous call to `convert` with a non-zero output
+    /// limit argument) to the specified `out` buffer.  Optionally specify
+    /// the `maxNumOut` limit on the number of bytes to output; if
+    /// `maxNumOut` is negative, no limit is imposed.  Load into the
+    /// (optionally) specified `numOut` the number of output bytes produced.
+    /// Return a non-negative value on success and a negative value
+    /// otherwise.  A successful return status indicates the number of
+    /// characters that would be output if `endConvert` were called
+    /// subsequently with no output limit.  Any retained bytes are available
+    /// on a subsequent call to `endConvert`.  Once this method is called,
+    /// no additional input may be supplied without an intervening call to
+    /// `reset`; once this method returns a zero status, a subsequent call
+    /// will place this encoder in the error state, and return an error
+    /// status.
     template <class OUTPUT_ITERATOR>
     int endConvert(OUTPUT_ITERATOR out);
     template <class OUTPUT_ITERATOR>
     int endConvert(OUTPUT_ITERATOR out, int *numOut, int maxNumOut = -1);
-        // Terminate encoding for this encoder; write any retained output
-        // (e.g., from a previous call to 'convert' with a non-zero output
-        // limit argument) to the specified 'out' buffer.  Optionally specify
-        // the 'maxNumOut' limit on the number of bytes to output; if
-        // 'maxNumOut' is negative, no limit is imposed.  Load into the
-        // (optionally) specified 'numOut' the number of output bytes produced.
-        // Return a non-negative value on success and a negative value
-        // otherwise.  A successful return status indicates the number of
-        // characters that would be output if 'endConvert' were called
-        // subsequently with no output limit.  Any retained bytes are available
-        // on a subsequent call to 'endConvert'.  Once this method is called,
-        // no additional input may be supplied without an intervening call to
-        // 'reset'; once this method returns a zero status, a subsequent call
-        // will place this encoder in the error state, and return an error
-        // status.
 
+    /// Reset this encoder to its initial state (i.e., as if no input had
+    /// been consumed).
     void reset();
-        // Reset this encoder to its initial state (i.e., as if no input had
-        // been consumed).
 
     // ACCESSORS
+
+    /// Return `true` if the input read so far by this encoder is considered
+    /// syntactically complete, and `false` otherwise.
     bool isAcceptable() const;
-        // Return 'true' if the input read so far by this encoder is considered
-        // syntactically complete, and 'false' otherwise.
 
+    /// Return `true` if this encoder is in the done state (i.e.,
+    /// `endConvert` has been called and any additional input will result in
+    /// an error), and if there is no pending output, and `false` otherwise.
     bool isDone() const;
-        // Return 'true' if this encoder is in the done state (i.e.,
-        // 'endConvert' has been called and any additional input will result in
-        // an error), and if there is no pending output, and 'false' otherwise.
 
+    /// Return `true` if there is no possibility of achieving an
+    /// "acceptable" result, and `false` otherwise.  Note that for an
+    /// encoder, no input can cause an error; the possible errors result
+    /// either from a call to the `convert` method after the `endConvert`
+    /// method is called the first time, or from a call to the `endConvert`
+    /// method after the `endConvert` method has returned successfully.
     bool isError() const;
-        // Return 'true' if there is no possibility of achieving an
-        // "acceptable" result, and 'false' otherwise.  Note that for an
-        // encoder, no input can cause an error; the possible errors result
-        // either from a call to the 'convert' method after the 'endConvert'
-        // method is called the first time, or from a call to the 'endConvert'
-        // method after the 'endConvert' method has returned successfully.
 
+    /// Return `true` if this encoder is in the initial state (i.e., as if
+    /// no input had been consumed), and `false` otherwise.
     bool isInitialState() const;
-        // Return 'true' if this encoder is in the initial state (i.e., as if
-        // no input had been consumed), and 'false' otherwise.
 
+    /// Return `true` if this encoder represents values from 10 to 15 as
+    /// uppercase letters(`A`-`F`), and `false` if these values are
+    /// represented as lowercase letters(`a`-`f`).
     bool isUpperCase() const;
-        // Return 'true' if this encoder represents values from 10 to 15 as
-        // uppercase letters('A'-'F'), and 'false' if these values are
-        // represented as lowercase letters('a'-'f').
 
+    /// Return the number of characters that would be output if `endConvert`
+    /// were called with no output limit.
     int numOutputPending() const;
-        // Return the number of characters that would be output if 'endConvert'
-        // were called with no output limit.
 
+    /// Return the total length of the output emitted by this encoder
+    /// (possibly after one or more calls to the `convert` or the `input`
+    /// methods) since its initial construction or the latest `reset`.
     int outputLength() const;
-        // Return the total length of the output emitted by this encoder
-        // (possibly after one or more calls to the 'convert' or the 'input'
-        // methods) since its initial construction or the latest 'reset'.
 };
 
 // ============================================================================

@@ -12,19 +12,19 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb_stringviewutil
 //
-//@DESCRIPTION: This component defines a utility 'struct', 'bdlb::String', that
-// provides a suite of functions operating on STL-style strings ('bsl::string',
-// 'std::string', 'std::pmr::string'), C-style strings (necessarily
-// null-terminated), and strings specified by a '(const char *, int)' or
-// '(char *, int)' pair.
+//@DESCRIPTION: This component defines a utility `struct`, `bdlb::String`, that
+// provides a suite of functions operating on STL-style strings (`bsl::string`,
+// `std::string`, `std::pmr::string`), C-style strings (necessarily
+// null-terminated), and strings specified by a `(const char *, int)` or
+// `(char *, int)` pair.
 //
-// Unlike C-style strings, strings specified via '(const char *, int)' or
-// '(char *, int)' need not be null-terminated and may contain embedded null
-// ('\0') characters.  Note that if a string is specified by a 'const char *'
+// Unlike C-style strings, strings specified via `(const char *, int)` or
+// `(char *, int)` need not be null-terminated and may contain embedded null
+// ('\0') characters.  Note that if a string is specified by a `const char *`
 // and a length, the string address may be null only if 0 is supplied for the
 // length; this is the only case where a null string argument is accepted by
 // the functions of this utility.  In particular, for strings specified by a
-// 'char *' (to non-'const') and a length, the string address must not be null
+// `char *` (to non-`const`) and a length, the string address must not be null
 // even if 0 is supplied for the length.
 //
 ///Synopsis
@@ -32,30 +32,30 @@ BSLS_IDENT("$Id: $")
 // This component provides several kinds of utility functions, including both
 // case-sensitive and case-insensitive comparisons, case conversions, trimming
 // functions, and other length-related operations.  Most of the methods are
-// overloaded to work on three string styles: (1) STL-style ('bsl::string',
-// 'std::string', 'std::pmr::string'), (2) C-style, and (3) a
-// '(const char *, int)' or '(char *, int)' pair.  These overloaded methods are
-// indicated schematically with a pseudo-argument 'STR' representing any of the
+// overloaded to work on three string styles: (1) STL-style (`bsl::string`,
+// `std::string`, `std::pmr::string`), (2) C-style, and (3) a
+// `(const char *, int)` or `(char *, int)` pair.  These overloaded methods are
+// indicated schematically with a pseudo-argument `STR` representing any of the
 // three possible string styles.  Note that the pseudo-signature
-// 'foo(STR, STR)' represents nine overloaded signatures, not three.
-//..
-//  Method                        Purpose
-//  --------------------------    --------------------------------------------
-//  areEqualCaseless(STR, STR)    case-insensitive equality comparison
-//  lowerCaseCmp(STR, STR)        lexical comparison of lower-cased strings
-//  upperCaseCmp(STR, STR)        lexical comparison of upper-cased strings
+// `foo(STR, STR)` represents nine overloaded signatures, not three.
+// ```
+// Method                        Purpose
+// --------------------------    --------------------------------------------
+// areEqualCaseless(STR, STR)    case-insensitive equality comparison
+// lowerCaseCmp(STR, STR)        lexical comparison of lower-cased strings
+// upperCaseCmp(STR, STR)        lexical comparison of upper-cased strings
 //
-//  ltrim(STR)                    remove leading whitespace
-//  rtrim(STR)                    remove trailing whitespace
-//  trim(STR)                     remove both leading and trailing whitespace
+// ltrim(STR)                    remove leading whitespace
+// rtrim(STR)                    remove trailing whitespace
+// trim(STR)                     remove both leading and trailing whitespace
 //
-//  toLower(STR)                  convert to lower case
-//  toUpper(STR)                  convert to upper case
+// toLower(STR)                  convert to lower case
+// toUpper(STR)                  convert to upper case
 //
-//  strnlen(const char *, int)    null-terminated length, but bounded by 'int'
-//  toFixedLength(...)            fixed-length copy with padding character
-//  pad(...)                      append padding 'char' up to specified length
-//..
+// strnlen(const char *, int)    null-terminated length, but bounded by 'int'
+// toFixedLength(...)            fixed-length copy with padding character
+// pad(...)                      append padding 'char' up to specified length
+// ```
 //
 ///UTF-8
 ///------
@@ -94,13 +94,24 @@ namespace bdlb {
                                // struct String
                                // =============
 
+/// This `struct` provides a namespace for a suite of functions on STL-style
+/// strings (`bsl::string`, `std::string`, `std::pmr::string`), C-style
+/// strings, and strings specified by a `(const char *, int)` or
+/// `(char *, int)` pair.
 struct String {
-    // This 'struct' provides a namespace for a suite of functions on STL-style
-    // strings ('bsl::string', 'std::string', 'std::pmr::string'), C-style
-    // strings, and strings specified by a '(const char *, int)' or
-    // '(char *, int)' pair.
 
     // CLASS METHODS
+
+    /// Compare for equality the specified `lhsString` and `rhsString`
+    /// having the optionally specified `lhsLength` and `rhsLength`,
+    /// respectively, *as if* the strings were converted to lower case
+    /// before the equality comparison.  Return `true` if `lhsString` is
+    /// equal to `rhsString`, and `false` otherwise.  The behavior is
+    /// undefined unless `0 <= lhsLength` and `0 <= rhsLength` (if
+    /// specified), and `lhsString.size() <= INT_MAX` and
+    /// `rhsString.size() <= INT_MAX` (if applicable).  See
+    /// {`bdlb_stringviewutil`} for an identically named method having the
+    /// same semantics taking `bsl::string_view`.
     static bool areEqualCaseless(const char *lhsString, const char *rhsString);
     static bool areEqualCaseless(const char *lhsString,
                                  const char *rhsString,
@@ -124,44 +135,34 @@ struct String {
                                  int                 rhsLength);
     static bool areEqualCaseless(const bsl::string& lhsString,
                                  const bsl::string& rhsString);
-        // Compare for equality the specified 'lhsString' and 'rhsString'
-        // having the optionally specified 'lhsLength' and 'rhsLength',
-        // respectively, *as if* the strings were converted to lower case
-        // before the equality comparison.  Return 'true' if 'lhsString' is
-        // equal to 'rhsString', and 'false' otherwise.  The behavior is
-        // undefined unless '0 <= lhsLength' and '0 <= rhsLength' (if
-        // specified), and 'lhsString.size() <= INT_MAX' and
-        // 'rhsString.size() <= INT_MAX' (if applicable).  See
-        // {'bdlb_stringviewutil'} for an identically named method having the
-        // same semantics taking 'bsl::string_view'.
 
+    /// Create a null-terminated copy of the specified `string`, using the
+    /// specified `basicAllocator` to supply memory, and return the address
+    /// of the newly-created modifiable string.  The string that is returned
+    /// is owned by the caller.  The behavior is undefined unless
+    /// `bsl::strlen(string) <= INT_MAX` and `basicAllocator` is non-null.
     static char *copy(const char *string, bslma::Allocator *basicAllocator);
-        // Create a null-terminated copy of the specified 'string', using the
-        // specified 'basicAllocator' to supply memory, and return the address
-        // of the newly-created modifiable string.  The string that is returned
-        // is owned by the caller.  The behavior is undefined unless
-        // 'bsl::strlen(string) <= INT_MAX' and 'basicAllocator' is non-null.
 
+    /// Create a null-terminated copy of the specified `string` having the
+    /// specified `length` (in bytes), using the specified `basicAllocator`
+    /// to supply memory, and return the address of the newly-created
+    /// modifiable string.  The string that is returned is owned by the
+    /// caller.  The behavior is undefined unless `0 <= length` and
+    /// `basicAllocator` is non-null.  Note that if `string` contains any
+    /// embedded null ('\0') characters they will be propagated to the copy.
     static char *copy(const char       *string,
                       int               length,
                       bslma::Allocator *basicAllocator);
-        // Create a null-terminated copy of the specified 'string' having the
-        // specified 'length' (in bytes), using the specified 'basicAllocator'
-        // to supply memory, and return the address of the newly-created
-        // modifiable string.  The string that is returned is owned by the
-        // caller.  The behavior is undefined unless '0 <= length' and
-        // 'basicAllocator' is non-null.  Note that if 'string' contains any
-        // embedded null ('\0') characters they will be propagated to the copy.
 
+    /// Create a null-terminated copy of the specified `string`, using the
+    /// specified `basicAllocator` to supply memory, and return the address
+    /// of the newly-created modifiable string.  The string that is returned
+    /// is owned by the caller.  The behavior is undefined unless
+    /// `string.size() <= INT_MAX` and `basicAllocator` is non-null.  Note
+    /// that if `string` contains any embedded null ('\0') characters they
+    /// will be propagated to the copy.
     static char *copy(const bsl::string&  string,
                       bslma::Allocator   *basicAllocator);
-        // Create a null-terminated copy of the specified 'string', using the
-        // specified 'basicAllocator' to supply memory, and return the address
-        // of the newly-created modifiable string.  The string that is returned
-        // is owned by the caller.  The behavior is undefined unless
-        // 'string.size() <= INT_MAX' and 'basicAllocator' is non-null.  Note
-        // that if 'string' contains any embedded null ('\0') characters they
-        // will be propagated to the copy.
 
     static int lowerCaseCmp(const char *lhsString, const char *rhsString);
     static int lowerCaseCmp(const char *lhsString,
@@ -181,6 +182,15 @@ struct String {
                             int                 lhsLength,
                             const bsl::string&  rhsString);
 
+    /// Compare the specified `lhsString` and `rhsString` having the
+    /// optionally specified `lhsLength` and `rhsLength`, respectively.
+    /// Return 1 if, after conversion to lower case, `lhsString` is
+    /// lexically greater than `rhsString`, 0 if they are equal up to a case
+    /// conversion, and -1 otherwise.  The behavior is undefined unless
+    /// `0 <= lhsLength` and `0 <= rhsLength` (if specified), and
+    /// `lhsString.size() <= INT_MAX` and `rhsString.size() <= INT_MAX` (if
+    /// applicable).  See {`bdlb_stringviewutil`} for an identically named
+    /// method having the same semantics taking `bsl::string_view`.
     static int lowerCaseCmp(const bsl::string&  lhsString,
                             const char         *rhsString);
     static int lowerCaseCmp(const bsl::string&  lhsString,
@@ -188,15 +198,6 @@ struct String {
                             int                 rhsLength);
     static int lowerCaseCmp(const bsl::string& lhsString,
                             const bsl::string& rhsString);
-        // Compare the specified 'lhsString' and 'rhsString' having the
-        // optionally specified 'lhsLength' and 'rhsLength', respectively.
-        // Return 1 if, after conversion to lower case, 'lhsString' is
-        // lexically greater than 'rhsString', 0 if they are equal up to a case
-        // conversion, and -1 otherwise.  The behavior is undefined unless
-        // '0 <= lhsLength' and '0 <= rhsLength' (if specified), and
-        // 'lhsString.size() <= INT_MAX' and 'rhsString.size() <= INT_MAX' (if
-        // applicable).  See {'bdlb_stringviewutil'} for an identically named
-        // method having the same semantics taking 'bsl::string_view'.
 
     static void ltrim(char *string);
     static void ltrim(bsl::string *string);
@@ -211,23 +212,23 @@ struct String {
         // {'bdlb_stringviewutil'} for an identically named method having
         // similar semantics taking (and returning) 'bsl::string_view'.
 
+    /// Remove all leading whitespace characters from the specified `string`
+    /// having the specified `length`, and load into `length` the number of
+    /// characters in the resulting (trimmed) string.  If `string` consists
+    /// of only whitespace then it will be empty (i.e., have 0 length) after
+    /// this operation.  The behavior is undefined unless `0 <= *length`.
+    /// Note that `length` is both an input and output parameter.  See
+    /// {`bdlb_stringviewutil`} for an identically named method having
+    /// similar semantics taking (and returning) `bsl::string_view`.
     static void ltrim(char *string, int *length);
-        // Remove all leading whitespace characters from the specified 'string'
-        // having the specified 'length', and load into 'length' the number of
-        // characters in the resulting (trimmed) string.  If 'string' consists
-        // of only whitespace then it will be empty (i.e., have 0 length) after
-        // this operation.  The behavior is undefined unless '0 <= *length'.
-        // Note that 'length' is both an input and output parameter.  See
-        // {'bdlb_stringviewutil'} for an identically named method having
-        // similar semantics taking (and returning) 'bsl::string_view'.
 
+    /// Append repeatedly to the specified `string` the optionally specified
+    /// `padChar` until `string` has the specified `length`.  If `padChar`
+    /// is not specified the space (` `) character is appended.  This
+    /// operation has no effect if `string.size() >= length`.  The behavior
+    /// is undefined unless `0 <= length`.
     static void pad(bsl::string *string, int length, char padChar = ' ');
     static void pad(std::string *string, int length, char padChar = ' ');
-        // Append repeatedly to the specified 'string' the optionally specified
-        // 'padChar' until 'string' has the specified 'length'.  If 'padChar'
-        // is not specified the space (' ') character is appended.  This
-        // operation has no effect if 'string.size() >= length'.  The behavior
-        // is undefined unless '0 <= length'.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void pad(std::pmr::string            *string,
@@ -252,89 +253,89 @@ struct String {
         // {'bdlb_stringviewutil'} for an identically named method having
         // similar semantics taking (and returning) 'bsl::string_view'.
 
+    /// Determine the number of characters that the specified `string`
+    /// having the specified `length` would have if all trailing whitespace
+    /// characters were removed and load the result into `*length`.
+    /// `string` is *not* modified.  The behavior is undefined unless
+    /// `0 <= *length`.  Note that `length` is both an input and output
+    /// parameter.
     static void rtrim(const char *string, int *length);
-        // Determine the number of characters that the specified 'string'
-        // having the specified 'length' would have if all trailing whitespace
-        // characters were removed and load the result into '*length'.
-        // 'string' is *not* modified.  The behavior is undefined unless
-        // '0 <= *length'.  Note that 'length' is both an input and output
-        // parameter.
 
+    /// Return the address providing non-modifiable access to the first
+    /// position in the specified `string` having `stringLen` characters at
+    /// which the specified `subString` having `subStringLen` characters is
+    /// found, or 0 if there is no such position.  If `subStringLen` is 0,
+    /// `subString` may be null and `string` is returned.  The behavior is
+    /// undefined unless `0 <= stringLen` and `0 <= subStringLen`.  See
+    /// {`bdlb_stringviewutil`} for an identically named method having
+    /// similar semantics taking (and returning) `bsl::string_view`.
     static const char *strstr(const char *string,
                               int         stringLen,
                               const char *subString,
                               int         subStringLen);
-        // Return the address providing non-modifiable access to the first
-        // position in the specified 'string' having 'stringLen' characters at
-        // which the specified 'subString' having 'subStringLen' characters is
-        // found, or 0 if there is no such position.  If 'subStringLen' is 0,
-        // 'subString' may be null and 'string' is returned.  The behavior is
-        // undefined unless '0 <= stringLen' and '0 <= subStringLen'.  See
-        // {'bdlb_stringviewutil'} for an identically named method having
-        // similar semantics taking (and returning) 'bsl::string_view'.
 
+    /// Return the address providing non-modifiable access to the first
+    /// position in the specified `string` having `stringLen` characters at
+    /// which the specified `subString` having `subStringLen` characters is
+    /// found using case-insensitive comparison, or 0 if there is no such
+    /// position.  If `subStringLen` is 0, `subString` may be null and
+    /// `string` is returned.  The behavior is undefined unless
+    /// `0 <= stringLen` and `0 <= subStringLen`.  See
+    /// {`bdlb_stringviewutil`} for an identically named method having
+    /// similar semantics taking (and returning) `bsl::string_view`.
     static const char *strstrCaseless(const char *string,
                                       int         stringLen,
                                       const char *subString,
                                       int         subStringLen);
-        // Return the address providing non-modifiable access to the first
-        // position in the specified 'string' having 'stringLen' characters at
-        // which the specified 'subString' having 'subStringLen' characters is
-        // found using case-insensitive comparison, or 0 if there is no such
-        // position.  If 'subStringLen' is 0, 'subString' may be null and
-        // 'string' is returned.  The behavior is undefined unless
-        // '0 <= stringLen' and '0 <= subStringLen'.  See
-        // {'bdlb_stringviewutil'} for an identically named method having
-        // similar semantics taking (and returning) 'bsl::string_view'.
 
+    /// Return the address providing non-modifiable access to the last
+    /// position in the specified `string` having `stringLen` characters at
+    /// which the specified `subString` having `subStringLen` characters is
+    /// found, or 0 if there is no such position.  If `subStringLen` is 0,
+    /// `subString` may be null and `string + stringLen` is returned.  The
+    /// behavior is undefined unless `0 <= stringLen` and
+    /// `0 <= subStringLen`.  See {`bdlb_stringviewutil`} for an identically
+    /// named method having similar semantics taking (and returning)
+    /// `bsl::string_view`.
     static const char *strrstr(const char *string,
                                int         stringLen,
                                const char *subString,
                                int         subStringLen);
-        // Return the address providing non-modifiable access to the last
-        // position in the specified 'string' having 'stringLen' characters at
-        // which the specified 'subString' having 'subStringLen' characters is
-        // found, or 0 if there is no such position.  If 'subStringLen' is 0,
-        // 'subString' may be null and 'string + stringLen' is returned.  The
-        // behavior is undefined unless '0 <= stringLen' and
-        // '0 <= subStringLen'.  See {'bdlb_stringviewutil'} for an identically
-        // named method having similar semantics taking (and returning)
-        // 'bsl::string_view'.
 
+    /// Return the address providing non-modifiable access to the last
+    /// position in the specified `string` having `stringLen` characters at
+    /// which the specified `subString` having `subStringLen` characters is
+    /// found using case-insensitive comparison, or 0 if there is no such
+    /// position.  If `subStringLen` is 0, `subString` may be null and
+    /// `string + stringLen` is returned.  The behavior is undefined unless
+    /// `0 <= stringLen` and `0 <= subStringLen`.  See
+    /// {`bdlb_stringviewutil`} for an identically named method having
+    /// similar semantics taking (and returning) `bsl::string_view`.
     static const char *strrstrCaseless(const char *string,
                                        int         stringLen,
                                        const char *subString,
                                        int         subStringLen);
-        // Return the address providing non-modifiable access to the last
-        // position in the specified 'string' having 'stringLen' characters at
-        // which the specified 'subString' having 'subStringLen' characters is
-        // found using case-insensitive comparison, or 0 if there is no such
-        // position.  If 'subStringLen' is 0, 'subString' may be null and
-        // 'string + stringLen' is returned.  The behavior is undefined unless
-        // '0 <= stringLen' and '0 <= subStringLen'.  See
-        // {'bdlb_stringviewutil'} for an identically named method having
-        // similar semantics taking (and returning) 'bsl::string_view'.
 
+    /// Return the minimum of the length of the specified `string` and the
+    /// specified `maximumLength`.  If `maximumLength` is 0, `string` may be
+    /// null and 0 is returned.  The behavior is undefined unless
+    /// `0 <= maximumLength`.
     static int strnlen(const char *string, int maximumLength);
-        // Return the minimum of the length of the specified 'string' and the
-        // specified 'maximumLength'.  If 'maximumLength' is 0, 'string' may be
-        // null and 0 is returned.  The behavior is undefined unless
-        // '0 <= maximumLength'.
 
+    /// Copy into the specified `dstString` at most the specified leading
+    /// `dstLength` characters from the specified `srcString` having the
+    /// specified `srcLength`.  If `srcLength < dstLength`, after
+    /// `srcString` is copied to `dstString` repeatedly append to
+    /// `dstString` the optionally specified `padChar` until the total
+    /// number of characters written to `dstString` is `dstLength`.  If
+    /// `padChar` is not specified the space (` `) character is appended.
+    /// The behavior is undefined unless `0 <= dstLength` and
+    /// `0 <= srcLength`.
     static void toFixedLength(char       *dstString,
                               int         dstLength,
                               const char *srcString,
                               int         srcLength,
                               char        padChar = ' ');
-        // Copy into the specified 'dstString' at most the specified leading
-        // 'dstLength' characters from the specified 'srcString' having the
-        // specified 'srcLength'.  If 'srcLength < dstLength', after
-        // 'srcString' is copied to 'dstString' repeatedly append to
-        // 'dstString' the optionally specified 'padChar' until the total
-        // number of characters written to 'dstString' is 'dstLength'.  If
-        // 'padChar' is not specified the space (' ') character is appended.
-        // The behavior is undefined unless '0 <= dstLength' and
-        // '0 <= srcLength'.
 
     static void toLower(char *string);
     static void toLower(char *string, int length);
@@ -374,31 +375,31 @@ struct String {
         // method having similar semantics taking (and returning)
         // 'bsl::string_view'.
 
+    /// Remove all leading and trailing whitespace characters from the
+    /// specified `string` having the specified `length`, and load into
+    /// `length` the number of characters in the resulting (trimmed) string.
+    /// If `string` consists of only whitespace then it will be empty (i.e.,
+    /// have 0 length) after this operation.  The behavior is undefined
+    /// unless `0 <= *length`.  Note that `length` is both an input and
+    /// output parameter.  See {`bdlb_stringviewutil`} for an identically
+    /// named method having similar semantics taking (and returning)
+    /// `bsl::string_view`.
     static void trim(char *string, int *length);
-        // Remove all leading and trailing whitespace characters from the
-        // specified 'string' having the specified 'length', and load into
-        // 'length' the number of characters in the resulting (trimmed) string.
-        // If 'string' consists of only whitespace then it will be empty (i.e.,
-        // have 0 length) after this operation.  The behavior is undefined
-        // unless '0 <= *length'.  Note that 'length' is both an input and
-        // output parameter.  See {'bdlb_stringviewutil'} for an identically
-        // named method having similar semantics taking (and returning)
-        // 'bsl::string_view'.
 
+    /// Skip leading and trailing whitespace characters in the string
+    /// indicated by the specified `*begin` and `*end` iterators by
+    /// appropriately advancing `*begin` and regressing `*end`.  If the
+    /// indicated string is empty, or consists solely of whitespace
+    /// characters, `*begin` is unchanged and `*end` is regressed to
+    /// `*begin`.  Otherwise, advance `*begin` to the first non-whitespace
+    /// character whose position is greater than or equal to `*begin` and
+    /// regress `*end` to one past the position of the last non-whitespace
+    /// character whose position is less than `*end`.  The indicated string
+    /// need not be null-terminated and may contain embedded null ('\0')
+    /// characters.  The behavior is undefined unless `*begin <= *end`.
+    /// Note that since `*begin` and `*end` are iterators, `*end` refers to
+    /// the character one past the end of the subject string.
     static void skipLeadingTrailing(const char **begin, const char **end);
-        // Skip leading and trailing whitespace characters in the string
-        // indicated by the specified '*begin' and '*end' iterators by
-        // appropriately advancing '*begin' and regressing '*end'.  If the
-        // indicated string is empty, or consists solely of whitespace
-        // characters, '*begin' is unchanged and '*end' is regressed to
-        // '*begin'.  Otherwise, advance '*begin' to the first non-whitespace
-        // character whose position is greater than or equal to '*begin' and
-        // regress '*end' to one past the position of the last non-whitespace
-        // character whose position is less than '*end'.  The indicated string
-        // need not be null-terminated and may contain embedded null ('\0')
-        // characters.  The behavior is undefined unless '*begin <= *end'.
-        // Note that since '*begin' and '*end' are iterators, '*end' refers to
-        // the character one past the end of the subject string.
 
     static int upperCaseCmp(const char *lhsString, const char *rhsString);
     static int upperCaseCmp(const char *lhsString,
@@ -418,6 +419,15 @@ struct String {
                             int                 lhsLength,
                             const bsl::string&  rhsString);
 
+    /// Compare the specified `lhsString` and `rhsString` having the
+    /// optionally specified `lhsLength` and `rhsLength`, respectively, *as*
+    /// *if* the strings were converted to upper case before the comparison.
+    /// Return 1 if `lhsString` is lexically greater than `rhsString`, 0 if
+    /// they are equal, and -1 otherwise.  The behavior is undefined unless
+    /// `0 <= lhsLength` and `0 <= rhsLength` (if specified), and
+    /// `lhsString.size() <= INT_MAX` and `rhsString.size() <= INT_MAX` (if
+    /// applicable).  See {`bdlb_stringviewutil`} for an identically named
+    /// method having the same semantics taking `bsl::string_view`.
     static int upperCaseCmp(const bsl::string&  lhsString,
                             const char         *rhsString);
     static int upperCaseCmp(const bsl::string&  lhsString,
@@ -425,15 +435,6 @@ struct String {
                             int                 rhsLength);
     static int upperCaseCmp(const bsl::string& lhsString,
                             const bsl::string& rhsString);
-        // Compare the specified 'lhsString' and 'rhsString' having the
-        // optionally specified 'lhsLength' and 'rhsLength', respectively, *as*
-        // *if* the strings were converted to upper case before the comparison.
-        // Return 1 if 'lhsString' is lexically greater than 'rhsString', 0 if
-        // they are equal, and -1 otherwise.  The behavior is undefined unless
-        // '0 <= lhsLength' and '0 <= rhsLength' (if specified), and
-        // 'lhsString.size() <= INT_MAX' and 'rhsString.size() <= INT_MAX' (if
-        // applicable).  See {'bdlb_stringviewutil'} for an identically named
-        // method having the same semantics taking 'bsl::string_view'.
 };
 
 // ============================================================================

@@ -12,37 +12,37 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlt_date
 //
-//@DESCRIPTION: This component provides a 'struct', 'bdlt::DateUtil', that
-// serves as a namespace for utility functions that operate on 'bdlt::Date'
+//@DESCRIPTION: This component provides a `struct`, `bdlt::DateUtil`, that
+// serves as a namespace for utility functions that operate on `bdlt::Date`
 // objects.
 //
-// The following list of methods are provided by 'bdlt::DateUtil':
-//..
-//  'isValidYYYYMMDD'             o Validate or convert to and from the
-//  'convertFromYYYYMMDDRaw'        "YYYYMMDD" format
-//  'convertFromYYYYMMDD'           (see {"YYYYMMDD" Format}).
-//  'convertToYYYYMMDD'
+// The following list of methods are provided by `bdlt::DateUtil`:
+// ```
+// 'isValidYYYYMMDD'             o Validate or convert to and from the
+// 'convertFromYYYYMMDDRaw'        "YYYYMMDD" format
+// 'convertFromYYYYMMDD'           (see {"YYYYMMDD" Format}).
+// 'convertToYYYYMMDD'
 //
-//  'nextDayOfWeek'               o Move a date to the next or the previous
-//  'nextDayOfWeekInclusive'        specified day of week.
-//  'previousDayOfWeek'
-//  'previousDayOfWeekInclusive'
+// 'nextDayOfWeek'               o Move a date to the next or the previous
+// 'nextDayOfWeekInclusive'        specified day of week.
+// 'previousDayOfWeek'
+// 'previousDayOfWeekInclusive'
 //
-//  'earliestDayOfWeekInMonth'    o Find a specified day of the week in a
-//  'nthDayOfWeekInMonth'           specified year and month.
-//  'lastDayOfWeekInMonth'
-//  'lastDayInMonth'
+// 'earliestDayOfWeekInMonth'    o Find a specified day of the week in a
+// 'nthDayOfWeekInMonth'           specified year and month.
+// 'lastDayOfWeekInMonth'
+// 'lastDayInMonth'
 //
-//  'addMonthsEom'                o Add a specified number of months to a date
-//  'addMonthsNoEom'                using either the end-of-month or the
-//  'addMonths'                     non-end-of-month convention (see
-//                                  {End-of-Month Adjustment Conventions}).
+// 'addMonthsEom'                o Add a specified number of months to a date
+// 'addMonthsNoEom'                using either the end-of-month or the
+// 'addMonths'                     non-end-of-month convention (see
+//                                 {End-of-Month Adjustment Conventions}).
 //
-//  'addYearsEom'                 o Add a specified number of years to a date
-//  'addYearsNoEom'                 using either the end-of-month or the
-//  'addYears'                      non-end-of-month convention (see
-//                                  {End-of-Month Adjustment Conventions}).
-//..
+// 'addYearsEom'                 o Add a specified number of years to a date
+// 'addYearsNoEom'                 using either the end-of-month or the
+// 'addYears'                      non-end-of-month convention (see
+//                                 {End-of-Month Adjustment Conventions}).
+// ```
 //
 ///"YYYYMMDD" Format
 ///-----------------
@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 ///End-of-Month Adjustment Conventions
 ///-----------------------------------
 // Two adjustment conventions are used to determine the behavior of the
-// functions ('addMonths' and 'addYears') that adjust a date by a particular
+// functions (`addMonths` and `addYears`) that adjust a date by a particular
 // number of months or years: the end-of-month convention and the
 // non-end-of-month convention.  The difference between the two conventions is
 // that the end-of-month convention adjusts the resulting date to the end of
@@ -94,51 +94,51 @@ BSLS_IDENT("$Id: $")
 // generate a schedule for an event that occurs on the same day of the month
 // for 12 months.
 //
-// First, we use the 'bdlt::DateUtil::convertFromYYYYMMDD' function to convert
-// the integer into a 'bdlt::Date':
-//..
-//  const int startingDateYYYYMMDD = 20130430;
+// First, we use the `bdlt::DateUtil::convertFromYYYYMMDD` function to convert
+// the integer into a `bdlt::Date`:
+// ```
+// const int startingDateYYYYMMDD = 20130430;
 //
-//  bdlt::Date date;
-//  int rc = bdlt::DateUtil::convertFromYYYYMMDD(&date, startingDateYYYYMMDD);
-//  assert(0 == rc);
-//..
-// Now, we use the 'addMonthsEom' function to generate the schedule.  Note that
-// 'addMonthsEom' adjusts the resulting date to be the last day of the month if
-// the original date is the last day of the month, while 'addMonthsNoEom' does
+// bdlt::Date date;
+// int rc = bdlt::DateUtil::convertFromYYYYMMDD(&date, startingDateYYYYMMDD);
+// assert(0 == rc);
+// ```
+// Now, we use the `addMonthsEom` function to generate the schedule.  Note that
+// `addMonthsEom` adjusts the resulting date to be the last day of the month if
+// the original date is the last day of the month, while `addMonthsNoEom` does
 // not make this adjustment.
-//..
-//  bsl::vector<bdlt::Date> schedule;
-//  schedule.push_back(date);
+// ```
+// bsl::vector<bdlt::Date> schedule;
+// schedule.push_back(date);
 //
-//  for (int i = 1; i < 12; ++i) {
-//      schedule.push_back(bdlt::DateUtil::addMonthsEom(date, i));
-//  }
-//..
+// for (int i = 1; i < 12; ++i) {
+//     schedule.push_back(bdlt::DateUtil::addMonthsEom(date, i));
+// }
+// ```
 // Finally, we print the generated schedule to the console and observe the
 // output:
-//..
-//  bsl::copy(schedule.begin(),
-//            schedule.end(),
-//            bsl::ostream_iterator<bdlt::Date>(bsl::cout, "\n"));
+// ```
+// bsl::copy(schedule.begin(),
+//           schedule.end(),
+//           bsl::ostream_iterator<bdlt::Date>(bsl::cout, "\n"));
 //
-//  // Expected output on the console:
-//  //
-//  //   30APR2013
-//  //   31MAY2013
-//  //   30JUN2013
-//  //   31JUL2013
-//  //   31AUG2013
-//  //   30SEP2013
-//  //   31OCT2013
-//  //   30NOV2013
-//  //   31DEC2013
-//  //   31JAN2014
-//  //   28FEB2014
-//  //   31MAR2014
-//..
+// // Expected output on the console:
+// //
+// //   30APR2013
+// //   31MAY2013
+// //   30JUN2013
+// //   31JUL2013
+// //   31AUG2013
+// //   30SEP2013
+// //   31OCT2013
+// //   30NOV2013
+// //   31DEC2013
+// //   31JAN2014
+// //   28FEB2014
+// //   31MAR2014
+// ```
 // Notice that the dates have been adjusted to the end of the month.  If we had
-// used 'addMonthsNoEom' instead of 'addMonthsEom', this adjustment would not
+// used `addMonthsNoEom` instead of `addMonthsEom`, this adjustment would not
 // have occurred.
 
 #include <bdlscm_version.h>
@@ -157,172 +157,174 @@ namespace bdlt {
                              // struct DateUtil
                              // ===============
 
+/// This `struct` provides a namespace for utility functions that provide
+/// non-primitive operations on dates.
 struct DateUtil {
-    // This 'struct' provides a namespace for utility functions that provide
-    // non-primitive operations on dates.
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Return the date that is the specified `numYears` from the specified
+    /// `original` date (which must be either the 28th or 29th of February),
+    /// adjusted as necessary according to the following (end-of-month)
+    /// rules: (1) if `original` is the last day of a month, adjust the
+    /// result to be the last day of the month, and (2) if the day of the
+    /// month in `original` does not exist in the month of the result (e.g.,
+    /// February 29, 2001), move the resulting date to the last day of the
+    /// month.  The behavior is undefined unless `original` is either the
+    /// 28th or 29th of February, and the resulting date results in a valid
+    /// `Date` value.  Note that `numYears` may be negative.
     static Date addYearsEomEndOfFebruary(const Date& original, int numYears);
-        // Return the date that is the specified 'numYears' from the specified
-        // 'original' date (which must be either the 28th or 29th of February),
-        // adjusted as necessary according to the following (end-of-month)
-        // rules: (1) if 'original' is the last day of a month, adjust the
-        // result to be the last day of the month, and (2) if the day of the
-        // month in 'original' does not exist in the month of the result (e.g.,
-        // February 29, 2001), move the resulting date to the last day of the
-        // month.  The behavior is undefined unless 'original' is either the
-        // 28th or 29th of February, and the resulting date results in a valid
-        // 'Date' value.  Note that 'numYears' may be negative.
 
   public:
     // CLASS METHODS
+
+    /// Return the date that is the specified `numMonths` from the specified
+    /// `original` date, adjusted as necessary according to the specified
+    /// `eomFlag` (end-of-month flag).  If `eomFlag` is `true` and
+    /// `original` is the last day of the month, then adjust the result to
+    /// be the last day of the month; if `eomFlag` is `false`, then no such
+    /// adjustment is performed.  In any case, if the day of the month in
+    /// `original` does not exist in the month of the result (e.g., February
+    /// 29, 2001), move the resulting date to the last day of the month.
+    /// The behavior is undefined unless the operation results in a valid
+    /// `Date` value.  Note that `numMonths` may be negative.
     static Date addMonths(const Date& original, int numMonths, bool eomFlag);
-        // Return the date that is the specified 'numMonths' from the specified
-        // 'original' date, adjusted as necessary according to the specified
-        // 'eomFlag' (end-of-month flag).  If 'eomFlag' is 'true' and
-        // 'original' is the last day of the month, then adjust the result to
-        // be the last day of the month; if 'eomFlag' is 'false', then no such
-        // adjustment is performed.  In any case, if the day of the month in
-        // 'original' does not exist in the month of the result (e.g., February
-        // 29, 2001), move the resulting date to the last day of the month.
-        // The behavior is undefined unless the operation results in a valid
-        // 'Date' value.  Note that 'numMonths' may be negative.
 
+    /// Return the date that is the specified `numMonths` from the specified
+    /// `original` date, adjusted as necessary according to the following
+    /// (end-of-month) rules: (1) if `original` is the last day of a month,
+    /// adjust the result to be the last day of the month, and (2) if the
+    /// day of the month in `original` does not exist in the month of the
+    /// result (e.g., February 30), move the resulting date to the last day
+    /// of the month.  The behavior is undefined unless the operation
+    /// results in a valid `Date` value.  Note that `numMonths` may be
+    /// negative.
     static Date addMonthsEom(const Date& original, int numMonths);
-        // Return the date that is the specified 'numMonths' from the specified
-        // 'original' date, adjusted as necessary according to the following
-        // (end-of-month) rules: (1) if 'original' is the last day of a month,
-        // adjust the result to be the last day of the month, and (2) if the
-        // day of the month in 'original' does not exist in the month of the
-        // result (e.g., February 30), move the resulting date to the last day
-        // of the month.  The behavior is undefined unless the operation
-        // results in a valid 'Date' value.  Note that 'numMonths' may be
-        // negative.
 
+    /// Return the date that is the specified `numMonths` from the specified
+    /// `original` date, adjusted as necessary according to the following
+    /// (non-end-of-month) rule: if the day of the month in `original` does
+    /// not exist in the month of the result (e.g., February 29, 2001), move
+    /// the resulting date to the last day of the month.  The behavior is
+    /// undefined unless the operation results in a valid `Date` value.
+    /// Note that `numMonths` may be negative.
     static Date addMonthsNoEom(const Date& original, int numMonths);
-        // Return the date that is the specified 'numMonths' from the specified
-        // 'original' date, adjusted as necessary according to the following
-        // (non-end-of-month) rule: if the day of the month in 'original' does
-        // not exist in the month of the result (e.g., February 29, 2001), move
-        // the resulting date to the last day of the month.  The behavior is
-        // undefined unless the operation results in a valid 'Date' value.
-        // Note that 'numMonths' may be negative.
 
+    /// Return the date that is the specified `numYears` from the specified
+    /// `original` date, adjusted as necessary according to the specified
+    /// `eomFlag` (end-of-month flag).  If `eomFlag` is `true` and
+    /// `original` is the last day of the month, then adjust the result to
+    /// be the last day of the month; if `eomFlag` is `false`, then no such
+    /// adjustment is performed.  In any case, if the day of the month in
+    /// `original` does not exist in the month of the result (e.g., February
+    /// 29, 2001), move the resulting date to the last day of the month.
+    /// The behavior is undefined unless the operation results in a valid
+    /// `Date` value.  Note that `numYears` may be negative.
     static Date addYears(const Date& original, int numYears, bool eomFlag);
-        // Return the date that is the specified 'numYears' from the specified
-        // 'original' date, adjusted as necessary according to the specified
-        // 'eomFlag' (end-of-month flag).  If 'eomFlag' is 'true' and
-        // 'original' is the last day of the month, then adjust the result to
-        // be the last day of the month; if 'eomFlag' is 'false', then no such
-        // adjustment is performed.  In any case, if the day of the month in
-        // 'original' does not exist in the month of the result (e.g., February
-        // 29, 2001), move the resulting date to the last day of the month.
-        // The behavior is undefined unless the operation results in a valid
-        // 'Date' value.  Note that 'numYears' may be negative.
 
+    /// Return the date that is the specified `numYears` from the specified
+    /// `original` date, adjusted as necessary according to the following
+    /// (end-of-month) rules: (1) if `original` is the last day of a month,
+    /// adjust the result to be the last day of the month, and (2) if the
+    /// day of the month in `original` does not exist in the month of the
+    /// result (e.g., February 29, 2001), move the resulting date to the
+    /// last day of the month.  The behavior is undefined unless the
+    /// operation results in a valid `Date` value.  Note that `numYears` may
+    /// be negative.
     static Date addYearsEom(const Date& original, int numYears);
-        // Return the date that is the specified 'numYears' from the specified
-        // 'original' date, adjusted as necessary according to the following
-        // (end-of-month) rules: (1) if 'original' is the last day of a month,
-        // adjust the result to be the last day of the month, and (2) if the
-        // day of the month in 'original' does not exist in the month of the
-        // result (e.g., February 29, 2001), move the resulting date to the
-        // last day of the month.  The behavior is undefined unless the
-        // operation results in a valid 'Date' value.  Note that 'numYears' may
-        // be negative.
 
+    /// Return the date that is the specified `numYears` from the specified
+    /// `original` date, adjusted as necessary according to the following
+    /// (non-end-of-month) rule: if the day of the month in `original` does
+    /// not exist in the month of the result (e.g., February 30), move the
+    /// resulting date to the last day of the month.  The behavior is
+    /// undefined unless the operation results in a valid `Date` value.
+    /// Note that `numYears` may be negative.
     static Date addYearsNoEom(const Date& original, int numYears);
-        // Return the date that is the specified 'numYears' from the specified
-        // 'original' date, adjusted as necessary according to the following
-        // (non-end-of-month) rule: if the day of the month in 'original' does
-        // not exist in the month of the result (e.g., February 30), move the
-        // resulting date to the last day of the month.  The behavior is
-        // undefined unless the operation results in a valid 'Date' value.
-        // Note that 'numYears' may be negative.
 
+    /// Load, into the specified `result`, the `Date` value represented by
+    /// the specified `yyyymmddValue` in the "YYYYMMDD" format.  Return 0 on
+    /// success, and a non-zero value, with no effect on `result`, if
+    /// `yyyymmddValue` does not represent a valid `Date`.
     static int convertFromYYYYMMDD(Date *result, int yyyymmddValue);
-        // Load, into the specified 'result', the 'Date' value represented by
-        // the specified 'yyyymmddValue' in the "YYYYMMDD" format.  Return 0 on
-        // success, and a non-zero value, with no effect on 'result', if
-        // 'yyyymmddValue' does not represent a valid 'Date'.
 
+    /// Return the `Date` value represented by the specified `yyyymmddValue`
+    /// in the "YYYYMMDD" format.  The behavior is undefined unless
+    /// `yyyymmddValue` represents a valid `Date`.
     static Date convertFromYYYYMMDDRaw(int yyyymmddValue);
-        // Return the 'Date' value represented by the specified 'yyyymmddValue'
-        // in the "YYYYMMDD" format.  The behavior is undefined unless
-        // 'yyyymmddValue' represents a valid 'Date'.
 
+    /// Return the integer value in the "YYYYMMDD" format that represents
+    /// the specified `date`.
     static int convertToYYYYMMDD(const Date& date);
-        // Return the integer value in the "YYYYMMDD" format that represents
-        // the specified 'date'.
 
+    /// Return the earliest date in the specified `month` of the specified
+    /// `year` that falls on the specified `dayOfWeek`.  The behavior is
+    /// undefined unless `1 <= year <= 9999` and `1 <= month <= 12`.
     static Date earliestDayOfWeekInMonth(int             year,
                                          int             month,
                                          DayOfWeek::Enum dayOfWeek);
-        // Return the earliest date in the specified 'month' of the specified
-        // 'year' that falls on the specified 'dayOfWeek'.  The behavior is
-        // undefined unless '1 <= year <= 9999' and '1 <= month <= 12'.
 
+    /// Return `true` if the specified `yyyymmddValue` represents a valid
+    /// `Date` value in the "YYYYMMDD" format, and `false` otherwise.
     static bool isValidYYYYMMDD(int yyyymmddValue);
-        // Return 'true' if the specified 'yyyymmddValue' represents a valid
-        // 'Date' value in the "YYYYMMDD" format, and 'false' otherwise.
 
+    /// Return the latest date in the specified `month` of the specified
+    /// `year`.  The behavior is undefined unless `1 <= year <= 9999` and
+    /// `1 <= month <= 12`.
     static Date lastDayInMonth(int year, int month);
-        // Return the latest date in the specified 'month' of the specified
-        // 'year'.  The behavior is undefined unless '1 <= year <= 9999' and
-        // '1 <= month <= 12'.
 
+    /// Return the latest date in the specified `month` of the specified
+    /// `year` that falls on the specified `dayOfWeek`.  The behavior is
+    /// undefined unless `1 <= year <= 9999` and `1 <= month <= 12`.
     static Date lastDayOfWeekInMonth(int             year,
                                      int             month,
                                      DayOfWeek::Enum dayOfWeek);
-        // Return the latest date in the specified 'month' of the specified
-        // 'year' that falls on the specified 'dayOfWeek'.  The behavior is
-        // undefined unless '1 <= year <= 9999' and '1 <= month <= 12'.
 
+    /// Return the first date *after* the specified `date` that falls on the
+    /// specified `dayOfWeek`.  The behavior is undefined unless the
+    /// resulting date is no later than 9999/12/31.
     static Date nextDayOfWeek(DayOfWeek::Enum dayOfWeek, const Date& date);
-        // Return the first date *after* the specified 'date' that falls on the
-        // specified 'dayOfWeek'.  The behavior is undefined unless the
-        // resulting date is no later than 9999/12/31.
 
+    /// Return the first date *on* or *after* the specified `date` that
+    /// falls on the specified `dayOfWeek`.  The behavior is undefined
+    /// unless the resulting date is no later than 9999/12/31.
     static Date nextDayOfWeekInclusive(DayOfWeek::Enum dayOfWeek,
                                        const Date&     date);
-        // Return the first date *on* or *after* the specified 'date' that
-        // falls on the specified 'dayOfWeek'.  The behavior is undefined
-        // unless the resulting date is no later than 9999/12/31.
 
+    /// Return the date in the specified `month` of the specified `year`
+    /// corresponding to the specified `n`th occurrence of the specified
+    /// `dayOfWeek`.  If `n < 0`, return the date corresponding to the
+    /// `-n`th occurrence of the `dayOfWeek` counting from the end of the
+    /// `month` towards the first of the `month`.  If `5 == n` and a result
+    /// cannot be found in `month`, then return the date of the first
+    /// `dayOfWeek` in the following month.  If `-5 == n` and a result
+    /// cannot be found in `month`, then return the date of the last
+    /// `dayOfWeek` in the previous month.  The behavior is undefined unless
+    /// `1 <= year <= 9999`, `1 <= month <= 12`, `n != 0`, `-5 <= n <= 5`,
+    /// and the resulting date is neither earlier than 0001/01/01 nor later
+    /// than 9999/12/31.
+    ///
+    /// For example:
+    /// ```
+    /// nthDayOfWeekInMonth(2004, 11, DayOfWeek::e_THURSDAY, 4);
+    /// ```
+    /// returns November 25, 2004, the fourth Thursday in November, 2004.
     static Date nthDayOfWeekInMonth(int             year,
                                     int             month,
                                     DayOfWeek::Enum dayOfWeek,
                                     int             n);
-        // Return the date in the specified 'month' of the specified 'year'
-        // corresponding to the specified 'n'th occurrence of the specified
-        // 'dayOfWeek'.  If 'n < 0', return the date corresponding to the
-        // '-n'th occurrence of the 'dayOfWeek' counting from the end of the
-        // 'month' towards the first of the 'month'.  If '5 == n' and a result
-        // cannot be found in 'month', then return the date of the first
-        // 'dayOfWeek' in the following month.  If '-5 == n' and a result
-        // cannot be found in 'month', then return the date of the last
-        // 'dayOfWeek' in the previous month.  The behavior is undefined unless
-        // '1 <= year <= 9999', '1 <= month <= 12', 'n != 0', '-5 <= n <= 5',
-        // and the resulting date is neither earlier than 0001/01/01 nor later
-        // than 9999/12/31.
-        //
-        // For example:
-        //..
-        //  nthDayOfWeekInMonth(2004, 11, DayOfWeek::e_THURSDAY, 4);
-        //..
-        // returns November 25, 2004, the fourth Thursday in November, 2004.
 
+    /// Return the last date *before* the specified `date` that falls on the
+    /// specified `dayOfWeek`.  The behavior is undefined unless the
+    /// resulting date is no earlier than 1/1/1.
     static Date previousDayOfWeek(DayOfWeek::Enum dayOfWeek, const Date& date);
-        // Return the last date *before* the specified 'date' that falls on the
-        // specified 'dayOfWeek'.  The behavior is undefined unless the
-        // resulting date is no earlier than 1/1/1.
 
+    /// Return the last date *on* or *before* the specified `date` that
+    /// falls on the specified `dayOfWeek`.  The behavior is undefined
+    /// unless the resulting date is no earlier than 1/1/1.
     static Date previousDayOfWeekInclusive(DayOfWeek::Enum dayOfWeek,
                                            const Date&     date);
-        // Return the last date *on* or *before* the specified 'date' that
-        // falls on the specified 'dayOfWeek'.  The behavior is undefined
-        // unless the resulting date is no earlier than 1/1/1.
 };
 
 // ============================================================================

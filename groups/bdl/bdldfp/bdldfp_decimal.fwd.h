@@ -13,7 +13,7 @@
 //
 //@DESCRIPTION: This header provides declarations for those top-level names in
 // this component that are intended to be usable in name only.  See above for
-// the declared names, and see 'bdldfp_decimal.h' for documentation of those
+// the declared names, and see `bdldfp_decimal.h` for documentation of those
 // names.
 //
 ///Implementation Note
@@ -25,9 +25,9 @@
 ///- - - - - -
 // At first ISO was expected to quickly standardize IEEE-754 decimal floating
 // point types for both C and C++ in a form that could be easily reused by
-// aliasing the 'bdldfp::Decimal32/64/128' names.  The component-private
-// 'bdldfp::Decimal_Type32/64/128' classes were introduced to prevent people
-// from forward declaring the 'bdldfp::Decimal32/64/128' types as classes.
+// aliasing the `bdldfp::Decimal32/64/128` names.  The component-private
+// `bdldfp::Decimal_Type32/64/128` classes were introduced to prevent people
+// from forward declaring the `bdldfp::Decimal32/64/128` types as classes.
 // Unfortunately users forward declared the component-private types despite the
 // comment at their declaration instructing them not to do so.  As a result we
 // are unable to remove those component-private types without much extra work
@@ -50,9 +50,10 @@ class Decimal_Type128;
 
 typedef Decimal_Type32  Decimal32;
 typedef Decimal_Type64  Decimal64;
+
+/// The decimal floating-point types are typedefs to the unspecified
+/// implementation types.
 typedef Decimal_Type128 Decimal128;
-    // The decimal floating-point types are typedefs to the unspecified
-    // implementation types.
 
 }  // close package namespace
 }  // close enterprise namespace

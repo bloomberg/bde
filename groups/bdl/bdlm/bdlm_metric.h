@@ -12,19 +12,19 @@ BSLS_IDENT("$Id$")
 //@CLASSES:
 //  bdlm::Metric: variant of metric values
 //
-//@DESCRIPTION: This component defines a value semantic class, 'bdlmt::Metric',
+//@DESCRIPTION: This component defines a value semantic class, `bdlmt::Metric`,
 // that represents a measurement (or measurements) for a metric.
-// A 'bdlm::Metric' value is collected from an object that reports metrics
-// using a callback that is registered with the 'bdlm::MetricsRegistry'.  A
-// 'bdlm::Metric' value is a variant type, which can hold one of several types
+// A `bdlm::Metric` value is collected from an object that reports metrics
+// using a callback that is registered with the `bdlm::MetricsRegistry`.  A
+// `bdlm::Metric` value is a variant type, which can hold one of several types
 // of measurements (in theory).  Currently the only supported metric type is a
-// 'Guage', which represents a single instantaneous value for the most recent
+// `Guage`, which represents a single instantaneous value for the most recent
 // measurement.
 //
 ///Usage
 ///-----
 // The intended use of this component is illustrated in
-// {'bdlm_metricsregistrar'|Usage}.
+// {`bdlm_metricsregistrar`|Usage}.
 
 #include <bdlb_variant.h>
 
@@ -33,8 +33,8 @@ BSLS_IDENT("$Id$")
 namespace BloombergLP {
 namespace bdlm {
 
+/// This class provides storage for various types of metric values.
 class Metric {
-    // This class provides storage for various types of metric values.
 
   public:
     // PUBLIC TYPES
@@ -50,40 +50,44 @@ class Metric {
 
   public:
     // CREATORS
-    Metric();
-        // Create a default (empty) metric.
 
+    /// Create a default (empty) metric.
+    Metric();
+
+    /// Create a metric with the specified `value`.
     explicit Metric(const Gauge& value);
-        // Create a metric with the specified 'value'.
 
     //! ~Metric() = default;
         // Destroy this 'Metric' object.
 
     // MANIPULATORS
+
+    /// Assign to this metric the specified `value`.
     Metric& operator=(const Gauge& value);
-        // Assign to this metric the specified 'value'.
 
     // ACCESSORS
-    bool isGauge() const;
-        // Return 'true' if the value of this metric is of gauge type, and
-        // 'false' otherwise.
 
+    /// Return `true` if the value of this metric is of gauge type, and
+    /// `false` otherwise.
+    bool isGauge() const;
+
+    /// Return a `const` reference to the value of this metric of gauge
+    /// type.  The behavior is undefined unless `true == isGuage()`.
     const Gauge& theGauge() const;
-        // Return a 'const' reference to the value of this metric of gauge
-        // type.  The behavior is undefined unless 'true == isGuage()'.
 };
 
 // FREE OPERATORS
-bool operator==(const Metric& lhs, const Metric& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
-    // 'false' otherwise.  Two 'Metric' objects have the same value if their
-    // types are the same and they have the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` have the same value, and
+/// `false` otherwise.  Two `Metric` objects have the same value if their
+/// types are the same and they have the same value.
+bool operator==(const Metric& lhs, const Metric& rhs);
+
+/// Return `true` if the specified `lhs` command-line metric has a different
+/// value from the specified `rhs` command-line metric, and `false`
+/// otherwise.  Two `Metric` objects do not have the same value if their
+/// types are not the same or they have different values.
 bool operator!=(const Metric& lhs, const Metric& rhs);
-    // Return 'true' if the specified 'lhs' command-line metric has a different
-    // value from the specified 'rhs' command-line metric, and 'false'
-    // otherwise.  Two 'Metric' objects do not have the same value if their
-    // types are not the same or they have different values.
 
 // ============================================================================
 //                             INLINE DEFINITIONS

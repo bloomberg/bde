@@ -13,13 +13,13 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlt_calendar
 //
 //@DESCRIPTION: This component provides a value-semantic class,
-// 'bdlt::PackedCalendar', that represents weekend and holiday information over
-// a *valid* *range* of dates.  A 'bdlt::PackedCalendar' is an approximation to
+// `bdlt::PackedCalendar`, that represents weekend and holiday information over
+// a *valid* *range* of dates.  A `bdlt::PackedCalendar` is an approximation to
 // the same *mathematical* type, and is capable of representing the same subset
-// of *mathematical* values, as a 'bdlt::Calendar'.
+// of *mathematical* values, as a `bdlt::Calendar`.
 //
-// But unlike 'bdlt::Calendar', which is optimized for runtime efficiency,
-// 'bdlt::PackedCalendar' is designed to minimize the amount of in-process
+// But unlike `bdlt::Calendar`, which is optimized for runtime efficiency,
+// `bdlt::PackedCalendar` is designed to minimize the amount of in-process
 // memory required to represent that information.  For example, a packed
 // calendar storing 250 holidays and holiday codes can consume as little as
 // approximately 0.75K bytes (e.g., 2 bytes per holiday plus 1 byte per
@@ -32,28 +32,28 @@ BSLS_IDENT("$Id: $")
 // Default-constructed calendars are empty, and have an empty valid range.
 // Calendars can also be constructed with an initial (non-empty) valid range,
 // implying that all dates within that range are business days.  The
-// 'setValidRange' and 'addDay' methods modify the valid range of a calendar,
+// `setValidRange` and `addDay` methods modify the valid range of a calendar,
 // and a suite of "add" methods can be used to populate a calendar with
 // weekend days and holidays.
 //
-// The 'addHolidayCode' method associates an integer "holiday code" with a
+// The `addHolidayCode` method associates an integer "holiday code" with a
 // specific date, and can be called repeatedly with different integers and the
 // same date to build up a set of holiday codes for that date.  Note that
 // holiday codes are unique integers that, from the perspective of the
 // calendar, have no particular meaning.  Typically, the user will choose
 // holiday code values that are indices into an auxiliary collection (such as a
-// 'bsl::vector<bsl::string>') to identify holiday names for end-user display.
+// `bsl::vector<bsl::string>`) to identify holiday names for end-user display.
 //
 // Once a calendar is populated, a rich set of accessor methods can be used to
 // determine, e.g., if a given date is a business day, or the number of
 // non-business days within some subrange of the calendar.  The holidays
 // within a calendar can be obtained in increasing (chronological) order using
-// an iterator identified by the nested 'HolidayConstIterator' 'typedef'.  The
+// an iterator identified by the nested `HolidayConstIterator` `typedef`.  The
 // set of holiday codes associated with an arbitrary date in a
-// 'bdlt::PackedCalendar' (or the current holiday referred to by a
-// 'HolidayConstIterator') can be obtained in increasing (numerical) order
-// using an iterator identified by the nested 'HolidayCodeConstIterator'
-// 'typedef' (see below).
+// `bdlt::PackedCalendar` (or the current holiday referred to by a
+// `HolidayConstIterator`) can be obtained in increasing (numerical) order
+// using an iterator identified by the nested `HolidayCodeConstIterator`
+// `typedef` (see below).
 //
 // Calendars are value-semantic objects, and, as such, necessarily support all
 // of the standard value-semantic operations, such as default construction,
@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 // Typically, a calendar's weekend days fall on the same days of the week for
 // the entire range of a calendar.  For example, the weekend for United States
 // has consisted of Saturday and Sunday since the year 1940.  The
-// 'addWeekendDay' and 'addWeekendDays' methods can be used to specify the
+// `addWeekendDay` and `addWeekendDays` methods can be used to specify the
 // weekend days for these calendars.
 //
 // However, sometimes a calendar's weekend days changes over time.  For
@@ -98,65 +98,65 @@ BSLS_IDENT("$Id: $")
 // transition on January 1, 0001 containing Saturday and Sunday.
 //
 // On construction, a calendar does not contain any weekend-days transitions.
-// The 'addWeekendDaysTransition' method adds a new weekend-days transition or
-// replaces an existing weekend-days transition.  The 'addWeekendDay' and
-// 'addWeekendDays' methods create a weekend-days transition at January 1,
+// The `addWeekendDaysTransition` method adds a new weekend-days transition or
+// replaces an existing weekend-days transition.  The `addWeekendDay` and
+// `addWeekendDays` methods create a weekend-days transition at January 1,
 // 0001, if one doesn't already exist, and update the set of weekend days for
-// that transition.  'addWeekendDay' and 'addWeekendDays' should only be used
+// that transition.  `addWeekendDay` and `addWeekendDays` should only be used
 // for calendars having a consistent set of weekend days throughout their
-// entire range.  The use of 'addWeekendDay' and 'addWeekendDays' is intended
-// to be *mutually* *exclusive* to the use of 'addWeekendDaysTransition'.  As
+// entire range.  The use of `addWeekendDay` and `addWeekendDays` is intended
+// to be *mutually* *exclusive* to the use of `addWeekendDaysTransition`.  As
 // such, the behavior of using these two methods together with
-// 'addWeekendDaysTransition' is undefined.
+// `addWeekendDaysTransition` is undefined.
 //
 ///Nested Iterators
 ///----------------
-// Also provided are several STL-style 'const' bidirectional iterators
-// accessible as nested 'typedef's.  'HolidayConstIterator',
-// 'HolidayCodeConstIterator', 'WeekendDaysTransitionConstIterator', and
-// 'BusinessDayConstIterator', respectively, iterate over a chronologically
+// Also provided are several STL-style `const` bidirectional iterators
+// accessible as nested `typedef`s.  `HolidayConstIterator`,
+// `HolidayCodeConstIterator`, `WeekendDaysTransitionConstIterator`, and
+// `BusinessDayConstIterator`, respectively, iterate over a chronologically
 // ordered sequence of holidays, a numerically ordered sequence of holiday
 // codes, a sequence of chronologically ordered weekend-days transitions, and a
 // sequence of chronologically ordered business days.  Reverse iterators are
 // also provided for each of these (forward) iterators.  As a general rule,
-// calling a 'const' method will not invalidate any iterators, and calling a
-// non-'const' method might invalidate all of them; it is, however, guaranteed
+// calling a `const` method will not invalidate any iterators, and calling a
+// non-`const` method might invalidate all of them; it is, however, guaranteed
 // that attempting to add *duplicate* holidays or holiday codes will have no
 // effect, and therefore will not invalidate any iterators.  It is also
 // guaranteed that adding a new code for an existing holiday will not
-// invalidate any 'HolidayConstIterator' objects.
+// invalidate any `HolidayConstIterator` objects.
 //
 // Note that these iterators do *not* meet the requirements for a
-// 'bsl::forward_iterator' and should not be used in standard algorithms (e.g.,
-// 'bsl::lower_bound').
+// `bsl::forward_iterator` and should not be used in standard algorithms (e.g.,
+// `bsl::lower_bound`).
 //
 ///Iterator Invalidation
 ///---------------------
-// The modification of a 'bdlt::PackedCalendar' will invalidate iterators
+// The modification of a `bdlt::PackedCalendar` will invalidate iterators
 // referring to the calendar.  The following table shows the relationship
 // between a calendar manipulator and the types of iterators it will
 // invalidate if the invocation of the manipulator modified the calendar (e.g.,
-// using 'addHoliday' with a date that is not currently a holiday in the
+// using `addHoliday` with a date that is not currently a holiday in the
 // calendar):
-//..
-//          Manipulator                         Invalidates
-//    --------------------------            --------------------
-//    'operator='                           H    HC    WDT    BD
-//    'addHoliday'                          H    HC           BD
-//    'addHolidayCode'                           HC
-//    'addHolidayCodeIfInRange'                  HC
-//    'addHolidayIfInRange'                 H    HC           BD
-//    'addWeekendDay'                                  WDT    BD
-//    'addWeekendDays'                                 WDT    BD
-//    'addWeekendDaysTransition'                       WDT    BD
-//    'intersectBusinessDays'               H    HC    WDT    BD
-//    'intersectNonBusinessDays'            H    HC    WDT    BD
-//    'removeAll'                           H    HC    WDT    BD
-//    'removeHoliday'                       H    HC           BD
-//    'removeHolidayCode'                        HC
-//    'setValidRange'                       H    HC           BD
-//    'unionBusinessDays'                   H    HC    WDT    BD
-//    'unionNonBusinessDays'                H    HC    WDT    BD
+// ```
+//         Manipulator                         Invalidates
+//   --------------------------            --------------------
+//   'operator='                           H    HC    WDT    BD
+//   'addHoliday'                          H    HC           BD
+//   'addHolidayCode'                           HC
+//   'addHolidayCodeIfInRange'                  HC
+//   'addHolidayIfInRange'                 H    HC           BD
+//   'addWeekendDay'                                  WDT    BD
+//   'addWeekendDays'                                 WDT    BD
+//   'addWeekendDaysTransition'                       WDT    BD
+//   'intersectBusinessDays'               H    HC    WDT    BD
+//   'intersectNonBusinessDays'            H    HC    WDT    BD
+//   'removeAll'                           H    HC    WDT    BD
+//   'removeHoliday'                       H    HC           BD
+//   'removeHolidayCode'                        HC
+//   'setValidRange'                       H    HC           BD
+//   'unionBusinessDays'                   H    HC    WDT    BD
+//   'unionNonBusinessDays'                H    HC    WDT    BD
 //
 // where "H" represents the holiday iterators ('HolidayConstIterator' and
 // 'HolidayConstReverseIterator'), "HC" represents the holiday code iterators
@@ -166,90 +166,90 @@ BSLS_IDENT("$Id: $")
 // 'WeekendDaysTransitionConstReverseIterator'), and "BD" represents the
 // business day iterators ('BusinessDayConstIterator' and
 // 'BusinessDayConstReverseIterator').
-//..
+// ```
 //
 ///Performance and Exception-Safety Guarantees
 ///-------------------------------------------
 // The asymptotic worst-case performance of representative operations is
-// characterized using big-O notation, 'O[f(N,M,W,V)]'.  'N' and 'M' each refer
-// to the combined number ('H + C') of holidays 'H' (i.e., method
-// 'numHolidays') and holiday codes 'C' (i.e., 'numHolidayCodesTotal') in the
-// respective packed calendars.  'W' and 'V' each refer to the (likely small)
+// characterized using big-O notation, `O[f(N,M,W,V)]`.  `N` and `M` each refer
+// to the combined number (`H + C`) of holidays `H` (i.e., method
+// `numHolidays`) and holiday codes `C` (i.e., `numHolidayCodesTotal`) in the
+// respective packed calendars.  `W` and `V` each refer to the (likely small)
 // number of weekend-days transitions in the respective packed calendars.  For
-// clarity, the methods have abbreviated arguments: 'b', 'e', and 'd' are
-// dates, 'c' is a holiday code, 'u' is a weekday, and 'w' is a set of
-// weekdays.  Here, *Best* *Case* complexity, denoted by 'B[f(N)]', is loosely
+// clarity, the methods have abbreviated arguments: `b`, `e`, and `d` are
+// dates, `c` is a holiday code, `u` is a weekday, and `w` is a set of
+// weekdays.  Here, *Best* *Case* complexity, denoted by `B[f(N)]`, is loosely
 // defined (for manipulators) as the worst-case cost, provided that (1) no
 // additional internal capacity is required, (2) the start of the valid range
 // does not change, and (3) that if a holiday (or holiday code) is being added,
 // it is being appended *to* *the* *end* of the current sequence (of the latest
 // holiday).
-//..
-//                                    Worst       Best    Exception-Safety
-//  Operation                          Case       Case      Guarantee
-//  ---------                         -----       ----    ----------------
-//  DEFAULT CTOR                      O[1]                No-Throw
-//  COPY CTOR(N)                      O[N]                Exception-Safe
-//  N.DTOR()                          O[1]                No-Throw
+// ```
+//                                   Worst       Best    Exception-Safety
+// Operation                          Case       Case      Guarantee
+// ---------                         -----       ----    ----------------
+// DEFAULT CTOR                      O[1]                No-Throw
+// COPY CTOR(N)                      O[N]                Exception-Safe
+// N.DTOR()                          O[1]                No-Throw
 //
-//  N.OP=(M)                          O[M]                Basic <*>
+// N.OP=(M)                          O[M]                Basic <*>
 //
-//  N.reserveCapacity(H, C)           O[N]                Strong <*>
+// N.reserveCapacity(H, C)           O[N]                Strong <*>
 //
-//  N.setValidRange(b, e)             O[N]        O[1]    Basic <*>
-//  N.addDay(d)                       O[N]        O[1]    Basic <*>
-//  N.addHoliday(d)                   O[N]        O[1]    Basic <*>
-//  N.addHolidayCode(d,c)             O[N]        O[1]    Basic <*>
+// N.setValidRange(b, e)             O[N]        O[1]    Basic <*>
+// N.addDay(d)                       O[N]        O[1]    Basic <*>
+// N.addHoliday(d)                   O[N]        O[1]    Basic <*>
+// N.addHolidayCode(d,c)             O[N]        O[1]    Basic <*>
 //
-//  N.addWeekendDay(u)                O[1]                No-Throw
-//  N.addWeekendDaysTransition(d,w)   O[W]                Basic <*>
+// N.addWeekendDay(u)                O[1]                No-Throw
+// N.addWeekendDaysTransition(d,w)   O[W]                Basic <*>
 //
-//  N.intersectBusinessDays(M)        O[N+M+W+V]          Basic <*>
-//  N.intersectNonBusinessDays(M)     O[N+M+W+V]          Basic <*>
-//  N.unionBusinessDays(M)            O[N+M+W+V]          Basic <*>
-//  N.unionNonBusinessDays(M)         O[N+M+W+V]          Basic <*>
+// N.intersectBusinessDays(M)        O[N+M+W+V]          Basic <*>
+// N.intersectNonBusinessDays(M)     O[N+M+W+V]          Basic <*>
+// N.unionBusinessDays(M)            O[N+M+W+V]          Basic <*>
+// N.unionNonBusinessDays(M)         O[N+M+W+V]          Basic <*>
 //
-//  N.removeHoliday(d)                O[N]                No-Throw
-//  N.removeHolidayCode(d, c)         O[N]                No-Throw
-//  N.removeAll();                    O[1]                No-Throw
+// N.removeHoliday(d)                O[N]                No-Throw
+// N.removeHolidayCode(d, c)         O[N]                No-Throw
+// N.removeAll();                    O[1]                No-Throw
 //
-//  N.swap(M)                         O[1]                No-Throw
+// N.swap(M)                         O[1]                No-Throw
 //
-//  N.firstDate()                     O[1]                No-Throw
-//  N.lastDate()                      O[1]                No-Throw
-//  N.length()                        O[1]                No-Throw
+// N.firstDate()                     O[1]                No-Throw
+// N.lastDate()                      O[1]                No-Throw
+// N.length()                        O[1]                No-Throw
 //
-//  N.numHolidays()                   O[1]                No-Throw
+// N.numHolidays()                   O[1]                No-Throw
 //
-//  N.numHolidayCodesTotal()          O[1]                No-Throw
-//  N.numWeekendDaysInRange()         O[1]                No-Throw
+// N.numHolidayCodesTotal()          O[1]                No-Throw
+// N.numWeekendDaysInRange()         O[1]                No-Throw
 //
-//  N.isInRange(d);                   O[1]                No-Throw
-//  N.isWeekendDay(w);                O[1]                No-Throw
-//  N.isWeekendDay(d)                 O[log(W)]           No-Throw
+// N.isInRange(d);                   O[1]                No-Throw
+// N.isWeekendDay(w);                O[1]                No-Throw
+// N.isWeekendDay(d)                 O[log(W)]           No-Throw
 //
-//  N.isHoliday(d);                   O[log(N)]           No_Throw
-//  N.isBusinessDay(d);               O[log(N)]           No_Throw
-//  N.isNonBusinessDay(d);            O[log(N)]           No_Throw
+// N.isHoliday(d);                   O[log(N)]           No_Throw
+// N.isBusinessDay(d);               O[log(N)]           No_Throw
+// N.isNonBusinessDay(d);            O[log(N)]           No_Throw
 //
-//  N.numHolidayCodes(d)              O[log(N)]           No-Throw
+// N.numHolidayCodes(d)              O[log(N)]           No-Throw
 //
-//  N.numBusinessDays()               O[N]                No-Throw
-//  N.numNonBusinessDays()            O[N]                No-Throw
+// N.numBusinessDays()               O[N]                No-Throw
+// N.numNonBusinessDays()            O[N]                No-Throw
 //
-//  other 'const' methods             O[1] .. O[N]        No-Throw
+// other 'const' methods             O[1] .. O[N]        No-Throw
 //
 //
-//  OP==(N,M)                         O[min(N,M)+min(W+V) No-Throw
-//  OP!=(N,M)                         O[min(N,M)+min(W+V) No-Throw
+// OP==(N,M)                         O[min(N,M)+min(W+V) No-Throw
+// OP!=(N,M)                         O[min(N,M)+min(W+V) No-Throw
 //
-//                          <*> No-Throw guarantee when capacity is sufficient.
-//..
-// Note that *all* of the non-creator methods of 'bdlt::PackedCalendar' provide
+//                         <*> No-Throw guarantee when capacity is sufficient.
+// ```
+// Note that *all* of the non-creator methods of `bdlt::PackedCalendar` provide
 // the *No-Throw* guarantee whenever sufficient capacity is already available.
-// Also note that these are largely the same as 'bdlt::Calendar' *except* that
-// the accessors 'isBusinessDay' and 'isNonBusinessDay' are logarithmic in the
-// number of holidays in 'bdlt::PackedCalendar'.
+// Also note that these are largely the same as `bdlt::Calendar` *except* that
+// the accessors `isBusinessDay` and `isNonBusinessDay` are logarithmic in the
+// number of holidays in `bdlt::PackedCalendar`.
 //
 ///Usage
 ///-----
@@ -265,130 +265,130 @@ BSLS_IDENT("$Id: $")
 // that encodes calendar information, including holidays and holiday codes (we
 // assume, for the simplicity of this example, that "Weekend Days" (i.e.,
 // recurring non-business days) are always just Saturdays and Sundays):
-//..
-//  // HOLIDAY DATE   HOLIDAY CODES
-//  // ------------   -------------
-//  // Year Mon Day    #    Codes     Comments, separated by Semicolons (;)
-//  // ---- --- ---   --- ---------   -------------------------------------
-//     2010  1  18     1   57         ;Martin Luther King, Jr. Day
-//     2010  2  15     1   51         ;Presidents Day
-//     2010  4   2     2   9 105      ;Easter Sunday (Observed); Good Friday
-//     2010  5  31     1   16         ;Memorial Day
-//     2010  7   5     1   28         ;Independence Day (Observed)
-//     2010  9   6     1   44         ;Labor Day
-//     2010 10  11     1   19         ;Columbus Day
-//     2010 11   2     0              ;Election Day
-//     2010 11  25     1   14         ;Thanksgiving Day
-//     2010 12  25     1    4         ;Christmas Day (Observed)
-//     2010 12  31     1   22         ;New Year's Day (Observed)
-//..
+// ```
+// // HOLIDAY DATE   HOLIDAY CODES
+// // ------------   -------------
+// // Year Mon Day    #    Codes     Comments, separated by Semicolons (;)
+// // ---- --- ---   --- ---------   -------------------------------------
+//    2010  1  18     1   57         ;Martin Luther King, Jr. Day
+//    2010  2  15     1   51         ;Presidents Day
+//    2010  4   2     2   9 105      ;Easter Sunday (Observed); Good Friday
+//    2010  5  31     1   16         ;Memorial Day
+//    2010  7   5     1   28         ;Independence Day (Observed)
+//    2010  9   6     1   44         ;Labor Day
+//    2010 10  11     1   19         ;Columbus Day
+//    2010 11   2     0              ;Election Day
+//    2010 11  25     1   14         ;Thanksgiving Day
+//    2010 12  25     1    4         ;Christmas Day (Observed)
+//    2010 12  31     1   22         ;New Year's Day (Observed)
+// ```
 // Let's now create a couple of primitive helper functions to extract holiday
 // and holiday-code counts from a given input stream.
 //
 // First, we'll create a helper function to get a holiday record:
-//..
-//  int getNextHoliday(bsl::istream& input, bdlt::Date *holiday, int *numCodes)
-//      // Load into the specified 'holiday' the date of the next holiday, and
-//      // into the specified 'numCodes' the associated number of holiday codes
-//      // for the holiday read from the specified 'input' stream.  Return 0 on
-//      // success, and a non-zero value (with no effect on '*holiday' and
-//      // '*numCodes') otherwise.
-//  {
-//      enum { SUCCESS = 0, FAILURE = 1 };
+// ```
+// int getNextHoliday(bsl::istream& input, bdlt::Date *holiday, int *numCodes)
+//     // Load into the specified 'holiday' the date of the next holiday, and
+//     // into the specified 'numCodes' the associated number of holiday codes
+//     // for the holiday read from the specified 'input' stream.  Return 0 on
+//     // success, and a non-zero value (with no effect on '*holiday' and
+//     // '*numCodes') otherwise.
+// {
+//     enum { SUCCESS = 0, FAILURE = 1 };
 //
-//      int year, month, day, codes;
+//     int year, month, day, codes;
 //
-//      if (input.good()) {
-//          input >> year;
-//      }
-//      if (input.good()) {
-//          input >> month;
-//      }
-//      if (input.good()) {
-//          input >> day;
-//      }
-//      if (input.good()) {
-//          input >> codes;
-//      }
+//     if (input.good()) {
+//         input >> year;
+//     }
+//     if (input.good()) {
+//         input >> month;
+//     }
+//     if (input.good()) {
+//         input >> day;
+//     }
+//     if (input.good()) {
+//         input >> codes;
+//     }
 //
-//      if (input.good()
-//       && bdlt::Date::isValidYearMonthDay(year, month, day)) {
-//          *holiday  = bdlt::Date(year, month, day);
-//          *numCodes = codes;
-//          return SUCCESS;                                           // RETURN
-//      }
+//     if (input.good()
+//      && bdlt::Date::isValidYearMonthDay(year, month, day)) {
+//         *holiday  = bdlt::Date(year, month, day);
+//         *numCodes = codes;
+//         return SUCCESS;                                           // RETURN
+//     }
 //
-//      return FAILURE;                                               // RETURN
-//  }
-//..
+//     return FAILURE;                                               // RETURN
+// }
+// ```
 // Then, we'll write a function that gets us an integer holiday code, or
 // invalidates the stream if it cannot (note that negative holiday codes are
 // not supported by this function, but negative holiday codes *are* supported
-// by 'bdlt::PackedCalendar'):
-//..
-//  void getNextHolidayCode(bsl::istream& input, int *result)
-//      // Load, into the specified 'result', the value read from the specified
-//      // 'input' stream.  If the next token is not an integer, invalidate the
-//      // stream with no effect on 'result'.
-//  {
-//      int holidayCode;
+// by `bdlt::PackedCalendar`):
+// ```
+// void getNextHolidayCode(bsl::istream& input, int *result)
+//     // Load, into the specified 'result', the value read from the specified
+//     // 'input' stream.  If the next token is not an integer, invalidate the
+//     // stream with no effect on 'result'.
+// {
+//     int holidayCode;
 //
-//      if (input.good()) {
-//          input >> holidayCode;
-//      }
+//     if (input.good()) {
+//         input >> holidayCode;
+//     }
 //
-//      if (input.good()) {
-//          *result = holidayCode;
-//      }
-//  }
-//..
+//     if (input.good()) {
+//         *result = holidayCode;
+//     }
+// }
+// ```
 // Now, with these helper functions, it is a simple matter to write a calendar
-// loader function, 'load', that populates a given calendar with data in this
+// loader function, `load`, that populates a given calendar with data in this
 // "proprietary" format:
-//..
-//  void load(bsl::istream& input, bdlt::PackedCalendar *calendar)
-//      // Populate the specified 'calendar' with holidays and corresponding
-//      // codes read from the specified 'input' stream in our "proprietary"
-//      // format (see above).  On success, 'input' will be empty, but valid;
-//      // otherwise 'input' will be invalid.
-//  {
-//      bdlt::Date holiday;
-//      int        numCodes;
+// ```
+// void load(bsl::istream& input, bdlt::PackedCalendar *calendar)
+//     // Populate the specified 'calendar' with holidays and corresponding
+//     // codes read from the specified 'input' stream in our "proprietary"
+//     // format (see above).  On success, 'input' will be empty, but valid;
+//     // otherwise 'input' will be invalid.
+// {
+//     bdlt::Date holiday;
+//     int        numCodes;
 //
-//      while (0 == getNextHoliday(input, &holiday, &numCodes)) {
-//          calendar->addHoliday(holiday);                       // add date
-//          for (int i = 0; i < numCodes; ++i) {
-//              int holidayCode = 0;
-//              getNextHolidayCode(input, &holidayCode);
-//              if (input.good()) {
-//                  // add codes
+//     while (0 == getNextHoliday(input, &holiday, &numCodes)) {
+//         calendar->addHoliday(holiday);                       // add date
+//         for (int i = 0; i < numCodes; ++i) {
+//             int holidayCode = 0;
+//             getNextHolidayCode(input, &holidayCode);
+//             if (input.good()) {
+//                 // add codes
 //
-//                  calendar->addHolidayCode(holiday, holidayCode);
-//              }
-//          }
-//          input.ignore(256, '\n');  // skip comments
-//      }
-//  }
-//..
-// Finally, we load a 'bdlt::PackedCalendar' and verify some values from the
+//                 calendar->addHolidayCode(holiday, holidayCode);
+//             }
+//         }
+//         input.ignore(256, '\n');  // skip comments
+//     }
+// }
+// ```
+// Finally, we load a `bdlt::PackedCalendar` and verify some values from the
 // calendar.
-//..
-//  bsl::stringstream stream;
-//  {
-//      stream << "2010  9   6     1   44         ;Labor Day\n"
-//             << "2010 10  11     1   19         ;Columbus Day\n"
-//             << "2010 11   2     0              ;Election Day\n"
-//             << "2010 11  25     1   14         ;Thanksgiving Day\n";
-//  }
+// ```
+// bsl::stringstream stream;
+// {
+//     stream << "2010  9   6     1   44         ;Labor Day\n"
+//            << "2010 10  11     1   19         ;Columbus Day\n"
+//            << "2010 11   2     0              ;Election Day\n"
+//            << "2010 11  25     1   14         ;Thanksgiving Day\n";
+// }
 //
-//  bdlt::PackedCalendar calendar;
-//  load(stream, &calendar);
+// bdlt::PackedCalendar calendar;
+// load(stream, &calendar);
 //
-//  assert(bdlt::Date(2010,  9,  6) == calendar.firstDate());
-//  assert(bdlt::Date(2010, 11, 25) == calendar.lastDate());
-//  assert(true  == calendar.isBusinessDay(bdlt::Date(2010, 10, 12)));
-//  assert(false == calendar.isBusinessDay(bdlt::Date(2010, 11,  2)));
-//..
+// assert(bdlt::Date(2010,  9,  6) == calendar.firstDate());
+// assert(bdlt::Date(2010, 11, 25) == calendar.lastDate());
+// assert(true  == calendar.isBusinessDay(bdlt::Date(2010, 10, 12)));
+// assert(false == calendar.isBusinessDay(bdlt::Date(2010, 11,  2)));
+// ```
 // Note that different formats can easily be accommodated, while still using
 // the same basic population strategy.  Also note that it may be substantially
 // more efficient to populate calendars in increasing date order, compared to
@@ -403,77 +403,77 @@ BSLS_IDENT("$Id: $")
 //
 // First, let's create a function that prints the names of holidays for a
 // given date:
-//..
-//  void
-//  printHolidayNamesForGivenDate(bsl::ostream&                   output,
-//                                const bdlt::PackedCalendar&     calendar,
-//                                const bdlt::Date&               date,
-//                                const bsl::vector<bsl::string>& holidayNames)
-//      // Write, to the specified 'output' stream, the elements in the
-//      // specified 'holidayNames' associated, via holiday codes in the
-//      // specified 'calendar', to the specified 'date'.  Each holiday name
-//      // emitted is followed by a newline ('\n').  The behavior is undefined
-//      // unless 'date' is within the valid range of 'calendar'.
-//  {
-//      for (bdlt::PackedCalendar::HolidayCodeConstIterator
-//                                       it = calendar.beginHolidayCodes(date);
-//                                       it != calendar.endHolidayCodes(date);
-//                                     ++it) {
-//          output << holidayNames[*it] << bsl::endl;
-//      }
-//  }
-//..
+// ```
+// void
+// printHolidayNamesForGivenDate(bsl::ostream&                   output,
+//                               const bdlt::PackedCalendar&     calendar,
+//                               const bdlt::Date&               date,
+//                               const bsl::vector<bsl::string>& holidayNames)
+//     // Write, to the specified 'output' stream, the elements in the
+//     // specified 'holidayNames' associated, via holiday codes in the
+//     // specified 'calendar', to the specified 'date'.  Each holiday name
+//     // emitted is followed by a newline ('\n').  The behavior is undefined
+//     // unless 'date' is within the valid range of 'calendar'.
+// {
+//     for (bdlt::PackedCalendar::HolidayCodeConstIterator
+//                                      it = calendar.beginHolidayCodes(date);
+//                                      it != calendar.endHolidayCodes(date);
+//                                    ++it) {
+//         output << holidayNames[*it] << bsl::endl;
+//     }
+// }
+// ```
 // Then, since we can write the names of holidays for a given date, let's
 // write a function that can write out all of the names associated with each
 // holiday in the calendar:
-//..
-//  void
-//  printHolidayDatesAndNames(bsl::ostream&                   output,
-//                            const bdlt::PackedCalendar&     calendar,
-//                            const bsl::vector<bsl::string>& holidayNames)
-//      // Write, to the specified 'output' stream, each date associated with
-//      // a holiday in the specified 'calendar' followed by any elements in
-//      // the specified 'holidayNames' (associated via holiday codes in
-//      // 'calendar') corresponding to that date.  Each date emitted is
-//      // preceded and followed by a newline ('\n').  Each holiday name
-//      // emitted is followed by a newline ('\n').
-//  {
-//      for (bdlt::PackedCalendar::HolidayConstIterator
-//                        it = calendar.beginHolidays();
-//                                      it != calendar.endHolidays(); ++it) {
-//          output << '\n' << *it << '\n';
-//          printHolidayNamesForGivenDate(output,
-//                                        calendar,
-//                                        *it,
-//                                        holidayNames);
-//      }
-//  }
-//..
-// Next, we populate the 'holidayNames' vector:
-//..
-//  bsl::vector<bsl::string> holidayNames;
-//  {
-//      holidayNames.resize(45);
+// ```
+// void
+// printHolidayDatesAndNames(bsl::ostream&                   output,
+//                           const bdlt::PackedCalendar&     calendar,
+//                           const bsl::vector<bsl::string>& holidayNames)
+//     // Write, to the specified 'output' stream, each date associated with
+//     // a holiday in the specified 'calendar' followed by any elements in
+//     // the specified 'holidayNames' (associated via holiday codes in
+//     // 'calendar') corresponding to that date.  Each date emitted is
+//     // preceded and followed by a newline ('\n').  Each holiday name
+//     // emitted is followed by a newline ('\n').
+// {
+//     for (bdlt::PackedCalendar::HolidayConstIterator
+//                       it = calendar.beginHolidays();
+//                                     it != calendar.endHolidays(); ++it) {
+//         output << '\n' << *it << '\n';
+//         printHolidayNamesForGivenDate(output,
+//                                       calendar,
+//                                       *it,
+//                                       holidayNames);
+//     }
+// }
+// ```
+// Next, we populate the `holidayNames` vector:
+// ```
+// bsl::vector<bsl::string> holidayNames;
+// {
+//     holidayNames.resize(45);
 //
-//      holidayNames[44] = "Labor Day";         // holiday code 44 is for
-//                                              // Labor Day
+//     holidayNames[44] = "Labor Day";         // holiday code 44 is for
+//                                             // Labor Day
 //
-//      holidayNames[14] = "Thanksgiving Day";  // holiday code 14 is for
-//                                              // Thanksgiving Day
-//  }
-//..
-// Now, using the 'calendar' populated in the previous example, we print the
-// holiday information to a new 'bsl::stringstream':
-//..
-//  bsl::stringstream printStream;
+//     holidayNames[14] = "Thanksgiving Day";  // holiday code 14 is for
+//                                             // Thanksgiving Day
+// }
+// ```
+// Now, using the `calendar` populated in the previous example, we print the
+// holiday information to a new `bsl::stringstream`:
+// ```
+// bsl::stringstream printStream;
 //
-//  printHolidayDatesAndNames(printStream, calendar, holidayNames);
-//..
+// printHolidayDatesAndNames(printStream, calendar, holidayNames);
+// ```
 // Finally, we verify the output:
-//..
-//  assert(printStream.str() == "\n06SEP2010\nLabor Day\n\n11OCT2010\n\n\n"
-//                               "02NOV2010\n\n25NOV2010\nThanksgiving Day\n");
-//..
+// ```
+// assert(printStream.str() == "\n06SEP2010\nLabor Day\n\n11OCT2010\n\n\n"
+//                              "02NOV2010\n\n25NOV2010\nThanksgiving Day\n");
+// ```
 
 #include <bdlscm_version.h>
 
@@ -521,23 +521,23 @@ class PackedCalendar_HolidayConstIterator;
                           // class PackedCalendar
                           // ====================
 
+/// This class implements a space-efficient, value-semantic repository of
+/// weekend and holiday information over a *valid* *range* of dates.  This
+/// valid range, `[firstDate() .. lastDate()]`, spans the first and last
+/// dates of a calendar's accessible contents.  A calendar can be
+/// "populated" with weekend and holiday information via a suite of "add"
+/// methods.  Any subset of days of the week may be specified as weekend
+/// (i.e., recurring non-business) days starting from a specified date by
+/// adding a weekend-days transition; holidays within the valid range are
+/// specified individually.  When adding a holiday, an arbitrary integer
+/// "holiday code" may be associated with that date.  Additional holiday
+/// codes for that date may subsequently be added.  Both the holidays and
+/// the set of unique holiday codes associated with each holiday date are
+/// maintained (internally) in order of increasing value.  Note that the
+/// behavior of requesting *any* calendar information for a supplied date
+/// whose value is outside the current *valid* *range* for that calendar
+/// (unless otherwise noted, e.g., `isWeekendDay`) is undefined.
 class PackedCalendar {
-    // This class implements a space-efficient, value-semantic repository of
-    // weekend and holiday information over a *valid* *range* of dates.  This
-    // valid range, '[firstDate() .. lastDate()]', spans the first and last
-    // dates of a calendar's accessible contents.  A calendar can be
-    // "populated" with weekend and holiday information via a suite of "add"
-    // methods.  Any subset of days of the week may be specified as weekend
-    // (i.e., recurring non-business) days starting from a specified date by
-    // adding a weekend-days transition; holidays within the valid range are
-    // specified individually.  When adding a holiday, an arbitrary integer
-    // "holiday code" may be associated with that date.  Additional holiday
-    // codes for that date may subsequently be added.  Both the holidays and
-    // the set of unique holiday codes associated with each holiday date are
-    // maintained (internally) in order of increasing value.  Note that the
-    // behavior of requesting *any* calendar information for a supplied date
-    // whose value is outside the current *valid* *range* for that calendar
-    // (unless otherwise noted, e.g., 'isWeekendDay') is undefined.
 
   private:
     // PRIVATE TYPES
@@ -550,20 +550,21 @@ class PackedCalendar {
     typedef bsl::vector<WeekendDaysTransitionPrivate>
                                                  WeekendDaysTransitionSequence;
 
+    /// This `struct` provides a comparator predicate for the type
+    /// `WeekendDaysTransition` to enable the use of standard algorithms
+    /// (such as `bsl::lower_bound`) on ranges of objects of that type.
     struct WeekendDaysTransitionLess {
-        // This 'struct' provides a comparator predicate for the type
-        // 'WeekendDaysTransition' to enable the use of standard algorithms
-        // (such as 'bsl::lower_bound') on ranges of objects of that type.
 
         // ACCESSORS
+
+        /// Return `true` if the value of the specified `lhs` is less than
+        /// (ordered before) the value of the specified `rhs`, and `false`
+        /// otherwise.  The value of `lhs` is less than the value of `rhs`
+        /// if the date represented by the data member `first` of `lhs` is
+        /// earlier than the date represented by the data member `first` of
+        /// `rhs`.
         bool operator()(const WeekendDaysTransitionPrivate& lhs,
                         const WeekendDaysTransitionPrivate& rhs) const
-            // Return 'true' if the value of the specified 'lhs' is less than
-            // (ordered before) the value of the specified 'rhs', and 'false'
-            // otherwise.  The value of 'lhs' is less than the value of 'rhs'
-            // if the date represented by the data member 'first' of 'lhs' is
-            // earlier than the date represented by the data member 'first' of
-            // 'rhs'.
         {
             return lhs.first < rhs.first;
         }
@@ -647,6 +648,13 @@ class PackedCalendar {
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Append, onto the specified `resHolidayOffsets`,
+    /// `resHolidayCodesIndex`, and `resHolidayCodes`, the intersection of
+    /// the holidays from the specified `lhs` and `rhs` calendars
+    /// restricted to the date range of the specified `firstDate` and
+    /// `lastDate`.  The behavior is undefined unless
+    /// `firstDate <= lastDate`.
     static void intersectHolidays(
                                bdlc::PackedIntArray<int> *resHolidayOffsets,
                                bdlc::PackedIntArray<int> *resHolidayCodesIndex,
@@ -655,13 +663,12 @@ class PackedCalendar {
                                const PackedCalendar&      rhs,
                                const bdlt::Date           firstDate,
                                const bdlt::Date           lastDate);
-        // Append, onto the specified 'resHolidayOffsets',
-        // 'resHolidayCodesIndex', and 'resHolidayCodes', the intersection of
-        // the holidays from the specified 'lhs' and 'rhs' calendars
-        // restricted to the date range of the specified 'firstDate' and
-        // 'lastDate'.  The behavior is undefined unless
-        // 'firstDate <= lastDate'.
 
+    /// Append, onto the specified `resHolidayOffsets`,
+    /// `resHolidayCodesIndex`, and `resHolidayCodes`, the union of the
+    /// holidays from the specified `lhs` and `rhs` calendars restricted to
+    /// the date range of the specified `firstDate` and `lastDate`.  The
+    /// behavior is undefined unless `firstDate <= lastDate`.
     static void unionHolidays(bdlc::PackedIntArray<int> *resHolidayOffsets,
                               bdlc::PackedIntArray<int> *resHolidayCodesIndex,
                               bdlc::PackedIntArray<int> *resHolidayCodes,
@@ -669,707 +676,710 @@ class PackedCalendar {
                               const PackedCalendar&      rhs,
                               const bdlt::Date           firstDate,
                               const bdlt::Date           lastDate);
-        // Append, onto the specified 'resHolidayOffsets',
-        // 'resHolidayCodesIndex', and 'resHolidayCodes', the union of the
-        // holidays from the specified 'lhs' and 'rhs' calendars restricted to
-        // the date range of the specified 'firstDate' and 'lastDate'.  The
-        // behavior is undefined unless 'firstDate <= lastDate'.
 
     // PRIVATE MANIPULATORS
+
+    /// Add the specified `offset` as a holiday offset in this calendar.  If
+    /// the date represented by `offset` is already a holiday, this method
+    /// has no effect.  Return the index of `d_holidayOffsets` where
+    /// `offset` is stored.  The behavior is undefined unless `0 <= offset`
+    /// and the `offset` represents a date within the valid range of the
+    /// calendar.
     int addHolidayImp(int offset);
-        // Add the specified 'offset' as a holiday offset in this calendar.  If
-        // the date represented by 'offset' is already a holiday, this method
-        // has no effect.  Return the index of 'd_holidayOffsets' where
-        // 'offset' is stored.  The behavior is undefined unless '0 <= offset'
-        // and the 'offset' represents a date within the valid range of the
-        // calendar.
 
     // PRIVATE ACCESSORS
+
+    /// Return an iterator that refers to the first non-modifiable holiday
+    /// code for the holiday referenced by the specified `iter`.  If there
+    /// are no holiday codes associated with the date referenced by `iter`,
+    /// the returned iterator has the same value as that returned by
+    /// `endHolidayCodes(iter)`.  The behavior is undefined unless `iter`
+    /// refers to a valid holiday of this calendar.
     CodesConstIterator beginHolidayCodes(
                                        const OffsetsConstIterator& iter) const;
-        // Return an iterator that refers to the first non-modifiable holiday
-        // code for the holiday referenced by the specified 'iter'.  If there
-        // are no holiday codes associated with the date referenced by 'iter',
-        // the returned iterator has the same value as that returned by
-        // 'endHolidayCodes(iter)'.  The behavior is undefined unless 'iter'
-        // refers to a valid holiday of this calendar.
 
+    /// Return an iterator that indicates the element one past the last
+    /// holiday code associated with the date referenced by the specified
+    /// `iter`.  The behavior is undefined unless `iter` references a valid
+    /// holiday in this calendar.
     CodesConstIterator endHolidayCodes(const OffsetsConstIterator& iter) const;
-        // Return an iterator that indicates the element one past the last
-        // holiday code associated with the date referenced by the specified
-        // 'iter'.  The behavior is undefined unless 'iter' references a valid
-        // holiday in this calendar.
 
   public:
     // CLASS METHODS
 
                                   // Aspects
 
+    /// Return the maximum valid BDEX format version, as indicated by the
+    /// specified `versionSelector`, to be passed to the `bdexStreamOut`
+    /// method.  Note that it is highly recommended that `versionSelector`
+    /// be formatted as "YYYYMMDD", a date representation.  Also note that
+    /// `versionSelector` should be a *compile*-time-chosen value that
+    /// selects a format version supported by both externalizer and
+    /// unexternalizer.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     static int maxSupportedBdexVersion(int versionSelector);
-        // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
-        // method.  Note that it is highly recommended that 'versionSelector'
-        // be formatted as "YYYYMMDD", a date representation.  Also note that
-        // 'versionSelector' should be a *compile*-time-chosen value that
-        // selects a format version supported by both externalizer and
-        // unexternalizer.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
     // CREATORS
-    explicit PackedCalendar(bslma::Allocator *basicAllocator = 0);
-        // Create an empty calendar, i.e., a calendar having an empty valid
-        // range.  Optionally specify a 'basicAllocator' used to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
 
+    /// Create an empty calendar, i.e., a calendar having an empty valid
+    /// range.  Optionally specify a `basicAllocator` used to supply memory.
+    /// If `basicAllocator` is 0, the currently installed default allocator
+    /// is used.
+    explicit PackedCalendar(bslma::Allocator *basicAllocator = 0);
+
+    /// Create a calendar having a valid range from the specified
+    /// `firstDate` through the specified `lastDate`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.  The behavior is
+    /// undefined unless `firstDate <= lastDate`.
     PackedCalendar(const Date&       firstDate,
                    const Date&       lastDate,
                    bslma::Allocator *basicAllocator = 0);
-        // Create a calendar having a valid range from the specified
-        // 'firstDate' through the specified 'lastDate'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The behavior is
-        // undefined unless 'firstDate <= lastDate'.
 
+    /// Create a calendar having the value of the specified `original`
+    /// calendar.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.
     PackedCalendar(const PackedCalendar&  original,
                    bslma::Allocator      *basicAllocator = 0);
-        // Create a calendar having the value of the specified 'original'
-        // calendar.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
 
+    /// Destroy this object.
     ~PackedCalendar();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this calendar the value of the specified `rhs` calendar,
+    /// and return a reference providing modifiable access to this calendar.
+    /// See {Iterator Invalidation} for information regarding which
+    /// iterators are affected by the use of this method.
     PackedCalendar& operator=(const PackedCalendar& rhs);
-        // Assign to this calendar the value of the specified 'rhs' calendar,
-        // and return a reference providing modifiable access to this calendar.
-        // See {Iterator Invalidation} for information regarding which
-        // iterators are affected by the use of this method.
 
+    /// Extend the valid range (if necessary) of this calendar to include
+    /// the specified `date` value.
     void addDay(const Date& date);
-        // Extend the valid range (if necessary) of this calendar to include
-        // the specified 'date' value.
 
+    /// Mark the specified `date` as a holiday (i.e., a non-business day)
+    /// in this calendar.  Extend the valid range of this calendar if
+    /// necessary.  If `date` is already marked as a holiday, this method
+    /// has no effect.  See {Iterator Invalidation} for information
+    /// regarding which iterators are affected by the use of this method.
     void addHoliday(const Date& date);
-        // Mark the specified 'date' as a holiday (i.e., a non-business day)
-        // in this calendar.  Extend the valid range of this calendar if
-        // necessary.  If 'date' is already marked as a holiday, this method
-        // has no effect.  See {Iterator Invalidation} for information
-        // regarding which iterators are affected by the use of this method.
 
+    /// Mark the specified `date` as a holiday (i.e., a non-business day) in
+    /// this calendar and add the specified `holidayCode` (if not already
+    /// present) to the ordered set of codes associated with `date`.
+    /// Extend the valid range of this calendar if necessary.  If
+    /// `holidayCode` is already a code for `date`, this method has no
+    /// effect.  See {Iterator Invalidation} for information regarding
+    /// which iterators are affected by the use of this method.
     void addHolidayCode(const Date& date, int holidayCode);
-        // Mark the specified 'date' as a holiday (i.e., a non-business day) in
-        // this calendar and add the specified 'holidayCode' (if not already
-        // present) to the ordered set of codes associated with 'date'.
-        // Extend the valid range of this calendar if necessary.  If
-        // 'holidayCode' is already a code for 'date', this method has no
-        // effect.  See {Iterator Invalidation} for information regarding
-        // which iterators are affected by the use of this method.
 
+    /// Mark the specified `date` as a holiday (i.e., a non-business day)
+    /// in this calendar and add the specified `holidayCode` (if not
+    /// already present) to the set of codes associated with `date`, if
+    /// `date` is within the valid range of this calendar.  Return 0 if
+    /// `date` is in range, and a non-zero value otherwise.  If
+    /// `holidayCode` is already a code for `date`, or if `date` is not in
+    /// the valid range, this method has no effect.  See
+    /// {Iterator Invalidation} for information regarding which iterators
+    /// are affected by the use of this method.  Note that this method may
+    /// be called repeatedly with the same value for `date` to build up a
+    /// set of holiday codes for that date.
     int addHolidayCodeIfInRange(const Date& date, int holidayCode);
-        // Mark the specified 'date' as a holiday (i.e., a non-business day)
-        // in this calendar and add the specified 'holidayCode' (if not
-        // already present) to the set of codes associated with 'date', if
-        // 'date' is within the valid range of this calendar.  Return 0 if
-        // 'date' is in range, and a non-zero value otherwise.  If
-        // 'holidayCode' is already a code for 'date', or if 'date' is not in
-        // the valid range, this method has no effect.  See
-        // {Iterator Invalidation} for information regarding which iterators
-        // are affected by the use of this method.  Note that this method may
-        // be called repeatedly with the same value for 'date' to build up a
-        // set of holiday codes for that date.
 
+    /// Mark the specified `date` as a holiday (i.e., a non-business day) in
+    /// this calendar if `date` is within the valid range.  Return 0 if
+    /// `date` is in range, and a non-zero value otherwise.  This method has
+    /// no effect if `date` is already marked as a holiday or is not in the
+    /// valid range.  See {Iterator Invalidation} for information regarding
+    /// which iterators are affected by the use of this method.
     int addHolidayIfInRange(const Date& date);
-        // Mark the specified 'date' as a holiday (i.e., a non-business day) in
-        // this calendar if 'date' is within the valid range.  Return 0 if
-        // 'date' is in range, and a non-zero value otherwise.  This method has
-        // no effect if 'date' is already marked as a holiday or is not in the
-        // valid range.  See {Iterator Invalidation} for information regarding
-        // which iterators are affected by the use of this method.
 
+    /// Add the specified `weekendDay` to the set of weekend days associated
+    /// with the weekend-days transition at January 1, 0001 maintained by
+    /// this calendar.  Create a transition at January 1, 0001 if one does
+    /// not exist.  See {Iterator Invalidation} for information regarding
+    /// which iterators are affected by the use of this method.  The
+    /// behavior is undefined unless no weekend-days transitions were added
+    /// to this calendar via the `addWeekendDaysTransition` method.
     void addWeekendDay(DayOfWeek::Enum weekendDay);
-        // Add the specified 'weekendDay' to the set of weekend days associated
-        // with the weekend-days transition at January 1, 0001 maintained by
-        // this calendar.  Create a transition at January 1, 0001 if one does
-        // not exist.  See {Iterator Invalidation} for information regarding
-        // which iterators are affected by the use of this method.  The
-        // behavior is undefined unless no weekend-days transitions were added
-        // to this calendar via the 'addWeekendDaysTransition' method.
 
+    /// Add the specified `weekendDays` to the set of weekend days
+    /// associated with the weekend-days transition at January 1, 0001
+    /// maintained by this calendar.  Create a transition at January 1, 0001
+    /// if one does not exist.  See {Iterator Invalidation} for information
+    /// regarding which iterators are affected by the use of this method.
+    /// The behavior is undefined unless no weekend-days transitions were
+    /// added to this calendar via the `addWeekendDaysTransition` method.
     void addWeekendDays(const DayOfWeekSet& weekendDays);
-        // Add the specified 'weekendDays' to the set of weekend days
-        // associated with the weekend-days transition at January 1, 0001
-        // maintained by this calendar.  Create a transition at January 1, 0001
-        // if one does not exist.  See {Iterator Invalidation} for information
-        // regarding which iterators are affected by the use of this method.
-        // The behavior is undefined unless no weekend-days transitions were
-        // added to this calendar via the 'addWeekendDaysTransition' method.
 
+    /// Add to this calendar a weekend-days transition on the specified
+    /// `startDate` having the specified `weekendDays` set.  If a
+    /// weekend-days transition already exists on `startDate`, replace the
+    /// set of weekend days of that transition with `weekendDays`.  See
+    /// {Iterator Invalidation} for information regarding which iterators
+    /// are affected by the use of this method.  Note that this method does
+    /// not extend the valid range of the calendar.
     void addWeekendDaysTransition(const Date&         startDate,
                                   const DayOfWeekSet& weekendDays);
-        // Add to this calendar a weekend-days transition on the specified
-        // 'startDate' having the specified 'weekendDays' set.  If a
-        // weekend-days transition already exists on 'startDate', replace the
-        // set of weekend days of that transition with 'weekendDays'.  See
-        // {Iterator Invalidation} for information regarding which iterators
-        // are affected by the use of this method.  Note that this method does
-        // not extend the valid range of the calendar.
 
+    /// Merge the specified `other` calendar into this calendar such that
+    /// the valid range of this calendar becomes the *intersection* of the
+    /// two calendars' ranges, and the weekend days and holidays for this
+    /// calendar become the union of those (non-business) days from the two
+    /// calendars -- i.e., the valid business days of this calendar become
+    /// the intersection of those of the two original calendar values over
+    /// the *intersection* of their ranges.  For each holiday that remains,
+    /// the resulting holiday codes in this calendar will be the union of
+    /// the corresponding original holiday codes.  See
+    /// {Iterator Invalidation} for information regarding which iterators
+    /// are affected by the use of this method.
     void intersectBusinessDays(const PackedCalendar& other);
-        // Merge the specified 'other' calendar into this calendar such that
-        // the valid range of this calendar becomes the *intersection* of the
-        // two calendars' ranges, and the weekend days and holidays for this
-        // calendar become the union of those (non-business) days from the two
-        // calendars -- i.e., the valid business days of this calendar become
-        // the intersection of those of the two original calendar values over
-        // the *intersection* of their ranges.  For each holiday that remains,
-        // the resulting holiday codes in this calendar will be the union of
-        // the corresponding original holiday codes.  See
-        // {Iterator Invalidation} for information regarding which iterators
-        // are affected by the use of this method.
 
+    /// Merge the specified `other` calendar into this calendar such that
+    /// the valid range of this calendar becomes the *intersection* of the
+    /// two calendars' ranges, the weekend days for this calendar become the
+    /// intersection of those days from the two calendars, and the holidays
+    /// for this calendar become the set of days that are a holiday in one
+    /// of the calendars and a non-business day in the other calendar --
+    /// i.e., the valid business days of this calendar become the union of
+    /// those of the two original calendars over the *intersection* of their
+    /// ranges.  For each holiday that remains, the resulting holiday codes
+    /// in this calendar will be the union of the corresponding original
+    /// holiday codes.  See {Iterator Invalidation} for information
+    /// regarding which iterators are affected by the use of this method.
     void intersectNonBusinessDays(const PackedCalendar& other);
-        // Merge the specified 'other' calendar into this calendar such that
-        // the valid range of this calendar becomes the *intersection* of the
-        // two calendars' ranges, the weekend days for this calendar become the
-        // intersection of those days from the two calendars, and the holidays
-        // for this calendar become the set of days that are a holiday in one
-        // of the calendars and a non-business day in the other calendar --
-        // i.e., the valid business days of this calendar become the union of
-        // those of the two original calendars over the *intersection* of their
-        // ranges.  For each holiday that remains, the resulting holiday codes
-        // in this calendar will be the union of the corresponding original
-        // holiday codes.  See {Iterator Invalidation} for information
-        // regarding which iterators are affected by the use of this method.
 
+    /// Remove all information from this calendar, leaving it with its
+    /// default constructed "empty" value.  See {Iterator Invalidation} for
+    /// information regarding which iterators are affected by the use of
+    /// this method.
     void removeAll();
-        // Remove all information from this calendar, leaving it with its
-        // default constructed "empty" value.  See {Iterator Invalidation} for
-        // information regarding which iterators are affected by the use of
-        // this method.
 
+    /// Remove from this calendar the holiday having the specified `date` if
+    /// such a holiday exists.  This operation has no effect if `date` is
+    /// not a holiday in this calendar.  See {Iterator Invalidation} for
+    /// information regarding which iterators are affected by the use of
+    /// this method.  Note that this method is defined for all `date`
+    /// values, not just those that fall within the valid range, and may be
+    /// invoked even on an empty calendar (i.e., having `0 == length()`).
     void removeHoliday(const Date& date);
-        // Remove from this calendar the holiday having the specified 'date' if
-        // such a holiday exists.  This operation has no effect if 'date' is
-        // not a holiday in this calendar.  See {Iterator Invalidation} for
-        // information regarding which iterators are affected by the use of
-        // this method.  Note that this method is defined for all 'date'
-        // values, not just those that fall within the valid range, and may be
-        // invoked even on an empty calendar (i.e., having '0 == length()').
 
+    /// Remove from this calendar the specified `holidayCode` for the
+    /// holiday having the specified `date` if such a holiday having
+    /// `holidayCode` exists.  This operation has no effect if `date` is not
+    /// a holiday in this calendar, or if the holiday at `date` does not
+    /// have `holidayCode` associated with it.  See {Iterator Invalidation}
+    /// for information regarding which iterators are affected by the use of
+    /// this method.  Note that this method is defined for all `date`
+    /// values, not just those that fall within the valid range, and may be
+    /// invoked even on an empty calendar (i.e., having `0 == length()`).
     void removeHolidayCode(const Date& date, int holidayCode);
-        // Remove from this calendar the specified 'holidayCode' for the
-        // holiday having the specified 'date' if such a holiday having
-        // 'holidayCode' exists.  This operation has no effect if 'date' is not
-        // a holiday in this calendar, or if the holiday at 'date' does not
-        // have 'holidayCode' associated with it.  See {Iterator Invalidation}
-        // for information regarding which iterators are affected by the use of
-        // this method.  Note that this method is defined for all 'date'
-        // values, not just those that fall within the valid range, and may be
-        // invoked even on an empty calendar (i.e., having '0 == length()').
 
+    /// Reserve enough space to store at least the specified `numHolidays`
+    /// within this calendar.  This method has no effect if
+    /// `numHolidays <= numHolidays()`.
     void reserveHolidayCapacity(int numHolidays);
-        // Reserve enough space to store at least the specified 'numHolidays'
-        // within this calendar.  This method has no effect if
-        // 'numHolidays <= numHolidays()'.
 
+    /// Reserve enough space to store at least the specified
+    /// `numHolidayCodes` within this calendar assuming no additional
+    /// holidays are added to this calendar.  This method has no effect if
+    /// `numHolidayCodes <= numHolidayCodesTotal()`.
     void reserveHolidayCodeCapacity(int numHolidayCodes);
-        // Reserve enough space to store at least the specified
-        // 'numHolidayCodes' within this calendar assuming no additional
-        // holidays are added to this calendar.  This method has no effect if
-        // 'numHolidayCodes <= numHolidayCodesTotal()'.
 
+    /// Set the range of this calendar using the specified `firstDate` and
+    /// `lastDate` as, respectively, the first date and the last date of the
+    /// calendar.  Any holiday that is outside the new range and its holiday
+    /// codes are removed.  See {Iterator Invalidation} for information
+    /// regarding which iterators are affected by the use of this method.
+    /// The behavior is undefined unless `firstDate <= lastDate`.
     void setValidRange(const Date& firstDate, const Date& lastDate);
-        // Set the range of this calendar using the specified 'firstDate' and
-        // 'lastDate' as, respectively, the first date and the last date of the
-        // calendar.  Any holiday that is outside the new range and its holiday
-        // codes are removed.  See {Iterator Invalidation} for information
-        // regarding which iterators are affected by the use of this method.
-        // The behavior is undefined unless 'firstDate <= lastDate'.
 
+    /// Merge the specified `other` calendar into this calendar such that
+    /// the valid range of this calendar becomes the *union* of the two
+    /// calendars' ranges (or the minimal continuous range spanning the two
+    /// ranges, if the ranges are non-overlapping), the weekend days for
+    /// this calendar become the intersection of those days from the two
+    /// calendars, and the holidays for this calendar become the set of days
+    /// that are a holiday in one of the calendars and a non-business day in
+    /// the other calendar -- i.e., the valid business days of this calendar
+    /// become the union of those of the two original calendar values.  For
+    /// each holiday that remains, the resulting holiday codes in this
+    /// calendar will be the union of the corresponding original holiday
+    /// codes.  See {Iterator Invalidation} for information regarding which
+    /// iterators are affected by the use of this method.
     void unionBusinessDays(const PackedCalendar& other);
-        // Merge the specified 'other' calendar into this calendar such that
-        // the valid range of this calendar becomes the *union* of the two
-        // calendars' ranges (or the minimal continuous range spanning the two
-        // ranges, if the ranges are non-overlapping), the weekend days for
-        // this calendar become the intersection of those days from the two
-        // calendars, and the holidays for this calendar become the set of days
-        // that are a holiday in one of the calendars and a non-business day in
-        // the other calendar -- i.e., the valid business days of this calendar
-        // become the union of those of the two original calendar values.  For
-        // each holiday that remains, the resulting holiday codes in this
-        // calendar will be the union of the corresponding original holiday
-        // codes.  See {Iterator Invalidation} for information regarding which
-        // iterators are affected by the use of this method.
 
+    /// Merge the specified `other` calendar into this calendar such that
+    /// the valid range of this calendar becomes the *union* of the two
+    /// calendars' ranges (or the minimal continuous range spanning the two
+    /// ranges, if the ranges are non-overlapping), and the weekend days
+    /// and holidays for this calendar become the union of those
+    /// (non-business) days from the two calendars -- i.e., the valid
+    /// business days of this calendar become the intersection of those of
+    /// the two calendars after each range is extended to cover the
+    /// resulting one.  For each holiday in either calendar, the resulting
+    /// holiday codes in this calendar will be the union of the
+    /// corresponding original holiday codes.  See {Iterator Invalidation}
+    /// for information regarding which iterators are affected by the use of
+    /// this method.
     void unionNonBusinessDays(const PackedCalendar& other);
-        // Merge the specified 'other' calendar into this calendar such that
-        // the valid range of this calendar becomes the *union* of the two
-        // calendars' ranges (or the minimal continuous range spanning the two
-        // ranges, if the ranges are non-overlapping), and the weekend days
-        // and holidays for this calendar become the union of those
-        // (non-business) days from the two calendars -- i.e., the valid
-        // business days of this calendar become the intersection of those of
-        // the two calendars after each range is extended to cover the
-        // resulting one.  For each holiday in either calendar, the resulting
-        // holiday codes in this calendar will be the union of the
-        // corresponding original holiday codes.  See {Iterator Invalidation}
-        // for information regarding which iterators are affected by the use of
-        // this method.
 
                                   // Aspects
 
+    /// Assign to this object the value read from the specified input
+    /// `stream` using the specified `version` format and return a reference
+    /// to the modifiable `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `stream` becomes invalid during this
+    /// operation or if `version` is not supported, this object is
+    /// unaltered.  Note that no version is read from `stream`.  See the
+    /// `bslx` package-level documentation for more information on BDEX
+    /// streaming of value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation or if 'version' is not supported, this object is
-        // unaltered.  Note that no version is read from 'stream'.  See the
-        // 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
 
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.  The behavior is undefined unless this
+    /// object was created with the same allocator as `other`.
     void swap(PackedCalendar& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless this
-        // object was created with the same allocator as 'other'.
 
     // ACCESSORS
+
+    /// Return an iterator providing non-modifiable access to the first
+    /// business day in this calendar.  If this calendar has no valid
+    /// business days, the returned iterator has the same value as that
+    /// returned by `endBusinessDays()`.
     BusinessDayConstIterator beginBusinessDays() const;
-        // Return an iterator providing non-modifiable access to the first
-        // business day in this calendar.  If this calendar has no valid
-        // business days, the returned iterator has the same value as that
-        // returned by 'endBusinessDays()'.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// business day that occurs on or after the specified `date` in this
+    /// calendar.  If this calendar has no such business day, the returned
+    /// iterator has the same value as that returned by
+    /// `endBusinessDays(date)`.  The behavior is undefined unless `date` is
+    /// within the valid range of this calendar.
     BusinessDayConstIterator beginBusinessDays(const Date& date) const;
-        // Return an iterator providing non-modifiable access to the first
-        // business day that occurs on or after the specified 'date' in this
-        // calendar.  If this calendar has no such business day, the returned
-        // iterator has the same value as that returned by
-        // 'endBusinessDays(date)'.  The behavior is undefined unless 'date' is
-        // within the valid range of this calendar.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// holiday code for the specified `date` in this calendar.  If there is
+    /// no holiday code associated with `date`, the returned iterator has
+    /// the same value as that returned by `endHolidayCodes(date)`.  The
+    /// behavior is undefined unless `date` is marked as a holiday in this
+    /// calendar.
     HolidayCodeConstIterator beginHolidayCodes(const Date& date) const;
-        // Return an iterator providing non-modifiable access to the first
-        // holiday code for the specified 'date' in this calendar.  If there is
-        // no holiday code associated with 'date', the returned iterator has
-        // the same value as that returned by 'endHolidayCodes(date)'.  The
-        // behavior is undefined unless 'date' is marked as a holiday in this
-        // calendar.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// holiday code for the holiday referenced by the specified `iter`.  If
+    /// there is no holiday code associated with the date referenced by
+    /// `iter`, the returned iterator has the same value as that returned by
+    /// `endHolidayCodes(iter)`.  The behavior is undefined unless `iter`
+    /// refers to a valid holiday of this calendar.
     HolidayCodeConstIterator beginHolidayCodes(
                                        const HolidayConstIterator& iter) const;
-        // Return an iterator providing non-modifiable access to the first
-        // holiday code for the holiday referenced by the specified 'iter'.  If
-        // there is no holiday code associated with the date referenced by
-        // 'iter', the returned iterator has the same value as that returned by
-        // 'endHolidayCodes(iter)'.  The behavior is undefined unless 'iter'
-        // refers to a valid holiday of this calendar.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// holiday in this calendar.  If this calendar has no holidays, the
+    /// returned iterator has the same value as that returned by
+    /// `endHolidays()`.
     HolidayConstIterator beginHolidays() const;
-        // Return an iterator providing non-modifiable access to the first
-        // holiday in this calendar.  If this calendar has no holidays, the
-        // returned iterator has the same value as that returned by
-        // 'endHolidays()'.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// holiday that occurs on or after the specified `date` in this
+    /// calendar.  If this calendar has no such holiday, the returned
+    /// iterator has the same value as that returned by `endHolidays(date)`.
+    /// The behavior is undefined unless `date` is within the valid range
+    /// of this calendar.
     HolidayConstIterator beginHolidays(const Date& date) const;
-        // Return an iterator providing non-modifiable access to the first
-        // holiday that occurs on or after the specified 'date' in this
-        // calendar.  If this calendar has no such holiday, the returned
-        // iterator has the same value as that returned by 'endHolidays(date)'.
-        // The behavior is undefined unless 'date' is within the valid range
-        // of this calendar.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// weekend-days transition in the chronological sequence of
+    /// weekend-days transitions maintained by this calendar.  If this
+    /// calendar has no weekend-days transitions, the returned iterator has
+    /// the same value as that returned by `endWeekendDaysTransitions()`.
     WeekendDaysTransitionConstIterator beginWeekendDaysTransitions() const;
-        // Return an iterator providing non-modifiable access to the first
-        // weekend-days transition in the chronological sequence of
-        // weekend-days transitions maintained by this calendar.  If this
-        // calendar has no weekend-days transitions, the returned iterator has
-        // the same value as that returned by 'endWeekendDaysTransitions()'.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end business day in this calendar.
     BusinessDayConstIterator endBusinessDays() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end business day in this calendar.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// business day that occurs after the specified `date` in this
+    /// calendar.  If this calendar has no such business day, the returned
+    /// iterator has the same value as that returned by
+    /// `endBusinessDays()`.  The behavior is undefined unless `date` is
+    /// within the valid range of this calendar.
     BusinessDayConstIterator endBusinessDays(const Date& date) const;
-        // Return an iterator providing non-modifiable access to the first
-        // business day that occurs after the specified 'date' in this
-        // calendar.  If this calendar has no such business day, the returned
-        // iterator has the same value as that returned by
-        // 'endBusinessDays()'.  The behavior is undefined unless 'date' is
-        // within the valid range of this calendar.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end holiday code associated with the specified `date`.  The
+    /// behavior is undefined unless `date` is marked as a holiday in this
+    /// calendar.
     HolidayCodeConstIterator endHolidayCodes(const Date& date) const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end holiday code associated with the specified 'date'.  The
-        // behavior is undefined unless 'date' is marked as a holiday in this
-        // calendar.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end holiday code associated with the date referenced by
+    /// the specified `iter`.  The behavior is undefined unless `iter`
+    /// references a valid holiday in this calendar.
     HolidayCodeConstIterator
                        endHolidayCodes(const HolidayConstIterator& iter) const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end holiday code associated with the date referenced by
-        // the specified 'iter'.  The behavior is undefined unless 'iter'
-        // references a valid holiday in this calendar.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end holiday in the chronological sequence of holidays
+    /// maintained by this calendar.
     HolidayConstIterator endHolidays() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end holiday in the chronological sequence of holidays
-        // maintained by this calendar.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// holiday that occurs after the specified `date` in this calendar.
+    /// If this calendar has no such holiday, the returned iterator has the
+    /// same value as that returned by `endHolidays()`.  The behavior is
+    /// undefined unless `date` is within the valid range of this calendar.
     HolidayConstIterator endHolidays(const Date& date) const;
-        // Return an iterator providing non-modifiable access to the first
-        // holiday that occurs after the specified 'date' in this calendar.
-        // If this calendar has no such holiday, the returned iterator has the
-        // same value as that returned by 'endHolidays()'.  The behavior is
-        // undefined unless 'date' is within the valid range of this calendar.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end weekend-days transition in the chronological sequence
+    /// of weekend-days transitions maintained by this calendar.
     WeekendDaysTransitionConstIterator endWeekendDaysTransitions() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end weekend-days transition in the chronological sequence
-        // of weekend-days transitions maintained by this calendar.
 
+    /// Return a reference providing non-modifiable access to the earliest
+    /// date in the valid range of this calendar.  The behavior is
+    /// undefined unless this calendar is non-empty -- i.e., unless
+    /// `1 <= length()`.
     const Date& firstDate() const;
-        // Return a reference providing non-modifiable access to the earliest
-        // date in the valid range of this calendar.  The behavior is
-        // undefined unless this calendar is non-empty -- i.e., unless
-        // '1 <= length()'.
 
+    /// Load, into the specified `nextBusinessDay`, the date of the first
+    /// business day in this calendar following the specified `date`.
+    /// Return 0 on success -- i.e., if such a business day exists, and a
+    /// non-zero value (with no effect on `nextBusinessDay`) otherwise.  The
+    /// behavior is undefined unless `date + 1` is both a valid `bdlt::Date`
+    /// and within the valid range of this calendar.
     int getNextBusinessDay(Date *nextBusinessDay, const Date& date) const;
-        // Load, into the specified 'nextBusinessDay', the date of the first
-        // business day in this calendar following the specified 'date'.
-        // Return 0 on success -- i.e., if such a business day exists, and a
-        // non-zero value (with no effect on 'nextBusinessDay') otherwise.  The
-        // behavior is undefined unless 'date + 1' is both a valid 'bdlt::Date'
-        // and within the valid range of this calendar.
 
+    /// Load, into the specified `nextBusinessDay`, the date of the
+    /// specified `nth` business day in this calendar following the
+    /// specified `date`.  Return 0 on success -- i.e., if such a business
+    /// day exists, and a non-zero value (with no effect on
+    /// `nextBusinessDay`) otherwise.  The behavior is undefined unless
+    /// `date + 1` is both a valid `bdlt::Date` and within the valid range
+    /// of this calendar, and `0 < nth`.
     int getNextBusinessDay(Date        *nextBusinessDay,
                            const Date&  date,
                            int          nth) const;
-        // Load, into the specified 'nextBusinessDay', the date of the
-        // specified 'nth' business day in this calendar following the
-        // specified 'date'.  Return 0 on success -- i.e., if such a business
-        // day exists, and a non-zero value (with no effect on
-        // 'nextBusinessDay') otherwise.  The behavior is undefined unless
-        // 'date + 1' is both a valid 'bdlt::Date' and within the valid range
-        // of this calendar, and '0 < nth'.
 
+    /// Return the holiday at the specified `index` in this calendar.  For
+    /// all `index` values from 0 to `numHolidays() - 1` (inclusive), a
+    /// unique holiday is returned.  The mapping of `index` to holiday is
+    /// invalidated when the set of holidays is modified by an invocation of
+    /// `addHoliday`, `addHolidayIfInRange`, `intersectBusinessDays`,
+    /// `intersectNonBusinessDays`, `removeAll`, `removeHoliday`,
+    /// `setValidRange`, `unionBusinessDays`, or `unionNonBusinessDays`.
+    /// The behavior is undefined unless `0 <= index < numHolidays()`.
     bdlt::Date holiday(int index) const;
-        // Return the holiday at the specified 'index' in this calendar.  For
-        // all 'index' values from 0 to 'numHolidays() - 1' (inclusive), a
-        // unique holiday is returned.  The mapping of 'index' to holiday is
-        // invalidated when the set of holidays is modified by an invocation of
-        // 'addHoliday', 'addHolidayIfInRange', 'intersectBusinessDays',
-        // 'intersectNonBusinessDays', 'removeAll', 'removeHoliday',
-        // 'setValidRange', 'unionBusinessDays', or 'unionNonBusinessDays'.
-        // The behavior is undefined unless '0 <= index < numHolidays()'.
 
+    /// Return, for the holiday at the specified `date` in this calendar,
+    /// the holiday code at the specified `index`.  For all `index` values
+    /// from 0 to `numHolidayCodes(date) - 1` (inclusive), a unique holiday
+    /// code is returned.  The mapping of `index` to holiday code is
+    /// invalidated when the set of holidays or holiday codes is modified by
+    /// an invocation of `addHoliday`, `addHolidayCode`,
+    /// `addHolidayCodeIfInRange`, `addHolidayIfInRange`,
+    /// `intersectBusinessDays`, `intersectNonBusinessDays`, `removeAll`,
+    /// `removeHoliday`, `removeHolidayCode`, `setValidRange`,
+    /// `unionBusinessDays`, or `unionNonBusinessDays`.  The behavior is
+    /// undefined unless `date` is a holiday in this calendar and
+    /// `0 <= index < numHolidayCodes(date)`.  Note that this method
+    /// facilitates testing and generally should not be used by clients; in
+    /// particular, using this method to iterate over the holiday codes for
+    /// `date` is less efficient than using a `HolidayCodeConstIterator`.
     int holidayCode(const Date& date, int index) const;
-        // Return, for the holiday at the specified 'date' in this calendar,
-        // the holiday code at the specified 'index'.  For all 'index' values
-        // from 0 to 'numHolidayCodes(date) - 1' (inclusive), a unique holiday
-        // code is returned.  The mapping of 'index' to holiday code is
-        // invalidated when the set of holidays or holiday codes is modified by
-        // an invocation of 'addHoliday', 'addHolidayCode',
-        // 'addHolidayCodeIfInRange', 'addHolidayIfInRange',
-        // 'intersectBusinessDays', 'intersectNonBusinessDays', 'removeAll',
-        // 'removeHoliday', 'removeHolidayCode', 'setValidRange',
-        // 'unionBusinessDays', or 'unionNonBusinessDays'.  The behavior is
-        // undefined unless 'date' is a holiday in this calendar and
-        // '0 <= index < numHolidayCodes(date)'.  Note that this method
-        // facilitates testing and generally should not be used by clients; in
-        // particular, using this method to iterate over the holiday codes for
-        // 'date' is less efficient than using a 'HolidayCodeConstIterator'.
 
+    /// Return `true` if the specified `date` is a business day (i.e., not
+    /// a holiday or weekend day) in this calendar, and `false` otherwise.
+    /// The behavior is undefined unless `date` is within the valid range of
+    /// this calendar.
     bool isBusinessDay(const Date& date) const;
-        // Return 'true' if the specified 'date' is a business day (i.e., not
-        // a holiday or weekend day) in this calendar, and 'false' otherwise.
-        // The behavior is undefined unless 'date' is within the valid range of
-        // this calendar.
 
+    /// Return `true` if the specified `date` is a holiday in this calendar,
+    /// and `false` otherwise.  The behavior is undefined unless `date` is
+    /// within the valid range of this calendar.
     bool isHoliday(const Date& date) const;
-        // Return 'true' if the specified 'date' is a holiday in this calendar,
-        // and 'false' otherwise.  The behavior is undefined unless 'date' is
-        // within the valid range of this calendar.
 
+    /// Return `true` if the specified `date` is within the valid range of
+    /// this calendar (i.e., `firstDate() <= date <= lastDate()`), and
+    /// `false` otherwise.  Note that the valid range for a
+    /// `PackedCalendar` is empty if its length is 0.
     bool isInRange(const Date& date) const;
-        // Return 'true' if the specified 'date' is within the valid range of
-        // this calendar (i.e., 'firstDate() <= date <= lastDate()'), and
-        // 'false' otherwise.  Note that the valid range for a
-        // 'PackedCalendar' is empty if its length is 0.
 
+    /// Return `true` if the specified `date` is not a business day (i.e.,
+    /// is either a holiday or weekend day) in this calendar, and `false`
+    /// otherwise.  The behavior is undefined unless `date` is within the
+    /// valid range of this calendar.  Note that:
+    /// ```
+    /// !isBusinessDay(date)
+    /// ```
+    /// returns the same result.
     bool isNonBusinessDay(const Date& date) const;
-        // Return 'true' if the specified 'date' is not a business day (i.e.,
-        // is either a holiday or weekend day) in this calendar, and 'false'
-        // otherwise.  The behavior is undefined unless 'date' is within the
-        // valid range of this calendar.  Note that:
-        //..
-        //  !isBusinessDay(date)
-        //..
-        // returns the same result.
 
+    /// Return `true` if the specified `date` falls on a day of the week
+    /// that is considered a weekend day in this calendar, and `false`
+    /// otherwise.  Note that this method is defined for all `date` values,
+    /// not just those that fall within the valid range, and may be invoked
+    /// even on an empty calendar (i.e., having `0 == length()`).
     bool isWeekendDay(const Date& date) const;
-        // Return 'true' if the specified 'date' falls on a day of the week
-        // that is considered a weekend day in this calendar, and 'false'
-        // otherwise.  Note that this method is defined for all 'date' values,
-        // not just those that fall within the valid range, and may be invoked
-        // even on an empty calendar (i.e., having '0 == length()').
 
+    /// Return `true` if the specified `dayOfWeek` is a weekend day in this
+    /// calendar, and `false` otherwise.  The behavior is undefined unless
+    /// no weekend-days transitions were added to this calendar via the
+    /// `addWeekendDaysTransition` method.
     bool isWeekendDay(DayOfWeek::Enum dayOfWeek) const;
-        // Return 'true' if the specified 'dayOfWeek' is a weekend day in this
-        // calendar, and 'false' otherwise.  The behavior is undefined unless
-        // no weekend-days transitions were added to this calendar via the
-        // 'addWeekendDaysTransition' method.
 
+    /// Return a reference providing non-modifiable access to the latest
+    /// date in the valid range of this calendar.  The behavior is
+    /// undefined unless this calendar is non-empty -- i.e., unless
+    /// `1 <= length()`.
     const Date& lastDate() const;
-        // Return a reference providing non-modifiable access to the latest
-        // date in the valid range of this calendar.  The behavior is
-        // undefined unless this calendar is non-empty -- i.e., unless
-        // '1 <= length()'.
 
+    /// Return the number of days in the valid range of this calendar,
+    /// which is defined to be 0 if this calendar is empty, and
+    /// `lastDate() - firstDate() + 1` otherwise.
     int length() const;
-        // Return the number of days in the valid range of this calendar,
-        // which is defined to be 0 if this calendar is empty, and
-        // 'lastDate() - firstDate() + 1' otherwise.
 
+    /// Return the number of days in the valid range of this calendar that
+    /// are considered business days -- i.e., are neither holidays nor
+    /// weekend days.  Note that
+    /// `numBusinessDays() == length() - numNonBusinessDays()`.
     int numBusinessDays() const;
-        // Return the number of days in the valid range of this calendar that
-        // are considered business days -- i.e., are neither holidays nor
-        // weekend days.  Note that
-        // 'numBusinessDays() == length() - numNonBusinessDays()'.
 
+    /// Return the number of days in the specified range
+    /// `[beginDate .. endDate]` of this calendar that are considered
+    /// business days -- i.e., are neither holidays nor weekend days.  The
+    /// behavior is undefined unless `beginDate` and `endDate` are within
+    /// the valid range of this calendar, and `beginDate <= endDate`.
     int numBusinessDays(const Date& beginDate, const Date& endDate) const;
-        // Return the number of days in the specified range
-        // '[beginDate .. endDate]' of this calendar that are considered
-        // business days -- i.e., are neither holidays nor weekend days.  The
-        // behavior is undefined unless 'beginDate' and 'endDate' are within
-        // the valid range of this calendar, and 'beginDate <= endDate'.
 
+    /// Return the number of (unique) holiday codes associated with the
+    /// specified `date` in this calendar if `date` is a holiday in this
+    /// calendar, and 0 otherwise.  The behavior is undefined unless `date`
+    /// is within the valid range of this calendar.
     int numHolidayCodes(const Date& date) const;
-        // Return the number of (unique) holiday codes associated with the
-        // specified 'date' in this calendar if 'date' is a holiday in this
-        // calendar, and 0 otherwise.  The behavior is undefined unless 'date'
-        // is within the valid range of this calendar.
 
+    /// Return the total number of holiday codes for all holidays in this
+    /// calendar.  Note that this function is used primarily in conjunction
+    /// with `reserveHolidayCodeCapacity`.
     int numHolidayCodesTotal() const;
-        // Return the total number of holiday codes for all holidays in this
-        // calendar.  Note that this function is used primarily in conjunction
-        // with 'reserveHolidayCodeCapacity'.
 
+    /// Return the number of days in the valid range of this calendar that
+    /// are individually marked as holidays, irrespective of whether or not
+    /// the date is also considered a weekend day.
     int numHolidays() const;
-        // Return the number of days in the valid range of this calendar that
-        // are individually marked as holidays, irrespective of whether or not
-        // the date is also considered a weekend day.
 
+    /// Return the number of days in the valid range of this calendar that
+    /// are *not* considered business days -- i.e., are either holidays,
+    /// weekend days, or both.  Note that
+    /// `numNonBusinessDays() == length() - numBusinessDays()`.
     int numNonBusinessDays() const;
-        // Return the number of days in the valid range of this calendar that
-        // are *not* considered business days -- i.e., are either holidays,
-        // weekend days, or both.  Note that
-        // 'numNonBusinessDays() == length() - numBusinessDays()'.
 
+    /// Return the number of days in the valid range of this calendar that
+    /// are considered weekend days, irrespective of any designated
+    /// holidays.
     int numWeekendDaysInRange() const;
-        // Return the number of days in the valid range of this calendar that
-        // are considered weekend days, irrespective of any designated
-        // holidays.
 
+    /// Return the number of weekend-days transitions maintained by this
+    /// calendar.
     int numWeekendDaysTransitions() const;
-        // Return the number of weekend-days transitions maintained by this
-        // calendar.
 
+    /// Return an iterator providing non-modifiable access to the last
+    /// business day in this calendar.  If this calendar has no valid
+    /// business days, the returned iterator has the same value as that
+    /// returned by `rendBusinessDays()`.
     BusinessDayConstReverseIterator rbeginBusinessDays() const;
-        // Return an iterator providing non-modifiable access to the last
-        // business day in this calendar.  If this calendar has no valid
-        // business days, the returned iterator has the same value as that
-        // returned by 'rendBusinessDays()'.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// business day that occurs on or before the specified `date` in this
+    /// calendar.  If this calendar has no such business day, the returned
+    /// iterator has the same value as that returned by
+    /// `rendBusinessDays(date)`.  The behavior is undefined unless `date`
+    /// is within the valid range of this calendar.
     BusinessDayConstReverseIterator rbeginBusinessDays(const Date& date) const;
-        // Return an iterator providing non-modifiable access to the first
-        // business day that occurs on or before the specified 'date' in this
-        // calendar.  If this calendar has no such business day, the returned
-        // iterator has the same value as that returned by
-        // 'rendBusinessDays(date)'.  The behavior is undefined unless 'date'
-        // is within the valid range of this calendar.
 
+    /// Return an iterator providing non-modifiable access to the last
+    /// holiday code associated with the specified `date` in this calendar.
+    /// If there are no holiday codes associated with `date`, the returned
+    /// iterator has the same value as that returned by
+    /// `rendHolidayCodes(date)`.  The behavior is undefined unless `date`
+    /// is marked as a holiday in this calendar.
     HolidayCodeConstReverseIterator rbeginHolidayCodes(const Date& date) const;
-        // Return an iterator providing non-modifiable access to the last
-        // holiday code associated with the specified 'date' in this calendar.
-        // If there are no holiday codes associated with 'date', the returned
-        // iterator has the same value as that returned by
-        // 'rendHolidayCodes(date)'.  The behavior is undefined unless 'date'
-        // is marked as a holiday in this calendar.
 
+    /// Return an iterator providing non-modifiable access to the last
+    /// holiday code associated with the holiday referenced by the specified
+    /// `iter`.  If there are no holiday codes associated with the date
+    /// referenced by `iter`, the returned iterator has the same value as
+    /// that returned by `rendHolidayCodes(iter)`.  The behavior is
+    /// undefined unless `iter` refers to a valid holiday of this calendar.
     HolidayCodeConstReverseIterator
                     rbeginHolidayCodes(const HolidayConstIterator& iter) const;
-        // Return an iterator providing non-modifiable access to the last
-        // holiday code associated with the holiday referenced by the specified
-        // 'iter'.  If there are no holiday codes associated with the date
-        // referenced by 'iter', the returned iterator has the same value as
-        // that returned by 'rendHolidayCodes(iter)'.  The behavior is
-        // undefined unless 'iter' refers to a valid holiday of this calendar.
 
+    /// Return an iterator providing non-modifiable access to the last
+    /// holiday in this calendar.  If this calendar has no holidays, the
+    /// returned iterator has the same value as that returned by
+    /// `rendHolidays()`.
     HolidayConstReverseIterator rbeginHolidays() const;
-        // Return an iterator providing non-modifiable access to the last
-        // holiday in this calendar.  If this calendar has no holidays, the
-        // returned iterator has the same value as that returned by
-        // 'rendHolidays()'.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// holiday that occurs on or before the specified `date` in this
+    /// calendar.  If this calendar has no such holiday, the returned
+    /// iterator has the same value as that returned by
+    /// `rendHolidays(date)`.  The behavior is undefined unless `date` is
+    /// within the valid range of this calendar.
     HolidayConstReverseIterator rbeginHolidays(const Date& date) const;
-        // Return an iterator providing non-modifiable access to the first
-        // holiday that occurs on or before the specified 'date' in this
-        // calendar.  If this calendar has no such holiday, the returned
-        // iterator has the same value as that returned by
-        // 'rendHolidays(date)'.  The behavior is undefined unless 'date' is
-        // within the valid range of this calendar.
 
+    /// Return an iterator providing non-modifiable access to the last
+    /// weekend-days transition in the chronological sequence of
+    /// weekend-days transitions maintained by this calendar.  If this
+    /// calendar has no weekend-days transitions, the returned iterator has
+    /// the same value as that returned by `rendWeekendDaysTransitions()`.
     WeekendDaysTransitionConstReverseIterator
                                           rbeginWeekendDaysTransitions() const;
-        // Return an iterator providing non-modifiable access to the last
-        // weekend-days transition in the chronological sequence of
-        // weekend-days transitions maintained by this calendar.  If this
-        // calendar has no weekend-days transitions, the returned iterator has
-        // the same value as that returned by 'rendWeekendDaysTransitions()'.
 
+    /// Return an iterator providing non-modifiable access to the element
+    /// one before the first business day in this calendar.
     BusinessDayConstReverseIterator rendBusinessDays() const;
-        // Return an iterator providing non-modifiable access to the element
-        // one before the first business day in this calendar.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// business day that occurs before the specified `date` in this
+    /// calendar.  If this calendar has no such business day, the returned
+    /// iterator has the same value as that returned by
+    /// `rendBusinessDays()`.  The behavior is undefined unless `date` is
+    /// within the valid range of this calendar.
     BusinessDayConstReverseIterator rendBusinessDays(const Date& date) const;
-        // Return an iterator providing non-modifiable access to the first
-        // business day that occurs before the specified 'date' in this
-        // calendar.  If this calendar has no such business day, the returned
-        // iterator has the same value as that returned by
-        // 'rendBusinessDays()'.  The behavior is undefined unless 'date' is
-        // within the valid range of this calendar.
 
+    /// Return an iterator providing non-modifiable access to the element
+    /// one before the first holiday code associated with the specified
+    /// `date`.  The behavior is undefined unless `date` is marked as a
+    /// holiday in this calendar.
     HolidayCodeConstReverseIterator rendHolidayCodes(const Date& date) const;
-        // Return an iterator providing non-modifiable access to the element
-        // one before the first holiday code associated with the specified
-        // 'date'.  The behavior is undefined unless 'date' is marked as a
-        // holiday in this calendar.
 
+    /// Return an iterator providing non-modifiable access to the element
+    /// one before the first holiday code associated with the holiday
+    /// referenced by the specified `iter`.  The behavior is undefined
+    /// unless `iter` references a valid holiday in this calendar.
     HolidayCodeConstReverseIterator
                       rendHolidayCodes(const HolidayConstIterator& iter) const;
-        // Return an iterator providing non-modifiable access to the element
-        // one before the first holiday code associated with the holiday
-        // referenced by the specified 'iter'.  The behavior is undefined
-        // unless 'iter' references a valid holiday in this calendar.
 
+    /// Return an iterator providing non-modifiable access to the element
+    /// one before the first holiday in this calendar.
     HolidayConstReverseIterator rendHolidays() const;
-        // Return an iterator providing non-modifiable access to the element
-        // one before the first holiday in this calendar.
 
+    /// Return an iterator providing non-modifiable access to the first
+    /// holiday that occurs before the specified `date` in this calendar.
+    /// If this calendar has no such holiday, the returned iterator has the
+    /// same value as that returned by `rendHolidays()`.  The behavior is
+    /// undefined unless `date` is within the valid range of this calendar.
     HolidayConstReverseIterator rendHolidays(const Date& date) const;
-        // Return an iterator providing non-modifiable access to the first
-        // holiday that occurs before the specified 'date' in this calendar.
-        // If this calendar has no such holiday, the returned iterator has the
-        // same value as that returned by 'rendHolidays()'.  The behavior is
-        // undefined unless 'date' is within the valid range of this calendar.
 
+    /// Return an iterator providing non-modifiable access to the element
+    /// one before the first weekend-days transition in the chronological
+    /// sequence of weekend-days transitions maintained by this calendar.
     WeekendDaysTransitionConstReverseIterator
                                             rendWeekendDaysTransitions() const;
-        // Return an iterator providing non-modifiable access to the element
-        // one before the first weekend-days transition in the chronological
-        // sequence of weekend-days transitions maintained by this calendar.
 
+    /// Return the weekend-days transition at the specified `index` in this
+    /// calendar.  For all `index` values from 0 to
+    /// `numWeekendDaysTransitions() - 1` (inclusive), a unique weekend-days
+    /// transition is returned.  The mapping of `index` to weekend-days
+    /// transition is invalidated when the set of weekend-days transitions
+    /// is modified by an invocation of `addWeekendDay`, `addWeekendDays`,
+    /// `addWeekendDaysTransition`, `intersectBusinessDays`,
+    /// `intersectNonBusinessDays`, `removeAll`, `unionBusinessDays`, or
+    /// `unionNonBusinessDays`.  The behavior is undefined unless
+    /// `0 <= index < numWeekendDaysTransitions()`.
     WeekendDaysTransition weekendDaysTransition(int index) const;
-        // Return the weekend-days transition at the specified 'index' in this
-        // calendar.  For all 'index' values from 0 to
-        // 'numWeekendDaysTransitions() - 1' (inclusive), a unique weekend-days
-        // transition is returned.  The mapping of 'index' to weekend-days
-        // transition is invalidated when the set of weekend-days transitions
-        // is modified by an invocation of 'addWeekendDay', 'addWeekendDays',
-        // 'addWeekendDaysTransition', 'intersectBusinessDays',
-        // 'intersectNonBusinessDays', 'removeAll', 'unionBusinessDays', or
-        // 'unionNonBusinessDays'.  The behavior is undefined unless
-        // '0 <= index < numWeekendDaysTransitions()'.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 
+    /// Write this value to the specified output `stream` using the
+    /// specified `version` format and return a reference to the modifiable
+    /// `stream`.  If `version` is not supported, `stream` is unmodified.
+    /// Note that `version` is not written to `stream`.  See the `bslx`
+    /// package-level documentation for more information on BDEX streaming
+    /// of value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the modifiable
-        // 'stream'.  If 'version' is not supported, 'stream' is unmodified.
-        // Note that 'version' is not written to 'stream'.  See the 'bslx'
-        // package-level documentation for more information on BDEX streaming
-        // of value-semantic types and containers.
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level` and return a
+    /// reference to the modifiable `stream`.  If `level` is specified,
+    /// optionally specify `spacesPerLevel`, the number of spaces per
+    /// indentation level for this and all of its nested objects.  If
+    /// `level` is negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, format the entire output on one line,
+    /// suppressing all but the initial indentation (as governed by
+    /// `level`).  If `stream` is not valid on entry, this operation has no
+    /// effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level' and return a
-        // reference to the modifiable 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
     // DEPRECATED METHODS
+
+    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
+    ///
+    /// Return the most current BDEX streaming version number supported by
+    /// this class.
     static int maxSupportedBdexVersion();
-        // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
-        //
-        // Return the most current BDEX streaming version number supported by
-        // this class.
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` calendars have the same
+/// value, and `false` otherwise.  Two calendars have the same value if they
+/// have the same valid range (or are both empty), the same weekend days,
+/// the same holidays, and each corresponding pair of holidays has the same
+/// (ordered) set of associated holiday codes.
 bool operator==(const PackedCalendar& lhs, const PackedCalendar& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' calendars have the same
-    // value, and 'false' otherwise.  Two calendars have the same value if they
-    // have the same valid range (or are both empty), the same weekend days,
-    // the same holidays, and each corresponding pair of holidays has the same
-    // (ordered) set of associated holiday codes.
 
+/// Return `true` if the specified `lhs` and `rhs` calendars do not have the
+/// same value, and `false` otherwise.  Two calendars do not have the same
+/// value if they do not have the same valid range (and are not both empty),
+/// do not have the same weekend days, do not have the same holidays, or,
+/// for at least one corresponding pair of holidays, do not have the same
+/// (ordered) set of associated holiday codes.
 bool operator!=(const PackedCalendar& lhs, const PackedCalendar& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' calendars do not have the
-    // same value, and 'false' otherwise.  Two calendars do not have the same
-    // value if they do not have the same valid range (and are not both empty),
-    // do not have the same weekend days, do not have the same holidays, or,
-    // for at least one corresponding pair of holidays, do not have the same
-    // (ordered) set of associated holiday codes.
 
+/// Write the value of the specified `calendar` to the specified output
+/// `stream`, and return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream&         stream,
                          const PackedCalendar& calendar);
-    // Write the value of the specified 'calendar' to the specified output
-    // 'stream', and return a reference to the modifiable 'stream'.
 
 // FREE FUNCTIONS
+
+/// Pass the specified `object` to the specified `hashAlg`.  This function
+/// integrates with the `bslh` modular hashing system and effectively
+/// provides a `bsl::hash` specialization for `PackedCalendar`.
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const PackedCalendar& object);
-    // Pass the specified 'object' to the specified 'hashAlg'.  This function
-    // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for 'PackedCalendar'.
 
+/// Exchange the values of the specified `a` and `b` objects.  This function
+/// provides the no-throw exception-safety guarantee if the two objects were
+/// created with the same allocator and the basic guarantee otherwise.
 void swap(PackedCalendar& a, PackedCalendar& b);
-    // Exchange the values of the specified 'a' and 'b' objects.  This function
-    // provides the no-throw exception-safety guarantee if the two objects were
-    // created with the same allocator and the basic guarantee otherwise.
 
                        // ==============================
                        // class PackedCalendar_DateProxy
                        // ==============================
 
+/// This class serves as a proxy for `Date` for use by the arrow operator of
+/// calendar iterators (e.g., `PackedCalendar_HolidayConstIterator`).  An
+/// object of this class behaves as the `Date` object with which it was
+/// constructed.
 class PackedCalendar_DateProxy {
-    // This class serves as a proxy for 'Date' for use by the arrow operator of
-    // calendar iterators (e.g., 'PackedCalendar_HolidayConstIterator').  An
-    // object of this class behaves as the 'Date' object with which it was
-    // constructed.
 
     // DATA
     Date d_date;  // proxied date
@@ -1380,30 +1390,32 @@ class PackedCalendar_DateProxy {
 
   public:
     // CREATORS
+
+    /// Create a proxy object for the specified `date`.
     PackedCalendar_DateProxy(const Date& date);                     // IMPLICIT
-        // Create a proxy object for the specified 'date'.
 
+    /// Destroy this object.
     ~PackedCalendar_DateProxy();
-        // Destroy this object.
 
+    /// Create a proxy object referencing the same `Date` value as the
+    /// specified `original` proxy.
     PackedCalendar_DateProxy(const PackedCalendar_DateProxy& original);
-        // Create a proxy object referencing the same 'Date' value as the
-        // specified 'original' proxy.
 
     // ACCESSORS
+
+    /// Return the address providing non-modifiable access to the proxied
+    /// date object.
     const Date *operator->() const;
-        // Return the address providing non-modifiable access to the proxied
-        // date object.
 };
 
                       // ============================
                       // class PackedCalendar_DateRef
                       // ============================
 
+/// This private class is used by the arrow operator of the holiday
+/// iterator and business day iterator classes.  The objects instantiated
+/// from this class serve as references to `Date` objects.
 class PackedCalendar_DateRef : public Date {
-    // This private class is used by the arrow operator of the holiday
-    // iterator and business day iterator classes.  The objects instantiated
-    // from this class serve as references to 'Date' objects.
 
   private:
     // NOT IMPLEMENTED
@@ -1411,31 +1423,33 @@ class PackedCalendar_DateRef : public Date {
 
   public:
     // CREATORS
+
+    /// Create a date reference object using the specified `date`.
     explicit PackedCalendar_DateRef(const Date& date);
-        // Create a date reference object using the specified 'date'.
 
+    /// Create a date reference object having the value of the specified
+    /// `original` object.
     PackedCalendar_DateRef(const PackedCalendar_DateRef& original);
-        // Create a date reference object having the value of the specified
-        // 'original' object.
 
+    /// Destroy this object.
     ~PackedCalendar_DateRef();
-        // Destroy this object.
 
     // ACCESSORS
+
+    /// Return a proxy object to this object's referenced date.
     PackedCalendar_DateProxy operator&() const;
-        // Return a proxy object to this object's referenced date.
 };
 
                   // =========================================
                   // class PackedCalendar_HolidayConstIterator
                   // =========================================
 
+/// Provide read-only, sequential access in increasing (chronological) order
+/// to the holidays in a `PackedCalendar` object.  This class owns an
+/// iterator into the `bdlc::PackedIntArray` storing the holiday offsets of
+/// the referenced `bdlt::PackedCalendar` and a date, `d_firstDate`, to
+/// convert the offsets into dates corresponding to holidays.
 class PackedCalendar_HolidayConstIterator {
-    // Provide read-only, sequential access in increasing (chronological) order
-    // to the holidays in a 'PackedCalendar' object.  This class owns an
-    // iterator into the 'bdlc::PackedIntArray' storing the holiday offsets of
-    // the referenced 'bdlt::PackedCalendar' and a date, 'd_firstDate', to
-    // convert the offsets into dates corresponding to holidays.
 
     // DATA
     bdlc::PackedIntArray<int>::const_iterator d_iterator;   // array's iterator
@@ -1454,18 +1468,20 @@ class PackedCalendar_HolidayConstIterator {
     typedef bdlc::PackedIntArray<int>::const_iterator OffsetsConstIterator;
 
     // PRIVATE CREATORS
+
+    /// Create a holiday iterator using the specified `iter` and
+    /// `firstDate`.
     PackedCalendar_HolidayConstIterator(const OffsetsConstIterator& iter,
                                         const Date                  firstDate);
-        // Create a holiday iterator using the specified 'iter' and
-        // 'firstDate'.
 
   public:
     // TYPES
     typedef Date                     value_type;
     typedef int                      difference_type;
     typedef PackedCalendar_DateProxy pointer;
+
+    /// The star operator returns a `PackedCalendar_DateRef` *by* *value*.
     typedef PackedCalendar_DateRef   reference;
-        // The star operator returns a 'PackedCalendar_DateRef' *by* *value*.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
 
@@ -1475,77 +1491,81 @@ class PackedCalendar_HolidayConstIterator {
 
 
     // CREATORS
+
+    /// Create an iterator having the value of the specified `original`
+    /// iterator.
     PackedCalendar_HolidayConstIterator(
                           const PackedCalendar_HolidayConstIterator& original);
-        // Create an iterator having the value of the specified 'original'
-        // iterator.
 
+    /// Destroy this object.
     ~PackedCalendar_HolidayConstIterator();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this iterator the value of the specified `rhs` iterator,
+    /// and return a reference providing modifiable access to this object.
     PackedCalendar_HolidayConstIterator& operator=(
                                const PackedCalendar_HolidayConstIterator& rhs);
-        // Assign to this iterator the value of the specified 'rhs' iterator,
-        // and return a reference providing modifiable access to this object.
 
+    /// Advance this iterator to refer to the next holiday in the calendar,
+    /// and return a reference providing modifiable access to this object.
+    /// The behavior is undefined unless, on entry, this iterator
+    /// references a valid holiday.
     PackedCalendar_HolidayConstIterator& operator++();
-        // Advance this iterator to refer to the next holiday in the calendar,
-        // and return a reference providing modifiable access to this object.
-        // The behavior is undefined unless, on entry, this iterator
-        // references a valid holiday.
 
+    /// Regress this iterator to refer to the previous holiday in the
+    /// calendar, and return a reference providing modifiable access to this
+    /// object.  The behavior is undefined unless, on entry, this iterator
+    /// references a valid holiday that is not the first holiday in the
+    /// associated calendar.
     PackedCalendar_HolidayConstIterator& operator--();
-        // Regress this iterator to refer to the previous holiday in the
-        // calendar, and return a reference providing modifiable access to this
-        // object.  The behavior is undefined unless, on entry, this iterator
-        // references a valid holiday that is not the first holiday in the
-        // associated calendar.
 
     // ACCESSORS
-    PackedCalendar_DateRef operator*() const;
-        // Return a 'PackedCalendar_DateRef' object that contains the date
-        // value of the holiday referenced by this iterator.
 
+    /// Return a `PackedCalendar_DateRef` object that contains the date
+    /// value of the holiday referenced by this iterator.
+    PackedCalendar_DateRef operator*() const;
+
+    /// Return a date proxy for the holiday referenced by this iterator.
     PackedCalendar_DateProxy operator->() const;
-        // Return a date proxy for the holiday referenced by this iterator.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` iterators refer to the
+/// same element in the same calendar, and `false` otherwise.  The behavior
+/// is undefined unless `lhs` and `rhs` both iterate over the same calendar.
 bool operator==(const PackedCalendar_HolidayConstIterator& lhs,
                 const PackedCalendar_HolidayConstIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators refer to the
-    // same element in the same calendar, and 'false' otherwise.  The behavior
-    // is undefined unless 'lhs' and 'rhs' both iterate over the same calendar.
 
+/// Return `true` if the specified `lhs` and `rhs` iterators do not refer to
+/// the same element in the same calendar, and `false` otherwise.  The
+/// behavior is undefined unless `lhs` and `rhs` both iterate over the same
+/// calendar.
 bool operator!=(const PackedCalendar_HolidayConstIterator& lhs,
                 const PackedCalendar_HolidayConstIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators do not refer to
-    // the same element in the same calendar, and 'false' otherwise.  The
-    // behavior is undefined unless 'lhs' and 'rhs' both iterate over the same
-    // calendar.
 
+/// Advance the specified `iterator` to refer to the next holiday in the
+/// associated calendar, and return the previous value of `iterator`.  The
+/// behavior is undefined unless, on entry, `iterator` references a valid
+/// holiday.
 PackedCalendar_HolidayConstIterator
                 operator++(PackedCalendar_HolidayConstIterator& iterator, int);
-    // Advance the specified 'iterator' to refer to the next holiday in the
-    // associated calendar, and return the previous value of 'iterator'.  The
-    // behavior is undefined unless, on entry, 'iterator' references a valid
-    // holiday.
 
+/// Regress the specified `iterator` to refer to the previous holiday in the
+/// associated calendar, and return the previous value of `iterator`.  The
+/// behavior is undefined unless, on entry, `iterator` references a valid
+/// holiday that is not the first holiday in the associated calendar.
 PackedCalendar_HolidayConstIterator
                 operator--(PackedCalendar_HolidayConstIterator& iterator, int);
-    // Regress the specified 'iterator' to refer to the previous holiday in the
-    // associated calendar, and return the previous value of 'iterator'.  The
-    // behavior is undefined unless, on entry, 'iterator' references a valid
-    // holiday that is not the first holiday in the associated calendar.
 
                // =============================================
                // class PackedCalendar_HolidayCodeConstIterator
                // =============================================
 
+/// Provide read-only, sequential access in increasing (numerical) order to
+/// the holiday codes in a `PackedCalendar` object.
 class PackedCalendar_HolidayCodeConstIterator {
-    // Provide read-only, sequential access in increasing (numerical) order to
-    // the holiday codes in a 'PackedCalendar' object.
 
     // DATA
     bdlc::PackedIntArray<int>::const_iterator d_iterator;  // array's iterator
@@ -1575,8 +1595,9 @@ class PackedCalendar_HolidayCodeConstIterator {
     typedef int  value_type;
     typedef int  difference_type;
     typedef int *pointer;
+
+    /// The star operator returns an `int` *by* *value*.
     typedef int  reference;
-        // The star operator returns an 'int' *by* *value*.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
 
@@ -1585,82 +1606,86 @@ class PackedCalendar_HolidayCodeConstIterator {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
 
     // CREATORS
+
+    /// Create an object having the value of the specified `original`
+    /// iterator.
     PackedCalendar_HolidayCodeConstIterator(
                       const PackedCalendar_HolidayCodeConstIterator& original);
-        // Create an object having the value of the specified 'original'
-        // iterator.
 
+    /// Destroy this object.
     ~PackedCalendar_HolidayCodeConstIterator();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` iterator, and
+    /// return a reference providing modifiable access to this object.
     PackedCalendar_HolidayCodeConstIterator& operator=(
                            const PackedCalendar_HolidayCodeConstIterator& rhs);
-        // Assign to this object the value of the specified 'rhs' iterator, and
-        // return a reference providing modifiable access to this object.
 
+    /// Advance this iterator to refer to the next holiday code for the
+    /// associated date in the associated calendar, and return a reference
+    /// providing modifiable access to this object.  The behavior is
+    /// undefined unless, on entry, this iterator references a valid
+    /// holiday code.
     PackedCalendar_HolidayCodeConstIterator& operator++();
-        // Advance this iterator to refer to the next holiday code for the
-        // associated date in the associated calendar, and return a reference
-        // providing modifiable access to this object.  The behavior is
-        // undefined unless, on entry, this iterator references a valid
-        // holiday code.
 
+    /// Regress this iterator to refer to the previous holiday code for the
+    /// associated date in the associated calendar, and return a reference
+    /// providing modifiable access to this object.  The behavior is
+    /// undefined unless, on entry, this iterator references a valid
+    /// holiday code that is not the first holiday code for the associated
+    /// date in the calendar.
     PackedCalendar_HolidayCodeConstIterator& operator--();
-        // Regress this iterator to refer to the previous holiday code for the
-        // associated date in the associated calendar, and return a reference
-        // providing modifiable access to this object.  The behavior is
-        // undefined unless, on entry, this iterator references a valid
-        // holiday code that is not the first holiday code for the associated
-        // date in the calendar.
 
     // ACCESSORS
+
+    /// Return the holiday code referenced by this iterator.
     int operator*() const;
-        // Return the holiday code referenced by this iterator.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` iterators refers to the
+/// same element, and `false` otherwise.  The behavior is undefined unless
+/// `lhs` and `rhs` both reference the same holiday in the same calendar.
 bool operator==(const PackedCalendar_HolidayCodeConstIterator& lhs,
                 const PackedCalendar_HolidayCodeConstIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators refers to the
-    // same element, and 'false' otherwise.  The behavior is undefined unless
-    // 'lhs' and 'rhs' both reference the same holiday in the same calendar.
 
+/// Return `true` if the specified `lhs` and `rhs` iterators do not refer to
+/// the same element, and `false` otherwise.  The behavior is undefined
+/// unless `lhs` and `rhs` both reference the same holiday in the same
+/// calendar.
 bool operator!=(const PackedCalendar_HolidayCodeConstIterator& lhs,
                 const PackedCalendar_HolidayCodeConstIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators do not refer to
-    // the same element, and 'false' otherwise.  The behavior is undefined
-    // unless 'lhs' and 'rhs' both reference the same holiday in the same
-    // calendar.
 
+/// Advance the specified `iterator` to refer to the next holiday code for
+/// the associated date in the associated calendar, and return the previous
+/// value of `iterator`.  The behavior is undefined unless, on entry,
+/// `iterator` references a valid holiday code.
 PackedCalendar_HolidayCodeConstIterator
             operator++(PackedCalendar_HolidayCodeConstIterator& iterator, int);
-    // Advance the specified 'iterator' to refer to the next holiday code for
-    // the associated date in the associated calendar, and return the previous
-    // value of 'iterator'.  The behavior is undefined unless, on entry,
-    // 'iterator' references a valid holiday code.
 
+/// Regress the specified `iterator` to refer to the previous holiday code
+/// for the associated date in the associated calendar, and return the
+/// previous value of `iterator`.  The behavior is undefined unless, on
+/// entry, `iterator` references a valid holiday code that is not the first
+/// holiday code for the associated date in the calendar.
 PackedCalendar_HolidayCodeConstIterator
             operator--(PackedCalendar_HolidayCodeConstIterator& iterator, int);
-    // Regress the specified 'iterator' to refer to the previous holiday code
-    // for the associated date in the associated calendar, and return the
-    // previous value of 'iterator'.  The behavior is undefined unless, on
-    // entry, 'iterator' references a valid holiday code that is not the first
-    // holiday code for the associated date in the calendar.
 
+/// Return the number of elements between specified `lhs` and `rhs`.  The
+/// behavior is undefined unless `lhs` and `rhs` refer to codes associated
+/// with the same holiday in the same calendar.
 bsl::ptrdiff_t operator-(const PackedCalendar_HolidayCodeConstIterator& lhs,
                          const PackedCalendar_HolidayCodeConstIterator& rhs);
-    // Return the number of elements between specified 'lhs' and 'rhs'.  The
-    // behavior is undefined unless 'lhs' and 'rhs' refer to codes associated
-    // with the same holiday in the same calendar.
 
               // =============================================
               // class PackedCalendar_BusinessDayConstIterator
               // =============================================
 
+/// Provide read-only, sequential access in increasing (chronological) order
+/// to the business days in a `PackedCalendar` object.
 class PackedCalendar_BusinessDayConstIterator {
-    // Provide read-only, sequential access in increasing (chronological) order
-    // to the business days in a 'PackedCalendar' object.
 
     // DATA
     bdlc::PackedIntArray<int>::const_iterator  d_offsetIter;
@@ -1692,33 +1717,36 @@ class PackedCalendar_BusinessDayConstIterator {
     typedef bdlc::PackedIntArray<int>::const_iterator OffsetsConstIterator;
 
     // PRIVATE CREATORS
+
+    /// Create a business day iterator for the specified `calendar`.  If the
+    /// specified `endIterFlag` is `false`, then this iterator references
+    /// the first business day on or after the specified `startDate`;
+    /// otherwise, this iterator references one business day *past* the
+    /// first business day on or after `startDate`.  If no business day
+    /// matching the above specification exists, then this iterator will
+    /// reference one day past the end of its range.
     PackedCalendar_BusinessDayConstIterator(const PackedCalendar& calendar,
                                             const Date&           startDate,
                                             bool                  endIterFlag);
-        // Create a business day iterator for the specified 'calendar'.  If the
-        // specified 'endIterFlag' is 'false', then this iterator references
-        // the first business day on or after the specified 'startDate';
-        // otherwise, this iterator references one business day *past* the
-        // first business day on or after 'startDate'.  If no business day
-        // matching the above specification exists, then this iterator will
-        // reference one day past the end of its range.
 
     // PRIVATE MANIPULATORS
-    void nextBusinessDay();
-        // Advance this iterator to the next business day.  The behavior is
-        // undefined unless 'false == d_endFlag'.
 
+    /// Advance this iterator to the next business day.  The behavior is
+    /// undefined unless `false == d_endFlag`.
+    void nextBusinessDay();
+
+    /// Regress this iterator to the previous business day.  The behavior is
+    /// undefined unless `*this != d_calendar_p->beginBusinessDays()`.
     void previousBusinessDay();
-        // Regress this iterator to the previous business day.  The behavior is
-        // undefined unless '*this != d_calendar_p->beginBusinessDays()'.
 
   public:
     // TYPES
     typedef Date                     value_type;
     typedef int                      difference_type;
     typedef PackedCalendar_DateProxy pointer;
+
+    /// The star operator returns a `PackedCalendar_DateRef` *by* *value*.
     typedef PackedCalendar_DateRef   reference;
-        // The star operator returns a 'PackedCalendar_DateRef' *by* *value*.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
 
@@ -1727,71 +1755,75 @@ class PackedCalendar_BusinessDayConstIterator {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
 
     // CREATORS
+
+    /// Create an iterator having the value of the specified `original`
+    /// iterator.
     PackedCalendar_BusinessDayConstIterator(
                       const PackedCalendar_BusinessDayConstIterator& original);
-        // Create an iterator having the value of the specified 'original'
-        // iterator.
 
+    /// Destroy this object.
     ~PackedCalendar_BusinessDayConstIterator();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this iterator the value of the specified `rhs` iterator,
+    /// and return a reference providing modifiable access to this object.
     PackedCalendar_BusinessDayConstIterator& operator=(
                            const PackedCalendar_BusinessDayConstIterator& rhs);
-        // Assign to this iterator the value of the specified 'rhs' iterator,
-        // and return a reference providing modifiable access to this object.
 
+    /// Advance this iterator to refer to the next business day in the
+    /// associated calendar, and return a reference providing modifiable
+    /// access to this object.  The behavior is undefined unless, on entry,
+    /// this iterator references a valid business day.
     PackedCalendar_BusinessDayConstIterator& operator++();
-        // Advance this iterator to refer to the next business day in the
-        // associated calendar, and return a reference providing modifiable
-        // access to this object.  The behavior is undefined unless, on entry,
-        // this iterator references a valid business day.
 
+    /// Regress this iterator to refer to the previous business day in the
+    /// associated calendar, and return a reference providing modifiable
+    /// access to this object.  The behavior is undefined unless, on entry,
+    /// this iterator references a valid business day that is not the first
+    /// business day for the associated calendar.
     PackedCalendar_BusinessDayConstIterator& operator--();
-        // Regress this iterator to refer to the previous business day in the
-        // associated calendar, and return a reference providing modifiable
-        // access to this object.  The behavior is undefined unless, on entry,
-        // this iterator references a valid business day that is not the first
-        // business day for the associated calendar.
 
     // ACCESSORS
-    PackedCalendar_DateRef operator*() const;
-        // Return a 'PackedCalendar_DateRef' object that contains the date
-        // value of the business day referenced by this iterator.
 
+    /// Return a `PackedCalendar_DateRef` object that contains the date
+    /// value of the business day referenced by this iterator.
+    PackedCalendar_DateRef operator*() const;
+
+    /// Return a date proxy for the business day referenced by this
+    /// iterator.
     PackedCalendar_DateProxy operator->() const;
-        // Return a date proxy for the business day referenced by this
-        // iterator.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` iterators refer to the
+/// same element in the same calendar, and `false` otherwise.  The behavior
+/// is undefined unless `lhs` and `rhs` both iterate over the same calendar.
 bool operator==(const PackedCalendar_BusinessDayConstIterator& lhs,
                 const PackedCalendar_BusinessDayConstIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators refer to the
-    // same element in the same calendar, and 'false' otherwise.  The behavior
-    // is undefined unless 'lhs' and 'rhs' both iterate over the same calendar.
 
+/// Return `true` if the specified `lhs` and `rhs` iterators do not refer to
+/// the same element in the same calendar, and `false` otherwise.  The
+/// behavior is undefined unless `lhs` and `rhs` both iterate over the same
+/// calendar.
 bool operator!=(const PackedCalendar_BusinessDayConstIterator& lhs,
                 const PackedCalendar_BusinessDayConstIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators do not refer to
-    // the same element in the same calendar, and 'false' otherwise.  The
-    // behavior is undefined unless 'lhs' and 'rhs' both iterate over the same
-    // calendar.
 
+/// Advance the specified `iterator` to refer to the next business day in
+/// the associated calendar, and return the previous value of `iterator`.
+/// The behavior is undefined unless, on entry, `iterator` references a
+/// valid business day.
 PackedCalendar_BusinessDayConstIterator operator++(
                        PackedCalendar_BusinessDayConstIterator& iterator, int);
-    // Advance the specified 'iterator' to refer to the next business day in
-    // the associated calendar, and return the previous value of 'iterator'.
-    // The behavior is undefined unless, on entry, 'iterator' references a
-    // valid business day.
 
+/// Regress the specified `iterator` to refer to the previous business day
+/// in the associated calendar, and return the previous value of `iterator`.
+/// The behavior is undefined unless, on entry, `iterator` references a
+/// valid business day that is not the first business day for the associated
+/// calendar.
 PackedCalendar_BusinessDayConstIterator operator--(
                        PackedCalendar_BusinessDayConstIterator& iterator, int);
-    // Regress the specified 'iterator' to refer to the previous business day
-    // in the associated calendar, and return the previous value of 'iterator'.
-    // The behavior is undefined unless, on entry, 'iterator' references a
-    // valid business day that is not the first business day for the associated
-    // calendar.
 
 // ============================================================================
 //                          INLINE DEFINITIONS

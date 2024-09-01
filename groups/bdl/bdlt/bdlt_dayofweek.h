@@ -10,22 +10,22 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::DayOfWeek: namespace for day-of-week enumeration (and its operations)
 //
-//@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'bdlt::DayOfWeek::Enum', which enumerates the set of days of the week.
+//@DESCRIPTION: This component provides a namespace for the `enum` type
+// `bdlt::DayOfWeek::Enum`, which enumerates the set of days of the week.
 //
 ///Enumerators
 ///-----------
-//..
-//  Long Name      Short Name   Description
-//  -----------    ----------   -----------
-//  e_SUNDAY       e_SUN        Sunday
-//  e_MONDAY       e_MON        Monday
-//  e_TUESDAY      e_TUE        Tuesday
-//  e_WEDNESDAY    e_WED        Wednesday
-//  e_THURSDAY     e_THU        Thursday
-//  e_FRIDAY       e_FRI        Friday
-//  e_SATURDAY     e_SAT        Saturday
-//..
+// ```
+// Long Name      Short Name   Description
+// -----------    ----------   -----------
+// e_SUNDAY       e_SUN        Sunday
+// e_MONDAY       e_MON        Monday
+// e_TUESDAY      e_TUE        Tuesday
+// e_WEDNESDAY    e_WED        Wednesday
+// e_THURSDAY     e_THU        Thursday
+// e_FRIDAY       e_FRI        Friday
+// e_SATURDAY     e_SAT        Saturday
+// ```
 //
 ///Usage
 ///-----
@@ -34,26 +34,26 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
-// 'bdlt::DayOfWeek' operation.
+// `bdlt::DayOfWeek` operation.
 //
-// First, create a variable, 'day', of type 'bdlt::DayOfWeek::Enum', and
-// initialize it to the value 'bdlt::DayOfWeek::e_MONDAY':
-//..
-//  bdlt::DayOfWeek::Enum day = bdlt::DayOfWeek::e_MONDAY;
-//..
-// Next, store its representation in a variable, 'rep', of type 'const char *':
-//..
-//  const char *rep = bdlt::DayOfWeek::toAscii(day);
-//  assert(0 == bsl::strcmp(rep, "MON"));
-//..
-// Finally, we print the value of 'day' to 'stdout':
-//..
-//  bsl::cout << day << bsl::endl;
-//..
-// This statement produces the following output on 'stdout':
-//..
-//  MON
-//..
+// First, create a variable, `day`, of type `bdlt::DayOfWeek::Enum`, and
+// initialize it to the value `bdlt::DayOfWeek::e_MONDAY`:
+// ```
+// bdlt::DayOfWeek::Enum day = bdlt::DayOfWeek::e_MONDAY;
+// ```
+// Next, store its representation in a variable, `rep`, of type `const char *`:
+// ```
+// const char *rep = bdlt::DayOfWeek::toAscii(day);
+// assert(0 == bsl::strcmp(rep, "MON"));
+// ```
+// Finally, we print the value of `day` to `stdout`:
+// ```
+// bsl::cout << day << bsl::endl;
+// ```
+// This statement produces the following output on `stdout`:
+// ```
+// MON
+// ```
 
 #include <bdlscm_version.h>
 
@@ -66,13 +66,13 @@ namespace bdlt {
                         // class DayOfWeek
                         // ===============
 
+/// This `struct` provides a namespace for enumerating day-of-week values.
+/// See `Enum` in the TYPES sub-section for details.
+///
+/// This `struct`:
+/// * supports a complete set of *enumeration* operations
+/// For terminology see `bsldoc_glossary`.
 struct DayOfWeek {
-    // This 'struct' provides a namespace for enumerating day-of-week values.
-    // See 'Enum' in the TYPES sub-section for details.
-    //
-    // This 'struct':
-    //: o supports a complete set of *enumeration* operations
-    // For terminology see 'bsldoc_glossary'.
 
   public:
     // TYPES
@@ -120,140 +120,143 @@ struct DayOfWeek {
 #endif
 
     // CLASS METHODS
+
+    /// Assign to the specified `variable` the value read from the specified
+    /// input `stream` using the specified `version` format, and return a
+    /// reference to `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `version` is not supported, `variable`
+    /// is unaltered and `stream` is invalidated, but otherwise unmodified.
+    /// If `version` is supported but `stream` becomes invalid during this
+    /// operation, `variable` has an undefined, but valid, state.  Note that
+    /// no version is read from `stream`.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     static STREAM& bdexStreamIn(STREAM&          stream,
                                 DayOfWeek::Enum& variable,
                                 int              version);
-        // Assign to the specified 'variable' the value read from the specified
-        // input 'stream' using the specified 'version' format, and return a
-        // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, 'variable'
-        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
-        // If 'version' is supported but 'stream' becomes invalid during this
-        // operation, 'variable' has an undefined, but valid, state.  Note that
-        // no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
+    /// Write the value of the specified `value`, using the specified
+    /// `version` format, to the specified output `stream`, and return a
+    /// reference to `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `version` is not supported, `stream` is
+    /// invalidated, but otherwise unmodified.  Note that `version` is not
+    /// written to `stream`.  See the `bslx` package-level documentation for
+    /// more information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     static STREAM& bdexStreamOut(STREAM&         stream,
                                  DayOfWeek::Enum value,
                                  int             version);
-        // Write the value of the specified 'value', using the specified
-        // 'version' format, to the specified output 'stream', and return a
-        // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, 'stream' is
-        // invalidated, but otherwise unmodified.  Note that 'version' is not
-        // written to 'stream'.  See the 'bslx' package-level documentation for
-        // more information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Return the maximum valid BDEX format version, as indicated by the
+    /// specified `versionSelector`, to be passed to the `bdexStreamOut`
+    /// method.  Note that it is highly recommended that `versionSelector`
+    /// be formatted as "YYYYMMDD", a date representation.  Also note that
+    /// `versionSelector` should be a *compile*-time-chosen value that
+    /// selects a format version supported by both externalizer and
+    /// unexternalizer.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     static int maxSupportedBdexVersion(int versionSelector);
-        // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
-        // method.  Note that it is highly recommended that 'versionSelector'
-        // be formatted as "YYYYMMDD", a date representation.  Also note that
-        // 'versionSelector' should be a *compile*-time-chosen value that
-        // selects a format version supported by both externalizer and
-        // unexternalizer.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Write the string representation of the specified enumeration `value`
+    /// to the specified output `stream`, and return a reference to
+    /// `stream`.  Optionally specify an initial indentation `level`, whose
+    /// absolute value is incremented recursively for nested objects.  If
+    /// `level` is specified, optionally specify `spacesPerLevel`, whose
+    /// absolute value indicates the number of spaces per indentation level
+    /// for this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  The behavior is
+    /// undefined unless `dayOfWeek` is in the range `[ e_SUN .. e_SAT ]`.
+    /// See `toAscii` for what constitutes the string representation of a
+    /// `bdlt::DayOfWeek::Enum` value.
     static bsl::ostream& print(bsl::ostream&          stream,
                                DayOfWeek::Enum        value,
                                int                    level          = 0,
                                int                    spacesPerLevel = 4);
-        // Write the string representation of the specified enumeration 'value'
-        // to the specified output 'stream', and return a reference to
-        // 'stream'.  Optionally specify an initial indentation 'level', whose
-        // absolute value is incremented recursively for nested objects.  If
-        // 'level' is specified, optionally specify 'spacesPerLevel', whose
-        // absolute value indicates the number of spaces per indentation level
-        // for this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  The behavior is
-        // undefined unless 'dayOfWeek' is in the range '[ e_SUN .. e_SAT ]'.
-        // See 'toAscii' for what constitutes the string representation of a
-        // 'bdlt::DayOfWeek::Enum' value.
 
+    /// Return the abbreviated character-string representation of the
+    /// enumerator corresponding to the specified `dayOfWeek`.  This
+    /// representation matches the enumerator's three-character name (e.g.,
+    /// `e_SUN`) with the "e_" prefix elided.  For example:
+    /// ```
+    /// bsl::cout << bdlt::DayOfWeek::toAscii(bdlt::DayOfWeek::e_SUN);
+    /// ```
+    /// prints the following on standard output:
+    /// ```
+    /// SUN
+    /// ```
+    /// Note that specifying a `dayOfWeek` that does not match any of the
+    /// enumerators will result in an unspecified string representation
+    /// being returned that is distinct from the values returned for any
+    /// valid enumeration.
     static const char *toAscii(Enum dayOfWeek);
-        // Return the abbreviated character-string representation of the
-        // enumerator corresponding to the specified 'dayOfWeek'.  This
-        // representation matches the enumerator's three-character name (e.g.,
-        // 'e_SUN') with the "e_" prefix elided.  For example:
-        //..
-        //  bsl::cout << bdlt::DayOfWeek::toAscii(bdlt::DayOfWeek::e_SUN);
-        //..
-        // prints the following on standard output:
-        //..
-        //  SUN
-        //..
-        // Note that specifying a 'dayOfWeek' that does not match any of the
-        // enumerators will result in an unspecified string representation
-        // being returned that is distinct from the values returned for any
-        // valid enumeration.
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
+    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
+    ///
+    /// Return the most current BDEX streaming version number supported by
+    /// this struct.
     static int maxSupportedBdexVersion();
-        // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
-        //
-        // Return the most current BDEX streaming version number supported by
-        // this struct.
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 };
 
 // FREE OPERATORS
+
+/// Write the string representation of the specified enumeration `value` to
+/// the specified output `stream` in a single-line format, and return a
+/// reference to `stream`.  See `toAscii` for what constitutes the string
+/// representation of a `bdlt::DayOfWeek::Enum` value.  Note that this
+/// method has the same behavior as
+/// ```
+/// bdlt::DayOfWeek::print(stream, value, 0, -1);
+/// ```
 bsl::ostream& operator<<(bsl::ostream& stream, DayOfWeek::Enum value);
-    // Write the string representation of the specified enumeration 'value' to
-    // the specified output 'stream' in a single-line format, and return a
-    // reference to 'stream'.  See 'toAscii' for what constitutes the string
-    // representation of a 'bdlt::DayOfWeek::Enum' value.  Note that this
-    // method has the same behavior as
-    //..
-    //  bdlt::DayOfWeek::print(stream, value, 0, -1);
-    //..
 
 // FREE FUNCTIONS
+
+/// Load into the specified `variable` the `DayOfWeek::Enum` value read from
+/// the specified input `stream` using the specified `version` format, and
+/// return a reference to `stream`.  If `stream` is initially invalid, this
+/// operation has no effect.  If `version` is not supported by `DayOfWeek`,
+/// `variable` is unaltered and `stream` is invalidated, but otherwise
+/// unmodified.  If `version` is supported by `DayOfWeek` but `stream`
+/// becomes invalid during this operation, `variable` has an undefined, but
+/// valid, state.  The behavior is undefined unless `STREAM` is
+/// BDEX-compliant.  Note that no version is read from `stream`.  See the
+/// `bslx` package-level documentation for more information on BDEX
+/// streaming of value-semantic types and containers.
 template <class STREAM>
 STREAM& bdexStreamIn(STREAM& stream, DayOfWeek::Enum& variable, int version);
-    // Load into the specified 'variable' the 'DayOfWeek::Enum' value read from
-    // the specified input 'stream' using the specified 'version' format, and
-    // return a reference to 'stream'.  If 'stream' is initially invalid, this
-    // operation has no effect.  If 'version' is not supported by 'DayOfWeek',
-    // 'variable' is unaltered and 'stream' is invalidated, but otherwise
-    // unmodified.  If 'version' is supported by 'DayOfWeek' but 'stream'
-    // becomes invalid during this operation, 'variable' has an undefined, but
-    // valid, state.  The behavior is undefined unless 'STREAM' is
-    // BDEX-compliant.  Note that no version is read from 'stream'.  See the
-    // 'bslx' package-level documentation for more information on BDEX
-    // streaming of value-semantic types and containers.
 
+/// Write the specified `value`, using the specified `version` format, to
+/// the specified output `stream`, and return a reference to `stream`.  If
+/// `stream` is initially invalid, this operation has no effect.  If
+/// `version` is not supported by `DayOfWeek`, `stream` is invalidated, but
+/// otherwise unmodified.  The behavior is undefined unless `STREAM` is
+/// BDEX-compliant.  Note that `version` is not written to `stream`.  See
+/// the `bslx` package-level documentation for more information on BDEX
+/// streaming of value-semantic types and containers.
 template <class STREAM>
 STREAM& bdexStreamOut(STREAM&                stream,
                       const DayOfWeek::Enum& value,
                       int                    version);
-    // Write the specified 'value', using the specified 'version' format, to
-    // the specified output 'stream', and return a reference to 'stream'.  If
-    // 'stream' is initially invalid, this operation has no effect.  If
-    // 'version' is not supported by 'DayOfWeek', 'stream' is invalidated, but
-    // otherwise unmodified.  The behavior is undefined unless 'STREAM' is
-    // BDEX-compliant.  Note that 'version' is not written to 'stream'.  See
-    // the 'bslx' package-level documentation for more information on BDEX
-    // streaming of value-semantic types and containers.
 
+/// Return the maximum valid BDEX format version, as indicated by the
+/// specified `versionSelector`, to be passed to the `bdexStreamOut` method
+/// while streaming an object of the type `DayOfWeek::Enum`.  Note that it
+/// is highly recommended that `versionSelector` be formatted as "YYYYMMDD",
+/// a date representation.  Also note that `versionSelector` should be a
+/// *compile*-time-chosen value that selects a format version supported by
+/// both externalizer and unexternalizer.  See the `bslx` package-level
+/// documentation for more information on BDEX streaming of value-semantic
+/// types and containers.
 int maxSupportedBdexVersion(const DayOfWeek::Enum *, int versionSelector);
-    // Return the maximum valid BDEX format version, as indicated by the
-    // specified 'versionSelector', to be passed to the 'bdexStreamOut' method
-    // while streaming an object of the type 'DayOfWeek::Enum'.  Note that it
-    // is highly recommended that 'versionSelector' be formatted as "YYYYMMDD",
-    // a date representation.  Also note that 'versionSelector' should be a
-    // *compile*-time-chosen value that selects a format version supported by
-    // both externalizer and unexternalizer.  See the 'bslx' package-level
-    // documentation for more information on BDEX streaming of value-semantic
-    // types and containers.
 
 // ============================================================================
 //                            INLINE DEFINITIONS

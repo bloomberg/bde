@@ -12,11 +12,11 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlat_enumfunctions
 //
-//@DESCRIPTION: This component provides a 'struct', 'bdlat::EnumUtil', with two
-// utility function templates, 'fromIntOrFallbackIfEnabled' and
-// 'fromStringOrFallbackIfEnabled', which respectively attempt to decode a
-// 'bdlat' "enumeration" type from the integral or string representation.
-// However, unlike the decoding functions in the 'bdlat_EnumFunctions'
+//@DESCRIPTION: This component provides a `struct`, `bdlat::EnumUtil`, with two
+// utility function templates, `fromIntOrFallbackIfEnabled` and
+// `fromStringOrFallbackIfEnabled`, which respectively attempt to decode a
+// `bdlat` "enumeration" type from the integral or string representation.
+// However, unlike the decoding functions in the `bdlat_EnumFunctions`
 // namespace, when the functions in this component are given values that do not
 // correspond to any enumerator, they attempt to set the result to the
 // "fallback" enumerator value, if possible, instead of failing.
@@ -25,10 +25,10 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-// Suppose you have a C++ 'enum' type called 'ImageType' whose enumerators
+// Suppose you have a C++ `enum` type called `ImageType` whose enumerators
 // represent supported formats for image files, and it exposes "enumeration"
-// behavior as described in {'bdlat_enumfunctions'}:
-//..
+// behavior as described in {`bdlat_enumfunctions`}:
+// ```
 // #include <bdlat_enumfunctions.h>
 // #include <bdlb_string.h>
 // #include <bsl_string.h>
@@ -64,145 +64,145 @@ BSLS_IDENT("$Id: $")
 // bool bdlat_enumIsFallback(const ImageType& value);
 //
 // }  // close namespace mine
-//..
-// Next, we provide definitions for the 'bdlat_enum*' customization point
+// ```
+// Next, we provide definitions for the `bdlat_enum*` customization point
 // function overloads:
-//..
-//  // MANIPULATORS
+// ```
+// // MANIPULATORS
 //
-//  inline
-//  int mine::bdlat_enumFromInt(ImageType *result, int number)
-//  {
-//      enum { SUCCESS = 0, NOT_FOUND = -1 };
+// inline
+// int mine::bdlat_enumFromInt(ImageType *result, int number)
+// {
+//     enum { SUCCESS = 0, NOT_FOUND = -1 };
 //
-//      switch (number) {
-//        case JPG: {
-//          *result = JPG;
-//          return SUCCESS;
-//        }
-//        case PNG: {
-//          *result = PNG;
-//          return SUCCESS;
-//        }
-//        case GIF: {
-//          *result = GIF;
-//          return SUCCESS;
-//        }
-//        case UNKNOWN: {
-//          *result = UNKNOWN;
-//          return SUCCESS;
-//        }
-//        default: {
-//          return NOT_FOUND;
-//        }
-//      }
-//  }
+//     switch (number) {
+//       case JPG: {
+//         *result = JPG;
+//         return SUCCESS;
+//       }
+//       case PNG: {
+//         *result = PNG;
+//         return SUCCESS;
+//       }
+//       case GIF: {
+//         *result = GIF;
+//         return SUCCESS;
+//       }
+//       case UNKNOWN: {
+//         *result = UNKNOWN;
+//         return SUCCESS;
+//       }
+//       default: {
+//         return NOT_FOUND;
+//       }
+//     }
+// }
 //
-//  inline
-//  int mine::bdlat_enumFromString(ImageType  *result,
-//                                 const char *string,
-//                                 int         stringLength)
-//  {
-//      enum { SUCCESS = 0, NOT_FOUND = -1 };
+// inline
+// int mine::bdlat_enumFromString(ImageType  *result,
+//                                const char *string,
+//                                int         stringLength)
+// {
+//     enum { SUCCESS = 0, NOT_FOUND = -1 };
 //
-//      if (bdlb::String::areEqualCaseless("jpg",
-//                                         string,
-//                                         stringLength)) {
-//          *result = JPG;
-//          return SUCCESS;
-//      }
+//     if (bdlb::String::areEqualCaseless("jpg",
+//                                        string,
+//                                        stringLength)) {
+//         *result = JPG;
+//         return SUCCESS;
+//     }
 //
-//      if (bdlb::String::areEqualCaseless("png",
-//                                         string,
-//                                         stringLength)) {
-//          *result = PNG;
-//          return SUCCESS;
-//      }
+//     if (bdlb::String::areEqualCaseless("png",
+//                                        string,
+//                                        stringLength)) {
+//         *result = PNG;
+//         return SUCCESS;
+//     }
 //
-//      if (bdlb::String::areEqualCaseless("gif",
-//                                         string,
-//                                         stringLength)) {
-//          *result = GIF;
-//          return SUCCESS;
-//      }
-//      if (bdlb::String::areEqualCaseless("unknown",
-//                                         string,
-//                                         stringLength)) {
-//          *result = UNKNOWN;
-//          return SUCCESS;
-//      }
+//     if (bdlb::String::areEqualCaseless("gif",
+//                                        string,
+//                                        stringLength)) {
+//         *result = GIF;
+//         return SUCCESS;
+//     }
+//     if (bdlb::String::areEqualCaseless("unknown",
+//                                        string,
+//                                        stringLength)) {
+//         *result = UNKNOWN;
+//         return SUCCESS;
+//     }
 //
-//      return NOT_FOUND;
-//  }
+//     return NOT_FOUND;
+// }
 //
-//  inline
-//  int mine::bdlat_enumMakeFallback(ImageType *result)
-//  {
-//      *result = UNKNOWN;
-//      return 0;
-//  }
+// inline
+// int mine::bdlat_enumMakeFallback(ImageType *result)
+// {
+//     *result = UNKNOWN;
+//     return 0;
+// }
 //
-//  // ACCESSORS
+// // ACCESSORS
 //
-//  inline
-//  void mine::bdlat_enumToInt(int *result, const ImageType& value)
-//  {
-//      *result = static_cast<int>(value);
-//  }
+// inline
+// void mine::bdlat_enumToInt(int *result, const ImageType& value)
+// {
+//     *result = static_cast<int>(value);
+// }
 //
-//  inline
-//  void mine::bdlat_enumToString(bsl::string *result, const ImageType& value)
-//  {
-//      switch (value) {
-//        case JPG: {
-//          *result = "JPG";
-//        } break;
-//        case PNG: {
-//          *result = "PNG";
-//        } break;
-//        case GIF: {
-//          *result = "GIF";
-//        } break;
-//        case UNKNOWN: {
-//          *result = "UNKNOWN";
-//        } break;
-//        default: {
-//          *result = "INVALID";
-//        } break;
-//      }
-//  }
+// inline
+// void mine::bdlat_enumToString(bsl::string *result, const ImageType& value)
+// {
+//     switch (value) {
+//       case JPG: {
+//         *result = "JPG";
+//       } break;
+//       case PNG: {
+//         *result = "PNG";
+//       } break;
+//       case GIF: {
+//         *result = "GIF";
+//       } break;
+//       case UNKNOWN: {
+//         *result = "UNKNOWN";
+//       } break;
+//       default: {
+//         *result = "INVALID";
+//       } break;
+//     }
+// }
 //
-//  inline
-//  bool mine::bdlat_enumHasFallback(const ImageType&)
-//  {
-//      return true;
-//  }
+// inline
+// bool mine::bdlat_enumHasFallback(const ImageType&)
+// {
+//     return true;
+// }
 //
-//  inline
-//  bool mine::bdlat_enumIsFallback(const ImageType& value)
-//  {
-//      return value == UNKNOWN;
-//  }
-//..
-// To complete the implementation of 'mine::ImageType' as an "enumeration" type
-// with fallback enumerator recognized by the 'bdlat' framework, we specialize
+// inline
+// bool mine::bdlat_enumIsFallback(const ImageType& value)
+// {
+//     return value == UNKNOWN;
+// }
+// ```
+// To complete the implementation of `mine::ImageType` as an "enumeration" type
+// with fallback enumerator recognized by the `bdlat` framework, we specialize
 // the necessary traits:
-//..
-//  namespace bdlat_EnumFunctions {
-//  template <>
-//  struct IsEnumeration<mine::ImageType> : bsl::true_type {
-//  };
-//  template <>
-//  struct HasFallbackEnumerator<mine::ImageType> : bsl::true_type {
-//  };
-//  }  // close namespace bdlat_EnumFunctions
-//  }  // close enterprise namespace
-//..
-// We can now use the methods in 'EnumUtil' to decode integral and string
-// values into 'mine::ImageType' values, falling back to the 'mine::UNKNOWN'
+// ```
+// namespace bdlat_EnumFunctions {
+// template <>
+// struct IsEnumeration<mine::ImageType> : bsl::true_type {
+// };
+// template <>
+// struct HasFallbackEnumerator<mine::ImageType> : bsl::true_type {
+// };
+// }  // close namespace bdlat_EnumFunctions
+// }  // close enterprise namespace
+// ```
+// We can now use the methods in `EnumUtil` to decode integral and string
+// values into `mine::ImageType` values, falling back to the `mine::UNKNOWN`
 // enumerator value when the integral or string value does not correspond to
 // any enumerator:
-//..
+// ```
 // void usageExample()
 // {
 //     using namespace BloombergLP;
@@ -230,8 +230,8 @@ BSLS_IDENT("$Id: $")
 //     assert(0             == rc);
 //     assert(mine::UNKNOWN == imageType);
 // }
-//..
-// Note that the methods in 'EnumUtil' may also be used with 'bdlat'
+// ```
+// Note that the methods in `EnumUtil` may also be used with `bdlat`
 // "enumeration" types that do not support a fallback enumerator.  In such
 // cases, they can fail by returning a non-zero error code.
 
@@ -249,32 +249,33 @@ namespace bdlat {
                               // struct EnumUtil
                               // ===============
 
+/// This `struct` provides a namespace for functions that decode `bdlat`
+/// "enumerations" from integral and string representations, possibly to the
+/// "fallback" value (if one exists).
 struct EnumUtil {
-    // This 'struct' provides a namespace for functions that decode 'bdlat'
-    // "enumerations" from integral and string representations, possibly to the
-    // "fallback" value (if one exists).
 
     // CLASS METHODS
+
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `number` and return 0 if such an enumerator exists.
+    /// Otherwise, if `result` supports a fallback enumerator, load into
+    /// `result` the fallback enumerator value and return 0.  Otherwise,
+    /// return a non-zero value with no effect on `result`.  The behavior is
+    /// undefined unless `TYPE` is a `bdlat` enumeration type.
     template <class TYPE>
     static int fromIntOrFallbackIfEnabled(TYPE *result, int number);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'number' and return 0 if such an enumerator exists.
-        // Otherwise, if 'result' supports a fallback enumerator, load into
-        // 'result' the fallback enumerator value and return 0.  Otherwise,
-        // return a non-zero value with no effect on 'result'.  The behavior is
-        // undefined unless 'TYPE' is a 'bdlat' enumeration type.
 
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `string` of the specified `stringLength` and return 0 if
+    /// such an enumerator exists.  Otherwise, if `result` supports a
+    /// fallback enumerator, load into `result` the fallback enumerator
+    /// value and return 0.  Otherwise, return a non-zero value with no
+    /// effect on `result`.  The behavior is undefined unless `TYPE` is a
+    /// `bdlat` enumeration type.
     template <class TYPE>
     static int fromStringOrFallbackIfEnabled(TYPE       *result,
                                              const char *string,
                                              int         stringLength);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'string' of the specified 'stringLength' and return 0 if
-        // such an enumerator exists.  Otherwise, if 'result' supports a
-        // fallback enumerator, load into 'result' the fallback enumerator
-        // value and return 0.  Otherwise, return a non-zero value with no
-        // effect on 'result'.  The behavior is undefined unless 'TYPE' is a
-        // 'bdlat' enumeration type.
 };
 
 // ============================================================================

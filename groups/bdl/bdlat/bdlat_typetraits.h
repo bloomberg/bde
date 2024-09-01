@@ -35,16 +35,16 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides compile-time traits that pertain to
-// generated types.  The five traits provided, 'bdlat_IsBasicChoice',
-// 'bdlat_IsBasicSequence', 'bdlat_IsBasicEnumeration',
-// 'bdlat_HasFallbackEnumerator', 'bdlat_IsBasicCustomizedType' are used for
+// generated types.  The five traits provided, `bdlat_IsBasicChoice`,
+// `bdlat_IsBasicSequence`, `bdlat_IsBasicEnumeration`,
+// `bdlat_HasFallbackEnumerator`, `bdlat_IsBasicCustomizedType` are used for
 // generated "choice" types, "sequence" types, "enumeration", "enumeration"
 // with fallback enumerator, and "customized type" types respectively.
 //
 ///Usage
 ///-----
 // This component is intended to be used by components generated using the
-// 'bas_codegen.pl' tool.
+// `bas_codegen.pl` tool.
 
 #include <bdlscm_version.h>
 
@@ -63,117 +63,117 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+/// This trait may be declared for "choice" types.
 template <class TYPE>
 struct bdlat_IsBasicChoice :
         bslmf::DetectNestedTrait<TYPE, bdlat_IsBasicChoice>::type {
-    // This trait may be declared for "choice" types.
 };
 
+/// This trait may be declared for "sequence" types.
 template <class TYPE>
 struct bdlat_IsBasicSequence :
         bslmf::DetectNestedTrait<TYPE, bdlat_IsBasicSequence>::type {
-    // This trait may be declared for "sequence" types.
 };
 
+/// This trait may be declared for "enumeration" types.
 template <class TYPE>
 struct bdlat_IsBasicEnumeration
 : bslmf::DetectNestedTrait<TYPE, bdlat_IsBasicEnumeration>::type {
-    // This trait may be declared for "enumeration" types.
 };
 
+/// This trait may be declared for "enumeration" types that have a fallback
+/// enumerator value.  If this trait is declared to be `true` for the
+/// specified `TYPE` but the trait `bdlat_IsBasicEnumeration` has not
+/// previously been declared to be `true` for `TYPE`, the behavior is
+/// undefined.
 template <class TYPE>
 struct bdlat_HasFallbackEnumerator
 : bslmf::DetectNestedTrait<TYPE, bdlat_HasFallbackEnumerator>::type {
-    // This trait may be declared for "enumeration" types that have a fallback
-    // enumerator value.  If this trait is declared to be 'true' for the
-    // specified 'TYPE' but the trait 'bdlat_IsBasicEnumeration' has not
-    // previously been declared to be 'true' for 'TYPE', the behavior is
-    // undefined.
 };
 
+/// This trait may be declared for "customized type" types.
 template <class TYPE>
 struct bdlat_IsBasicCustomizedType :
         bslmf::DetectNestedTrait<TYPE, bdlat_IsBasicCustomizedType>::type {
-    // This trait may be declared for "customized type" types.
 };
 
+/// This template has no definition for most types.  However for types that
+/// meet the requirements of `BasicEnumeration`, this template is
+/// specialized to inherit from the wrapper class that defines functions
+/// like `toString` and `toInt`.  The specialization should also define the
+/// type `Wrapper` to be the name of the wrapper class.
 template <class TYPE>
 struct bdlat_BasicEnumerationWrapper;
-    // This template has no definition for most types.  However for types that
-    // meet the requirements of 'BasicEnumeration', this template is
-    // specialized to inherit from the wrapper class that defines functions
-    // like 'toString' and 'toInt'.  The specialization should also define the
-    // type 'Wrapper' to be the name of the wrapper class.
 
+/// Legacy adaptor for bdlat_IsBasicChoice.
 struct bdlat_TypeTraitBasicChoice {
-    // Legacy adaptor for bdlat_IsBasicChoice.
 
+    /// This class template ties the `bdlat_TypeTraitBasicChoice` trait tag
+    /// to the `bdlat_IsBasicChoice` trait metafunction.
     template <class TYPE>
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bdlat_IsBasicChoice>
     {
-        // This class template ties the 'bdlat_TypeTraitBasicChoice' trait tag
-        // to the 'bdlat_IsBasicChoice' trait metafunction.
     };
 
     template <class TYPE>
     struct Metafunction : bdlat_IsBasicChoice<TYPE>::type { };
 };
 
+/// Legacy adaptor for bdlat_IsBasicSequence.
 struct bdlat_TypeTraitBasicSequence {
-    // Legacy adaptor for bdlat_IsBasicSequence.
 
+    /// This class template ties the `bdlat_TypeTraitBasicSequence` trait
+    /// tag to the `bdlat_IsBasicSequence` trait metafunction.
     template <class TYPE>
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bdlat_IsBasicSequence>
     {
-        // This class template ties the 'bdlat_TypeTraitBasicSequence' trait
-        // tag to the 'bdlat_IsBasicSequence' trait metafunction.
     };
 
     template <class TYPE>
     struct Metafunction : bdlat_IsBasicSequence<TYPE>::type { };
 };
 
+/// Legacy adaptor for bdlat_IsBasicEnumeration.
 struct bdlat_TypeTraitBasicEnumeration {
-    // Legacy adaptor for bdlat_IsBasicEnumeration.
 
+    /// This class template ties the `bdlat_TypeTraitBasicEnumeration` trait
+    /// tag to the `bdlat_IsBasicEnumeration` trait metafunction.
     template <class TYPE>
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bdlat_IsBasicEnumeration>
     {
-        // This class template ties the 'bdlat_TypeTraitBasicEnumeration' trait
-        // tag to the 'bdlat_IsBasicEnumeration' trait metafunction.
     };
 
     template <class TYPE>
     struct Metafunction : bdlat_IsBasicEnumeration<TYPE>::type { };
 };
 
+/// Legacy adaptor for bdlat_HasFallbackEnumerator.
 struct bdlat_TypeTraitHasFallbackEnumerator {
-    // Legacy adaptor for bdlat_HasFallbackEnumerator.
 
+    /// This class template ties the `bdlat_TypeTraitHasFallbackEnumerator`
+    /// trait tag to the `bdlat_HasFallbackEnumerator` trait metafunction.
     template <class TYPE>
     struct NestedTraitDeclaration
     : bslmf::NestedTraitDeclaration<TYPE,
                                     bdlat_HasFallbackEnumerator> {
-        // This class template ties the 'bdlat_TypeTraitHasFallbackEnumerator'
-        // trait tag to the 'bdlat_HasFallbackEnumerator' trait metafunction.
     };
 
     template <class TYPE>
     struct Metafunction : bdlat_HasFallbackEnumerator<TYPE>::type { };
 };
 
+/// Legacy adaptor for bdlat_IsBasicCustomizedType.
 struct bdlat_TypeTraitBasicCustomizedType {
-    // Legacy adaptor for bdlat_IsBasicCustomizedType.
 
+    /// This class template ties the `bdlat_TypeTraitBasicCustomizedType`
+    /// trait tag to the `bdlat_IsBasicCustomizedType` trait metafunction.
     template <class TYPE>
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, bdlat_IsBasicCustomizedType>
     {
-        // This class template ties the 'bdlat_TypeTraitBasicCustomizedType'
-        // trait tag to the 'bdlat_IsBasicCustomizedType' trait metafunction.
     };
 
     template <class TYPE>

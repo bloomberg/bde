@@ -9,585 +9,585 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //     bdlcc::TimeQueue: Templatized time event queue
-// bdlcc::TimeQueueItem: ('struct') Templatized item in the time event queue
+// bdlcc::TimeQueueItem: (`struct`) Templatized item in the time event queue
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a thread-safe and efficient templatized
 // time queue.  The queue stores an ordered list of time values and associated
-// 'DATA'.  Each item added to the queue is assigned a unique identifier that
+// `DATA`.  Each item added to the queue is assigned a unique identifier that
 // can be used to efficiently remove the item making this queue suitable for
 // conditions where time items are added and removed very frequently.
 //
-// Class 'bdlcc::TimeQueue<DATA>' provides a public interface which is similar
-// in structure and intent to 'bdlcc::Queue<DATA>', with the exception that
-// each item stored in the 'bdlcc::TimeQueue' is of type
-// 'bdlcc::TimeQueueItem<DATA>'.  This structure contains a single
-// 'bsls::TimeInterval' value along with the 'DATA' value.
+// Class `bdlcc::TimeQueue<DATA>` provides a public interface which is similar
+// in structure and intent to `bdlcc::Queue<DATA>`, with the exception that
+// each item stored in the `bdlcc::TimeQueue` is of type
+// `bdlcc::TimeQueueItem<DATA>`.  This structure contains a single
+// `bsls::TimeInterval` value along with the `DATA` value.
 //
-// Idiomatic usage of 'bdlcc::TimeQueue' includes the member function 'popLE',
-// which finds all items on the queue whose 'bsls::TimeInterval' are less than
+// Idiomatic usage of `bdlcc::TimeQueue` includes the member function `popLE`,
+// which finds all items on the queue whose `bsls::TimeInterval` are less than
 // a specified value, and transfers those items to a provided vector of items.
 // Through the use of this member function, clients can retrieve and process
-// multiple elements that have expired, that is, whose 'bsls::TimeInterval'
+// multiple elements that have expired, that is, whose `bsls::TimeInterval`
 // values are in the past.
 //
-// 'bdlcc::TimeQueue' also makes use of an opaque data type
-// 'bdlcc::TimeQueue::Handle' which serves to identify an individual element on
-// the Time Queue.  A value of type 'Handle' is returned from the 'add' member
+// `bdlcc::TimeQueue` also makes use of an opaque data type
+// `bdlcc::TimeQueue::Handle` which serves to identify an individual element on
+// the Time Queue.  A value of type `Handle` is returned from the `add` member
 // function, and can then be used to remove or modify the corresponding element
-// on the queue.  In this way, the 'update' member function can update the time
-// value for a specific 'bdlcc::TimeQueueItem' without removing it from the
+// on the queue.  In this way, the `update` member function can update the time
+// value for a specific `bdlcc::TimeQueueItem` without removing it from the
 // queue.
 //
-///'bdlcc::TimeQueue::Handle' Uniqueness, Reuse and 'numIndexBits'
+///`bdlcc::TimeQueue::Handle` Uniqueness, Reuse and `numIndexBits`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdlcc::TimeQueue::Handle' is an alias for a 32-bit 'int' type.  A handle
+// `bdlcc::TimeQueue::Handle` is an alias for a 32-bit `int` type.  A handle
 // consists of two parts, the "index section" and the "iteration section".  The
-// index section, which is the low-order 'numIndexBits' (which defaults to
-// 'numIndexBits == 17'), uniquely identifies the node.  Once a node is added,
+// index section, which is the low-order `numIndexBits` (which defaults to
+// `numIndexBits == 17`), uniquely identifies the node.  Once a node is added,
 // it never ceases to exist - it may be freed, but it will be kept on a free
 // list to be eventually recycled, and the same index section will always
 // identify that node.  The iteration section, the high-order
-// '32 - numIndexBits', is changed every time a node is freed, so that an
+// `32 - numIndexBits`, is changed every time a node is freed, so that an
 // out-of-date handle can be identified as out-of-date.  But since the
 // iteration section has only a finite number of bits, if a node is freed and
 // re-added enough times, old handle values will eventually be reused.
 //
-// Up to '2 ** numIndexBits - 1' nodes can exist in a given time queue.  A
+// Up to `2 ** numIndexBits - 1` nodes can exist in a given time queue.  A
 // given handle won't be reused for a node until that node has been freed and
-// reused '2 ** (32 - numIndexBits) - 1' times.
+// reused `2 ** (32 - numIndexBits) - 1` times.
 //
-// 'numIndexBits' is an optional parameter to the time queue constructors.  If
+// `numIndexBits` is an optional parameter to the time queue constructors.  If
 // unspecified, it has a value of 17.  The behavior is undefined unless the
-// specified 'numIndexBits' is in the range '8 <= numIndexBits <= 24'.
+// specified `numIndexBits` is in the range `8 <= numIndexBits <= 24`.
 //
 ///Thread Safety
 ///- - - - - - -
-// It is safe to access or modify two distinct 'bdlcc::TimeQueue' objects
+// It is safe to access or modify two distinct `bdlcc::TimeQueue` objects
 // simultaneously, each from a separate thread.  It is safe to access or modify
-// a single 'bdlcc::TimeQueue' object simultaneously from two or more separate
+// a single `bdlcc::TimeQueue` object simultaneously from two or more separate
 // threads.
 //
-// It is safe to enqueue objects in a 'bdlcc::TimeQueue' object whose
-// destructor may access or even modify the same 'bdlcc::TimeQueue' object.
+// It is safe to enqueue objects in a `bdlcc::TimeQueue` object whose
+// destructor may access or even modify the same `bdlcc::TimeQueue` object.
 // However, there is no guarantee regarding the safety of enqueuing objects
 // whose copy constructors or assignment operators may modify or even merely
-// access the same 'bdlcc::TimeQueue' object (except 'length').  Such attempts
+// access the same `bdlcc::TimeQueue` object (except `length`).  Such attempts
 // generally lead to a deadlock.
 //
 ///Ordering
 /// - - - -
-// For a given 'bsls::TimeInterval' value, the order of item removal (via
-// 'popFront', 'popLE', 'removeAll', etc.) is guaranteed to match the order of
-// item insertion (via 'add') for a particular insertion thread or group of
+// For a given `bsls::TimeInterval` value, the order of item removal (via
+// `popFront`, `popLE`, `removeAll`, etc.) is guaranteed to match the order of
+// item insertion (via `add`) for a particular insertion thread or group of
 // externally synchronized insertion threads.
 //
 ///Usage
 ///-----
-// The following shows a typical usage of the 'bdlcc::TimeQueue' class,
-// implementing a simple threaded server 'my_Server' that manages individual
-// Connections ('my_Connection') on behalf of multiple Sessions ('my_Session').
+// The following shows a typical usage of the `bdlcc::TimeQueue` class,
+// implementing a simple threaded server `my_Server` that manages individual
+// Connections (`my_Connection`) on behalf of multiple Sessions (`my_Session`).
 // Each Connection is timed, such that input requests on that Connection will
 // "time out" after a user-specified time interval.  When a specific Connection
-// times out, that Connection is removed from the 'bdlcc::TimeQueue' and the
-// corresponding 'my_Session' is informed.
+// times out, that Connection is removed from the `bdlcc::TimeQueue` and the
+// corresponding `my_Session` is informed.
 //
-// In this simplified example, class 'my_Session' will terminate when its
-// Connection times out.  A more sophisticated implementation of 'my_Session'
+// In this simplified example, class `my_Session` will terminate when its
+// Connection times out.  A more sophisticated implementation of `my_Session`
 // would attempt recovery, perhaps by closing and reopening the physical
 // Connection.
 //
 ///Forward Declarations
 /// - - - - - - - - - -
-// Class 'my_Server' will spawn two service threads to monitor connections for
+// Class `my_Server` will spawn two service threads to monitor connections for
 // available data and to manage time-outs, respectively.  Two forward-declared
 // "C" functions are invoked as the threads are spawned.  The signature of each
-// function follows the "C" standard "'void *'" interface for spawning threads.
-// Each function will be called on a new thread when the 'start' method is
-// invoked for a given 'my_Server' object.  Each function then delegates
-// processing for the thread back to the 'my_Server' object that spawned it.
-//..
-//  extern "C" {
+// function follows the "C" standard "`void *`" interface for spawning threads.
+// Each function will be called on a new thread when the `start` method is
+// invoked for a given `my_Server` object.  Each function then delegates
+// processing for the thread back to the `my_Server` object that spawned it.
+// ```
+// extern "C" {
 //
-//  void *my_connectionMonitorThreadEntry(void *server);
+// void *my_connectionMonitorThreadEntry(void *server);
 //
-//  void *my_timerMonitorThreadEntry(void *server);
+// void *my_timerMonitorThreadEntry(void *server);
 //
-//  }
-//..
+// }
+// ```
 //
-///'struct my_Connection'
+///`struct my_Connection`
 /// - - - - - - - - - - -
-// The 'my_Connection' structure is used by 'my_Server' to manage a single
-// physical connection on behalf of a 'my_Session'.
-//..
-//  class my_Session;
-//  struct my_Connection {
-//      int         d_timerId;
-//      my_Session *d_session_p;
-//  };
-//..
+// The `my_Connection` structure is used by `my_Server` to manage a single
+// physical connection on behalf of a `my_Session`.
+// ```
+// class my_Session;
+// struct my_Connection {
+//     int         d_timerId;
+//     my_Session *d_session_p;
+// };
+// ```
 //
 ///Protocol Classes
 /// - - - - - - - -
-// Protocol class 'my_Session' provides a pure abstract protocol to manage a
+// Protocol class `my_Session` provides a pure abstract protocol to manage a
 // single "session" to be associated with a specific connection on a server.
-//..
-//  class my_Session {
-//      // Pure protocol class to process a data buffer of arbitrary size.
-//      // Concrete implementations in the "real world" would typically manage
-//      // an external connection like a socket.
+// ```
+// class my_Session {
+//     // Pure protocol class to process a data buffer of arbitrary size.
+//     // Concrete implementations in the "real world" would typically manage
+//     // an external connection like a socket.
 //
-//    public:
-//      my_Session();
-//      virtual int processData(void *data, int length) = 0;
-//      virtual int handleTimeout(my_Connection *connection) = 0;
-//      virtual ~my_Session();
-//  };
-//..
+//   public:
+//     my_Session();
+//     virtual int processData(void *data, int length) = 0;
+//     virtual int handleTimeout(my_Connection *connection) = 0;
+//     virtual ~my_Session();
+// };
+// ```
 // The constructor and destructor do nothing:
-//..
-//  my_Session::my_Session()
-//  {
-//  }
+// ```
+// my_Session::my_Session()
+// {
+// }
 //
-//  my_Session::~my_Session()
-//  {
-//  }
-//..
-// Protocol class 'my_Server' provides a partial implementation of a simple
+// my_Session::~my_Session()
+// {
+// }
+// ```
+// Protocol class `my_Server` provides a partial implementation of a simple
 // server that supports and monitors an arbitrary number of connections and
 // handles incoming data for those connections.  Clients must provide a
-// concrete implementation that binds connections to concrete 'my_Session'
+// concrete implementation that binds connections to concrete `my_Session`
 // objects and monitors all open connections for incoming requests.  The
-// concrete implementation calls 'my_Server::newConnection()' when a new
+// concrete implementation calls `my_Server::newConnection()` when a new
 // connections is required, and implements the virtual function
-// 'monitorConnections' to monitor all open connections.
-//..
-//  class my_Server {
-//      // Simple server supporting multiple Connections.
+// `monitorConnections` to monitor all open connections.
+// ```
+// class my_Server {
+//     // Simple server supporting multiple Connections.
 //
-//      bsl::vector<my_Connection*>      d_connections;
-//      bdlcc::TimeQueue<my_Connection*> d_timeQueue;
-//      int                              d_ioTimeout;
-//      bslmt::Mutex                     d_timerMonitorMutex;
-//      bslmt::Condition                 d_timerChangedCond;
-//      bslmt::ThreadUtil::Handle        d_connectionThreadHandle;
-//      bslmt::ThreadUtil::Handle        d_timerThreadHandle;
-//      volatile bool                    d_done;
+//     bsl::vector<my_Connection*>      d_connections;
+//     bdlcc::TimeQueue<my_Connection*> d_timeQueue;
+//     int                              d_ioTimeout;
+//     bslmt::Mutex                     d_timerMonitorMutex;
+//     bslmt::Condition                 d_timerChangedCond;
+//     bslmt::ThreadUtil::Handle        d_connectionThreadHandle;
+//     bslmt::ThreadUtil::Handle        d_timerThreadHandle;
+//     volatile bool                    d_done;
 //
-//    protected:
-//      void newConnection(my_Connection *connection);
-//          // Add the specified 'connection' to the current 'my_Server',
-//          // setting the new timeout value to the current time plus the
-//          // timeout value provided at construction of this 'my_Server'
-//          // instance.  If the added connection is the new "top" of the
-//          // queue, signal that the minimum time on the queue has changed.
-//          // Upon seeing this signal, the TimerMonitor thread will wake up
-//          // and look for expired timers.
-//          //
-//          // Behavior is undefined if 'connection' has already been added to
-//          // any 'my_Server' and has not been removed via member function
-//          // 'closeConnection'.
+//   protected:
+//     void newConnection(my_Connection *connection);
+//         // Add the specified 'connection' to the current 'my_Server',
+//         // setting the new timeout value to the current time plus the
+//         // timeout value provided at construction of this 'my_Server'
+//         // instance.  If the added connection is the new "top" of the
+//         // queue, signal that the minimum time on the queue has changed.
+//         // Upon seeing this signal, the TimerMonitor thread will wake up
+//         // and look for expired timers.
+//         //
+//         // Behavior is undefined if 'connection' has already been added to
+//         // any 'my_Server' and has not been removed via member function
+//         // 'closeConnection'.
 //
-//      void removeConnection(my_Connection *connection);
-//          // Remove the specified 'connection' from the current 'my_Server',
-//          // so that it will no longer be monitored for available data.
+//     void removeConnection(my_Connection *connection);
+//         // Remove the specified 'connection' from the current 'my_Server',
+//         // so that it will no longer be monitored for available data.
 //
-//      virtual void closeConnection(my_Connection *connection)=0;
-//          // Provide a mechanism for a concrete implementation to close a
-//          // specified 'connection'.
+//     virtual void closeConnection(my_Connection *connection)=0;
+//         // Provide a mechanism for a concrete implementation to close a
+//         // specified 'connection'.
 //
-//      void dataAvailable(my_Connection *connection,
-//                         void          *buffer_p,
-//                         int            length);
-//          // Receive in the specified 'buffer_p' a pointer to a data buffer
-//          // of the specified 'length' bytes, and pass this to the specified
-//          // 'connection' to be processed.  Behavior is undefined if
-//          // 'connection' is not currently added to this 'my_Server' object,
-//          // or if 'length' <= 0.
+//     void dataAvailable(my_Connection *connection,
+//                        void          *buffer_p,
+//                        int            length);
+//         // Receive in the specified 'buffer_p' a pointer to a data buffer
+//         // of the specified 'length' bytes, and pass this to the specified
+//         // 'connection' to be processed.  Behavior is undefined if
+//         // 'connection' is not currently added to this 'my_Server' object,
+//         // or if 'length' <= 0.
 //
-//    protected:
-//      virtual void monitorConnections()=0;
-//          // Monitor all connections in the current 'my_Server'.  When data
-//          // becomes available for a given connection, pass the data to that
-//          // connection for processing.
+//   protected:
+//     virtual void monitorConnections()=0;
+//         // Monitor all connections in the current 'my_Server'.  When data
+//         // becomes available for a given connection, pass the data to that
+//         // connection for processing.
 //
-//      void monitorTimers();
-//          // Monitor all timers in the current 'my_Server', and handle each
-//          // timer as it expires.
+//     void monitorTimers();
+//         // Monitor all timers in the current 'my_Server', and handle each
+//         // timer as it expires.
 //
-//      friend void *my_connectionMonitorThreadEntry(void *server);
-//      friend void *my_timerMonitorThreadEntry(void *server);
+//     friend void *my_connectionMonitorThreadEntry(void *server);
+//     friend void *my_timerMonitorThreadEntry(void *server);
 //
-//    private:
-//      // Not implemented:
-//      my_Server(const my_Server&);
+//   private:
+//     // Not implemented:
+//     my_Server(const my_Server&);
 //
-//    public:
-//      // CREATORS
-//      explicit
-//      my_Server(int ioTimeout, bslma::Allocator *basicAllocator = 0);
-//          // Construct a 'my_Server' object with a timeout value of the
-//          // specified 'ioTimeout' seconds.  Use the optionally specified
-//          // 'basicAllocator' for all memory allocation for data members of
-//          // 'my_Server'.
+//   public:
+//     // CREATORS
+//     explicit
+//     my_Server(int ioTimeout, bslma::Allocator *basicAllocator = 0);
+//         // Construct a 'my_Server' object with a timeout value of the
+//         // specified 'ioTimeout' seconds.  Use the optionally specified
+//         // 'basicAllocator' for all memory allocation for data members of
+//         // 'my_Server'.
 //
-//      virtual ~my_Server();
+//     virtual ~my_Server();
 //
-//      // MANIPULATORS
-//      int start();
-//          // Begin monitoring timers and connections.
-//  };
-//..
-// The constructor is simple: it initializes the internal 'bdlcc::TimeQueue'
+//     // MANIPULATORS
+//     int start();
+//         // Begin monitoring timers and connections.
+// };
+// ```
+// The constructor is simple: it initializes the internal `bdlcc::TimeQueue`
 // and sets the I/O timeout value.  The virtual destructor sets a shared
 // completion flag to indicate completion, wakes up all waiting threads, and
 // waits for them to join.
-//..
-//  my_Server::my_Server(int ioTimeout, bslma::Allocator *basicAllocator)
-//  : d_timeQueue(basicAllocator)
-//  , d_ioTimeout(ioTimeout)
-//  , d_connectionThreadHandle(bslmt::ThreadUtil::invalidHandle())
-//  , d_timerThreadHandle(bslmt::ThreadUtil::invalidHandle())
-//  {
-//  }
+// ```
+// my_Server::my_Server(int ioTimeout, bslma::Allocator *basicAllocator)
+// : d_timeQueue(basicAllocator)
+// , d_ioTimeout(ioTimeout)
+// , d_connectionThreadHandle(bslmt::ThreadUtil::invalidHandle())
+// , d_timerThreadHandle(bslmt::ThreadUtil::invalidHandle())
+// {
+// }
 //
-//  my_Server::~my_Server()
-//  {
-//      d_done = true;
-//      d_timerChangedCond.broadcast();
-//      if (bslmt::ThreadUtil::invalidHandle() != d_connectionThreadHandle) {
-//          bslmt::ThreadUtil::join(d_connectionThreadHandle);
-//      }
-//      if (bslmt::ThreadUtil::invalidHandle()!= d_timerThreadHandle) {
-//          bslmt::ThreadUtil::join(d_timerThreadHandle);
-//      }
-//  }
-//..
-// Member function 'newConnection' adds the 'connection' to the current set of
+// my_Server::~my_Server()
+// {
+//     d_done = true;
+//     d_timerChangedCond.broadcast();
+//     if (bslmt::ThreadUtil::invalidHandle() != d_connectionThreadHandle) {
+//         bslmt::ThreadUtil::join(d_connectionThreadHandle);
+//     }
+//     if (bslmt::ThreadUtil::invalidHandle()!= d_timerThreadHandle) {
+//         bslmt::ThreadUtil::join(d_timerThreadHandle);
+//     }
+// }
+// ```
+// Member function `newConnection` adds the `connection` to the current set of
 // connections to be monitored.  This is done in two steps.  First, the
-// 'connection' is added to the internal array, and then a timer is set for the
-// 'connection' by creating a corresponding entry in the internal
-// 'bdlcc::TimeQueue'.
-//..
-//  void my_Server::newConnection(my_Connection *connection)
-//  {
-//      d_connections.push_back(connection);
-//      int isNewTop = 0;
-//      connection->d_timerId = d_timeQueue.add(bdlt::CurrentTime::now() +
-//                                                                 d_ioTimeout,
-//                                              connection,
-//                                              &isNewTop);
-//      if (isNewTop) {
-//          bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
-//          d_timerChangedCond.signal();
-//      }
-//  }
-//..
-// Member function 'monitorConnections', provided by the concrete
+// `connection` is added to the internal array, and then a timer is set for the
+// `connection` by creating a corresponding entry in the internal
+// `bdlcc::TimeQueue`.
+// ```
+// void my_Server::newConnection(my_Connection *connection)
+// {
+//     d_connections.push_back(connection);
+//     int isNewTop = 0;
+//     connection->d_timerId = d_timeQueue.add(bdlt::CurrentTime::now() +
+//                                                                d_ioTimeout,
+//                                             connection,
+//                                             &isNewTop);
+//     if (isNewTop) {
+//         bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
+//         d_timerChangedCond.signal();
+//     }
+// }
+// ```
+// Member function `monitorConnections`, provided by the concrete
 // implementation class, can use the internal array to determine the set of
 // connections to be monitored.
 //
-// Member function 'removeConnection' removes the 'connection' from the current
+// Member function `removeConnection` removes the `connection` from the current
 // set of connections to be monitored.  This is done in two steps, in reversed
-// order from 'newConnection'.  First, the 'connection' is removed from the
-// internal 'bdlcc::TimeQueue', and then the 'connection' is removed from the
+// order from `newConnection`.  First, the `connection` is removed from the
+// internal `bdlcc::TimeQueue`, and then the `connection` is removed from the
 // internal array.
 //
 // The concrete implementation class must provide an implementation of virtual
-// function 'closeConnection'; this implementation must call 'removeConnection'
-// when the actual connection is to be removed from the 'my_Server' object.
+// function `closeConnection`; this implementation must call `removeConnection`
+// when the actual connection is to be removed from the `my_Server` object.
 //
-// Function 'closeConnection' is in turn called by function 'monitorTimers',
-// which manages the overall timer monitor thread.  Because 'monitorTimers'
+// Function `closeConnection` is in turn called by function `monitorTimers`,
+// which manages the overall timer monitor thread.  Because `monitorTimers`
 // takes responsibility for notifying other threads when the queue status
-// changes, function 'removeConnection' does not address these concerns.
-//..
-//  void my_Server::removeConnection(my_Connection *connection)
-//  {
-//      // Remove from d_timeQueue
-//      d_timeQueue.remove(connection->d_timerId);
-//      // Remove from d_connections
-//      bsl::vector<my_Connection*>::iterator begin = d_connections.begin(),
-//          end = d_connections.end(),
-//          it = begin;
-//      for (; it != end; ++it) {
-//          if (connection == *it) {
-//              d_connections.erase(it);
-//          }
-//      }
-//  }
-//..
-// The 'dataAvailable' function will be called when data becomes available for
+// changes, function `removeConnection` does not address these concerns.
+// ```
+// void my_Server::removeConnection(my_Connection *connection)
+// {
+//     // Remove from d_timeQueue
+//     d_timeQueue.remove(connection->d_timerId);
+//     // Remove from d_connections
+//     bsl::vector<my_Connection*>::iterator begin = d_connections.begin(),
+//         end = d_connections.end(),
+//         it = begin;
+//     for (; it != end; ++it) {
+//         if (connection == *it) {
+//             d_connections.erase(it);
+//         }
+//     }
+// }
+// ```
+// The `dataAvailable` function will be called when data becomes available for
 // a specific connection.  It removes the connection from the timer queue while
 // the connection is busy, processes the available data, and returns the
 // connection to the queue with a new time value.
-//..
-//  void my_Server::dataAvailable(my_Connection *connection,
-//                                void          *buffer_p,
-//                                int            length)
-//  {
-//      if (connection->d_timerId) {
-//          if (d_timeQueue.remove(connection->d_timerId))  return;   // RETURN
-//          connection->d_timerId = 0;
-//      }
-//      connection->d_session_p->processData(buffer_p, length);
+// ```
+// void my_Server::dataAvailable(my_Connection *connection,
+//                               void          *buffer_p,
+//                               int            length)
+// {
+//     if (connection->d_timerId) {
+//         if (d_timeQueue.remove(connection->d_timerId))  return;   // RETURN
+//         connection->d_timerId = 0;
+//     }
+//     connection->d_session_p->processData(buffer_p, length);
 //
-//      int isNewTop = 0;
+//     int isNewTop = 0;
 //
-//      connection->d_timerId = d_timeQueue.add(bdlt::CurrentTime::now() +
-//                                                                 d_ioTimeout,
-//                                              connection,
-//                                              &isNewTop);
-//      if (isNewTop) {
-//          bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
-//          d_timerChangedCond.signal();
-//      }
-//  }
-//..
-// Function 'monitorTimers' manages the timer monitor thread; it is called when
+//     connection->d_timerId = d_timeQueue.add(bdlt::CurrentTime::now() +
+//                                                                d_ioTimeout,
+//                                             connection,
+//                                             &isNewTop);
+//     if (isNewTop) {
+//         bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
+//         d_timerChangedCond.signal();
+//     }
+// }
+// ```
+// Function `monitorTimers` manages the timer monitor thread; it is called when
 // the thread is spawned, and checks repeatedly for expired timers; after each
 // check, it does a timed wait based upon the minimum time value seen in the
 // queue after all expired timers have been removed.
-//..
-//  void my_Server::monitorTimers()
-//  {
-//      while (!d_done) {
-//          bsl::vector<bdlcc::TimeQueueItem<my_Connection*> > expiredTimers;
-//          {
-//              bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
-//              bsls::TimeInterval minTime;
-//              int newLength;
+// ```
+// void my_Server::monitorTimers()
+// {
+//     while (!d_done) {
+//         bsl::vector<bdlcc::TimeQueueItem<my_Connection*> > expiredTimers;
+//         {
+//             bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
+//             bsls::TimeInterval minTime;
+//             int newLength;
 //
-//              d_timeQueue.popLE(bdlt::CurrentTime::now(),
-//                                &expiredTimers,
-//                                &newLength,
-//                                &minTime );
+//             d_timeQueue.popLE(bdlt::CurrentTime::now(),
+//                               &expiredTimers,
+//                               &newLength,
+//                               &minTime );
 //
-//              if (!expiredTimers.size()) {
-//                  if (newLength) {
-//                      // no expired timers, but unexpired timers remain.
-//                      d_timerChangedCond.timedWait(&d_timerMonitorMutex,
-//                                                   minTime);
-//                  }
-//                  else {
-//                      // no expired timers, and timer queue is empty.
-//                      d_timerChangedCond.wait(&d_timerMonitorMutex);
-//                  }
-//                  continue;
-//              }
-//          }
+//             if (!expiredTimers.size()) {
+//                 if (newLength) {
+//                     // no expired timers, but unexpired timers remain.
+//                     d_timerChangedCond.timedWait(&d_timerMonitorMutex,
+//                                                  minTime);
+//                 }
+//                 else {
+//                     // no expired timers, and timer queue is empty.
+//                     d_timerChangedCond.wait(&d_timerMonitorMutex);
+//                 }
+//                 continue;
+//             }
+//         }
 //
-//          int length = static_cast<int>(expiredTimers.size());
-//          if (length) {
-//              bdlcc::TimeQueueItem<my_Connection*> *data =
-//                                                      &expiredTimers.front();
-//              for (int i = 0; i < length; ++i) {
-//                  closeConnection(data[i].data());
-//              }
-//          }
-//      }
-//  }
-//..
-// Function 'start' spawns two separate threads.  The first thread will monitor
+//         int length = static_cast<int>(expiredTimers.size());
+//         if (length) {
+//             bdlcc::TimeQueueItem<my_Connection*> *data =
+//                                                     &expiredTimers.front();
+//             for (int i = 0; i < length; ++i) {
+//                 closeConnection(data[i].data());
+//             }
+//         }
+//     }
+// }
+// ```
+// Function `start` spawns two separate threads.  The first thread will monitor
 // connections and handle any data received on them.  The second monitors the
 // internal timer queue and removes connections that have timed out.  Function
-// 'start' calls 'bslmt::ThreadUtil::create', which expects a function pointer
+// `start` calls `bslmt::ThreadUtil::create`, which expects a function pointer
 // to a function with the standard "C" callback signature
-// 'void *fn(void *data)'.  This non-member function will call back into the
-// 'my_Server' object immediately.
-//..
-//  int my_Server::start()
-//  {
-//      bslmt::ThreadAttributes attr;
+// `void *fn(void *data)`.  This non-member function will call back into the
+// `my_Server` object immediately.
+// ```
+// int my_Server::start()
+// {
+//     bslmt::ThreadAttributes attr;
 //
-//      if (bslmt::ThreadUtil::create(&d_connectionThreadHandle, attr,
-//                                   &my_connectionMonitorThreadEntry,
-//                                   this)) {
-//          return -1;                                                // RETURN
-//      }
+//     if (bslmt::ThreadUtil::create(&d_connectionThreadHandle, attr,
+//                                  &my_connectionMonitorThreadEntry,
+//                                  this)) {
+//         return -1;                                                // RETURN
+//     }
 //
-//      if (bslmt::ThreadUtil::create(&d_timerThreadHandle, attr,
-//                                   &my_timerMonitorThreadEntry,
-//                                   this)) {
-//          return -1;                                                // RETURN
-//      }
-//      return 0;
-//  }
-//..
+//     if (bslmt::ThreadUtil::create(&d_timerThreadHandle, attr,
+//                                  &my_timerMonitorThreadEntry,
+//                                  this)) {
+//         return -1;                                                // RETURN
+//     }
+//     return 0;
+// }
+// ```
 // Finally, we are now in a position to implement the two thread dispatchers:
-//..
-//  extern "C" {
+// ```
+// extern "C" {
 //
-//  void *my_connectionMonitorThreadEntry(void *server)
-//  {
-//      ((my_Server*)server)->monitorConnections();
-//      return server;
-//  }
+// void *my_connectionMonitorThreadEntry(void *server)
+// {
+//     ((my_Server*)server)->monitorConnections();
+//     return server;
+// }
 //
-//  void *my_timerMonitorThreadEntry(void *server)
-//  {
-//      ((my_Server*)server)->monitorTimers();
-//      return server;
-//  }
+// void *my_timerMonitorThreadEntry(void *server)
+// {
+//     ((my_Server*)server)->monitorTimers();
+//     return server;
+// }
 //
-//  }
-//..
+// }
+// ```
 // In order to test our server, we provide two concrete implementations of a
 // test session and of a test server as follows.
-//..
-//  // myTestSession.h             -*-C++-*-
+// ```
+// // myTestSession.h             -*-C++-*-
 //
-//  class my_TestSession : public my_Session {
-//      // Concrete implementation of my_Session, providing simple test
-//      // semantics In particular, implement the virtual function
-//      // processData() to record all incoming data for the controlling
-//      // connection, and virtual function handleTimeout() for handling
-//      // timeouts.
+// class my_TestSession : public my_Session {
+//     // Concrete implementation of my_Session, providing simple test
+//     // semantics In particular, implement the virtual function
+//     // processData() to record all incoming data for the controlling
+//     // connection, and virtual function handleTimeout() for handling
+//     // timeouts.
 //
-//      int d_verbose;
+//     int d_verbose;
 //
-//    public:
-//      // CREATORS
-//      explicit
-//      my_TestSession(int verbose) : my_Session(), d_verbose(verbose) { }
+//   public:
+//     // CREATORS
+//     explicit
+//     my_TestSession(int verbose) : my_Session(), d_verbose(verbose) { }
 //
-//      // MANIPULATORS
-//      virtual int handleTimeout(my_Connection *connection)
-//      {
-//          // Do something to handle timeout.
-//          if (d_verbose) {
-//              bsl::cout << bdlt::CurrentTime::utc() << ": ";
-//              bsl::cout << "Connection " << connection << "timed out.\n";
-//          }
-//          return 0;
-//      }
+//     // MANIPULATORS
+//     virtual int handleTimeout(my_Connection *connection)
+//     {
+//         // Do something to handle timeout.
+//         if (d_verbose) {
+//             bsl::cout << bdlt::CurrentTime::utc() << ": ";
+//             bsl::cout << "Connection " << connection << "timed out.\n";
+//         }
+//         return 0;
+//     }
 //
-//      virtual int processData(void *data, int length)
-//      {
-//          // Do something with the data...
-//          if (d_verbose) {
-//              bsl::cout << bdlt::CurrentTime::utc() << ": ";
-//              bsl::cout << "Processing data at address " << data
-//                        << " and length " << length << ".\n";
-//          }
-//          return 0;
-//      }
-//  };
+//     virtual int processData(void *data, int length)
+//     {
+//         // Do something with the data...
+//         if (d_verbose) {
+//             bsl::cout << bdlt::CurrentTime::utc() << ": ";
+//             bsl::cout << "Processing data at address " << data
+//                       << " and length " << length << ".\n";
+//         }
+//         return 0;
+//     }
+// };
 //
-//  // myTestSession.h             -*-C++-*-
+// // myTestSession.h             -*-C++-*-
 //
-//  class my_TestServer :  public my_Server {
-//      // Concrete implementation of my_Server, providing connection logic.
+// class my_TestServer :  public my_Server {
+//     // Concrete implementation of my_Server, providing connection logic.
 //
-//      int d_verbose;
+//     int d_verbose;
 //
-//    protected:
-//      virtual void closeConnection(my_Connection *connection);
-//          // Close the specified external 'connection' and call
-//          // 'removeConnection' when done.
+//   protected:
+//     virtual void closeConnection(my_Connection *connection);
+//         // Close the specified external 'connection' and call
+//         // 'removeConnection' when done.
 //
-//      virtual void monitorConnections();
-//          // Monitor all connections in the current 'my_Server'.  When data
-//          // becomes available for a given connection, pass the data to that
-//          // connection for processing.
+//     virtual void monitorConnections();
+//         // Monitor all connections in the current 'my_Server'.  When data
+//         // becomes available for a given connection, pass the data to that
+//         // connection for processing.
 //
-//    private:
-//      // Not implemented:
-//      my_TestServer(const my_TestServer&);
+//   private:
+//     // Not implemented:
+//     my_TestServer(const my_TestServer&);
 //
-//    public:
-//      // CREATORS
-//      explicit
-//      my_TestServer(int               ioTimeout,
-//                    int               verbose = 0,
-//                    bslma::Allocator *basicAllocator = 0)
-//      : my_Server(ioTimeout, basicAllocator)
-//      , d_verbose(verbose)
-//      {
-//      }
+//   public:
+//     // CREATORS
+//     explicit
+//     my_TestServer(int               ioTimeout,
+//                   int               verbose = 0,
+//                   bslma::Allocator *basicAllocator = 0)
+//     : my_Server(ioTimeout, basicAllocator)
+//     , d_verbose(verbose)
+//     {
+//     }
 //
-//      virtual ~my_TestServer();
-//  };
+//     virtual ~my_TestServer();
+// };
 //
-//  // myTestSession.cpp             -*-C++-*-
+// // myTestSession.cpp             -*-C++-*-
 //
-//  my_TestServer::~my_TestServer()
-//  {
-//  }
+// my_TestServer::~my_TestServer()
+// {
+// }
 //
-//  void my_TestServer::closeConnection(my_Connection *connection)
-//  {
-//      if (d_verbose) {
-//          bsl::cout << bdlt::CurrentTime::utc() << ": ";
-//          bsl::cout << "Closing connection " << connection << bsl::endl;
-//      }
-//      delete connection;
-//  }
+// void my_TestServer::closeConnection(my_Connection *connection)
+// {
+//     if (d_verbose) {
+//         bsl::cout << bdlt::CurrentTime::utc() << ": ";
+//         bsl::cout << "Closing connection " << connection << bsl::endl;
+//     }
+//     delete connection;
+// }
 //
-//  void my_TestServer::monitorConnections()
-//  {
-//      my_Session *session = new my_TestSession(d_verbose);
+// void my_TestServer::monitorConnections()
+// {
+//     my_Session *session = new my_TestSession(d_verbose);
 //
-//      // Simulate connection monitor logic...
-//      my_Connection *connection1 = new my_Connection;
-//      connection1->d_session_p = session;
-//      newConnection(connection1);
-//      if (d_verbose) {
-//          bsl::cout << bdlt::CurrentTime::utc() << ": ";
-//          bsl::cout << "Opening connection " << connection1 << endl;
-//      }
+//     // Simulate connection monitor logic...
+//     my_Connection *connection1 = new my_Connection;
+//     connection1->d_session_p = session;
+//     newConnection(connection1);
+//     if (d_verbose) {
+//         bsl::cout << bdlt::CurrentTime::utc() << ": ";
+//         bsl::cout << "Opening connection " << connection1 << endl;
+//     }
 //
-//      my_Connection *connection2 = new my_Connection;
-//      connection2->d_session_p = session;
-//      newConnection(connection2);
-//      if (d_verbose) {
-//          bsl::cout << bdlt::CurrentTime::utc() << ": ";
-//          bsl::cout << "Opening connection " << connection2 << endl;
-//      }
+//     my_Connection *connection2 = new my_Connection;
+//     connection2->d_session_p = session;
+//     newConnection(connection2);
+//     if (d_verbose) {
+//         bsl::cout << bdlt::CurrentTime::utc() << ": ";
+//         bsl::cout << "Opening connection " << connection2 << endl;
+//     }
 //
-//      bslmt::ThreadUtil::sleep(bsls::TimeInterval(2)); // 2s
+//     bslmt::ThreadUtil::sleep(bsls::TimeInterval(2)); // 2s
 //
-//      // Simulate transmission...
-//      const int  length = 1024;
-//      const char*buffer[length];
-//      if (d_verbose) {
-//          bsl::cout << bdlt::CurrentTime::utc() << ": ";
-//          bsl::cout << "Connection " << connection1
-//                    << " receives " << length << " bytes " << endl;
-//      }
-//      dataAvailable(connection1, buffer, length);
+//     // Simulate transmission...
+//     const int  length = 1024;
+//     const char*buffer[length];
+//     if (d_verbose) {
+//         bsl::cout << bdlt::CurrentTime::utc() << ": ";
+//         bsl::cout << "Connection " << connection1
+//                   << " receives " << length << " bytes " << endl;
+//     }
+//     dataAvailable(connection1, buffer, length);
 //
-//      // Wait for timeout to occur, otherwise session gets destroyed from
-//      // stack too early.
+//     // Wait for timeout to occur, otherwise session gets destroyed from
+//     // stack too early.
 //
-//      bslmt::ThreadUtil::sleep(bsls::TimeInterval(8)); // 8s
-//  }
-//..
+//     bslmt::ThreadUtil::sleep(bsls::TimeInterval(8)); // 8s
+// }
+// ```
 // The program that would exercise this test server would simply consist of:
-//..
-//  int usageExample(int verbose)
-//  {
-//      my_TestServer mX(5, verbose); // timeout for connections: 5s
-//      mX.start();
+// ```
+// int usageExample(int verbose)
+// {
+//     my_TestServer mX(5, verbose); // timeout for connections: 5s
+//     mX.start();
 //
-//      // Wait sufficiently long to observe all events.
-//      bslmt::ThreadUtil::sleep(bsls::TimeInterval(10)); // 10s
+//     // Wait sufficiently long to observe all events.
+//     bslmt::ThreadUtil::sleep(bsls::TimeInterval(10)); // 10s
 //
-//      return 0;
-//  }
-//..
+//     return 0;
+// }
+// ```
 // The output of this program would look something as follows:
-//..
-//  17:10:35.000: Opening connection 0x00161880
-//  17:10:35.000: Opening connection 0x001618b0
-//  17:10:37.000: Connection 0x00161880 receives 1024 bytes
-//  17:10:37.000: Processing data at address 0xfeefaf04 and length 1024.
-//  17:10:40.000: Closing connection 0x001618b0
-//  17:10:42.000: Closing connection 0x00161880
-//..
+// ```
+// 17:10:35.000: Opening connection 0x00161880
+// 17:10:35.000: Opening connection 0x001618b0
+// 17:10:37.000: Connection 0x00161880 receives 1024 bytes
+// 17:10:37.000: Processing data at address 0xfeefaf04 and length 1024.
+// 17:10:40.000: Closing connection 0x001618b0
+// 17:10:42.000: Closing connection 0x00161880
+// ```
 
 #include <bdlscm_version.h>
 
@@ -635,19 +635,20 @@ class TimeQueueItem;
                               // ===============
                               // class TimeQueue
                               // ===============
+
+/// This parameterized class provides a public interface which is similar in
+/// structure and intent to `Queue<DATA>`, with the exception that each item
+/// stored in the `TimeQueue` has an associated time value.  Items are
+/// retrieved or exchanged by proxy of a `TimeQueueItem<DATA>`, and are
+/// referred to by an opaque data type `TimeQueue::Handle` which serves to
+/// identify an individual element on the Time Queue.  Idiomatic usage of
+/// `TimeQueue` includes the member function `popLE`, which finds all items
+/// on the queue whose `bsls::TimeInterval` are less than a specified value
+/// and transfers those items to a provided vector of items, and the member
+/// function `update`, which can update the time value for a specific
+/// `TimeQueueItem` without removing it from the queue.
 template <class DATA>
 class TimeQueue {
-    // This parameterized class provides a public interface which is similar in
-    // structure and intent to 'Queue<DATA>', with the exception that each item
-    // stored in the 'TimeQueue' has an associated time value.  Items are
-    // retrieved or exchanged by proxy of a 'TimeQueueItem<DATA>', and are
-    // referred to by an opaque data type 'TimeQueue::Handle' which serves to
-    // identify an individual element on the Time Queue.  Idiomatic usage of
-    // 'TimeQueue' includes the member function 'popLE', which finds all items
-    // on the queue whose 'bsls::TimeInterval' are less than a specified value
-    // and transfers those items to a provided vector of items, and the member
-    // function 'update', which can update the time value for a specific
-    // 'TimeQueueItem' without removing it from the queue.
 
     // TYPES
     enum {
@@ -658,50 +659,53 @@ class TimeQueue {
 
   public:
     // TYPES
-    typedef int Handle;
-        // 'Handle' defines an alias for uniquely identifying a valid node in
-        // the time queue.  Handles are returned when nodes are added to the
-        // time queue, and must be supplied to the 'update' and 'remove'
-        // methods to identify existing nodes.  When a node is removed, the
-        // handle value becomes invalid, though invalidated handle values are
-        // eventually reused.  See the component-level documentation for more
-        // details.
 
+    /// `Handle` defines an alias for uniquely identifying a valid node in
+    /// the time queue.  Handles are returned when nodes are added to the
+    /// time queue, and must be supplied to the `update` and `remove`
+    /// methods to identify existing nodes.  When a node is removed, the
+    /// handle value becomes invalid, though invalidated handle values are
+    /// eventually reused.  See the component-level documentation for more
+    /// details.
+    typedef int Handle;
+
+    /// This type is a wrapper around a void pointer that will be supplied
+    /// and used by clients to uniquely identify an item in the queue.
     class Key {
-        // This type is a wrapper around a void pointer that will be supplied
-        // and used by clients to uniquely identify an item in the queue.
 
         // PRIVATE DATA MEMBERS
         const void *d_key;
 
       public:
         // CREATORS
+
+        /// Create a `Key` object having the specified `key` value.
         explicit Key(const void *key)
         : d_key(key)
-            // Create a 'Key' object having the specified 'key' value.
         {}
 
+        /// Create a `Key` object having the specified `key` value cast to a
+        /// `void *`.
         explicit Key(int key)
         : d_key(reinterpret_cast<const void*>(static_cast<bsl::intptr_t>(key)))
-            // Create a 'Key' object having the specified 'key' value cast to a
-            // 'void *'.
         {}
 
+        /// Destroy this `Key` object.
         ~Key()
-            // Destroy this 'Key' object.
         {}
 
         // ACCESSORS
+
+        /// Return `true` if this object has the same value as the specified
+        /// `rhs` object, and `false` otherwise.
         bool operator==(const Key& rhs) const
-            // Return 'true' if this object has the same value as the specified
-            // 'rhs' object, and 'false' otherwise.
         {
             return d_key == rhs.d_key;
         }
 
+        /// Return `true` if this object does not have the same value as the
+        /// specified `rhs` object, and `false` otherwise.
         bool operator!=(const Key& rhs) const
-            // Return 'true' if this object does not have the same value as the
-            // specified 'rhs' object, and 'false' otherwise.
         {
             return d_key != rhs.d_key;
         }
@@ -713,11 +717,11 @@ class TimeQueue {
     template <class VECTOR>
     struct IsVector;
 
+    /// This queue is implemented internally as a map of time values, each
+    /// entry in the map storing a doubly-linked circular list of items
+    /// having the same time value.  This struct provides the node in the
+    /// list.
     struct Node {
-        // This queue is implemented internally as a map of time values, each
-        // entry in the map storing a doubly-linked circular list of items
-        // having the same time value.  This struct provides the node in the
-        // list.
 
         // PUBLIC DATA MEMBERS
         unsigned int              d_index;
@@ -728,15 +732,17 @@ class TimeQueue {
         bsls::ObjectBuffer<DATA>  d_data;
 
         // CREATORS
+
+        /// Create a `Node` having a time value of 0.
         Node()
         : d_index(0)
         , d_key(0)
         , d_prev_p(0)
         , d_next_p(0)
-            // Create a 'Node' having a time value of 0.
         {
         }
 
+        /// Create a `Node` having the specified `time` value.
         explicit
         Node(const bsls::TimeInterval& time)
         : d_index(0)
@@ -744,21 +750,20 @@ class TimeQueue {
         , d_key(0)
         , d_prev_p(0)
         , d_next_p(0)
-            // Create a 'Node' having the specified 'time' value.
         {
         }
     };
 
+    /// Internal typedef for the time index map.
     typedef bsl::map<bsls::TimeInterval, Node*> NodeMap;
-        // Internal typedef for the time index map.
 
+    /// Internal typedef for the iterator type used to navigate the time
+    /// index.
     typedef typename NodeMap::iterator       MapIter;
-        // Internal typedef for the iterator type used to navigate the time
-        // index.
 
+    /// Internal typedef for the const-iterator type used to navigate the
+    /// time index.
     typedef typename NodeMap::const_iterator MapCIter;
-        // Internal typedef for the const-iterator type used to navigate the
-        // time index.
 
     // PRIVATE DATA MEMBERS
     const unsigned int        d_indexMask;
@@ -785,70 +790,72 @@ class TimeQueue {
     bslma::Allocator         *d_allocator_p;    // allocator (held, not owned)
 
     // PRIVATE MANIPULATORS
-    void freeNode(Node *node);
-        // Prepare the specified 'node' for being reused on the free list by
-        // incrementing the iteration count.  Set 'd_prev_p' field to 0.
 
+    /// Prepare the specified `node` for being reused on the free list by
+    /// incrementing the iteration count.  Set `d_prev_p` field to 0.
+    void freeNode(Node *node);
+
+    /// Remove from this queue all the items that have a time value less
+    /// than or equal to the specified `time`, and optionally append into
+    /// the optionally specified `buffer` a list of the removed items,
+    /// ordered by their corresponding time values (top item first).
+    /// Optionally load into the optionally specified `newLength` the number
+    /// of items remaining in this queue, and into the optionally specified
+    /// `newMinTime` the lowest remaining time value in this queue.  Note
+    /// that `newMinTime` is only loaded if there are items remaining in the
+    /// time queue; therefore, `newLength` should be specified and examined
+    /// to determine whether items remain, and `newMinTime` used only when
+    /// `newLength` > 0.  Also note that if `DATA` follows the `bdema`
+    /// allocator model, the allocator of the `buffer` vector is used to
+    /// supply memory for the items appended to the `buffer`.
     template <class VECTOR>
     void popLEImp(const bsls::TimeInterval&  time,
                   VECTOR                    *buffer,
                   int                       *newLength = 0,
                   bsls::TimeInterval        *newMinTime = 0);
-        // Remove from this queue all the items that have a time value less
-        // than or equal to the specified 'time', and optionally append into
-        // the optionally specified 'buffer' a list of the removed items,
-        // ordered by their corresponding time values (top item first).
-        // Optionally load into the optionally specified 'newLength' the number
-        // of items remaining in this queue, and into the optionally specified
-        // 'newMinTime' the lowest remaining time value in this queue.  Note
-        // that 'newMinTime' is only loaded if there are items remaining in the
-        // time queue; therefore, 'newLength' should be specified and examined
-        // to determine whether items remain, and 'newMinTime' used only when
-        // 'newLength' > 0.  Also note that if 'DATA' follows the 'bdema'
-        // allocator model, the allocator of the 'buffer' vector is used to
-        // supply memory for the items appended to the 'buffer'.
 
+    /// Remove from this queue up to the specified `maxTimers` number of
+    /// items that have a time value less than or equal to the specified
+    /// `time`, and optionally append into the optionally specified `buffer`
+    /// a list of the removed items, ordered by their corresponding time
+    /// values (top item first).  Optionally load into the optionally
+    /// specified `newLength` the number of items remaining in this queue,
+    /// and into the optionally specified `newMinTime` the lowest remaining
+    /// time value in this queue.  The behavior is undefined unless
+    /// `maxTimers` >= 0.  Note that `newMinTime` is only loaded if there
+    /// are items remaining in the time queue; therefore, `newLength` should
+    /// be specified and examined to determine whether items remain, and
+    /// `newMinTime` used only when `newLength` > 0.  Also note that if
+    /// `DATA` follows the `bdema` allocator model, the allocator of the
+    /// `buffer` vector is used to supply memory.  Note finally that all the
+    /// items appended into `buffer` have a time value less than or equal to
+    /// the elements remaining in this queue.
     template <class VECTOR>
     void popLEImp(const bsls::TimeInterval&  time,
                   int                        maxTimers,
                   VECTOR                    *buffer,
                   int                       *newLength = 0,
                   bsls::TimeInterval        *newMinTime = 0);
-        // Remove from this queue up to the specified 'maxTimers' number of
-        // items that have a time value less than or equal to the specified
-        // 'time', and optionally append into the optionally specified 'buffer'
-        // a list of the removed items, ordered by their corresponding time
-        // values (top item first).  Optionally load into the optionally
-        // specified 'newLength' the number of items remaining in this queue,
-        // and into the optionally specified 'newMinTime' the lowest remaining
-        // time value in this queue.  The behavior is undefined unless
-        // 'maxTimers' >= 0.  Note that 'newMinTime' is only loaded if there
-        // are items remaining in the time queue; therefore, 'newLength' should
-        // be specified and examined to determine whether items remain, and
-        // 'newMinTime' used only when 'newLength' > 0.  Also note that if
-        // 'DATA' follows the 'bdema' allocator model, the allocator of the
-        // 'buffer' vector is used to supply memory.  Note finally that all the
-        // items appended into 'buffer' have a time value less than or equal to
-        // the elements remaining in this queue.
 
+    /// Destroy the data located at the specified `node` and reattach this
+    /// `node` to the front of the free list starting at `d_nextFreeNode_p`,
+    /// making `node` the new `d_nextFreeNode_p`.  Note that the caller must
+    /// not have acquired the lock to this queue.
     void putFreeNode(Node *node);
-        // Destroy the data located at the specified 'node' and reattach this
-        // 'node' to the front of the free list starting at 'd_nextFreeNode_p',
-        // making 'node' the new 'd_nextFreeNode_p'.  Note that the caller must
-        // not have acquired the lock to this queue.
 
+    /// Destroy the `DATA` of every node in the singly-linked list starting
+    /// at the specified `begin` node and ending with a null pointer, and
+    /// reattach these nodes to the front of the free list starting at
+    /// `d_nextFreeNode_p`, making `begin` the new `d_nextFreeNode_p` and
+    /// calling `freeNode`.  Note that the caller must not have acquired the
+    /// lock to this queue.
     void putFreeNodeList(Node *begin);
-        // Destroy the 'DATA' of every node in the singly-linked list starting
-        // at the specified 'begin' node and ending with a null pointer, and
-        // reattach these nodes to the front of the free list starting at
-        // 'd_nextFreeNode_p', making 'begin' the new 'd_nextFreeNode_p' and
-        // calling 'freeNode'.  Note that the caller must not have acquired the
-        // lock to this queue.
 
     // PRIVATE ACCESSORS
+
+    /// Return a pointer to the node correlating to the specified `handle`
+    /// and `key` if such a node exists, otherwise return a null pointer.
     Node* getNodeFromHandle(Handle handle, Key key) const;
-        // Return a pointer to the node correlating to the specified 'handle'
-        // and 'key' if such a node exists, otherwise return a null pointer.
 
 
   private:
@@ -858,32 +865,44 @@ class TimeQueue {
 
   public:
     // CREATORS
+
+    /// Create an empty time queue.  Optionally specify `numIndexBits` to
+    /// configure the number of index bits used by this object.  If
+    /// `numIndexBits` is not specified a default value of 17 is used.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  The behavior is undefined unless `8 <= numIndexBits <= 24`.
+    /// See the component-level documentation for more information regarding
+    /// `numIndexBits`.
     explicit TimeQueue(bslma::Allocator *basicAllocator = 0);
     explicit TimeQueue(int numIndexBits, bslma::Allocator *basicAllocator = 0);
-        // Create an empty time queue.  Optionally specify 'numIndexBits' to
-        // configure the number of index bits used by this object.  If
-        // 'numIndexBits' is not specified a default value of 17 is used.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless '8 <= numIndexBits <= 24'.
-        // See the component-level documentation for more information regarding
-        // 'numIndexBits'.
 
+    /// [**DEPRECATED**] Use the other constructor overloads instead.  Note
+    /// that the specified `poolTimerMemory` argument controlled whether
+    /// additional memory used by an internal `bsl::map` was pooled.  When
+    /// `bsl::map` was modified to pool its own nodes, this option became
+    /// irrelevant and is now ignored.
     explicit TimeQueue(bool              poolTimerMemory,
                        bslma::Allocator *basicAllocator = 0);
     TimeQueue(int               numIndexBits,
               bool              poolTimerMemory,
               bslma::Allocator *basicAllocator = 0);
-        // [!DEPRECATED!] Use the other constructor overloads instead.  Note
-        // that the specified 'poolTimerMemory' argument controlled whether
-        // additional memory used by an internal 'bsl::map' was pooled.  When
-        // 'bsl::map' was modified to pool its own nodes, this option became
-        // irrelevant and is now ignored.
 
+    /// Destroy this time queue.
     ~TimeQueue();
-        // Destroy this time queue.
 
     // MANIPULATORS
+
+    /// Add a new item to this queue having the specified `time` value, and
+    /// associated `data`.  Optionally use the specified `key` to uniquely
+    /// identify the item in subsequent calls to `remove` and `update`.
+    /// Optionally load into the optionally specified `isNewTop` a non-zero
+    /// value if the item is now the lowest item in this queue, and a 0
+    /// value otherwise.  If specified, load into the optionally specified
+    /// `newLength`, the new number of items in this queue.  Return a value
+    /// that may be used to identify the newly added item in future calls to
+    /// time queue on success, and -1 if the maximum queue length has been
+    /// reached.
     Handle add(const bsls::TimeInterval&  time,
                const DATA&                data,
                int                       *isNewTop = 0,
@@ -893,41 +912,31 @@ class TimeQueue {
                const Key&                 key,
                int                       *isNewTop = 0,
                int                       *newLength = 0);
-        // Add a new item to this queue having the specified 'time' value, and
-        // associated 'data'.  Optionally use the specified 'key' to uniquely
-        // identify the item in subsequent calls to 'remove' and 'update'.
-        // Optionally load into the optionally specified 'isNewTop' a non-zero
-        // value if the item is now the lowest item in this queue, and a 0
-        // value otherwise.  If specified, load into the optionally specified
-        // 'newLength', the new number of items in this queue.  Return a value
-        // that may be used to identify the newly added item in future calls to
-        // time queue on success, and -1 if the maximum queue length has been
-        // reached.
 
+    /// Add the value of the specified `item` to this queue.  Optionally
+    /// load into the optionally specified `isNewTop` a non-zero value if
+    /// the replaces is now the lowest element in this queue, and a 0 value
+    /// otherwise.  If specified, load into the optionally specified
+    /// `newLength`, the new number of elements in this queue.  Return a
+    /// value that may be used to identify the newly added item in future
+    /// calls to time queue on success, and -1 if the maximum queue length
+    /// has been reached.
     Handle add(const TimeQueueItem<DATA>&  item,
                int                        *isNewTop = 0,
                int                        *newLength = 0);
-        // Add the value of the specified 'item' to this queue.  Optionally
-        // load into the optionally specified 'isNewTop' a non-zero value if
-        // the replaces is now the lowest element in this queue, and a 0 value
-        // otherwise.  If specified, load into the optionally specified
-        // 'newLength', the new number of elements in this queue.  Return a
-        // value that may be used to identify the newly added item in future
-        // calls to time queue on success, and -1 if the maximum queue length
-        // has been reached.
 
+    /// Atomically remove the top item from this queue, and optionally load
+    /// into the optionally specified `buffer` the time and associated data
+    /// of the item removed.  Optionally load into the optionally specified
+    /// `newLength`, the number of items remaining in the queue.  Optionally
+    /// load into the optionally specified `newMinTime` the new lowest time
+    /// in this queue.  Return 0 on success, and a non-zero value if there
+    /// are no items in the queue.  Note that if `DATA` follows the `bdema`
+    /// allocator model, the allocator of the `buffer` is used to supply
+    /// memory.
     int popFront(TimeQueueItem<DATA> *buffer = 0,
                  int                 *newLength = 0,
                  bsls::TimeInterval  *newMinTime = 0);
-        // Atomically remove the top item from this queue, and optionally load
-        // into the optionally specified 'buffer' the time and associated data
-        // of the item removed.  Optionally load into the optionally specified
-        // 'newLength', the number of items remaining in the queue.  Optionally
-        // load into the optionally specified 'newMinTime' the new lowest time
-        // in this queue.  Return 0 on success, and a non-zero value if there
-        // are no items in the queue.  Note that if 'DATA' follows the 'bdema'
-        // allocator model, the allocator of the 'buffer' is used to supply
-        // memory.
 
     void popLE(const bsls::TimeInterval&               time);
     void popLE(const bsls::TimeInterval&               time,
@@ -994,6 +1003,15 @@ class TimeQueue {
         // items appended into 'buffer' have a time value less than or equal to
         // the elements remaining in this queue.
 
+    /// Remove from this queue the item having the specified `handle`, and
+    /// optionally load into the optionally specified `item` the time and
+    /// data values of the recently removed item.  Optionally use the
+    /// specified `key` to uniquely identify the item.  If specified, load
+    /// into the optionally specified `newMinTime`, the resulting lowest
+    /// time value remaining in the queue.  Return 0 on success, and a
+    /// non-zero value if no item with the `handle` exists in the queue.
+    /// Note that if `DATA` follows the `bdema` allocator model, the
+    /// allocator of the `item` instance is used to supply memory.
     int remove(Handle               handle,
                int                 *newLength = 0,
                bsls::TimeInterval  *newMinTime = 0,
@@ -1003,23 +1021,20 @@ class TimeQueue {
                int                 *newLength = 0,
                bsls::TimeInterval  *newMinTime = 0,
                TimeQueueItem<DATA> *item = 0);
-        // Remove from this queue the item having the specified 'handle', and
-        // optionally load into the optionally specified 'item' the time and
-        // data values of the recently removed item.  Optionally use the
-        // specified 'key' to uniquely identify the item.  If specified, load
-        // into the optionally specified 'newMinTime', the resulting lowest
-        // time value remaining in the queue.  Return 0 on success, and a
-        // non-zero value if no item with the 'handle' exists in the queue.
-        // Note that if 'DATA' follows the 'bdema' allocator model, the
-        // allocator of the 'item' instance is used to supply memory.
 
+    /// Remove all the items from this queue.  Optionally specify a `buffer`
+    /// in which to load the removed items.  The resultant items in the
+    /// `buffer` are ordered by increasing time interval; items of
+    /// equivalent time interval have arbitrary ordering.  Note that the
+    /// allocator of the `buffer` vector is used to supply memory.
     void removeAll(bsl::vector<TimeQueueItem<DATA> > *buffer = 0);
-        // Remove all the items from this queue.  Optionally specify a 'buffer'
-        // in which to load the removed items.  The resultant items in the
-        // 'buffer' are ordered by increasing time interval; items of
-        // equivalent time interval have arbitrary ordering.  Note that the
-        // allocator of the 'buffer' vector is used to supply memory.
 
+    /// Update the time value of the item having the specified `handle` to
+    /// the specified `newTime` and optionally load into the optionally
+    /// specified `isNewTop` a non-zero value if the modified item is now
+    /// the lowest time value in the time queue or zero otherwise.  Return 0
+    /// on success, and a non-zero value if there is currently no item
+    /// having the `handle` registered with this time queue.
     int update(Handle                     handle,
                const bsls::TimeInterval&  newTime,
                int                       *isNewTop = 0);
@@ -1027,44 +1042,39 @@ class TimeQueue {
                const Key&                 key,
                const bsls::TimeInterval&  newTime,
                int                       *isNewTop = 0);
-        // Update the time value of the item having the specified 'handle' to
-        // the specified 'newTime' and optionally load into the optionally
-        // specified 'isNewTop' a non-zero value if the modified item is now
-        // the lowest time value in the time queue or zero otherwise.  Return 0
-        // on success, and a non-zero value if there is currently no item
-        // having the 'handle' registered with this time queue.
 
     // ACCESSORS
-    int length() const;
-        // Return number of items in this queue.  Note that the value returned
-        // may be obsolete by the time it is received.
 
+    /// Return number of items in this queue.  Note that the value returned
+    /// may be obsolete by the time it is received.
+    int length() const;
+
+    /// Return `true` if an item having specified `handle` is currently
+    /// registered with this time queue and false otherwise.
     bool isRegisteredHandle(Handle handle) const;
     bool isRegisteredHandle(Handle handle, const Key& key) const;
-        // Return 'true' if an item having specified 'handle' is currently
-        // registered with this time queue and false otherwise.
 
+    /// Load into the specified `buffer`, the time value of the lowest time
+    /// in this queue.  Return 0 on success, and a non-zero value if this
+    /// queue is empty.
     int minTime(bsls::TimeInterval *buffer) const;
-        // Load into the specified 'buffer', the time value of the lowest time
-        // in this queue.  Return 0 on success, and a non-zero value if this
-        // queue is empty.
 
+    /// Return the number of items in this queue that have a time value less
+    /// than or equal to the specified `time`.  Note that the value returned
+    /// may be obsolete by the time it is received.
     int countLE(const bsls::TimeInterval& time) const;
-        // Return the number of items in this queue that have a time value less
-        // than or equal to the specified 'time'.  Note that the value returned
-        // may be obsolete by the time it is received.
 };
 
                             // ====================
                             // struct TimeQueueItem
                             // ====================
 
+/// This parameterized structure holds a time, data and associated handle.
+/// This structure is used in the interface of `TimeQueue<DATA>` to provide
+/// thread-safe access to individual elements on the queue.  Note that
+/// `DATA` must be default-constructible.
 template <class DATA>
 class TimeQueueItem {
-    // This parameterized structure holds a time, data and associated handle.
-    // This structure is used in the interface of 'TimeQueue<DATA>' to provide
-    // thread-safe access to individual elements on the queue.  Note that
-    // 'DATA' must be default-constructible.
 
   public:
     // TRAITS
@@ -1082,52 +1092,54 @@ class TimeQueueItem {
 
   public:
     // CREATORS
+
+    /// Create an empty time queue item.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+    /// zero, then use the currently installed default allocator.
     explicit
     TimeQueueItem(bslma::Allocator *basicAllocator = 0);
-        // Create an empty time queue item.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-        // zero, then use the currently installed default allocator.
 
+    /// Create time queue item holding a copy of the specified `data`, with
+    /// the specified associated `time` and `handle` information.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is zero, then use the currently installed default
+    /// allocator.
     TimeQueueItem(const bsls::TimeInterval&  time,
                   const DATA&                data,
                   Handle                     handle,
                   bslma::Allocator          *basicAllocator = 0);
-        // Create time queue item holding a copy of the specified 'data', with
-        // the specified associated 'time' and 'handle' information.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is zero, then use the currently installed default
-        // allocator.
 
+    /// Create time queue item holding a copy of the specified `data`, with
+    /// the specified associated `time`, `handle`, and `key` information.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is zero, then use the currently installed default
+    /// allocator.
     TimeQueueItem(const bsls::TimeInterval&  time,
                   const DATA&                data,
                   Handle                     handle,
                   const Key&                 key,
                   bslma::Allocator          *basicAllocator = 0);
-        // Create time queue item holding a copy of the specified 'data', with
-        // the specified associated 'time', 'handle', and 'key' information.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is zero, then use the currently installed default
-        // allocator.
 
+    /// Create a copy of the specified `original` time queue item.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is zero, then use the currently installed default
+    /// allocator.
     TimeQueueItem(const TimeQueueItem<DATA>&  original,
                   bslma::Allocator           *basicAllocator = 0);
-        // Create a copy of the specified 'original' time queue item.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is zero, then use the currently installed default
-        // allocator.
 
     // MANIPULATORS
+
+    /// Set the value of this `TimeQueueItem` to that of `rhs`.
     TimeQueueItem& operator=(const TimeQueueItem<DATA>& rhs);
-        // Set the value of this 'TimeQueueItem' to that of 'rhs'.
 
+    /// Return the modifiable time value associated with this item.
     bsls::TimeInterval& time();
-        // Return the modifiable time value associated with this item.
 
+    /// Return the modifiable data instance associated with this item.
     DATA& data();
-        // Return the modifiable data instance associated with this item.
 
+    /// Return the modifiable handle value associated with this item.
     Handle& handle()
-        // Return the modifiable handle value associated with this item.
     {
         // this definition was moved into the class declaration to work around
         // a Visual Studio .NET 2003 bug.
@@ -1135,18 +1147,19 @@ class TimeQueueItem {
         return d_handle;
     }
 
+    /// Return the modifiable key value associated with this item.
     Key& key();
-        // Return the modifiable key value associated with this item.
 
     // ACCESSORS
+
+    /// Return the non-modifiable time value associated with this item.
     const bsls::TimeInterval& time() const;
-        // Return the non-modifiable time value associated with this item.
 
+    /// Return the non-modifiable data associated with this item.
     const DATA& data() const;
-        // Return the non-modifiable data associated with this item.
 
+    /// Return the non-modifiable handle value associated with this item.
     Handle handle() const
-        // Return the non-modifiable handle value associated with this item.
     {
         // this definition was moved into the class declaration to work around
         // a Visual Studio .NET 2003 bug.
@@ -1154,19 +1167,19 @@ class TimeQueueItem {
         return d_handle;
     }
 
+    /// Return the non-modifiable key value associated with this item.
     const Key& key() const;
-        // Return the non-modifiable key value associated with this item.
 };
 
                         // =========================
                         // TimeQueue<DATA>::IsVector
                         // =========================
 
+/// This `struct` has a `value` that evaluates to `true` if the specified
+/// `VECTOR` is a `bsl`, `std`, or `std::pmr` `vector<VALUE>`.
 template <class DATA>
 template <class VECTOR>
 struct TimeQueue<DATA>::IsVector {
-    // This 'struct' has a 'value' that evaluates to 'true' if the specified
-    // 'VECTOR' is a 'bsl', 'std', or 'std::pmr' 'vector<VALUE>'.
 
     // TYPE
     typedef TimeQueueItem<DATA> Item;

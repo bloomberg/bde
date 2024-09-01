@@ -13,9 +13,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslstl_sharedptr
 //
 //@DESCRIPTION: This component provides a generic thread-safe pool of shared
-// objects, 'bdlcc::SharedObjectPool', using the acquire-release idiom.  The
-// functionality provided is identical to 'bdlcc::ObjectPool', except that
-// 'getObject' returns efficiently-constructed 'bsl::shared_ptr' objects
+// objects, `bdlcc::SharedObjectPool`, using the acquire-release idiom.  The
+// functionality provided is identical to `bdlcc::ObjectPool`, except that
+// `getObject` returns efficiently-constructed `bsl::shared_ptr` objects
 // instead of raw pointers.  For client code that needs to provide shared
 // access to objects in the pool, this functionality saves an additional
 // allocation for the shared pointer itself.  Since the shared pointer and the
@@ -35,56 +35,56 @@ BSLS_IDENT("$Id: $")
 //
 ///Creator and Resetter Template Contract
 ///--------------------------------------
-// 'bdlcc::SharedObjectPool' is templated on two types 'CREATOR' and 'RESETTER'
-// in addition to the underlying object 'TYPE'.  Objects of these types may be
+// `bdlcc::SharedObjectPool` is templated on two types `CREATOR` and `RESETTER`
+// in addition to the underlying object `TYPE`.  Objects of these types may be
 // provided at construction (or defaults may be used).  The creator will be
-// invoked as: 'void(*)(void*, bslma::Allocator*)'.  The resetter will be
-// invoked as: 'void(*)(TYPE*)'.  The creator functor will be called to
-// construct a new object of the parameterized 'TYPE' when the pool must be
+// invoked as: `void(*)(void*, bslma::Allocator*)`.  The resetter will be
+// invoked as: `void(*)(TYPE*)`.  The creator functor will be called to
+// construct a new object of the parameterized `TYPE` when the pool must be
 // expanded (and thus it will typically invoke placement new and pass its
-// allocator argument to the constructor of 'TYPE').  The resetter functor will
+// allocator argument to the constructor of `TYPE`).  The resetter functor will
 // be called before each object is returned to the pool, and is required to put
 // the object into a state such that it is ready to be reused.  The defaults
 // for these types are as follows:
-//..
-//    CREATOR = bdlcc::ObjectPoolFunctors::DefaultCreator
-//    RESETTER = bdlcc::ObjectPoolFunctors::Nil<TYPE>
-//..
-// 'bdlcc::ObjectPoolFunctors::Nil' is a no-op; it is only suitable if the
+// ```
+//   CREATOR = bdlcc::ObjectPoolFunctors::DefaultCreator
+//   RESETTER = bdlcc::ObjectPoolFunctors::Nil<TYPE>
+// ```
+// `bdlcc::ObjectPoolFunctors::Nil` is a no-op; it is only suitable if the
 // objects stored in the pool are *always* in a valid state to be reused.
 // Otherwise - that is, if anything must be done to render the objects ready
-// for reuse - another kind of 'RESETTER' should be provided (so long as that
-// type supplies 'void(*)(TYPE*)').  In 'bdlcc::ObjectPoolFunctors', the
-// classes 'Clear', 'RemoveAll', and 'Reset' are all acceptable types for
-// 'RESETTER'.  Since these "functor" types are fully inline, it is generally
-// most efficient to define 'reset()' (or 'clear()' or 'removeAll()') in the
-// underlying 'TYPE' and allow the functor to call that method.  The 'CREATOR'
+// for reuse - another kind of `RESETTER` should be provided (so long as that
+// type supplies `void(*)(TYPE*)`).  In `bdlcc::ObjectPoolFunctors`, the
+// classes `Clear`, `RemoveAll`, and `Reset` are all acceptable types for
+// `RESETTER`.  Since these "functor" types are fully inline, it is generally
+// most efficient to define `reset()` (or `clear()` or `removeAll()`) in the
+// underlying `TYPE` and allow the functor to call that method.  The `CREATOR`
 // functor defaults to an object that invokes the default constructor with
 // placement new, passing the allocator argument if the type traits of the
-// object indicate it uses an allocator (see 'bslma_usesbslmaallocator').  If a
-// custom creator functor or a custom 'CREATOR' type is specified, it is the
+// object indicate it uses an allocator (see `bslma_usesbslmaallocator`).  If a
+// custom creator functor or a custom `CREATOR` type is specified, it is the
 // user's responsibility to ensure that it correctly passes its allocator
-// argument through to the constructor of 'TYPE' if 'TYPE' uses allocator.
+// argument through to the constructor of `TYPE` if `TYPE` uses allocator.
 //
 ///Exception Safety
 ///----------------
 // There are two potential sources of exceptions in this component: memory
 // allocation and object construction.  The object pool is exception-neutral
 // with full guarantee of rollback for the following methods: if an exception
-// is thrown in 'getObject', 'reserveCapacity', or 'increaseCapacity', then the
+// is thrown in `getObject`, `reserveCapacity`, or `increaseCapacity`, then the
 // pool is in a valid unmodified state (i.e., identical to prior the call to
-// 'getObject').  No other method of 'bdlcc::SharedObjectPool' can throw.
+// `getObject`).  No other method of `bdlcc::SharedObjectPool` can throw.
 //
 ///Pool Replenishment Policy
 ///-------------------------
-// The 'growBy' parameter can be specified in the pool's constructor to
+// The `growBy` parameter can be specified in the pool's constructor to
 // instruct the pool how it is to increase its capacity each time the pool is
-// depleted.  If 'growBy' is positive, the pool always replenishes itself with
-// enough objects so that it can satisfy at least 'growBy' object requests
-// before the next replenishment.  If 'growBy' is negative, the pool will
+// depleted.  If `growBy` is positive, the pool always replenishes itself with
+// enough objects so that it can satisfy at least `growBy` object requests
+// before the next replenishment.  If `growBy` is negative, the pool will
 // increase its capacity geometrically until it exceeds the internal maximum
 // (which itself is implementation-defined), and after that it will be
-// replenished with constant number of objects.  If 'growBy' is not specified,
+// replenished with constant number of objects.  If `growBy` is not specified,
 // an implementation-defined default will be chosen.  The behavior is undefined
 // if growBy is 0.
 //
@@ -92,120 +92,120 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This component is intended to improve the efficiency of code which provides
 // shared pointers to pooled objects.  As an example, consider a class which
-// maintains a pool of 'vector<char>' objects and provides shared pointers to
-// them.  Using 'bdlcc::ObjectPool', the class might be implemented like this:
-//..
-//  typedef vector<char> CharArray;
+// maintains a pool of `vector<char>` objects and provides shared pointers to
+// them.  Using `bdlcc::ObjectPool`, the class might be implemented like this:
+// ```
+// typedef vector<char> CharArray;
 //
-//  class SlowCharArrayPool {
-//      bdlma::ConcurrentPoolAllocator d_spAllocator;  // alloc. shared pointer
-//      bdlcc::ObjectPool<CharArray>   d_charArrayPool;  // supply charArrays
+// class SlowCharArrayPool {
+//     bdlma::ConcurrentPoolAllocator d_spAllocator;  // alloc. shared pointer
+//     bdlcc::ObjectPool<CharArray>   d_charArrayPool;  // supply charArrays
 //
-//      static void createCharArray(void *address, bslma::Allocator *allocator)
-//      {
-//          new (address) CharArray(allocator);
-//      }
+//     static void createCharArray(void *address, bslma::Allocator *allocator)
+//     {
+//         new (address) CharArray(allocator);
+//     }
 //
-//      static void resetAndReturnCharArray(
-//                                     CharArray                    *charArray,
-//                                     bdlcc::ObjectPool<CharArray> *pool)
-//      {
-//          charArray->clear();
-//          pool->releaseObject(charArray);
-//      }
+//     static void resetAndReturnCharArray(
+//                                    CharArray                    *charArray,
+//                                    bdlcc::ObjectPool<CharArray> *pool)
+//     {
+//         charArray->clear();
+//         pool->releaseObject(charArray);
+//     }
 //
-//    private:
-//      // Not implemented:
-//      SlowCharArrayPool(const SlowCharArrayPool&);
+//   private:
+//     // Not implemented:
+//     SlowCharArrayPool(const SlowCharArrayPool&);
 //
-//    public:
-//      SlowCharArrayPool(bslma::Allocator *basicAllocator = 0)
-//      : d_spAllocator(basicAllocator)
-//      , d_charArrayPool(bdlf::BindUtil::bind(
-//                                         &SlowCharArrayPool::createCharArray,
-//                                         bdlf::PlaceHolders::_1,
-//                                         basicAllocator),
-//                        -1,
-//                        basicAllocator)
-//      {
-//      }
+//   public:
+//     SlowCharArrayPool(bslma::Allocator *basicAllocator = 0)
+//     : d_spAllocator(basicAllocator)
+//     , d_charArrayPool(bdlf::BindUtil::bind(
+//                                        &SlowCharArrayPool::createCharArray,
+//                                        bdlf::PlaceHolders::_1,
+//                                        basicAllocator),
+//                       -1,
+//                       basicAllocator)
+//     {
+//     }
 //
-//      void getCharArray(bsl::shared_ptr<CharArray> *charArray_sp)
-//      {
-//          charArray_sp->reset(d_charArrayPool.getObject(),
-//                              bdlf::BindUtil::bind(
-//                                 &SlowCharArrayPool::resetAndReturnCharArray,
-//                                 bdlf::PlaceHolders::_1,
-//                                 &d_charArrayPool),
-//                              &d_spAllocator);
-//      }
-//  };
-//..
-// Note that 'SlowCharArrayPool' must allocate the shared pointer itself from
-// its 'd_spAllocator' in addition to allocating the charArray from its pool.
+//     void getCharArray(bsl::shared_ptr<CharArray> *charArray_sp)
+//     {
+//         charArray_sp->reset(d_charArrayPool.getObject(),
+//                             bdlf::BindUtil::bind(
+//                                &SlowCharArrayPool::resetAndReturnCharArray,
+//                                bdlf::PlaceHolders::_1,
+//                                &d_charArrayPool),
+//                             &d_spAllocator);
+//     }
+// };
+// ```
+// Note that `SlowCharArrayPool` must allocate the shared pointer itself from
+// its `d_spAllocator` in addition to allocating the charArray from its pool.
 // Moreover, note that since the same function will handle resetting the object
 // and returning it to the pool, we must define a special function for that
 // purpose and bind its arguments.
 //
-// We can solve both of these issues by using 'bdlcc::SharedObjectPool'
+// We can solve both of these issues by using `bdlcc::SharedObjectPool`
 // instead:
-//..
-//  class FastCharArrayPool {
-//      typedef bdlcc::SharedObjectPool<
-//              CharArray,
-//              bdlcc::ObjectPoolFunctors::DefaultCreator,
-//              bdlcc::ObjectPoolFunctors::Clear<CharArray> > CharArrayPool;
+// ```
+// class FastCharArrayPool {
+//     typedef bdlcc::SharedObjectPool<
+//             CharArray,
+//             bdlcc::ObjectPoolFunctors::DefaultCreator,
+//             bdlcc::ObjectPoolFunctors::Clear<CharArray> > CharArrayPool;
 //
-//      CharArrayPool d_charArrayPool;     // supply charArrays
+//     CharArrayPool d_charArrayPool;     // supply charArrays
 //
-//      static void createCharArray(void *address, bslma::Allocator *allocator)
-//      {
-//          new (address) CharArray(allocator);
-//      }
+//     static void createCharArray(void *address, bslma::Allocator *allocator)
+//     {
+//         new (address) CharArray(allocator);
+//     }
 //
-//    private:
-//      // Not implemented:
-//      FastCharArrayPool(const FastCharArrayPool&);
+//   private:
+//     // Not implemented:
+//     FastCharArrayPool(const FastCharArrayPool&);
 //
-//    public:
-//      FastCharArrayPool(bslma::Allocator *basicAllocator = 0)
-//      : d_charArrayPool(bdlf::BindUtil::bind(
-//                                         &FastCharArrayPool::createCharArray,
-//                                         bdlf::PlaceHolders::_1,
-//                                         bdlf::PlaceHolders::_2),
-//                        -1,
-//                        basicAllocator)
-//      {
-//      }
+//   public:
+//     FastCharArrayPool(bslma::Allocator *basicAllocator = 0)
+//     : d_charArrayPool(bdlf::BindUtil::bind(
+//                                        &FastCharArrayPool::createCharArray,
+//                                        bdlf::PlaceHolders::_1,
+//                                        bdlf::PlaceHolders::_2),
+//                       -1,
+//                       basicAllocator)
+//     {
+//     }
 //
-//      void getCharArray(bsl::shared_ptr<CharArray> *charArray_sp)
-//      {
-//          *charArray_sp = d_charArrayPool.getObject();
-//      }
-//  };
-//..
+//     void getCharArray(bsl::shared_ptr<CharArray> *charArray_sp)
+//     {
+//         *charArray_sp = d_charArrayPool.getObject();
+//     }
+// };
+// ```
 // Now the shared pointer and the object are allocated as one unit from the
 // same allocator.  In addition, the resetter method is a fully-inlined class
 // that is only responsible for resetting the object, improving efficiency and
-// simplifying the design.  We can verify that use of 'bdlcc::SharedObjectPool'
+// simplifying the design.  We can verify that use of `bdlcc::SharedObjectPool`
 // reduces the number of allocation requests:
-//..
-//  bslma::TestAllocator slowAllocator, fastAllocator;
-//  {
-//      SlowCharArrayPool slowPool(&slowAllocator);
-//      FastCharArrayPool fastPool(&fastAllocator);
+// ```
+// bslma::TestAllocator slowAllocator, fastAllocator;
+// {
+//     SlowCharArrayPool slowPool(&slowAllocator);
+//     FastCharArrayPool fastPool(&fastAllocator);
 //
-//      bsl::shared_ptr<CharArray> charArray_sp;
+//     bsl::shared_ptr<CharArray> charArray_sp;
 //
-//      fastPool.getCharArray(&charArray_sp);
-//      slowPool.getCharArray(&charArray_sp);  // throw away the first array
-//  }
+//     fastPool.getCharArray(&charArray_sp);
+//     slowPool.getCharArray(&charArray_sp);  // throw away the first array
+// }
 //
-//  assert(2 == slowAllocator.numAllocations());
-//  assert(1 == fastAllocator.numAllocations());
-//  assert(0 == slowAllocator.numBytesInUse());
-//  assert(0 == fastAllocator.numBytesInUse());
-//..
+// assert(2 == slowAllocator.numAllocations());
+// assert(1 == fastAllocator.numAllocations());
+// assert(0 == slowAllocator.numBytesInUse());
+// assert(0 == fastAllocator.numBytesInUse());
+// ```
 
 #include <bdlscm_version.h>
 
@@ -258,53 +258,56 @@ class SharedObjectPool_Rep: public bslma::SharedPtrRep {
 
   public:
     // CREATORS
+
+    /// Construct a new rep object that, upon release, will invoke the
+    /// specified `objectResetter` and return itself to the specified
+    /// `pool`; then invoke `objectCreator` to construct an object of `TYPE`
+    /// embedded within the new rep object.  Use the specified
+    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     template <class CREATOR>
     SharedObjectPool_Rep(
                     CREATOR*                                   objectCreator,
                     const bslalg::ConstructorProxy<RESETTER>&  objectResetter,
                     PoolType                                  *pool,
                     bslma::Allocator                          *basicAllocator);
-        // Construct a new rep object that, upon release, will invoke the
-        // specified 'objectResetter' and return itself to the specified
-        // 'pool'; then invoke 'objectCreator' to construct an object of 'TYPE'
-        // embedded within the new rep object.  Use the specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
 
+    /// Destroy this representation object and the embedded instance of
+    /// `TYPE`.
     ~SharedObjectPool_Rep() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this representation object and the embedded instance of
-        // 'TYPE'.
 
     // MANIPULATORS
+
+    /// Release this representation object.  This method is invoked when the
+    /// number of weak references and the number of strong references reach
+    /// zero.  This virtual override will return the object, and this
+    /// representation, to the associated pool.
     void disposeRep() BSLS_KEYWORD_OVERRIDE;
-        // Release this representation object.  This method is invoked when the
-        // number of weak references and the number of strong references reach
-        // zero.  This virtual override will return the object, and this
-        // representation, to the associated pool.
 
+    /// Release the object being managed by this representation.  This
+    /// method is invoked when the number of strong references reaches zero.
+    /// Note that if there are any weak references to the shared object then
+    /// this function does nothing, including not destroying the object or
+    /// returning it to the pool.
     void disposeObject() BSLS_KEYWORD_OVERRIDE;
-        // Release the object being managed by this representation.  This
-        // method is invoked when the number of strong references reaches zero.
-        // Note that if there are any weak references to the shared object then
-        // this function does nothing, including not destroying the object or
-        // returning it to the pool.
 
+    /// Invoke the object resetter specified at construction on the
+    /// associated object.
     void reset();
-        // Invoke the object resetter specified at construction on the
-        // associated object.
 
+    /// Return NULL.  Shared object pools strictly control the delete policy
+    /// for their objects, and do not expose it to end users.
     void *getDeleter(const std::type_info& type) BSLS_KEYWORD_OVERRIDE;
-        // Return NULL.  Shared object pools strictly control the delete policy
-        // for their objects, and do not expose it to end users.
 
     // ACCESSORS
-    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
-        // Return (untyped) address of the object managed by this
-        // representation.  This virtual override effectively returns
-        // "(void*)ptr()".
 
+    /// Return (untyped) address of the object managed by this
+    /// representation.  This virtual override effectively returns
+    /// "(void*)ptr()".
+    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
+
+    /// Return a pointer to the in-place object.
     TYPE *ptr();
-        // Return a pointer to the in-place object.
 };
 
                            // ======================
@@ -336,8 +339,8 @@ class SharedObjectPool {
     SharedObjectPool(const SharedObjectPool&);
     SharedObjectPool& operator=(const SharedObjectPool&);
 
+    /// Initializes a newly constructed SharedObjectPool_Rep object
     void constructRepObject(void *memory, bslma::Allocator *alloc);
-        // Initializes a newly constructed SharedObjectPool_Rep object
 
   public:
     // TYPES
@@ -387,38 +390,40 @@ class SharedObjectPool {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  The behavior is undefined if 'growBy' is 0.
 
+    /// Destroy this object pool.  All objects created by this pool are
+    /// destroyed (even if some of them are still in use) and memory is
+    /// reclaimed.
     ~SharedObjectPool();
-        // Destroy this object pool.  All objects created by this pool are
-        // destroyed (even if some of them are still in use) and memory is
-        // reclaimed.
 
     // MANIPULATORS
+
+    /// Return a pointer to an object from this object pool.  When the last
+    /// shared pointer to the object is destroyed, the object will be reset
+    /// as specified at construction and then returned to the pool.  If this
+    /// pool is empty, it is replenished according to the strategy specified
+    /// at construction.
     bsl::shared_ptr<TYPE> getObject();
-        // Return a pointer to an object from this object pool.  When the last
-        // shared pointer to the object is destroyed, the object will be reset
-        // as specified at construction and then returned to the pool.  If this
-        // pool is empty, it is replenished according to the strategy specified
-        // at construction.
 
+    /// Create the specified `growBy` objects and add them to this object
+    /// pool.  The behavior is undefined unless `0 <= growBy`.
     void increaseCapacity(int growBy);
-        // Create the specified 'growBy' objects and add them to this object
-        // pool.  The behavior is undefined unless '0 <= growBy'.
 
+    /// Create enough objects to satisfy requests for at least the specified
+    /// `growBy` objects before the next replenishment.  The behavior is
+    /// undefined unless `0 <= growBy`.  Note that this method is different
+    /// from `increaseCapacity` in that the number of created objects may be
+    /// less than `growBy`.
     void reserveCapacity(int growBy);
-        // Create enough objects to satisfy requests for at least the specified
-        // 'growBy' objects before the next replenishment.  The behavior is
-        // undefined unless '0 <= growBy'.  Note that this method is different
-        // from 'increaseCapacity' in that the number of created objects may be
-        // less than 'growBy'.
 
     // ACCESSORS
-    int numAvailableObjects() const;
-        // Return a *snapshot* of the number of objects available in this pool.
 
+    /// Return a *snapshot* of the number of objects available in this pool.
+    int numAvailableObjects() const;
+
+    /// Return the (instantaneous) number of objects managed by this pool.
+    /// This includes both the objects available in the pool and the objects
+    /// that were allocated from the pool and not yet released.
     int numObjects() const;
-        // Return the (instantaneous) number of objects managed by this pool.
-        // This includes both the objects available in the pool and the objects
-        // that were allocated from the pool and not yet released.
 };
 
 // ============================================================================

@@ -9,25 +9,25 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //     bdlcc::ObjectCatalog: templatized, thread-safe, indexed object container
-// bdlcc::ObjectCatalogIter: thread-safe iterator for 'bdlcc::ObjectCatalog'
+// bdlcc::ObjectCatalogIter: thread-safe iterator for `bdlcc::ObjectCatalog`
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a thread-safe and efficient templatized
-// catalog of objects.  A 'bdlcc::ObjectCatalog' supports efficient insertion
-// of objects through the 'add' method, which returns a handle that can be used
+// catalog of objects.  A `bdlcc::ObjectCatalog` supports efficient insertion
+// of objects through the `add` method, which returns a handle that can be used
 // for further reference to the newly added element.  An element can be
-// accessed by providing its handle to the 'find' function.  Thread-safe design
+// accessed by providing its handle to the `find` function.  Thread-safe design
 // implies that the element is returned by value into an object buffer rather
 // than by reference (see this package documentation for a discussion of
 // thread-safe container design).  Likewise, an element can be modified by
-// providing its handle and a new value to the 'replace' method.  Finally, an
-// element can be removed by passing its handle to the 'remove' method; the
-// handle is then no longer valid and subsequent calls to 'find' or 'remove'
+// providing its handle and a new value to the `replace` method.  Finally, an
+// element can be removed by passing its handle to the `remove` method; the
+// handle is then no longer valid and subsequent calls to `find` or `remove`
 // with this handle will return 0.
 //
-// 'bdlcc::ObjectCatalogIter' provides thread safe iteration through all the
-// objects of an object catalog of parameterized 'TYPE'.  The order of the
+// `bdlcc::ObjectCatalogIter` provides thread safe iteration through all the
+// objects of an object catalog of parameterized `TYPE`.  The order of the
 // iteration is implementation defined.  Thread safe iteration is provided by
 // (read)locking the object catalog during the iterator's construction and
 // unlocking it at the iterator's destruction.  This guarantees that during the
@@ -48,212 +48,212 @@ BSLS_IDENT("$Id: $")
 // invoked as quickly as possible.  One way to achieve this is as follows.  The
 // client creates a catalog for the functors associated with queries.  It sends
 // to the server the handle (obtained by passing the callback functor
-// associated with the query to the 'add' method of catalog), along with the
+// associated with the query to the `add` method of catalog), along with the
 // query.  The server does not interpret this handle in any way and sends it
 // back to the client along with the computed query result.  The client, upon
 // receiving the response, gets the functor (associated with the query) back by
-// passing the handle (contained in the response message) to the 'find' method
+// passing the handle (contained in the response message) to the `find` method
 // of catalog.
 //
 // Assume the following declarations (we leave the implementations as
 // undefined, as the definitions are largely irrelevant to this example):
-//..
-//  struct Query {
-//      // Class simulating the query.
-//  };
+// ```
+// struct Query {
+//     // Class simulating the query.
+// };
 //
-//  class QueryResult {
-//      // Class simulating the result of a query.
-//  };
+// class QueryResult {
+//     // Class simulating the result of a query.
+// };
 //
-//  class RequestMsg
-//      // Class encapsulating the request message.  It encapsulates the
-//      // actual query and the handle associated with the callback for the
-//      // query.
-//  {
-//      Query d_query;
-//      int   d_handle;
+// class RequestMsg
+//     // Class encapsulating the request message.  It encapsulates the
+//     // actual query and the handle associated with the callback for the
+//     // query.
+// {
+//     Query d_query;
+//     int   d_handle;
 //
-//    public:
-//      RequestMsg(Query query, int handle)
-//          // Create a request message with the specified 'query' and
-//          // 'handle'.
-//      : d_query(query)
-//      , d_handle(handle)
-//      {
-//      }
+//   public:
+//     RequestMsg(Query query, int handle)
+//         // Create a request message with the specified 'query' and
+//         // 'handle'.
+//     : d_query(query)
+//     , d_handle(handle)
+//     {
+//     }
 //
-//      int handle() const
-//          // Return the handle contained in this response message.
-//      {
-//          return d_handle;
-//      }
-//  };
+//     int handle() const
+//         // Return the handle contained in this response message.
+//     {
+//         return d_handle;
+//     }
+// };
 //
-//  class ResponseMsg
-//      // Class encapsulating the response message.  It encapsulates the query
-//      // result and the handle associated with the callback for the query.
-//  {
-//      int d_handle;
+// class ResponseMsg
+//     // Class encapsulating the response message.  It encapsulates the query
+//     // result and the handle associated with the callback for the query.
+// {
+//     int d_handle;
 //
-//    public:
-//      void setHandle(int handle)
-//          // Set the "handle" contained in this response message to the
-//          // specified 'handle'.
-//      {
-//          d_handle = handle;
-//      }
+//   public:
+//     void setHandle(int handle)
+//         // Set the "handle" contained in this response message to the
+//         // specified 'handle'.
+//     {
+//         d_handle = handle;
+//     }
 //
-//      QueryResult queryResult() const
-//          // Return the query result contained in this response message.
-//      {
-//          return QueryResult();
-//      }
+//     QueryResult queryResult() const
+//         // Return the query result contained in this response message.
+//     {
+//         return QueryResult();
+//     }
 //
-//      int handle() const
-//          // Return the handle contained in this response message.
-//      {
-//          return d_handle;
-//      }
-//  };
+//     int handle() const
+//         // Return the handle contained in this response message.
+//     {
+//         return d_handle;
+//     }
+// };
 //
-//  void sendMessage(RequestMsg msg, RemoteAddress peer)
-//      // Send the specified 'msg' to the specified 'peer'.
-//  {
-//      serverMutex.lock();
-//      peer->push(msg.handle());
-//      serverNotEmptyCondition.signal();
-//      serverMutex.unlock();
-//  }
+// void sendMessage(RequestMsg msg, RemoteAddress peer)
+//     // Send the specified 'msg' to the specified 'peer'.
+// {
+//     serverMutex.lock();
+//     peer->push(msg.handle());
+//     serverNotEmptyCondition.signal();
+//     serverMutex.unlock();
+// }
 //
-//  void recvMessage(ResponseMsg *msg, RemoteAddress peer)
-//      // Get the response from the specified 'peer' into the specified 'msg'.
-//  {
-//      serverMutex.lock();
-//      while (peer->empty()) {
-//          serverNotEmptyCondition.wait(&serverMutex);
-//      }
-//      msg->setHandle(peer->front());
-//      peer->pop();
-//      serverMutex.unlock();
-//  }
+// void recvMessage(ResponseMsg *msg, RemoteAddress peer)
+//     // Get the response from the specified 'peer' into the specified 'msg'.
+// {
+//     serverMutex.lock();
+//     while (peer->empty()) {
+//         serverNotEmptyCondition.wait(&serverMutex);
+//     }
+//     msg->setHandle(peer->front());
+//     peer->pop();
+//     serverMutex.unlock();
+// }
 //
-//  void getQueryAndCallback(Query                            *query,
-//                           bsl::function<void(QueryResult)> *callBack)
-//      // Set the specified 'query' and 'callBack' to the next 'Query' and its
-//      // associated functor (the functor to be called when the response to
-//      // this 'Query' comes in).
-//  {
-//      (void)query;
-//      *callBack = &queryCallBack;
-//  }
-//..
+// void getQueryAndCallback(Query                            *query,
+//                          bsl::function<void(QueryResult)> *callBack)
+//     // Set the specified 'query' and 'callBack' to the next 'Query' and its
+//     // associated functor (the functor to be called when the response to
+//     // this 'Query' comes in).
+// {
+//     (void)query;
+//     *callBack = &queryCallBack;
+// }
+// ```
 // Furthermore, let also the following variables be declared:
-//..
-//  RemoteAddress serverAddress;  // address of remote server
+// ```
+// RemoteAddress serverAddress;  // address of remote server
 //
-//  bdlcc::ObjectCatalog<bsl::function<void(QueryResult)> > catalog;
-//      // Catalog of query callbacks, used by the client internally to keep
-//      // track of callback functions across multiple queries.  The invariant
-//      // is that each element corresponds to a pending query (i.e., the
-//      // callback function has not yet been or is in the process of being
-//      // invoked).
-//..
+// bdlcc::ObjectCatalog<bsl::function<void(QueryResult)> > catalog;
+//     // Catalog of query callbacks, used by the client internally to keep
+//     // track of callback functions across multiple queries.  The invariant
+//     // is that each element corresponds to a pending query (i.e., the
+//     // callback function has not yet been or is in the process of being
+//     // invoked).
+// ```
 // Now we define functions that will be used in the thread entry functions:
-//..
-//  void testClientProcessQueryCpp()
-//  {
-//      int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
-//      while (queriesToBeProcessed--) {
-//          Query query;
-//          bsl::function<void(QueryResult)> callBack;
+// ```
+// void testClientProcessQueryCpp()
+// {
+//     int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
+//     while (queriesToBeProcessed--) {
+//         Query query;
+//         bsl::function<void(QueryResult)> callBack;
 //
-//          // The following call blocks until a query becomes available.
-//          getQueryAndCallback(&query, &callBack);
+//         // The following call blocks until a query becomes available.
+//         getQueryAndCallback(&query, &callBack);
 //
-//          // Register 'callBack' in the object catalog.
-//          int handle = catalog.add(callBack);
-//          assert(handle);
+//         // Register 'callBack' in the object catalog.
+//         int handle = catalog.add(callBack);
+//         assert(handle);
 //
-//          // Send query to server in the form of a 'RequestMsg'.
-//          RequestMsg msg(query, handle);
-//          sendMessage(msg, serverAddress);
-//      }
-//  }
+//         // Send query to server in the form of a 'RequestMsg'.
+//         RequestMsg msg(query, handle);
+//         sendMessage(msg, serverAddress);
+//     }
+// }
 //
-//  void testClientProcessResponseCpp()
-//  {
-//      int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
-//      while (queriesToBeProcessed--) {
-//          // The following call blocks until some response is available in
-//          // the form of a 'ResponseMsg'.
+// void testClientProcessResponseCpp()
+// {
+//     int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
+//     while (queriesToBeProcessed--) {
+//         // The following call blocks until some response is available in
+//         // the form of a 'ResponseMsg'.
 //
-//          ResponseMsg msg;
-//          recvMessage(&msg, serverAddress);
-//          int handle = msg.handle();
-//          QueryResult result = msg.queryResult();
+//         ResponseMsg msg;
+//         recvMessage(&msg, serverAddress);
+//         int handle = msg.handle();
+//         QueryResult result = msg.queryResult();
 //
-//          // Process query 'result' by applying registered 'callBack' to it.
-//          // The 'callBack' function is retrieved from the 'catalog' using
-//          // the given 'handle'.
+//         // Process query 'result' by applying registered 'callBack' to it.
+//         // The 'callBack' function is retrieved from the 'catalog' using
+//         // the given 'handle'.
 //
-//          bsl::function<void(QueryResult)> callBack;
-//          assert(0 == catalog.find(handle, &callBack));
-//          callBack(result);
+//         bsl::function<void(QueryResult)> callBack;
+//         assert(0 == catalog.find(handle, &callBack));
+//         callBack(result);
 //
-//          // Finally, remove the no-longer-needed 'callBack' from the
-//          // 'catalog'.  Assert so that 'catalog' may not grow unbounded if
-//          // remove fails.
+//         // Finally, remove the no-longer-needed 'callBack' from the
+//         // 'catalog'.  Assert so that 'catalog' may not grow unbounded if
+//         // remove fails.
 //
-//          assert(0 == catalog.remove(handle));
-//      }
-//  }
-//..
+//         assert(0 == catalog.remove(handle));
+//     }
+// }
+// ```
 // In some thread, the client executes the following code.
-//..
-//  extern "C" void *testClientProcessQuery(void *)
-//  {
-//      testClientProcessQueryCpp();
-//      return 0;
-//  }
-//..
+// ```
+// extern "C" void *testClientProcessQuery(void *)
+// {
+//     testClientProcessQueryCpp();
+//     return 0;
+// }
+// ```
 // In some other thread, the client executes the following code.
-//..
-//  extern "C" void *testClientProcessResponse(void *)
-//  {
-//      testClientProcessResponseCpp();
-//      return 0;
-//  }
-//..
+// ```
+// extern "C" void *testClientProcessResponse(void *)
+// {
+//     testClientProcessResponseCpp();
+//     return 0;
+// }
+// ```
 //
 ///Example 2: Iterator Usage
 ///- - - - - - - - - - - - -
 // The following code fragment shows how to use bdlcc::ObjectCatalogIter to
-// iterate through all the objects of 'catalog' (a catalog of objects of type
-// 'MyType').
-//..
-//  void use(bsl::function<void(QueryResult)> object)
-//  {
-//      (void)object;
-//  }
-//..
-// Now iterate through the 'catalog':
-//..
-//  for (bdlcc::ObjectCatalogIter<MyType> it(catalog); it; ++it) {
-//      bsl::pair<int, MyType> p = it(); // p.first contains the handle and
-//                                       // p.second contains the object
-//      use(p.second);                   // the function 'use' uses the
-//                                       // object in some way
-//  }
-//  // 'it' is now destroyed out of the scope, releasing the lock.
-//..
+// iterate through all the objects of `catalog` (a catalog of objects of type
+// `MyType`).
+// ```
+// void use(bsl::function<void(QueryResult)> object)
+// {
+//     (void)object;
+// }
+// ```
+// Now iterate through the `catalog`:
+// ```
+// for (bdlcc::ObjectCatalogIter<MyType> it(catalog); it; ++it) {
+//     bsl::pair<int, MyType> p = it(); // p.first contains the handle and
+//                                      // p.second contains the object
+//     use(p.second);                   // the function 'use' uses the
+//                                      // object in some way
+// }
+// // 'it' is now destroyed out of the scope, releasing the lock.
+// ```
 // Note that the associated catalog is (read)locked when the iterator is
 // constructed and is unlocked only when the iterator is destroyed.  This means
 // that until the iterator is destroyed, all the threads trying to modify the
 // catalog will remain blocked (even though multiple threads can concurrently
 // read the object catalog).  So clients must make sure to destroy their
 // iterators after they are done using them.  One easy way is to use the
-// 'for (bdlcc::ObjectCatalogIter<MyType> it(catalog); ...' as above.
+// `for (bdlcc::ObjectCatalogIter<MyType> it(catalog); ...` as above.
 
 #include <bdlscm_version.h>
 
@@ -306,12 +306,12 @@ class ObjectCatalog;
                    // local class ObjectCatalog_AutoCleanup
                    // =====================================
 
+/// This class provides a specialized proctor object that, upon destruction
+/// and unless the `release` method is called (1) removes a managed node
+/// from the `ObjectCatalog`, and (2) deallocates all associated memory as
+/// necessary.
 template <class TYPE>
 class ObjectCatalog_AutoCleanup {
-    // This class provides a specialized proctor object that, upon destruction
-    // and unless the 'release' method is called (1) removes a managed node
-    // from the 'ObjectCatalog', and (2) deallocates all associated memory as
-    // necessary.
 
     ObjectCatalog<TYPE> *d_catalog_p;       // temporarily managed catalog
     typename ObjectCatalog<TYPE>::Node
@@ -327,42 +327,44 @@ class ObjectCatalog_AutoCleanup {
 
   public:
     // CREATORS
-    explicit ObjectCatalog_AutoCleanup(ObjectCatalog<TYPE> *catalog);
-        // Create a proctor to manage the specified 'catalog'.
 
+    /// Create a proctor to manage the specified `catalog`.
+    explicit ObjectCatalog_AutoCleanup(ObjectCatalog<TYPE> *catalog);
+
+    /// Remove a managed node from the `ObjectCatalog` (by returning it to
+    /// the catalog's free list or node pool, as specified in `manageNode`),
+    /// deallocate all associated memory, and destroy this object.
     ~ObjectCatalog_AutoCleanup();
-        // Remove a managed node from the 'ObjectCatalog' (by returning it to
-        // the catalog's free list or node pool, as specified in 'manageNode'),
-        // deallocate all associated memory, and destroy this object.
 
     // MANIPULATORS
+
+    /// Release from management the catalog node, if any, currently managed
+    /// by this object and begin managing the specified catalog `node`.  The
+    /// specified `deallocateFlag` tells the destructor how to dispose of
+    /// `node` if `node` is managed during the destruction of this object.
     void manageNode(typename ObjectCatalog<TYPE>::Node *node,
                     bool                                deallocateFlag);
-        // Release from management the catalog node, if any, currently managed
-        // by this object and begin managing the specified catalog 'node'.  The
-        // specified 'deallocateFlag' tells the destructor how to dispose of
-        // 'node' if 'node' is managed during the destruction of this object.
 
+    /// Release from management the catalog node, if any, currently managed
+    /// by this object, if any.
     void releaseNode();
-        // Release from management the catalog node, if any, currently managed
-        // by this object, if any.
 
+    /// Release from management all resources currently managed by this
+    /// object, if any.
     void release();
-        // Release from management all resources currently managed by this
-        // object, if any.
 };
 
                             // ===================
                             // class ObjectCatalog
                             // ===================
 
+/// This class defines an efficient indexed object catalog of `TYPE`
+/// objects.  This container is *exception* *neutral* with no guarantee of
+/// rollback: if an exception is thrown during the invocation of a method on
+/// a pre-existing instance, the object is left in a valid but undefined
+/// state.  In no event is memory leaked or a mutex left in a locked state.
 template <class TYPE>
 class ObjectCatalog {
-    // This class defines an efficient indexed object catalog of 'TYPE'
-    // objects.  This container is *exception* *neutral* with no guarantee of
-    // rollback: if an exception is thrown during the invocation of a method on
-    // a pre-existing instance, the object is left in a valid but undefined
-    // state.  In no event is memory leaked or a mutex left in a locked state.
 
     // PRIVATE TYPES
     typedef ObjectCatalogIter<TYPE> Iter;
@@ -408,62 +410,67 @@ class ObjectCatalog {
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Return a pointer to the `d_value` field of the specified `node`.
+    /// The behavior is undefined unless `0 != node` and
+    /// `node->d_payload.d_value` is initialized to a `TYPE` object.
     static TYPE *getNodeValue(Node *node);
-        // Return a pointer to the 'd_value' field of the specified 'node'.
-        // The behavior is undefined unless '0 != node' and
-        // 'node->d_payload.d_value' is initialized to a 'TYPE' object.
 
     // PRIVATE MANIPULATORS
-    void freeNode(Node *node);
-        // Add the specified 'node' to the free node list.  Destruction of the
-        // object held in the node must be handled by the 'remove' function
-        // directly.  (This is because 'freeNode' is also used in the
-        // 'ObjectCatalog_AutoCleanup' guard, but there it should not invoke
-        // the object's destructor.)
 
+    /// Add the specified `node` to the free node list.  Destruction of the
+    /// object held in the node must be handled by the `remove` function
+    /// directly.  (This is because `freeNode` is also used in the
+    /// `ObjectCatalog_AutoCleanup` guard, but there it should not invoke
+    /// the object's destructor.)
+    void freeNode(Node *node);
+
+    /// Remove all objects that are currently held in this catalog and
+    /// optionally load into the optionally specified `buffer` the removed
+    /// objects.
     template <class VECTOR>
     void removeAllImp(VECTOR *buffer);
-        // Remove all objects that are currently held in this catalog and
-        // optionally load into the optionally specified 'buffer' the removed
-        // objects.
 
     // PRIVATE ACCESSORS
+
+    /// Return a pointer to the node with the specified `handle`, or 0 if
+    /// not found.
     Node *findNode(int handle) const;
-        // Return a pointer to the node with the specified 'handle', or 0 if
-        // not found.
 
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(ObjectCatalog, bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create an empty object catalog, using the optionally specified
+    /// `allocator` to supply any memory.
     explicit
     ObjectCatalog(bslma::Allocator *allocator = 0);
-        // Create an empty object catalog, using the optionally specified
-        // 'allocator' to supply any memory.
 
+    /// Destroy this object catalog.
     ~ObjectCatalog();
-        // Destroy this object catalog.
 
     // MANIPULATORS
+
+    /// Add the value of the specified `object` to this catalog and return a
+    /// non-zero integer handle that may be used to refer to the object in
+    /// future calls to this catalog.  The behavior is undefined if the
+    /// catalog was full.
     int add(TYPE const& object);
-        // Add the value of the specified 'object' to this catalog and return a
-        // non-zero integer handle that may be used to refer to the object in
-        // future calls to this catalog.  The behavior is undefined if the
-        // catalog was full.
 
+    /// Add the value of the specified `object` to this catalog and return a
+    /// non-zero integer handle that may be used to refer to the object in
+    /// future calls to this catalog, leaving `object` in an unspecified but
+    /// valid state.  The behavior is undefined if the catalog was full.
     int add(bslmf::MovableRef<TYPE> object);
-        // Add the value of the specified 'object' to this catalog and return a
-        // non-zero integer handle that may be used to refer to the object in
-        // future calls to this catalog, leaving 'object' in an unspecified but
-        // valid state.  The behavior is undefined if the catalog was full.
 
+    /// Optionally load into the optionally specified `valueBuffer` the
+    /// value of the object having the specified `handle` and remove it from
+    /// this catalog.  Return zero on success, and a non-zero value if the
+    /// `handle` is not contained in this catalog.  Note that `valueBuffer`
+    /// is assigned into, and thus must point to a valid `TYPE` instance.
     int remove(int handle, TYPE *valueBuffer = 0);
-        // Optionally load into the optionally specified 'valueBuffer' the
-        // value of the object having the specified 'handle' and remove it from
-        // this catalog.  Return zero on success, and a non-zero value if the
-        // 'handle' is not contained in this catalog.  Note that 'valueBuffer'
-        // is assigned into, and thus must point to a valid 'TYPE' instance.
 
     void removeAll();
     void removeAll(bsl::vector<TYPE>      *buffer);
@@ -475,71 +482,72 @@ class ObjectCatalog {
         // optionally load into the optionally specified 'buffer' the removed
         // objects.
 
+    /// Replace the object having the specified `handle` with the specified
+    /// `newObject`.  Return 0 on success, and a non-zero value if the
+    /// handle is not contained in this catalog.
     int replace(int handle, const TYPE& newObject);
-        // Replace the object having the specified 'handle' with the specified
-        // 'newObject'.  Return 0 on success, and a non-zero value if the
-        // handle is not contained in this catalog.
 
+    /// Replace the object having the specified `handle` with the specified
+    /// `newObject`, leaving `newObject` in an unspecified but valid state.
+    /// Return 0 on success, and a non-zero value if the handle is not
+    /// contained in this catalog.
     int replace(int handle, bslmf::MovableRef<TYPE> newObject);
-        // Replace the object having the specified 'handle' with the specified
-        // 'newObject', leaving 'newObject' in an unspecified but valid state.
-        // Return 0 on success, and a non-zero value if the handle is not
-        // contained in this catalog.
 
     // ACCESSORS
-    bslma::Allocator *allocator() const;
-        // Return the allocator used by this object.
 
+    /// Return the allocator used by this object.
+    bslma::Allocator *allocator() const;
+
+    /// Locate the object having the specified `handle` and optionally load
+    /// its value into the optionally specified `valueBuffer`.  Return zero
+    /// on success, and a non-zero value if the `handle` is not contained in
+    /// this catalog.  Note that `valueBuffer` is assigned into, and thus
+    /// must point to a valid `TYPE` instance.  Note that the overload with
+    /// `valueBuffer` passed is not supported unless `TYPE` has a copy
+    /// constructor.
     int find(int handle) const;
     int find(int handle, TYPE *valueBuffer) const;
-        // Locate the object having the specified 'handle' and optionally load
-        // its value into the optionally specified 'valueBuffer'.  Return zero
-        // on success, and a non-zero value if the 'handle' is not contained in
-        // this catalog.  Note that 'valueBuffer' is assigned into, and thus
-        // must point to a valid 'TYPE' instance.  Note that the overload with
-        // 'valueBuffer' passed is not supported unless 'TYPE' has a copy
-        // constructor.
 
+    /// Return `true` if the catalog contains an item that compares equal to
+    /// the specified `object` and `false` otherwise.
     bool isMember(const TYPE& object) const;
-        // Return 'true' if the catalog contains an item that compares equal to
-        // the specified 'object' and 'false' otherwise.
 
+    /// Return a "snapshot" of the number of items currently contained in
+    /// this catalog.
     int length() const;
-        // Return a "snapshot" of the number of items currently contained in
-        // this catalog.
 
     BSLS_DEPRECATE_FEATURE("bde", "ObjectCataloog::value(handle)",
                                     "use 'ObjectCatalogIter::value()' instead")
+    /// Return a `const` reference to the object having the specified
+    /// `handle`.  The behavior is undefined unless `handle` is contained in
+    /// this catalog.
+    ///
+    /// This method is *DEPRECATED* because it is not thread-safe.  Use
+    /// `find`, `isMember`, or access the object through an iterator.
     const TYPE& value(int handle) const;
-        // Return a 'const' reference to the object having the specified
-        // 'handle'.  The behavior is undefined unless 'handle' is contained in
-        // this catalog.
-        //
-        // This method is *DEPRECATED* because it is not thread-safe.  Use
-        // 'find', 'isMember', or access the object through an iterator.
 
     // FOR TESTING PURPOSES ONLY
 
+    /// Verify that this catalog is in a consistent state.  This function is
+    /// introduced for testing purposes only.
     void verifyState() const;
-        // Verify that this catalog is in a consistent state.  This function is
-        // introduced for testing purposes only.
 };
 
                           // =======================
                           // class ObjectCatalogIter
                           // =======================
 
+/// Provide thread safe iteration through all the objects of an object
+/// catalog of parameterized `TYPE`.  The order of the iteration is
+/// implementation defined.  An iterator is *valid* if it is associated with
+/// an object in the catalog, otherwise it is *invalid*.  Thread-safe
+/// iteration is provided by (read)locking the object catalog during the
+/// iterator's construction and unlocking it at the iterator's destruction.
+/// This guarantees that during the life time of an iterator, the object
+/// catalog can't be modified (nevertheless, multiple threads can
+/// concurrently read the object catalog).
 template <class TYPE>
 class ObjectCatalogIter {
-    // Provide thread safe iteration through all the objects of an object
-    // catalog of parameterized 'TYPE'.  The order of the iteration is
-    // implementation defined.  An iterator is *valid* if it is associated with
-    // an object in the catalog, otherwise it is *invalid*.  Thread-safe
-    // iteration is provided by (read)locking the object catalog during the
-    // iterator's construction and unlocking it at the iterator's destruction.
-    // This guarantees that during the life time of an iterator, the object
-    // catalog can't be modified (nevertheless, multiple threads can
-    // concurrently read the object catalog).
 
     const ObjectCatalog<TYPE> *d_catalog_p;
     bsl::ptrdiff_t             d_index;
@@ -560,47 +568,50 @@ class ObjectCatalogIter {
 
   public:
     // CREATORS
+
+    /// Create an iterator for the specified `catalog` and associate it with
+    /// the first member of the `catalog`.  If the `catalog` is empty then
+    /// the iterator is initialized to be invalid.  The `catalog` is locked
+    /// for read for the duration of iterator's life.
     explicit ObjectCatalogIter(const ObjectCatalog<TYPE>& catalog);
-        // Create an iterator for the specified 'catalog' and associate it with
-        // the first member of the 'catalog'.  If the 'catalog' is empty then
-        // the iterator is initialized to be invalid.  The 'catalog' is locked
-        // for read for the duration of iterator's life.
 
+    /// Create an iterator for the specified `catalog` and associate it with
+    /// the member of the `catalog` associated with the specified `handle`.
+    /// If the `catalog` is empty or if `handle` is invalid, then the
+    /// iterator is initialized to be invalid.  The `catalog` is locked for
+    /// read for the duration of iterator's life.
     ObjectCatalogIter(const ObjectCatalog<TYPE>& catalog, int handle);
-        // Create an iterator for the specified 'catalog' and associate it with
-        // the member of the 'catalog' associated with the specified 'handle'.
-        // If the 'catalog' is empty or if 'handle' is invalid, then the
-        // iterator is initialized to be invalid.  The 'catalog' is locked for
-        // read for the duration of iterator's life.
 
+    /// Destroy this iterator and unlock the catalog associated with it.
     ~ObjectCatalogIter();
-        // Destroy this iterator and unlock the catalog associated with it.
 
     // MANIPULATORS
+
+    /// Advance this iterator to refer to the next object of the associated
+    /// catalog; if there is no next object in the associated catalog, then
+    /// this iterator becomes *invalid*.  The behavior is undefined unless
+    /// this iterator is valid.  Note that the order of the iteration is not
+    /// specified.
     void operator++();
-        // Advance this iterator to refer to the next object of the associated
-        // catalog; if there is no next object in the associated catalog, then
-        // this iterator becomes *invalid*.  The behavior is undefined unless
-        // this iterator is valid.  Note that the order of the iteration is not
-        // specified.
 
     // ACCESSORS
+
+    /// Return non-zero if the iterator is *valid*, and 0 otherwise.
     operator const void *() const;
-        // Return non-zero if the iterator is *valid*, and 0 otherwise.
 
+    /// Return a pair containing the handle (as the first element of the
+    /// pair) and the object (as the second element of the pair) associated
+    /// with this iterator.  The behavior is undefined unless the iterator
+    /// is *valid*.
     bsl::pair<int, TYPE> operator()() const;
-        // Return a pair containing the handle (as the first element of the
-        // pair) and the object (as the second element of the pair) associated
-        // with this iterator.  The behavior is undefined unless the iterator
-        // is *valid*.
 
+    /// Return the handle referred to by the iterator.  The behavior is
+    /// undefined unless the iterator is *valid*.
     int handle() const;
-        // Return the handle referred to by the iterator.  The behavior is
-        // undefined unless the iterator is *valid*.
 
+    /// Return a `const` reference to the value referred to by the iterator.
+    /// The behavior is undefined unless the iterator is *valid*.
     const TYPE& value() const;
-        // Return a 'const' reference to the value referred to by the iterator.
-        // The behavior is undefined unless the iterator is *valid*.
 };
 
 // ----------------------------------------------------------------------------

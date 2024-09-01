@@ -12,9 +12,9 @@ BSLS_IDENT("$Id$")
 //@SEE_ALSO: bdldfp_decimalimputil_inteldfp, bdldfp_decimalplatform
 //
 //@DESCRIPTION: This component provides a centralized mechanism to include the
-// requisite Intel DFP headers, by issuing the appropriate '#define'
+// requisite Intel DFP headers, by issuing the appropriate `#define`
 // configuration macros before including the Intel headers.  This component is
-// for internal use only by the 'bdldfp_decimal*' components.  Direct use of
+// for internal use only by the `bdldfp_decimal*` components.  Direct use of
 // any names declared in this component by any other code invokes undefined
 // behavior.  In other words: this code may change, disappear, break, move
 // without notice, and no support whatsoever will ever be provided for it.

@@ -10,10 +10,10 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdljsn::JsonTestSuiteUtil: data/types representing the JSON Test Suite
 //
-//@SEE_ALSO: 'bdljsn_jsonutil'
+//@SEE_ALSO: `bdljsn_jsonutil`
 //
-//@DESCRIPTION: This component provides a utility 'struct',
-// 'bdljsn::JsonTestSuiteUtil', that encapsulates the JSON Test Suite found at:
+//@DESCRIPTION: This component provides a utility `struct`,
+// `bdljsn::JsonTestSuiteUtil`, that encapsulates the JSON Test Suite found at:
 // https://github.com/nst/JSONTestSuite/tree/master.  Note that the test suite
 // is itself an appendix to the article *Parsing* *JSON* *is* *a* *Minefield*
 // by Nicolas Seriot (see https://seriot.ch/projects/parsing_json.html).
@@ -22,17 +22,17 @@ BSLS_IDENT("$Id: $")
 // https://github.com/nst/JSONTestSuite/blob/master/test_parsers.  The name of
 // these files indicate whether or not their contents should be accepted or
 // rejected.
-//..
-//  +--------+-------+----------------------------------------------+
-//  | Prefix | Count | Expected Result                              |
-//  +--------+-------+----------------------------------------------+
-//  | 'y_'   |    95 | content must be accepted by parsers          |
-//  | 'n_'   |   188 | content must be rejected by parsers          |
-//  | 'i_'   |    35 | parsers are free to accept or reject content |
-//  +--------+-------+----------------------------------------------+
-//..
-// Note that this component provides one additional 'y_' (not counted above),
-// 'y_henry_verschell_smiley_surrogate_smiley.json', that does not exist in
+// ```
+// +--------+-------+----------------------------------------------+
+// | Prefix | Count | Expected Result                              |
+// +--------+-------+----------------------------------------------+
+// | 'y_'   |    95 | content must be accepted by parsers          |
+// | 'n_'   |   188 | content must be rejected by parsers          |
+// | 'i_'   |    35 | parsers are free to accept or reject content |
+// +--------+-------+----------------------------------------------+
+// ```
+// Note that this component provides one additional `y_` (not counted above),
+// `y_henry_verschell_smiley_surrogate_smiley.json`, that does not exist in
 // downloaded test suite.
 //
 ///Usage
@@ -43,33 +43,33 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - -
 // Generally, BDE table-drive testing uses tables defined locally in the test
 // driver.  To conveniently use the table defined in the
-// 'bdljsn_jsontestsuiteutil' component, some small adaptation to the test
+// `bdljsn_jsontestsuiteutil` component, some small adaptation to the test
 // driver is recommended.
 //
 // First, create aliases for symbols conventionally used in BDE table-driven
 // tests:
-//..
-//  typedef bdljsn::JsonTestSuiteUtil           JTSU;
-//  typedef bdljsn::JsonTestSuiteUtil::Expected Expected;
-//..
-// Now, use these symbols in a typical table-driven 'for'-loop:
-//..
-//  for (bsl::size_t ti = 0; ti < JTSU::numData(); ++ti) {
-//      const int         LINE      = JTSU::data(ti)->d_line;
-//      const char *const TEST_NAME = JTSU::data(ti)->d_testName_p;
-//      const char *const JSON      = JTSU::data(ti)->d_JSON_p;
-//      const bsl::size_t LENGTH    = JTSU::data(ti)->d_length;
-//      const Expected    EXPECTED  = JTSU::data(ti)->d_expected;
+// ```
+// typedef bdljsn::JsonTestSuiteUtil           JTSU;
+// typedef bdljsn::JsonTestSuiteUtil::Expected Expected;
+// ```
+// Now, use these symbols in a typical table-driven `for`-loop:
+// ```
+// for (bsl::size_t ti = 0; ti < JTSU::numData(); ++ti) {
+//     const int         LINE      = JTSU::data(ti)->d_line;
+//     const char *const TEST_NAME = JTSU::data(ti)->d_testName_p;
+//     const char *const JSON      = JTSU::data(ti)->d_JSON_p;
+//     const bsl::size_t LENGTH    = JTSU::data(ti)->d_length;
+//     const Expected    EXPECTED  = JTSU::data(ti)->d_expected;
 //
-//      if (veryVerbose) {
-//          P_(ti) P_(LINE) P_(LENGTH) P(EXPECTED)
-//          P(TEST_NAME);
-//          P(JSON)
-//      }
+//     if (veryVerbose) {
+//         P_(ti) P_(LINE) P_(LENGTH) P(EXPECTED)
+//         P(TEST_NAME);
+//         P(JSON)
+//     }
 //
-//      // testing code...
-//  }
-//..
+//     // testing code...
+// }
+// ```
 
 #include <bsl_cstddef.h>  // 'bsl::size_t'
 
@@ -80,9 +80,9 @@ namespace bdljsn {
                         // struct JsonTestSuiteUtil
                         // ========================
 
+/// This utility `struct` provides a namespace for the test points of the
+/// *JSON* *Test* *Suite*.
 struct JsonTestSuiteUtil {
-    // This utility 'struct' provides a namespace for the test points of the
-    // *JSON* *Test* *Suite*.
 
   public:
     // TYPES
@@ -92,9 +92,9 @@ struct JsonTestSuiteUtil {
       , e_ACCEPT =  1
     };
 
+    /// This aggregate type describes a test-point of the *JSON* *Test*
+    /// *Suite*.
     struct Datum {
-        // This aggregate type describes a test-point of the *JSON* *Test*
-        // *Suite*.
 
         int          d_line;
         const char  *d_testName_p;  // name of the JSON test file
@@ -110,12 +110,13 @@ struct JsonTestSuiteUtil {
 
   public:
     // CLASS METHODS
-    static const Datum *data(bsl::size_t index);
-        // Return the test-point 'Datum' for the specified 'index'.  The
-        // behavior is undefined unless '0 <= index < numData()'.
 
+    /// Return the test-point `Datum` for the specified `index`.  The
+    /// behavior is undefined unless `0 <= index < numData()`.
+    static const Datum *data(bsl::size_t index);
+
+    /// Return the number of test points in the *JSON* *Test* *Suite*.
     static bsl::size_t numData();
-        // Return the number of test points in the *JSON* *Test* *Suite*.
 };
 
 }  // close package namespace

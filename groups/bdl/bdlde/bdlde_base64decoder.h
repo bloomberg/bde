@@ -10,9 +10,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::Base64Decoder: automata performing Base64 decoding operations
 //
-//@SEE_ALSO: 'bdlde_base64encoder'
+//@SEE_ALSO: `bdlde_base64encoder`
 //
-//@DESCRIPTION: This component a 'class', 'bdlde::Base64Decoder', which
+//@DESCRIPTION: This component a `class`, `bdlde::Base64Decoder`, which
 // provides a pair of template functions (each parameterized separately on both
 // input and output iterators) that can be used respectively to encode and to
 // decode byte sequences of arbitrary length into and from the printable Base64
@@ -20,13 +20,13 @@ BSLS_IDENT("$Id: $")
 // of RFC 2045, "Multipurpose Internet Mail Extensions (MIME) Part One: Format
 // of Internet Message Bodies."
 //
-// The 'bdlde::Base64Encoder' and 'bdlde::Base64Decoder' support the standard
+// The `bdlde::Base64Encoder` and `bdlde::Base64Decoder` support the standard
 // "base64" encoding (described in https://tools.ietf.org/html/rfc4648) as well
 // as the "Base 64 Encoding with URL and Filename Safe Alphabet", or
 // "base64url", encoding.  The "base64url" encoding is very similar to "base64"
 // but substitutes a couple characters in the encoded alphabet to avoid
 // characters that conflict with special characters in URL syntax or filename
-// descriptions (replacing '+' for '-'. and '/' for '_').  See
+// descriptions (replacing `+` for `-`. and `/` for `_`).  See
 // {Base 64 Encoding with URL and Filename Safe Alphabet} for more information.
 //
 // Each instance of either the encoder or decoder retains the state of the
@@ -42,42 +42,42 @@ BSLS_IDENT("$Id: $")
 // The data stream is processed three bytes at a time from left to right (a
 // final quantum consisting of one or two bytes, as discussed below, is handled
 // specially).  Each sequence of three 8-bit quantities
-//..
-//      7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0
-//     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//     |               |               |               |
-//     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//      `------v------' `------v------' `------v------'
-//           Byte2           Byte1           Byte0
-//..
+// ```
+//     7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0 7 6 5 4 3 2 1 0
+//    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//    |               |               |               |
+//    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//     `------v------' `------v------' `------v------'
+//          Byte2           Byte1           Byte0
+// ```
 // is segmented into four intermediate 6-bit quantities.
-//..
-//      5 4 3 2 1 0 5 4 3 2 1 0 5 4 3 2 1 0 5 4 3 2 1 0
-//     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//     |           |           |           |           |
-//     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//      `----v----' `----v----' `----v----' `----v----'
-//         char3       char2       char1        char0
-//..
+// ```
+//     5 4 3 2 1 0 5 4 3 2 1 0 5 4 3 2 1 0 5 4 3 2 1 0
+//    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//    |           |           |           |           |
+//    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//     `----v----' `----v----' `----v----' `----v----'
+//        char3       char2       char1        char0
+// ```
 // Each 6-bit quantity is in turn used as an index into the following character
 // table to generate an 8-bit character.  The four resulting characters hence
 // form the encoding for the original 3-byte sequence.
-//..
-//     ======================================================================
-//     *                   The Basic BASE-64 Alphabet                       *
-//     ----------------------------------------------------------------------
-//     Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc
-//     --- ---  --- ---  --- ---  --- ---  --- ---  --- ---  --- ---  --- ---
-//       0 'A'    8 'I'   16 'Q'   24 'Y'   32 'g'   40 'o'   48 'w'   56 '4'
-//       1 'B'    9 'J'   17 'R'   25 'Z'   33 'h'   41 'p'   49 'x'   57 '5'
-//       2 'C'   10 'K'   18 'S'   26 'a'   34 'i'   42 'q'   50 'y'   58 '6'
-//       3 'D'   11 'L'   19 'T'   27 'b'   35 'j'   43 'r'   51 'z'   59 '7'
-//       4 'E'   12 'M'   20 'U'   28 'c'   36 'k'   44 's'   52 '0'   60 '8'
-//       5 'F'   13 'N'   21 'V'   29 'd'   37 'l'   45 't'   53 '1'   61 '9'
-//       6 'G'   14 'O'   22 'W'   30 'e'   38 'm'   46 'u'   54 '2'   62 '+'
-//       7 'H'   15 'P'   23 'X'   31 'f'   39 'n'   47 'v'   55 '3'   63 '/'
-//     ======================================================================
-//..
+// ```
+//    ======================================================================
+//    *                   The Basic BASE-64 Alphabet                       *
+//    ----------------------------------------------------------------------
+//    Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc
+//    --- ---  --- ---  --- ---  --- ---  --- ---  --- ---  --- ---  --- ---
+//      0 'A'    8 'I'   16 'Q'   24 'Y'   32 'g'   40 'o'   48 'w'   56 '4'
+//      1 'B'    9 'J'   17 'R'   25 'Z'   33 'h'   41 'p'   49 'x'   57 '5'
+//      2 'C'   10 'K'   18 'S'   26 'a'   34 'i'   42 'q'   50 'y'   58 '6'
+//      3 'D'   11 'L'   19 'T'   27 'b'   35 'j'   43 'r'   51 'z'   59 '7'
+//      4 'E'   12 'M'   20 'U'   28 'c'   36 'k'   44 's'   52 '0'   60 '8'
+//      5 'F'   13 'N'   21 'V'   29 'd'   37 'l'   45 't'   53 '1'   61 '9'
+//      6 'G'   14 'O'   22 'W'   30 'e'   38 'm'   46 'u'   54 '2'   62 '+'
+//      7 'H'   15 'P'   23 'X'   31 'f'   39 'n'   47 'v'   55 '3'   63 '/'
+//    ======================================================================
+// ```
 // This component also supports a slightly different alphabet, "base64url",
 // that is more appropriate if the encoded representation would be used in a
 // file name or URL (see
@@ -91,11 +91,11 @@ BSLS_IDENT("$Id: $")
 //
 // I)  There is a single byte of data, in which case there will be two Base64
 // encoding characters (the second of which will be one of [AQgw]) followed by
-// two equal ('=') signs.
+// two equal (`=`) signs.
 //
 // II)  There are exactly two bytes of data, in which case there will be
 // three Base64 encoding characters (the third of which will be one of
-// [AEIMQUYcgkosw048] followed by a single equal ('=') sign.
+// [AEIMQUYcgkosw048] followed by a single equal (`=`) sign.
 //
 // The MIME standard requires that the maximum line length of emitted text not
 // exceed 76 characters exclusive of CRLF.  The caller may override this
@@ -103,25 +103,25 @@ BSLS_IDENT("$Id: $")
 //
 // Input values of increasing length along with their corresponding Base64
 // encodings are illustrated below:
-//..
-//        Data: /* nothing */
-//    Encoding: /* nothing */
+// ```
+//       Data: /* nothing */
+//   Encoding: /* nothing */
 //
-//        Data: 0x01
-//    Encoding: AQ==
+//       Data: 0x01
+//   Encoding: AQ==
 //
-//        Data: 0x01 0x02
-//    Encoding: AQI=
+//       Data: 0x01 0x02
+//   Encoding: AQI=
 //
-//        Data: 0x01 0x02 0x03
-//    Encoding: AQID
+//       Data: 0x01 0x02 0x03
+//   Encoding: AQID
 //
-//        Data: 0x01 0x02 0x03 0x04
-//    Encoding: AQIDBA==
-//..
+//       Data: 0x01 0x02 0x03 0x04
+//   Encoding: AQIDBA==
+// ```
 // In order for a Base64 encoding to be valid, the input data must be either of
 // length a multiple of three (constituting maximal input), or have been
-// terminated explicitly by the 'endConvert' method (initiating bit padding
+// terminated explicitly by the `endConvert` method (initiating bit padding
 // when necessary).
 //
 ///Base 64 Encoding with URL and Filename Safe Alphabet
@@ -131,23 +131,23 @@ BSLS_IDENT("$Id: $")
 // characters in the alphabet that are treated as special characters when used
 // in a URL or in a file system.  The following table is technically identical
 // to the table presented in {Base 64 Encoding}, except for the 62:nd and 63:rd
-// alphabet character, that indicates '-' and '_' respectively.
-//..
-//     ======================================================================
-//     *            The "URL and Filename Safe" BASE-64 Alphabet            *
-//     ----------------------------------------------------------------------
-//     Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc
-//     --- ---  --- ---  --- ---  --- ---  --- ---  --- ---  --- ---  --- ---
-//       0 'A'    8 'I'   16 'Q'   24 'Y'   32 'g'   40 'o'   48 'w'   56 '4'
-//       1 'B'    9 'J'   17 'R'   25 'Z'   33 'h'   41 'p'   49 'x'   57 '5'
-//       2 'C'   10 'K'   18 'S'   26 'a'   34 'i'   42 'q'   50 'y'   58 '6'
-//       3 'D'   11 'L'   19 'T'   27 'b'   35 'j'   43 'r'   51 'z'   59 '7'
-//       4 'E'   12 'M'   20 'U'   28 'c'   36 'k'   44 's'   52 '0'   60 '8'
-//       5 'F'   13 'N'   21 'V'   29 'd'   37 'l'   45 't'   53 '1'   61 '9'
-//       6 'G'   14 'O'   22 'W'   30 'e'   38 'm'   46 'u'   54 '2'   62 '-'
-//       7 'H'   15 'P'   23 'X'   31 'f'   39 'n'   47 'v'   55 '3'   63 '_'
-//     ======================================================================
-//..
+// alphabet character, that indicates `-` and `_` respectively.
+// ```
+//    ======================================================================
+//    *            The "URL and Filename Safe" BASE-64 Alphabet            *
+//    ----------------------------------------------------------------------
+//    Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc  Val Enc
+//    --- ---  --- ---  --- ---  --- ---  --- ---  --- ---  --- ---  --- ---
+//      0 'A'    8 'I'   16 'Q'   24 'Y'   32 'g'   40 'o'   48 'w'   56 '4'
+//      1 'B'    9 'J'   17 'R'   25 'Z'   33 'h'   41 'p'   49 'x'   57 '5'
+//      2 'C'   10 'K'   18 'S'   26 'a'   34 'i'   42 'q'   50 'y'   58 '6'
+//      3 'D'   11 'L'   19 'T'   27 'b'   35 'j'   43 'r'   51 'z'   59 '7'
+//      4 'E'   12 'M'   20 'U'   28 'c'   36 'k'   44 's'   52 '0'   60 '8'
+//      5 'F'   13 'N'   21 'V'   29 'd'   37 'l'   45 't'   53 '1'   61 '9'
+//      6 'G'   14 'O'   22 'W'   30 'e'   38 'm'   46 'u'   54 '2'   62 '-'
+//      7 'H'   15 'P'   23 'X'   31 'f'   39 'n'   47 'v'   55 '3'   63 '_'
+//    ======================================================================
+// ```
 ///Base 64 Decoding
 ///----------------
 // The degree to which decoding detects errors can significantly affect
@@ -160,7 +160,7 @@ BSLS_IDENT("$Id: $")
 //
 // The following kinds of errors can occur during decoding and are reported
 // with the following priority:
-//..
+// ```
 // BAD DATA: A character (other than whitespace) that is not a member of the
 //           Base64 character set (including '=').  Note that this error
 //           is detected only if the 'decoder' is explicitly configured (at
@@ -172,13 +172,13 @@ BSLS_IDENT("$Id: $")
 //             [AEIMQUYcgkosw048] precedes a single terminal '=' character,
 //             or a character other than [AQgw] precedes a terminal pair of
 //             consecutive '=' characters.
-//..
-// The 'isError' method is used to detect such anomalies, and the 'numIn'
+// ```
+// The `isError` method is used to detect such anomalies, and the `numIn`
 // output parameter (indicating the number of input characters consumed)
 // or possibly the iterator itself (for iterators with reference-semantics)
 // identifies the offending character.
 //
-// Note that the existence of an '=' can be used to reliably indicate the end
+// Note that the existence of an `=` can be used to reliably indicate the end
 // of the valid data, but no such assurance is possible when the length (in
 // bytes) of the initial input data sequence before encoding was evenly
 // divisible by 3.
@@ -189,13 +189,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// The following example shows how to use a 'bdlde::Base64Decoder' object to
-// implement a function, 'streamconverter', that reads text from a
-// 'bsl::istream', decodes that text from base 64 representation, and writes
-// the decoded text to a 'bsl::ostream'.  'streamconverter' returns 0 on
+// The following example shows how to use a `bdlde::Base64Decoder` object to
+// implement a function, `streamconverter`, that reads text from a
+// `bsl::istream`, decodes that text from base 64 representation, and writes
+// the decoded text to a `bsl::ostream`.  `streamconverter` returns 0 on
 // success and a negative value if the input data could not be successfully
 // decoded or if there is an I/O error.
-//..
+// ```
 // streamdecoder.h                      -*-C++-*-
 //
 // int streamDecoder(bsl::ostream& os, bsl::istream& is);
@@ -203,13 +203,13 @@ BSLS_IDENT("$Id: $")
 //     // the input base-64 encoding into plain text, and write the decoded
 //     // text to the specified output stream 'os'.  Return 0 on success, and a
 //     // negative value otherwise.
-//..
+// ```
 // We will use fixed-sized input and output buffers in the implementation, but,
-// because of the flexibility of 'bsl::istream' and the output-buffer
-// monitoring functionality of 'bdlde::Base64Decoder', the fixed buffer sizes
+// because of the flexibility of `bsl::istream` and the output-buffer
+// monitoring functionality of `bdlde::Base64Decoder`, the fixed buffer sizes
 // do *not* limit the quantity of data that can be read, decoded, or written to
 // the output stream.  The implementation file is as follows.
-//..
+// ```
 // streamdecoder.cpp                    -*-C++-*-
 //
 // #include <streamdecoder.h>
@@ -225,115 +225,115 @@ BSLS_IDENT("$Id: $")
 //         DECODE_ERROR = -1,
 //         IO_ERROR     = -2
 //     };
-//..
-// We declare a 'bdlde::Base64Decoder' object 'converter', which will decode
+// ```
+// We declare a `bdlde::Base64Decoder` object `converter`, which will decode
 // the input data.  Note that various internal buffers and cursors are used as
 // needed without further comment.  We read as much data as is available from
-// the user-supplied input stream 'is' *or* as much as will fit in
-// 'inputBuffer' before beginning conversion.  To obtain unobstructedly the
+// the user-supplied input stream `is` *or* as much as will fit in
+// `inputBuffer` before beginning conversion.  To obtain unobstructedly the
 // output that results from decoding the entire input stream (even in the case
 // of errors), the base64 decoder is configured not to detect errors.
-//..
-//     bdlde::Base64Decoder converter(false);   // Do not report errors.
+// ```
+//    bdlde::Base64Decoder converter(false);   // Do not report errors.
 //
-//     const int INBUFFER_SIZE  = 1 << 10;
-//     const int OUTBUFFER_SIZE = 1 << 10;
+//    const int INBUFFER_SIZE  = 1 << 10;
+//    const int OUTBUFFER_SIZE = 1 << 10;
 //
-//     char inputBuffer[INBUFFER_SIZE];
-//     char outputBuffer[OUTBUFFER_SIZE];
+//    char inputBuffer[INBUFFER_SIZE];
+//    char outputBuffer[OUTBUFFER_SIZE];
 //
-//     char *output    = outputBuffer;
-//     char *outputEnd = outputBuffer + sizeof outputBuffer;
+//    char *output    = outputBuffer;
+//    char *outputEnd = outputBuffer + sizeof outputBuffer;
 //
-//     while (is.good()) {  // input stream not exhausted
+//    while (is.good()) {  // input stream not exhausted
 //
-//         is.read(inputBuffer, sizeof inputBuffer);
-//..
-// With 'inputBuffer' now populated, we'll use 'converter' in an inner 'while'
-// loop to decode the input and write the decoded data to 'outputBuffer' (via
-// the 'output' cursor').  Note that if the call to 'converter.convert' fails,
+//        is.read(inputBuffer, sizeof inputBuffer);
+// ```
+// With `inputBuffer` now populated, we'll use `converter` in an inner `while`
+// loop to decode the input and write the decoded data to `outputBuffer` (via
+// the `output` cursor').  Note that if the call to `converter.convert` fails,
 // our function terminates with a negative status.
-//..
-//         const char *input    = inputBuffer;
-//         const char *inputEnd = input + is.gcount();
+// ```
+//        const char *input    = inputBuffer;
+//        const char *inputEnd = input + is.gcount();
 //
-//         while (input < inputEnd) { // input encoding not complete
+//        while (input < inputEnd) { // input encoding not complete
 //
-//             int numOut;
-//             int numIn;
+//            int numOut;
+//            int numIn;
 //
-//             int status = converter.convert(output, &numOut, &numIn,
-//                                            input,   inputEnd,
-//                                            outputEnd - output);
-//             if (status < 0) {
-//                 return DECODE_ERROR;                               // RETURN
-//             }
-//..
-// If the call to 'converter.convert' returns successfully, we'll see if the
+//            int status = converter.convert(output, &numOut, &numIn,
+//                                           input,   inputEnd,
+//                                           outputEnd - output);
+//            if (status < 0) {
+//                return DECODE_ERROR;                               // RETURN
+//            }
+// ```
+// If the call to `converter.convert` returns successfully, we'll see if the
 // output buffer is full, and if so, write its contents to the user-supplied
-// output stream 'os'.  Note how we use the values of 'numOut' and 'numIn'
-// generated by 'convert' to update the relevant cursors.
-//..
-//             output += numOut;
-//             input  += numIn;
+// output stream `os`.  Note how we use the values of `numOut` and `numIn`
+// generated by `convert` to update the relevant cursors.
+// ```
+//            output += numOut;
+//            input  += numIn;
 //
-//             if (output == outputEnd) {  // output buffer full; write data
-//                 os.write (outputBuffer, sizeof outputBuffer);
-//                 if (os.fail()) {
-//                     return IO_ERROR;                               // RETURN
-//                 }
-//                 output = outputBuffer;
-//             }
-//         }
-//     }
-//..
-// We have now exited both the input and the "decode" loops.  'converter' may
-// still hold decoded output characters, and so we call 'converter.endConvert'
+//            if (output == outputEnd) {  // output buffer full; write data
+//                os.write (outputBuffer, sizeof outputBuffer);
+//                if (os.fail()) {
+//                    return IO_ERROR;                               // RETURN
+//                }
+//                output = outputBuffer;
+//            }
+//        }
+//    }
+// ```
+// We have now exited both the input and the "decode" loops.  `converter` may
+// still hold decoded output characters, and so we call `converter.endConvert`
 // to emit any retained output.  To guarantee correct behavior, we call this
 // method in an infinite loop, because it is possible that the retained output
 // can fill the output buffer.  In that case, we solve the problem by writing
-// the contents of the output buffer to 'os' within the loop.  The most likely
-// case, however, is that 'endConvert' will return 0, in which case we exit the
-// loop and write any data remaining in 'outputBuffer' to 'os'.  As above, if
-// 'endConvert' fails, we exit the function with a negative return status.
-//..
-//     while (1) {
+// the contents of the output buffer to `os` within the loop.  The most likely
+// case, however, is that `endConvert` will return 0, in which case we exit the
+// loop and write any data remaining in `outputBuffer` to `os`.  As above, if
+// `endConvert` fails, we exit the function with a negative return status.
+// ```
+//    while (1) {
 //
-//         int numOut;
+//        int numOut;
 //
-//         int more = converter.endConvert(output, &numOut, outputEnd-output);
-//         if (more < 0) {
-//             return DECODE_ERROR;                                   // RETURN
-//         }
+//        int more = converter.endConvert(output, &numOut, outputEnd-output);
+//        if (more < 0) {
+//            return DECODE_ERROR;                                   // RETURN
+//        }
 //
-//         output += numOut;
+//        output += numOut;
 //
-//         if (!more) { // no more output
-//             break;
-//         }
+//        if (!more) { // no more output
+//            break;
+//        }
 //
-//         assert (output == outputEnd);  // output buffer is full
+//        assert (output == outputEnd);  // output buffer is full
 //
-//         os.write (outputBuffer, sizeof outputBuffer);  // write buffer
-//         if (os.fail()) {
-//             return IO_ERROR;                                       // RETURN
-//         }
-//         output = outputBuffer;
-//     }
+//        os.write (outputBuffer, sizeof outputBuffer);  // write buffer
+//        if (os.fail()) {
+//            return IO_ERROR;                                       // RETURN
+//        }
+//        output = outputBuffer;
+//    }
 //
-//     if (output > outputBuffer) { // still data in output buffer; write it
-//                                  // all
-//         os.write(outputBuffer, output - outputBuffer);
-//     }
+//    if (output > outputBuffer) { // still data in output buffer; write it
+//                                 // all
+//        os.write(outputBuffer, output - outputBuffer);
+//    }
 //
-//     return (is.eof() && os.good()) ? SUCCESS : IO_ERROR;
+//    return (is.eof() && os.good()) ? SUCCESS : IO_ERROR;
 // }
 //
 // } // Close namespace BloombergLP
-//..
-// For ease of reading, we repeat the full content of the 'streamconverter.cpp'
+// ```
+// For ease of reading, we repeat the full content of the `streamconverter.cpp`
 // file without interruption.
-//..
+// ```
 // streamdecoder.cpp                    -*-C++-*-
 //
 // #include <streamdecoder.h>
@@ -425,7 +425,7 @@ BSLS_IDENT("$Id: $")
 // }
 //
 // } // Close namespace BloombergLP
-//..
+// ```
 
 #include <bdlscm_version.h>
 
@@ -459,9 +459,9 @@ namespace bdlde {
                             // class Base64Decoder
                             // ===================
 
+/// This class implements a mechanism capable of converting data of
+/// arbitrary length from its corresponding Base64 representation.
 class Base64Decoder {
-    // This class implements a mechanism capable of converting data of
-    // arbitrary length from its corresponding Base64 representation.
 
   public:
     // PUBLIC TYPES
@@ -521,47 +521,72 @@ class Base64Decoder {
     Base64Decoder& operator=(const Base64Decoder&);
 
     // PRIVATE ACCESSORS
+
+    /// Return the number bits of output there are (either already done or
+    /// to be done) since the end of the last 4-bytes of input.  Note that
+    /// input to this decoder, other than ignored whitespace or garbage,
+    /// comes in 4 byte quads, each of which results in 3 bytes of output,
+    /// and this accessor is particularly useful in calculating output for
+    /// the last partial quad of input.
     int residualBits(int bytesOutputSoFar) const;
-        // Return the number bits of output there are (either already done or
-        // to be done) since the end of the last 4-bytes of input.  Note that
-        // input to this decoder, other than ignored whitespace or garbage,
-        // comes in 4 byte quads, each of which results in 3 bytes of output,
-        // and this accessor is particularly useful in calculating output for
-        // the last partial quad of input.
 
   public:
     // CLASS METHODS
+
+    /// Return the maximum number of decoded bytes that could result from an
+    /// input byte sequence of the specified `inputLength` provided to the
+    /// `convert` and `endConvert` methods of this decoder.  The behavior is
+    /// undefined unless `0 <= inputLength`.  Note that the result is
+    /// independent of which options are provided to the decoder.
     static int maxDecodedLength(int inputLength);
-        // Return the maximum number of decoded bytes that could result from an
-        // input byte sequence of the specified 'inputLength' provided to the
-        // 'convert' and 'endConvert' methods of this decoder.  The behavior is
-        // undefined unless '0 <= inputLength'.  Note that the result is
-        // independent of which options are provided to the decoder.
 
     // CREATORS
+
+    /// Create a Base64 decoder with options determined by the specfied
+    /// `options`.
     explicit
     Base64Decoder(const Base64DecoderOptions& options);
-        // Create a Base64 decoder with options determined by the specfied
-        // 'options'.
 
     BSLS_DEPRECATE_FEATURE("bdl", "Base64Decoder", "use options c'tor")
+    /// Create a Base64 decoder in the initial state.  Unrecognized
+    /// characters (i.e., non-base64 characters other than whitespace) will
+    /// be treated as errors if the specified
+    /// `unrecognizedNonWhitespaceIsErrorFlag` is `true`, and ignored
+    /// otherwise.  Optionally specify an alphabet used to decode input
+    /// characters.  If `alphabet` is not specified, then the basic
+    /// alphabet, "base64", is used.  Padded input is assumed.
+    ///
+    /// DEPRECATED: Use the overload that takes `options` instead.
     explicit
     Base64Decoder(bool     unrecognizedNonWhitespaceIsErrorFlag,
                   Alphabet alphabet = e_BASIC);
-        // Create a Base64 decoder in the initial state.  Unrecognized
-        // characters (i.e., non-base64 characters other than whitespace) will
-        // be treated as errors if the specified
-        // 'unrecognizedNonWhitespaceIsErrorFlag' is 'true', and ignored
-        // otherwise.  Optionally specify an alphabet used to decode input
-        // characters.  If 'alphabet' is not specified, then the basic
-        // alphabet, "base64", is used.  Padded input is assumed.
-        //
-        // DEPRECATED: Use the overload that takes 'options' instead.
 
+    /// Destroy this object.
     ~Base64Decoder();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Decode the sequence of input characters starting at the specified
+    /// `begin` position up to, but not including, the specified `end`
+    /// position, writing any resulting output characters to the specified
+    /// `out` buffer.  Optionally specify the `maxNumOut` limit on the
+    /// number of bytes to output; if `maxNumOut` is negative, no limit is
+    /// imposed.  If the `maxNumOut` limit is reached, no further input will
+    /// be consumed.  Load into the (optionally) specified `numOut` and
+    /// `numIn` the number of output bytes produced and input bytes
+    /// consumed, respectively.  Return a non-negative value on success, -1
+    /// on an input error, and -2 if the `endConvert` method has already
+    /// been called without an intervening `resetState` call.  A return
+    /// status of -1 indicates that the data at `begin` + `numIn`
+    /// constitutes an irrecoverably undecodable input sequence (i.e., the
+    /// data cannot be extended to form any valid encoding).  A positive
+    /// return status indicates the number of valid processed output bytes
+    /// retained by this decoder and not written to `out` because
+    /// `maxNumOut` has been reached; these bytes are available for output
+    /// if this method is called with appropriate input.  Note that it is
+    /// recommended that after all calls to `convert` are finished, the
+    /// `endConvert` method be called to complete the encoding of any
+    /// unprocessed input characters that do not complete a 3-byte sequence.
     template <class OUTPUT_ITERATOR, class INPUT_ITERATOR>
     int convert(OUTPUT_ITERATOR out,
                 INPUT_ITERATOR  begin,
@@ -573,104 +598,84 @@ class Base64Decoder {
                 INPUT_ITERATOR   begin,
                 INPUT_ITERATOR   end,
                 int              maxNumOut = -1);
-        // Decode the sequence of input characters starting at the specified
-        // 'begin' position up to, but not including, the specified 'end'
-        // position, writing any resulting output characters to the specified
-        // 'out' buffer.  Optionally specify the 'maxNumOut' limit on the
-        // number of bytes to output; if 'maxNumOut' is negative, no limit is
-        // imposed.  If the 'maxNumOut' limit is reached, no further input will
-        // be consumed.  Load into the (optionally) specified 'numOut' and
-        // 'numIn' the number of output bytes produced and input bytes
-        // consumed, respectively.  Return a non-negative value on success, -1
-        // on an input error, and -2 if the 'endConvert' method has already
-        // been called without an intervening 'resetState' call.  A return
-        // status of -1 indicates that the data at 'begin' + 'numIn'
-        // constitutes an irrecoverably undecodable input sequence (i.e., the
-        // data cannot be extended to form any valid encoding).  A positive
-        // return status indicates the number of valid processed output bytes
-        // retained by this decoder and not written to 'out' because
-        // 'maxNumOut' has been reached; these bytes are available for output
-        // if this method is called with appropriate input.  Note that it is
-        // recommended that after all calls to 'convert' are finished, the
-        // 'endConvert' method be called to complete the encoding of any
-        // unprocessed input characters that do not complete a 3-byte sequence.
 
+    /// Terminate decoding for this decoder; write any retained output
+    /// (e.g., from a previous call to `convert` with a non-zero optionally
+    /// specified `maxNumOut` argument) to the specified `out` buffer;
+    /// encode any unprocessed input characters that do not complete a
+    /// 3-byte sequence.  The argument `maxNumOut` is the limit on the
+    /// number of bytes to output; if `maxNumOut` is negative, no limit is
+    /// imposed.  Load into the (optionally) specified `numOut` the number
+    /// of output bytes produced.  Return 0 on success, the positive number
+    /// of bytes *still* retained by this decoder if the `maxNumOut` limit
+    /// was reached, and a negative value otherwise.  Any retained bytes are
+    /// available on a subsequent call to `endConvert`.  Once this method is
+    /// called, no additional input may be supplied without an intervening
+    /// call to `resetState`; once this method returns a zero status, a
+    /// subsequent call will place this decoder in the error state, and
+    /// return an error status.
     template <class OUTPUT_ITERATOR>
     int endConvert(OUTPUT_ITERATOR out);
     template <class OUTPUT_ITERATOR>
     int endConvert(OUTPUT_ITERATOR  out,
                    int             *numOut,
                    int              maxNumOut = -1);
-        // Terminate decoding for this decoder; write any retained output
-        // (e.g., from a previous call to 'convert' with a non-zero optionally
-        // specified 'maxNumOut' argument) to the specified 'out' buffer;
-        // encode any unprocessed input characters that do not complete a
-        // 3-byte sequence.  The argument 'maxNumOut' is the limit on the
-        // number of bytes to output; if 'maxNumOut' is negative, no limit is
-        // imposed.  Load into the (optionally) specified 'numOut' the number
-        // of output bytes produced.  Return 0 on success, the positive number
-        // of bytes *still* retained by this decoder if the 'maxNumOut' limit
-        // was reached, and a negative value otherwise.  Any retained bytes are
-        // available on a subsequent call to 'endConvert'.  Once this method is
-        // called, no additional input may be supplied without an intervening
-        // call to 'resetState'; once this method returns a zero status, a
-        // subsequent call will place this decoder in the error state, and
-        // return an error status.
 
+    /// Reset this instance to its initial state (i.e., as if no input had
+    /// been consumed).
     void resetState();
-        // Reset this instance to its initial state (i.e., as if no input had
-        // been consumed).
 
     // ACCESSORS
+
+    /// Return the alphabet supplied at construction of this object.
     Alphabet alphabet() const;
-        // Return the alphabet supplied at construction of this object.
 
+    /// Return the `ignoreMode` state of this decoder.
     IgnoreMode::Enum ignoreMode() const;
-        // Return the 'ignoreMode' state of this decoder.
 
+    /// Return `true` if the input read so far is considered syntactically
+    /// complete, and `false` otherwise.  Note that the number of relevant
+    /// input characters must be divisible by 4.
     bool isAcceptable() const;
-        // Return 'true' if the input read so far is considered syntactically
-        // complete, and 'false' otherwise.  Note that the number of relevant
-        // input characters must be divisible by 4.
 
+    /// Return `true` if the current input is acceptable and any additional
+    /// input (including `endConvert`) would be an error, and `false`
+    /// otherwise.  Note that if this decoder `isDone` then all resulting
+    /// output has been emitted to `out`.
     bool isDone() const;
-        // Return 'true' if the current input is acceptable and any additional
-        // input (including 'endConvert') would be an error, and 'false'
-        // otherwise.  Note that if this decoder 'isDone' then all resulting
-        // output has been emitted to 'out'.
 
+    /// Return `true` if there is no possibility of achieving an
+    /// "acceptable" result, and `false` otherwise.
     bool isError() const;
-        // Return 'true' if there is no possibility of achieving an
-        // "acceptable" result, and 'false' otherwise.
 
+    /// Return `true` if this instance is in the initial state (i.e., as
+    /// if no input had been consumed), and `false` otherwise.
     bool isInitialState() const;
-        // Return 'true' if this instance is in the initial state (i.e., as
-        // if no input had been consumed), and 'false' otherwise.
 
+    /// Return `true` if the current input is acceptable and any additional
+    /// input (other than `endConvert`) would be an error, and `false`
+    /// otherwise.
     bool isMaximal() const;
-        // Return 'true' if the current input is acceptable and any additional
-        // input (other than 'endConvert') would be an error, and 'false'
-        // otherwise.
 
+    /// Return `true` if this object is configured for padded input and
+    /// `false` otherwise.
     bool isPadded() const;
-        // Return 'true' if this object is configured for padded input and
-        // 'false' otherwise.
 
     BSLS_DEPRECATE_FEATURE("bdl", "isUnrecognizedAnError", "use ignoreMode")
+    /// Return `true` if this mechanism is currently configured to report an
+    /// error when an unrecognized character (i.e., a character other than
+    /// one of the 64 "numeric" base-64 characters, `=`, or whitespace) is
+    /// encountered, and `false` otherwise.
+    ///
+    /// DEPRECATED: use the `ignoreMode` accessor instead.
     bool isUnrecognizedAnError() const;
-        // Return 'true' if this mechanism is currently configured to report an
-        // error when an unrecognized character (i.e., a character other than
-        // one of the 64 "numeric" base-64 characters, '=', or whitespace) is
-        // encountered, and 'false' otherwise.
-        //
-        // DEPRECATED: use the 'ignoreMode' accessor instead.
 
+    /// Return a `Base64DecoderOptions` object representing the
+    /// configuration of this decoder.
     DecoderOptions options() const;
-        // Return a 'Base64DecoderOptions' object representing the
-        // configuration of this decoder.
 
+    /// Return the total length of the output emitted thus far.
     int outputLength() const;
-        // Return the total length of the output emitted thus far.
 };
 
 // ============================================================================

@@ -8,54 +8,54 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide a function that creates a pair of references.
 //
 //@CLASSES:
-//  bdlb::PairUtil: namespace for the 'bdlb::PairUtil::tie' function
+//  bdlb::PairUtil: namespace for the `bdlb::PairUtil::tie` function
 //
-//@DESCRIPTION: This component provides the class 'bdlb::PairUtil', which has a
-// single static member function, 'tie', which is intended to be used in place
-// of 'bsl::tie' when the right-hand side of the assignment is a 'bsl::pair'.
+//@DESCRIPTION: This component provides the class `bdlb::PairUtil`, which has a
+// single static member function, `tie`, which is intended to be used in place
+// of `bsl::tie` when the right-hand side of the assignment is a `bsl::pair`.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-// Suppose we need to implement a function that takes a 'bsl::map' and stores
+// Suppose we need to implement a function that takes a `bsl::map` and stores
 // into out-parameters the key and value corresponding to the first entry in
-// the map.  Using 'bsl::map's container interface, we can obtain a reference
-// to a 'bsl::pair' of the key and value.  We can then use
-// 'bdlb::PairUtil::tie' to assign from both the key and value in a single
+// the map.  Using `bsl::map`s container interface, we can obtain a reference
+// to a `bsl::pair` of the key and value.  We can then use
+// `bdlb::PairUtil::tie` to assign from both the key and value in a single
 // expression:
-//..
-//  bool getFirst(int                              *key,
-//                bsl::string                      *value,
-//                const bsl::map<int, bsl::string>& map)
-//      // Load into the specified 'key' and the specified 'value' the key and
-//      // value for the first entry in the specified 'map' and return 'true',
-//      // or else fail by storing 0 and an empty string and return 'false'
-//      // when 'map' is empty.
-//  {
-//      if (map.empty()) {
-//          *key = 0;
-//          value->clear();
-//          return false;                                             // RETURN
-//      }
-//      bdlb::PairUtil::tie(*key, *value) = *map.begin();
-//      return true;
-//  }
+// ```
+// bool getFirst(int                              *key,
+//               bsl::string                      *value,
+//               const bsl::map<int, bsl::string>& map)
+//     // Load into the specified 'key' and the specified 'value' the key and
+//     // value for the first entry in the specified 'map' and return 'true',
+//     // or else fail by storing 0 and an empty string and return 'false'
+//     // when 'map' is empty.
+// {
+//     if (map.empty()) {
+//         *key = 0;
+//         value->clear();
+//         return false;                                             // RETURN
+//     }
+//     bdlb::PairUtil::tie(*key, *value) = *map.begin();
+//     return true;
+// }
 //
-//  void usageExample()
-//  {
-//      bsl::map<int, bsl::string> map;
-//      map[30782530] = "bbi10";
+// void usageExample()
+// {
+//     bsl::map<int, bsl::string> map;
+//     map[30782530] = "bbi10";
 //
-//      int         uuid;
-//      bsl::string username;
+//     int         uuid;
+//     bsl::string username;
 //
-//      bool result = getFirst(&uuid, &username, map);
-//      assert(result);
-//      assert(30782530 == uuid);
-//      assert("bbi10"  == username);
-//  }
-//..
+//     bool result = getFirst(&uuid, &username, map);
+//     assert(result);
+//     assert(30782530 == uuid);
+//     assert("bbi10"  == username);
+// }
+// ```
 
 #include <bdlscm_version.h>
 
@@ -68,15 +68,16 @@ namespace bdlb {
                                // class PairUtil
                                // ==============
 
+/// This `struct` provides a namespace for the `tie` static function.
 struct PairUtil {
-    // This 'struct' provides a namespace for the 'tie' static function.
 
     // CLASS METHODS
+
+    /// Return a `bsl::pair` object holding a reference to the specified
+    /// `first` and a reference to the specified `second`, respectively.
     template <class t_FIRST, class t_SECOND>
     static bsl::pair<t_FIRST&, t_SECOND&> tie(t_FIRST&  first,
                                               t_SECOND& second);
-        // Return a 'bsl::pair' object holding a reference to the specified
-        // 'first' and a reference to the specified 'second', respectively.
 };
 
 // ============================================================================

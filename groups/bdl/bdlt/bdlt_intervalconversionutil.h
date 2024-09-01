@@ -12,52 +12,52 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlt_datetimeinterval, bsls_timeinterval
 //
-//@DESCRIPTION: This component provides a utility 'struct',
-// 'bdlt::IntervalConversionUtil', that defines functions to convert between
+//@DESCRIPTION: This component provides a utility `struct`,
+// `bdlt::IntervalConversionUtil`, that defines functions to convert between
 // C++ value types providing different representations of time intervals,
-// (e.g., 'bsls::TimeInterval' and 'bdlt::DatetimeInterval').
+// (e.g., `bsls::TimeInterval` and `bdlt::DatetimeInterval`).
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Interfacing With an API That Uses 'bsls::TimeInterval'
+///Example 1: Interfacing With an API That Uses `bsls::TimeInterval`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Some APIs, such as 'bsls::SystemTime', use 'bsls::TimeInterval' in their
+// Some APIs, such as `bsls::SystemTime`, use `bsls::TimeInterval` in their
 // interface.  In order to use those APIs in components implemented in terms of
-// 'bdlt::DatetimeInterval', it is necessary to convert between the
-// 'bsls::TimeInterval' and 'bdlt::DatetimeInterval' representations for a time
+// `bdlt::DatetimeInterval`, it is necessary to convert between the
+// `bsls::TimeInterval` and `bdlt::DatetimeInterval` representations for a time
 // interval.  This conversion can be accomplished conveniently using
-// 'bdlt::IntervalConversionUtil'.
+// `bdlt::IntervalConversionUtil`.
 //
 // Suppose we wish to pass the system time -- as returned by
-// 'bsls::SystemTime::nowRealtimeClock' -- to a function that displays a time
-// that is represented as a 'bdlt::DatetimeInterval' since the UNIX epoch.
+// `bsls::SystemTime::nowRealtimeClock` -- to a function that displays a time
+// that is represented as a `bdlt::DatetimeInterval` since the UNIX epoch.
 //
 // First, we include the declaration of the function that displays a
-// 'bdlt::DatetimeInterval':
-//..
-//  void displayTime(const bdlt::DatetimeInterval& timeSinceEpoch);
-//..
-// Then, we obtain the current system time from 'bsls::SystemTime', and store
-// it in a 'bsls::TimeInterval':
-//..
-//  bsls::TimeInterval systemTime = bsls::SystemTime::nowRealtimeClock();
-//..
-// Now, we convert the 'bsls::TimeInterval' into a 'bdlt::DatetimeInterval'
-// using 'convertToDatetimeInterval':
-//..
-//  bdlt::DatetimeInterval timeSinceEpoch =
-//         bdlt::IntervalConversionUtil::convertToDatetimeInterval(systemTime);
+// `bdlt::DatetimeInterval`:
+// ```
+// void displayTime(const bdlt::DatetimeInterval& timeSinceEpoch);
+// ```
+// Then, we obtain the current system time from `bsls::SystemTime`, and store
+// it in a `bsls::TimeInterval`:
+// ```
+// bsls::TimeInterval systemTime = bsls::SystemTime::nowRealtimeClock();
+// ```
+// Now, we convert the `bsls::TimeInterval` into a `bdlt::DatetimeInterval`
+// using `convertToDatetimeInterval`:
+// ```
+// bdlt::DatetimeInterval timeSinceEpoch =
+//        bdlt::IntervalConversionUtil::convertToDatetimeInterval(systemTime);
 //
-//  assert(timeSinceEpoch.totalMilliseconds() ==
-//                                             systemTime.totalMilliseconds());
-//..
+// assert(timeSinceEpoch.totalMilliseconds() ==
+//                                            systemTime.totalMilliseconds());
+// ```
 // Finally, we display the time by passing the converted value to
-// 'displayTime':
-//..
-//  displayTime(timeSinceEpoch);
-//..
+// `displayTime`:
+// ```
+// displayTime(timeSinceEpoch);
+// ```
 
 #include <bdlscm_version.h>
 
@@ -79,10 +79,10 @@ namespace bdlt {
                         // struct IntervalConversionUtil
                         // =============================
 
+/// This utility `struct`, `IntervalConversionUtil`, defines functions to
+/// convert between `bsls::TimeInterval` and `bdlt::DatetimeInterval`
+/// representations of time intervals.
 struct IntervalConversionUtil {
-    // This utility 'struct', 'IntervalConversionUtil', defines functions to
-    // convert between 'bsls::TimeInterval' and 'bdlt::DatetimeInterval'
-    // representations of time intervals.
 
   private:
     // PRIVATE TYPES
@@ -104,25 +104,26 @@ struct IntervalConversionUtil {
 
   public:
     // CLASS METHODS
+
+    /// Return as a `bdlt::DatetimeInterval` the (approximate) value of the
+    /// specified `interval` truncated toward zero, to microsecond
+    /// resolution.  The behavior is undefined unless the value of
+    /// `interval`, expressed with nanosecond precision, is within the range
+    /// of time intervals supported by a `DatetimeInterval` -- i.e.,
+    /// `DT_MIN * 10^6 <= TI_NSECS <= DT_MAX * 10^6`, where `TI_NSECS` is
+    /// the total number of nanoseconds in `interval`, `DT_MIN` is the
+    /// lowest (negative) value expressible by `DatetimeInterval`, and
+    /// `DT_MAX` is the highest (positive) value expressible by
+    /// `DatetimeInterval`.  Note that, while `bsls::TimeInterval` has
+    /// nanosecond resolution, `bdlt::DatetimeInterval` has only microsecond
+    /// resolution.
     static DatetimeInterval convertToDatetimeInterval(
                                           const bsls::TimeInterval&  interval);
-        // Return as a 'bdlt::DatetimeInterval' the (approximate) value of the
-        // specified 'interval' truncated toward zero, to microsecond
-        // resolution.  The behavior is undefined unless the value of
-        // 'interval', expressed with nanosecond precision, is within the range
-        // of time intervals supported by a 'DatetimeInterval' -- i.e.,
-        // 'DT_MIN * 10^6 <= TI_NSECS <= DT_MAX * 10^6', where 'TI_NSECS' is
-        // the total number of nanoseconds in 'interval', 'DT_MIN' is the
-        // lowest (negative) value expressible by 'DatetimeInterval', and
-        // 'DT_MAX' is the highest (positive) value expressible by
-        // 'DatetimeInterval'.  Note that, while 'bsls::TimeInterval' has
-        // nanosecond resolution, 'bdlt::DatetimeInterval' has only microsecond
-        // resolution.
 
+    /// Return as a `bsls::TimeInterval` the value of the specified
+    /// `interval`.
     static bsls::TimeInterval convertToTimeInterval(
                                             const DatetimeInterval&  interval);
-        // Return as a 'bsls::TimeInterval' the value of the specified
-        // 'interval'.
 };
 
 // ============================================================================

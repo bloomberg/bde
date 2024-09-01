@@ -9,11 +9,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a thread-aware bounded queue of values.
 //
 //@CLASSES:
-//  bdlcc::BoundedQueue: thread-aware bounded queue of 'TYPE'
+//  bdlcc::BoundedQueue: thread-aware bounded queue of `TYPE`
 //
 //@SEE_ALSO: bdlcc_fixedqueue
 //
-//@DESCRIPTION: This component defines a type, 'bdlcc::BoundedQueue', that
+//@DESCRIPTION: This component defines a type, `bdlcc::BoundedQueue`, that
 // provides an efficient, thread-aware bounded (capacity fixed at construction)
 // queue of values.  This class is ideal for synchronization and communication
 // between threads in a producer-consumer model when a bounded queue is
@@ -21,68 +21,68 @@ BSLS_IDENT("$Id: $")
 // this component to the older {bdlcc_fixedqueue} (see {Comparison to
 // FixedQueue}).
 //
-// The queue provides 'pushBack' and 'popFront' methods for pushing data into
+// The queue provides `pushBack` and `popFront` methods for pushing data into
 // the queue and popping data from the queue.  When the queue is full, the
-// 'pushBack' methods block until data is removed from the queue.  When the
-// queue is empty, the 'popFront' methods block until data appears in the
-// queue.  Non-blocking methods 'tryPushBack' and 'tryPopFront' are also
-// provided.  The 'tryPushBack' method fails immediately, returning a non-zero
-// value, if the queue is full.  The 'tryPopFront' method fails immediately,
+// `pushBack` methods block until data is removed from the queue.  When the
+// queue is empty, the `popFront` methods block until data appears in the
+// queue.  Non-blocking methods `tryPushBack` and `tryPopFront` are also
+// provided.  The `tryPushBack` method fails immediately, returning a non-zero
+// value, if the queue is full.  The `tryPopFront` method fails immediately,
 // returning a non-zero value, if the queue is empty.
 //
 // The queue may be placed into a "enqueue disabled" state using the
-// 'disablePushBack' method.  When disabled, 'pushBack' and 'tryPushBack' fail
-// immediately and return an error code.  Any threads blocked in 'pushBack'
-// when the queue is enqueue disabled return from 'pushBack' immediately and
+// `disablePushBack` method.  When disabled, `pushBack` and `tryPushBack` fail
+// immediately and return an error code.  Any threads blocked in `pushBack`
+// when the queue is enqueue disabled return from `pushBack` immediately and
 // return an error code.  The queue may be restored to normal operation with
-// the 'enablePushBack' method.
+// the `enablePushBack` method.
 //
 // The queue may be placed into a "dequeue disabled" state using the
-// 'disablePopFront' method.  When dequeue disabled, 'popFront' and
-// 'tryPopFront' fail immediately and return an error code.  Any threads
-// blocked in 'popFront' when the queue is dequeue disabled return from
-// 'popFront' immediately and return an error code.  The queue may be restored
-// to normal operation with the 'enablePopFront' method.
+// `disablePopFront` method.  When dequeue disabled, `popFront` and
+// `tryPopFront` fail immediately and return an error code.  Any threads
+// blocked in `popFront` when the queue is dequeue disabled return from
+// `popFront` immediately and return an error code.  The queue may be restored
+// to normal operation with the `enablePopFront` method.
 //
 ///Comparison To FixedQueue
 ///------------------------
-// Both 'bdlcc::FixedQueue' and 'bdlcc::BoundedQueue' provide thread-aware
+// Both `bdlcc::FixedQueue` and `bdlcc::BoundedQueue` provide thread-aware
 // bounded queues.  Under most circumstances developers should prefer
 // {bdlcc_boundedqueue}: it is newer, has additional features, and provides
-// better performance under most circumstances.  'bdlcc::BoundedQueue' is not
-// quite a drop in replacement for 'bdlcc::FixedQueue' so both types are
+// better performance under most circumstances.  `bdlcc::BoundedQueue` is not
+// quite a drop in replacement for `bdlcc::FixedQueue` so both types are
 // currently maintained.  There is additional information about
 // performance of various queues in the article Concurrent Queue Evaluation
 // (https://tinyurl.com/mr2un9f7).
 //
 ///Template Requirements
 ///---------------------
-// 'bdlcc::BoundedQueue' is a template that is parameterized on the type of
-// element contained within the queue.  The supplied template argument, 'TYPE',
+// `bdlcc::BoundedQueue` is a template that is parameterized on the type of
+// element contained within the queue.  The supplied template argument, `TYPE`,
 // must provide both a default constructor and a copy constructor, as well as
 // an assignment operator.  If the default constructor accepts a
-// 'bslma::Allocator *', 'TYPE' must declare the uses 'bslma::Allocator' trait
-// (see 'bslma_usesbslmaallocator') so that the allocator of the queue is
+// `bslma::Allocator *`, `TYPE` must declare the uses `bslma::Allocator` trait
+// (see `bslma_usesbslmaallocator`) so that the allocator of the queue is
 // propagated to the elements contained in the queue.
 //
 ///Exception Safety
 ///----------------
-// A 'bdlcc::BoundedQueue' is exception neutral, and all of the methods of
-// 'bdlcc::BoundedQueue' provide the basic exception safety guarantee (see
-// 'bsldoc_glossary').  If an exception occurs while writing to an element, the
+// A `bdlcc::BoundedQueue` is exception neutral, and all of the methods of
+// `bdlcc::BoundedQueue` provide the basic exception safety guarantee (see
+// `bsldoc_glossary`).  If an exception occurs while writing to an element, the
 // element is marked unusable until after a read attempt from the element (at
 // which point the element is "reclaimed").  This failure to write does not
-// increment the result returned by 'numElements'.  Hence,
-// 'numElements() == capacity()' is not a valid replacement for 'isFull()'.
+// increment the result returned by `numElements`.  Hence,
+// `numElements() == capacity()` is not a valid replacement for `isFull()`.
 //
 ///Move Semantics in C++03
 ///-----------------------
-// Move-only types are supported by 'bdlcc::BoundedQueue' on C++11 platforms
-// only (where 'BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES' is defined), and are
+// Move-only types are supported by `bdlcc::BoundedQueue` on C++11 platforms
+// only (where `BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES` is defined), and are
 // not supported on C++03 platforms.  Unfortunately, in C++03, there are user
-// types where a 'bslmf::MovableRef' will not safely degrade to a lvalue
+// types where a `bslmf::MovableRef` will not safely degrade to a lvalue
 // reference when a move constructor is not available (types providing a
-// constructor template taking any type), so 'bslmf::MovableRefUtil::move'
+// constructor template taking any type), so `bslmf::MovableRefUtil::move`
 // cannot be used directly on a user supplied template type.  See internal bug
 // report 99039150 for more information.
 //
@@ -92,106 +92,106 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: A Simple Thread Pool
 ///- - - - - - - - - - - - - - - -
-// In the following example a 'bdlcc::BoundedQueue' is used to communicate
+// In the following example a `bdlcc::BoundedQueue` is used to communicate
 // between a single "producer" thread and multiple "consumer" threads.  The
 // "producer" will push work requests onto the queue, and each "consumer" will
 // iteratively take a work request from the queue and service the request.
 // This example shows a partial, simplified implementation of the
-// 'bdlmt::FixedThreadPool' class.  See component 'bdlmt_fixedthreadpool' for
+// `bdlmt::FixedThreadPool` class.  See component `bdlmt_fixedthreadpool` for
 // more information.
 //
 // First, we define a utility classes that handles a simple "work item":
-//..
-//  struct my_WorkData {
-//      // Work data...
-//  };
+// ```
+// struct my_WorkData {
+//     // Work data...
+// };
 //
-//  struct my_WorkRequest {
-//      enum RequestType {
-//          e_WORK = 1,
-//          e_STOP = 2
-//      };
+// struct my_WorkRequest {
+//     enum RequestType {
+//         e_WORK = 1,
+//         e_STOP = 2
+//     };
 //
-//      RequestType d_type;
-//      my_WorkData d_data;
-//      // Work data...
-//  };
-//..
+//     RequestType d_type;
+//     my_WorkData d_data;
+//     // Work data...
+// };
+// ```
 // Next, we provide a simple function to service an individual work item.  The
 // details are unimportant for this example:
-//..
-//  void myDoWork(const my_WorkData& data)
-//      // Do some work based upon the specified 'data'.
-//  {
-//      // do some stuff...
-//      (void)data;
-//  }
-//..
-// Then, we define a 'myConsumer' function that will pop elements off the queue
-// and process them.  Note that the call to 'queue->popFront()' will block
+// ```
+// void myDoWork(const my_WorkData& data)
+//     // Do some work based upon the specified 'data'.
+// {
+//     // do some stuff...
+//     (void)data;
+// }
+// ```
+// Then, we define a `myConsumer` function that will pop elements off the queue
+// and process them.  Note that the call to `queue->popFront()` will block
 // until there is an element available on the queue.  This function will be
 // executed in multiple threads, so that each thread waits in
-// 'queue->popFront()', and 'bdlcc::BoundedQueue' guarantees that each thread
+// `queue->popFront()`, and `bdlcc::BoundedQueue` guarantees that each thread
 // gets a unique element from the queue:
-//..
-//  void myConsumer(bdlcc::BoundedQueue<my_WorkRequest> *queue)
-//      // Pop elements from the specified 'queue'.
-//  {
-//      while (1) {
-//          // 'popFront()' will wait for a 'my_WorkRequest' until available.
+// ```
+// void myConsumer(bdlcc::BoundedQueue<my_WorkRequest> *queue)
+//     // Pop elements from the specified 'queue'.
+// {
+//     while (1) {
+//         // 'popFront()' will wait for a 'my_WorkRequest' until available.
 //
-//          my_WorkRequest item;
-//          item.d_type = my_WorkRequest::e_WORK;
+//         my_WorkRequest item;
+//         item.d_type = my_WorkRequest::e_WORK;
 //
-//          assert(0 == queue->popFront(&item));
+//         assert(0 == queue->popFront(&item));
 //
-//          if (item.d_type == my_WorkRequest::e_STOP) { break; }
-//          myDoWork(item.d_data);
-//      }
-//  }
-//..
-// Finally, we define a 'myProducer' function that serves multiple roles: it
-// creates the 'bdlcc::BoundedQueue', starts the consumer threads, and then
+//         if (item.d_type == my_WorkRequest::e_STOP) { break; }
+//         myDoWork(item.d_data);
+//     }
+// }
+// ```
+// Finally, we define a `myProducer` function that serves multiple roles: it
+// creates the `bdlcc::BoundedQueue`, starts the consumer threads, and then
 // produces and enqueues work items.  When work requests are exhausted, this
-// function enqueues one 'e_STOP' item for each consumer queue.  This 'e_STOP'
+// function enqueues one `e_STOP` item for each consumer queue.  This `e_STOP`
 // item indicates to the consumer thread to terminate its thread-handling
 // function.
 //
-// Note that, although the producer cannot control which thread 'pop's a
+// Note that, although the producer cannot control which thread `pop`s a
 // particular work item, it can rely on the knowledge that each consumer thread
-// will read a single 'e_STOP' item and then terminate.
-//..
-//  void myProducer(int numThreads)
-//      // Create a queue, start the specified 'numThreads' consumer threads,
-//      // produce and enqueue work.
-//  {
-//      enum {
-//          k_MAX_QUEUE_LENGTH = 100,
-//          k_NUM_WORK_ITEMS   = 1000
-//      };
+// will read a single `e_STOP` item and then terminate.
+// ```
+// void myProducer(int numThreads)
+//     // Create a queue, start the specified 'numThreads' consumer threads,
+//     // produce and enqueue work.
+// {
+//     enum {
+//         k_MAX_QUEUE_LENGTH = 100,
+//         k_NUM_WORK_ITEMS   = 1000
+//     };
 //
-//      bdlcc::BoundedQueue<my_WorkRequest> queue(k_MAX_QUEUE_LENGTH);
+//     bdlcc::BoundedQueue<my_WorkRequest> queue(k_MAX_QUEUE_LENGTH);
 //
-//      bslmt::ThreadGroup consumerThreads;
-//      consumerThreads.addThreads(bdlf::BindUtil::bind(&myConsumer, &queue),
-//                                 numThreads);
+//     bslmt::ThreadGroup consumerThreads;
+//     consumerThreads.addThreads(bdlf::BindUtil::bind(&myConsumer, &queue),
+//                                numThreads);
 //
-//      for (int i = 0; i < k_NUM_WORK_ITEMS; ++i) {
-//          my_WorkRequest item;
-//          item.d_type = my_WorkRequest::e_WORK;
-//          item.d_data = my_WorkData(); // some stuff to do
-//          queue.pushBack(item);
-//      }
+//     for (int i = 0; i < k_NUM_WORK_ITEMS; ++i) {
+//         my_WorkRequest item;
+//         item.d_type = my_WorkRequest::e_WORK;
+//         item.d_data = my_WorkData(); // some stuff to do
+//         queue.pushBack(item);
+//     }
 //
-//      for (int i = 0; i < numThreads; ++i) {
-//          my_WorkRequest item;
-//          item.d_type = my_WorkRequest::e_STOP;
-//          queue.pushBack(item);
-//      }
+//     for (int i = 0; i < numThreads; ++i) {
+//         my_WorkRequest item;
+//         item.d_type = my_WorkRequest::e_STOP;
+//         queue.pushBack(item);
+//     }
 //
-//      consumerThreads.joinAll();
-//  }
-//..
+//     consumerThreads.joinAll();
+// }
+// ```
 
 #include <bdlscm_version.h>
 
@@ -225,10 +225,10 @@ namespace bdlcc {
                    // class BoundedQueue_PopCompleteGuard
                    // ===================================
 
+/// This class implements a guard that invokes `TYPE::popComplete` on a
+/// `NODE` upon destruction.
 template <class TYPE, class NODE>
 class BoundedQueue_PopCompleteGuard {
-    // This class implements a guard that invokes 'TYPE::popComplete' on a
-    // 'NODE' upon destruction.
 
     // DATA
     TYPE *d_queue_p;  // managed queue owning the managed node
@@ -242,24 +242,25 @@ class BoundedQueue_PopCompleteGuard {
 
   public:
     // CREATORS
-    BoundedQueue_PopCompleteGuard(TYPE *queue, NODE *node);
-        // Create a 'popComplete' guard managing the specified 'queue' and
-        // 'node'.
 
+    /// Create a `popComplete` guard managing the specified `queue` and
+    /// `node`.
+    BoundedQueue_PopCompleteGuard(TYPE *queue, NODE *node);
+
+    /// Destroy this object and invoke the `TYPE::popComplete` method with
+    /// the managed `node`.
     ~BoundedQueue_PopCompleteGuard();
-        // Destroy this object and invoke the 'TYPE::popComplete' method with
-        // the managed 'node'.
 };
 
              // ===============================================
              // class BoundedQueue_PushExceptionCompleteProctor
              // ===============================================
 
+/// This class implements a proctor that invokes
+/// `TYPE::pushExceptionComplete` upon destruction unless `release` has been
+/// called.
 template <class TYPE>
 class BoundedQueue_PushExceptionCompleteProctor {
-    // This class implements a proctor that invokes
-    // 'TYPE::pushExceptionComplete' upon destruction unless 'release' has been
-    // called.
 
     // DATA
     TYPE *d_queue_p;  // managed queue
@@ -273,41 +274,43 @@ class BoundedQueue_PushExceptionCompleteProctor {
 
   public:
     // CREATORS
+
+    /// Create a `pushExceptionComplete` proctor that conditionally manages
+    /// the specified `queue` (if non-zero).
     explicit
     BoundedQueue_PushExceptionCompleteProctor(TYPE *queue);
-        // Create a 'pushExceptionComplete' proctor that conditionally manages
-        // the specified 'queue' (if non-zero).
 
+    /// Destroy this object and, if `release` has not been invoked', invoke
+    /// the managed queue's `pushExceptionComplete` method.
     ~BoundedQueue_PushExceptionCompleteProctor();
-        // Destroy this object and, if 'release' has not been invoked', invoke
-        // the managed queue's 'pushExceptionComplete' method.
 
     // MANIPULATORS
+
+    /// Release from management the queue currently managed by this proctor.
+    /// If no queue is currently managed, this method has no effect.
     void release();
-        // Release from management the queue currently managed by this proctor.
-        // If no queue is currently managed, this method has no effect.
 };
 
                          // ========================
                          // struct BoundedQueue_Node
                          // ========================
 
+/// This class implements the queue's node.  A node stores an instance of
+/// the specified (template parameter) `TYPE`, and provides an accessor
+/// `isUnconstructed` that indicates whether the value of the node was
+/// correctly constructed.  If `isUnconstructed` is `false`, then the value
+/// (`d_value`) refers to a valid object.  If `isUnconstructed` is `true`
+/// then `d_value` does not refer to a valid object, it does not represent a
+/// value in this queue, and the destructor of `d_value` should not be
+/// called.  The specified (template parameter) type `RECLAIMABLE` is used
+/// to provide a compile time optimization for the footprint of this
+/// template when the value of `isUnconstructed` is known at compile-time.
+/// If `RECLAIMABLE` is `false` then it can be determined at compile time
+/// that the construction of `TYPE` will uncoditionally succeed (e.g., it
+/// `IsBitwiseCopyable`), and the `isUnconstructed` property does not
+/// require a data member to be accessed at run-time.
 template <class TYPE, bool RECLAIMABLE>
 struct BoundedQueue_Node;
-    // This class implements the queue's node.  A node stores an instance of
-    // the specified (template parameter) 'TYPE', and provides an accessor
-    // 'isUnconstructed' that indicates whether the value of the node was
-    // correctly constructed.  If 'isUnconstructed' is 'false', then the value
-    // ('d_value') refers to a valid object.  If 'isUnconstructed' is 'true'
-    // then 'd_value' does not refer to a valid object, it does not represent a
-    // value in this queue, and the destructor of 'd_value' should not be
-    // called.  The specified (template parameter) type 'RECLAIMABLE' is used
-    // to provide a compile time optimization for the footprint of this
-    // template when the value of 'isUnconstructed' is known at compile-time.
-    // If 'RECLAIMABLE' is 'false' then it can be determined at compile time
-    // that the construction of 'TYPE' will uncoditionally succeed (e.g., it
-    // 'IsBitwiseCopyable'), and the 'isUnconstructed' property does not
-    // require a data member to be accessed at run-time.
 
 template <class TYPE>
 struct BoundedQueue_Node<TYPE, true> {
@@ -320,17 +323,19 @@ struct BoundedQueue_Node<TYPE, true> {
     bsls::ObjectBuffer<TYPE> d_value;                // stored value
 
     // MANIPULATORS
+
+    /// If the specified `isUnconstructedFlag` is `false`, then `d_value`
+    /// refers to a valid object of (the template parameter) `TYPE`,
+    /// otherwise (if `isUnconstrucedFlag` is `true`) `d_value` does not
+    /// refer to a valid object (because the attempt to construct `TYPE`
+    /// resulted in an expection).  Note that this method is normally
+    /// invoked after each write to `d_value`.
     void setIsUnconstructed(bool isUnconstructedFlag);
-        // If the specified 'isUnconstructedFlag' is 'false', then 'd_value'
-        // refers to a valid object of (the template parameter) 'TYPE',
-        // otherwise (if 'isUnconstrucedFlag' is 'true') 'd_value' does not
-        // refer to a valid object (because the attempt to construct 'TYPE'
-        // resulted in an expection).  Note that this method is normally
-        // invoked after each write to 'd_value'.
 
     // ACCESSORS
+
+    /// Return whether an exception occurred when last writing to `d_value`.
     bool isUnconstructed() const;
-        // Return whether an exception occurred when last writing to 'd_value'.
 };
 
 template <class TYPE>
@@ -339,21 +344,23 @@ struct BoundedQueue_Node<TYPE, false> {
     bsls::ObjectBuffer<TYPE> d_value;    // stored value
 
     // MANIPULATORS
+
+    /// Do nothing.
     void setIsUnconstructed(bool /* value */);
-        // Do nothing.
 
     // ACCESSORS
+
+    /// Return `false`.
     bool isUnconstructed() const;
-        // Return 'false'.
 };
 
                             // ==================
                             // class BoundedQueue
                             // ==================
 
+/// This class provides a thread-safe bounded queue of values.
 template <class TYPE>
 class BoundedQueue {
-    // This class provides a thread-safe bounded queue of values.
 
     // PRIVATE CONSTANTS
 
@@ -451,97 +458,99 @@ class BoundedQueue {
                                                           BoundedQueue<TYPE> >;
 
     // PRIVATE CLASS METHODS
+
+    /// Return `true` if the specified `lhs` is circularly greater than the
+    /// specified `rhs`, and `false` otherwise.  `lhs` is cicularly greater
+    /// than `rhs` if `lhs` is equal to a value obtained by adding a value
+    /// in `[1 .. 2^31]` to `rhs`.
     static bool circularlyGreater(Uint lhs, Uint rhs);
-        // Return 'true' if the specified 'lhs' is circularly greater than the
-        // specified 'rhs', and 'false' otherwise.  'lhs' is cicularly greater
-        // than 'rhs' if 'lhs' is equal to a value obtained by adding a value
-        // in '[1 .. 2^31]' to 'rhs'.
 
+    /// Return `true` if the specified `count` implies a quiescent state
+    /// (see *Implementation* *Note*), and `false` otherwise.  A quiescent
+    /// state indicates there is a (possibly zero length) contiguous set of
+    /// elements that can safely be made available to the operation
+    /// complementary to the operation `count` tracks (pop and push are
+    /// complementary operations).
     static bool isQuiescentState(bsls::Types::Uint64 count);
-        // Return 'true' if the specified 'count' implies a quiescent state
-        // (see *Implementation* *Note*), and 'false' otherwise.  A quiescent
-        // state indicates there is a (possibly zero length) contiguous set of
-        // elements that can safely be made available to the operation
-        // complementary to the operation 'count' tracks (pop and push are
-        // complementary operations).
 
+    /// Update the specified `count` to indicate that an operation (or the
+    /// optionally specified `num` operations) has completed, and return the
+    /// updated `count` value.  Marking an operation finished means that
+    /// `isQuiscentState` *may* now be true.  The behavior is undefined
+    /// unless `markStartedOperation` was previously called on this `count`,
+    /// and a corresponding `markFinishedOperation` or
+    /// `unmarkStartOperation` has not already been called.  Note that the
+    /// "operation" that has finished refers to either a push or pop
+    /// (depending on whether this is applied to `d_pushCount` or
+    /// `d_popCount`).
     static Uint64 markFinishedOperation(AtomicUint64 *count);
     static Uint64 markFinishedOperation(AtomicUint64 *count, int num);
-        // Update the specified 'count' to indicate that an operation (or the
-        // optionally specified 'num' operations) has completed, and return the
-        // updated 'count' value.  Marking an operation finished means that
-        // 'isQuiscentState' *may* now be true.  The behavior is undefined
-        // unless 'markStartedOperation' was previously called on this 'count',
-        // and a corresponding 'markFinishedOperation' or
-        // 'unmarkStartOperation' has not already been called.  Note that the
-        // "operation" that has finished refers to either a push or pop
-        // (depending on whether this is applied to 'd_pushCount' or
-        // 'd_popCount').
 
+    /// Update the specified `count` to indicate that a node that suffered
+    /// an exception has been reclaimed.  Marking a node reclaimed can *not*
+    /// alter the value of `isQuiescentState`, but does increase the size of
+    /// the contiguous set of elements that will eventially be made
+    /// available to the operation complementary to the operation `count`
+    /// tracks (pop and push are complementary operations).  Note that this
+    /// method does not require a previous call to `markStartedOperation`
+    /// and does not meet the requirements for `markFinishedOperation` or
+    /// `unmarkStartOperation` to be invoked.
     static void markReclaimed(AtomicUint64 *count);
-        // Update the specified 'count' to indicate that a node that suffered
-        // an exception has been reclaimed.  Marking a node reclaimed can *not*
-        // alter the value of 'isQuiescentState', but does increase the size of
-        // the contiguous set of elements that will eventially be made
-        // available to the operation complementary to the operation 'count'
-        // tracks (pop and push are complementary operations).  Note that this
-        // method does not require a previous call to 'markStartedOperation'
-        // and does not meet the requirements for 'markFinishedOperation' or
-        // 'unmarkStartOperation' to be invoked.
 
+    /// Update the specified `count` to indicate that an operation (or the
+    /// optionally specified `num` operations) has started, and return the
+    /// updated `count` value.  Marking an operation started means that
+    /// `isQuiescentState` is not true and will not be true until
+    /// `markFinishedOperation` or `unmarkStartedOperation` is invoked.
+    /// Note that the "operation" that has started refers to either a push
+    /// or pop (depending on whether this is applied to `d_pushCount` or
+    /// `d_popCount`).
     static void markStartedOperation(AtomicUint64 *count);
     static void markStartedOperation(AtomicUint64 *count, int num);
-        // Update the specified 'count' to indicate that an operation (or the
-        // optionally specified 'num' operations) has started, and return the
-        // updated 'count' value.  Marking an operation started means that
-        // 'isQuiescentState' is not true and will not be true until
-        // 'markFinishedOperation' or 'unmarkStartedOperation' is invoked.
-        // Note that the "operation" that has started refers to either a push
-        // or pop (depending on whether this is applied to 'd_pushCount' or
-        // 'd_popCount').
 
+    /// Update the specified `count` to indicate that an operation has
+    /// aborted without finishing, and return the updated `count` value.
+    /// Marking a started operation as having aborted means that
+    /// `isQuiscentState` *may* now be true.  The behavior is undefined
+    /// unless `markStartedOperation` was previously called on this `count`,
+    /// and a corresponding `markFinishedOperation` or
+    /// `unmarkStartOperation` has not already been called.  Note that the
+    /// "operation" that has aborted refers to either a push or pop
+    /// (depending on whether this is applied to `d_pushCount` or
+    /// `d_popCount`).
     static Uint64 unmarkStartedOperation(AtomicUint64 *count);
-        // Update the specified 'count' to indicate that an operation has
-        // aborted without finishing, and return the updated 'count' value.
-        // Marking a started operation as having aborted means that
-        // 'isQuiscentState' *may* now be true.  The behavior is undefined
-        // unless 'markStartedOperation' was previously called on this 'count',
-        // and a corresponding 'markFinishedOperation' or
-        // 'unmarkStartOperation' has not already been called.  Note that the
-        // "operation" that has aborted refers to either a push or pop
-        // (depending on whether this is applied to 'd_pushCount' or
-        // 'd_popCount').
 
     // PRIVATE MANIPULATORS
+
+    /// Destruct the value stored in the specified `node`, and mark the
+    /// `node` writable.  This method is used within `popFrontHelper` by a
+    /// guard to complete the reclamation of a node in the presence of an
+    /// exception.
     void popComplete(Node *node);
-        // Destruct the value stored in the specified 'node', and mark the
-        // 'node' writable.  This method is used within 'popFrontHelper' by a
-        // guard to complete the reclamation of a node in the presence of an
-        // exception.
 
+    /// Remove the element from the front of this queue and load that
+    /// element into the specified `value`.  This method is invoked by
+    /// `popFront` and `tryPopFront` once an element is available.
     void popFrontHelper(TYPE *value);
-        // Remove the element from the front of this queue and load that
-        // element into the specified 'value'.  This method is invoked by
-        // 'popFront' and 'tryPopFront' once an element is available.
 
+    /// Mark a "push" operation as complete, and `post` to the
+    /// `d_popSemaphore` if appropriate.
     void pushComplete();
-        // Mark a "push" operation as complete, and 'post' to the
-        // 'd_popSemaphore' if appropriate.
 
+    /// Remove the indicator for a started push operation, and `post` to the
+    /// `d_popSemaphore` if appropriate.  This method is used within
+    /// `pushFront` by a proctor to complete the marking of a node to
+    /// reclaim in the presence of an exception.
     void pushExceptionComplete();
-        // Remove the indicator for a started push operation, and 'post' to the
-        // 'd_popSemaphore' if appropriate.  This method is used within
-        // 'pushFront' by a proctor to complete the marking of a node to
-        // reclaim in the presence of an exception.
 
+    /// If the specified `emptyCount` is (circularly) greater than
+    /// `d_emptyCountSeen`, assign `d_emptyCountSeen` the value of
+    /// `emptyCount` and return `true`.  Otherwise, return `false`.  A
+    /// return value of `true` indicates this thread *must* signal any
+    /// waiting threads.  Note that a return value of `false` indicates
+    /// another thread has (or will) signal the queue is empty and this
+    /// thread does not need to signal.
     bool updateEmptyCountSeen(Uint emptyCount);
-        // If the specified 'emptyCount' is (circularly) greater than
-        // 'd_emptyCountSeen', assign 'd_emptyCountSeen' the value of
-        // 'emptyCount' and return 'true'.  Otherwise, return 'false'.  A
-        // return value of 'true' indicates this thread *must* signal any
-        // waiting threads.  Note that a return value of 'false' indicates
-        // another thread has (or will) signal the queue is empty and this
-        // thread does not need to signal.
 
     // NOT IMPLEMENTED
     BoundedQueue(const BoundedQueue&);
@@ -564,140 +573,143 @@ class BoundedQueue {
     };
 
     // CREATORS
+
+    /// Create a thread-aware queue with at least the specified `capacity`.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     explicit
     BoundedQueue(bsl::size_t capacity, bslma::Allocator *basicAllocator = 0);
-        // Create a thread-aware queue with at least the specified 'capacity'.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Destroy this object.
     ~BoundedQueue();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Remove the element from the front of this queue and load that
+    /// element into the specified `value`.  If the queue is empty, block
+    /// until it is not empty.  Return 0 on success, and a non-zero value
+    /// otherwise.  Specifically, return `e_SUCCESS` on success,
+    /// `e_DISABLED` if `isPopFrontDisabled()` and `e_FAILED` if an error
+    /// occurs.  On failure, `value` is not changed.  Threads blocked due to
+    /// the queue being empty will return `e_DISABLED` if `disablePopFront`
+    /// is invoked.
     int popFront(TYPE *value);
-        // Remove the element from the front of this queue and load that
-        // element into the specified 'value'.  If the queue is empty, block
-        // until it is not empty.  Return 0 on success, and a non-zero value
-        // otherwise.  Specifically, return 'e_SUCCESS' on success,
-        // 'e_DISABLED' if 'isPopFrontDisabled()' and 'e_FAILED' if an error
-        // occurs.  On failure, 'value' is not changed.  Threads blocked due to
-        // the queue being empty will return 'e_DISABLED' if 'disablePopFront'
-        // is invoked.
 
+    /// Append the specified `value` to the back of this queue.  If the
+    /// queue is full, block until it is not full.  Return 0 on success, and
+    /// a non-zero value otherwise.  Specifically, return `e_SUCCESS` on
+    /// success, `e_DISABLED` if `isPushBackDisabled()` and `e_FAILED` if an
+    /// error occurs.  Threads blocked due to the queue being full will
+    /// return `e_DISABLED` if `disablePushBack` is invoked.
     int pushBack(const TYPE& value);
-        // Append the specified 'value' to the back of this queue.  If the
-        // queue is full, block until it is not full.  Return 0 on success, and
-        // a non-zero value otherwise.  Specifically, return 'e_SUCCESS' on
-        // success, 'e_DISABLED' if 'isPushBackDisabled()' and 'e_FAILED' if an
-        // error occurs.  Threads blocked due to the queue being full will
-        // return 'e_DISABLED' if 'disablePushBack' is invoked.
 
+    /// Append the specified move-insertable `value` to the back of this
+    /// queue.  If the queue is full, block until it is not full.  `value`
+    /// is left in a valid but unspecified state.  Return 0 on success, and
+    /// a non-zero value otherwise.  Specifically, return `e_SUCCESS` on
+    /// success, `e_DISABLED` if `isPushBackDisabled()` and `e_FAILED` if an
+    /// error occurs.  On failure, `value` is not changed.  Threads blocked
+    /// due to the queue being full will return `e_DISABLED` if
+    /// `disablePushBack` is invoked.
     int pushBack(bslmf::MovableRef<TYPE> value);
-        // Append the specified move-insertable 'value' to the back of this
-        // queue.  If the queue is full, block until it is not full.  'value'
-        // is left in a valid but unspecified state.  Return 0 on success, and
-        // a non-zero value otherwise.  Specifically, return 'e_SUCCESS' on
-        // success, 'e_DISABLED' if 'isPushBackDisabled()' and 'e_FAILED' if an
-        // error occurs.  On failure, 'value' is not changed.  Threads blocked
-        // due to the queue being full will return 'e_DISABLED' if
-        // 'disablePushBack' is invoked.
 
+    /// Remove all items currently in this queue.  Note that this operation
+    /// is not atomic; if other threads are concurrently pushing items into
+    /// the queue the result of `numElements()` after this function returns
+    /// is not guaranteed to be 0.
     void removeAll();
-        // Remove all items currently in this queue.  Note that this operation
-        // is not atomic; if other threads are concurrently pushing items into
-        // the queue the result of 'numElements()' after this function returns
-        // is not guaranteed to be 0.
 
+    /// Attempt to remove the element from the front of this queue without
+    /// blocking, and, if successful, load the specified `value` with the
+    /// removed element.  Return 0 on success, and a non-zero value
+    /// otherwise.  Specifically, return `e_SUCCESS` on success,
+    /// `e_DISABLED` if `isPopFrontDisabled()`, `e_EMPTY` if
+    /// `!isPopFrontDisabled()` and the queue was empty, and `e_FAILED` if
+    /// an error occurs.  On failure, `value` is not changed.
     int tryPopFront(TYPE *value);
-        // Attempt to remove the element from the front of this queue without
-        // blocking, and, if successful, load the specified 'value' with the
-        // removed element.  Return 0 on success, and a non-zero value
-        // otherwise.  Specifically, return 'e_SUCCESS' on success,
-        // 'e_DISABLED' if 'isPopFrontDisabled()', 'e_EMPTY' if
-        // '!isPopFrontDisabled()' and the queue was empty, and 'e_FAILED' if
-        // an error occurs.  On failure, 'value' is not changed.
 
+    /// Append the specified `value` to the back of this queue.  Return 0 on
+    /// success, and a non-zero value otherwise.  Specifically, return
+    /// `e_SUCCESS` on success, `e_DISABLED` if `isPushBackDisabled()`,
+    /// `e_FULL` if `!isPushBackDisabled()` and the queue was full, and
+    /// `e_FAILED` if an error occurs.
     int tryPushBack(const TYPE& value);
-        // Append the specified 'value' to the back of this queue.  Return 0 on
-        // success, and a non-zero value otherwise.  Specifically, return
-        // 'e_SUCCESS' on success, 'e_DISABLED' if 'isPushBackDisabled()',
-        // 'e_FULL' if '!isPushBackDisabled()' and the queue was full, and
-        // 'e_FAILED' if an error occurs.
 
+    /// Append the specified move-insertable `value` to the back of this
+    /// queue.  `value` is left in a valid but unspecified state.  Return 0
+    /// on success, and a non-zero value otherwise.  Specifically, return
+    /// `e_SUCCESS` on success, `e_DISABLED` if `isPushBackDisabled()`,
+    /// `e_FULL` if `!isPushBackDisabled()` and the queue was full, and
+    /// `e_FAILED` if an error occurs.  On failure, `value` is not changed.
     int tryPushBack(bslmf::MovableRef<TYPE> value);
-        // Append the specified move-insertable 'value' to the back of this
-        // queue.  'value' is left in a valid but unspecified state.  Return 0
-        // on success, and a non-zero value otherwise.  Specifically, return
-        // 'e_SUCCESS' on success, 'e_DISABLED' if 'isPushBackDisabled()',
-        // 'e_FULL' if '!isPushBackDisabled()' and the queue was full, and
-        // 'e_FAILED' if an error occurs.  On failure, 'value' is not changed.
 
                        // Enqueue/Dequeue State
 
+    /// Disable dequeueing from this queue.  All subsequent invocations of
+    /// `popFront` or `tryPopFront` will fail immediately.  All blocked
+    /// invocations of `popFront` and `waitUntilEmpty` will fail
+    /// immediately.  If the queue is already dequeue disabled, this method
+    /// has no effect.
     void disablePopFront();
-        // Disable dequeueing from this queue.  All subsequent invocations of
-        // 'popFront' or 'tryPopFront' will fail immediately.  All blocked
-        // invocations of 'popFront' and 'waitUntilEmpty' will fail
-        // immediately.  If the queue is already dequeue disabled, this method
-        // has no effect.
 
+    /// Disable enqueueing into this queue.  All subsequent invocations of
+    /// `pushBack` or `tryPushBack` will fail immediately.  All blocked
+    /// invocations of `pushBack` will fail immediately.  If the queue is
+    /// already enqueue disabled, this method has no effect.
     void disablePushBack();
-        // Disable enqueueing into this queue.  All subsequent invocations of
-        // 'pushBack' or 'tryPushBack' will fail immediately.  All blocked
-        // invocations of 'pushBack' will fail immediately.  If the queue is
-        // already enqueue disabled, this method has no effect.
 
+    /// Enable dequeueing.  If the queue is not dequeue disabled, this call
+    /// has no effect.
     void enablePopFront();
-        // Enable dequeueing.  If the queue is not dequeue disabled, this call
-        // has no effect.
 
+    /// Enable queuing.  If the queue is not enqueue disabled, this call has
+    /// no effect.
     void enablePushBack();
-        // Enable queuing.  If the queue is not enqueue disabled, this call has
-        // no effect.
 
     // ACCESSORS
+
+    /// Return the maximum number of elements that may be stored in this
+    /// queue.  Note that the value returned may be greater than that
+    /// supplied at construction.
     bsl::size_t capacity() const;
-        // Return the maximum number of elements that may be stored in this
-        // queue.  Note that the value returned may be greater than that
-        // supplied at construction.
 
+    /// Return `true` if this queue is empty (has no elements), or `false`
+    /// otherwise.
     bool isEmpty() const;
-        // Return 'true' if this queue is empty (has no elements), or 'false'
-        // otherwise.
 
+    /// Return `true` if this queue is full (has no available capacity), or
+    /// `false` otherwise.  Note that for unbounded queues, this method
+    /// always returns `false`.
     bool isFull() const;
-        // Return 'true' if this queue is full (has no available capacity), or
-        // 'false' otherwise.  Note that for unbounded queues, this method
-        // always returns 'false'.
 
+    /// Return `true` if this queue is dequeue disabled, and `false`
+    /// otherwise.  Note that the queue is created in the "dequeue enabled"
+    /// state.
     bool isPopFrontDisabled() const;
-        // Return 'true' if this queue is dequeue disabled, and 'false'
-        // otherwise.  Note that the queue is created in the "dequeue enabled"
-        // state.
 
+    /// Return `true` if this queue is enqueue disabled, and `false`
+    /// otherwise.  Note that the queue is created in the "enqueue enabled"
+    /// state.
     bool isPushBackDisabled() const;
-        // Return 'true' if this queue is enqueue disabled, and 'false'
-        // otherwise.  Note that the queue is created in the "enqueue enabled"
-        // state.
 
+    /// Returns the number of elements currently in this queue.  Note that
+    /// `numElements() == capacity()` is not a valid replacement for
+    /// `isFull` (see {Exception Safety} for details).
     bsl::size_t numElements() const;
-        // Returns the number of elements currently in this queue.  Note that
-        // 'numElements() == capacity()' is not a valid replacement for
-        // 'isFull' (see {Exception Safety} for details).
 
+    /// Block until all the elements in this queue are removed.  Return 0 on
+    /// success, and a non-zero value otherwise.  Specifically, return
+    /// `e_SUCCESS` on success, `e_DISABLED` if
+    /// `!isEmpty() && isPopFrontDisabled()`.  A blocked thread waiting for
+    /// the queue to empty will return `e_DISABLED` if `disablePopFront` is
+    /// invoked.
     int waitUntilEmpty() const;
-        // Block until all the elements in this queue are removed.  Return 0 on
-        // success, and a non-zero value otherwise.  Specifically, return
-        // 'e_SUCCESS' on success, 'e_DISABLED' if
-        // '!isEmpty() && isPopFrontDisabled()'.  A blocked thread waiting for
-        // the queue to empty will return 'e_DISABLED' if 'disablePopFront' is
-        // invoked.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 };
 
 // ============================================================================

@@ -13,10 +13,10 @@ BSLS_IDENT("$Id$")
 //@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION: This component provides conversion operations between the
-// decimal types supplied in this package ('Decimal32', 'Decimal64',
-// 'Decimal128') and various alternative representations.  Some of the
+// decimal types supplied in this package (`Decimal32`, `Decimal64`,
+// `Decimal128`) and various alternative representations.  Some of the
 // alternative representations that this component provides conversions for are
-// IEEE-754 binary floating point (i.e., 'float' and 'double') and a network
+// IEEE-754 binary floating point (i.e., `float` and `double`) and a network
 // format (big-endian, Densely Packed Decimal encoding).
 //
 ///Usage
@@ -46,10 +46,10 @@ namespace bdldfp {
                         // class DecimalConvertUtil_IntelDfp
                         // =================================
 
+/// This `struct` provides a namespace for utility functions that convert
+/// between the decimal floating-point types of `bdldfp_decimal` and various
+/// other formats.
 struct DecimalConvertUtil_IntelDfp {
-    // This 'struct' provides a namespace for utility functions that convert
-    // between the decimal floating-point types of 'bdldfp_decimal' and various
-    // other formats.
 
     // Convert to Binary Floating-Point from C++ Decimal TR
 
@@ -60,90 +60,78 @@ struct DecimalConvertUtil_IntelDfp {
     static double decimal32ToDouble (Decimal32  decimal);
     static double decimal64ToDouble (Decimal64  decimal);
     static double decimal128ToDouble(Decimal128 decimal);
+
+    /// Return a `double` object having the value closest to the value of
+    /// the specified `decimal` object following the conversion rules
+    /// defined by IEEE-754:
+    ///
+    /// * If the `decimal` object is a NaN, return a NaN.
+    /// * Otherwise if `decimal` is positive or negative infinity, return
+    ///   infinity of the same sign.
+    /// * Otherwise if `decimal` is positive or negative zero, return zero
+    ///   of the same sign.
+    /// * Otherwise if `decimal` object has an absolute value that is
+    ///   larger than `std::numeric_limits<double>::max()`, raise the
+    ///   "overflow" floating-point exception and return infinity of the
+    ///   same sign as `decimal`.
+    /// * Otherwise if `decimal` has an absolute value that is smaller than
+    ///   `std::numeric_limits<double>::min()`, raise the "underflow"
+    ///   floating-point exception and return zero of the same sign as
+    ///   `decimal`.
+    /// * Otherwise if `decimal` has a value that has more significant
+    ///   base-10 digits than `std::numeric_limits<double>::digits10`,
+    ///   raise the "inexact" floating-point exception, round that value
+    ///   according to the *binary* rounding direction setting of the
+    ///   floating-point environment, and return the result of that.
+    /// * Otherwise if `decimal` has a significand that cannot be exactly
+    ///   represented using binary floating-point, raise the "inexact"
+    ///   floating-point exception, roundthat value according to the
+    ///   *binary* rounding direction setting of the environment, and
+    ///   return the result of that.
+    /// * Otherwise use the exact value of the `other` object for the
+    ///   initialization if this object.
     static double decimalToDouble   (Decimal32  decimal);
     static double decimalToDouble   (Decimal64  decimal);
     static double decimalToDouble   (Decimal128 decimal);
-        // Return a 'double' object having the value closest to the value of
-        // the specified 'decimal' object following the conversion rules
-        // defined by IEEE-754:
-        //
-        //: o If the 'decimal' object is a NaN, return a NaN.
-        //:
-        //: o Otherwise if 'decimal' is positive or negative infinity, return
-        //:   infinity of the same sign.
-        //:
-        //: o Otherwise if 'decimal' is positive or negative zero, return zero
-        //:   of the same sign.
-        //:
-        //: o Otherwise if 'decimal' object has an absolute value that is
-        //:   larger than 'std::numeric_limits<double>::max()', raise the
-        //:   "overflow" floating-point exception and return infinity of the
-        //:   same sign as 'decimal'.
-        //:
-        //: o Otherwise if 'decimal' has an absolute value that is smaller than
-        //:   'std::numeric_limits<double>::min()', raise the "underflow"
-        //:   floating-point exception and return zero of the same sign as
-        //:   'decimal'.
-        //:
-        //: o Otherwise if 'decimal' has a value that has more significant
-        //:   base-10 digits than 'std::numeric_limits<double>::digits10',
-        //:   raise the "inexact" floating-point exception, round that value
-        //:   according to the *binary* rounding direction setting of the
-        //:   floating-point environment, and return the result of that.
-        //:
-        //: o Otherwise if 'decimal' has a significand that cannot be exactly
-        //:   represented using binary floating-point, raise the "inexact"
-        //:   floating-point exception, roundthat value according to the
-        //:   *binary* rounding direction setting of the environment, and
-        //:   return the result of that.
-        //:
-        //: o Otherwise use the exact value of the 'other' object for the
-        //:   initialization if this object.
 
                         // decimalToFloat functions
 
     static float decimal32ToFloat (Decimal32  decimal);
     static float decimal64ToFloat (Decimal64  decimal);
     static float decimal128ToFloat(Decimal128 decimal);
+
+    /// Return a `float` object having the value closest to the value of the
+    /// specified `decimal` object following the conversion rules defined
+    /// by IEEE-754:
+    ///
+    /// * If the `decimal` object is a NaN, return a NaN.
+    /// * Otherwise if `decimal` is positive or negative infinity, return
+    ///   infinity of the same sign.
+    /// * Otherwise if `decimal` is positive or negative zero, return zero
+    ///   of the same sign.
+    /// * Otherwise if `decimal` object has an absolute value that is
+    ///   larger than `std::numeric_limits<long double>::max()`, raise the
+    ///   "overflow" floating-point exception and return infinity of the
+    ///   same sign as `decimal`.
+    /// * Otherwise if `decimal` has an absolute value that is smaller than
+    ///   `std::numeric_limits<float>::min()`, raise the "underflow"
+    ///   floating-point exception and return zero of the same sign as
+    ///   `decimal`.
+    /// * Otherwise if `decimal` has a value that has more significant
+    ///   base-10 digits than `std::numeric_limits<float>::digits10`,
+    ///   raise the "inexact" floating-point exception, round that value
+    ///   according to the *binary* rounding direction setting of the
+    ///   floating-point environment, and return the result of that.
+    /// * Otherwise if `decimal` has a significand that cannot be exactly
+    ///   represented using binary floating-point, raise the "inexact"
+    ///   floating-point exception, roundthat value according to the
+    ///   *binary* rounding direction setting of the environment, and
+    ///   return the result of that.
+    /// * Otherwise use the exact value of the `other` object for the
+    ///   initialization if this object.
     static float decimalToFloat   (Decimal32  decimal);
     static float decimalToFloat   (Decimal64  decimal);
     static float decimalToFloat   (Decimal128 decimal);
-        // Return a 'float' object having the value closest to the value of the
-        // specified 'decimal' object following the conversion rules defined
-        // by IEEE-754:
-        //
-        //: o If the 'decimal' object is a NaN, return a NaN.
-        //:
-        //: o Otherwise if 'decimal' is positive or negative infinity, return
-        //:   infinity of the same sign.
-        //:
-        //: o Otherwise if 'decimal' is positive or negative zero, return zero
-        //:   of the same sign.
-        //:
-        //: o Otherwise if 'decimal' object has an absolute value that is
-        //:   larger than 'std::numeric_limits<long double>::max()', raise the
-        //:   "overflow" floating-point exception and return infinity of the
-        //:   same sign as 'decimal'.
-        //:
-        //: o Otherwise if 'decimal' has an absolute value that is smaller than
-        //:   'std::numeric_limits<float>::min()', raise the "underflow"
-        //:   floating-point exception and return zero of the same sign as
-        //:   'decimal'.
-        //:
-        //: o Otherwise if 'decimal' has a value that has more significant
-        //:   base-10 digits than 'std::numeric_limits<float>::digits10',
-        //:   raise the "inexact" floating-point exception, round that value
-        //:   according to the *binary* rounding direction setting of the
-        //:   floating-point environment, and return the result of that.
-        //:
-        //: o Otherwise if 'decimal' has a significand that cannot be exactly
-        //:   represented using binary floating-point, raise the "inexact"
-        //:   floating-point exception, roundthat value according to the
-        //:   *binary* rounding direction setting of the environment, and
-        //:   return the result of that.
-        //:
-        //: o Otherwise use the exact value of the 'other' object for the
-        //:   initialization if this object.
 
 
                         // decimalToDPD functions
@@ -154,43 +142,45 @@ struct DecimalConvertUtil_IntelDfp {
                                 Decimal64      decimal);
     static void decimal128ToDPD(unsigned char *buffer,
                                 Decimal128     decimal);
+
+    /// Populate the specified `buffer` with the Densely Packed Decimal
+    /// (DPD) representation of the specified `decimal` value.  The DPD
+    /// representations of `Decimal32`, `Decimal64`, and `Decimal128`
+    /// require 4, 8, and 16 bytes respectively.  The behavior is undefined
+    /// unless `buffer` points to a contiguous sequence of at least
+    /// `sizeof(decimal)` bytes.  Note that the DPD representation is
+    /// defined in section 3.5 of IEEE 754-2008.
     static void decimalToDPD(   unsigned char *buffer,
                                 Decimal32      decimal);
     static void decimalToDPD(   unsigned char *buffer,
                                 Decimal64      decimal);
     static void decimalToDPD(   unsigned char *buffer,
                                 Decimal128     decimal);
-        // Populate the specified 'buffer' with the Densely Packed Decimal
-        // (DPD) representation of the specified 'decimal' value.  The DPD
-        // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
-        // require 4, 8, and 16 bytes respectively.  The behavior is undefined
-        // unless 'buffer' points to a contiguous sequence of at least
-        // 'sizeof(decimal)' bytes.  Note that the DPD representation is
-        // defined in section 3.5 of IEEE 754-2008.
 
                         // decimalFromDPD functions
 
     static Decimal32  decimal32FromDPD( const unsigned char *buffer);
     static Decimal64  decimal64FromDPD( const unsigned char *buffer);
-    static Decimal128 decimal128FromDPD(const unsigned char *buffer);
-        // Return the native implementation representation of the value of the
-        // same size base-10 floating-point value stored in Densely Packed
-        // Decimal format at the specified 'buffer' address.  The behavior is
-        // undefined unless 'buffer' points to a memory area at least
-        // 'sizeof(decimal)' in size containing a value in DPD format.
 
+    /// Return the native implementation representation of the value of the
+    /// same size base-10 floating-point value stored in Densely Packed
+    /// Decimal format at the specified `buffer` address.  The behavior is
+    /// undefined unless `buffer` points to a memory area at least
+    /// `sizeof(decimal)` in size containing a value in DPD format.
+    static Decimal128 decimal128FromDPD(const unsigned char *buffer);
+
+    /// Store, into the specified `decimal`, the native implementation
+    /// representation of the value of the same size base-10 floating point
+    /// value represented in Densely Packed Decimal format, at the specified
+    /// `buffer` address.  The behavior is undefined unless `buffer` points
+    /// to a memory area at least `sizeof(decimal)` in size containing a
+    /// value in DPD format.
     static void decimalFromDPD(Decimal32           *decimal,
                                const unsigned char *buffer);
     static void decimalFromDPD(Decimal64           *decimal,
                                const unsigned char *buffer);
     static void decimalFromDPD(Decimal128          *decimal,
                                const unsigned char *buffer);
-        // Store, into the specified 'decimal', the native implementation
-        // representation of the value of the same size base-10 floating point
-        // value represented in Densely Packed Decimal format, at the specified
-        // 'buffer' address.  The behavior is undefined unless 'buffer' points
-        // to a memory area at least 'sizeof(decimal)' in size containing a
-        // value in DPD format.
 
                         // decimalToBID functions
 
@@ -200,43 +190,45 @@ struct DecimalConvertUtil_IntelDfp {
                                 Decimal64      decimal);
     static void decimal128ToBID(unsigned char *buffer,
                                 Decimal128     decimal);
+
+    /// Populate the specified `buffer` with the Binary Integer Decimal
+    /// (BID) representation of the specified `decimal` value.  The BID
+    /// representations of `Decimal32`, `Decimal64`, and `Decimal128`
+    /// require 4, 8, and 16 bytes respectively.  The behavior is undefined
+    /// unless `buffer` points to a contiguous sequence of at least
+    /// `sizeof(decimal)` bytes.  Note that the BID representation is
+    /// defined in section 3.5 of IEEE 754-2008.
     static void decimalToBID(   unsigned char *buffer,
                                 Decimal32      decimal);
     static void decimalToBID(   unsigned char *buffer,
                                 Decimal64      decimal);
     static void decimalToBID(   unsigned char *buffer,
                                 Decimal128     decimal);
-        // Populate the specified 'buffer' with the Binary Integer Decimal
-        // (BID) representation of the specified 'decimal' value.  The BID
-        // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
-        // require 4, 8, and 16 bytes respectively.  The behavior is undefined
-        // unless 'buffer' points to a contiguous sequence of at least
-        // 'sizeof(decimal)' bytes.  Note that the BID representation is
-        // defined in section 3.5 of IEEE 754-2008.
 
                         // decimalFromBID functions
 
     static Decimal32  decimal32FromBID( const unsigned char *buffer);
     static Decimal64  decimal64FromBID( const unsigned char *buffer);
-    static Decimal128 decimal128FromBID(const unsigned char *buffer);
-        // Return the native implementation representation of the value of the
-        // same size base-10 floating-point value stored in Binary Integer
-        // Decimal format at the specified 'buffer' address.  The behavior is
-        // undefined unless 'buffer' points to a memory area at least
-        // 'sizeof(decimal)' in size containing a value in BID format.
 
+    /// Return the native implementation representation of the value of the
+    /// same size base-10 floating-point value stored in Binary Integer
+    /// Decimal format at the specified `buffer` address.  The behavior is
+    /// undefined unless `buffer` points to a memory area at least
+    /// `sizeof(decimal)` in size containing a value in BID format.
+    static Decimal128 decimal128FromBID(const unsigned char *buffer);
+
+    /// Store, into the specified `decimal`, the native implementation
+    /// representation of the value of the same size base-10 floating point
+    /// value represented in Binary Integer Decimal format, at the specified
+    /// `buffer` address.  The behavior is undefined unless `buffer` points
+    /// to a memory area at least `sizeof(decimal)` in size containing a
+    /// value in BID format.
     static void decimalFromBID(Decimal32           *decimal,
                                const unsigned char *buffer);
     static void decimalFromBID(Decimal64           *decimal,
                                const unsigned char *buffer);
     static void decimalFromBID(Decimal128          *decimal,
                                const unsigned char *buffer);
-        // Store, into the specified 'decimal', the native implementation
-        // representation of the value of the same size base-10 floating point
-        // value represented in Binary Integer Decimal format, at the specified
-        // 'buffer' address.  The behavior is undefined unless 'buffer' points
-        // to a memory area at least 'sizeof(decimal)' in size containing a
-        // value in BID format.
 };
 
 // ============================================================================

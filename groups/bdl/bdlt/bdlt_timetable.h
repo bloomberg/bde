@@ -12,28 +12,28 @@ BSLS_IDENT("$Id: $")
 //  bdlt::TimetableTransition: datetime and transition code value
 //
 //@DESCRIPTION: This component provides a value-semantic class,
-// 'bdlt::Timetable', that represents a timetable of state transitions over a
+// `bdlt::Timetable`, that represents a timetable of state transitions over a
 // *valid* *range* of dates, an associated iterator,
-// 'bdlt::Timetable::const_iterator', that provides non-modifiable access to
-// the timetable's state transitions, and a class, 'bdlt::TimetableTransition',
+// `bdlt::Timetable::const_iterator`, that provides non-modifiable access to
+// the timetable's state transitions, and a class, `bdlt::TimetableTransition`,
 // that represents a change of state at a datetime.
 //
-// 'bdlt::Timetable' is designed to be especially efficient at determining the
-// state in effect at a given 'bdlt::Datetime' value (within the valid range
-// for a particular 'bdlt::Timetable' object), and iterating through the state
+// `bdlt::Timetable` is designed to be especially efficient at determining the
+// state in effect at a given `bdlt::Datetime` value (within the valid range
+// for a particular `bdlt::Timetable` object), and iterating through the state
 // transitions.
 //
-// 'bdlt::TimetableTransition' consists of a 'bdlt::Datetime' and a (single)
-// non-negative integral code (of type 'int') that defines the "state" that
+// `bdlt::TimetableTransition` consists of a `bdlt::Datetime` and a (single)
+// non-negative integral code (of type `int`) that defines the "state" that
 // becomes effective at that datetime.  The meaning of the integral code
 // ascribed to each transition is defined by the client.  There can be at most
-// one 'bdlt::TimetableTransition' defined for any datetime value within the
-// range of a 'bdlt::Timetable'.  Consequently, there is at most one
+// one `bdlt::TimetableTransition` defined for any datetime value within the
+// range of a `bdlt::Timetable`.  Consequently, there is at most one
 // (client-defined) state in effect at any datetime in a timetable.
 //
 // Default-constructed timetables are empty, and have an empty valid range.
 // Timetables can also be constructed with an initial (non-empty) valid range.
-// The 'setValidRange' method modifies the valid range of a timetable, and a
+// The `setValidRange` method modifies the valid range of a timetable, and a
 // suite of "add" methods can be used to populate a timetable with state
 // transitions.
 //
@@ -43,92 +43,92 @@ BSLS_IDENT("$Id: $")
 //
 ///Exception-Safety Guarantees
 ///---------------------------
-// All methods of 'bdlt::Timetable' are exception-safe, but in general provide
+// All methods of `bdlt::Timetable` are exception-safe, but in general provide
 // only the basic guarantee (i.e., no guarantee of rollback): If an exception
 // occurs (i.e., while attempting to allocate memory), the timetable object is
 // left in a coherent state, but (unless otherwise specified) its *value* is
 // undefined.
 //
-// All methods of 'bdlt::TimetableTransition' are exception-safe.
+// All methods of `bdlt::TimetableTransition` are exception-safe.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: 'Exchange Schedule'
+///Example 1: `Exchange Schedule`
 /// - - - - - - - - - - - - - - -
 // Suppose we want to track the open and close times for an exchange.  Most
 // Mondays (and Tuesdays, Wednesdays, etc.) will have the same schedule,
-// although some may differ.  We can use 'bdlt::Timetable' to efficiently store
+// although some may differ.  We can use `bdlt::Timetable` to efficiently store
 // this data.
 //
-// First, we create an instance of 'bdlt::Timetable' with the desired valid
+// First, we create an instance of `bdlt::Timetable` with the desired valid
 // range:
-//..
-//  bdlt::Timetable timetable(bdlt::Date(2018, 1, 1),
-//                            bdlt::Date(2018, 12, 31));
-//..
+// ```
+// bdlt::Timetable timetable(bdlt::Date(2018, 1, 1),
+//                           bdlt::Date(2018, 12, 31));
+// ```
 // Then, we define the codes for start-of-trading and end-of-trading and
 // populate the typical transitions into the timetable:
-//..
-//  const int k_TRADING    = 0;
-//  const int k_NO_TRADING = 1;
+// ```
+// const int k_TRADING    = 0;
+// const int k_NO_TRADING = 1;
 //
-//  timetable.setInitialTransitionCode(k_NO_TRADING);
+// timetable.setInitialTransitionCode(k_NO_TRADING);
 //
-//  for (int i = 0; i < 5; ++ i) {
-//      timetable.addTransitions(static_cast<bdlt::DayOfWeek::Enum>(
-//                                                 bdlt::DayOfWeek::e_MON + i),
-//                               bdlt::Time(8, 30),
-//                               k_TRADING,
-//                               timetable.firstDate(),
-//                               timetable.lastDate());
+// for (int i = 0; i < 5; ++ i) {
+//     timetable.addTransitions(static_cast<bdlt::DayOfWeek::Enum>(
+//                                                bdlt::DayOfWeek::e_MON + i),
+//                              bdlt::Time(8, 30),
+//                              k_TRADING,
+//                              timetable.firstDate(),
+//                              timetable.lastDate());
 //
-//      timetable.addTransitions(static_cast<bdlt::DayOfWeek::Enum>(
-//                                                 bdlt::DayOfWeek::e_MON + i),
-//                               bdlt::Time(16, 30),
-//                               k_NO_TRADING,
-//                               timetable.firstDate(),
-//                               timetable.lastDate());
-//  }
-//..
+//     timetable.addTransitions(static_cast<bdlt::DayOfWeek::Enum>(
+//                                                bdlt::DayOfWeek::e_MON + i),
+//                              bdlt::Time(16, 30),
+//                              k_NO_TRADING,
+//                              timetable.firstDate(),
+//                              timetable.lastDate());
+// }
+// ```
 // Next, we add a holiday on January 19, 2018:
-//..
-//  timetable.removeTransitions(bdlt::Date(2018, 1, 19));
-//..
+// ```
+// timetable.removeTransitions(bdlt::Date(2018, 1, 19));
+// ```
 // Then, we add a half-day on November 23, 2018:
-//..
-//  timetable.addTransition(bdlt::Datetime(2018, 11, 23, 12, 30),
-//                          k_NO_TRADING);
+// ```
+// timetable.addTransition(bdlt::Datetime(2018, 11, 23, 12, 30),
+//                         k_NO_TRADING);
 //
-//  timetable.removeTransition(bdlt::Datetime(2018, 11, 23, 16, 30));
-//..
+// timetable.removeTransition(bdlt::Datetime(2018, 11, 23, 16, 30));
+// ```
 // Finally, we verify the transition code in effect at a few datetimes.
-//..
-//  assert(k_NO_TRADING == timetable.transitionCodeInEffect(
-//                                      bdlt::Datetime(2018,  1, 15,  8,  0)));
+// ```
+// assert(k_NO_TRADING == timetable.transitionCodeInEffect(
+//                                     bdlt::Datetime(2018,  1, 15,  8,  0)));
 //
-//  assert(k_TRADING    == timetable.transitionCodeInEffect(
-//                                      bdlt::Datetime(2018,  1, 15,  8, 30)));
+// assert(k_TRADING    == timetable.transitionCodeInEffect(
+//                                     bdlt::Datetime(2018,  1, 15,  8, 30)));
 //
-//  assert(k_TRADING    == timetable.transitionCodeInEffect(
-//                                      bdlt::Datetime(2018,  1, 15, 16,  0)));
+// assert(k_TRADING    == timetable.transitionCodeInEffect(
+//                                     bdlt::Datetime(2018,  1, 15, 16,  0)));
 //
-//  assert(k_NO_TRADING == timetable.transitionCodeInEffect(
-//                                      bdlt::Datetime(2018,  1, 15, 16, 30)));
+// assert(k_NO_TRADING == timetable.transitionCodeInEffect(
+//                                     bdlt::Datetime(2018,  1, 15, 16, 30)));
 //
-//  assert(k_NO_TRADING == timetable.transitionCodeInEffect(
-//                                      bdlt::Datetime(2018, 11, 23,  8,  0)));
+// assert(k_NO_TRADING == timetable.transitionCodeInEffect(
+//                                     bdlt::Datetime(2018, 11, 23,  8,  0)));
 //
-//  assert(k_TRADING    == timetable.transitionCodeInEffect(
-//                                      bdlt::Datetime(2018, 11, 23,  8, 30)));
+// assert(k_TRADING    == timetable.transitionCodeInEffect(
+//                                     bdlt::Datetime(2018, 11, 23,  8, 30)));
 //
-//  assert(k_TRADING    == timetable.transitionCodeInEffect(
-//                                      bdlt::Datetime(2018, 11, 23, 12,  0)));
+// assert(k_TRADING    == timetable.transitionCodeInEffect(
+//                                     bdlt::Datetime(2018, 11, 23, 12,  0)));
 //
-//  assert(k_NO_TRADING == timetable.transitionCodeInEffect(
-//                                      bdlt::Datetime(2018, 11, 23, 12, 30)));
-//..
+// assert(k_NO_TRADING == timetable.transitionCodeInEffect(
+//                                     bdlt::Datetime(2018, 11, 23, 12, 30)));
+// ```
 
 #include <bdlscm_version.h>
 
@@ -166,10 +166,10 @@ class Timetable_ConstIterator;
                         // class TimetableTransition
                         // =========================
 
+/// This simply-constrained attribute class represents a state transition,
+/// implemented as a datetime for when the transition occurs, and a code to
+/// indicate the new state.
 class TimetableTransition {
-    // This simply-constrained attribute class represents a state transition,
-    // implemented as a datetime for when the transition occurs, and a code to
-    // indicate the new state.
 
     // DATA
     Datetime d_datetime;  // datetime of the transition
@@ -181,14 +181,15 @@ class TimetableTransition {
 
   private:
     // PRIVATE CREATORS
-    TimetableTransition();
-        // Create a 'TimetableTransition' having datetime value
-        // 'Datetime(Date())' and code 'k_UNSET_TRANSITION_CODE'.
 
+    /// Create a `TimetableTransition` having datetime value
+    /// `Datetime(Date())` and code `k_UNSET_TRANSITION_CODE`.
+    TimetableTransition();
+
+    /// Create a `TimetableTransition` having the specified `datetime` and
+    /// `code`.  The behavior is undefined unless `24 > datetime.hour()` and
+    /// `0 <= code || k_UNSET_TRANSITION_CODE == code`.
     TimetableTransition(const Datetime& datetime, int code);
-        // Create a 'TimetableTransition' having the specified 'datetime' and
-        // 'code'.  The behavior is undefined unless '24 > datetime.hour()' and
-        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
   public:
     // CONSTANTS
@@ -196,92 +197,97 @@ class TimetableTransition {
                                             // transition code
 
     // CREATORS
+
+    /// Create a `TimetableTransition` having the same value as the
+    /// specified `original` object.
     TimetableTransition(const TimetableTransition& original);
-        // Create a 'TimetableTransition' having the same value as the
-        // specified 'original' object.
 
     //! ~TimetableTransition() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` timetable
+    /// transition, and return a reference providing modifiable access to
+    /// this object.
     TimetableTransition& operator=(const TimetableTransition& rhs);
-        // Assign to this object the value of the specified 'rhs' timetable
-        // transition, and return a reference providing modifiable access to
-        // this object.
 
     // ACCESSORS
-    const Datetime& datetime() const;
-        // Return the datetime of this transition.
 
+    /// Return the datetime of this transition.
+    const Datetime& datetime() const;
+
+    /// Return the code of this transition.
     int code() const;
-        // Return the code of this transition.
 
                              // Aspects
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level` and return a
+    /// reference to the modifiable `stream`.  If `level` is specified,
+    /// optionally specify `spacesPerLevel`, the number of spaces per
+    /// indentation level for this and all of its nested objects.  If
+    /// `level` is negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, format the entire output on one line,
+    /// suppressing all but the initial indentation (as governed by
+    /// `level`).  If `stream` is not valid on entry, this operation has no
+    /// effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level' and return a
-        // reference to the modifiable 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` timetable transitions
+/// have the same value, and `false` otherwise.  Two timetable transitions
+/// have the same value if they have the same datetime and code.
 bool operator==(const TimetableTransition& lhs,
                 const TimetableTransition& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' timetable transitions
-    // have the same value, and 'false' otherwise.  Two timetable transitions
-    // have the same value if they have the same datetime and code.
 
+/// Return `true` if the specified `lhs` and `rhs` timetable transitions do
+/// not have the same value, and `false` otherwise.  Two timetable
+/// transitions do not have the same value if they do not have the same
+/// datetime or the same code.
 bool operator!=(const TimetableTransition& lhs,
                 const TimetableTransition& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' timetable transitions do
-    // not have the same value, and 'false' otherwise.  Two timetable
-    // transitions do not have the same value if they do not have the same
-    // datetime or the same code.
 
+/// Return `true` if the specified `lhs` has a value less than the specified
+/// `rhs`, and `false` otherwise.  Timetable transition `lhs` has a value
+/// less than timetable transition `rhs` if
+/// `lhs.datetime() < rhs.datetime()`, or `lhs.datetime() == rhs.datetime()`
+/// and `lhs.code() < rhs.code()`.
 bool operator<(const TimetableTransition& lhs,
                const TimetableTransition& rhs);
-    // Return 'true' if the specified 'lhs' has a value less than the specified
-    // 'rhs', and 'false' otherwise.  Timetable transition 'lhs' has a value
-    // less than timetable transition 'rhs' if
-    // 'lhs.datetime() < rhs.datetime()', or 'lhs.datetime() == rhs.datetime()'
-    // and 'lhs.code() < rhs.code()'.
 
+/// Return `true` if the specified `lhs` has a value less than the specified
+/// `rhs`, and `false` otherwise.  Timetable transition `lhs` has a value
+/// less than datetime `rhs` if `lhs.datetime() < rhs`.  The behavior is
+/// undefined unless `24 > rhs.hour()`.
 bool operator<(const TimetableTransition& lhs, const Datetime& rhs);
-    // Return 'true' if the specified 'lhs' has a value less than the specified
-    // 'rhs', and 'false' otherwise.  Timetable transition 'lhs' has a value
-    // less than datetime 'rhs' if 'lhs.datetime() < rhs'.  The behavior is
-    // undefined unless '24 > rhs.hour()'.
 
+/// Return `true` if the specified `lhs` has a value less than the specified
+/// `rhs`, and `false` otherwise.  Datetime `lhs` has a value less than
+/// timetable transition `rhs` if `lhs < rhs.datetime()`.  The behavior is
+/// undefined unless `24 > lhs.hour()`.
 bool operator<(const Datetime& lhs, const TimetableTransition& rhs);
-    // Return 'true' if the specified 'lhs' has a value less than the specified
-    // 'rhs', and 'false' otherwise.  Datetime 'lhs' has a value less than
-    // timetable transition 'rhs' if 'lhs < rhs.datetime()'.  The behavior is
-    // undefined unless '24 > lhs.hour()'.
 
 // HASH SPECIALIZATIONS
+
+/// Pass the specified `object` to the specified `hashAlg`.  This function
+/// integrates with the `bslh` modular hashing system and effectively
+/// provides a `bsl::hash` specialization for `TimetableTransition`.
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const TimetableTransition& object);
-    // Pass the specified 'object' to the specified 'hashAlg'.  This function
-    // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for 'TimetableTransition'.
 
                       // =============================
                       // class TimetableTransition_Ref
                       // =============================
 
+/// This private class is used by the arrow operator of the timetable
+/// iterator class.  The objects instantiated from this class serve as
+/// references to `TimetableTransition` objects.
 class TimetableTransition_Ref : public TimetableTransition {
-    // This private class is used by the arrow operator of the timetable
-    // iterator class.  The objects instantiated from this class serve as
-    // references to 'TimetableTransition' objects.
 
     friend class Timetable_ConstIterator;
 
@@ -290,38 +296,41 @@ class TimetableTransition_Ref : public TimetableTransition {
     TimetableTransition_Ref& operator=(const TimetableTransition_Ref&);
 
     // PRIVATE CREATORS
+
+    /// Create a timetable transition reference object using the default
+    /// `TimetableTransition` constructor.
     TimetableTransition_Ref();
-        // Create a timetable transition reference object using the default
-        // 'TimetableTransition' constructor.
 
   public:
     // CREATORS
-    explicit TimetableTransition_Ref(const TimetableTransition& transition);
-        // Create a timetable transition reference object using the specified
-        // 'transition'.
 
+    /// Create a timetable transition reference object using the specified
+    /// `transition`.
+    explicit TimetableTransition_Ref(const TimetableTransition& transition);
+
+    /// Create a timetable transition reference object having the value of
+    /// the specified `original` object.
     TimetableTransition_Ref(const TimetableTransition_Ref& original);
-        // Create a timetable transition reference object having the value of
-        // the specified 'original' object.
 
     //! ~TimetableTransition_Ref() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` timetable
+    /// transition, and return a reference providing modifiable access to
+    /// this `TimetableTransition_Ref`.
     TimetableTransition_Ref& operator=(const TimetableTransition& rhs);
-        // Assign to this object the value of the specified 'rhs' timetable
-        // transition, and return a reference providing modifiable access to
-        // this 'TimetableTransition_Ref'.
 };
 
                   // =====================================
                   // class Timetable_CompactableTransition
                   // =====================================
 
+/// This simply-constrained attribute class represents a state transition,
+/// implemented as a time for when the transition occurs, and a code to
+/// indicate the new state.
 class Timetable_CompactableTransition {
-    // This simply-constrained attribute class represents a state transition,
-    // implemented as a time for when the transition occurs, and a code to
-    // indicate the new state.
 
     // DATA
     Time d_time;  // time of the transition
@@ -339,112 +348,117 @@ class Timetable_CompactableTransition {
                                             // transition code
 
     // CREATORS
+
+    /// Create a `Timetable_CompactableTransition` having time value
+    /// `Time(0)` and code `k_UNSET_TRANSITION_CODE`.
     Timetable_CompactableTransition();
-        // Create a 'Timetable_CompactableTransition' having time value
-        // 'Time(0)' and code 'k_UNSET_TRANSITION_CODE'.
 
+    /// Create a `Timetable_CompactableTransition` having the specified
+    /// `time` and `code`.  The behavior is undefined unless
+    /// `24 > time.hour()` and
+    /// `0 <= code || k_UNSET_TRANSITION_CODE == code`.
     Timetable_CompactableTransition(const Time& time, int code);
-        // Create a 'Timetable_CompactableTransition' having the specified
-        // 'time' and 'code'.  The behavior is undefined unless
-        // '24 > time.hour()' and
-        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
+    /// Create a `Timetable_CompactableTransition` having the same value as
+    /// the specified `original` object.
     Timetable_CompactableTransition(
                               const Timetable_CompactableTransition& original);
-        // Create a 'Timetable_CompactableTransition' having the same value as
-        // the specified 'original' object.
 
     //! ~Timetable_CompactableTransition() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` compactable
+    /// transition, and return a reference providing modifiable access to
+    /// this object.
     Timetable_CompactableTransition& operator=(
                                    const Timetable_CompactableTransition& rhs);
-        // Assign to this object the value of the specified 'rhs' compactable
-        // transition, and return a reference providing modifiable access to
-        // this object.
 
     // ACCESSORS
-    const Time& time() const;
-        // Return the time of this compactable transition.
 
+    /// Return the time of this compactable transition.
+    const Time& time() const;
+
+    /// Return the code of this compactable transition.
     int code() const;
-        // Return the code of this compactable transition.
 
                              // Aspects
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level` and return a
+    /// reference to the modifiable `stream`.  If `level` is specified,
+    /// optionally specify `spacesPerLevel`, the number of spaces per
+    /// indentation level for this and all of its nested objects.  If
+    /// `level` is negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, format the entire output on one line,
+    /// suppressing all but the initial indentation (as governed by
+    /// `level`).  If `stream` is not valid on entry, this operation has no
+    /// effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level' and return a
-        // reference to the modifiable 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` compactable transitions
+/// have the same value, and `false` otherwise.  Two compactable transitions
+/// have the same value if they have the same time and code.
 bool operator==(const Timetable_CompactableTransition& lhs,
                 const Timetable_CompactableTransition& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' compactable transitions
-    // have the same value, and 'false' otherwise.  Two compactable transitions
-    // have the same value if they have the same time and code.
 
+/// Return `true` if the specified `lhs` and `rhs` compactable transitions
+/// do not have the same value, and `false` otherwise.  Two compactable
+/// transitions do not have the same value if they do not have the same time
+/// or the same code.
 bool operator!=(const Timetable_CompactableTransition& lhs,
                 const Timetable_CompactableTransition& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' compactable transitions
-    // do not have the same value, and 'false' otherwise.  Two compactable
-    // transitions do not have the same value if they do not have the same time
-    // or the same code.
 
+/// Return `true` if the specified `lhs` has a value less than the specified
+/// `rhs`, and `false` otherwise.  Compactable transition `lhs` has a value
+/// less than compactable transition `rhs` if `lhs.time() < rhs.time()`, or
+/// `lhs.time() == rhs.time()` and `lhs.code() < rhs.code()`.
 bool operator<(const Timetable_CompactableTransition& lhs,
                const Timetable_CompactableTransition& rhs);
-    // Return 'true' if the specified 'lhs' has a value less than the specified
-    // 'rhs', and 'false' otherwise.  Compactable transition 'lhs' has a value
-    // less than compactable transition 'rhs' if 'lhs.time() < rhs.time()', or
-    // 'lhs.time() == rhs.time()' and 'lhs.code() < rhs.code()'.
 
+/// Return `true` if the specified `lhs` has a value less than the specified
+/// `rhs`, and `false` otherwise.  Compactable transition `lhs` has a value
+/// less than time `rhs` if `lhs.time() < rhs`.  The behavior is undefined
+/// unless `24 > rhs.hour()`.
 bool operator<(const Timetable_CompactableTransition& lhs,
                const Time&                            rhs);
-    // Return 'true' if the specified 'lhs' has a value less than the specified
-    // 'rhs', and 'false' otherwise.  Compactable transition 'lhs' has a value
-    // less than time 'rhs' if 'lhs.time() < rhs'.  The behavior is undefined
-    // unless '24 > rhs.hour()'.
 
+/// Return `true` if the specified `lhs` has a value less than the specified
+/// `rhs`, and `false` otherwise.  Time `lhs` has a value less than
+/// compactable transition `rhs` if `lhs < rhs.time()`.  The behavior is
+/// undefined unless `24 > lhs.hour()`.
 bool operator<(const Time&                            lhs,
                const Timetable_CompactableTransition& rhs);
-    // Return 'true' if the specified 'lhs' has a value less than the specified
-    // 'rhs', and 'false' otherwise.  Time 'lhs' has a value less than
-    // compactable transition 'rhs' if 'lhs < rhs.time()'.  The behavior is
-    // undefined unless '24 > lhs.hour()'.
 
 // HASH SPECIALIZATIONS
+
+/// Pass the specified `object` to the specified `hashAlg`.  This function
+/// integrates with the `bslh` modular hashing system and effectively
+/// provides a `bsl::hash` specialization for
+/// `Timetable_CompactableTransition`.
 template <class HASHALG>
 void hashAppend(HASHALG&                               hashAlg,
                 const Timetable_CompactableTransition& object);
-    // Pass the specified 'object' to the specified 'hashAlg'.  This function
-    // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for
-    // 'Timetable_CompactableTransition'.
 
                            // ===================
                            // class Timetable_Day
                            // ===================
 
+/// This class implements a value-semantic repository of time-indexed state
+/// transitions over one date (this class implements one day of a
+/// timetable).  A `Timetable_Day` can be "populated" with state transitions
+/// via the `addTransition` method, and queried for the transition code in
+/// effect at a specified time via the `transitionCodeInEffect` method.
+/// Note that, as an optimization for the `transitionCodeInEffect` method,
+/// the transition code in effect before the first possible transition is
+/// stored in `d_initialTransitionCode`.
 class Timetable_Day {
-    // This class implements a value-semantic repository of time-indexed state
-    // transitions over one date (this class implements one day of a
-    // timetable).  A 'Timetable_Day' can be "populated" with state transitions
-    // via the 'addTransition' method, and queried for the transition code in
-    // effect at a specified time via the 'transitionCodeInEffect' method.
-    // Note that, as an optimization for the 'transitionCodeInEffect' method,
-    // the transition code in effect before the first possible transition is
-    // stored in 'd_initialTransitionCode'.
 
     // DATA
     int                                          d_initialTransitionCode;
@@ -473,127 +487,132 @@ class Timetable_Day {
                                             // transition code
 
     // CREATORS
+
+    /// Create an empty `Timetable_Day` (i.e., a daily timetable having no
+    /// transitions) whose initial transition code is
+    /// `k_UNSET_TRANSITION_CODE`.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     explicit
     Timetable_Day(bslma::Allocator *basicAllocator = 0);
-        // Create an empty 'Timetable_Day' (i.e., a daily timetable having no
-        // transitions) whose initial transition code is
-        // 'k_UNSET_TRANSITION_CODE'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Create a `Timetable_Day` having the same value as the specified
+    /// `original` object.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Timetable_Day(const Timetable_Day&  original,
                   bslma::Allocator     *basicAllocator = 0);
-        // Create a 'Timetable_Day' having the same value as the specified
-        // 'original' object.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
     //! ~Timetable_Day() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` daily
+    /// timetable, and return a reference providing modifiable access to
+    /// this object.
     Timetable_Day& operator=(const Timetable_Day& rhs);
-        // Assign to this object the value of the specified 'rhs' daily
-        // timetable, and return a reference providing modifiable access to
-        // this object.
 
+    /// Add a transition to this daily timetable at the specified `time`
+    /// having the specified `code`.  If `time` is already a transition
+    /// point, replace the existing code with `code`.  Return `true` if the
+    /// value returned by `finalTransitionCode()` prior to this operation is
+    /// not equal to the value returned by `finalTransitionCode()` after
+    /// this operation, and `false` otherwise.  The behavior is undefined
+    /// unless `24 > time.hour()` and
+    /// `0 <= code || k_UNSET_TRANSITION_CODE == code`.
     bool addTransition(const Time& time, int code);
-        // Add a transition to this daily timetable at the specified 'time'
-        // having the specified 'code'.  If 'time' is already a transition
-        // point, replace the existing code with 'code'.  Return 'true' if the
-        // value returned by 'finalTransitionCode()' prior to this operation is
-        // not equal to the value returned by 'finalTransitionCode()' after
-        // this operation, and 'false' otherwise.  The behavior is undefined
-        // unless '24 > time.hour()' and
-        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
+    /// Remove all transitions from this daily timetable.  Return `true` if
+    /// the value returned by `finalTransitionCode()` prior to this
+    /// operation is not equal to the value returned by
+    /// `finalTransitionCode()` after this operation, and `false` otherwise.
     bool removeAllTransitions();
-        // Remove all transitions from this daily timetable.  Return 'true' if
-        // the value returned by 'finalTransitionCode()' prior to this
-        // operation is not equal to the value returned by
-        // 'finalTransitionCode()' after this operation, and 'false' otherwise.
 
+    /// If a transition occurs at the specified `time`, remove the
+    /// transition from this daily timetable.  Otherwise, return without
+    /// modifying this daily timetable.  Return `true` if the value returned
+    /// by `finalTransitionCode()` prior to this operation is not equal to
+    /// the value returned by `finalTransitionCode()` after this operation,
+    /// and `false` otherwise.  The behavior is undefined unless
+    /// `24 > time.hour()`.
     bool removeTransition(const Time& time);
-        // If a transition occurs at the specified 'time', remove the
-        // transition from this daily timetable.  Otherwise, return without
-        // modifying this daily timetable.  Return 'true' if the value returned
-        // by 'finalTransitionCode()' prior to this operation is not equal to
-        // the value returned by 'finalTransitionCode()' after this operation,
-        // and 'false' otherwise.  The behavior is undefined unless
-        // '24 > time.hour()'.
 
+    /// Set the transition code in effect prior to the start of this daily
+    /// timetable to the specified `code`.  Return `true` if the value
+    /// returned by `finalTransitionCode()` prior to this operation is not
+    /// equal to the value returned by `finalTransitionCode()` after this
+    /// operation, and `false` otherwise.  The behavior is undefined unless
+    /// `0 <= code || k_UNSET_TRANSITION_CODE == code`.
     bool setInitialTransitionCode(int code);
-        // Set the transition code in effect prior to the start of this daily
-        // timetable to the specified 'code'.  Return 'true' if the value
-        // returned by 'finalTransitionCode()' prior to this operation is not
-        // equal to the value returned by 'finalTransitionCode()' after this
-        // operation, and 'false' otherwise.  The behavior is undefined unless
-        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
     // ACCESSORS
+
+    /// Return the transition code that is in effect at the end of this
+    /// daily timetable.  Note that if this daily timetable has no
+    /// transitions, `initialTransitionCode()` is returned.
     int finalTransitionCode() const;
-        // Return the transition code that is in effect at the end of this
-        // daily timetable.  Note that if this daily timetable has no
-        // transitions, 'initialTransitionCode()' is returned.
 
+    /// Return the transition code in effect prior to the start of this
+    /// daily timetable.
     int initialTransitionCode() const;
-        // Return the transition code in effect prior to the start of this
-        // daily timetable.
 
+    /// Return the number of transitions in this daily timetable.
     bsl::size_t size() const;
-        // Return the number of transitions in this daily timetable.
 
+    /// Return the transition code associated with the latest transition
+    /// that occurs on or before the specified `time` in this daily
+    /// timetable.  If this daily timetable has no such transition, return
+    /// `initialTransitionCode()`.  The behavior is undefined unless
+    /// `24 > time.hour()`.
     int transitionCodeInEffect(const Time& time) const;
-        // Return the transition code associated with the latest transition
-        // that occurs on or before the specified 'time' in this daily
-        // timetable.  If this daily timetable has no such transition, return
-        // 'initialTransitionCode()'.  The behavior is undefined unless
-        // '24 > time.hour()'.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` daily timetables have the
+/// same value, and `false` otherwise.  Two daily timetables have the same
+/// value if they have the same initial transition code, the same number of
+/// transitions, and each corresponding pair of transitions has the same
+/// value.
 bool operator==(const Timetable_Day& lhs, const Timetable_Day& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' daily timetables have the
-    // same value, and 'false' otherwise.  Two daily timetables have the same
-    // value if they have the same initial transition code, the same number of
-    // transitions, and each corresponding pair of transitions has the same
-    // value.
 
+/// Return `true` if the specified `lhs` and `rhs` daily timetables do not
+/// have the same value, and `false` otherwise.  Two daily timetables do not
+/// have the same value if they do not have the same initial transition
+/// code, they do not have the same number of transitions, or there is a
+/// corresponding pair of transitions that do not have the same value.
 bool operator!=(const Timetable_Day& lhs, const Timetable_Day& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' daily timetables do not
-    // have the same value, and 'false' otherwise.  Two daily timetables do not
-    // have the same value if they do not have the same initial transition
-    // code, they do not have the same number of transitions, or there is a
-    // corresponding pair of transitions that do not have the same value.
 
+/// Return `true` if the specified `lhs` daily timetable is less than the
+/// specified `rhs` daily timetable, and `false` otherwise.  The `lhs` daily
+/// timetable is less than the `rhs` daily timetable if
+/// `lhs.initialTransitionCode() < rhs.initialTransitionCode()`, or
+/// `lhs.initialTransitionCode() == rhs.initialTransitionCode()` and
+/// `lhs.d_transitions < rhs.d_transitions`.
 bool operator<(const Timetable_Day& lhs, const Timetable_Day& rhs);
-    // Return 'true' if the specified 'lhs' daily timetable is less than the
-    // specified 'rhs' daily timetable, and 'false' otherwise.  The 'lhs' daily
-    // timetable is less than the 'rhs' daily timetable if
-    // 'lhs.initialTransitionCode() < rhs.initialTransitionCode()', or
-    // 'lhs.initialTransitionCode() == rhs.initialTransitionCode()' and
-    // 'lhs.d_transitions < rhs.d_transitions'.
 
 // HASH SPECIALIZATIONS
+
+/// Pass the specified `object` to the specified `hashAlg`.  This function
+/// integrates with the `bslh` modular hashing system and effectively
+/// provides a `bsl::hash` specialization for `Timetable_Day`.
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const Timetable_Day& object);
-    // Pass the specified 'object' to the specified 'hashAlg'.  This function
-    // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for 'Timetable_Day'.
 
                              // ===============
                              // class Timetable
                              // ===============
 
+/// This class implements a value-semantic repository of datetime-indexed
+/// state transitions over a *valid* *range* of dates.  This valid range,
+/// `[firstDate() .. lastDate()]`, spans the first and last dates of a
+/// timetable's accessible contents.  A timetable can be "populated" with
+/// state transitions via a suite of "add" methods.  Note that the behavior
+/// of requesting *any* timetable information for a supplied date whose
+/// value is outside the current *valid* *range* for that timetable is
+/// undefined.
 class Timetable {
-    // This class implements a value-semantic repository of datetime-indexed
-    // state transitions over a *valid* *range* of dates.  This valid range,
-    // '[firstDate() .. lastDate()]', spans the first and last dates of a
-    // timetable's accessible contents.  A timetable can be "populated" with
-    // state transitions via a suite of "add" methods.  Note that the behavior
-    // of requesting *any* timetable information for a supplied date whose
-    // value is outside the current *valid* *range* for that timetable is
-    // undefined.
 
     // DATA
     Date                                d_firstDate;  // start of valid range
@@ -627,256 +646,262 @@ class Timetable {
     typedef Timetable_ConstIterator const_iterator;
 
     // CREATORS
-    explicit Timetable(bslma::Allocator *basicAllocator = 0);
-        // Create an empty 'Timetable' (i.e., a timetable having no
-        // transitions) whose initial transition code is
-        // 'k_UNSET_TRANSITION_CODE'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Create an empty `Timetable` (i.e., a timetable having no
+    /// transitions) whose initial transition code is
+    /// `k_UNSET_TRANSITION_CODE`.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
+    explicit Timetable(bslma::Allocator *basicAllocator = 0);
+
+    /// Create a timetable having a valid range from the specified
+    /// `firstDate` through the specified `lastDate` and having the
+    /// optionally specified `initialTransitionCode`.  If
+    /// `initialTransitionCode` is not specified, the initial transition
+    /// code is set to `k_UNSET_TRANSITION_CODE`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.  The behavior is
+    /// undefined unless `firstDate <= lastDate`, and
+    /// `0 <= initialTransitionCode` or
+    /// `k_UNSET_TRANSITION_CODE == initialTransitionCode`.
     Timetable(
              const Date&       firstDate,
              const Date&       lastDate,
              int               initialTransitionCode = k_UNSET_TRANSITION_CODE,
              bslma::Allocator *basicAllocator = 0);
-        // Create a timetable having a valid range from the specified
-        // 'firstDate' through the specified 'lastDate' and having the
-        // optionally specified 'initialTransitionCode'.  If
-        // 'initialTransitionCode' is not specified, the initial transition
-        // code is set to 'k_UNSET_TRANSITION_CODE'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The behavior is
-        // undefined unless 'firstDate <= lastDate', and
-        // '0 <= initialTransitionCode' or
-        // 'k_UNSET_TRANSITION_CODE == initialTransitionCode'.
 
+    /// Create a timetable having the value of the specified `original`
+    /// timetable.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.
     Timetable(const Timetable& original, bslma::Allocator *basicAllocator = 0);
-        // Create a timetable having the value of the specified 'original'
-        // timetable.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
 
     //! ~Timetable() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this timetable the value of the specified `rhs` timetable,
+    /// and return a reference providing modifiable access to this
+    /// timetable.  This operation invalidates all iterators.
     Timetable& operator=(const Timetable& rhs);
-        // Assign to this timetable the value of the specified 'rhs' timetable,
-        // and return a reference providing modifiable access to this
-        // timetable.  This operation invalidates all iterators.
 
+    /// Add a transition to this timetable on the specified `date` at the
+    /// specified `time` having the specified `code`.  If `time` is already
+    /// a transition point on `date`, replace the existing code with `code`.
+    /// The addition of a transition, but not the replacement of the code of
+    /// an existing transition, invalidates all iterators.  The behavior is
+    /// undefined unless `24 > time.hour()`, `date` is within the valid
+    /// range of this timetable, and
+    /// `0 <= code || k_UNSET_TRANSITION_CODE == code`.
     void addTransition(const Date& date, const Time& time, int code);
-        // Add a transition to this timetable on the specified 'date' at the
-        // specified 'time' having the specified 'code'.  If 'time' is already
-        // a transition point on 'date', replace the existing code with 'code'.
-        // The addition of a transition, but not the replacement of the code of
-        // an existing transition, invalidates all iterators.  The behavior is
-        // undefined unless '24 > time.hour()', 'date' is within the valid
-        // range of this timetable, and
-        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
+    /// Add a transition to this timetable at the specified `datetime`
+    /// having the specified `code`.  If `datetime` is already a transition
+    /// point, replace the existing code with `code`.  The addition of a
+    /// transition, but not the replacement of the code of an existing
+    /// transition, invalidates all iterators.  The behavior is undefined
+    /// unless `24 > datetime.hour()`, `datetime.date()` is within the valid
+    /// range of this timetable, and
+    /// `0 <= code || k_UNSET_TRANSITION_CODE == code`.
     void addTransition(const Datetime& datetime, int code);
-        // Add a transition to this timetable at the specified 'datetime'
-        // having the specified 'code'.  If 'datetime' is already a transition
-        // point, replace the existing code with 'code'.  The addition of a
-        // transition, but not the replacement of the code of an existing
-        // transition, invalidates all iterators.  The behavior is undefined
-        // unless '24 > datetime.hour()', 'datetime.date()' is within the valid
-        // range of this timetable, and
-        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
+    /// Add transitions to this timetable that occur at the specified
+    /// `time`, having the specified `code`, on all dates that are of the
+    /// specified `dayOfWeek` within the closed interval of dates from the
+    /// specified `firstDate` to the specified `lastDate`.  For every date
+    /// on which this transition will occur, if `time` is already a
+    /// transition point, replace the existing code with `code`.  The
+    /// addition of a transition, but not the replacement of the code of an
+    /// existing transition, invalidates all iterators.  The behavior is
+    /// undefined unless `24 > time.hour()`, `firstDate <= lastDate`,
+    /// `firstDate` and `lastDate` are within the valid range of this
+    /// timetable, and `0 <= code || k_UNSET_TRANSITION_CODE == code`.
     void addTransitions(const DayOfWeek::Enum& dayOfWeek,
                         const Time&            time,
                         int                    code,
                         const Date&            firstDate,
                         const Date&            lastDate);
-        // Add transitions to this timetable that occur at the specified
-        // 'time', having the specified 'code', on all dates that are of the
-        // specified 'dayOfWeek' within the closed interval of dates from the
-        // specified 'firstDate' to the specified 'lastDate'.  For every date
-        // on which this transition will occur, if 'time' is already a
-        // transition point, replace the existing code with 'code'.  The
-        // addition of a transition, but not the replacement of the code of an
-        // existing transition, invalidates all iterators.  The behavior is
-        // undefined unless '24 > time.hour()', 'firstDate <= lastDate',
-        // 'firstDate' and 'lastDate' are within the valid range of this
-        // timetable, and '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
+    /// Remove all transitions from this timetable.  The removal of a
+    /// transition invalidates all iterators.
     void removeAllTransitions();
-        // Remove all transitions from this timetable.  The removal of a
-        // transition invalidates all iterators.
 
+    /// If a transition occurs on the specified `date` at the specified
+    /// `time`, remove the transition from this timetable.  Otherwise,
+    /// return without modifying this timetable.  The removal of a
+    /// transition invalidates all iterators.  The behavior is undefined
+    /// unless `24 > time.hour()` and `date` is within the valid range of
+    /// this timetable.
     void removeTransition(const Date& date, const Time& time);
-        // If a transition occurs on the specified 'date' at the specified
-        // 'time', remove the transition from this timetable.  Otherwise,
-        // return without modifying this timetable.  The removal of a
-        // transition invalidates all iterators.  The behavior is undefined
-        // unless '24 > time.hour()' and 'date' is within the valid range of
-        // this timetable.
 
+    /// If a transition occurs at the specified `datetime`, remove the
+    /// transition from this timetable.  Otherwise, return without modifying
+    /// this timetable.  The removal of a transition invalidates all
+    /// iterators.  The behavior is undefined unless `24 > datetime.hour()`
+    /// and `datetime.date()` is within the valid range of this timetable.
     void removeTransition(const Datetime& datetime);
-        // If a transition occurs at the specified 'datetime', remove the
-        // transition from this timetable.  Otherwise, return without modifying
-        // this timetable.  The removal of a transition invalidates all
-        // iterators.  The behavior is undefined unless '24 > datetime.hour()'
-        // and 'datetime.date()' is within the valid range of this timetable.
 
+    /// Remove all transitions from this timetable that occur on the
+    /// specified `date`.  The removal of a transition invalidates all
+    /// iterators.  The behavior is undefined unless `date` is within the
+    /// valid range of this timetable.
     void removeTransitions(const Date& date);
-        // Remove all transitions from this timetable that occur on the
-        // specified 'date'.  The removal of a transition invalidates all
-        // iterators.  The behavior is undefined unless 'date' is within the
-        // valid range of this timetable.
 
+    /// Remove all transitions from this timetable that occur at the
+    /// specified `time` on all dates that are of the specified `dayOfWeek`
+    /// within the closed interval of dates from the specified `firstDate`
+    /// to the specified `lastDate`.  The removal of a transition
+    /// invalidates all iterators.  The behavior is undefined unless
+    /// `24 > time.hour()`, `firstDate <= lastDate`, and `firstDate` and
+    /// `lastDate` are within the valid range of this timetable.
     void removeTransitions(const DayOfWeek::Enum& dayOfWeek,
                            const Time&            time,
                            const Date&            firstDate,
                            const Date&            lastDate);
-        // Remove all transitions from this timetable that occur at the
-        // specified 'time' on all dates that are of the specified 'dayOfWeek'
-        // within the closed interval of dates from the specified 'firstDate'
-        // to the specified 'lastDate'.  The removal of a transition
-        // invalidates all iterators.  The behavior is undefined unless
-        // '24 > time.hour()', 'firstDate <= lastDate', and 'firstDate' and
-        // 'lastDate' are within the valid range of this timetable.
 
+    /// Reset this timetable to the default constructed (empty) state.  All
+    /// associated iterators are invalidated.
     void reset();
-        // Reset this timetable to the default constructed (empty) state.  All
-        // associated iterators are invalidated.
 
+    /// Set the transition code in effect at the start of this timetable to
+    /// the specified `code`.  The behavior is undefined unless
+    /// `0 <= code || k_UNSET_TRANSITION_CODE == code`.
     void setInitialTransitionCode(int code);
-        // Set the transition code in effect at the start of this timetable to
-        // the specified 'code'.  The behavior is undefined unless
-        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
+    /// Set the range of this timetable using the specified `firstDate` and
+    /// `lastDate` as, respectively, the first date and the last date of the
+    /// timetable.  Any transitions, and associated transition codes, that
+    /// are outside of the new range are removed.  The removal of a
+    /// transition invalidates all iterators.  The behavior is undefined
+    /// unless `firstDate <= lastDate`.
     void setValidRange(const Date& firstDate, const Date& lastDate);
-        // Set the range of this timetable using the specified 'firstDate' and
-        // 'lastDate' as, respectively, the first date and the last date of the
-        // timetable.  Any transitions, and associated transition codes, that
-        // are outside of the new range are removed.  The removal of a
-        // transition invalidates all iterators.  The behavior is undefined
-        // unless 'firstDate <= lastDate'.
 
                                   // Aspects
 
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.  The behavior is undefined unless this
+    /// object was created with the same allocator as `other`.
     void swap(Timetable& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless this
-        // object was created with the same allocator as 'other'.
 
     // ACCESSORS
+
+    /// Return an iterator referring to the first transition in this
+    /// timetable, or the past-the-end iterator if this timetable is empty.
+    /// The iterator remains valid as long as this timetable exists, and the
+    /// number of transitions within this timetable does not change.
     const_iterator begin() const;
-        // Return an iterator referring to the first transition in this
-        // timetable, or the past-the-end iterator if this timetable is empty.
-        // The iterator remains valid as long as this timetable exists, and the
-        // number of transitions within this timetable does not change.
 
+    /// Return the past-the-end iterator for this timetable.  The iterator
+    /// remains valid as long as this timetable exists, and the number of
+    /// transitions within this timetable does not change.
     const_iterator end() const;
-        // Return the past-the-end iterator for this timetable.  The iterator
-        // remains valid as long as this timetable exists, and the number of
-        // transitions within this timetable does not change.
 
+    /// Return a `const` reference to the earliest date in the valid range
+    /// of this timetable.  The behavior is undefined if this timetable does
+    /// not have a valid range (i.e., it is in the default constructed
+    /// (empty) state).
     const Date& firstDate() const;
-        // Return a 'const' reference to the earliest date in the valid range
-        // of this timetable.  The behavior is undefined if this timetable does
-        // not have a valid range (i.e., it is in the default constructed
-        // (empty) state).
 
+    /// Return the transition code that is in effect at the start of this
+    /// timetable (see `setInitialTransitionCode`).
     int initialTransitionCode() const;
-        // Return the transition code that is in effect at the start of this
-        // timetable (see 'setInitialTransitionCode').
 
+    /// Return `true` if the specified `date` is within the valid range of
+    /// this timetable, and `false` otherwise.
     bool isInRange(const Date& date) const;
-        // Return 'true' if the specified 'date' is within the valid range of
-        // this timetable, and 'false' otherwise.
 
+    /// Return a `const` reference to the latest date in the valid range of
+    /// this timetable.  The behavior is undefined if this timetable does
+    /// not have a valid range (i.e., it is in the default constructed
+    /// (empty) state).
     const Date& lastDate() const;
-        // Return a 'const' reference to the latest date in the valid range of
-        // this timetable.  The behavior is undefined if this timetable does
-        // not have a valid range (i.e., it is in the default constructed
-        // (empty) state).
 
+    /// Return the number of days in the valid range of this timetable,
+    /// which is defined to be 0 if this timetable is empty, and
+    /// `lastDate() - firstDate() + 1` otherwise.
     int length() const;
-        // Return the number of days in the valid range of this timetable,
-        // which is defined to be 0 if this timetable is empty, and
-        // 'lastDate() - firstDate() + 1' otherwise.
 
+    /// Return the transition code associated with the latest transition
+    /// that occurs on or before the specified `date` and `time` in this
+    /// timetable.  If this timetable has no such transition, return
+    /// `initialTransitionCode()`.  The behavior is undefined unless
+    /// `24 > time.hour()` and `date` is within the valid range of this
+    /// timetable.
     int transitionCodeInEffect(const Date& date, const Time& time) const;
-        // Return the transition code associated with the latest transition
-        // that occurs on or before the specified 'date' and 'time' in this
-        // timetable.  If this timetable has no such transition, return
-        // 'initialTransitionCode()'.  The behavior is undefined unless
-        // '24 > time.hour()' and 'date' is within the valid range of this
-        // timetable.
 
+    /// Return the transition code associated with the latest transition
+    /// that occurs on or before the specified `datetime` in this timetable.
+    /// If this timetable has no such transition, return
+    /// `initialTransitionCode()`.  The behavior is undefined unless
+    /// `24 > datetime.hour()` and `datetime.date()` is within the valid
+    /// range of this timetable.
     int transitionCodeInEffect(const Datetime& datetime) const;
-        // Return the transition code associated with the latest transition
-        // that occurs on or before the specified 'datetime' in this timetable.
-        // If this timetable has no such transition, return
-        // 'initialTransitionCode()'.  The behavior is undefined unless
-        // '24 > datetime.hour()' and 'datetime.date()' is within the valid
-        // range of this timetable.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level` and return a
+    /// reference to the modifiable `stream`.  If `level` is specified,
+    /// optionally specify `spacesPerLevel`, the number of spaces per
+    /// indentation level for this and all of its nested objects.  If
+    /// `level` is negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, format the entire output on one line,
+    /// suppressing all but the initial indentation (as governed by
+    /// `level`).  If `stream` is not valid on entry, this operation has no
+    /// effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level' and return a
-        // reference to the modifiable 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` timetables have the same
+/// value, and `false` otherwise.  Two timetables have the same value if
+/// they have the same initial transition code, the same valid range (or are
+/// both empty), the same number of transitions, and each corresponding pair
+/// of transitions have the same value.
 bool operator==(const Timetable& lhs, const Timetable& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' timetables have the same
-    // value, and 'false' otherwise.  Two timetables have the same value if
-    // they have the same initial transition code, the same valid range (or are
-    // both empty), the same number of transitions, and each corresponding pair
-    // of transitions have the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` timetables do not have
+/// the same value, and `false` otherwise.  Two timetables do not have the
+/// same value if they do not have the same initial transition code, do not
+/// have the same valid range (and are not both empty), do not have the same
+/// number of transitions, or, for at least one corresponding pair of
+/// transitions, do not have the same value.
 bool operator!=(const Timetable& lhs, const Timetable& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' timetables do not have
-    // the same value, and 'false' otherwise.  Two timetables do not have the
-    // same value if they do not have the same initial transition code, do not
-    // have the same valid range (and are not both empty), do not have the same
-    // number of transitions, or, for at least one corresponding pair of
-    // transitions, do not have the same value.
 
+/// Write the value of the specified `timetable` to the specified output
+/// `stream`, and return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const Timetable& timetable);
-    // Write the value of the specified 'timetable' to the specified output
-    // 'stream', and return a reference to the modifiable 'stream'.
 
 // FREE FUNCTIONS
+
+/// Exchange the values of the specified `a` and `b` objects.  This function
+/// provides the no-throw exception-safety guarantee if the two objects were
+/// created with the same allocator and the basic guarantee otherwise.
 void swap(Timetable& a, Timetable& b);
-    // Exchange the values of the specified 'a' and 'b' objects.  This function
-    // provides the no-throw exception-safety guarantee if the two objects were
-    // created with the same allocator and the basic guarantee otherwise.
 
 // HASH SPECIALIZATIONS
+
+/// Pass the specified `object` to the specified `hashAlg`.  This function
+/// integrates with the `bslh` modular hashing system and effectively
+/// provides a `bsl::hash` specialization for `Timetable`.
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const Timetable& object);
-    // Pass the specified 'object' to the specified 'hashAlg'.  This function
-    // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for 'Timetable'.
 
                       // =============================
                       // class Timetable_ConstIterator
                       // =============================
 
+/// Provide read-only, sequential access in increasing (chronological) order
+/// to the transitions in a `Timetable` object.
 class Timetable_ConstIterator {
-    // Provide read-only, sequential access in increasing (chronological) order
-    // to the transitions in a 'Timetable' object.
 
     // DATA
     const Timetable                 *d_timetable_p;      // pointer to the
@@ -909,90 +934,96 @@ class Timetable_ConstIterator {
 
   private:
     // PRIVATE CREATORS
+
+    /// Create a transition iterator for the specified `timetable` that
+    /// refers to the transition at the specified `transitionIndex` on the
+    /// day at the specified `dayIndex` in `timetable`.
     Timetable_ConstIterator(const Timetable& timetable,
                             bsl::size_t      dayIndex,
                             bsl::size_t      transitionIndex);
-        // Create a transition iterator for the specified 'timetable' that
-        // refers to the transition at the specified 'transitionIndex' on the
-        // day at the specified 'dayIndex' in 'timetable'.
 
   public:
     // TYPES
     typedef TimetableTransition      value_type;
     typedef TimetableTransition_Ref *pointer;
+
+    /// The star operator returns a `TimetableTransition` *by* *value*.
     typedef TimetableTransition      reference;
-        // The star operator returns a 'TimetableTransition' *by* *value*.
 
     // CREATORS
-    Timetable_ConstIterator();
-        // Create a default iterator.  Note that the behavior of most methods
-        // is undefined when used on a default-constructed iterator.
 
+    /// Create a default iterator.  Note that the behavior of most methods
+    /// is undefined when used on a default-constructed iterator.
+    Timetable_ConstIterator();
+
+    /// Create an iterator having the value of the specified `original`
+    /// iterator.
     Timetable_ConstIterator(const Timetable_ConstIterator& original);
-        // Create an iterator having the value of the specified 'original'
-        // iterator.
 
     //! ~Timetable_ConstIterator() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this iterator the value of the specified `rhs` iterator,
+    /// and return a reference providing modifiable access to this object.
     Timetable_ConstIterator& operator=(const Timetable_ConstIterator& rhs);
-        // Assign to this iterator the value of the specified 'rhs' iterator,
-        // and return a reference providing modifiable access to this object.
 
+    /// Advance this iterator to refer to the next transition in the
+    /// associated timetable, and return a reference providing modifiable
+    /// access to this object.  The behavior is undefined unless, on entry,
+    /// this iterator references a valid transition.
     Timetable_ConstIterator& operator++();
-        // Advance this iterator to refer to the next transition in the
-        // associated timetable, and return a reference providing modifiable
-        // access to this object.  The behavior is undefined unless, on entry,
-        // this iterator references a valid transition.
 
+    /// Regress this iterator to refer to the previous transition in the
+    /// associated timetable, and return a reference providing modifiable
+    /// access to this object.  The behavior is undefined unless, on entry,
+    /// this iterator references a valid transition that is not the first
+    /// transition of the associated timetable.
     Timetable_ConstIterator& operator--();
-        // Regress this iterator to refer to the previous transition in the
-        // associated timetable, and return a reference providing modifiable
-        // access to this object.  The behavior is undefined unless, on entry,
-        // this iterator references a valid transition that is not the first
-        // transition of the associated timetable.
 
     // ACCESSORS
-    TimetableTransition operator*() const;
-        // Return, *by* *value*, a 'TimetableTransition' object representing
-        // the transition referenced by this iterator.  The behavior is
-        // undefined unless this iterator references a valid transition in the
-        // associated timetable.
 
+    /// Return, *by* *value*, a `TimetableTransition` object representing
+    /// the transition referenced by this iterator.  The behavior is
+    /// undefined unless this iterator references a valid transition in the
+    /// associated timetable.
+    TimetableTransition operator*() const;
+
+    /// Return a proxy to the transition referenced by this iterator.  The
+    /// behavior is undefined unless this iterator references a valid
+    /// transition in the associated timetable.
     const TimetableTransition_Ref *operator->() const;
-        // Return a proxy to the transition referenced by this iterator.  The
-        // behavior is undefined unless this iterator references a valid
-        // transition in the associated timetable.
 };
 
 // FREE OPERATORS
+
+/// Advance the specified `iterator` to refer to the next transition in the
+/// referenced timetable, and return an iterator referring to the original
+/// element (*before* the advancement).  The behavior is undefined unless,
+/// on entry, `iterator` references a valid transition.
 Timetable_ConstIterator operator++(Timetable_ConstIterator& iterator, int);
-    // Advance the specified 'iterator' to refer to the next transition in the
-    // referenced timetable, and return an iterator referring to the original
-    // element (*before* the advancement).  The behavior is undefined unless,
-    // on entry, 'iterator' references a valid transition.
 
+/// Regress the specified `iterator` to refer to the previous transition in
+/// the referenced timetable, and return an iterator referring to the
+/// original element (*before* the decrementation).  The behavior is
+/// undefined unless, on entry, `iterator` references a valid transition
+/// that is not the first transition of the associated timetable.
 Timetable_ConstIterator operator--(Timetable_ConstIterator& iterator, int);
-    // Regress the specified 'iterator' to refer to the previous transition in
-    // the referenced timetable, and return an iterator referring to the
-    // original element (*before* the decrementation).  The behavior is
-    // undefined unless, on entry, 'iterator' references a valid transition
-    // that is not the first transition of the associated timetable.
 
+/// Return `true` if the specified `lhs` and `rhs` iterators have the same
+/// value, and `false` otherwise.  Two `Timetable_ConstIterator` iterators
+/// have the same value if they refer to the same timetable and the same
+/// transition.
 bool operator==(const Timetable_ConstIterator& lhs,
                 const Timetable_ConstIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators have the same
-    // value, and 'false' otherwise.  Two 'Timetable_ConstIterator' iterators
-    // have the same value if they refer to the same timetable and the same
-    // transition.
 
+/// Return `true` if the specified `lhs` and `rhs` iterators do not have the
+/// same value, and `false` otherwise.  Two `Timetable_ConstIterator`
+/// iterators do not have the same value if they do not refer to the same
+/// timetable, or do not refer to the same transition.
 bool operator!=(const Timetable_ConstIterator& lhs,
                 const Timetable_ConstIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators do not have the
-    // same value, and 'false' otherwise.  Two 'Timetable_ConstIterator'
-    // iterators do not have the same value if they do not refer to the same
-    // timetable, or do not refer to the same transition.
 
 // ============================================================================
 //                             INLINE DEFINITIONS

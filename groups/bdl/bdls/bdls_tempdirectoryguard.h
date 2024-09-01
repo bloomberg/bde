@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //  bdls::TempDirectoryGuard: guard for creating and removing a temp directory
 //
 //@DESCRIPTION: This component provides a scoped guard
-// 'bdls::TempDirectoryGuard', intended primarily for testing, which creates a
+// `bdls::TempDirectoryGuard`, intended primarily for testing, which creates a
 // uniquely named temporary directory.  If possible, this is located in the
 // system temp directory, otherwise it is created within the current working
 // directory.
@@ -27,25 +27,25 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // Suppose an algorithm requires writing data to a temporary file on disk
 // during processing:
-//..
-//  void testAlgorithm(const bsl::string &testFileName);
-//      // Do "algorithm" using the specified 'testFileName' for intermidiate
-//      // state storage.
-//..
+// ```
+// void testAlgorithm(const bsl::string &testFileName);
+//     // Do "algorithm" using the specified 'testFileName' for intermidiate
+//     // state storage.
+// ```
 // A function looking to use this algorithm can obtain a directory in which to
 // put this file, guaranteed to not be used by other processes and to be
-// cleaned up on normal exit, using an instance of 'bdls::TempDirectoryGuard':
-//..
-//  void usesTestAlgorithm()
-//  {
-//      bdls::TempDirectoryGuard tempDirGuard("my_algo_");
+// cleaned up on normal exit, using an instance of `bdls::TempDirectoryGuard`:
+// ```
+// void usesTestAlgorithm()
+// {
+//     bdls::TempDirectoryGuard tempDirGuard("my_algo_");
 //
-//      bsl::string tmpFileName(tempDirGuard.getTempDirName());
-//      bdls::PathUtil::appendRaw(&tmpFileName,"algorithm.scratch");
+//     bsl::string tmpFileName(tempDirGuard.getTempDirName());
+//     bdls::PathUtil::appendRaw(&tmpFileName,"algorithm.scratch");
 //
-//      testAlgorithm(tmpFileName);
-//  }
-//..
+//     testAlgorithm(tmpFileName);
+// }
+// ```
 // After exiting, the scratch file (named "algorithm.scratch") and the
 // temporary directory (with an unspecified name starting with "my_algo_"),
 // possibly in the system temp directory or the current working directory, will
@@ -61,10 +61,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdls {
 
+/// This class implements a scoped temporary directory guard.  The guard
+/// tries to create a temporary directory in the system-wide temp directory
+/// and falls back to the current directory.
 class TempDirectoryGuard {
-    // This class implements a scoped temporary directory guard.  The guard
-    // tries to create a temporary directory in the system-wide temp directory
-    // and falls back to the current directory.
 
     // DATA
     bsl::string       d_dirName;      // path to the created directory
@@ -80,21 +80,23 @@ class TempDirectoryGuard {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create temporary directory with the specified `prefix` in the
+    /// system-wide temp or current directory.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     explicit TempDirectoryGuard(const bsl::string&  prefix,
                                 bslma::Allocator   *basicAllocator = 0);
-        // Create temporary directory with the specified 'prefix' in the
-        // system-wide temp or current directory.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Destroy this object and remove the temporary directory (recursively)
+    /// created at construction.
     ~TempDirectoryGuard();
-        // Destroy this object and remove the temporary directory (recursively)
-        // created at construction.
 
     // ACCESSORS
+
+    /// Return a `const` reference to the name of the created temporary
+    /// directory.
     const bsl::string& getTempDirName() const;
-        // Return a 'const' reference to the name of the created temporary
-        // directory.
 };
 
 }  // close package namespace

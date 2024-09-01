@@ -12,12 +12,12 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlt_posixdateimputil, bdlt_prolepticdateimputil
 //
-//@DESCRIPTION: This component defines a 'typedef' to a class that implements
+//@DESCRIPTION: This component defines a `typedef` to a class that implements
 // the (documentation-only) protocol for serial date implementation utilities
 // -- each class implements a common set of methods, each having the same
 // signature, and each having the same contract.  Currently, two
-// implementations are allowed: 'bdlt_posixdateimputil' (required in Bloomberg
-// code) and 'bdlt_prolepticdateimputil' (an option for open source code).
+// implementations are allowed: `bdlt_posixdateimputil` (required in Bloomberg
+// code) and `bdlt_prolepticdateimputil` (an option for open source code).
 
 #include <bdlscm_version.h>
 

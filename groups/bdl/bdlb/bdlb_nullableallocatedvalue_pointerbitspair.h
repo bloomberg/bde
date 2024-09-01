@@ -14,15 +14,15 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: NullableAllocatedValue
 //
 //@DESCRIPTION: This private, subordinate component to
-// 'bdlb_nullableallocatedvalue' provides a templated class,
-// 'bdlb::NullableAllocatedValue_PointerBitsPair', that allows access to the
+// `bdlb_nullableallocatedvalue` provides a templated class,
+// `bdlb::NullableAllocatedValue_PointerBitsPair`, that allows access to the
 // otherwise unused bits in a pointer to an object.  The
-// 'bdlb::NullableAllocatedValue' class template uses
-// 'bdlb::NullableAllocatedValue_PointerBitsPair' to store some state about the
-// object in the 'pointer to allocator' field, saving 4 to 8 bytes (depending
+// `bdlb::NullableAllocatedValue` class template uses
+// `bdlb::NullableAllocatedValue_PointerBitsPair` to store some state about the
+// object in the `pointer to allocator` field, saving 4 to 8 bytes (depending
 // on the platform) for each instantiation.
 //
-// 'bldb::NullableAllocatedValue_PointerBitsPair' is a non-allocator-aware,
+// `bldb::NullableAllocatedValue_PointerBitsPair` is a non-allocator-aware,
 // value-semantic type.
 
 #include <bslscm_version.h>
@@ -51,38 +51,40 @@ namespace bdlb {
                      // class Pointer_Bits_Pair
                      // =======================
 
+/// This is a component-private class.  Do not use.
+///
+/// This regular, value-semantic class provides a mechanism for storing a
+/// number of bit flags in the otherwise unused bits of a pointer to the
+/// template parameter class `t_TYPE`.   The number of bits that can be
+/// stored is dependent upon the required alignment of the class `t_TYPE`.
 template <class t_TYPE, unsigned t_NUM_BITS>
 class NullableAllocatedValue_PointerBitsPair {
-    // This is a component-private class.  Do not use.
-    //
-    // This regular, value-semantic class provides a mechanism for storing a
-    // number of bit flags in the otherwise unused bits of a pointer to the
-    // template parameter class 't_TYPE'.   The number of bits that can be
-    // stored is dependent upon the required alignment of the class 't_TYPE'.
 
     // DATA
-    enum { k_Mask = (1 << t_NUM_BITS ) - 1 };
-        // 'k_Mask' is a bitmask constant containing a '1' for each of the
-        // positions in the stored value where a flag can be stored, and a '0'
-        // for all of the other positions.
 
+    /// `k_Mask` is a bitmask constant containing a `1` for each of the
+    /// positions in the stored value where a flag can be stored, and a `0`
+    /// for all of the other positions.
+    enum { k_Mask = (1 << t_NUM_BITS ) - 1 };
+
+    // Contains the pointer value and the flag bits; or-ed together.
     uintptr_t d_Value;
-        // Contains the pointer value and the flag bits; or-ed together.
 
     BSLMF_ASSERT(t_NUM_BITS >  0); // Can't store zero bits
     BSLMF_ASSERT(t_NUM_BITS <= 8); // Too many bits
 
   public:
     // CREATORS
-    NullableAllocatedValue_PointerBitsPair();
-        // Construct an object holding a null pointer value and all flags set
-        // to false.
 
+    /// Construct an object holding a null pointer value and all flags set
+    /// to false.
+    NullableAllocatedValue_PointerBitsPair();
+
+    /// Construct an object holding the specified `ptr` and optionally
+    /// specified `flags`.  The behavior is undefined unless
+    /// `flags <= k_Mask`.
     explicit NullableAllocatedValue_PointerBitsPair(t_TYPE   *ptr,
                                                     unsigned  flags = 0);
-        // Construct an object holding the specified 'ptr' and optionally
-        // specified 'flags'.  The behavior is undefined unless
-        // 'flags <= k_Mask'.
 
     //! NullableAllocatedValue_PointerBitsPair(
     //       const NullableAllocatedValue_PointerBitsPair& original) = default;
@@ -95,18 +97,19 @@ class NullableAllocatedValue_PointerBitsPair {
         // is compiler generated.
 
     // ACCESSORS
+
+    /// Return `true` if this object and the specified `other` have the same
+    /// value, and `false` otherwise.  Two
+    /// `NullableAllocatedValue_PointerBitsPair` objects have the same value
+    /// when their pointer and flags are the same.
     bool equal(const NullableAllocatedValue_PointerBitsPair& other) const;
-        // Return 'true' if this object and the specified 'other' have the same
-        // value, and 'false' otherwise.  Two
-        // 'NullableAllocatedValue_PointerBitsPair' objects have the same value
-        // when their pointer and flags are the same.
 
+    /// Return the held pointer.
     t_TYPE* getPointer () const;
-        // Return the held pointer.
 
+    /// Return the value of the flag specified by `idx`.  The behavior is
+    /// undefined unless `idx < t_NUM_BITS`.
     bool readFlag(unsigned idx) const;
-        // Return the value of the flag specified by 'idx'.  The behavior is
-        // undefined unless 'idx < t_NUM_BITS'.
 
     // MANIPULATORS
     //! NullableAllocatedValue_PointerBitsPair& operator=(
@@ -116,48 +119,49 @@ class NullableAllocatedValue_PointerBitsPair {
         // that this trivial copy-assignment operator's definition is compiler
         // generated.
 
+    /// Clear the flag specified by `idx`.  The behavior is undefined unless
+    /// `idx < t_NUM_BITS`.
     void clearFlag(unsigned idx);
-        // Clear the flag specified by 'idx'.  The behavior is undefined unless
-        // 'idx < t_NUM_BITS'.
 
+    /// Set the flag specified by `idx`.  The behavior is undefined unless
+    /// `idx < t_NUM_BITS`.
     void setFlag(unsigned idx);
-        // Set the flag specified by 'idx'.  The behavior is undefined unless
-        // 'idx < t_NUM_BITS'.
 
+    /// Set the held pointer to the value of the specified `new_ptr`.
     void setPointer (t_TYPE *new_ptr);
-        // Set the held pointer to the value of the specified 'new_ptr'.
 
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.
     void swap(NullableAllocatedValue_PointerBitsPair& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.
 
     };
 
 // FREE FUNCTIONS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two
+/// `NullableAllocatedValue_PointerBitsPair` objects have the same value
+/// when their pointer and flags are the same.
 template <class t_TYPE, unsigned t_NUM_BITS>
 bool operator==(
         const NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& lhs,
         const NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two
-    // 'NullableAllocatedValue_PointerBitsPair' objects have the same value
-    // when their pointer and flags are the same.
 
+/// Return `false` if the specified `lhs` and `rhs` objects have the same
+/// value, and `true` otherwise.  Two
+/// `NullableAllocatedValue_PointerBitsPair` objects have the same value
+/// when their pointer and flags are the same.
 template <class t_TYPE, unsigned t_NUM_BITS>
 bool operator!=(
         const NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& lhs,
         const NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& rhs);
-    // Return 'false' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'true' otherwise.  Two
-    // 'NullableAllocatedValue_PointerBitsPair' objects have the same value
-    // when their pointer and flags are the same.
 
+/// Exchange the values of the specified `a` and `b` objects.  This function
+/// provides the no-throw exception-safety guarantee.
 template <class t_TYPE, unsigned t_NUM_BITS>
 void swap(NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& a,
           NullableAllocatedValue_PointerBitsPair<t_TYPE, t_NUM_BITS>& b);
-    // Exchange the values of the specified 'a' and 'b' objects.  This function
-    // provides the no-throw exception-safety guarantee.
 
 }  // close package namespace
 

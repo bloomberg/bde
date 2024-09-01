@@ -8,81 +8,81 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a thread-aware fixed-size queue of values.
 //
 //@CLASSES:
-//  bdlcc::FixedQueue: thread-aware fixed-size queue of 'TYPE' values
+//  bdlcc::FixedQueue: thread-aware fixed-size queue of `TYPE` values
 //
-//@DESCRIPTION: This component defines a type, 'bdlcc::FixedQueue', that
+//@DESCRIPTION: This component defines a type, `bdlcc::FixedQueue`, that
 // provides an efficient, thread-aware fixed-size queue of values.  This
 // class is ideal for synchronization and communication between threads in a
 // producer-consumer model.  Under most cicrumstances developers should prefer
 // the newer {bdlcc_boundedqueue} (see {Comparison to BoundedQueue}).
 //
-// The queue provides 'pushBack' and 'popFront' methods for pushing data into
+// The queue provides `pushBack` and `popFront` methods for pushing data into
 // the queue and popping it from the queue.  In case of overflow (queue full
 // when pushing), or underflow (queue empty when popping), the methods block
 // until data or free space in the queue appears.  Non-blocking methods
-// 'tryPushBack' and 'tryPopFront' are also provided, which fail immediately
+// `tryPushBack` and `tryPopFront` are also provided, which fail immediately
 // returning a non-zero value in case of overflow or underflow.
 //
-// The queue may be placed into a "disabled" state using the 'disable' method.
-// When disabled, 'pushBack' and 'tryPushBack' fail immediately (they do not
+// The queue may be placed into a "disabled" state using the `disable` method.
+// When disabled, `pushBack` and `tryPushBack` fail immediately (they do not
 // block and any blocked invocations will fail immediately).  The queue may be
-// restored to normal operation with the 'enable' method.
+// restored to normal operation with the `enable` method.
 //
-// Unlike 'bdlcc::Queue', a fixed queue is not double-ended, there is no timed
-// API like 'timedPushBack' and 'timedPopFront', and no 'forcePush' methods, as
+// Unlike `bdlcc::Queue`, a fixed queue is not double-ended, there is no timed
+// API like `timedPushBack` and `timedPopFront`, and no `forcePush` methods, as
 // the queue capacity is fixed.  Also, this component is not based on
-// 'bdlc::Queue', so there is no API for direct access to the underlying queue.
+// `bdlc::Queue`, so there is no API for direct access to the underlying queue.
 // These limitations are a trade-off for significant gain in performance
-// compared to 'bdlcc::Queue'.
+// compared to `bdlcc::Queue`.
 //
 ///Comparison To BoundedQueue
 ///--------------------------
-// Both 'bdlcc::FixedQueue' and 'bdlcc::BoundedQueue' provide thread-aware
+// Both `bdlcc::FixedQueue` and `bdlcc::BoundedQueue` provide thread-aware
 // bounded queues.  Under most circumstances developers should prefer
 // {bdlcc_boundedqueue}: it is newer, has additional features, and provides
-// better performance under most circumstances.  'bdlcc::BoundedQueue' is not
-// quite a drop in replacement for 'bdlcc::FixedQueue' so both types are
+// better performance under most circumstances.  `bdlcc::BoundedQueue` is not
+// quite a drop in replacement for `bdlcc::FixedQueue` so both types are
 // currently maintained.  There is additional information about
 // performance of various queues in the article Concurrent Queue Evaluation
 // (https://tinyurl.com/mr2un9f7).
 //
 ///Template Requirements
 ///---------------------
-// 'bdlcc::FixedQueue' is a template that is parameterized on the type of
-// element contained within the queue.  The supplied template argument, 'TYPE',
+// `bdlcc::FixedQueue` is a template that is parameterized on the type of
+// element contained within the queue.  The supplied template argument, `TYPE`,
 // must provide both a default constructor and a copy constructors as well as
 // an assignment operator.  If the default constructor accepts a
-// 'bslma::Allocator*', 'TYPE' must declare the uses 'bslma::Allocator' trait
-// (see 'bslma_usesbslmaallocator') so that the allocator of the queue is
+// `bslma::Allocator*`, `TYPE` must declare the uses `bslma::Allocator` trait
+// (see `bslma_usesbslmaallocator`) so that the allocator of the queue is
 // propagated to the elements contained in the queue.
 //
 ///Exception safety
 ///----------------
-// A 'bdlcc::FixedQueue' is exception neutral, and all of the methods of
-// 'bdlcc::FixedQueue' provide the strong exception safety guarantee except for
-// 'pushBack' and 'tryPushBack', which provide the basic exception guarantee
-// (see 'bsldoc_glossary').
+// A `bdlcc::FixedQueue` is exception neutral, and all of the methods of
+// `bdlcc::FixedQueue` provide the strong exception safety guarantee except for
+// `pushBack` and `tryPushBack`, which provide the basic exception guarantee
+// (see `bsldoc_glossary`).
 //
 ///Memory Usage
 ///------------
-// 'bdlcc::FixedQueue' is most efficient when dealing with small objects or
+// `bdlcc::FixedQueue` is most efficient when dealing with small objects or
 // fundamental types (as a thread-safe container, its methods pass objects *by*
 // *value*).  We recommend:
-//: o Large objects be stored as shared-pointers (or possibly raw pointers).
-//: o Clients take care in specifying the queue capacity (specified in a number
-//:   of objects, *not* a number of bytes).
+// * Large objects be stored as shared-pointers (or possibly raw pointers).
+// * Clients take care in specifying the queue capacity (specified in a number
+//   of objects, *not* a number of bytes).
 //
-// Note that the implementation of 'bdlcc::FixedQueue' currently creates a
+// Note that the implementation of `bdlcc::FixedQueue` currently creates a
 // fixed size array of the contained object type.
 //
 ///Move Semantics in C++03
 ///-----------------------
-// Move-only types are supported by 'FixedQueue' on C++11 platforms only (where
-// 'BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES' is defined), and are not supported
+// Move-only types are supported by `FixedQueue` on C++11 platforms only (where
+// `BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES` is defined), and are not supported
 // on C++03 platforms.  Unfortunately, in C++03, there are user types where a
-// 'bslmf::MovableRef' will not safely degrade to a lvalue reference when a
+// `bslmf::MovableRef` will not safely degrade to a lvalue reference when a
 // move constructor is not available (types providing a constructor template
-// taking any type), so 'bslmf::MovableRefUtil::move' cannot be used directly
+// taking any type), so `bslmf::MovableRefUtil::move` cannot be used directly
 // on a user supplied template type. See internal bug report 99039150 for more
 // information.
 //
@@ -92,98 +92,98 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: A Simple Thread Pool
 ///- - - - - - - - - - - - - - - -
-// In the following example a 'bdlcc::FixedQueue' is used to communicate
+// In the following example a `bdlcc::FixedQueue` is used to communicate
 // between a single "producer" thread and multiple "consumer" threads.  The
 // "producer" will push work requests onto the queue, and each "consumer" will
 // iteratively take a work request from the queue and service the request.
 // This example shows a partial, simplified implementation of the
-// 'bdlmt::FixedThreadPool' class.  See component 'bdlmt_fixedthreadpool' for
+// `bdlmt::FixedThreadPool` class.  See component `bdlmt_fixedthreadpool` for
 // more information.
 //
 // First, we define a utility classes that handles a simple "work item":
-//..
-//  struct my_WorkData {
-//      // Work data...
-//  };
+// ```
+// struct my_WorkData {
+//     // Work data...
+// };
 //
-//  struct my_WorkRequest {
-//      enum RequestType {
-//          e_WORK = 1,
-//          e_STOP = 2
-//      };
+// struct my_WorkRequest {
+//     enum RequestType {
+//         e_WORK = 1,
+//         e_STOP = 2
+//     };
 //
-//      RequestType d_type;
-//      my_WorkData d_data;
-//      // Work data...
-//  };
-//..
+//     RequestType d_type;
+//     my_WorkData d_data;
+//     // Work data...
+// };
+// ```
 // Next, we provide a simple function to service an individual work item.  The
 // details are unimportant for this example:
-//..
-//  void myDoWork(my_WorkData& data)
-//  {
-//      // do some stuff...
-//      (void)data;
-//  }
-//..
-// Then, we define a 'myConsumer' function that will pop elements off the queue
-// and process them.  Note that the call to 'queue->popFront()' will block
+// ```
+// void myDoWork(my_WorkData& data)
+// {
+//     // do some stuff...
+//     (void)data;
+// }
+// ```
+// Then, we define a `myConsumer` function that will pop elements off the queue
+// and process them.  Note that the call to `queue->popFront()` will block
 // until there is an element available on the queue.  This function will be
 // executed in multiple threads, so that each thread waits in
-// 'queue->popFront()', and 'bdlcc::FixedQueue' guarantees that each thread
+// `queue->popFront()`, and `bdlcc::FixedQueue` guarantees that each thread
 // gets a unique element from the queue:
-//..
-//  void myConsumer(bdlcc::FixedQueue<my_WorkRequest> *queue)
-//  {
-//      while (1) {
-//          // 'popFront()' will wait for a 'my_WorkRequest' until available.
+// ```
+// void myConsumer(bdlcc::FixedQueue<my_WorkRequest> *queue)
+// {
+//     while (1) {
+//         // 'popFront()' will wait for a 'my_WorkRequest' until available.
 //
-//          my_WorkRequest item = queue->popFront();
-//          if (item.d_type == my_WorkRequest::e_STOP) { break; }
-//          myDoWork(item.d_data);
-//      }
-//  }
-//..
-// Finally, we define a 'myProducer' function that serves multiple roles: it
-// creates the 'bdlcc::FixedQueue', starts the consumer threads, and then
+//         my_WorkRequest item = queue->popFront();
+//         if (item.d_type == my_WorkRequest::e_STOP) { break; }
+//         myDoWork(item.d_data);
+//     }
+// }
+// ```
+// Finally, we define a `myProducer` function that serves multiple roles: it
+// creates the `bdlcc::FixedQueue`, starts the consumer threads, and then
 // produces and enqueues work items.  When work requests are exhausted, this
-// function enqueues one 'e_STOP' item for each consumer queue.  This 'e_STOP'
+// function enqueues one `e_STOP` item for each consumer queue.  This `e_STOP`
 // item indicates to the consumer thread to terminate its thread-handling
 // function.
 //
-// Note that, although the producer cannot control which thread 'pop's a
+// Note that, although the producer cannot control which thread `pop`s a
 // particular work item, it can rely on the knowledge that each consumer thread
-// will read a single 'e_STOP' item and then terminate.
-//..
-//  void myProducer(int numThreads)
-//  {
-//      enum {
-//          k_MAX_QUEUE_LENGTH = 100,
-//          k_NUM_WORK_ITEMS   = 1000
-//      };
+// will read a single `e_STOP` item and then terminate.
+// ```
+// void myProducer(int numThreads)
+// {
+//     enum {
+//         k_MAX_QUEUE_LENGTH = 100,
+//         k_NUM_WORK_ITEMS   = 1000
+//     };
 //
-//      bdlcc::FixedQueue<my_WorkRequest> queue(k_MAX_QUEUE_LENGTH);
+//     bdlcc::FixedQueue<my_WorkRequest> queue(k_MAX_QUEUE_LENGTH);
 //
-//      bslmt::ThreadGroup consumerThreads;
-//      consumerThreads.addThreads(bdlf::BindUtil::bind(&myConsumer, &queue),
-//                                 numThreads);
+//     bslmt::ThreadGroup consumerThreads;
+//     consumerThreads.addThreads(bdlf::BindUtil::bind(&myConsumer, &queue),
+//                                numThreads);
 //
-//      for (int i = 0; i < k_NUM_WORK_ITEMS; ++i) {
-//          my_WorkRequest item;
-//          item.d_type = my_WorkRequest::e_WORK;
-//          item.d_data = my_WorkData(); // some stuff to do
-//          queue.pushBack(item);
-//      }
+//     for (int i = 0; i < k_NUM_WORK_ITEMS; ++i) {
+//         my_WorkRequest item;
+//         item.d_type = my_WorkRequest::e_WORK;
+//         item.d_data = my_WorkData(); // some stuff to do
+//         queue.pushBack(item);
+//     }
 //
-//      for (int i = 0; i < numThreads; ++i) {
-//          my_WorkRequest item;
-//          item.d_type = my_WorkRequest::e_STOP;
-//          queue.pushBack(item);
-//      }
+//     for (int i = 0; i < numThreads; ++i) {
+//         my_WorkRequest item;
+//         item.d_type = my_WorkRequest::e_STOP;
+//         queue.pushBack(item);
+//     }
 //
-//      consumerThreads.joinAll();
-//  }
-//..
+//     consumerThreads.joinAll();
+// }
+// ```
 
 #include <bdlscm_version.h>
 
@@ -217,10 +217,10 @@ namespace bdlcc {
                               // class FixedQueue
                               // ================
 
+/// This class provides a thread-aware, lock-free, fixed-size queue of
+/// values.
 template <class TYPE>
 class FixedQueue {
-    // This class provides a thread-aware, lock-free, fixed-size queue of
-    // values.
 
   private:
 
@@ -279,98 +279,101 @@ class FixedQueue {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(FixedQueue, bslma::UsesBslmaAllocator);
     // CREATORS
+
+    /// Create a thread-aware lock-free queue having the specified
+    /// `capacity`.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The behavior is undefined unless `0 < capacity`
+    /// and `capacity <= bdlcc::FixedQueueIndexManager::k_MAX_CAPACITY`.
     explicit
     FixedQueue(bsl::size_t capacity, bslma::Allocator *basicAllocator = 0);
-        // Create a thread-aware lock-free queue having the specified
-        // 'capacity'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The behavior is undefined unless '0 < capacity'
-        // and 'capacity <= bdlcc::FixedQueueIndexManager::k_MAX_CAPACITY'.
 
+    /// Destroy this object.
     ~FixedQueue();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Append the specified `value` to the back of this queue, blocking
+    /// until either space is available - if necessary - or the queue is
+    /// disabled.  Return 0 on success, and a nonzero value if the queue is
+    /// disabled.
     int pushBack(const TYPE& value);
-        // Append the specified 'value' to the back of this queue, blocking
-        // until either space is available - if necessary - or the queue is
-        // disabled.  Return 0 on success, and a nonzero value if the queue is
-        // disabled.
 
+    /// Append the specified move-insertable `value` to the back of this
+    /// queue, blocking until either space is available - if necessary - or
+    /// the queue is disabled.  `value` is left in a valid but unspecified
+    /// state.  Return 0 on success, and a nonzero value if the queue is
+    /// disabled.
     int pushBack(bslmf::MovableRef<TYPE> value);
-        // Append the specified move-insertable 'value' to the back of this
-        // queue, blocking until either space is available - if necessary - or
-        // the queue is disabled.  'value' is left in a valid but unspecified
-        // state.  Return 0 on success, and a nonzero value if the queue is
-        // disabled.
 
+    /// Attempt to append the specified `value` to the back of this queue
+    /// without blocking.  Return 0 on success, and a non-zero value if the
+    /// queue is full or disabled.
     int tryPushBack(const TYPE& value);
-        // Attempt to append the specified 'value' to the back of this queue
-        // without blocking.  Return 0 on success, and a non-zero value if the
-        // queue is full or disabled.
 
+    /// Attempt to append the specified move-insertable `value` to the back
+    /// of this queue without blocking.  `value` is left in a valid but
+    /// unspecified state.  Return 0 on success, and a non-zero value if the
+    /// queue is full or disabled.
     int tryPushBack(bslmf::MovableRef<TYPE> value);
-        // Attempt to append the specified move-insertable 'value' to the back
-        // of this queue without blocking.  'value' is left in a valid but
-        // unspecified state.  Return 0 on success, and a non-zero value if the
-        // queue is full or disabled.
 
+    /// Remove the element from the front of this queue and load that
+    /// element into the specified `value`.  If the queue is empty, block
+    /// until it is not empty.
     void popFront(TYPE* value);
-        // Remove the element from the front of this queue and load that
-        // element into the specified 'value'.  If the queue is empty, block
-        // until it is not empty.
 
+    /// Remove the element from the front of this queue and return it's
+    /// value.  If the queue is empty, block until it is not empty.
     TYPE popFront();
-        // Remove the element from the front of this queue and return it's
-        // value.  If the queue is empty, block until it is not empty.
 
+    /// Attempt to remove the element from the front of this queue without
+    /// blocking, and, if successful, load the specified `value` with the
+    /// removed element.  Return 0 on success, and a non-zero value if queue
+    /// was empty.  On failure, `value` is not changed.
     int tryPopFront(TYPE *value);
-        // Attempt to remove the element from the front of this queue without
-        // blocking, and, if successful, load the specified 'value' with the
-        // removed element.  Return 0 on success, and a non-zero value if queue
-        // was empty.  On failure, 'value' is not changed.
 
+    /// Remove all items from this queue.  Note that this operation is not
+    /// atomic; if other threads are concurrently pushing items into the
+    /// queue the result of numElements() after this function returns is not
+    /// guaranteed to be 0.
     void removeAll();
-        // Remove all items from this queue.  Note that this operation is not
-        // atomic; if other threads are concurrently pushing items into the
-        // queue the result of numElements() after this function returns is not
-        // guaranteed to be 0.
 
+    /// Disable this queue.  All subsequent invocations of `pushBack` or
+    /// `tryPushBack` will fail immediately.  All blocked invocations of
+    /// `pushBack` will fail immediately.  If the queue is already disabled,
+    /// this method has no effect.
     void disable();
-        // Disable this queue.  All subsequent invocations of 'pushBack' or
-        // 'tryPushBack' will fail immediately.  All blocked invocations of
-        // 'pushBack' will fail immediately.  If the queue is already disabled,
-        // this method has no effect.
 
+    /// Enable queuing.  If the queue is not disabled, this call has no
+    /// effect.
     void enable();
-        // Enable queuing.  If the queue is not disabled, this call has no
-        // effect.
 
     // ACCESSORS
+
+    /// Return the maximum number of elements that may be stored in this
+    /// queue.
     int capacity() const;
-        // Return the maximum number of elements that may be stored in this
-        // queue.
 
+    /// Return `true` if this queue is empty (has no elements), or `false`
+    /// otherwise.
     bool isEmpty() const;
-        // Return 'true' if this queue is empty (has no elements), or 'false'
-        // otherwise.
 
+    /// Return `true` if this queue is enabled, and `false` otherwise.  Note
+    /// that the queue is created in the "enabled" state.
     bool isEnabled() const;
-        // Return 'true' if this queue is enabled, and 'false' otherwise.  Note
-        // that the queue is created in the "enabled" state.
 
+    /// Return `true` if this queue is full (when the number of elements
+    /// currently in this queue equals its capacity), or `false` otherwise.
     bool isFull() const;
-        // Return 'true' if this queue is full (when the number of elements
-        // currently in this queue equals its capacity), or 'false' otherwise.
 
+    /// Returns the number of elements currently in this queue.
     int numElements() const;
-        // Returns the number of elements currently in this queue.
 
+    /// [**DEPRECATED**] Invoke `numElements`.
     int length() const;
-        // [!DEPRECATED!] Invoke 'numElements'.
 
+    /// [**DEPRECATED**] Invoke `capacity`.
     int size() const;
-        // [!DEPRECATED!] Invoke 'capacity'.
 
 };
 
@@ -378,12 +381,12 @@ class FixedQueue {
                          // class FixedQueue_PopGuard
                          // =========================
 
+/// This class provides a guard that, upon its destruction, will remove
+/// (pop) the indicated element from the `FixedQueue` object supplied at
+/// construction.  Note that this guard is used to provide exception safety
+/// when popping an element from a `FixedQueue` object.
 template <class VALUE>
 class FixedQueue_PopGuard {
-    // This class provides a guard that, upon its destruction, will remove
-    // (pop) the indicated element from the 'FixedQueue' object supplied at
-    // construction.  Note that this guard is used to provide exception safety
-    // when popping an element from a 'FixedQueue' object.
 
     // DATA
     FixedQueue<VALUE> *d_parent_p;
@@ -403,35 +406,36 @@ class FixedQueue_PopGuard {
   public:
 
     // CREATORS
+
+    /// Create a guard that, upon its destruction, will update the state of
+    /// the specified `queue` to remove (pop) the element at the specified
+    /// `index` having the specified `generation`, and destroy that popped
+    /// object.  The behavior is undefined unless `index` and `generation`
+    /// refer to a valid element in `queue` that the current thread has
+    /// acquired a reservation to pop (using
+    /// `FixedQueueIndexManager::reservePopIndex`).
     FixedQueue_PopGuard(FixedQueue<VALUE> *queue,
                         unsigned int       generation,
                         unsigned int       index);
-        // Create a guard that, upon its destruction, will update the state of
-        // the specified 'queue' to remove (pop) the element at the specified
-        // 'index' having the specified 'generation', and destroy that popped
-        // object.  The behavior is undefined unless 'index' and 'generation'
-        // refer to a valid element in 'queue' that the current thread has
-        // acquired a reservation to pop (using
-        // 'FixedQueueIndexManager::reservePopIndex').
 
+    /// Update the state of the `FixedQueue` object supplied at construction
+    /// to remove (pop) the indicated element, and destroy the popped
+    /// object.
     ~FixedQueue_PopGuard();
-        // Update the state of the 'FixedQueue' object supplied at construction
-        // to remove (pop) the indicated element, and destroy the popped
-        // object.
 };
 
                         // ============================
                         // class FixedQueue_PushProctor
                         // ============================
 
+/// This class provides a proctor that, unless the `release` method has been
+/// previously invoked, will remove and destroy all the elements from a
+/// `FixedQueue` object supplied at construction (putting that ring-buffer
+/// into a valid empty state) upon the proctor's destruction.  Note that
+/// this guard is used to provide exception safety when pushing an element
+/// into a `FixedQueue`.
 template <class VALUE>
 class FixedQueue_PushProctor {
-    // This class provides a proctor that, unless the 'release' method has been
-    // previously invoked, will remove and destroy all the elements from a
-    // 'FixedQueue' object supplied at construction (putting that ring-buffer
-    // into a valid empty state) upon the proctor's destruction.  Note that
-    // this guard is used to provide exception safety when pushing an element
-    // into a 'FixedQueue'.
 
     // DATA
     FixedQueue<VALUE> *d_parent_p;
@@ -453,24 +457,26 @@ class FixedQueue_PushProctor {
   public:
 
     // CREATORS
+
+    /// Create a proctor that manages the specified `queue` and, unless
+    /// `release` is called, will remove and destroy all the elements from
+    /// `queue` starting at the specified `index` in the specified
+    /// `generation`.  The behavior is undefined unless `index` and
+    /// `generation` refers to a valid element in `queue`.
     FixedQueue_PushProctor(FixedQueue<VALUE> *queue,
                            unsigned int       generation,
                            unsigned int       index);
-        // Create a proctor that manages the specified 'queue' and, unless
-        // 'release' is called, will remove and destroy all the elements from
-        // 'queue' starting at the specified 'index' in the specified
-        // 'generation'.  The behavior is undefined unless 'index' and
-        // 'generation' refers to a valid element in 'queue'.
 
+    /// Destroy this proctor and, if `release` was not called on this
+    /// object, remove and destroy all the elements from the `FixedQueue`
+    /// object supplied at construction.
     ~FixedQueue_PushProctor();
-        // Destroy this proctor and, if 'release' was not called on this
-        // object, remove and destroy all the elements from the 'FixedQueue'
-        // object supplied at construction.
 
     // MANIPULATORS
+
+    /// Release from management the `FixedQueue` object supplied at
+    /// construction.
     void release();
-        // Release from management the 'FixedQueue' object supplied at
-        // construction.
 
 };
 

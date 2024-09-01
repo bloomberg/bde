@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balxml_typesprintutil balxml_typesparserutil
 //
-//@DESCRIPTION: The 'bdlat_FormattingMode' struct provided in this component
+//@DESCRIPTION: The `bdlat_FormattingMode` struct provided in this component
 // defines the symbolic constants for all the formatting modes supported by the
-// 'bdlat' framework.  The formatting modes are separated into two categories:
+// `bdlat` framework.  The formatting modes are separated into two categories:
 // a bit-field for the original type (i.e., schema type), and a number of
 // flags.
 //
@@ -22,30 +22,30 @@ BSLS_IDENT("$Id: $")
 ///---------------------------
 // This bit-field defines the formatting modes that are derived based on the
 // type of an element, as defined in the schema.  The available modes are:
-//..
-//  Formatting Mode         Description
-//  ---------------         -----------
-//  e_DEFAULT               Use a default formatting mode.
-//  e_DEC                   Use the decimal format.
-//  e_HEX                   Use the hexadecimal format.
-//  e_BASE64                Use the base64 format.
-//  e_TEXT                  Use the text format.
-//..
+// ```
+// Formatting Mode         Description
+// ---------------         -----------
+// e_DEFAULT               Use a default formatting mode.
+// e_DEC                   Use the decimal format.
+// e_HEX                   Use the hexadecimal format.
+// e_BASE64                Use the base64 format.
+// e_TEXT                  Use the text format.
+// ```
 //
 ///Formatting Flags
 ///----------------
 // The following bitwise flags can be applied to a schema element:
-//..
-//  Formatting Mode         Description
-//  ---------------         -----------
-//  e_UNTAGGED              Use untagged formatting (for anonymous choices).
-//  e_ATTRIBUTE             Use attribute formatting (for XSD attributes).
-//  e_SIMPLE_CONTENT        Use simple content formatting (for XSD simple
-//                          content types).
-//  e_NILLABLE              Use nillable formatting (for XSD 'nillable'
-//                          option).
-//  e_LIST                  Use the list format (this is used for arrays).
-//..
+// ```
+// Formatting Mode         Description
+// ---------------         -----------
+// e_UNTAGGED              Use untagged formatting (for anonymous choices).
+// e_ATTRIBUTE             Use attribute formatting (for XSD attributes).
+// e_SIMPLE_CONTENT        Use simple content formatting (for XSD simple
+//                         content types).
+// e_NILLABLE              Use nillable formatting (for XSD 'nillable'
+//                         option).
+// e_LIST                  Use the list format (this is used for arrays).
+// ```
 //
 ///Usage
 ///-----
@@ -58,9 +58,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+/// This struct contains the symbolic constants for the formatting modes
+/// supported by the `bdlat` framework.
 struct bdlat_FormattingMode {
-    // This struct contains the symbolic constants for the formatting modes
-    // supported by the 'bdlat' framework.
 
     // CONSTANTS
     enum {

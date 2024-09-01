@@ -8,15 +8,15 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a case-insensitive less-than predicate for string views.
 //
 //@CLASSES:
-//  bdlb::CaselessStringViewLess: a case-insensitive less for 'string_view's.
+//  bdlb::CaselessStringViewLess: a case-insensitive less for `string_view`s.
 //
 //@SEE_ALSO: bsl_map, bsl_set
 //
-//@DESCRIPTION: This component provides a 'struct',
-// 'bdlb::CaselessStringViewLess', that defines a functor that compares two
+//@DESCRIPTION: This component provides a `struct`,
+// `bdlb::CaselessStringViewLess`, that defines a functor that compares two
 // string views using a case-insensitive string comparison.  This
-// lexicographical ordering makes 'CaselessStringViewLess' suitable for
-// supporting 'bsl::string's or 'bsl::string_view's as keys in case-insensitive
+// lexicographical ordering makes `CaselessStringViewLess` suitable for
+// supporting `bsl::string`s or `bsl::string_view`s as keys in case-insensitive
 // ordered associative containers.
 //
 // Note that using this component to compare keys in a container is less
@@ -27,88 +27,88 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bdlb::CaselessStringViewLess'
+///Example 1: Basic Use of `bdlb::CaselessStringViewLess`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need a container to store set of unique strings.  The following
-// code illustrates how to use 'bdlb::CaselessStringViewLess' as a comparator
-// for the standard container 'set', to create a set of unique case-insensitive
+// code illustrates how to use `bdlb::CaselessStringViewLess` as a comparator
+// for the standard container `set`, to create a set of unique case-insensitive
 // string values.
 //
 // First, we create several strings:
-//..
-//  const bsl::string newYork        = "NY";
-//  const bsl::string losAngeles     = "LA";
-//  const bsl::string newJersey      = "NJ";
-//  const bsl::string sanFrancisco   = "SF";
-//  const bsl::string anotherNewYork = "ny";
-//..
+// ```
+// const bsl::string newYork        = "NY";
+// const bsl::string losAngeles     = "LA";
+// const bsl::string newJersey      = "NJ";
+// const bsl::string sanFrancisco   = "SF";
+// const bsl::string anotherNewYork = "ny";
+// ```
 // Next, we create two containers, one with default comparator and another
-// using 'bdlb::CstringLess' as a comparator:
-//..
-//  bsl::set<bsl::string>                               caseSensitiveSet;
-//  bsl::set<bsl::string, bdlb::CaselessStringViewLess> caseInsensitiveSet;
-//..
+// using `bdlb::CstringLess` as a comparator:
+// ```
+// bsl::set<bsl::string>                               caseSensitiveSet;
+// bsl::set<bsl::string, bdlb::CaselessStringViewLess> caseInsensitiveSet;
+// ```
 // Then, we fill containers with the same contents:
-//..
-//  caseSensitiveSet.insert(newYork);
-//  caseSensitiveSet.insert(losAngeles);
-//  caseSensitiveSet.insert(newJersey);
-//  caseSensitiveSet.insert(sanFrancisco);
-//  caseSensitiveSet.insert(anotherNewYork);
+// ```
+// caseSensitiveSet.insert(newYork);
+// caseSensitiveSet.insert(losAngeles);
+// caseSensitiveSet.insert(newJersey);
+// caseSensitiveSet.insert(sanFrancisco);
+// caseSensitiveSet.insert(anotherNewYork);
 //
-//  caseInsensitiveSet.insert(newYork);
-//  caseInsensitiveSet.insert(losAngeles);
-//  caseInsensitiveSet.insert(newJersey);
-//  caseInsensitiveSet.insert(sanFrancisco);
-//  caseInsensitiveSet.insert(anotherNewYork);
-//..
-// Next, we observe that the container created with 'CaselessStringViewLess'
-// ('caseInsensitiveSet') contains the correct number of unique string values
+// caseInsensitiveSet.insert(newYork);
+// caseInsensitiveSet.insert(losAngeles);
+// caseInsensitiveSet.insert(newJersey);
+// caseInsensitiveSet.insert(sanFrancisco);
+// caseInsensitiveSet.insert(anotherNewYork);
+// ```
+// Next, we observe that the container created with `CaselessStringViewLess`
+// (`caseInsensitiveSet`) contains the correct number of unique string values
 // (4), while the container using the default comparator does not:
-//..
-//  assert(5 == caseSensitiveSet.size());
-//  assert(4 == caseInsensitiveSet.size());
-//..
+// ```
+// assert(5 == caseSensitiveSet.size());
+// assert(4 == caseInsensitiveSet.size());
+// ```
 // Now, we observe the members of the case-sensitive set:
-//..
-//  assert( caseSensitiveSet.count("NY"));
-//  assert(!caseSensitiveSet.count("nY"));
-//  assert(!caseSensitiveSet.count("Ny"));
-//  assert( caseSensitiveSet.count("ny"));
+// ```
+// assert( caseSensitiveSet.count("NY"));
+// assert(!caseSensitiveSet.count("nY"));
+// assert(!caseSensitiveSet.count("Ny"));
+// assert( caseSensitiveSet.count("ny"));
 //
-//  assert( caseSensitiveSet.count("SF"));
-//  assert(!caseSensitiveSet.count("sF"));
-//  assert(!caseSensitiveSet.count("Sf"));
-//  assert(!caseSensitiveSet.count("sf"));
-//..
+// assert( caseSensitiveSet.count("SF"));
+// assert(!caseSensitiveSet.count("sF"));
+// assert(!caseSensitiveSet.count("Sf"));
+// assert(!caseSensitiveSet.count("sf"));
+// ```
 // Finally, we observe that we can do case-insensitive access to
-// 'caseInsensiveSet':
-//..
-//  assert( caseInsensitiveSet.count("NY"));
-//  assert( caseInsensitiveSet.count("nY"));
-//  assert( caseInsensitiveSet.count("Ny"));
-//  assert( caseInsensitiveSet.count("ny"));
+// `caseInsensiveSet`:
+// ```
+// assert( caseInsensitiveSet.count("NY"));
+// assert( caseInsensitiveSet.count("nY"));
+// assert( caseInsensitiveSet.count("Ny"));
+// assert( caseInsensitiveSet.count("ny"));
 //
-//  assert( caseInsensitiveSet.count("LA"));
-//  assert( caseInsensitiveSet.count("lA"));
-//  assert( caseInsensitiveSet.count("La"));
-//  assert( caseInsensitiveSet.count("la"));
+// assert( caseInsensitiveSet.count("LA"));
+// assert( caseInsensitiveSet.count("lA"));
+// assert( caseInsensitiveSet.count("La"));
+// assert( caseInsensitiveSet.count("la"));
 //
-//  assert( caseInsensitiveSet.count("nj"));
-//  assert( caseInsensitiveSet.count("nJ"));
-//  assert( caseInsensitiveSet.count("Nj"));
-//  assert( caseInsensitiveSet.count("NJ"));
+// assert( caseInsensitiveSet.count("nj"));
+// assert( caseInsensitiveSet.count("nJ"));
+// assert( caseInsensitiveSet.count("Nj"));
+// assert( caseInsensitiveSet.count("NJ"));
 //
-//  assert( caseInsensitiveSet.count("sf"));
-//  assert( caseInsensitiveSet.count("sF"));
-//  assert( caseInsensitiveSet.count("Sf"));
-//  assert( caseInsensitiveSet.count("SF"));
+// assert( caseInsensitiveSet.count("sf"));
+// assert( caseInsensitiveSet.count("sF"));
+// assert( caseInsensitiveSet.count("Sf"));
+// assert( caseInsensitiveSet.count("SF"));
 //
-//  assert(!caseInsensitiveSet.count("GA"));
-//  assert(!caseInsensitiveSet.count("gA"));
-//  assert(!caseInsensitiveSet.count("Ga"));
-//  assert(!caseInsensitiveSet.count("ga"));
-//..
+// assert(!caseInsensitiveSet.count("GA"));
+// assert(!caseInsensitiveSet.count("gA"));
+// assert(!caseInsensitiveSet.count("Ga"));
+// assert(!caseInsensitiveSet.count("ga"));
+// ```
 
 #include <bdlscm_version.h>
 
@@ -131,17 +131,18 @@ namespace bdlb {
                         // struct CaselessStringViewLess
                         // =============================
 
+/// This `struct` defines an ordering on string views, enabling them for use
+/// as keys in the standard associative containers such as `bsl::map` and
+/// `bsl::set`.  Note that this class is an empty POD type.
 struct CaselessStringViewLess {
-    // This 'struct' defines an ordering on string views, enabling them for use
-    // as keys in the standard associative containers such as 'bsl::map' and
-    // 'bsl::set'.  Note that this class is an empty POD type.
 
     // PUBLIC TYPES
     typedef bsl::string_view first_argument_type;
     typedef bsl::string_view second_argument_type;
     typedef bool             result_type;
+
+    /// Type alias indicating this is a transparent hash functor.
     typedef void             is_transparent;
-        // Type alias indicating this is a transparent hash functor.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(CaselessStringViewLess,
@@ -171,9 +172,10 @@ struct CaselessStringViewLess {
         // operation has no observable effect.
 
     // ACCESSORS
+
+    /// Return `true` if the specified `lhs` is lexicographically ordered
+    /// before the specified `rhs`, and `false` otherwise.
     bool operator()(bsl::string_view lhs, bsl::string_view rhs) const;
-        // Return 'true' if the specified 'lhs' is lexicographically ordered
-        // before the specified 'rhs', and 'false' otherwise.
 };
 
 // ============================================================================

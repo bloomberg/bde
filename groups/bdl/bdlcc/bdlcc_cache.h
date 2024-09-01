@@ -10,20 +10,20 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlcc::Cache: in-process key-value cache
 //
-//@DESCRIPTION: This component defines a single class template, 'bdlcc::Cache',
+//@DESCRIPTION: This component defines a single class template, `bdlcc::Cache`,
 // implementing a thread-safe in-memory key-value cache with a configurable
 // eviction policy.
 //
-// 'bdlcc::Cache' class uses similar template parameters to
-// 'bsl::unordered_map': the key type ('KEY'), the value type ('VALUE'), the
-// optional hash function ('HASH'), and the optional equal function ('EQUAL').
-// 'bdlcc::Cache' does not support the standard allocator template parameter
-// (although 'bslma::Allocator' is supported).
+// `bdlcc::Cache` class uses similar template parameters to
+// `bsl::unordered_map`: the key type (`KEY`), the value type (`VALUE`), the
+// optional hash function (`HASH`), and the optional equal function (`EQUAL`).
+// `bdlcc::Cache` does not support the standard allocator template parameter
+// (although `bslma::Allocator` is supported).
 //
 // The cache size can be controlled by setting the low watermark and high
 // watermark attributes, which is used instead of a single maximum size
 // attribute for performance benefits.  Eviction of cached items starts when
-// 'size() >= highWatermark' and continues until 'size() < lowWatermark'.  A
+// `size() >= highWatermark` and continues until `size() < lowWatermark`.  A
 // fixed maximum size is obtained by setting the high and low watermarks to the
 // same value.
 //
@@ -35,8 +35,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// The 'bdlcc::Cache' class template is fully thread-safe (see
-// 'bsldoc_glossary') provided that the allocator supplied at construction and
+// The `bdlcc::Cache` class template is fully thread-safe (see
+// `bsldoc_glossary`) provided that the allocator supplied at construction and
 // the default allocator in effect during the lifetime of cached items are both
 // fully thread-safe.  The thread-safety of the container does not extend to
 // thread-safety of the contained objects.  Thread-safety for the contained
@@ -44,33 +44,33 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Contention
 ///-----------------
-// Threads accessing a 'bdlcc::Cache' may block while waiting for other threads
+// Threads accessing a `bdlcc::Cache` may block while waiting for other threads
 // to complete their operations upon the cache.  Concurrent reading is
 // supported.  Neither readers or writers are starved by the other group.
 //
 // All of the modifier methods of the cache potentially requires a write lock.
-// Of particular note is the 'tryGetValue' method, which requires a writer lock
-// only if the eviction queue needs to be modified.  This means 'tryGetValue'
+// Of particular note is the `tryGetValue` method, which requires a writer lock
+// only if the eviction queue needs to be modified.  This means `tryGetValue`
 // requires only a read lock if the eviction policy is set to FIFO or the
-// argument 'modifyEvictionQueue' is set to 'false'.  For limited cases where
-// contention is likely, temporarily setting 'modifyEvictionQueue' to 'false'
+// argument `modifyEvictionQueue` is set to `false`.  For limited cases where
+// contention is likely, temporarily setting `modifyEvictionQueue` to `false`
 // might be of value.
 //
-// The 'visit' method acquires a read lock and calls the supplied visitor
+// The `visit` method acquires a read lock and calls the supplied visitor
 // function for every item in the cache, or until the visitor function returns
-// 'false'.  If the supplied visitor is expensive or the cache is very large,
-// calls to modifier methods might be starved until the 'visit' method finishes
-// looping through the cache items.  Therefore, the 'visit' method should be
+// `false`.  If the supplied visitor is expensive or the cache is very large,
+// calls to modifier methods might be starved until the `visit` method finishes
+// looping through the cache items.  Therefore, the `visit` method should be
 // used judiciously by making the method call relatively cheap or ensuring that
 // no time-sensitive write operation is done at the same time as a call to the
-// 'visit' method.  A 'visit' method call is inexpensive if the visitor returns
+// `visit` method.  A `visit` method call is inexpensive if the visitor returns
 // quickly, or if the visitor returns false after only a subset of the cache
 // items were processed.
 //
 ///Post-eviction Callback and Potential Deadlocks
 ///---------------------------------------------
 // When an item is evicted or erased from the cache, the previously set
-// post-eviction callback (via the 'setPostEvictionCallback' method) will be
+// post-eviction callback (via the `setPostEvictionCallback` method) will be
 // invoked within the calling thread, supplying a pointer to the item being
 // removed.
 //
@@ -81,7 +81,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Runtime Complexity
 ///------------------
-//..
+// ```
 // +----------------------------------------------------+--------------------+
 // | Operation                                          | Complexity         |
 // +====================================================+====================+
@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 // +----------------------------------------------------+--------------------+
 // | visit                                              | O[n]               |
 // +----------------------------------------------------+--------------------+
-//..
+// ```
 //
 ///Usage
 ///-----
@@ -107,71 +107,71 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // This examples shows some basic usage of the cache.  First, we define a
-// custom post-eviction callback function, 'myPostEvictionCallback' that simply
+// custom post-eviction callback function, `myPostEvictionCallback` that simply
 // prints the evicted item to stdout:
-//..
-//  void myPostEvictionCallback(bsl::shared_ptr<bsl::string> value)
-//  {
-//      bsl::cout << "Evicted: " << *value << bsl::endl;
-//  }
-//..
-// Then, we define a 'bdlcc::Cache' object, 'myCache', that maps 'int' to
-// 'bsl::string' and uses the LRU eviction policy:
-//..
-//  bdlcc::Cache<int, bsl::string>
-//      myCache(bdlcc::CacheEvictionPolicy::e_LRU, 6, 7, &talloc);
-//..
+// ```
+// void myPostEvictionCallback(bsl::shared_ptr<bsl::string> value)
+// {
+//     bsl::cout << "Evicted: " << *value << bsl::endl;
+// }
+// ```
+// Then, we define a `bdlcc::Cache` object, `myCache`, that maps `int` to
+// `bsl::string` and uses the LRU eviction policy:
+// ```
+// bdlcc::Cache<int, bsl::string>
+//     myCache(bdlcc::CacheEvictionPolicy::e_LRU, 6, 7, &talloc);
+// ```
 // Next, we insert 3 items into the cache and verify that the size of the cache
 // has been updated correctly:
-//..
-//  myCache.insert(0, "Alex");
-//  myCache.insert(1, "John");
-//  myCache.insert(2, "Rob");
-//  assert(myCache.size() == 3);
-//..
+// ```
+// myCache.insert(0, "Alex");
+// myCache.insert(1, "John");
+// myCache.insert(2, "Rob");
+// assert(myCache.size() == 3);
+// ```
 // Then, we bulk insert 3 additional items into the cache and verify that the
 // size of the cache has been updated correctly:
-//..
-//  typedef bsl::pair<int, bsl::shared_ptr<bsl::string> > PairType;
-//  bsl::vector<PairType> insertData(&talloc);
-//  insertData.push_back(PairType(3,
-//                        bsl::allocate_shared<bsl::string>(&talloc, "Jim" )));
-//  insertData.push_back(PairType(4,
-//                        bsl::allocate_shared<bsl::string>(&talloc, "Jeff")));
-//  insertData.push_back(PairType(5,
-//                        bsl::allocate_shared<bsl::string>(&talloc, "Ian" )));
-//  myCache.insertBulk(insertData);
-//  assert(myCache.size() == 6);
-//..
+// ```
+// typedef bsl::pair<int, bsl::shared_ptr<bsl::string> > PairType;
+// bsl::vector<PairType> insertData(&talloc);
+// insertData.push_back(PairType(3,
+//                       bsl::allocate_shared<bsl::string>(&talloc, "Jim" )));
+// insertData.push_back(PairType(4,
+//                       bsl::allocate_shared<bsl::string>(&talloc, "Jeff")));
+// insertData.push_back(PairType(5,
+//                       bsl::allocate_shared<bsl::string>(&talloc, "Ian" )));
+// myCache.insertBulk(insertData);
+// assert(myCache.size() == 6);
+// ```
 // Next, we retrieve the second value of the second item stored in the cache
-// using the 'tryGetValue' method:
-//..
-//  bsl::shared_ptr<bsl::string> value;
-//  int rc = myCache.tryGetValue(&value, 1);
-//  assert(rc == 0);
-//  assert(*value == "John");
-//..
-// Then, we set the cache's post-eviction callback to 'myPostEvictionCallback':
-//..
-//  myCache.setPostEvictionCallback(myPostEvictionCallback);
-//..
+// using the `tryGetValue` method:
+// ```
+// bsl::shared_ptr<bsl::string> value;
+// int rc = myCache.tryGetValue(&value, 1);
+// assert(rc == 0);
+// assert(*value == "John");
+// ```
+// Then, we set the cache's post-eviction callback to `myPostEvictionCallback`:
+// ```
+// myCache.setPostEvictionCallback(myPostEvictionCallback);
+// ```
 // Now, we insert two more items into the cache to trigger the eviction
 // behavior:
-//..
-//  myCache.insert(6, "Steve");
-//  assert(myCache.size() == 7);
-//  myCache.insert(7, "Tim");
-//  assert(myCache.size() == 6);
-//..
+// ```
+// myCache.insert(6, "Steve");
+// assert(myCache.size() == 7);
+// myCache.insert(7, "Tim");
+// assert(myCache.size() == 6);
+// ```
 // Notice that after we insert "Steve", the size of the cache is 7, the high
 // watermark.  After the following item, "Tim", is inserted, the size of the
 // cache goes back down to 6, the low watermark.
 //
 // Finally, we observe the following output to stdout:
-//..
-//  Evicted: Alex
-//  Evicted: Rob
-//..
+// ```
+// Evicted: Alex
+// Evicted: Rob
+// ```
 // Notice that the item "John" was not evicted even though it was inserted
 // before "Rob", because "John" was accessed after "Rob" was inserted.
 //
@@ -182,120 +182,120 @@ BSLS_IDENT("$Id: $")
 // values, so the service should pre-compute and cache them.  In addition, the
 // values are only valid for around one hour, so older items must be
 // periodically updated in the cache.  This problem can be solved using
-// 'bdlcc::Cache' with a background updater thread.
+// `bdlcc::Cache` with a background updater thread.
 //
 // First, we define the types representing the cached values and the cache
 // itself:
-//..
-//  struct MyValue {
-//      int            d_data;       // data
-//      bdlt::Datetime d_timestamp;  // last update time stamp
-//  };
-//  typedef bdlcc::Cache<int, MyValue> MyCache;
-//..
-// Then, suppose that we have access to a function 'retrieveValue' that returns
-// a 'MyValue' object given a 'int' key:
-//..
-//  MyValue retrieveValue(int key)
-//  {
-//      MyValue ret = {key, bdlt::CurrentTime::utc()};
-//      return ret;
-//  }
-//..
+// ```
+// struct MyValue {
+//     int            d_data;       // data
+//     bdlt::Datetime d_timestamp;  // last update time stamp
+// };
+// typedef bdlcc::Cache<int, MyValue> MyCache;
+// ```
+// Then, suppose that we have access to a function `retrieveValue` that returns
+// a `MyValue` object given a `int` key:
+// ```
+// MyValue retrieveValue(int key)
+// {
+//     MyValue ret = {key, bdlt::CurrentTime::utc()};
+//     return ret;
+// }
+// ```
 // Next, we define a visitor type to aggregate keys of the out-of-date values
 // in the cache:
-//..
-//  struct MyVisitor {
-//      // Visitor to 'MyCache'.
-//      bsl::vector<int>  d_oldKeys;  // list of out-of-date keys
+// ```
+// struct MyVisitor {
+//     // Visitor to 'MyCache'.
+//     bsl::vector<int>  d_oldKeys;  // list of out-of-date keys
 //
-//      MyVisitor()
-//      : d_oldKeys(&talloc)
-//      {}
+//     MyVisitor()
+//     : d_oldKeys(&talloc)
+//     {}
 //
-//      bool operator() (int key, const MyValue& value)
-//        // Check if the specified 'value' is older than 1 hour.  If so,
-//        // insert the specified 'key' into 'd_oldKeys'.
-//      {
-//          if (veryVerbose) {
-//              bsl::cout << "Visiting " << key
-//                        << ", age: "
-//                        << bdlt::CurrentTime::utc() - value.d_timestamp
-//                        << bsl::endl;
-//          }
+//     bool operator() (int key, const MyValue& value)
+//       // Check if the specified 'value' is older than 1 hour.  If so,
+//       // insert the specified 'key' into 'd_oldKeys'.
+//     {
+//         if (veryVerbose) {
+//             bsl::cout << "Visiting " << key
+//                       << ", age: "
+//                       << bdlt::CurrentTime::utc() - value.d_timestamp
+//                       << bsl::endl;
+//         }
 //
-//          if (bdlt::CurrentTime::utc() - value.d_timestamp <
-//              // bdlt::DatetimeInterval(0, 60)) {
-//              bdlt::DatetimeInterval(0, 0, 0, 3)) {
-//              return false;                                         // RETURN
-//          }
+//         if (bdlt::CurrentTime::utc() - value.d_timestamp <
+//             // bdlt::DatetimeInterval(0, 60)) {
+//             bdlt::DatetimeInterval(0, 0, 0, 3)) {
+//             return false;                                         // RETURN
+//         }
 //
-//          d_oldKeys.push_back(key);
-//          return true;
-//      }
-//  };
-//..
+//         d_oldKeys.push_back(key);
+//         return true;
+//     }
+// };
+// ```
 // Then, we define the background thread function to find and update the
 // out-of-date values:
-//..
-//  void myWorker(MyCache *cache)
-//  {
-//      while (true) {
-//          if (cache->size() == 0) {
-//              break;
-//          }
+// ```
+// void myWorker(MyCache *cache)
+// {
+//     while (true) {
+//         if (cache->size() == 0) {
+//             break;
+//         }
 //
-//          // Find and update the old values once per five seconds.
-//          bslmt::ThreadUtil::microSleep(0, 5);
-//          MyVisitor visitor;
-//          cache->visit(visitor);
-//          for (bsl::vector<int>::const_iterator itr =
-//               visitor.d_oldKeys.begin();
-//               itr != visitor.d_oldKeys.end(); ++itr) {
-//              if (veryVerbose) bsl::cout << "Updating " << *itr << bsl::endl;
-//              cache->insert(*itr, retrieveValue(*itr));
-//          }
-//      }
-//  }
+//         // Find and update the old values once per five seconds.
+//         bslmt::ThreadUtil::microSleep(0, 5);
+//         MyVisitor visitor;
+//         cache->visit(visitor);
+//         for (bsl::vector<int>::const_iterator itr =
+//              visitor.d_oldKeys.begin();
+//              itr != visitor.d_oldKeys.end(); ++itr) {
+//             if (veryVerbose) bsl::cout << "Updating " << *itr << bsl::endl;
+//             cache->insert(*itr, retrieveValue(*itr));
+//         }
+//     }
+// }
 //
-//  extern "C" void *myWorkerThread(void *v_cache)
-//  {
-//      MyCache *cache = (MyCache *) v_cache;
-//      myWorker(cache);
-//      return 0;
-//  }
-//..
+// extern "C" void *myWorkerThread(void *v_cache)
+// {
+//     MyCache *cache = (MyCache *) v_cache;
+//     myWorker(cache);
+//     return 0;
+// }
+// ```
 // Finally, we define the entry point of the application:
-//..
-//  void example2()
-//  {
-//      MyCache myCache(bdlcc::CacheEvictionPolicy::e_FIFO, 100, 120, &talloc);
+// ```
+// void example2()
+// {
+//     MyCache myCache(bdlcc::CacheEvictionPolicy::e_FIFO, 100, 120, &talloc);
 //
-//      // Pre-populate the cache.
+//     // Pre-populate the cache.
 //
-//      myCache.insert(0, retrieveValue(0));
-//      myCache.insert(1, retrieveValue(1));
-//      myCache.insert(2, retrieveValue(2));
-//      assert(myCache.size() == 3);
+//     myCache.insert(0, retrieveValue(0));
+//     myCache.insert(1, retrieveValue(1));
+//     myCache.insert(2, retrieveValue(2));
+//     assert(myCache.size() == 3);
 //
-//      bslmt::ThreadUtil::Handle myWorkerHandle;
+//     bslmt::ThreadUtil::Handle myWorkerHandle;
 //
-//      int rc = bslmt::ThreadUtil::create(&myWorkerHandle, myWorkerThread,
-//                                         &myCache);
-//      assert(rc == 0);
+//     int rc = bslmt::ThreadUtil::create(&myWorkerHandle, myWorkerThread,
+//                                        &myCache);
+//     assert(rc == 0);
 //
-//      // Do some work.
+//     // Do some work.
 //
-//      bslmt::ThreadUtil::microSleep(0, 7);
-//      assert(myCache.size() == 3);
+//     bslmt::ThreadUtil::microSleep(0, 7);
+//     assert(myCache.size() == 3);
 //
-//      // Clean up.
+//     // Clean up.
 //
-//      myCache.clear();
-//      assert(myCache.size() == 0);
-//      bslmt::ThreadUtil::join(myWorkerHandle);
-//  }
-//..
+//     myCache.clear();
+//     assert(myCache.size() == 0);
+//     bslmt::ThreadUtil::join(myWorkerHandle);
+// }
+// ```
 
 #include <bslim_printer.h>
 
@@ -339,12 +339,12 @@ struct CacheEvictionPolicy {
     };
 };
 
+/// This class implements a proctor that, on destruction, restores the queue
+/// to its state at the time of the proctor's creation.  We assume that the
+/// only change to the queue is that 0 or more items have been added to the
+/// end.  If `release` has been called, the destructor takes no action.
 template <class KEY>
 class Cache_QueueProctor {
-    // This class implements a proctor that, on destruction, restores the queue
-    // to its state at the time of the proctor's creation.  We assume that the
-    // only change to the queue is that 0 or more items have been added to the
-    // end.  If 'release' has been called, the destructor takes no action.
 
     // DATA
     bsl::list<KEY>   *d_queue_p;  // queue (held, not owned)
@@ -352,24 +352,27 @@ class Cache_QueueProctor {
 
   private:
     // PRIVATE ACCESSORS
+
+    /// Return a pointer to the element at the end of the queue, or 0 if
+    /// the queue is empty.
     KEY *last() const;
-        // Return a pointer to the element at the end of the queue, or 0 if
-        // the queue is empty.
 
   public:
     // CREATORS
-    explicit Cache_QueueProctor(bsl::list<KEY> *queue);
-        // Create a 'Cache_QueueProctor' object to monitor the specified
-        // 'queue'.
 
+    /// Create a `Cache_QueueProctor` object to monitor the specified
+    /// `queue`.
+    explicit Cache_QueueProctor(bsl::list<KEY> *queue);
+
+    /// Destroy this proctor object.  Remove any elements that we added
+    /// since the proctor was created.
     ~Cache_QueueProctor();
-        // Destroy this proctor object.  Remove any elements that we added
-        // since the proctor was created.
 
     // MANIPULATORS
+
+    /// Release the queue specified on construction, so that it will not be
+    /// modified on the destruction of this proctor.
     void release();
-        // Release the queue specified on construction, so that it will not be
-        // modified on the destruction of this proctor.
 };
 
 template <class KEY,
@@ -378,36 +381,38 @@ template <class KEY,
           class EQUAL = bsl::equal_to<KEY> >
 class Cache_TestUtil;
 
+/// This class represents a simple in-process key-value store supporting a
+/// variety of eviction policies.
 template <class KEY,
           class VALUE,
           class HASH  = bsl::hash<KEY>,
           class EQUAL = bsl::equal_to<KEY> >
 class Cache {
-    // This class represents a simple in-process key-value store supporting a
-    // variety of eviction policies.
 
   public:
     // PUBLIC TYPES
+
+    /// Shared pointer type pointing to value type.
     typedef bsl::shared_ptr<VALUE>                            ValuePtrType;
-        // Shared pointer type pointing to value type.
 
+    /// Type of function to call after an item has been evicted from the
+    /// cache.
     typedef bsl::function<void(const ValuePtrType&)> PostEvictionCallback;
-        // Type of function to call after an item has been evicted from the
-        // cache.
 
+    /// Value type of a bulk insert entry.
     typedef bsl::pair<KEY, ValuePtrType>                          KVType;
-        // Value type of a bulk insert entry.
 
   private:
     // PRIVATE TYPES
+
+    /// Eviction queue type.
     typedef bsl::list<KEY>                                        QueueType;
-        // Eviction queue type.
 
+    /// Value type of the hash map.
     typedef bsl::pair<ValuePtrType, typename QueueType::iterator> MapValue;
-        // Value type of the hash map.
 
+    /// Hash map type.
     typedef bsl::unordered_map<KEY, MapValue, HASH, EQUAL>        MapType;
-        // Hash map type.
 
     typedef bslmt::ReaderWriterMutex                              LockType;
 
@@ -447,27 +452,28 @@ class Cache {
     friend class Cache_TestUtil<KEY, VALUE, HASH, EQUAL>;
 
     // PRIVATE MANIPULATORS
+
+    /// Evict items from this cache if `size() >= highWatermark()` until
+    /// `size() < lowWatermark()` beginning from the front of the eviction
+    /// queue.  Invoke the post-eviction callback for each item evicted.
     void enforceHighWatermark();
-        // Evict items from this cache if 'size() >= highWatermark()' until
-        // 'size() < lowWatermark()' beginning from the front of the eviction
-        // queue.  Invoke the post-eviction callback for each item evicted.
 
+    /// Evict the item at the specified `mapIt` and invoke the post-eviction
+    /// callback for that item.
     void evictItem(const typename MapType::iterator& mapIt);
-        // Evict the item at the specified 'mapIt' and invoke the post-eviction
-        // callback for that item.
 
+    /// Add a node with the specified `*key_p` and the specified
+    /// `*valuePtr_p` to the cache.  If an entry already exists for
+    /// `*key_p`, override its value with `*valuePtr_p`.  If the specified
+    /// `moveKey` is `true`, move `*key_p`, and if the specified
+    /// `moveValuePtr` is `true`, move `*valuePtr_p`, if the boolean values
+    /// corresponding to `*key_p` or `*valuePtr_p` are `false`, do not move
+    /// or modify the arguments.  Return `true` if `*key_p` was not
+    /// previously in the cache and `false` otherwise.
     bool insertValuePtrMoveImp(KEY          *key_p,
                                bool          moveKey,
                                ValuePtrType *valuePtr_p,
                                bool          moveValuePtr);
-        // Add a node with the specified '*key_p' and the specified
-        // '*valuePtr_p' to the cache.  If an entry already exists for
-        // '*key_p', override its value with '*valuePtr_p'.  If the specified
-        // 'moveKey' is 'true', move '*key_p', and if the specified
-        // 'moveValuePtr' is 'true', move '*valuePtr_p', if the boolean values
-        // corresponding to '*key_p' or '*valuePtr_p' are 'false', do not move
-        // or modify the arguments.  Return 'true' if '*key_p' was not
-        // previously in the cache and 'false' otherwise.
 
   private:
     // NOT IMPLEMENTED
@@ -479,187 +485,192 @@ class Cache {
 
   public:
     // CREATORS
-    explicit Cache(bslma::Allocator *basicAllocator = 0);
-        // Create an empty LRU cache having no size limit.  Optionally specify
-        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Create an empty LRU cache having no size limit.  Optionally specify
+    /// a `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
+    explicit Cache(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an empty cache using the specified `evictionPolicy` and the
+    /// specified `lowWatermark` and `highWatermark`.  Optionally specify
+    /// the `basicAllocator` used to supply memory.  If `basicAllocator` is
+    /// 0, the currently installed default allocator is used.  The behavior
+    /// is undefined unless `lowWatermark <= highWatermark`,
+    /// `1 <= lowWatermark`, and `1 <= highWatermark`.
     Cache(CacheEvictionPolicy::Enum  evictionPolicy,
           bsl::size_t                lowWatermark,
           bsl::size_t                highWatermark,
           bslma::Allocator          *basicAllocator = 0);
-        // Create an empty cache using the specified 'evictionPolicy' and the
-        // specified 'lowWatermark' and 'highWatermark'.  Optionally specify
-        // the 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.  The behavior
-        // is undefined unless 'lowWatermark <= highWatermark',
-        // '1 <= lowWatermark', and '1 <= highWatermark'.
 
+    /// Create an empty cache using the specified `evictionPolicy`,
+    /// `lowWatermark`, and `highWatermark`.  The specified `hashFunction`
+    /// is used to generate the hash values for a given key, and the
+    /// specified `equalFunction` is used to determine whether two keys have
+    /// the same value.  Optionally specify the `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  The behavior is undefined unless
+    /// `lowWatermark <= highWatermark`, `1 <= lowWatermark`, and
+    /// `1 <= highWatermark`.
     Cache(CacheEvictionPolicy::Enum  evictionPolicy,
           bsl::size_t                lowWatermark,
           bsl::size_t                highWatermark,
           const HASH&                hashFunction,
           const EQUAL&               equalFunction,
           bslma::Allocator          *basicAllocator = 0);
-        // Create an empty cache using the specified 'evictionPolicy',
-        // 'lowWatermark', and 'highWatermark'.  The specified 'hashFunction'
-        // is used to generate the hash values for a given key, and the
-        // specified 'equalFunction' is used to determine whether two keys have
-        // the same value.  Optionally specify the 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  The behavior is undefined unless
-        // 'lowWatermark <= highWatermark', '1 <= lowWatermark', and
-        // '1 <= highWatermark'.
 
     //! ~Cache() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Remove all items from this cache.  Do *not* invoke the post-eviction
+    /// callback.
     void clear();
-        // Remove all items from this cache.  Do *not* invoke the post-eviction
-        // callback.
 
+    /// Remove the item having the specified `key` from this cache.  Invoke
+    /// the post-eviction callback for the removed item.  Return 0 on
+    /// success and 1 if `key` does not exist.
     int erase(const KEY& key);
-        // Remove the item having the specified 'key' from this cache.  Invoke
-        // the post-eviction callback for the removed item.  Return 0 on
-        // success and 1 if 'key' does not exist.
 
+    /// Remove the items having the keys in the specified range
+    /// `[ begin, end )`, from this cache.  Invoke the post-eviction
+    /// callback for each removed item.  Return the number of items
+    /// successfully removed.
     template <class INPUT_ITERATOR>
     int eraseBulk(INPUT_ITERATOR begin, INPUT_ITERATOR end);
-        // Remove the items having the keys in the specified range
-        // '[ begin, end )', from this cache.  Invoke the post-eviction
-        // callback for each removed item.  Return the number of items
-        // successfully removed.
 
+    /// Remove the items having the specified `keys` from this cache.
+    /// Invoke the post-eviction callback for each removed item.  Return the
+    /// number of items successfully removed.
     int eraseBulk(const bsl::vector<KEY>& keys);
-        // Remove the items having the specified 'keys' from this cache.
-        // Invoke the post-eviction callback for each removed item.  Return the
-        // number of items successfully removed.
 
+    /// Move the specified `key` and its associated `value` into this cache.
+    /// If `key` already exists, then its value will be replaced with
+    /// `value`.  Note that all the methods that take moved objects provide
+    /// the `basic` but not the `strong` exception guarantee -- throws may
+    /// occur after the objects are moved out of; the cache will not be
+    /// modified, but `key` or `value` may be changed.  Also note that `key`
+    /// must be copyable, even if it is moved.
     void insert(const KEY& key, const VALUE& value);
     void insert(const KEY& key, bslmf::MovableRef<VALUE> value);
     void insert(bslmf::MovableRef<KEY> key, const VALUE& value);
     void insert(bslmf::MovableRef<KEY> key, bslmf::MovableRef<VALUE> value);
-        // Move the specified 'key' and its associated 'value' into this cache.
-        // If 'key' already exists, then its value will be replaced with
-        // 'value'.  Note that all the methods that take moved objects provide
-        // the 'basic' but not the 'strong' exception guarantee -- throws may
-        // occur after the objects are moved out of; the cache will not be
-        // modified, but 'key' or 'value' may be changed.  Also note that 'key'
-        // must be copyable, even if it is moved.
 
+    /// Insert the specified `key` and its associated `valuePtr` into this
+    /// cache.  If `key` already exists, then its value will be replaced
+    /// with `value`.  Note that the method with `key` moved provides the
+    /// `basic` but not the `strong` exception guarantee -- if a throw
+    /// occurs, the cache will not be modified, but `key` may be changed.
+    /// Also note that `key` must be copyable, even if it is moved.
     void insert(const KEY& key, const ValuePtrType& valuePtr);
     void insert(bslmf::MovableRef<KEY> key, const ValuePtrType& valuePtr);
-        // Insert the specified 'key' and its associated 'valuePtr' into this
-        // cache.  If 'key' already exists, then its value will be replaced
-        // with 'value'.  Note that the method with 'key' moved provides the
-        // 'basic' but not the 'strong' exception guarantee -- if a throw
-        // occurs, the cache will not be modified, but 'key' may be changed.
-        // Also note that 'key' must be copyable, even if it is moved.
 
+    /// Insert the specified range of Key-Value pairs specified by
+    /// `[ begin, end )` into this cache.  If a key already exists, then its
+    /// value will be replaced with the value.  Return the number of items
+    /// successfully inserted.
     template <class INPUT_ITERATOR>
     int insertBulk(INPUT_ITERATOR begin, INPUT_ITERATOR end);
-        // Insert the specified range of Key-Value pairs specified by
-        // '[ begin, end )' into this cache.  If a key already exists, then its
-        // value will be replaced with the value.  Return the number of items
-        // successfully inserted.
 
+    /// Insert the specified `data` (composed of Key-Value pairs) into this
+    /// cache.  If a key already exists, then its value will be replaced
+    /// with the value.  Return the number of items successfully inserted.
     int insertBulk(const bsl::vector<KVType>& data);
-        // Insert the specified 'data' (composed of Key-Value pairs) into this
-        // cache.  If a key already exists, then its value will be replaced
-        // with the value.  Return the number of items successfully inserted.
 
+    /// Insert the specified `data` (composed of Key-Value pairs) into this
+    /// cache.  If a key already exists, then its value will be replaced
+    /// with the value.  Return the number of items successfully inserted.
+    /// If an exception occurs during this action, we provide only the
+    /// basic guarantee - both this cache and `data` will be in some valid
+    /// but unspecified state.
     int insertBulk(bslmf::MovableRef<bsl::vector<KVType> > data);
-        // Insert the specified 'data' (composed of Key-Value pairs) into this
-        // cache.  If a key already exists, then its value will be replaced
-        // with the value.  Return the number of items successfully inserted.
-        // If an exception occurs during this action, we provide only the
-        // basic guarantee - both this cache and 'data' will be in some valid
-        // but unspecified state.
 
+    /// Remove the item at the front of the eviction queue.  Invoke the
+    /// post-eviction callback for the removed item.  Return 0 on success,
+    /// and 1 if this cache is empty.
     int popFront();
-        // Remove the item at the front of the eviction queue.  Invoke the
-        // post-eviction callback for the removed item.  Return 0 on success,
-        // and 1 if this cache is empty.
 
+    /// Set the post-eviction callback to the specified
+    /// `postEvictionCallback`.  The post-eviction callback is invoked for
+    /// each item evicted or removed from this cache.
     void setPostEvictionCallback(
                              const PostEvictionCallback& postEvictionCallback);
-        // Set the post-eviction callback to the specified
-        // 'postEvictionCallback'.  The post-eviction callback is invoked for
-        // each item evicted or removed from this cache.
 
+    /// Load, into the specified `value`, the value associated with the
+    /// specified `key` in this cache.  If the optionally specified
+    /// `modifyEvictionQueue` is `true` and the eviction policy is LRU, then
+    /// move the cached item to the back of the eviction queue.  Return 0 on
+    /// success, and 1 if `key` does not exist in this cache.  Note that a
+    /// write lock is acquired only if this queue is modified.
     int tryGetValue(bsl::shared_ptr<VALUE> *value,
                     const KEY&              key,
                     bool                    modifyEvictionQueue = true);
-        // Load, into the specified 'value', the value associated with the
-        // specified 'key' in this cache.  If the optionally specified
-        // 'modifyEvictionQueue' is 'true' and the eviction policy is LRU, then
-        // move the cached item to the back of the eviction queue.  Return 0 on
-        // success, and 1 if 'key' does not exist in this cache.  Note that a
-        // write lock is acquired only if this queue is modified.
 
     // ACCESSORS
+
+    /// Return (a copy of) the key-equality functor used by this cache that
+    /// returns `true` if two `KEY` objects have the same value, and `false`
+    /// otherwise.
     EQUAL equalFunction() const;
-        // Return (a copy of) the key-equality functor used by this cache that
-        // returns 'true' if two 'KEY' objects have the same value, and 'false'
-        // otherwise.
 
+    /// Return the eviction policy used by this cache.
     CacheEvictionPolicy::Enum evictionPolicy() const;
-        // Return the eviction policy used by this cache.
 
+    /// Return (a copy of) the unary hash functor used by this cache to
+    /// generate a hash value (of type `std::size_t`) for a `KEY` object.
     HASH hashFunction() const;
-        // Return (a copy of) the unary hash functor used by this cache to
-        // generate a hash value (of type 'std::size_t') for a 'KEY' object.
 
+    /// Return the high watermark of this cache, which is the size at which
+    /// eviction of existing items begins.
     bsl::size_t highWatermark() const;
-        // Return the high watermark of this cache, which is the size at which
-        // eviction of existing items begins.
 
+    /// Return the low watermark of this cache, which is the size at which
+    /// eviction of existing items ends.
     bsl::size_t lowWatermark() const;
-        // Return the low watermark of this cache, which is the size at which
-        // eviction of existing items ends.
 
+    /// Return the current size of this cache.
     bsl::size_t size() const;
-        // Return the current size of this cache.
 
+    /// Call the specified `visitor` for every item stored in this cache in
+    /// the order of the eviction queue until `visitor` returns `false`.
+    /// The `VISITOR` type must be a callable object that can be invoked in
+    /// the same way as the function `bool (const KEY&, const VALUE&)`
     template <class VISITOR>
     void visit(VISITOR& visitor) const;
-        // Call the specified 'visitor' for every item stored in this cache in
-        // the order of the eviction queue until 'visitor' returns 'false'.
-        // The 'VISITOR' type must be a callable object that can be invoked in
-        // the same way as the function 'bool (const KEY&, const VALUE&)'
 };
 
+/// This class implements a test utility that gives the test driver access
+/// to the lock / unlock method of the RW mutex.  Its purpose is to allow
+/// testing that the locking actually happens as planned.
 template <class KEY,
           class VALUE,
           class HASH,
           class EQUAL>
 class Cache_TestUtil {
-    // This class implements a test utility that gives the test driver access
-    // to the lock / unlock method of the RW mutex.  Its purpose is to allow
-    // testing that the locking actually happens as planned.
 
     // DATA
     Cache<KEY, VALUE, HASH, EQUAL>& d_cache;
 
   public:
     // CREATORS
+
+    /// Create a `Cache_TestUtil` object to test locking in the specified
+    /// `cache`.
     explicit Cache_TestUtil(Cache<KEY, VALUE, HASH, EQUAL>& cache);
-        // Create a 'Cache_TestUtil' object to test locking in the specified
-        // 'cache'.
 
     //! ~Cache_TestUtil() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Call the `lockRead` method of `bdlcc::Cache` `d_rwlock` lock.
     void lockRead();
-        // Call the 'lockRead' method of 'bdlcc::Cache' 'd_rwlock' lock.
 
+    /// Call the `lockWrite` method of `bdlcc::Cache` `d_rwlock` lock.
     void lockWrite();
-        // Call the 'lockWrite' method of 'bdlcc::Cache' 'd_rwlock' lock.
 
+    /// Call the `unlock` method of `bdlcc::Cache` `d_rwlock` lock.
     void unlock();
-        // Call the 'unlock' method of 'bdlcc::Cache' 'd_rwlock' lock.
 
 };
 

@@ -5,17 +5,17 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a suite of utilities for I/O operations on 'bdlbb::Blob'.
+//@PURPOSE: Provide a suite of utilities for I/O operations on `bdlbb::Blob`.
 //
 //@CLASSES:
-//  bdlbb::BlobUtil: suite of utilities on 'bdlbb::Blob'
-//  bdlbb::BlobUtilAsciiDumper: helper class for ascii dump of a 'blbb::Blob'
-//  bdlbb::BlobUtilHexDumper: helper class for hex dump of a 'bdlbb::Blob'
+//  bdlbb::BlobUtil: suite of utilities on `bdlbb::Blob`
+//  bdlbb::BlobUtilAsciiDumper: helper class for ascii dump of a `blbb::Blob`
+//  bdlbb::BlobUtilHexDumper: helper class for hex dump of a `bdlbb::Blob`
 //
 //@SEE_ALSO: bdlbb_blob
 //
-//@DESCRIPTION: This 'struct' provides a variety of utilities for 'bdlbb::Blob'
-// objects, 'bdlbb::BlobUtil', such as I/O functions, comparison functions, and
+//@DESCRIPTION: This `struct` provides a variety of utilities for `bdlbb::Blob`
+// objects, `bdlbb::BlobUtil`, such as I/O functions, comparison functions, and
 // streaming functions.
 
 #include <bdlscm_version.h>
@@ -40,344 +40,345 @@ namespace bdlbb {
                               // struct BlobUtil
                               // ===============
 
+/// This `struct` is a namespace for a collection of static methods used
+/// for manipulating and accessing `Blob` objects.
 struct BlobUtil {
-    // This 'struct' is a namespace for a collection of static methods used
-    // for manipulating and accessing 'Blob' objects.
 
     // CLASS METHODS
+
+    /// Append the specified `length` bytes from the specified `offset` in
+    /// the specified `source` to the specified `dest`.  Note that the data
+    /// memory from `source` is not copied, but rather new `BlobBuffer`s
+    /// referring to the same data memory are created and appended to
+    /// `dest`, hence `dest` is not required to have a `BlobBufferFactory`.
     static void append(Blob *dest, const Blob& source, int offset, int length);
-        // Append the specified 'length' bytes from the specified 'offset' in
-        // the specified 'source' to the specified 'dest'.  Note that the data
-        // memory from 'source' is not copied, but rather new 'BlobBuffer's
-        // referring to the same data memory are created and appended to
-        // 'dest', hence 'dest' is not required to have a 'BlobBufferFactory'.
 
+    /// Append from the specified `offset` in the specified `source` to the
+    /// specified `dest`.  Note that the data memory from `source` is not
+    /// copied, but rather new `BlobBuffer`s referring to the same data
+    /// memory are created and appended to `dest`, hence `dest` is not
+    /// required to have a `BlobBufferFactory`.
     static void append(Blob *dest, const Blob& source, int offset);
-        // Append from the specified 'offset' in the specified 'source' to the
-        // specified 'dest'.  Note that the data memory from 'source' is not
-        // copied, but rather new 'BlobBuffer's referring to the same data
-        // memory are created and appended to 'dest', hence 'dest' is not
-        // required to have a 'BlobBufferFactory'.
 
+    /// Append the specified `source` to the specified `dest`.  Note that
+    /// the data memory from `source` is not copied, but rather new
+    /// `BlobBuffer`s referring to the same data memory are created and
+    /// appended to `dest`, hence `dest` is not required to have a
+    /// `BlobBufferFactory`.
     static void append(Blob *dest, const Blob& source);
-        // Append the specified 'source' to the specified 'dest'.  Note that
-        // the data memory from 'source' is not copied, but rather new
-        // 'BlobBuffer's referring to the same data memory are created and
-        // appended to 'dest', hence 'dest' is not required to have a
-        // 'BlobBufferFactory'.
 
+    /// Append the specified `length` bytes starting from the specified
+    /// `offset` from the specified `source` address to the specified
+    /// `dest`.  The behavior of this function is undefined unless the range
+    /// `[source + offset, source + offset + length)` represents a readable
+    /// sequence of memory, and
+    /// `length <= dest->totalSize() - dest->length()` or
+    /// `0 != dest->factory()`.
     static void append(Blob *dest, const char *source, int offset, int length);
-        // Append the specified 'length' bytes starting from the specified
-        // 'offset' from the specified 'source' address to the specified
-        // 'dest'.  The behavior of this function is undefined unless the range
-        // '[source + offset, source + offset + length)' represents a readable
-        // sequence of memory, and
-        // 'length <= dest->totalSize() - dest->length()' or
-        // '0 != dest->factory()'.
 
+    /// Append the specified `length` bytes starting from the specified
+    /// `source` address to the specified `dest`.  The behavior is undefined
+    /// unless the range `[source, source + length)` is valid memory, and
+    /// `length <= dest->totalSize() - dest->length()` or
+    /// `0 != dest->factory()`.
     static void append(Blob *dest, const char *source, int length);
-        // Append the specified 'length' bytes starting from the specified
-        // 'source' address to the specified 'dest'.  The behavior is undefined
-        // unless the range '[source, source + length)' is valid memory, and
-        // 'length <= dest->totalSize() - dest->length()' or
-        // '0 != dest->factory()'.
 
+    /// Append the specified `length` bytes to the specified `dest`, all new
+    /// bytes are to be set to the specified `fill`.  The behavior is
+    /// undefined unless `length <= dest->totalSize() - dest->length()` or
+    /// `0 != dest->factory()`.
     static void append(Blob *dest, int length, char fill);
-        // Append the specified 'length' bytes to the specified 'dest', all new
-        // bytes are to be set to the specified 'fill'.  The behavior is
-        // undefined unless 'length <= dest->totalSize() - dest->length()' or
-        // '0 != dest->factory()'.
 
+    /// Append the specified `length` bytes from the specified `source`
+    /// address to the specified `dest`.  Use the existing capacity in
+    /// `dest` first, followed by that in the `buffer`, and finally allocate
+    /// from the blob buffer factory associated with the `dest`.  Load any
+    /// unused space into the specified `buffer`.  The behavior is undefined
+    /// unless the range `[source, source + length)` represents a readable
+    /// sequence of memory.
     static void appendWithCapacityBuffer(Blob       *dest,
                                          BlobBuffer *buffer,
                                          const char *source,
                                          int         length);
-        // Append the specified 'length' bytes from the specified 'source'
-        // address to the specified 'dest'.  Use the existing capacity in
-        // 'dest' first, followed by that in the 'buffer', and finally allocate
-        // from the blob buffer factory associated with the 'dest'.  Load any
-        // unused space into the specified 'buffer'.  The behavior is undefined
-        // unless the range '[source, source + length)' represents a readable
-        // sequence of memory.
 
+    /// Erase the specified `length` bytes starting at the specified
+    /// `offset` from the specified `blob`.  The behavior is undefined
+    /// unless `offset >= 0`, `length >= 0`, and
+    /// `offset + length <= blob->length()`.
     static void erase(Blob *blob, int offset, int length);
-        // Erase the specified 'length' bytes starting at the specified
-        // 'offset' from the specified 'blob'.  The behavior is undefined
-        // unless 'offset >= 0', 'length >= 0', and
-        // 'offset + length <= blob->length()'.
 
+    /// Insert the specified `sourceLength` bytes from the specified
+    /// `sourceOffset` in the specified `source` to the specified
+    /// `destOffset` in the specified `dest`.
     static void insert(Blob        *dest,
                        int          destOffset,
                        const Blob&  source,
                        int          sourceOffset,
                        int          sourceLength);
-        // Insert the specified 'sourceLength' bytes from the specified
-        // 'sourceOffset' in the specified 'source' to the specified
-        // 'destOffset' in the specified 'dest'.
 
+    /// Insert from the specified `sourceOffset` in the specified `source`
+    /// to the specified `destOffset` in the specified `dest`.
     static void insert(Blob        *dest,
                        int          destOffset,
                        const Blob&  source,
                        int          sourceOffset);
-        // Insert from the specified 'sourceOffset' in the specified 'source'
-        // to the specified 'destOffset' in the specified 'dest'.
 
+    /// Insert the specified `source` to the specified `destOffset` in the
+    /// specified `dest`.
     static void insert(Blob *dest, int destOffset, const Blob& source);
-        // Insert the specified 'source' to the specified 'destOffset' in the
-        // specified 'dest'.
 
+    /// Return a value, designated here as `p`, such that for the specified
+    /// `blob`, `blob.buffer(p.first)` is the buffer that contains the byte
+    /// at the specified `position` in `blob`, and `p.second` is the offset
+    /// corresponding to `position` within said buffer.  The behavior of
+    /// this function is undefined unless `0 <= position`,
+    /// `0 < blob.totalSize()`, and `position < blob.totalSize()`.  Note
+    /// that (1) subsequent changes to `blob` may invalidate the result of
+    /// this function, and (2) `p.first` never indicates a zero-size buffer.
     static bsl::pair<int, int> findBufferIndexAndOffset(const Blob& blob,
                                                         int         position);
-        // Return a value, designated here as 'p', such that for the specified
-        // 'blob', 'blob.buffer(p.first)' is the buffer that contains the byte
-        // at the specified 'position' in 'blob', and 'p.second' is the offset
-        // corresponding to 'position' within said buffer.  The behavior of
-        // this function is undefined unless '0 <= position',
-        // '0 < blob.totalSize()', and 'position < blob.totalSize()'.  Note
-        // that (1) subsequent changes to 'blob' may invalidate the result of
-        // this function, and (2) 'p.first' never indicates a zero-size buffer.
 
+    /// Copy the specified `length` bytes starting at the specified
+    /// `position` in the specified `srcBlob` to the specified `dstBuffer`.
+    /// The behavior of this function is undefined unless `0 <= length`,
+    /// `0 <= position`, `position <= srcBlob.totalSize() - length`, and
+    /// `dstBuffer` has room for `length` bytes.  Note that this function
+    /// does *not* set `dstBuffer[length]` to 0.
     static void copy(char        *dstBuffer,
                      const Blob&  srcBlob,
                      int          position,
                      int          length);
-        // Copy the specified 'length' bytes starting at the specified
-        // 'position' in the specified 'srcBlob' to the specified 'dstBuffer'.
-        // The behavior of this function is undefined unless '0 <= length',
-        // '0 <= position', 'position <= srcBlob.totalSize() - length', and
-        // 'dstBuffer' has room for 'length' bytes.  Note that this function
-        // does *not* set 'dstBuffer[length]' to 0.
 
+    /// Copy into the specified `dst` starting at the specified `dstOffset`
+    /// the specified `length` bytes from the specified `src`.  The behavior
+    /// is undefined unless `0 <= dstOffset`, `0 <= length`,
+    /// `dst || 0 == length`, `src || 0 == length`,
+    /// `!dst || dstOffset <= dst->length() - length`, and `src` refers to a
+    /// buffer with at least `length` bytes.  Note that this operation does
+    /// not require `dst` to have a blob buffer factory in that it does not
+    /// create or destroy blobs -- it simply copies data from `src` into
+    /// `dst`, so `dst` must already have room for `length` bytes of data
+    /// added at `dstOffset`.
     static void copy(Blob       *dst,
                      int         dstOffset,
                      const char *src,
                      int         length);
-        // Copy into the specified 'dst' starting at the specified 'dstOffset'
-        // the specified 'length' bytes from the specified 'src'.  The behavior
-        // is undefined unless '0 <= dstOffset', '0 <= length',
-        // 'dst || 0 == length', 'src || 0 == length',
-        // '!dst || dstOffset <= dst->length() - length', and 'src' refers to a
-        // buffer with at least 'length' bytes.  Note that this operation does
-        // not require 'dst' to have a blob buffer factory in that it does not
-        // create or destroy blobs -- it simply copies data from 'src' into
-        // 'dst', so 'dst' must already have room for 'length' bytes of data
-        // added at 'dstOffset'.
 
+    /// Copy into the specified `dst` starting at the specified `dstOffset`
+    /// the specified `length` bytes starting at the specified `srcOffset`
+    /// in the specified `src`.  The behavior is undefined unless
+    /// `0 <= dstOffset`, `0 <= srcOffset`, `0 <= length`,
+    /// `dst || 0 == length`, `!dst || dstOffset <= dst->length() - length`,
+    /// and `srcOffset <= src->length() - length`.  Note that this operation
+    /// does not require `dst` to have a blob buffer factory in that it does
+    /// not create or destroy blobs -- it simply copies data from `src` into
+    /// `dst`, so `dst` must already have room for `length` bytes of data
+    /// added at `dstOffset`.
     static void copy(Blob        *dst,
                      int          dstOffset,
                      const Blob&  src,
                      int          srcOffset,
                      int          length);
-        // Copy into the specified 'dst' starting at the specified 'dstOffset'
-        // the specified 'length' bytes starting at the specified 'srcOffset'
-        // in the specified 'src'.  The behavior is undefined unless
-        // '0 <= dstOffset', '0 <= srcOffset', '0 <= length',
-        // 'dst || 0 == length', '!dst || dstOffset <= dst->length() - length',
-        // and 'srcOffset <= src->length() - length'.  Note that this operation
-        // does not require 'dst' to have a blob buffer factory in that it does
-        // not create or destroy blobs -- it simply copies data from 'src' into
-        // 'dst', so 'dst' must already have room for 'length' bytes of data
-        // added at 'dstOffset'.
 
+    /// Return the address of the byte at the specified `position` in the
+    /// specified `srcBlob`, if that address is aligned to the optionally
+    /// specified `alignment` and the specified `length` bytes are stored
+    /// contiguously; otherwise, *copy* `length` bytes to the specified
+    /// buffer `dstBuffer`, and return `dstBuffer`.  If alignment is not
+    /// specified, none is enforced.  (An address is aligned to A if, when
+    /// converted to an integral value `a`, `a & (A - 1)` is 0.)  The
+    /// behavior of this function is undefined unless `0 < length`,
+    /// `0 <= position`, `alignment` is a power of two, `dstBuffer` is
+    /// aligned as required, `dstBuffer` has room for `length` bytes, and
+    /// `position <= srcBlob.totalSize() - length`.
     static char *getContiguousRangeOrCopy(char        *dstBuffer,
                                           const Blob&  srcBlob,
                                           int          position,
                                           int          length,
                                           int          alignment = 1);
-        // Return the address of the byte at the specified 'position' in the
-        // specified 'srcBlob', if that address is aligned to the optionally
-        // specified 'alignment' and the specified 'length' bytes are stored
-        // contiguously; otherwise, *copy* 'length' bytes to the specified
-        // buffer 'dstBuffer', and return 'dstBuffer'.  If alignment is not
-        // specified, none is enforced.  (An address is aligned to A if, when
-        // converted to an integral value 'a', 'a & (A - 1)' is 0.)  The
-        // behavior of this function is undefined unless '0 < length',
-        // '0 <= position', 'alignment' is a power of two, 'dstBuffer' is
-        // aligned as required, 'dstBuffer' has room for 'length' bytes, and
-        // 'position <= srcBlob.totalSize() - length'.
 
+    /// Obtain contiguous storage for at least the specified `addLength`
+    /// bytes in the specified `blob` at position `blob->length()`, and then
+    /// grow `blob->length()` by `addLength`.  If, upon entry, such storage
+    /// does not exist in `blob`, first trim the final data buffer, if any,
+    /// and insert a new buffer obtained from the specified `factory`.
+    /// Return a pointer to the beginning of the storage obtained.  The
+    /// behavior of this function is undefined unless `0 < addLength`, and
+    /// `factory->allocate()`, if called, yields a block of memory of a size
+    /// at least as large as `addLength`.
     static char *getContiguousDataBuffer(Blob              *blob,
                                          int                addLength,
                                          BlobBufferFactory *factory);
-        // Obtain contiguous storage for at least the specified 'addLength'
-        // bytes in the specified 'blob' at position 'blob->length()', and then
-        // grow 'blob->length()' by 'addLength'.  If, upon entry, such storage
-        // does not exist in 'blob', first trim the final data buffer, if any,
-        // and insert a new buffer obtained from the specified 'factory'.
-        // Return a pointer to the beginning of the storage obtained.  The
-        // behavior of this function is undefined unless '0 < addLength', and
-        // 'factory->allocate()', if called, yields a block of memory of a size
-        // at least as large as 'addLength'.
 
+    /// Write to the specified `stream` an ascii dump of the specified
+    /// `source`, and return a reference to the modifiable `stream`.
     static bsl::ostream& asciiDump(bsl::ostream& stream, const Blob& source);
-        // Write to the specified 'stream' an ascii dump of the specified
-        // 'source', and return a reference to the modifiable 'stream'.
 
+    /// Write to the specified `stream` an ascii dump of the specified
+    /// `length` bytes of the specified `source` starting at the specified
+    /// `offset`, and return a reference to the modifiable `stream`.  The
+    /// behavior is undefined unless `0 <= offset`, `0 <= length`,
+    /// `length <= source.length()` and
+    /// `offset <= source.length() - length`.
     static bsl::ostream& asciiDump(bsl::ostream& stream,
                                    const Blob&   source,
                                    int           offset,
                                    int           length);
-        // Write to the specified 'stream' an ascii dump of the specified
-        // 'length' bytes of the specified 'source' starting at the specified
-        // 'offset', and return a reference to the modifiable 'stream'.  The
-        // behavior is undefined unless '0 <= offset', '0 <= length',
-        // 'length <= source.length()' and
-        // 'offset <= source.length() - length'.
 
+    /// Write to the specified `stream` a hexdump of the specified `source`,
+    /// and return a reference to the modifiable `stream`.
     static bsl::ostream& hexDump(bsl::ostream& stream, const Blob& source);
-        // Write to the specified 'stream' a hexdump of the specified 'source',
-        // and return a reference to the modifiable 'stream'.
 
+    /// Write to the specified `stream` a hexdump of the specified `length`
+    /// bytes of the specified `source` starting at the specified `offset`,
+    /// and return a reference to the modifiable `stream`.  The behavior is
+    /// undefined unless `0 <= offset`, `0 <= length`,
+    /// `length <= source.length()` and
+    /// `offset <= source.length() - length`.
     static bsl::ostream& hexDump(bsl::ostream& stream,
                                  const Blob&   source,
                                  int           offset,
                                  int           length);
-        // Write to the specified 'stream' a hexdump of the specified 'length'
-        // bytes of the specified 'source' starting at the specified 'offset',
-        // and return a reference to the modifiable 'stream'.  The behavior is
-        // undefined unless '0 <= offset', '0 <= length',
-        // 'length <= source.length()' and
-        // 'offset <= source.length() - length'.
 
+    /// Append padding bytes to the specified `dest` so that its resulting
+    /// length is an integer multiple of the specified `alignment`.
+    /// Optionally specify `fillChar` with which the padding is to be
+    /// filled.  If `fillChar` is not specified, a 0 byte will be used.  The
+    /// behavior is undefined unless `alignment` is a power of 2, and less
+    /// than or equal to 64.
     static void padToAlignment(Blob *dest,
                                int   alignment,
                                char  fillChar = '\0');
-        // Append padding bytes to the specified 'dest' so that its resulting
-        // length is an integer multiple of the specified 'alignment'.
-        // Optionally specify 'fillChar' with which the padding is to be
-        // filled.  If 'fillChar' is not specified, a 0 byte will be used.  The
-        // behavior is undefined unless 'alignment' is a power of 2, and less
-        // than or equal to 64.
 
+    /// Prepend the specified `length` bytes from the specified `source`
+    /// address to the specified `dest`.  Use the existing capacity in
+    /// `dest` first if `0 == dest->length()`, followed by that in the
+    /// `buffer`, and finally allocate from the blob buffer factory
+    /// associated with the `dest`.  Load any unused space into the
+    /// specified `buffer`.  The behavior is undefined unless the range
+    /// `[source, source + length)` represents a readable sequence of
+    /// memory.
     static void prependWithCapacityBuffer(Blob       *dest,
                                           BlobBuffer *buffer,
                                           const char *source,
                                           int         length);
-        // Prepend the specified 'length' bytes from the specified 'source'
-        // address to the specified 'dest'.  Use the existing capacity in
-        // 'dest' first if '0 == dest->length()', followed by that in the
-        // 'buffer', and finally allocate from the blob buffer factory
-        // associated with the 'dest'.  Load any unused space into the
-        // specified 'buffer'.  The behavior is undefined unless the range
-        // '[source, source + length)' represents a readable sequence of
-        // memory.
 
+    /// Read the specified `numBytes` from the specified `stream` and load
+    /// it into the specified `dest`, and return a reference to the
+    /// modifiable `stream`.
     template <class STREAM>
     static STREAM& read(STREAM& stream, Blob *dest, int numBytes);
-        // Read the specified 'numBytes' from the specified 'stream' and load
-        // it into the specified 'dest', and return a reference to the
-        // modifiable 'stream'.
 
+    /// Write the specified `source` to the specified `stream`, and return a
+    /// reference to the modifiable `stream`.
     template <class STREAM>
     static STREAM& write(STREAM& stream, const Blob& source);
-        // Write the specified 'source' to the specified 'stream', and return a
-        // reference to the modifiable 'stream'.
 
+    /// Write to the specified `stream` the specified `numBytes` starting at
+    /// the specified `sourcePosition` in the specified `source` blob.
+    /// Return 0 on success or a non-zero value otherwise.  Note that this
+    /// function will fail (immediately) if the length of `source` is less
+    /// than `numBytes`; or if there is any error writing to `stream`.
     template <class STREAM>
     static int write(STREAM&     stream,
                      const Blob& source,
                      int         sourcePosition,
                      int         numBytes);
-        // Write to the specified 'stream' the specified 'numBytes' starting at
-        // the specified 'sourcePosition' in the specified 'source' blob.
-        // Return 0 on success or a non-zero value otherwise.  Note that this
-        // function will fail (immediately) if the length of 'source' is less
-        // than 'numBytes'; or if there is any error writing to 'stream'.
 
+    /// Compare, lexicographically, the data (data length and character data
+    /// values at each index position) stored by the specified `a` and `b`
+    /// blobs.  Return 0 if the data stored by `a` is lexicographically
+    /// equal to the data stored by `b`, a negative value if `a` is
+    /// lexicographically less than `b`, and a positive value if `a` is
+    /// lexicographically greater than `b`.
     static int compare(const Blob& a, const Blob& b);
-        // Compare, lexicographically, the data (data length and character data
-        // values at each index position) stored by the specified 'a' and 'b'
-        // blobs.  Return 0 if the data stored by 'a' is lexicographically
-        // equal to the data stored by 'b', a negative value if 'a' is
-        // lexicographically less than 'b', and a positive value if 'a' is
-        // lexicographically greater than 'b'.
 
+    /// Append the specified `buffer` after the last buffer of the specified
+    /// `dest` if neither the resulting total size of `dest` nor its
+    /// resulting total number of buffers exceeds `INT_MAX`.  Return 0 on
+    /// success, and a non-zero value (with no effect) otherwise.  The
+    /// length of the `dest` is unaffected.
     static int appendBufferIfValid(Blob *dest, const BlobBuffer& buffer);
-        // Append the specified 'buffer' after the last buffer of the specified
-        // 'dest' if neither the resulting total size of 'dest' nor its
-        // resulting total number of buffers exceeds 'INT_MAX'.  Return 0 on
-        // success, and a non-zero value (with no effect) otherwise.  The
-        // length of the 'dest' is unaffected.
 
+    /// Append the specified move-insertable `buffer` after the last buffer
+    /// of the specified `dest` if neither the resulting total size of
+    /// `dest` nor its resulting total number of buffers exceeds `INT_MAX`.
+    /// Return 0 on success, and a non-zero value (with no effect)
+    /// otherwise.  The length of the `dest` is unaffected.  In case of
+    /// success the `buffer` is left in a valid but unspecified state.
     static int appendBufferIfValid(Blob                          *dest,
                                    bslmf::MovableRef<BlobBuffer>  buffer);
-        // Append the specified move-insertable 'buffer' after the last buffer
-        // of the specified 'dest' if neither the resulting total size of
-        // 'dest' nor its resulting total number of buffers exceeds 'INT_MAX'.
-        // Return 0 on success, and a non-zero value (with no effect)
-        // otherwise.  The length of the 'dest' is unaffected.  In case of
-        // success the 'buffer' is left in a valid but unspecified state.
 
+    /// Append the specified `buffer` after the last *data* buffer of the
+    /// specified `dest` if neither the resulting total size of `dest` nor
+    /// its resulting total number of buffers exceeds `INT_MAX`.  Return 0
+    /// on success, and a non-zero value (with no effect) otherwise.  The
+    /// last data buffer of the `dest` is trimmed, if necessary.  The length
+    /// of the `dest` is incremented by the size of `buffer`.
     static int appendDataBufferIfValid(Blob *dest, const BlobBuffer& buffer);
-        // Append the specified 'buffer' after the last *data* buffer of the
-        // specified 'dest' if neither the resulting total size of 'dest' nor
-        // its resulting total number of buffers exceeds 'INT_MAX'.  Return 0
-        // on success, and a non-zero value (with no effect) otherwise.  The
-        // last data buffer of the 'dest' is trimmed, if necessary.  The length
-        // of the 'dest' is incremented by the size of 'buffer'.
 
+    /// Append the specified move-insertable `buffer` after the last *data*
+    /// buffer of the specified `dest` if neither the resulting total size
+    /// of `dest` nor its resulting total number of buffers exceeds
+    /// `INT_MAX`.  Return 0 on success, and a non-zero value (with no
+    /// effect) otherwise.  The last data buffer of the `dest` is trimmed,
+    /// if necessary.  The length of the `dest` is incremented by the size
+    /// of `buffer`.  In case of success the `buffer` is left in a valid but
+    /// unspecified state.
     static int appendDataBufferIfValid(Blob                          *dest,
                                        bslmf::MovableRef<BlobBuffer>  buffer);
-        // Append the specified move-insertable 'buffer' after the last *data*
-        // buffer of the specified 'dest' if neither the resulting total size
-        // of 'dest' nor its resulting total number of buffers exceeds
-        // 'INT_MAX'.  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  The last data buffer of the 'dest' is trimmed,
-        // if necessary.  The length of the 'dest' is incremented by the size
-        // of 'buffer'.  In case of success the 'buffer' is left in a valid but
-        // unspecified state.
 
+    /// Insert the specified `buffer` at the specified `index` in the
+    /// specified `dest` if `0 <= index <= dest->numBuffers()` and neither
+    /// the resulting total size of `dest` nor its resulting total number of
+    /// buffers exceeds `INT_MAX`.  Return 0 on success, and a non-zero
+    /// value (with no effect) otherwise.  Increment the length of the 'dest
+    /// by the size of the `buffer` if `buffer` is inserted *before* the
+    /// logical end of the `dest`.  The length of the `dest` is <u>unchanged</u>
+    /// if inserting at a position following all data buffers (e.g.,
+    /// inserting into an empty blob or inserting a buffer to increase
+    /// capacity); in that case, the blob length must be changed by an
+    /// explicit call to `setLength`.  Buffers at `index` and higher
+    /// positions (if any) are shifted up by one index position.
     static int insertBufferIfValid(Blob              *dest,
                                    int                index,
                                    const BlobBuffer&  buffer);
-        // Insert the specified 'buffer' at the specified 'index' in the
-        // specified 'dest' if '0 <= index <= dest->numBuffers()' and neither
-        // the resulting total size of 'dest' nor its resulting total number of
-        // buffers exceeds 'INT_MAX'.  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.  Increment the length of the 'dest
-        // by the size of the 'buffer' if 'buffer' is inserted *before* the
-        // logical end of the 'dest'.  The length of the 'dest' is _unchanged_
-        // if inserting at a position following all data buffers (e.g.,
-        // inserting into an empty blob or inserting a buffer to increase
-        // capacity); in that case, the blob length must be changed by an
-        // explicit call to 'setLength'.  Buffers at 'index' and higher
-        // positions (if any) are shifted up by one index position.
 
+    /// Insert the specified move-insertable `buffer` at the specified
+    /// `index` in the specified `dest` if
+    /// `0 <= index <= dest->numBuffers()` and neither the resulting total
+    /// size of `dest` nor its resulting total number of buffers exceeds
+    /// `INT_MAX`.  Return 0 on success, and a non-zero value (with no
+    /// effect) otherwise.  Increment the length of the 'dest by the size of
+    /// the `buffer` if `buffer` is inserted *before* the logical end of the
+    /// `dest`.  The length of the `dest` is <u>unchanged</u> if inserting at a
+    /// position following all data buffers (e.g., inserting into an empty
+    /// blob or inserting a buffer to increase capacity); in that case, the
+    /// blob length must be changed by an explicit call to `setLength`.
+    /// Buffers at `index` and higher positions (if any) are shifted up by
+    /// one index position.  In case of success the `buffer` is left in a
+    /// valid but unspecified state.
     static int insertBufferIfValid(Blob                          *dest,
                                    int                            index,
                                    bslmf::MovableRef<BlobBuffer>  buffer);
-        // Insert the specified move-insertable 'buffer' at the specified
-        // 'index' in the specified 'dest' if
-        // '0 <= index <= dest->numBuffers()' and neither the resulting total
-        // size of 'dest' nor its resulting total number of buffers exceeds
-        // 'INT_MAX'.  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  Increment the length of the 'dest by the size of
-        // the 'buffer' if 'buffer' is inserted *before* the logical end of the
-        // 'dest'.  The length of the 'dest' is _unchanged_ if inserting at a
-        // position following all data buffers (e.g., inserting into an empty
-        // blob or inserting a buffer to increase capacity); in that case, the
-        // blob length must be changed by an explicit call to 'setLength'.
-        // Buffers at 'index' and higher positions (if any) are shifted up by
-        // one index position.  In case of success the 'buffer' is left in a
-        // valid but unspecified state.
 
+    /// Insert the specified `buffer` before the beginning of the specified
+    /// `dest` if neither the resulting total size of `dest` nor its
+    /// resulting total number of buffers exceeds `INT_MAX`.  Return 0 on
+    /// success, and a non-zero value (with no effect) otherwise.  The
+    /// length of the `dest` is incremented by the length of the prepended
+    /// buffer.
     static int prependDataBufferIfValid(Blob *dest, const BlobBuffer& buffer);
-        // Insert the specified 'buffer' before the beginning of the specified
-        // 'dest' if neither the resulting total size of 'dest' nor its
-        // resulting total number of buffers exceeds 'INT_MAX'.  Return 0 on
-        // success, and a non-zero value (with no effect) otherwise.  The
-        // length of the 'dest' is incremented by the length of the prepended
-        // buffer.
 
+    /// Insert the specified move-insertable `buffer` before the beginning
+    /// of the specified `dest` if neither the resulting total size of
+    /// `dest` nor its resulting total number of buffers exceeds `INT_MAX`.
+    /// Return 0 on success, and a non-zero value (with no effect)
+    /// otherwise.  The length of the `dest` is incremented by the length of
+    /// the prepended buffer.  In case of success the `buffer` is left in a
+    /// valid but unspecified state.
     static int prependDataBufferIfValid(Blob                          *dest,
                                         bslmf::MovableRef<BlobBuffer>  buffer);
-        // Insert the specified move-insertable 'buffer' before the beginning
-        // of the specified 'dest' if neither the resulting total size of
-        // 'dest' nor its resulting total number of buffers exceeds 'INT_MAX'.
-        // Return 0 on success, and a non-zero value (with no effect)
-        // otherwise.  The length of the 'dest' is incremented by the length of
-        // the prepended buffer.  In case of success the 'buffer' is left in a
-        // valid but unspecified state.
 
     // ---------- DEPRECATED FUNCTIONS ------------- //
 
@@ -400,10 +401,10 @@ struct BlobUtil {
                          // struct BlobUtilAsciiDumper
                          // ==========================
 
+/// Utility for ascii dumping a blob to standard output streams.  This class
+/// has `operator<<` defined for it, so it can be used, for example, in
+/// `ball` logs.
 struct BlobUtilAsciiDumper {
-    // Utility for ascii dumping a blob to standard output streams.  This class
-    // has 'operator<<' defined for it, so it can be used, for example, in
-    // 'ball' logs.
 
     // DATA
     const Blob *d_blob_p;  // data to be dumped (held, not owned)
@@ -411,43 +412,45 @@ struct BlobUtilAsciiDumper {
     int         d_length;  // desired number of bytes to be dumped
 
     // CREATORS
+
+    /// Create an ascii dumper for the specified `blob` that dumps the
+    /// entire `blob` to the output stream when passed to `operator<<`.  See
+    /// `operator<<(bsl::ostream&, const BlobUtilAsciiDumper&)` for details.
     explicit BlobUtilAsciiDumper(const Blob *blob);
-        // Create an ascii dumper for the specified 'blob' that dumps the
-        // entire 'blob' to the output stream when passed to 'operator<<'.  See
-        // 'operator<<(bsl::ostream&, const BlobUtilAsciiDumper&)' for details.
 
+    /// Create an ascii dumper for the specified `blob` that ascii dumps the
+    /// first `min(length, blob->length())` bytes of the `blob` to the
+    /// output stream when passed to `operator<<`.  See
+    /// `operator<<(bsl::ostream&, const BlobUtilAsciiDumper&)` for details.
+    /// The behavior is undefined unless `0 <= length`.
     BlobUtilAsciiDumper(const Blob *blob, int length);
-        // Create an ascii dumper for the specified 'blob' that ascii dumps the
-        // first 'min(length, blob->length())' bytes of the 'blob' to the
-        // output stream when passed to 'operator<<'.  See
-        // 'operator<<(bsl::ostream&, const BlobUtilAsciiDumper&)' for details.
-        // The behavior is undefined unless '0 <= length'.
 
+    /// Create a hex dumper for the specified `blob` that ascii dumps the
+    /// bytes of the `blob` starting with the `min(offset, blob->length())`
+    /// byte and until `min(offset + length, blob->length())` byte to the
+    /// output stream when passed to `operator<<`.  See
+    /// `operator<<(bsl::ostream&, const BlobUtilAsciiDumper&)` for details.
+    /// The behavior is undefined unless `0 <= offset && 0 <= length`.
     BlobUtilAsciiDumper(const Blob *blob, int offset, int length);
-        // Create a hex dumper for the specified 'blob' that ascii dumps the
-        // bytes of the 'blob' starting with the 'min(offset, blob->length())'
-        // byte and until 'min(offset + length, blob->length())' byte to the
-        // output stream when passed to 'operator<<'.  See
-        // 'operator<<(bsl::ostream&, const BlobUtilAsciiDumper&)' for details.
-        // The behavior is undefined unless '0 <= offset && 0 <= length'.
 };
 
 // FREE OPERATORS
+
+/// Ascii-dump to the specified `stream` the bytes of the  blob referenced
+/// by the specified `rhs` starting with the
+/// `min(rhs.d_offset, rhs.d_blob_p->length())` byte and until
+/// `min(rhs.d_offset + rhs.d_length, rhs.d_blob_p->length())` byte, and
+/// return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const BlobUtilAsciiDumper& rhs);
-    // Ascii-dump to the specified 'stream' the bytes of the  blob referenced
-    // by the specified 'rhs' starting with the
-    // 'min(rhs.d_offset, rhs.d_blob_p->length())' byte and until
-    // 'min(rhs.d_offset + rhs.d_length, rhs.d_blob_p->length())' byte, and
-    // return a reference to the modifiable 'stream'.
 
                           // ========================
                           // struct BlobUtilHexDumper
                           // ========================
 
+/// Utility for hex dumping a blob to standard output streams.  This class
+/// has `operator<<` defined for it, so it can be used, for example, in
+/// `ball` logs.
 struct BlobUtilHexDumper {
-    // Utility for hex dumping a blob to standard output streams.  This class
-    // has 'operator<<' defined for it, so it can be used, for example, in
-    // 'ball' logs.
 
     // DATA
     const Blob *d_blob_p;  // data to be dumped (held, not owned)
@@ -455,34 +458,36 @@ struct BlobUtilHexDumper {
     int         d_length;  // desired number of bytes to be dumped
 
     // CREATORS
+
+    /// Create a hex dumper for the specified `blob` that hex dumps the
+    /// entire `blob` to the output stream when passed to `operator<<`.  See
+    /// `operator<<(bsl::ostream&, const BlobUtilHexDumper&)` for details.
     explicit BlobUtilHexDumper(const Blob *blob);
-        // Create a hex dumper for the specified 'blob' that hex dumps the
-        // entire 'blob' to the output stream when passed to 'operator<<'.  See
-        // 'operator<<(bsl::ostream&, const BlobUtilHexDumper&)' for details.
 
+    /// Create a hex dumper for the specified `blob` that hex dumps the
+    /// first `min(length, blob->length())` bytes of the `blob` to the
+    /// output stream when passed to `operator<<`.  See
+    /// `operator<<(bsl::ostream&, const BlobUtilHexDumper&)` for details.
+    /// The behavior is undefined unless `0 <= length`.
     BlobUtilHexDumper(const Blob *blob, int length);
-        // Create a hex dumper for the specified 'blob' that hex dumps the
-        // first 'min(length, blob->length())' bytes of the 'blob' to the
-        // output stream when passed to 'operator<<'.  See
-        // 'operator<<(bsl::ostream&, const BlobUtilHexDumper&)' for details.
-        // The behavior is undefined unless '0 <= length'.
 
+    /// Create a hex dumper for the specified `blob` that hex dumps the
+    /// bytes of the `blob` starting with the `min(offset, blob->length())`
+    /// byte and until `min(offset + length, blob->length())` byte to the
+    /// output stream when passed to `operator<<`.  See
+    /// `operator<<(bsl::ostream&, const BlobUtilHexDumper&)` for details.
+    /// The behavior is undefined unless `0 <= offset && 0 <= length`.
     BlobUtilHexDumper(const Blob *blob, int offset, int length);
-        // Create a hex dumper for the specified 'blob' that hex dumps the
-        // bytes of the 'blob' starting with the 'min(offset, blob->length())'
-        // byte and until 'min(offset + length, blob->length())' byte to the
-        // output stream when passed to 'operator<<'.  See
-        // 'operator<<(bsl::ostream&, const BlobUtilHexDumper&)' for details.
-        // The behavior is undefined unless '0 <= offset && 0 <= length'.
 };
 
 // FREE OPERATORS
+
+/// Hex-dump to the specified `stream` the bytes of the  blob referenced by
+/// the specified `rhs` starting with the
+/// `min(rhs.d_offset, rhs.d_blob_p->length())` byte and until
+/// `min(rhs.d_offset + rhs.d_length, rhs.d_blob_p->length())` byte, and
+/// return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const BlobUtilHexDumper& rhs);
-    // Hex-dump to the specified 'stream' the bytes of the  blob referenced by
-    // the specified 'rhs' starting with the
-    // 'min(rhs.d_offset, rhs.d_blob_p->length())' byte and until
-    // 'min(rhs.d_offset + rhs.d_length, rhs.d_blob_p->length())' byte, and
-    // return a reference to the modifiable 'stream'.
 
 // ============================================================================
 //                             INLINE DEFINITIONS

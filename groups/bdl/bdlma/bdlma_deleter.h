@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslma_allocator
 //
 //@DESCRIPTION: This component defines the base-level protocol,
-// 'bdlma::Deleter', for a thread-safe and type-safe deleter of objects of
+// `bdlma::Deleter`, for a thread-safe and type-safe deleter of objects of
 // arbitrary type.  This class is extremely useful for transferring the
 // ownership of objects between different entities.  The following usage
 // example demonstrates this point.
@@ -25,32 +25,32 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // Suppose that we would like to transfer ownership of an object between
-// threads using 'bsl::shared_ptr'.  For the sake of discussion, the type of
-// this object is 'my_Obj', we will suppose that it is created using a given
-// 'basicAllocator', and that a concrete implementation of 'bdlma::Deleter',
-// say 'my_Deleter', is to be used.  Note that we assume that 'my_Obj' does not
+// threads using `bsl::shared_ptr`.  For the sake of discussion, the type of
+// this object is `my_Obj`, we will suppose that it is created using a given
+// `basicAllocator`, and that a concrete implementation of `bdlma::Deleter`,
+// say `my_Deleter`, is to be used.  Note that we assume that `my_Obj` does not
 // require an allocator for any of its members:
-//..
-//  bslma::NewDeleteAllocator basicAllocator;
-//  my_Obj *object = new(basicAllocator) my_Obj;
-//..
-// Next, create a concrete deleter for 'object' using the same allocator as was
+// ```
+// bslma::NewDeleteAllocator basicAllocator;
+// my_Obj *object = new(basicAllocator) my_Obj;
+// ```
+// Next, create a concrete deleter for `object` using the same allocator as was
 // used to allocate its footprint:
-//..
-//  my_Deleter deleter(&basicAllocator);
-//..
-// Finally, create a shared pointer passing to it 'object' and the address of
-// 'deleter':
-//..
-//  bsl::shared_ptr<my_Obj> handle(object, &deleter, &basicAllocator);
-//..
-// Now the 'handle' can be passed to another thread or enqueued efficiently.
-// When the reference count of 'handle' goes to 0, 'object' is automatically
-// deleted via the 'deleteObject' method of 'deleter', which in turn will
-// invoke the destructor of 'object'.  Note that since the type of the deleter
-// used to instantiate 'handle' is 'bdlma::Deleter<my_Obj>', any kind of
+// ```
+// my_Deleter deleter(&basicAllocator);
+// ```
+// Finally, create a shared pointer passing to it `object` and the address of
+// `deleter`:
+// ```
+// bsl::shared_ptr<my_Obj> handle(object, &deleter, &basicAllocator);
+// ```
+// Now the `handle` can be passed to another thread or enqueued efficiently.
+// When the reference count of `handle` goes to 0, `object` is automatically
+// deleted via the `deleteObject` method of `deleter`, which in turn will
+// invoke the destructor of `object`.  Note that since the type of the deleter
+// used to instantiate `handle` is `bdlma::Deleter<my_Obj>`, any kind of
 // deleter that implements this protocol can be passed.  Also note, on the
-// downside, that the lifetime of 'deleter' must be longer than the lifetime of
+// downside, that the lifetime of `deleter` must be longer than the lifetime of
 // all associated instances.
 
 #include <bdlscm_version.h>
@@ -62,20 +62,22 @@ namespace bdlma {
                               // class Deleter
                               // =============
 
+/// Provide a protocol (or pure interface) for a thread-safe object deleter.
 template <class TYPE>
 class Deleter {
-    // Provide a protocol (or pure interface) for a thread-safe object deleter.
 
   public:
     // CREATORS
+
+    /// Destroy this object deleter.
     virtual ~Deleter();
-        // Destroy this object deleter.
 
     // MANIPULATORS
+
+    /// Destroy the specified `instance` based on its static type and return
+    /// its memory footprint to the appropriate memory manager.  Note that a
+    /// particular implementation is allowed to destroy this deleter itself.
     virtual void deleteObject(TYPE *instance) = 0;
-        // Destroy the specified 'instance' based on its static type and return
-        // its memory footprint to the appropriate memory manager.  Note that a
-        // particular implementation is allowed to destroy this deleter itself.
 };
 
 // ============================================================================

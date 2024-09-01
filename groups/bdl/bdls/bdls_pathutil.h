@@ -14,12 +14,12 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides utility methods for manipulating
 // strings that represent paths in the filesystem.  Class methods of
-// 'bdls::PathUtil' include platform-independent operations to add or remove
+// `bdls::PathUtil` include platform-independent operations to add or remove
 // filenames or relative paths at the end of a path string (by "filenames" we
 // are referring to the names of any filesystem item, including regular files
 // and directories).  There are also methods to parse the path to delimit the
 // "root" as defined for the current platform; see {Parsing and Performance
-// ('rootEnd' argument)} below.
+// (`rootEnd` argument)} below.
 //
 // Paths that have a root are called *absolute* paths, whereas paths that do
 // not have a root are *relative* paths.
@@ -32,23 +32,23 @@ BSLS_IDENT("$Id: $")
 ///-----------
 // To introduce the terminology explored in this section, lets start with a
 // Unix example:
-//..
-//  "/foo/bar/myfile.txt"
-//..
+// ```
+// "/foo/bar/myfile.txt"
+// ```
 // The elements of this path would be:
-//..
-//            Path: "/foo/bar/myfile.txt"
-//            Root: "/"                       # the starting separator(s)
-//  Leaf(Basename): "myfile.txt"
-//       Extension: ".txt"
-//         Dirname: "/foo/bar/"
-//..
+// ```
+//           Path: "/foo/bar/myfile.txt"
+//           Root: "/"                       # the starting separator(s)
+// Leaf(Basename): "myfile.txt"
+//      Extension: ".txt"
+//        Dirname: "/foo/bar/"
+// ```
 //
 ///Separator
 ///- - - - -
 // A platform dependent character that separates elements of a path, such as
 // directory names from each other and file names.  The separator character is
-// the '/' (slash) on Unix (and the like) systems and '\' (backslash) on
+// the `/` (slash) on Unix (and the like) systems and '\' (backslash) on
 // Windows systems.
 //
 ///Path
@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 // is not present).  The textual rules for what a root is are platform
 // dependent.  See {Unix Root} and {Windows Root}.
 //
-// See also {Parsing and Performance ('rootEnd' argument)} for important notes
+// See also {Parsing and Performance (`rootEnd` argument)} for important notes
 // about speeding up functions (especially on Windows) by not reparsing roots
 // every time a function is called.
 //
@@ -99,18 +99,18 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // The leaf is the rightmost name following the root, in other words: the last
 // element of the path.  Note that several methods in this utility require a
-// leaf to be present to function (such as 'getDirname').  Note that a relative
+// leaf to be present to function (such as `getDirname`).  Note that a relative
 // path may contain a leaf only.  Examples:
-//..
-//  Path                            Leaf
-//  ----                            ----
-//  "/tmp/foo/bar.txt"              "bar.txt"
-//  "c:\tmp\foo\bar.txt"            "bar.txt"
-//  "\\server\share\tmp\foo.txt"    "foo.txt"
-//  "/tmp/foo/"                     "foo"
-//  "/tmp/"                         "tmp"
-//  "/"                             Not Present
-//..
+// ```
+// Path                            Leaf
+// ----                            ----
+// "/tmp/foo/bar.txt"              "bar.txt"
+// "c:\tmp\foo\bar.txt"            "bar.txt"
+// "\\server\share\tmp\foo.txt"    "foo.txt"
+// "/tmp/foo/"                     "foo"
+// "/tmp/"                         "tmp"
+// "/"                             Not Present
+// ```
 //
 ///Extension
 ///- - - - - -
@@ -122,41 +122,41 @@ BSLS_IDENT("$Id: $")
 // an extension, but ".bbprofile.log" does, and its extension is ".log".
 // We will say that a path has an extension if it has a leaf and its leaf
 // has an extension. Note that for consistency reasons, our implementation
-// differs from other standard implementations in the same way 'getLeaf'
+// differs from other standard implementations in the same way `getLeaf`
 // does: the path "/foo/bar.txt/" is considered to have an extension and
 // its extension is ".txt". Examples:
-//..
-//  Path                            Extension
-//  ----                            -------
-//  "/tmp/foo/bar.txt"              ".txt"
-//  "/tmp/foo/bar"                  Not Present
-//  "/tmp/foo/bar.longextension"    ".longextension"
-//  "/a/b.txt/"                     ".txt"
-//  "/a/b.txt/."                    Not present
-//  "/a.txt/b.txt/.."               Not present
-//  "/a/.profile"                   Not present
-//  "/a/.profile.backup"            ".backup"
-//  "foo.txt"                       ".txt"
-//..
+// ```
+// Path                            Extension
+// ----                            -------
+// "/tmp/foo/bar.txt"              ".txt"
+// "/tmp/foo/bar"                  Not Present
+// "/tmp/foo/bar.longextension"    ".longextension"
+// "/a/b.txt/"                     ".txt"
+// "/a/b.txt/."                    Not present
+// "/a.txt/b.txt/.."               Not present
+// "/a/.profile"                   Not present
+// "/a/.profile.backup"            ".backup"
+// "foo.txt"                       ".txt"
+// ```
 //
 ///Dirname
 ///- - - -
 // Dirname is the part of the path that contains the root but not the leaf.
-// Note that the 'getDirname' utility method requires a leaf to be present to
+// Note that the `getDirname` utility method requires a leaf to be present to
 // function.  Examples:
-//..
-//  Path                            Dirname
-//  ----                            -------
-//  "/tmp/foo/bar.txt"              "/tmp/foo/"
-//  "c:\tmp\foo\bar.txt"            "c:\tmp\foo\"
-//  "\\server\share\tmp\foo.txt"    "\\server\share\tmp\"
-//  "/tmp/foo/"                     "/tmp"
-//  "/tmp/"                         "/"
-//  "/"                             no leaf -> error
-//  "foo.txt"                       empty
-//..
+// ```
+// Path                            Dirname
+// ----                            -------
+// "/tmp/foo/bar.txt"              "/tmp/foo/"
+// "c:\tmp\foo\bar.txt"            "c:\tmp\foo\"
+// "\\server\share\tmp\foo.txt"    "\\server\share\tmp\"
+// "/tmp/foo/"                     "/tmp"
+// "/tmp/"                         "/"
+// "/"                             no leaf -> error
+// "foo.txt"                       empty
+// ```
 //
-///Parsing and Performance ('rootEnd' argument)
+///Parsing and Performance (`rootEnd` argument)
 ///--------------------------------------------
 // Most methods of this component will perform basic parsing of the beginning
 // part of the path to determine what part of it is the "root" as defined for
@@ -175,102 +175,102 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - -
 // We start with strings representing an absolute native path and a relative
 // native path, respectively:
-//..
-//  #ifdef BSLS_PLATFORM_OS_WINDOWS
-//  bsl::string tempPath  = "c:\\windows\\temp";
-//  bsl::string otherPath = "22jan08\\log.txt";
-//  #else
-//  bsl::string tempPath  = "/var/tmp";
-//  bsl::string otherPath = "22jan08/log.txt";
-//  #endif
-//..
-// 'tempPath' is an absolute path, since it has a root.  It also has a leaf
+// ```
+// #ifdef BSLS_PLATFORM_OS_WINDOWS
+// bsl::string tempPath  = "c:\\windows\\temp";
+// bsl::string otherPath = "22jan08\\log.txt";
+// #else
+// bsl::string tempPath  = "/var/tmp";
+// bsl::string otherPath = "22jan08/log.txt";
+// #endif
+// ```
+// `tempPath` is an absolute path, since it has a root.  It also has a leaf
 // element ("temp"):
-//..
-//  assert(false == bdls::PathUtil::isRelative(tempPath));
-//  assert(true  == bdls::PathUtil::isAbsolute(tempPath));
-//  assert(true  == bdls::PathUtil::hasLeaf(tempPath));
-//..
+// ```
+// assert(false == bdls::PathUtil::isRelative(tempPath));
+// assert(true  == bdls::PathUtil::isAbsolute(tempPath));
+// assert(true  == bdls::PathUtil::hasLeaf(tempPath));
+// ```
 // We can add filenames to the path one at a time, or we can add another path
 // if is relative.  We can also remove filenames from the end of the path one
 // at a time:
-//..
-//  bdls::PathUtil::appendRaw(&tempPath, "myApp");
-//  bdls::PathUtil::appendRaw(&tempPath, "logs");
+// ```
+// bdls::PathUtil::appendRaw(&tempPath, "myApp");
+// bdls::PathUtil::appendRaw(&tempPath, "logs");
 //
-//  assert(true == bdls::PathUtil::isRelative(otherPath));
-//  assert(0    == bdls::PathUtil::appendIfValid(&tempPath, otherPath));
-//  assert(true == bdls::PathUtil::hasLeaf(tempPath));
+// assert(true == bdls::PathUtil::isRelative(otherPath));
+// assert(0    == bdls::PathUtil::appendIfValid(&tempPath, otherPath));
+// assert(true == bdls::PathUtil::hasLeaf(tempPath));
 //
-//  bdls::PathUtil::popLeaf(&tempPath);
-//  bdls::PathUtil::appendRaw(&tempPath, "log2.txt");
+// bdls::PathUtil::popLeaf(&tempPath);
+// bdls::PathUtil::appendRaw(&tempPath, "log2.txt");
 //
-//  #ifdef BSLS_PLATFORM_OS_WINDOWS
-//  assert("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" == tempPath);
-//  #else
-//  assert("/var/tmp/myApp/logs/22jan08/log2.txt"              == tempPath);
-//  #endif
-//..
+// #ifdef BSLS_PLATFORM_OS_WINDOWS
+// assert("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" == tempPath);
+// #else
+// assert("/var/tmp/myApp/logs/22jan08/log2.txt"              == tempPath);
+// #endif
+// ```
 // A relative path may be appended to any other path, even itself.  An absolute
 // path may not be appended to any path, or undefined behavior will result:
-//..
-//  assert(0 == bdls::PathUtil::appendIfValid(&otherPath, otherPath));  // OK
-//  /* bdls::PathUtil::append(&otherPath, tempPath); */ // UNDEFINED BEHAVIOR!
-//..
+// ```
+// assert(0 == bdls::PathUtil::appendIfValid(&otherPath, otherPath));  // OK
+// /* bdls::PathUtil::append(&otherPath, tempPath); */ // UNDEFINED BEHAVIOR!
+// ```
 // Note that there is no attempt to distinguish filenames that are regular
 // files from filenames that are directories, or to verify the existence of
 // paths in the filesystem.
-//..
-//  #ifdef BSLS_PLATFORM_OS_WINDOWS
-//  assert("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" == tempPath);
-//  #else
-//  assert("/var/tmp/myApp/logs/22jan08/log2.txt"              == tempPath);
-//  #endif
-//..
+// ```
+// #ifdef BSLS_PLATFORM_OS_WINDOWS
+// assert("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" == tempPath);
+// #else
+// assert("/var/tmp/myApp/logs/22jan08/log2.txt"              == tempPath);
+// #endif
+// ```
 //
-///Example 2: Parsing a path using 'splitFilename'
+///Example 2: Parsing a path using `splitFilename`
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to obtain all filenames from the path.
 //
 // First, we create a path for splitting and a storage for filenames:
-//..
-//  #ifdef BSLS_PLATFORM_OS_WINDOWS
-//  const char                     *splitPath = "c:\\one\\two\\three\\four";
-//  #else
-//  const char                     *splitPath = "//one/two/three/four";
-//  #endif
-//  bsl::vector<bsl::string_view>  filenames;
-//..
+// ```
+// #ifdef BSLS_PLATFORM_OS_WINDOWS
+// const char                     *splitPath = "c:\\one\\two\\three\\four";
+// #else
+// const char                     *splitPath = "//one/two/three/four";
+// #endif
+// bsl::vector<bsl::string_view>  filenames;
+// ```
 // Then, we run a cycle to sever filenames from the end one by one:
-//..
-//  bsl::string_view head;
-//  bsl::string_view tail;
-//  bsl::string_view path(splitPath);
+// ```
+// bsl::string_view head;
+// bsl::string_view tail;
+// bsl::string_view path(splitPath);
 //
-//  do {
-//      bdls::PathUtil::splitFilename(&head, &tail, path);
-//      filenames.push_back(tail);
-//      path = head;
-//  } while (!tail.empty());
-//..
+// do {
+//     bdls::PathUtil::splitFilename(&head, &tail, path);
+//     filenames.push_back(tail);
+//     path = head;
+// } while (!tail.empty());
+// ```
 // Now, verify the resulting values:
-//..
-//  assert(5           == filenames.size());
+// ```
+// assert(5           == filenames.size());
 //
-//  assert("four"      == filenames[0]);
-//  assert("three"     == filenames[1]);
-//  assert("two"       == filenames[2]);
-//  assert("one"       == filenames[3]);
-//  assert(""          == filenames[4]);
-//..
+// assert("four"      == filenames[0]);
+// assert("three"     == filenames[1]);
+// assert("two"       == filenames[2]);
+// assert("one"       == filenames[3]);
+// assert(""          == filenames[4]);
+// ```
 // Finally, make sure that only the root remains of the original value:
-//..
-//  #ifdef BSLS_PLATFORM_OS_WINDOWS
-//  assert("c:\\"      == head);
-//  #else
-//  assert("//"        == head);
-//  #endif
-//..
+// ```
+// #ifdef BSLS_PLATFORM_OS_WINDOWS
+// assert("c:\\"      == head);
+// #else
+// assert("//"        == head);
+// #endif
+// ```
 
 #include <bdlscm_version.h>
 
@@ -291,11 +291,11 @@ namespace bdls {
                               // struct PathUtil
                               // ===============
 
+/// This struct contains utility methods for platform-independent
+/// manipulation of filesystem paths.  No method of this struct provides any
+/// filesystem operations or accesses the filesystem as part of its
+/// implementation.
 struct PathUtil {
-    // This struct contains utility methods for platform-independent
-    // manipulation of filesystem paths.  No method of this struct provides any
-    // filesystem operations or accesses the filesystem as part of its
-    // implementation.
 
     // PUBLIC CLASS DATA
     static const char k_SEPARATOR;
@@ -462,65 +462,65 @@ struct PathUtil {
         // platform-dependent.  See {Parsing and Performance ('rootEnd'
         // argument)}.  See also {Terminology} for the definition of root.
 
+    /// Load the last pathname component from the specified `path` into the
+    /// specified `tail` and everything leading up to that to the specified
+    /// `head`.  If the optionally specified `rootEnd` offset is
+    /// non-negative, it is taken as the position in `path` of the character
+    /// following the root.  The `tail` part never contains a slash; if
+    /// `path` ends in a slash, `tail` is empty.  If there is no slash in
+    /// `path`, `head` is empty.  If `path` is empty, both `head` and `tail`
+    /// are empty.  Trailing slashes are stripped from `head` unless it is
+    /// the root.
+    /// ```
+    /// +------------------+------------+---------+
+    /// |      PATH        |    HEAD    |   TAIL  |
+    /// +==================+============+=========+
+    /// | "one"            | ""         | "one"   |
+    /// +------------------+------------+---------+
+    /// | "/one/two/three" | "/one/two" | "three" |
+    /// +------------------+------------+---------+
+    /// | "//one/two///"   | "/one/two" | ""      |
+    /// +------------------+------------+---------+
+    /// | "c:\\one\\two"   | "c:\\one"  | "two"   |
+    /// +------------------+------------+---------+
+    /// ```
+    /// See {`Terminology`} for the definition of root.  The behavior is
+    /// undefined unless `head != tail` and `INT_MAX >= path.length()`.
+    /// Note that `head` or `tail` may point to the `path` object when the
+    /// method is called.
     static void splitFilename(bsl::string_view        *head,
                               bsl::string_view        *tail,
                               const bsl::string_view&  path,
                               int                      rootEnd = -1);
-        // Load the last pathname component from the specified 'path' into the
-        // specified 'tail' and everything leading up to that to the specified
-        // 'head'.  If the optionally specified 'rootEnd' offset is
-        // non-negative, it is taken as the position in 'path' of the character
-        // following the root.  The 'tail' part never contains a slash; if
-        // 'path' ends in a slash, 'tail' is empty.  If there is no slash in
-        // 'path', 'head' is empty.  If 'path' is empty, both 'head' and 'tail'
-        // are empty.  Trailing slashes are stripped from 'head' unless it is
-        // the root.
-        //..
-        //  +------------------+------------+---------+
-        //  |      PATH        |    HEAD    |   TAIL  |
-        //  +==================+============+=========+
-        //  | "one"            | ""         | "one"   |
-        //  +------------------+------------+---------+
-        //  | "/one/two/three" | "/one/two" | "three" |
-        //  +------------------+------------+---------+
-        //  | "//one/two///"   | "/one/two" | ""      |
-        //  +------------------+------------+---------+
-        //  | "c:\\one\\two"   | "c:\\one"  | "two"   |
-        //  +------------------+------------+---------+
-        //..
-        // See {'Terminology'} for the definition of root.  The behavior is
-        // undefined unless 'head != tail' and 'INT_MAX >= path.length()'.
-        // Note that 'head' or 'tail' may point to the 'path' object when the
-        // method is called.
 
+    /// Return `true` if the specified `path` is absolute (has a root), and
+    /// `false` otherwise.  If the optionally specified `rootEnd` offset is
+    /// non-negative, it is taken as the position in `path` of the character
+    /// following the root.  See {Parsing and Performance (`rootEnd`
+    /// argument)}.  See also {Terminology} for the definition of root.
     static bool isAbsolute(const bsl::string_view& path, int rootEnd = -1);
-        // Return 'true' if the specified 'path' is absolute (has a root), and
-        // 'false' otherwise.  If the optionally specified 'rootEnd' offset is
-        // non-negative, it is taken as the position in 'path' of the character
-        // following the root.  See {Parsing and Performance ('rootEnd'
-        // argument)}.  See also {Terminology} for the definition of root.
 
+    /// Return `true` if the specified `path` is relative (lacks a root),
+    /// and `false` otherwise.  If the optionally specified `rootEnd` offset
+    /// is non-negative, it is taken as the position in `path` of the
+    /// character following the root.  See {Parsing and Performance
+    /// (`rootEnd` argument)}.  See also {Terminology} for the definition of
+    /// root.
     static bool isRelative(const bsl::string_view& path, int rootEnd = -1);
-        // Return 'true' if the specified 'path' is relative (lacks a root),
-        // and 'false' otherwise.  If the optionally specified 'rootEnd' offset
-        // is non-negative, it is taken as the position in 'path' of the
-        // character following the root.  See {Parsing and Performance
-        // ('rootEnd' argument)}.  See also {Terminology} for the definition of
-        // root.
 
+    /// Return `true` if the specified `path` has a filename following the
+    /// root, and `false` otherwise.  If the optionally specified `rootEnd`
+    /// offset is non-negative, it is taken as the position in `path` of the
+    /// character following the root.  See {Parsing and Performance
+    /// (`rootEnd` argument)}.  See also {Terminology} for the definition of
+    /// leaf.
     static bool hasLeaf(const bsl::string_view& path, int rootEnd = -1);
-        // Return 'true' if the specified 'path' has a filename following the
-        // root, and 'false' otherwise.  If the optionally specified 'rootEnd'
-        // offset is non-negative, it is taken as the position in 'path' of the
-        // character following the root.  See {Parsing and Performance
-        // ('rootEnd' argument)}.  See also {Terminology} for the definition of
-        // leaf.
 
+    /// Return the 0-based position in the specified `path` of the character
+    /// following the root.  Note that a return value of 0 indicates a
+    /// relative path.  See {Parsing and Performance (`rootEnd` argument)}.
+    /// See also {Terminology} for the definition of root.
     static int getRootEnd(const bsl::string_view& path);
-        // Return the 0-based position in the specified 'path' of the character
-        // following the root.  Note that a return value of 0 indicates a
-        // relative path.  See {Parsing and Performance ('rootEnd' argument)}.
-        // See also {Terminology} for the definition of root.
 };
 
 // ============================================================================

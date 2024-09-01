@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: 'bdlde::Crc64' implements a mechanism for computing, updating,
+//@DESCRIPTION: `bdlde::Crc64` implements a mechanism for computing, updating,
 // and streaming a CRC-64 checksum (a cyclic redundancy check comprising 64
 // bits).  This checksum is a strong and fast technique for determining whether
 // a message was received without errors.  Note that a CRC-64 checksum does not
@@ -28,57 +28,57 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // The following snippets of code illustrate a typical use of the
-// 'bdlde::Crc64' class.  Each function would typically execute in separate
-// processes or potentially on separate machines.  The 'senderExample' function
+// `bdlde::Crc64` class.  Each function would typically execute in separate
+// processes or potentially on separate machines.  The `senderExample` function
 // below demonstrates how a message sender can write a message and its CRC-64
-// checksum to a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of
-// any class that implements the 'bslx::OutStream' protocol:
-//..
-//  void senderExample(Out& output)
-//      // Write a message and its CRC-64 checksum to the specified 'output'
-//      // stream.
-//  {
-//      // prepare a message
-//      bsl::string message = "This is a test message.";
+// checksum to a `bdex` output stream.  Note that `Out` may be a `typedef` of
+// any class that implements the `bslx::OutStream` protocol:
+// ```
+// void senderExample(Out& output)
+//     // Write a message and its CRC-64 checksum to the specified 'output'
+//     // stream.
+// {
+//     // prepare a message
+//     bsl::string message = "This is a test message.";
 //
-//      // generate a checksum for 'message'
-//      bdlde::Crc64 crc(message.data(), message.length());
+//     // generate a checksum for 'message'
+//     bdlde::Crc64 crc(message.data(), message.length());
 //
-//      // write the message to 'output'
-//      output << message;
+//     // write the message to 'output'
+//     output << message;
 //
-//      // write the checksum to 'output'
-//      const int VERSION = 1;
-//      crc.bdexStreamOut(output, VERSION);
-//  }
-//..
-// The 'receiverExample' function below illustrates how a message receiver can
-// read a message and its CRC-64 checksum from a 'bdex' input stream, then
+//     // write the checksum to 'output'
+//     const int VERSION = 1;
+//     crc.bdexStreamOut(output, VERSION);
+// }
+// ```
+// The `receiverExample` function below illustrates how a message receiver can
+// read a message and its CRC-64 checksum from a `bdex` input stream, then
 // perform a local CRC-64 computation to verify that the message was received
-// intact.  Note that 'In' may be a 'typedef' of any class that implements the
-// 'bslx::InStream' protocol:
-//..
-//  void receiverExample(In& input)
-//      // Read a message and its CRC-64 checksum from the specified 'input'
-//      // stream, and verify the integrity of the message.
-//  {
-//      // read the message from 'input'
-//      bsl::string message;
-//      input >> message;
+// intact.  Note that `In` may be a `typedef` of any class that implements the
+// `bslx::InStream` protocol:
+// ```
+// void receiverExample(In& input)
+//     // Read a message and its CRC-64 checksum from the specified 'input'
+//     // stream, and verify the integrity of the message.
+// {
+//     // read the message from 'input'
+//     bsl::string message;
+//     input >> message;
 //
-//      // read the checksum from 'input'
-//      bdlde::Crc64 crc;
-//      const int VERSION = 1;
-//      crc.bdexStreamIn(input, VERSION);
+//     // read the checksum from 'input'
+//     bdlde::Crc64 crc;
+//     const int VERSION = 1;
+//     crc.bdexStreamIn(input, VERSION);
 //
-//      // locally compute the checksum of the received 'message'
-//      bdlde::Crc64 crcLocal;
-//      crcLocal.update(message.data(), message.length());
+//     // locally compute the checksum of the received 'message'
+//     bdlde::Crc64 crcLocal;
+//     crcLocal.update(message.data(), message.length());
 //
-//      // verify that the received and locally-computed checksums match
-//      assert(crcLocal == crc);
-//  }
-//..
+//     // verify that the received and locally-computed checksums match
+//     assert(crcLocal == crc);
+// }
+// ```
 
 #include <bdlscm_version.h>
 
@@ -95,21 +95,21 @@ namespace bdlde {
                                 // class Crc64
                                 // ===========
 
+/// This class represents a CRC-64 checksum value that can be updated as
+/// data is provided.
+///
+/// More generally, this class supports a complete set of *value*
+/// *semantic* operations, including copy construction, assignment,
+/// equality comparison, `ostream` printing, and `bdex` serialization.
+/// (A precise operational definition of when two objects have the same
+/// value can be found in the description of `operator==` for the class.)
+/// This class is *exception* *neutral* with no guarantee of rollback: if an
+/// exception is thrown during the invocation of a method on a pre-existing
+/// object, the class is left in a valid state, but its value is undefined.
+/// In no event is memory leaked.  Finally, *aliasing* (e.g., using all or
+/// part of an object as both source and destination) is supported in all
+/// cases.
 class Crc64 {
-    // This class represents a CRC-64 checksum value that can be updated as
-    // data is provided.
-    //
-    // More generally, this class supports a complete set of *value*
-    // *semantic* operations, including copy construction, assignment,
-    // equality comparison, 'ostream' printing, and 'bdex' serialization.
-    // (A precise operational definition of when two objects have the same
-    // value can be found in the description of 'operator==' for the class.)
-    // This class is *exception* *neutral* with no guarantee of rollback: if an
-    // exception is thrown during the invocation of a method on a pre-existing
-    // object, the class is left in a valid state, but its value is undefined.
-    // In no event is memory leaked.  Finally, *aliasing* (e.g., using all or
-    // part of an object as both source and destination) is supported in all
-    // cases.
 
     // DATA
     bsls::Types::Uint64 d_crc;  // bitwise inverse of the current checksum
@@ -119,110 +119,115 @@ class Crc64 {
 
   public:
     // CLASS METHODS
+
+    /// Return the maximum valid BDEX format version, as indicated by the
+    /// specified `versionSelector`, to be passed to the `bdexStreamOut`
+    /// method.  Note that the `versionSelector` is expected to be formatted
+    /// as `yyyymmdd`, a date representation.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     static int maxSupportedBdexVersion(int versionSelector);
-        // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
-        // method.  Note that the 'versionSelector' is expected to be formatted
-        // as 'yyyymmdd', a date representation.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
     // CREATORS
+
+    /// Construct a checksum having the value corresponding to no data
+    /// having been provided (i.e., having the value 0).
     Crc64();
-        // Construct a checksum having the value corresponding to no data
-        // having been provided (i.e., having the value 0).
 
+    /// Construct a checksum corresponding to the specified `data` having
+    /// the specified `length` (in bytes).  Note that if `data` is 0, then
+    /// `length` also must be 0.
     Crc64(const void *data, bsl::size_t length);
-        // Construct a checksum corresponding to the specified 'data' having
-        // the specified 'length' (in bytes).  Note that if 'data' is 0, then
-        // 'length' also must be 0.
 
+    /// Construct a checksum having the value of the specified `original`
+    /// checksum.
     Crc64(const Crc64& original);
-        // Construct a checksum having the value of the specified 'original'
-        // checksum.
 
     // ~Crc64();
         // Destroy this checksum.  Note that this trivial destructor is
         // generated by the compiler.
 
     // MANIPULATORS
-    Crc64& operator=(const Crc64& rhs);
-        // Assign to this checksum the value of the specified 'rhs' checksum,
-        // and return a reference to this modifiable checksum.
 
+    /// Assign to this checksum the value of the specified `rhs` checksum,
+    /// and return a reference to this modifiable checksum.
+    Crc64& operator=(const Crc64& rhs);
+
+    /// Assign to this object the value read from the specified input
+    /// `stream` using the specified `version` format, and return a
+    /// reference to `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `version` is not supported, this object
+    /// is unaltered and `stream` is invalidated but otherwise unmodified.
+    /// If `version` is supported but `stream` becomes invalid during this
+    /// operation, this object has an undefined, but valid, state.  Note
+    /// that no version is read from `stream`.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format, and return a
-        // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, this object
-        // is unaltered and 'stream' is invalidated but otherwise unmodified.
-        // If 'version' is supported but 'stream' becomes invalid during this
-        // operation, this object has an undefined, but valid, state.  Note
-        // that no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
+    /// Return the current value of this checksum and set the value of this
+    /// checksum to the value the default constructor provides.
     bsls::Types::Uint64 checksumAndReset();
-        // Return the current value of this checksum and set the value of this
-        // checksum to the value the default constructor provides.
 
+    /// Reset the value of this checksum to the value the default
+    /// constructor provides.
     void reset();
-        // Reset the value of this checksum to the value the default
-        // constructor provides.
 
+    /// Update the value of this checksum to incorporate the specified
+    /// `data` having the specified `length`.  If the current state is the
+    /// default state, the resultant value of this checksum is the
+    /// application of the CRC-64 algorithm upon the currently given `data`
+    /// of the given `length`.  If this checksum has been previously
+    /// provided data and has not been subsequently reset, the current state
+    /// is not the default state and the resultant value is equivalent to
+    /// applying the CRC-64 algorithm upon the concatenation of all the
+    /// provided data.  Note that if `data` is 0, then `length` also must be
+    /// 0.
     void update(const void *data, bsl::size_t length);
-        // Update the value of this checksum to incorporate the specified
-        // 'data' having the specified 'length'.  If the current state is the
-        // default state, the resultant value of this checksum is the
-        // application of the CRC-64 algorithm upon the currently given 'data'
-        // of the given 'length'.  If this checksum has been previously
-        // provided data and has not been subsequently reset, the current state
-        // is not the default state and the resultant value is equivalent to
-        // applying the CRC-64 algorithm upon the concatenation of all the
-        // provided data.  Note that if 'data' is 0, then 'length' also must be
-        // 0.
 
     // ACCESSORS
+
+    /// Write this value to the specified output `stream` using the
+    /// specified `version` format, and return a reference to `stream`.  If
+    /// `stream` is initially invalid, this operation has no effect.  If
+    /// `version` is not supported, `stream` is invalidated but otherwise
+    /// unmodified.  Note that `version` is not written to `stream`.  See
+    /// the `bslx` package-level documentation for more information on BDEX
+    /// streaming of value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format, and return a reference to 'stream'.  If
-        // 'stream' is initially invalid, this operation has no effect.  If
-        // 'version' is not supported, 'stream' is invalidated but otherwise
-        // unmodified.  Note that 'version' is not written to 'stream'.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
 
+    /// Return the current value of this checksum.
     bsls::Types::Uint64 checksum() const;
-        // Return the current value of this checksum.
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level` and return a
+    /// reference to `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for
+    /// this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  If `stream` is
+    /// not valid on entry, this operation has no effect.
     bsl::ostream& print(bsl::ostream& stream) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level' and return a
-        // reference to 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` checksums have the same
+/// value, and `false` otherwise.  Two checksums have the same value if the
+/// values obtained from their `checksum` methods are identical.
 bool operator==(const Crc64& lhs, const Crc64& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' checksums have the same
-    // value, and 'false' otherwise.  Two checksums have the same value if the
-    // values obtained from their 'checksum' methods are identical.
 
+/// Return `true` if the specified `lhs` and `rhs` checksums do not have the
+/// same value, and `false` otherwise.  Two checksums do not have the same
+/// value if the values obtained from their `checksum` methods differ.
 bool operator!=(const Crc64& lhs, const Crc64& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' checksums do not have the
-    // same value, and 'false' otherwise.  Two checksums do not have the same
-    // value if the values obtained from their 'checksum' methods differ.
 
+/// Write to the specified output `stream` the specified `checksum` value
+/// and return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const Crc64& checksum);
-    // Write to the specified output 'stream' the specified 'checksum' value
-    // and return a reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE DEFINITIONS

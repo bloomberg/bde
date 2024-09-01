@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //      bdls::MemoryUtil: struct which scopes memory system utilities.
 //
-//@DESCRIPTION: This component, 'bdls::MemoryUtil', defines a
+//@DESCRIPTION: This component, `bdls::MemoryUtil`, defines a
 // platform-independent interface for memory manipulation, providing utilities
 // for querying page size, allocating/deallocating page-aligned memory, and
 // utility to change memory protection.
@@ -22,38 +22,38 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // First, allocate one page of memory.
-//..
-//  int pageSize = bdls::MemoryUtil::pageSize();
-//  char *data = (char*)bdls::MemoryUtil::allocate(pageSize);
-//..
+// ```
+// int pageSize = bdls::MemoryUtil::pageSize();
+// char *data = (char*)bdls::MemoryUtil::allocate(pageSize);
+// ```
 // Write into the allocated buffer.
-//..
-//  data[0] = '1';
-//..
+// ```
+// data[0] = '1';
+// ```
 //
 // Make the memory write protected
-//..
-//  bdls::MemoryUtil::protect(data, pageSize,
-//                            bdls::MemoryUtil::k_ACCESS_READ);
-//..
+// ```
+// bdls::MemoryUtil::protect(data, pageSize,
+//                           bdls::MemoryUtil::k_ACCESS_READ);
+// ```
 //
 // Verify that data still could be read.
-//..
-//  assert('1' == data[0]);
-//..
+// ```
+// assert('1' == data[0]);
+// ```
 //
 // Once again, try writing into the buffer.  This should crash our process.
-//..
-//  data[0] = '2';
-//..
+// ```
+// data[0] = '2';
+// ```
 //
 // Restore read/write access and free the allocated memory.  Actually, this
 // will never be executed, as the process has already crashed.
-//..
-//  bdls::MemoryUtil::protect(data, pageSize,
-//                            bdls::MemoryUtil::k_ACCESS_READ_WRITE);
-//  bdls::MemoryUtil::free(data);
-//..
+// ```
+// bdls::MemoryUtil::protect(data, pageSize,
+//                           bdls::MemoryUtil::k_ACCESS_READ_WRITE);
+// bdls::MemoryUtil::free(data);
+// ```
 
 #include <bdlscm_version.h>
 
@@ -100,39 +100,40 @@ struct MemoryUtil {
     };
 
     // CLASS METHODS
+
+    /// Return the memory page size of the platform.
     static int pageSize();
-        // Return the memory page size of the platform.
 
+    /// Change the access protection on a region of memory starting at the
+    /// specified `address` and `numBytes` long, according to specified
+    /// `mode`, making memory readable if `(mode & ACCESS_READ)` is nonzero
+    /// and writable if `(mode & ACCESS_WRITE)` is nonzero.  Return 0 on
+    /// success, and a nonzero value otherwise.  The behavior is undefined
+    /// if `addr` is not aligned on a page boundary, if `numBytes` is not a
+    /// multiple of `pageSize()`, or if `numBytes` is 0.  Note that some
+    /// platforms do not support certain protection modes, e.g., on some
+    /// platforms the memory cannot be made writable but unreadable, or
+    /// readable but non-executable.  On these platforms the actual access
+    /// protection set on the region might be more permissive than the
+    /// specified one.  Also note that most memory allocators do not expect
+    /// memory protection on allocated memory to be changed, so you must
+    /// reset protection back to ACCESS_READ_WRITE before releasing the
+    /// memory.
     static int protect(void *address, int numBytes, int mode);
-        // Change the access protection on a region of memory starting at the
-        // specified 'address' and 'numBytes' long, according to specified
-        // 'mode', making memory readable if '(mode & ACCESS_READ)' is nonzero
-        // and writable if '(mode & ACCESS_WRITE)' is nonzero.  Return 0 on
-        // success, and a nonzero value otherwise.  The behavior is undefined
-        // if 'addr' is not aligned on a page boundary, if 'numBytes' is not a
-        // multiple of 'pageSize()', or if 'numBytes' is 0.  Note that some
-        // platforms do not support certain protection modes, e.g., on some
-        // platforms the memory cannot be made writable but unreadable, or
-        // readable but non-executable.  On these platforms the actual access
-        // protection set on the region might be more permissive than the
-        // specified one.  Also note that most memory allocators do not expect
-        // memory protection on allocated memory to be changed, so you must
-        // reset protection back to ACCESS_READ_WRITE before releasing the
-        // memory.
 
+    /// Allocate an area of memory of the specified size `numBytes`, aligned
+    /// on a page boundary.  Return a pointer to allocated memory on
+    /// success, and a null pointer otherwise.  Note that the allocated
+    /// memory is readable and writable, and read/write access to this
+    /// memory, if revoked, must be restored before deallocation.
     static void *allocate(int numBytes);
-        // Allocate an area of memory of the specified size 'numBytes', aligned
-        // on a page boundary.  Return a pointer to allocated memory on
-        // success, and a null pointer otherwise.  Note that the allocated
-        // memory is readable and writable, and read/write access to this
-        // memory, if revoked, must be restored before deallocation.
 
+    /// Deallocate a memory area at the specified `address` previously
+    /// allocated with the `allocate` method.  Return 0 on success, and a
+    /// nonzero value otherwise.  The behavior is undefined if read or write
+    /// access to any memory in this area has been revoked and not restored.
+    /// Note that deallocating memory does not change memory protection.
     static int deallocate(void *address);
-        // Deallocate a memory area at the specified 'address' previously
-        // allocated with the 'allocate' method.  Return 0 on success, and a
-        // nonzero value otherwise.  The behavior is undefined if read or write
-        // access to any memory in this area has been revoked and not restored.
-        // Note that deallocating memory does not change memory protection.
 };
 }  // close package namespace
 

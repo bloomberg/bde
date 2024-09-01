@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlat_sequencefunctions
 //
-//@DESCRIPTION: This component provides the 'bdlat_AttributeInfo' 'struct',
+//@DESCRIPTION: This component provides the `bdlat_AttributeInfo` `struct`,
 // which is a container for holding information (properties) about a sequence
 // attribute.  The properties of an attribute include its name and the length
 // of its name, its distinct id within its containing type, its formatting
@@ -20,11 +20,11 @@ BSLS_IDENT("$Id: $")
 // accessible, a manipulator and accessor is also supplied for each.
 //
 // When accessing or manipulating an attribute of a "sequence" type (using one
-// of the functions from the 'bdlat_SequenceFunctions' namespace), an instance
-// of this 'struct' will be passed as the second argument to the accessor or
+// of the functions from the `bdlat_SequenceFunctions` namespace), an instance
+// of this `struct` will be passed as the second argument to the accessor or
 // manipulator.
 //
-// Note that this 'struct' needs to be a POD type.
+// Note that this `struct` needs to be a POD type.
 //
 ///Usage
 ///-----
@@ -34,38 +34,38 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // Suppose you create an accessor for sequence attributes that prints each
 // attribute to an output stream:
-//..
-//  #include <bdlat_attributeinfo.h>
-//  #include <ostream>
+// ```
+// #include <bdlat_attributeinfo.h>
+// #include <ostream>
 //
-//  using namespace BloombergLP;
+// using namespace BloombergLP;
 //
-//  class PrintAttributeWithInfo {
-//      // Print the attribute along with its name and annotation.
+// class PrintAttributeWithInfo {
+//     // Print the attribute along with its name and annotation.
 //
-//      // PRIVATE DATA MEMBERS
-//      bsl::ostream *d_stream_p;
+//     // PRIVATE DATA MEMBERS
+//     bsl::ostream *d_stream_p;
 //
-//    public:
-//      // CREATORS
-//      PrintAttributeWithInfo(bsl::ostream *stream)
-//      : d_stream_p(stream)
-//      {
-//      }
+//   public:
+//     // CREATORS
+//     PrintAttributeWithInfo(bsl::ostream *stream)
+//     : d_stream_p(stream)
+//     {
+//     }
 //
-//      // OPERATIONS
-//      template <typename TYPE>
-//      int operator()(const TYPE&                attribute,
-//                     const bdlat_AttributeInfo& info)
-//      {
-//          (*d_stream_p) << attribute << " ("
-//                        << bsl::string(info.name(),
-//                                       info.nameLength())
-//                        << ", "
-//                        << info.annotation() << ")\n";
-//      }
-//  };
-//..
+//     // OPERATIONS
+//     template <typename TYPE>
+//     int operator()(const TYPE&                attribute,
+//                    const bdlat_AttributeInfo& info)
+//     {
+//         (*d_stream_p) << attribute << " ("
+//                       << bsl::string(info.name(),
+//                                      info.nameLength())
+//                       << ", "
+//                       << info.annotation() << ")\n";
+//     }
+// };
+// ```
 
 #include <bdlscm_version.h>
 
@@ -92,9 +92,9 @@ namespace BloombergLP {
                          // struct bdlat_AttributeInfo
                          // ==========================
 
+/// This `struct` holds information about an attribute.  Its data members
+/// are `public` by design so that instances may be statically initialized.
 struct bdlat_AttributeInfo {
-    // This 'struct' holds information about an attribute.  Its data members
-    // are 'public' by design so that instances may be statically initialized.
 
     // PUBLIC DATA -- DO *NOT* REORDER
     int         d_id;              // distinct id of attribute
@@ -128,48 +128,49 @@ struct bdlat_AttributeInfo {
     //..
     // The assignment operator supplied by the compiler is sufficient.
 
+    /// Return a reference to the modifiable annotation of this attribute
+    /// info object.
     const char *& annotation();
-        // Return a reference to the modifiable annotation of this attribute
-        // info object.
 
+    /// Return a reference to the modifiable formatting mode of this
+    /// attribute info object.
     int& formattingMode();
-        // Return a reference to the modifiable formatting mode of this
-        // attribute info object.
 
+    /// Return a reference to the modifiable id of this attribute info
+    /// object.
     int& id();
-        // Return a reference to the modifiable id of this attribute info
-        // object.
 
+    /// Return a reference to the modifiable name of this attribute info
+    /// object.
     const char *& name();
-        // Return a reference to the modifiable name of this attribute info
-        // object.
 
+    /// Return a reference to the modifiable length of the name of this
+    /// attribute info object.  Note that the 0-terminator is not included
+    /// in the length.
     int& nameLength();
-        // Return a reference to the modifiable length of the name of this
-        // attribute info object.  Note that the 0-terminator is not included
-        // in the length.
 
     // ACCESSORS
+
+    /// Return the non-modifiable annotation of this attribute info object.
     BSLS_KEYWORD_CONSTEXPR
     const char *annotation() const;
-        // Return the non-modifiable annotation of this attribute info object.
 
+    /// Return the formatting mode of this attribute info object.
     BSLS_KEYWORD_CONSTEXPR
     int formattingMode() const;
-        // Return the formatting mode of this attribute info object.
 
+    /// Return the id of this attribute info object.
     BSLS_KEYWORD_CONSTEXPR
     int id() const;
-        // Return the id of this attribute info object.
 
+    /// Return the non-modifiable name of this attribute info object.
     BSLS_KEYWORD_CONSTEXPR
     const char *name() const;
-        // Return the non-modifiable name of this attribute info object.
 
+    /// Return the length of the name of this attribute info object.  Note
+    /// that the 0-terminator is not included in the length.
     BSLS_KEYWORD_CONSTEXPR
     int nameLength() const;
-        // Return the length of the name of this attribute info object.  Note
-        // that the 0-terminator is not included in the length.
 };
 
 // ============================================================================
@@ -177,26 +178,27 @@ struct bdlat_AttributeInfo {
 // ============================================================================
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute info objects
+/// have the same value, and `false` otherwise.  Two attribute info objects
+/// have the same value if each of their respective properties are
+/// identical.
 inline
 bool operator==(const bdlat_AttributeInfo& lhs,
                 const bdlat_AttributeInfo& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute info objects
-    // have the same value, and 'false' otherwise.  Two attribute info objects
-    // have the same value if each of their respective properties are
-    // identical.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute info objects do
+/// not have the same value, and `false` otherwise.  Two attribute info
+/// objects do not have the same value if at least one of their respective
+/// properties is not identical.
 inline
 bool operator!=(const bdlat_AttributeInfo& lhs,
                 const bdlat_AttributeInfo& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute info objects do
-    // not have the same value, and 'false' otherwise.  Two attribute info
-    // objects do not have the same value if at least one of their respective
-    // properties is not identical.
 
+/// Write the value of the specified `attributeInfo` to the specified
+/// `stream`.
 bsl::ostream& operator<<(bsl::ostream&              stream,
                          const bdlat_AttributeInfo& attributeInfo);
-    // Write the value of the specified 'attributeInfo' to the specified
-    // 'stream'.
 
 // MANIPULATORS
 inline

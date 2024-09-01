@@ -10,69 +10,65 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlat_ValueTypeFunctions: namespace for "value type" functions
 //
-//@DESCRIPTION: This component provides a 'namespace',
-// 'bdlat_ValueTypeFunctions', defining functions that may be called on "value
+//@DESCRIPTION: This component provides a `namespace`,
+// `bdlat_ValueTypeFunctions`, defining functions that may be called on "value
 // types".
 //
 // The functions in this namespace allow users to:
 //
-//: o 'assign' values to "value type" objects (ie., as if by using the
-//:   assignment operator '*lhs = rhs'), and
-//:
-//: o 'reset' "value type" objects to their default state (i.e., as if each
-//:   object was just constructed using its default constructor).
+// * `assign` values to "value type" objects (ie., as if by using the
+//   assignment operator `*lhs = rhs`), and
+// * `reset` "value type" objects to their default state (i.e., as if each
+//   object was just constructed using its default constructor).
 //
-// Types in the 'bdlat' "value type" framework are required to have:
-//: o a default constructor
-//: o a copy assignment operator
-//: o the free function template and the free function described below.
+// Types in the `bdlat` "value type" framework are required to have:
+// * a default constructor
+// * a copy assignment operator
+// * the free function template and the free function described below.
 //
-// Types in the 'bdlat' "value type" framework must define in the namespace
+// Types in the `bdlat` "value type" framework must define in the namespace
 // where the type is defined, overloads of the following free function template
-// and free frunction.  Note that the placeholder 'YOUR_TYPE' is not a template
+// and free frunction.  Note that the placeholder `YOUR_TYPE` is not a template
 // argument and should be replaced with the name of the type being plugged into
 // the framework:
-//..
-//  // MANIPULATORS
-//  template <class RHS_TYPE>
-//  int bdlat_valueTypeAssign(YOUR_TYPE *lhs, const RHS_TYPE& rhs);
-//      // Assign to the specified 'lhs' the value if the specified 'rhs'.
-//      // Return 0 on success and a non-zero value otherwise.  If setting
-//      // 'lhs' to 'rhs' would violate any preconditions, a non-zero value is
-//      // returned.  If (template parameter) 'RHS_TYPE' cannot be used to set
-//      // the value of 'lhs', a non-zero value is returned.
+// ```
+// // MANIPULATORS
+// template <class RHS_TYPE>
+// int bdlat_valueTypeAssign(YOUR_TYPE *lhs, const RHS_TYPE& rhs);
+//     // Assign to the specified 'lhs' the value if the specified 'rhs'.
+//     // Return 0 on success and a non-zero value otherwise.  If setting
+//     // 'lhs' to 'rhs' would violate any preconditions, a non-zero value is
+//     // returned.  If (template parameter) 'RHS_TYPE' cannot be used to set
+//     // the value of 'lhs', a non-zero value is returned.
 //
-//  void bdlat_valueTypeReset(YOUR_TYPE *object);
-//      // Reset the specified 'object' to that of its default state (i.e., to
-//      // 'YOUR_TYPE()').
-//..
-// Notice that, unlike other 'bdlat' type infrastructures, the 'bdlat' "value"
+// void bdlat_valueTypeReset(YOUR_TYPE *object);
+//     // Reset the specified 'object' to that of its default state (i.e., to
+//     // 'YOUR_TYPE()').
+// ```
+// Notice that, unlike other `bdlat` type infrastructures, the `bdlat` "value"
 // infrastructure does *not* require the setting of any traits, or definition
-// of meta-functions, or creation of any 'typedef's.  For example, see
-// {'bdlat_arrayfunctions'} and {'bdlat_nullablevaluefunctions'}.
+// of meta-functions, or creation of any `typedef`s.  For example, see
+// {`bdlat_arrayfunctions`} and {`bdlat_nullablevaluefunctions`}.
 //
 // There are two significant implications of the contract for
-// 'bdlat_valueTypeAssign':
+// `bdlat_valueTypeAssign`:
 //
-//: o Interactions with incompatible types are handled at run-time, not
-//:   compile-time.
-//:
-//: o Users of the 'bdlat_valueTypeAssign' function deal with a wide contract,
-//:   even if the corresponding operation in 'YOUR_TYPE' has a narrow contract.
+// * Interactions with incompatible types are handled at run-time, not
+//   compile-time.
+// * Users of the `bdlat_valueTypeAssign` function deal with a wide contract,
+//   even if the corresponding operation in `YOUR_TYPE` has a narrow contract.
 //
 ///Supported Types
 ///---------------
 // This component provides "value type" support for the following types:
 //
-//: o All types with a default constructor and copy assignment operator.
-//:
-//: o Types having any of the following traits (see {'bdlat_typetraits'}):
-//:
-//:   o 'bdlat_TypeTraitBasicSequence'
-//:   o 'bdlat_TypeTraitBasicChoice'
-//:   o 'bdlat_TypeTraitBasicCustomizedType'
-//:   o 'bsl::vector'
-//:   o 'bsl::basic_string'
+// * All types with a default constructor and copy assignment operator.
+// * Types having any of the following traits (see {`bdlat_typetraits`}):
+//   - `bdlat_TypeTraitBasicSequence`
+//   - `bdlat_TypeTraitBasicChoice`
+//   - `bdlat_TypeTraitBasicCustomizedType`
+//   - `bsl::vector`
+//   - `bsl::basic_string`
 //
 ///Usage
 ///-----
@@ -81,376 +77,374 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Implicit "Value Type"
 /// - - - - - - - - - - - - - - - -
 // Suppose you had a type that defines a "value".
-//..
-//  namespace BloombergLP {
-//  namespace mine {
+// ```
+// namespace BloombergLP {
+// namespace mine {
 //
-//  struct MyValueType {
-//      int    d_int;
-//      double d_double;
-//  };
+// struct MyValueType {
+//     int    d_int;
+//     double d_double;
+// };
 //
-//  }  // close package namespace
-//  }  // close enterprise namespace
-//..
-// Although our definition of 'MyValueType' was rather terse, several methods
+// }  // close package namespace
+// }  // close enterprise namespace
+// ```
+// Although our definition of `MyValueType` was rather terse, several methods
 // are implicitly defined by the compiler:
-//..
-//  void f()
-//  {
-//      using namespace BloombergLP;
+// ```
+// void f()
+// {
+//     using namespace BloombergLP;
 //
-//      mine::MyValueType a = { 1, 1.0 };  // aggregate braced initialization
-//      mine::MyValueType b(a);            // implicit copy constructor
+//     mine::MyValueType a = { 1, 1.0 };  // aggregate braced initialization
+//     mine::MyValueType b(a);            // implicit copy constructor
 //
-//      assert(b.d_int    == a.d_int);
-//      assert(b.d_double == a.d_double);
+//     assert(b.d_int    == a.d_int);
+//     assert(b.d_double == a.d_double);
 //
-//      a.d_int    = 2;
-//      a.d_double = 3.14;
+//     a.d_int    = 2;
+//     a.d_double = 3.14;
 //
-//      b = a;                             // implicit copy assignment operator
+//     b = a;                             // implicit copy assignment operator
 //
-//      assert(b.d_int    == a.d_int);
-//      assert(b.d_double == a.d_double);
-//  }
-//..
+//     assert(b.d_int    == a.d_int);
+//     assert(b.d_double == a.d_double);
+// }
+// ```
 // Notice that the implicitly defined methods include a copy constructor and a
-// copy assignment operator thereby implicitly making 'MyValueType' part of the
-// 'bdlat' "value" framework.  As such, it can be manipulated using the methods
-// of 'bdlat_ValueTypeFunctions':
-//..
-//  void myUsageScenario()
-//  {
-//      using namespace BloombergLP;
+// copy assignment operator thereby implicitly making `MyValueType` part of the
+// `bdlat` "value" framework.  As such, it can be manipulated using the methods
+// of `bdlat_ValueTypeFunctions`:
+// ```
+// void myUsageScenario()
+// {
+//     using namespace BloombergLP;
 //
-//      mine::MyValueType x = {  7, 10.0 };
-//      mine::MyValueType y = { 99, -1.0 };
+//     mine::MyValueType x = {  7, 10.0 };
+//     mine::MyValueType y = { 99, -1.0 };
 //
-//      assert(x.d_int    != y.d_int);
-//      assert(x.d_double != y.d_double);
+//     assert(x.d_int    != y.d_int);
+//     assert(x.d_double != y.d_double);
 //
-//      int rc = bdlat_ValueTypeFunctions::assign(&x, y);
-//      assert(0 == rc);
+//     int rc = bdlat_ValueTypeFunctions::assign(&x, y);
+//     assert(0 == rc);
 //
-//      assert(x.d_int    == y.d_int);
-//      assert(x.d_double == y.d_double);
+//     assert(x.d_int    == y.d_int);
+//     assert(x.d_double == y.d_double);
 //
-//      bdlat_ValueTypeFunctions::reset(&y);
+//     bdlat_ValueTypeFunctions::reset(&y);
 //
-//      assert(x.d_int    != y.d_int);
-//      assert(x.d_double != y.d_double);
+//     assert(x.d_int    != y.d_int);
+//     assert(x.d_double != y.d_double);
 //
-//      assert(int()    == y.d_int);
-//      assert(double() == y.d_double);
-//  }
-//..
+//     assert(int()    == y.d_int);
+//     assert(double() == y.d_double);
+// }
+// ```
 //
 ///Example 2: Interacting with Other Types
 ///- - - - - - - - - - - - - - - - - - - -
-// Suppose you want to enhance 'mine::MyValueType' to allow its value to be
-// assigned from a 'bsl::pair<int, float>' object?  Do do so, create
-// 'your::YourValueType' which has an implicit conversion from
-// 'bsl::pair<int, float>':
-//..
-//  namespace BloombergLP {
-//  namespace your {
+// Suppose you want to enhance `mine::MyValueType` to allow its value to be
+// assigned from a `bsl::pair<int, float>` object?  Do do so, create
+// `your::YourValueType` which has an implicit conversion from
+// `bsl::pair<int, float>`:
+// ```
+// namespace BloombergLP {
+// namespace your {
 //
-//  struct YourValueType {
+// struct YourValueType {
 //
-//      int    d_int;
-//      double d_double;
+//     int    d_int;
+//     double d_double;
 //
-//      YourValueType()
-//      : d_int()
-//      , d_double() { }
+//     YourValueType()
+//     : d_int()
+//     , d_double() { }
 //
-//      YourValueType(const YourValueType& original)
-//      : d_int   (original.d_int)
-//      , d_double(original.d_double) { }
+//     YourValueType(const YourValueType& original)
+//     : d_int   (original.d_int)
+//     , d_double(original.d_double) { }
 //
-//      YourValueType(int intValue, double doubleValue)
-//      : d_int   (   intValue)
-//      , d_double(doubleValue) { }
+//     YourValueType(int intValue, double doubleValue)
+//     : d_int   (   intValue)
+//     , d_double(doubleValue) { }
 //
-//      YourValueType(const bsl::pair<int, double>& value) // IMPLICIT
-//      : d_int   (value.first)
-//      , d_double(value.second) { }
+//     YourValueType(const bsl::pair<int, double>& value) // IMPLICIT
+//     : d_int   (value.first)
+//     , d_double(value.second) { }
 //
-//      YourValueType & operator=(const YourValueType& original) {
-//          d_int    = original.d_int;
-//          d_double = original.d_double;
-//          return *this;
-//      }
-//  };
+//     YourValueType & operator=(const YourValueType& original) {
+//         d_int    = original.d_int;
+//         d_double = original.d_double;
+//         return *this;
+//     }
+// };
 //
-//  }  // close package namespace
-//  }  // close enterprise namespace
-//..
+// }  // close package namespace
+// }  // close enterprise namespace
+// ```
 // Notice that, having defined a constructor, the compiler no longer generates
 // the constructors that had been generated implicitly.  Accordingly, we have
 // added a default constructor, copy constructor and assignment operator.
 // Also, since aggregate initialization is no longer allowed, we have also
 // added a value constructor and slightly modified the syntax of initialization
-// in function 'g()' below:
-//..
-//  void g()
-//  {
-//      using namespace BloombergLP;
+// in function `g()` below:
+// ```
+// void g()
+// {
+//     using namespace BloombergLP;
 //
-//      your::YourValueType a(1, 1.0);     // value initialization
-//      your::YourValueType b(a);          // implicit copy constructor
+//     your::YourValueType a(1, 1.0);     // value initialization
+//     your::YourValueType b(a);          // implicit copy constructor
 //
-//      assert(b.d_int    == a.d_int);
-//      assert(b.d_double == a.d_double);
+//     assert(b.d_int    == a.d_int);
+//     assert(b.d_double == a.d_double);
 //
-//      a.d_int    = 2;
-//      a.d_double = 3.14;
+//     a.d_int    = 2;
+//     a.d_double = 3.14;
 //
-//      b = a;                             // implicit copy assignment operator
+//     b = a;                             // implicit copy assignment operator
 //
-//      assert(b.d_int    == a.d_int);
-//      assert(b.d_double == a.d_double);
+//     assert(b.d_int    == a.d_int);
+//     assert(b.d_double == a.d_double);
 //
-//      bsl::pair<int, double> value(4, 5.0);
+//     bsl::pair<int, double> value(4, 5.0);
 //
-//      a = value;
+//     a = value;
 //
-//      assert(4   == a.d_int);
-//      assert(5.0 == a.d_double);
-//  }
-//..
-// Since both copy construction and assignment are defined, 'YourValueType' can
-// be handled by the 'bdlat' "value" infrastructure in much the same way as we
-// did for 'MyValueType':
-//..
-//  void yourUsageScenario()
-//  {
-//      using namespace BloombergLP;
-//      int rc;
+//     assert(4   == a.d_int);
+//     assert(5.0 == a.d_double);
+// }
+// ```
+// Since both copy construction and assignment are defined, `YourValueType` can
+// be handled by the `bdlat` "value" infrastructure in much the same way as we
+// did for `MyValueType`:
+// ```
+// void yourUsageScenario()
+// {
+//     using namespace BloombergLP;
+//     int rc;
 //
-//      your::YourValueType x( 7, 10.0);
-//      your::YourValueType y(99, -1.0);
+//     your::YourValueType x( 7, 10.0);
+//     your::YourValueType y(99, -1.0);
 //
-//      assert(x.d_int    != y.d_int);
-//      assert(x.d_double != y.d_double);
+//     assert(x.d_int    != y.d_int);
+//     assert(x.d_double != y.d_double);
 //
-//      rc = bdlat_ValueTypeFunctions::assign(&x, y);
-//      assert(0 == rc);
+//     rc = bdlat_ValueTypeFunctions::assign(&x, y);
+//     assert(0 == rc);
 //
-//      assert(x.d_int    == y.d_int);
-//      assert(x.d_double == y.d_double);
+//     assert(x.d_int    == y.d_int);
+//     assert(x.d_double == y.d_double);
 //
-//      bdlat_ValueTypeFunctions::reset(&y);
+//     bdlat_ValueTypeFunctions::reset(&y);
 //
-//      assert(x.d_int    != y.d_int);
-//      assert(x.d_double != y.d_double);
+//     assert(x.d_int    != y.d_int);
+//     assert(x.d_double != y.d_double);
 //
-//      assert(int()   == y.d_int);
-//      assert(float() == y.d_double);
-//..
-// However, since conversion from another type, 'bsl::pair<int, double>', is
-// provided, the 'bdlat' "value" infrastructure can also use that type to set
+//     assert(int()   == y.d_int);
+//     assert(float() == y.d_double);
+// ```
+// However, since conversion from another type, `bsl::pair<int, double>`, is
+// provided, the `bdlat` "value" infrastructure can also use that type to set
 // the value of objects.
-//..
-//      bsl::pair<int, double> value(4, 5.0);
+// ```
+//     bsl::pair<int, double> value(4, 5.0);
 //
-//      rc = bdlat_ValueTypeFunctions::assign(&y, value);
-//      assert(0 == rc);
+//     rc = bdlat_ValueTypeFunctions::assign(&y, value);
+//     assert(0 == rc);
 //
-//      assert(value.first  == y.d_int);
-//      assert(value.second == y.d_double);
-//..
+//     assert(value.first  == y.d_int);
+//     assert(value.second == y.d_double);
+// ```
 // Unsurprisingly, such assignments do not work for arbitrary other types (for
 // which conversion is not defined).  What is notable, is that this code does
 // compile and fails at run-time.
-//..
-//      // Assign an incompatible type.
-//      rc = bdlat_ValueTypeFunctions::assign(&y, bsl::string("4, 5.0"));
-//      assert(0 != rc);
-//  }
-//..
+// ```
+//     // Assign an incompatible type.
+//     rc = bdlat_ValueTypeFunctions::assign(&y, bsl::string("4, 5.0"));
+//     assert(0 != rc);
+// }
+// ```
 //
 ///Installing an Atypical "Value" Type
 ///- - - - - - - - - - - - - - - - - -
-// Suppose someone defines a pernicious "value" type, 'their::TheirValueType',
+// Suppose someone defines a pernicious "value" type, `their::TheirValueType`,
 // having neither copy constructor nor copy assignment operator:
-//..
-//  namespace BloombergLP {
-//  namespace their {
+// ```
+// namespace BloombergLP {
+// namespace their {
 //
-//  class TheirValueType {
+// class TheirValueType {
 //
-//      // DATA
-//      int    d_int;
-//      double d_double;
+//     // DATA
+//     int    d_int;
+//     double d_double;
 //
-//    private:
-//      // NOT IMPLEMENTED
-//      TheirValueType(const TheirValueType& original);   // = delete
-//      TheirValueType& operator=(const TheirValueType&); // = delete
+//   private:
+//     // NOT IMPLEMENTED
+//     TheirValueType(const TheirValueType& original);   // = delete
+//     TheirValueType& operator=(const TheirValueType&); // = delete
 //
-//    public:
-//      // CREATORS
-//      TheirValueType()
-//      : d_int()
-//      , d_double() { }
+//   public:
+//     // CREATORS
+//     TheirValueType()
+//     : d_int()
+//     , d_double() { }
 //
-//      // MANIPULATORS
-//      void setValue(const bsl::string& valueString);
+//     // MANIPULATORS
+//     void setValue(const bsl::string& valueString);
 //
-//      // ACCESSORS
-//      int       intValue() const { return d_int;    }
-//      double doubleValue() const { return d_double; }
-//  };
+//     // ACCESSORS
+//     int       intValue() const { return d_int;    }
+//     double doubleValue() const { return d_double; }
+// };
 //
-//  // MANIPULATORS
-//  void TheirValueType::setValue(const bsl::string& valueString)
-//  {
-//       bsl::string::size_type pos = valueString.find(',');
-//       BSLS_ASSERT(bsl::string::npos != pos);
+// // MANIPULATORS
+// void TheirValueType::setValue(const bsl::string& valueString)
+// {
+//      bsl::string::size_type pos = valueString.find(',');
+//      BSLS_ASSERT(bsl::string::npos != pos);
 //
-//       d_int    = bsl::atoi(valueString.c_str());
-//       d_double = bsl::atof(valueString.c_str() + pos + 1);
-//  }
+//      d_int    = bsl::atoi(valueString.c_str());
+//      d_double = bsl::atof(valueString.c_str() + pos + 1);
+// }
 //
-//  }  // close package namespace
-//  }  // close enterprise namespace
-//..
+// }  // close package namespace
+// }  // close enterprise namespace
+// ```
 // Such a type can be used after a fashion (objects created, states changed,
 // state changes observed), albeit using syntax that is significantly different
-// than we used for 'MyValueType' and 'YourValueType':
-//..
-//  void h()
-//  {
-//      using namespace BloombergLP;
+// than we used for `MyValueType` and `YourValueType`:
+// ```
+// void h()
+// {
+//     using namespace BloombergLP;
 //
-//      their::TheirValueType a;               // default constructor
+//     their::TheirValueType a;               // default constructor
 //
-//      assert(0   == a.   intValue());
-//      assert(0.0 == a.doubleValue());
+//     assert(0   == a.   intValue());
+//     assert(0.0 == a.doubleValue());
 //
-//  //  their::TheirValueType b(a);       // Error, no copy constructor
+// //  their::TheirValueType b(a);       // Error, no copy constructor
 //
-//      their::TheirValueType c;
-//  //  c = a;                            // Error, no copy assignment operator
+//     their::TheirValueType c;
+// //  c = a;                            // Error, no copy assignment operator
 //
-//      a.setValue("2, 3.14");
+//     a.setValue("2, 3.14");
 //
-//      assert(2    == a.   intValue());
-//      assert(3.14 == a.doubleValue());
-//  }
-//..
-// Since 'TheirValueType' lacks both copy construction and assignment, that
-// type is not implicitly supported by the 'bdlat' "value" infrastructure.
+//     assert(2    == a.   intValue());
+//     assert(3.14 == a.doubleValue());
+// }
+// ```
+// Since `TheirValueType` lacks both copy construction and assignment, that
+// type is not implicitly supported by the `bdlat` "value" infrastructure.
 //
-// However, the 'TheirValueType' can be made compatible with that
+// However, the `TheirValueType` can be made compatible with that
 // infrastructure if "they" define the required overloads of
-// 'bdlat_valueTypeAssign' and 'bdlat_valueTypeReset' in 'their' namespace:
-//..
-//  namespace BloombergLP {
-//  namespace their {
+// `bdlat_valueTypeAssign` and `bdlat_valueTypeReset` in `their` namespace:
+// ```
+// namespace BloombergLP {
+// namespace their {
 //
-//  int bdlat_valueTypeAssign(TheirValueType        *lhs,
-//                            const TheirValueType&  rhs)
-//  {
-//      BSLS_ASSERT(lhs);
+// int bdlat_valueTypeAssign(TheirValueType        *lhs,
+//                           const TheirValueType&  rhs)
+// {
+//     BSLS_ASSERT(lhs);
 //
-//      bsl::ostringstream oss;
-//      oss << rhs.intValue() << ", " << rhs.doubleValue();
+//     bsl::ostringstream oss;
+//     oss << rhs.intValue() << ", " << rhs.doubleValue();
 //
-//      lhs->setValue(oss.str());
-//      return 0;
-//  }
+//     lhs->setValue(oss.str());
+//     return 0;
+// }
 //
-//  int bdlat_valueTypeAssign(TheirValueType     *lhs,
-//                            const bsl::string&  rhs)
-//  {
-//      BSLS_ASSERT(lhs);
+// int bdlat_valueTypeAssign(TheirValueType     *lhs,
+//                           const bsl::string&  rhs)
+// {
+//     BSLS_ASSERT(lhs);
 //
-//      lhs->setValue(rhs);
-//      return 0;
-//  }
+//     lhs->setValue(rhs);
+//     return 0;
+// }
 //
-//  // Overload for any other 'RHS_TYPE' to return an error.
-//  template <class RHS_TYPE>
-//  int bdlat_valueTypeAssign(TheirValueType  *lhs,
-//                            const RHS_TYPE&  rhs)
-//  {
-//      BSLS_ASSERT(lhs);
-//      (void)lhs;
-//      (void)rhs;
+// // Overload for any other 'RHS_TYPE' to return an error.
+// template <class RHS_TYPE>
+// int bdlat_valueTypeAssign(TheirValueType  *lhs,
+//                           const RHS_TYPE&  rhs)
+// {
+//     BSLS_ASSERT(lhs);
+//     (void)lhs;
+//     (void)rhs;
 //
-//      return -999;  // Pick a distinctive non-negative value.
-//  }
-//  void bdlat_valueTypeReset(TheirValueType *object)
-//  {
-//      BSLS_ASSERT(object);
+//     return -999;  // Pick a distinctive non-negative value.
+// }
+// void bdlat_valueTypeReset(TheirValueType *object)
+// {
+//     BSLS_ASSERT(object);
 //
-//      bsl::ostringstream oss;
-//      oss << int() << ", " << double();
+//     bsl::ostringstream oss;
+//     oss << int() << ", " << double();
 //
-//      object->setValue(oss.str());
-//  }
+//     object->setValue(oss.str());
+// }
 //
-//  }  // close package namespace
-//  }  // close enterprise namespace
-//..
-// Notice that three overloads of 'bdlat_valueTypeAssign' are defined above:
+// }  // close package namespace
+// }  // close enterprise namespace
+// ```
+// Notice that three overloads of `bdlat_valueTypeAssign` are defined above:
 //
-//: o The first, the overload that allows 'TheirValueType' to be "assigned" to
-//:   itself is required by the 'bdlat' "value" infrastructure.
-//:
-//: o The second, the overload that allows "assignment" from a 'bsl::string' is
-//:   not technically required by the infrastructure, but is a practical
-//:   requirement because 'bsl::string' is the only way 'TheirValueType' can be
-//:   changed from its default value.
-//:
-//: o Finally, we provide an overload templated on an arbitrary 'RHS_TYPE' so
-//:   that, if any other types are passed, the code will compile (as required)
-//:   but also unconditionally fail (as required).
+// * The first, the overload that allows `TheirValueType` to be "assigned" to
+//   itself is required by the `bdlat` "value" infrastructure.
+// * The second, the overload that allows "assignment" from a `bsl::string` is
+//   not technically required by the infrastructure, but is a practical
+//   requirement because `bsl::string` is the only way `TheirValueType` can be
+//   changed from its default value.
+// * Finally, we provide an overload templated on an arbitrary `RHS_TYPE` so
+//   that, if any other types are passed, the code will compile (as required)
+//   but also unconditionally fail (as required).
 //
-// With these points of customization in place, 'TheirValueType' can now be
-// manipulated by the 'bdlat' "value" infrastructure in much the same manner as
-// was done for 'MyValueType' and 'YourValueType':
-//..
-//  void theirUsageScenario()
-//  {
-//      using namespace BloombergLP;
+// With these points of customization in place, `TheirValueType` can now be
+// manipulated by the `bdlat` "value" infrastructure in much the same manner as
+// was done for `MyValueType` and `YourValueType`:
+// ```
+// void theirUsageScenario()
+// {
+//     using namespace BloombergLP;
 //
-//      their::TheirValueType x;
-//      their::TheirValueType y;
+//     their::TheirValueType x;
+//     their::TheirValueType y;
 //
-//      int rc;
+//     int rc;
 //
-//      rc = bdlat_ValueTypeFunctions::assign(&x, bsl::string(" 7, 10.0"));
-//      assert(0 == rc);
+//     rc = bdlat_ValueTypeFunctions::assign(&x, bsl::string(" 7, 10.0"));
+//     assert(0 == rc);
 //
-//      rc = bdlat_ValueTypeFunctions::assign(&y, bsl::string("99, -1.0"));
-//      assert(0 == rc);
+//     rc = bdlat_ValueTypeFunctions::assign(&y, bsl::string("99, -1.0"));
+//     assert(0 == rc);
 //
-//      assert(x.intValue()    != y.intValue());
-//      assert(x.doubleValue() != y.doubleValue());
+//     assert(x.intValue()    != y.intValue());
+//     assert(x.doubleValue() != y.doubleValue());
 //
-//      rc = bdlat_ValueTypeFunctions::assign(&x, y);
-//      assert(0 == rc);
+//     rc = bdlat_ValueTypeFunctions::assign(&x, y);
+//     assert(0 == rc);
 //
-//      assert(x.intValue()    == y.intValue());
-//      assert(x.doubleValue() == y.doubleValue());
+//     assert(x.intValue()    == y.intValue());
+//     assert(x.doubleValue() == y.doubleValue());
 //
-//      bdlat_ValueTypeFunctions::reset(&y);
+//     bdlat_ValueTypeFunctions::reset(&y);
 //
-//      assert(int()   == y.intValue());
-//      assert(float() == y.doubleValue());
+//     assert(int()   == y.intValue());
+//     assert(float() == y.doubleValue());
 //
-//      // Assign an incompatible type.
+//     // Assign an incompatible type.
 //
-//      bsl::pair<int, double> value(4, 5.0);
-//      rc = bdlat_ValueTypeFunctions::assign(&y, value);
-//      assert(   0 != rc);
-//      assert(-999 == rc);
-//  }
-//..
+//     bsl::pair<int, double> value(4, 5.0);
+//     rc = bdlat_ValueTypeFunctions::assign(&y, value);
+//     assert(   0 != rc);
+//     assert(-999 == rc);
+// }
+// ```
 
 #include <bdlscm_version.h>
 
@@ -487,15 +481,16 @@ namespace bdlat_ValueTypeFunctions {
     // "value type".
 
     // MANIPULATORS
+
+    /// Assign the value of the specified `rhs` to the object specified its
+    /// address `lhs`.  Return 0 if successful, and a non-zero value
+    /// otherwise.
     template <class LHS_TYPE, class RHS_TYPE>
     int assign(LHS_TYPE *lhs, const RHS_TYPE& rhs);
-        // Assign the value of the specified 'rhs' to the object specified its
-        // address 'lhs'.  Return 0 if successful, and a non-zero value
-        // otherwise.
 
+    /// Reset the value of the specified `object` to its default value.
     template <class TYPE>
     void reset(TYPE *object);
-        // Reset the value of the specified 'object' to its default value.
 
 }  // close namespace bdlat_ValueTypeFunctions
 
@@ -522,9 +517,9 @@ namespace bdlat_ValueTypeFunctions {
                     // struct bdlat_ValueTypeFunctions_Imp
                     // ===================================
 
+/// This `struct` contains functions used by the implementation of this
+/// component.
 struct bdlat_ValueTypeFunctions_Imp {
-    // This 'struct' contains functions used by the implementation of this
-    // component.
 
     // TYPES
     struct IsConvertible    { };

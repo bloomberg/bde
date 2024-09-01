@@ -13,114 +13,114 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component implements a time interval class,
-// 'bdlt::DatetimeInterval', capable of representing the (signed) difference
+// `bdlt::DatetimeInterval`, capable of representing the (signed) difference
 // between two arbitrary points in time.  The time interval represented by a
-// 'bdlt::DatetimeInterval' object has microsecond resolution.
+// `bdlt::DatetimeInterval` object has microsecond resolution.
 //
 ///The Representation of a Time Interval
 ///-------------------------------------
 // A time interval has a value that is independent of its representation.
 // Conceptually, the interval between two points in time could be described
 // using a (signed) real number of seconds (or minutes, or hours, etc.).  A
-// 'bdlt::DatetimeInterval' represents this value as six fields: days, hours,
+// `bdlt::DatetimeInterval` represents this value as six fields: days, hours,
 // minutes, seconds, milliseconds, and microseconds.  In the "canonical
 // representation" of a time interval, the days field may have any 32-bit
 // signed integer value, with the hours, minutes, seconds, milliseconds, and
-// microseconds fields limited to the respective ranges '[-23 .. 23]',
-// '[-59 .. 59]', '[-59 .. 59]', '[-999 .. 999]', and '[-999 .. 999]', with the
+// microseconds fields limited to the respective ranges `[-23 .. 23]`,
+// `[-59 .. 59]`, `[-59 .. 59]`, `[-999 .. 999]`, and `[-999 .. 999]`, with the
 // additional constraint that the six fields are either all non-negative or all
 // non-positive.  When setting the value of a time interval via its six-field
 // representation, any integer value may be used in any field, with the
 // constraint that the resulting number of days be representable as a 32-bit
 // signed integer.  Similarly, the field values may be accessed in the
-// canonical representation using the 'days', 'hours', 'minutes', 'seconds',
-// 'milliseconds', and 'microseconds' methods.
+// canonical representation using the `days`, `hours`, `minutes`, `seconds`,
+// `milliseconds`, and `microseconds` methods.
 //
-// The primary accessors for this type are 'days' and
-// 'fractionalDayInMicroseconds'.  In combination, these two methods provide
-// complete and succinct access to the value of a 'DatetimeInterval'.
+// The primary accessors for this type are `days` and
+// `fractionalDayInMicroseconds`.  In combination, these two methods provide
+// complete and succinct access to the value of a `DatetimeInterval`.
 // Furthermore, the total value of the interval may be accessed in the
-// respective field units via the 'totalDays', 'totalHours', 'totalMinutes',
-// 'totalSeconds', 'totalMilliseconds', and 'totalMicroseconds' methods.  Note
-// that, with the exception of 'totalMicroseconds' (which returns an exact
+// respective field units via the `totalDays`, `totalHours`, `totalMinutes`,
+// `totalSeconds`, `totalMilliseconds`, and `totalMicroseconds` methods.  Note
+// that, with the exception of `totalMicroseconds` (which returns an exact
 // result), the other "total" accessors round toward 0.  Also note that the
-// 'totalMicroseconds' accessor can fail for extreme 'DatetimeInterval' values.
+// `totalMicroseconds` accessor can fail for extreme `DatetimeInterval` values.
 //
 // The following summarizes the canonical representation of the value of a
-// 'bdlt::DatetimeInterval':
-//..
-//  Field Name     Max. Valid Range     Auxiliary Conditions Limiting Validity
-//  ----------     ------------------   --------------------------------------
-//  days           any 32-bit integer    all fields non-pos. or all non-neg.
-//  hours          [ -23 ..  23]         all fields non-pos. or all non-neg.
-//  minutes        [ -59 ..  59]         all fields non-pos. or all non-neg.
-//  seconds        [ -59 ..  59]         all fields non-pos. or all non-neg.
-//  milliseconds   [-999 .. 999]         all fields non-pos. or all non-neg.
-//  microseconds   [-999 .. 999]         all fields non-pos. or all non-neg.
-//..
+// `bdlt::DatetimeInterval`:
+// ```
+// Field Name     Max. Valid Range     Auxiliary Conditions Limiting Validity
+// ----------     ------------------   --------------------------------------
+// days           any 32-bit integer    all fields non-pos. or all non-neg.
+// hours          [ -23 ..  23]         all fields non-pos. or all non-neg.
+// minutes        [ -59 ..  59]         all fields non-pos. or all non-neg.
+// seconds        [ -59 ..  59]         all fields non-pos. or all non-neg.
+// milliseconds   [-999 .. 999]         all fields non-pos. or all non-neg.
+// microseconds   [-999 .. 999]         all fields non-pos. or all non-neg.
+// ```
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic 'bdlt::DatetimeInterval' Usage
+///Example 1: Basic `bdlt::DatetimeInterval` Usage
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create and use a 'bdlt::DatetimeInterval'
+// This example demonstrates how to create and use a `bdlt::DatetimeInterval`
 // object.
 //
-// First, create an object 'i1' having the default value:
-//..
-//  bdlt::DatetimeInterval i1;         assert(  0 == i1.days());
-//                                     assert(  0 == i1.hours());
-//                                     assert(  0 == i1.minutes());
-//                                     assert(  0 == i1.seconds());
-//                                     assert(  0 == i1.milliseconds());
-//                                     assert(  0 == i1.microseconds());
-//..
-// Then, set the value of 'i1' to -5 days, and then add 16 hours to that value:
-//..
-//  i1.setTotalDays(-5);
-//  i1.addHours(16);                   assert( -4 == i1.days());
-//                                     assert( -8 == i1.hours());
-//                                     assert(  0 == i1.minutes());
-//                                     assert(  0 == i1.seconds());
-//                                     assert(  0 == i1.milliseconds());
-//                                     assert(  0 == i1.microseconds());
-//..
-// Next, create 'i2' as a copy of 'i1':
-//..
-//  bdlt::DatetimeInterval i2(i1);     assert( -4 == i2.days());
-//                                     assert( -8 == i2.hours());
-//                                     assert(  0 == i2.minutes());
-//                                     assert(  0 == i2.seconds());
-//                                     assert(  0 == i2.milliseconds());
-//                                     assert(  0 == i2.microseconds());
-//..
-// Then, add 2 days and 4 seconds to the value of 'i2' (in two steps), and
-// confirm that 'i2' has a value that is greater than that of 'i1':
-//..
-//  i2.addDays(2);
-//  i2.addSeconds(4);                  assert( -2 == i2.days());
-//                                     assert( -7 == i2.hours());
-//                                     assert(-59 == i2.minutes());
-//                                     assert(-56 == i2.seconds());
-//                                     assert(  0 == i2.milliseconds());
-//                                     assert(  0 == i2.microseconds());
-//                                     assert(i2 > i1);
-//..
-// Next, add 2 days and 4 seconds to the value of 'i1' in one step by using the
-// 'addInterval' method, and confirm that 'i1' now has the same value as 'i2':
-//..
-//  i1.addInterval(2, 0, 0, 4);        assert(i2 == i1);
-//..
-// Finally, write the value of 'i2' to 'stdout':
-//..
-//  bsl::cout << i2 << bsl::endl;
-//..
-// The output operator produces the following format on 'stdout':
-//..
-//  -2_07:59:56.000000
-//..
+// First, create an object `i1` having the default value:
+// ```
+// bdlt::DatetimeInterval i1;         assert(  0 == i1.days());
+//                                    assert(  0 == i1.hours());
+//                                    assert(  0 == i1.minutes());
+//                                    assert(  0 == i1.seconds());
+//                                    assert(  0 == i1.milliseconds());
+//                                    assert(  0 == i1.microseconds());
+// ```
+// Then, set the value of `i1` to -5 days, and then add 16 hours to that value:
+// ```
+// i1.setTotalDays(-5);
+// i1.addHours(16);                   assert( -4 == i1.days());
+//                                    assert( -8 == i1.hours());
+//                                    assert(  0 == i1.minutes());
+//                                    assert(  0 == i1.seconds());
+//                                    assert(  0 == i1.milliseconds());
+//                                    assert(  0 == i1.microseconds());
+// ```
+// Next, create `i2` as a copy of `i1`:
+// ```
+// bdlt::DatetimeInterval i2(i1);     assert( -4 == i2.days());
+//                                    assert( -8 == i2.hours());
+//                                    assert(  0 == i2.minutes());
+//                                    assert(  0 == i2.seconds());
+//                                    assert(  0 == i2.milliseconds());
+//                                    assert(  0 == i2.microseconds());
+// ```
+// Then, add 2 days and 4 seconds to the value of `i2` (in two steps), and
+// confirm that `i2` has a value that is greater than that of `i1`:
+// ```
+// i2.addDays(2);
+// i2.addSeconds(4);                  assert( -2 == i2.days());
+//                                    assert( -7 == i2.hours());
+//                                    assert(-59 == i2.minutes());
+//                                    assert(-56 == i2.seconds());
+//                                    assert(  0 == i2.milliseconds());
+//                                    assert(  0 == i2.microseconds());
+//                                    assert(i2 > i1);
+// ```
+// Next, add 2 days and 4 seconds to the value of `i1` in one step by using the
+// `addInterval` method, and confirm that `i1` now has the same value as `i2`:
+// ```
+// i1.addInterval(2, 0, 0, 4);        assert(i2 == i1);
+// ```
+// Finally, write the value of `i2` to `stdout`:
+// ```
+// bsl::cout << i2 << bsl::endl;
+// ```
+// The output operator produces the following format on `stdout`:
+// ```
+// -2_07:59:56.000000
+// ```
 
 #include <bdlscm_version.h>
 
@@ -151,10 +151,10 @@ namespace bdlt {
                           // class DatetimeInterval
                           // ======================
 
+/// Each object of this class represents a (signed) time interval with
+/// microsecond resolution.  See {The Representation of a Time Interval} for
+/// details.
 class DatetimeInterval {
-    // Each object of this class represents a (signed) time interval with
-    // microsecond resolution.  See {The Representation of a Time Interval} for
-    // details.
 
     // PRIVATE TYPES
     typedef bsls::Types::Int64 Int64;
@@ -181,37 +181,48 @@ class DatetimeInterval {
     friend void hashAppend(HASHALG&, const DatetimeInterval&);
 
     // PRIVATE MANIPULATORS
-    void assign(bsls::Types::Int64 days, bsls::Types::Int64 microseconds);
-        // Set this datetime interval to have the value given by the sum of the
-        // specified 'days' and 'microseconds'.  The behavior is undefined
-        // unless the total number of days, after converting to the canonical
-        // representation, can be represented as an 'int'.  Note that it is
-        // impossible for an 'Int64' to represent more than a day in
-        // microseconds.  Also note that the arguments may be supplied using a
-        // mixture of positive, negative, and 0 values.
 
+    /// Set this datetime interval to have the value given by the sum of the
+    /// specified `days` and `microseconds`.  The behavior is undefined
+    /// unless the total number of days, after converting to the canonical
+    /// representation, can be represented as an `int`.  Note that it is
+    /// impossible for an `Int64` to represent more than a day in
+    /// microseconds.  Also note that the arguments may be supplied using a
+    /// mixture of positive, negative, and 0 values.
+    void assign(bsls::Types::Int64 days, bsls::Types::Int64 microseconds);
+
+    /// Set this datetime interval to have the value given by the sum of the
+    /// specified `days` and `microseconds`.  Return 0 if the total number
+    /// of days, after converting to the canonical representation, can be
+    /// represented as an `int` and a non-zero value (with no effect)
+    /// otherwise.  Note that it is impossible for an `Int64` to represent
+    /// more than a day in microseconds.  Also note that the arguments may
+    /// be supplied using a mixture of positive, negative, and 0 values.
     int assignIfValid(bsls::Types::Int64 days,
                       bsls::Types::Int64 microseconds);
-        // Set this datetime interval to have the value given by the sum of the
-        // specified 'days' and 'microseconds'.  Return 0 if the total number
-        // of days, after converting to the canonical representation, can be
-        // represented as an 'int' and a non-zero value (with no effect)
-        // otherwise.  Note that it is impossible for an 'Int64' to represent
-        // more than a day in microseconds.  Also note that the arguments may
-        // be supplied using a mixture of positive, negative, and 0 values.
 
   public:
     // PUBLIC CLASS DATA
-    static const bsls::Types::Int64 k_MILLISECONDS_MAX = 185542587187199999LL;
-        // The maximum interval that is representable by a 'DatetimeInterval',
-        // in milliseconds.
 
+    /// The maximum interval that is representable by a `DatetimeInterval`,
+    /// in milliseconds.
+    static const bsls::Types::Int64 k_MILLISECONDS_MAX = 185542587187199999LL;
+
+    /// The minimum interval that is representable by a `DatetimeInterval`,
+    /// in milliseconds.
     static const bsls::Types::Int64 k_MILLISECONDS_MIN =
                    -k_MILLISECONDS_MAX - TimeUnitRatio::k_MILLISECONDS_PER_DAY;
-        // The minimum interval that is representable by a 'DatetimeInterval',
-        // in milliseconds.
 
     // CLASS METHODS
+
+    /// Return `true` if a time interval object having the value given by
+    /// the specified `days`, and the optionally specified `hours`,
+    /// `minutes`, `seconds`, `milliseconds`, and `microseconds` can be
+    /// represented as a `DatetimeInterval` and `false` otherwise.
+    /// Unspecified arguments default to 0.  The resulting time interval
+    /// value is valid if the days field does not overflow a 32-bit integer.
+    /// Note that the arguments may be supplied using a mixture of positive,
+    /// negative, and 0 values.
     static
     bool isValid(int                days,
                  bsls::Types::Int64 hours = 0,
@@ -219,32 +230,32 @@ class DatetimeInterval {
                  bsls::Types::Int64 seconds = 0,
                  bsls::Types::Int64 milliseconds = 0,
                  bsls::Types::Int64 microseconds = 0);
-        // Return 'true' if a time interval object having the value given by
-        // the specified 'days', and the optionally specified 'hours',
-        // 'minutes', 'seconds', 'milliseconds', and 'microseconds' can be
-        // represented as a 'DatetimeInterval' and 'false' otherwise.
-        // Unspecified arguments default to 0.  The resulting time interval
-        // value is valid if the days field does not overflow a 32-bit integer.
-        // Note that the arguments may be supplied using a mixture of positive,
-        // negative, and 0 values.
 
                                   // Aspects
 
+    /// Return the maximum valid BDEX format version, as indicated by the
+    /// specified `versionSelector`, to be passed to the `bdexStreamOut`
+    /// method.  Note that it is highly recommended that `versionSelector`
+    /// be formatted as "YYYYMMDD", a date representation.  Also note that
+    /// `versionSelector` should be a *compile*-time-chosen value that
+    /// selects a format version supported by both externalizer and
+    /// unexternalizer.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     static int maxSupportedBdexVersion(int versionSelector);
-        // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
-        // method.  Note that it is highly recommended that 'versionSelector'
-        // be formatted as "YYYYMMDD", a date representation.  Also note that
-        // 'versionSelector' should be a *compile*-time-chosen value that
-        // selects a format version supported by both externalizer and
-        // unexternalizer.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
     // CREATORS
-    DatetimeInterval();
-        // Create a time interval object having the value 0.
 
+    /// Create a time interval object having the value 0.
+    DatetimeInterval();
+
+    /// Create a time interval object having the value given by the
+    /// specified `days`, and the optionally specified `hours`, `minutes`,
+    /// `seconds`, `milliseconds`, and `microseconds`.  Unspecified
+    /// arguments default to 0.  The behavior is undefined unless the
+    /// resulting time interval value is valid (i.e., the days field must
+    /// not overflow a 32-bit integer).  Note that the arguments may be
+    /// supplied using a mixture of positive, negative, and 0 values.
     explicit
     DatetimeInterval(int                days,
                      bsls::Types::Int64 hours = 0,
@@ -252,464 +263,463 @@ class DatetimeInterval {
                      bsls::Types::Int64 seconds = 0,
                      bsls::Types::Int64 milliseconds = 0,
                      bsls::Types::Int64 microseconds = 0);
-        // Create a time interval object having the value given by the
-        // specified 'days', and the optionally specified 'hours', 'minutes',
-        // 'seconds', 'milliseconds', and 'microseconds'.  Unspecified
-        // arguments default to 0.  The behavior is undefined unless the
-        // resulting time interval value is valid (i.e., the days field must
-        // not overflow a 32-bit integer).  Note that the arguments may be
-        // supplied using a mixture of positive, negative, and 0 values.
 
+    /// Create a time interval object having the value of the specified
+    /// `original` time interval.
     DatetimeInterval(const DatetimeInterval& original);
-        // Create a time interval object having the value of the specified
-        // 'original' time interval.
 
     //! ~DatetimeInterval() = default;
         // Destroy this time interval object.  Note that this method's
         // definition is generated by the compiler.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` time
+    /// interval, and return a reference providing modifiable access to this
+    /// object.
     DatetimeInterval& operator=(const DatetimeInterval& rhs);
-        // Assign to this object the value of the specified 'rhs' time
-        // interval, and return a reference providing modifiable access to this
-        // object.
 
+    /// Add to this time interval the value of the specified `rhs` time
+    /// interval, and return a reference providing modifiable access to this
+    /// object.  The behavior is undefined unless the resulting time
+    /// interval value is valid (i.e., the days field must not overflow a
+    /// 32-bit integer).
     DatetimeInterval& operator+=(const DatetimeInterval& rhs);
-        // Add to this time interval the value of the specified 'rhs' time
-        // interval, and return a reference providing modifiable access to this
-        // object.  The behavior is undefined unless the resulting time
-        // interval value is valid (i.e., the days field must not overflow a
-        // 32-bit integer).
 
+    /// Subtract from this time interval the value of the specified `rhs`
+    /// time interval, and return a reference providing modifiable access to
+    /// this object.  The behavior is undefined unless the resulting time
+    /// interval value is valid (i.e., the days field must not overflow a
+    /// 32-bit integer).
     DatetimeInterval& operator-=(const DatetimeInterval& rhs);
-        // Subtract from this time interval the value of the specified 'rhs'
-        // time interval, and return a reference providing modifiable access to
-        // this object.  The behavior is undefined unless the resulting time
-        // interval value is valid (i.e., the days field must not overflow a
-        // 32-bit integer).
 
+    /// Set the time interval represented by this object to the value given
+    /// by the specified `days`, and the optionally specified `hours`,
+    /// `minutes`, `seconds`, `milliseconds`, and `microseconds`.
+    /// Unspecified arguments default to 0.  The behavior is undefined
+    /// unless the resulting time interval value is valid (i.e., the days
+    /// field must not overflow a 32-bit integer).  Note that the arguments
+    /// may be supplied using a mixture of positive, negative, and 0 values.
     void setInterval(int                days,
                      bsls::Types::Int64 hours = 0,
                      bsls::Types::Int64 minutes = 0,
                      bsls::Types::Int64 seconds = 0,
                      bsls::Types::Int64 milliseconds = 0,
                      bsls::Types::Int64 microseconds = 0);
-        // Set the time interval represented by this object to the value given
-        // by the specified 'days', and the optionally specified 'hours',
-        // 'minutes', 'seconds', 'milliseconds', and 'microseconds'.
-        // Unspecified arguments default to 0.  The behavior is undefined
-        // unless the resulting time interval value is valid (i.e., the days
-        // field must not overflow a 32-bit integer).  Note that the arguments
-        // may be supplied using a mixture of positive, negative, and 0 values.
 
+    /// Set the time interval represented by this object to the value given
+    /// by the specified `days`, and the optionally specified `hours`,
+    /// `minutes`, `seconds`, `milliseconds`, and `microseconds`.
+    /// Unspecified arguments default to 0.  Return 0 if the resulting time
+    /// interval value is valid (i.e., the `days` field must not overflow an
+    /// `int`) and a non-zero value (with no effect) otherwise.  Note that
+    /// the arguments may be supplied using a mixture of positive, negative,
+    /// and 0 values.
     int setIntervalIfValid(int                days,
                            bsls::Types::Int64 hours = 0,
                            bsls::Types::Int64 minutes = 0,
                            bsls::Types::Int64 seconds = 0,
                            bsls::Types::Int64 milliseconds = 0,
                            bsls::Types::Int64 microseconds = 0);
-        // Set the time interval represented by this object to the value given
-        // by the specified 'days', and the optionally specified 'hours',
-        // 'minutes', 'seconds', 'milliseconds', and 'microseconds'.
-        // Unspecified arguments default to 0.  Return 0 if the resulting time
-        // interval value is valid (i.e., the 'days' field must not overflow an
-        // 'int') and a non-zero value (with no effect) otherwise.  Note that
-        // the arguments may be supplied using a mixture of positive, negative,
-        // and 0 values.
 
+    /// Set the overall value of this object to indicate the specified
+    /// number of `days`.
     void setTotalDays(int days);
-        // Set the overall value of this object to indicate the specified
-        // number of 'days'.
 
+    /// Set the overall value of this object to indicate the specified
+    /// number of `hours`.  The behavior is undefined unless the resulting
+    /// time interval value is valid (i.e., the days field must not overflow
+    /// a 32-bit integer).
     void setTotalHours(bsls::Types::Int64 hours);
-        // Set the overall value of this object to indicate the specified
-        // number of 'hours'.  The behavior is undefined unless the resulting
-        // time interval value is valid (i.e., the days field must not overflow
-        // a 32-bit integer).
 
+    /// Set the overall value of this object to indicate the specified
+    /// number of `hours`.  Return 0 if the resulting time interval value is
+    /// valid (i.e., the `days` field must not overflow an `int`) and a
+    /// non-zero value (with no effect) otherwise.
     int setTotalHoursIfValid(bsls::Types::Int64 hours);
-        // Set the overall value of this object to indicate the specified
-        // number of 'hours'.  Return 0 if the resulting time interval value is
-        // valid (i.e., the 'days' field must not overflow an 'int') and a
-        // non-zero value (with no effect) otherwise.
 
+    /// Set the overall value of this object to indicate the specified
+    /// number of `minutes`.  The behavior is undefined unless the resulting
+    /// time interval value is valid (i.e., the days field must not overflow
+    /// a 32-bit integer).
     void setTotalMinutes(bsls::Types::Int64 minutes);
-        // Set the overall value of this object to indicate the specified
-        // number of 'minutes'.  The behavior is undefined unless the resulting
-        // time interval value is valid (i.e., the days field must not overflow
-        // a 32-bit integer).
 
+    /// Set the overall value of this object to indicate the specified
+    /// number of `minutes`.  Return 0 if the resulting time interval value
+    /// is valid (i.e., the `days` field must not overflow an `int`) and a
+    /// non-zero value (with no effect) otherwise.
     int setTotalMinutesIfValid(bsls::Types::Int64 minutes);
-        // Set the overall value of this object to indicate the specified
-        // number of 'minutes'.  Return 0 if the resulting time interval value
-        // is valid (i.e., the 'days' field must not overflow an 'int') and a
-        // non-zero value (with no effect) otherwise.
 
+    /// Set the overall value of this object to indicate the specified
+    /// number of `seconds`.  The behavior is undefined unless the resulting
+    /// time interval value is valid (i.e., the days field must not overflow
+    /// a 32-bit integer).
     void setTotalSeconds(bsls::Types::Int64 seconds);
-        // Set the overall value of this object to indicate the specified
-        // number of 'seconds'.  The behavior is undefined unless the resulting
-        // time interval value is valid (i.e., the days field must not overflow
-        // a 32-bit integer).
 
+    /// Set the overall value of this object to indicate the specified
+    /// number of `seconds`.  Return 0 if the resulting time interval value
+    /// is valid (i.e., the `days` field must not overflow an `int`) and a
+    /// non-zero value (with no effect) otherwise.
     int setTotalSecondsIfValid(bsls::Types::Int64 seconds);
-        // Set the overall value of this object to indicate the specified
-        // number of 'seconds'.  Return 0 if the resulting time interval value
-        // is valid (i.e., the 'days' field must not overflow an 'int') and a
-        // non-zero value (with no effect) otherwise.
 
+    /// Set the overall value of this object to indicate the specified
+    /// number of `seconds`.  The fractional part of `seconds`, if any, is
+    /// rounded to the nearest whole number of microseconds.  The behavior
+    /// is undefined unless the resulting time interval value is valid
+    /// (i.e., the days field must not overflow a 32-bit integer).
     void setTotalSecondsFromDouble(double seconds);
-        // Set the overall value of this object to indicate the specified
-        // number of 'seconds'.  The fractional part of 'seconds', if any, is
-        // rounded to the nearest whole number of microseconds.  The behavior
-        // is undefined unless the resulting time interval value is valid
-        // (i.e., the days field must not overflow a 32-bit integer).
 
+    /// Set the overall value of this object to indicate the specified
+    /// number of `seconds`.  The fractional part of `seconds`, if any, is
+    /// rounded to the nearest whole number of microseconds.  Return 0 if
+    /// the resulting time interval value is valid (i.e., the `days` field
+    /// must not overflow an `int`) and a non-zero value (with no effect)
+    /// otherwise.
     int setTotalSecondsFromDoubleIfValid(double seconds);
-        // Set the overall value of this object to indicate the specified
-        // number of 'seconds'.  The fractional part of 'seconds', if any, is
-        // rounded to the nearest whole number of microseconds.  Return 0 if
-        // the resulting time interval value is valid (i.e., the 'days' field
-        // must not overflow an 'int') and a non-zero value (with no effect)
-        // otherwise.
 
+    /// Set the overall value of this object to indicate the specified
+    /// number of `milliseconds`.  The behavior is undefined unless the
+    /// resulting time interval value is valid (i.e., the days field must
+    /// not overflow a 32-bit integer).
     void setTotalMilliseconds(bsls::Types::Int64 milliseconds);
-        // Set the overall value of this object to indicate the specified
-        // number of 'milliseconds'.  The behavior is undefined unless the
-        // resulting time interval value is valid (i.e., the days field must
-        // not overflow a 32-bit integer).
 
+    /// Set the overall value of this object to indicate the specified
+    /// number of `milliseconds`.  Return 0 if the resulting time interval
+    /// value is valid (i.e., the days field must not overflow an `int`) and
+    /// a non-zero value (with no effect) otherwise.
     int setTotalMillisecondsIfValid(bsls::Types::Int64 milliseconds);
-        // Set the overall value of this object to indicate the specified
-        // number of 'milliseconds'.  Return 0 if the resulting time interval
-        // value is valid (i.e., the days field must not overflow an 'int') and
-        // a non-zero value (with no effect) otherwise.
 
+    /// Set the overall value of this object to indicate the specified
+    /// number of `microseconds`.  Note that there is no
+    /// `setTotalMicrosecondsIfValid` because no value of `microseconds` can
+    /// cause the number of days to overflow.
     void setTotalMicroseconds(bsls::Types::Int64 microseconds);
-        // Set the overall value of this object to indicate the specified
-        // number of 'microseconds'.  Note that there is no
-        // 'setTotalMicrosecondsIfValid' because no value of 'microseconds' can
-        // cause the number of days to overflow.
 
+    /// Add to this time interval the specified number of `days`, and the
+    /// optionally specified number of `hours`, `minutes`, `seconds`,
+    /// `milliseconds`, and `microseconds`, and return a reference providing
+    /// modifiable access to this object.  Unspecified arguments default to
+    /// 0.  The behavior is undefined unless the resulting time interval
+    /// value is valid (i.e., the days field must not overflow a 32-bit
+    /// integer).  Note that the arguments may be supplied using a mixture
+    /// of positive, negative, and 0 values.
     DatetimeInterval& addInterval(int                days,
                                   bsls::Types::Int64 hours = 0,
                                   bsls::Types::Int64 minutes = 0,
                                   bsls::Types::Int64 seconds = 0,
                                   bsls::Types::Int64 milliseconds = 0,
                                   bsls::Types::Int64 microseconds = 0);
-        // Add to this time interval the specified number of 'days', and the
-        // optionally specified number of 'hours', 'minutes', 'seconds',
-        // 'milliseconds', and 'microseconds', and return a reference providing
-        // modifiable access to this object.  Unspecified arguments default to
-        // 0.  The behavior is undefined unless the resulting time interval
-        // value is valid (i.e., the days field must not overflow a 32-bit
-        // integer).  Note that the arguments may be supplied using a mixture
-        // of positive, negative, and 0 values.
 
+    /// Add to this time interval the specified number of `days`, and the
+    /// optionally specified number of `hours`, `minutes`, `seconds`,
+    /// `milliseconds`, and `microseconds`.  Return 0 if the resulting time
+    /// interval value is valid (i.e., the days field must not overflow an
+    /// `int`) and a non-zero value (with no effect) otherwise.  Note that
+    /// the arguments may be supplied using a mixture of positive, negative,
+    /// and 0 values.
     int addIntervalIfValid(int                days,
                            bsls::Types::Int64 hours = 0,
                            bsls::Types::Int64 minutes = 0,
                            bsls::Types::Int64 seconds = 0,
                            bsls::Types::Int64 milliseconds = 0,
                            bsls::Types::Int64 microseconds = 0);
-        // Add to this time interval the specified number of 'days', and the
-        // optionally specified number of 'hours', 'minutes', 'seconds',
-        // 'milliseconds', and 'microseconds'.  Return 0 if the resulting time
-        // interval value is valid (i.e., the days field must not overflow an
-        // 'int') and a non-zero value (with no effect) otherwise.  Note that
-        // the arguments may be supplied using a mixture of positive, negative,
-        // and 0 values.
 
+    /// Add to this time interval the specified number of `days`, and return
+    /// a reference providing modifiable access to this object.  The
+    /// behavior is undefined unless the resulting time interval value is
+    /// valid (i.e., the days field must not overflow a 32-bit integer).
     DatetimeInterval& addDays(int days);
-        // Add to this time interval the specified number of 'days', and return
-        // a reference providing modifiable access to this object.  The
-        // behavior is undefined unless the resulting time interval value is
-        // valid (i.e., the days field must not overflow a 32-bit integer).
 
+    /// Add to this time interval the specified number of `days`.  Return 0
+    /// if the resulting time interval value is valid (i.e., the days field
+    /// must not overflow an `int`) and a non-zero value (with no effect)
+    /// otherwise.
     int addDaysIfValid(int days);
-        // Add to this time interval the specified number of 'days'.  Return 0
-        // if the resulting time interval value is valid (i.e., the days field
-        // must not overflow an 'int') and a non-zero value (with no effect)
-        // otherwise.
 
+    /// Add to this time interval the specified number of `hours`, and
+    /// return a reference providing modifiable access to this object.  The
+    /// behavior is undefined unless the resulting time interval value is
+    /// valid (i.e., the days field must not overflow a 32-bit integer).
     DatetimeInterval& addHours(bsls::Types::Int64 hours);
-        // Add to this time interval the specified number of 'hours', and
-        // return a reference providing modifiable access to this object.  The
-        // behavior is undefined unless the resulting time interval value is
-        // valid (i.e., the days field must not overflow a 32-bit integer).
 
+    /// Add to this time interval the specified number of `hours`.  Return 0
+    /// if the resulting time interval value is valid (i.e., the days field
+    /// must not overflow an `int`) and a non-zero value (with no effect)
+    /// otherwise.
     int addHoursIfValid(bsls::Types::Int64 hours);
-        // Add to this time interval the specified number of 'hours'.  Return 0
-        // if the resulting time interval value is valid (i.e., the days field
-        // must not overflow an 'int') and a non-zero value (with no effect)
-        // otherwise.
 
+    /// Add to this time interval the specified number of `minutes`, and
+    /// return a reference providing modifiable access to this object.  The
+    /// behavior is undefined unless the resulting time interval value is
+    /// valid (i.e., the days field must not overflow a 32-bit integer).
     DatetimeInterval& addMinutes(bsls::Types::Int64 minutes);
-        // Add to this time interval the specified number of 'minutes', and
-        // return a reference providing modifiable access to this object.  The
-        // behavior is undefined unless the resulting time interval value is
-        // valid (i.e., the days field must not overflow a 32-bit integer).
 
+    /// Add to this time interval the specified number of `minutes`.  Return
+    /// 0 if the resulting time interval value is valid (i.e., the days
+    /// field must not overflow an `int`) and a non-zero value (with no
+    /// effect) otherwise.
     int addMinutesIfValid(bsls::Types::Int64 minutes);
-        // Add to this time interval the specified number of 'minutes'.  Return
-        // 0 if the resulting time interval value is valid (i.e., the days
-        // field must not overflow an 'int') and a non-zero value (with no
-        // effect) otherwise.
 
+    /// Add to this time interval the specified number of `seconds`, and
+    /// return a reference providing modifiable access to this object.  The
+    /// behavior is undefined unless the resulting time interval value is
+    /// valid (i.e., the days field must not overflow a 32-bit integer).
     DatetimeInterval& addSeconds(bsls::Types::Int64 seconds);
-        // Add to this time interval the specified number of 'seconds', and
-        // return a reference providing modifiable access to this object.  The
-        // behavior is undefined unless the resulting time interval value is
-        // valid (i.e., the days field must not overflow a 32-bit integer).
 
+    /// Add to this time interval the specified number of `seconds`.  Return
+    /// 0 if the resulting time interval value is valid (i.e., the days
+    /// field must not overflow an `int`) and a non-zero value (with no
+    /// effect) otherwise.
     int addSecondsIfValid(bsls::Types::Int64 seconds);
-        // Add to this time interval the specified number of 'seconds'.  Return
-        // 0 if the resulting time interval value is valid (i.e., the days
-        // field must not overflow an 'int') and a non-zero value (with no
-        // effect) otherwise.
 
+    /// Add to this time interval the specified number of `milliseconds`,
+    /// and return a reference providing modifiable access to this object.
+    /// The behavior is undefined unless the resulting time interval value
+    /// is valid (i.e., the days field must not overflow a 32-bit integer).
     DatetimeInterval& addMilliseconds(bsls::Types::Int64 milliseconds);
-        // Add to this time interval the specified number of 'milliseconds',
-        // and return a reference providing modifiable access to this object.
-        // The behavior is undefined unless the resulting time interval value
-        // is valid (i.e., the days field must not overflow a 32-bit integer).
 
+    /// Add to this time interval the specified number of `milliseconds`.
+    /// Return 0 if the resulting time interval value is valid (i.e., the
+    /// days field must not overflow an `int`) and a non-zero value (with no
+    /// effect) otherwise.
     int addMillisecondsIfValid(bsls::Types::Int64 milliseconds);
-        // Add to this time interval the specified number of 'milliseconds'.
-        // Return 0 if the resulting time interval value is valid (i.e., the
-        // days field must not overflow an 'int') and a non-zero value (with no
-        // effect) otherwise.
 
+    /// Add to this time interval the specified number of `microseconds`,
+    /// and return a reference providing modifiable access to this object.
+    /// The behavior is undefined unless the resulting time interval value
+    /// is valid (i.e., the days field must not overflow a 32-bit integer).
     DatetimeInterval& addMicroseconds(bsls::Types::Int64 microseconds);
-        // Add to this time interval the specified number of 'microseconds',
-        // and return a reference providing modifiable access to this object.
-        // The behavior is undefined unless the resulting time interval value
-        // is valid (i.e., the days field must not overflow a 32-bit integer).
 
+    /// Add to this time interval the specified number of `microseconds`.
+    /// Return 0 if the resulting time interval value is valid (i.e., the
+    /// days field must not overflow an `int`) and a non-zero value (with no
+    /// effect) otherwise.
     int addMicrosecondsIfValid(bsls::Types::Int64 microseconds);
-        // Add to this time interval the specified number of 'microseconds'.
-        // Return 0 if the resulting time interval value is valid (i.e., the
-        // days field must not overflow an 'int') and a non-zero value (with no
-        // effect) otherwise.
 
                                   // Aspects
 
+    /// Assign to this object the value read from the specified input
+    /// `stream` using the specified `version` format, and return a
+    /// reference to `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `version` is not supported, this object
+    /// is unaltered and `stream` is invalidated, but otherwise unmodified.
+    /// If `version` is supported but `stream` becomes invalid during this
+    /// operation, this object has an undefined, but valid, state.  Note
+    /// that no version is read from `stream`.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format, and return a
-        // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, this object
-        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
-        // If 'version' is supported but 'stream' becomes invalid during this
-        // operation, this object has an undefined, but valid, state.  Note
-        // that no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
     // ACCESSORS
+
+    /// Return the days field in the canonical representation of the value
+    /// of this time interval.  Note that the return value may be negative.
+    /// Also note that the return value is the same as that returned by
+    /// `totalDays`.
     int days() const;
-        // Return the days field in the canonical representation of the value
-        // of this time interval.  Note that the return value may be negative.
-        // Also note that the return value is the same as that returned by
-        // 'totalDays'.
 
+    /// Return the value of this time interval as an integral number of
+    /// microseconds modulo the number of microseconds in a day.  Note that
+    /// the return value may be negative.
     bsls::Types::Int64 fractionalDayInMicroseconds() const;
-        // Return the value of this time interval as an integral number of
-        // microseconds modulo the number of microseconds in a day.  Note that
-        // the return value may be negative.
 
+    /// Return the hours field in the canonical representation of the value
+    /// of this time interval.  Note that the return value may be negative.
     int hours() const;
-        // Return the hours field in the canonical representation of the value
-        // of this time interval.  Note that the return value may be negative.
 
+    /// Return the minutes field in the canonical representation of the
+    /// value of this time interval.  Note that the return value may be
+    /// negative.
     int minutes() const;
-        // Return the minutes field in the canonical representation of the
-        // value of this time interval.  Note that the return value may be
-        // negative.
 
+    /// Return the seconds field in the canonical representation of the
+    /// value of this time interval.  Note that the return value may be
+    /// negative.
     int seconds() const;
-        // Return the seconds field in the canonical representation of the
-        // value of this time interval.  Note that the return value may be
-        // negative.
 
+    /// Return the milliseconds field in the canonical representation of the
+    /// value of this time interval.  Note that the return value may be
+    /// negative.
     int milliseconds() const;
-        // Return the milliseconds field in the canonical representation of the
-        // value of this time interval.  Note that the return value may be
-        // negative.
 
+    /// Return the microseconds field in the canonical representation of the
+    /// value of this time interval.  Note that the return value may be
+    /// negative.
     int microseconds() const;
-        // Return the microseconds field in the canonical representation of the
-        // value of this time interval.  Note that the return value may be
-        // negative.
 
+    /// Efficiently write to the specified `result` buffer no more than the
+    /// specified `numBytes` of a representation of the value of this
+    /// object.  Optionally specify `fractionalSecondPrecision` digits to
+    /// indicate how many fractional second digits to output.  If
+    /// `fractionalSecondPrecision` is not specified then 6 fractional
+    /// second digits will be output (3 digits for milliseconds and 3 digits
+    /// for microseconds).  Return the number of characters (not including
+    /// the null character) that would have been written if the limit due to
+    /// `numBytes` were not imposed.  `result` is null-terminated unless
+    /// `numBytes` is 0.  The behavior is undefined unless `0 <= numBytes`,
+    /// `0 <= fractionalSecondPrecision <= 6`, and `result` refers to at
+    /// least `numBytes` contiguous bytes.  Note that the return value is
+    /// greater than or equal to `numBytes` if the output representation was
+    /// truncated to avoid `result` overrun.
     int printToBuffer(char *result,
                       int   numBytes,
                       int   fractionalSecondPrecision = 6) const;
-        // Efficiently write to the specified 'result' buffer no more than the
-        // specified 'numBytes' of a representation of the value of this
-        // object.  Optionally specify 'fractionalSecondPrecision' digits to
-        // indicate how many fractional second digits to output.  If
-        // 'fractionalSecondPrecision' is not specified then 6 fractional
-        // second digits will be output (3 digits for milliseconds and 3 digits
-        // for microseconds).  Return the number of characters (not including
-        // the null character) that would have been written if the limit due to
-        // 'numBytes' were not imposed.  'result' is null-terminated unless
-        // 'numBytes' is 0.  The behavior is undefined unless '0 <= numBytes',
-        // '0 <= fractionalSecondPrecision <= 6', and 'result' refers to at
-        // least 'numBytes' contiguous bytes.  Note that the return value is
-        // greater than or equal to 'numBytes' if the output representation was
-        // truncated to avoid 'result' overrun.
 
+    /// Return the value of this time interval in integral days, rounded
+    /// toward 0.  Note that the return value may be negative.  Also note
+    /// that the return value is the same as that returned by `days`.
     int totalDays() const;
-        // Return the value of this time interval in integral days, rounded
-        // toward 0.  Note that the return value may be negative.  Also note
-        // that the return value is the same as that returned by 'days'.
 
+    /// Return the value of this time interval in integral hours, rounded
+    /// toward 0.  Note that the return value may be negative.
     bsls::Types::Int64 totalHours() const;
-        // Return the value of this time interval in integral hours, rounded
-        // toward 0.  Note that the return value may be negative.
 
+    /// Return the value of this time interval in integral minutes, rounded
+    /// toward 0.  Note that the return value may be negative.
     bsls::Types::Int64 totalMinutes() const;
-        // Return the value of this time interval in integral minutes, rounded
-        // toward 0.  Note that the return value may be negative.
 
+    /// Return the value of this time interval in integral seconds, rounded
+    /// toward 0.  Note that the return value may be negative.
     bsls::Types::Int64 totalSeconds() const;
-        // Return the value of this time interval in integral seconds, rounded
-        // toward 0.  Note that the return value may be negative.
 
+    /// Return the value of this time interval in seconds as a `double`,
+    /// potentially with a fractional part.  Note that the return value may
+    /// be negative.  Also note that the conversion from the internal
+    /// representation to `double` may *lose* precision.
     double totalSecondsAsDouble() const;
-        // Return the value of this time interval in seconds as a 'double',
-        // potentially with a fractional part.  Note that the return value may
-        // be negative.  Also note that the conversion from the internal
-        // representation to 'double' may *lose* precision.
 
+    /// Return the value of this time interval in integral milliseconds,
+    /// rounded towards zero.  Note that the return value may be negative.
     bsls::Types::Int64 totalMilliseconds() const;
-        // Return the value of this time interval in integral milliseconds,
-        // rounded towards zero.  Note that the return value may be negative.
 
+    /// Return the value of this time interval as an integral number of
+    /// microseconds.  The behavior is undefined unless the number of
+    /// microseconds can be represented with a 64-bit signed integer.  Note
+    /// that the return value may be negative.
     bsls::Types::Int64 totalMicroseconds() const;
-        // Return the value of this time interval as an integral number of
-        // microseconds.  The behavior is undefined unless the number of
-        // microseconds can be represented with a 64-bit signed integer.  Note
-        // that the return value may be negative.
 
                                   // Aspects
 
+    /// Write the value of this object, using the specified `version`
+    /// format, to the specified output `stream`, and return a reference to
+    /// `stream`.  If `stream` is initially invalid, this operation has no
+    /// effect.  If `version` is not supported, `stream` is invalidated, but
+    /// otherwise unmodified.  Note that `version` is not written to
+    /// `stream`.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object, using the specified 'version'
-        // format, to the specified output 'stream', and return a reference to
-        // 'stream'.  If 'stream' is initially invalid, this operation has no
-        // effect.  If 'version' is not supported, 'stream' is invalidated, but
-        // otherwise unmodified.  Note that 'version' is not written to
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Write the value of this object to the specified output `stream` in a
+    /// human-readable format, and return a reference to `stream`.
+    /// Optionally specify an initial indentation `level`, whose absolute
+    /// value is incremented recursively for nested objects.  If `level` is
+    /// specified, optionally specify `spacesPerLevel`, whose absolute value
+    /// indicates the number of spaces per indentation level for this and
+    /// all of its nested objects.  If `level` is negative, suppress
+    /// indentation of the first line.  If `spacesPerLevel` is negative,
+    /// format the entire output on one line, suppressing all but the
+    /// initial indentation (as governed by `level`).  If `stream` is not
+    /// valid on entry, this operation has no effect.  Note that the format
+    /// is not fully specified, and can change without notice.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in a
-        // human-readable format, and return a reference to 'stream'.
-        // Optionally specify an initial indentation 'level', whose absolute
-        // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute value
-        // indicates the number of spaces per indentation level for this and
-        // all of its nested objects.  If 'level' is negative, suppress
-        // indentation of the first line.  If 'spacesPerLevel' is negative,
-        // format the entire output on one line, suppressing all but the
-        // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the format
-        // is not fully specified, and can change without notice.
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
     // DEPRECATED METHODS
+
+    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
+    ///
+    /// Return the most current BDEX streaming version number supported by
+    /// this class.
     static int maxSupportedBdexVersion();
-        // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
-        //
-        // Return the most current BDEX streaming version number supported by
-        // this class.
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-    static int maxSupportedVersion();
-        // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
-        //
-        // Return the most current BDEX streaming version number supported by
-        // this class.
 
+    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
+    ///
+    /// Return the most current BDEX streaming version number supported by
+    /// this class.
+    static int maxSupportedVersion();
+
+    /// **DEPRECATED**: use `operator<<` or `print` instead.
+    ///
+    /// Format this datetime interval to the specified output `stream`, and
+    /// return a reference to `stream`.
     bsl::ostream& streamOut(bsl::ostream& stream) const;
-        // !DEPRECATED!: use 'operator<<' or 'print' instead.
-        //
-        // Format this datetime interval to the specified output 'stream', and
-        // return a reference to 'stream'.
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 };
 
 // FREE OPERATORS
+
+/// Return a `DatetimeInterval` object whose value is the sum of the
+/// specified `lhs` and `rhs` time intervals.  The behavior is undefined
+/// unless the resulting time interval value is valid (i.e., the days field
+/// must not overflow a 32-bit integer).
 DatetimeInterval operator+(const DatetimeInterval& lhs,
                            const DatetimeInterval& rhs);
-    // Return a 'DatetimeInterval' object whose value is the sum of the
-    // specified 'lhs' and 'rhs' time intervals.  The behavior is undefined
-    // unless the resulting time interval value is valid (i.e., the days field
-    // must not overflow a 32-bit integer).
 
+/// Return a `DatetimeInterval` object whose value is the difference between
+/// the specified `lhs` and `rhs` time intervals.  The behavior is undefined
+/// unless the resulting time interval value is valid (i.e., the days field
+/// must not overflow a 32-bit integer).
 DatetimeInterval operator-(const DatetimeInterval& lhs,
                            const DatetimeInterval& rhs);
-    // Return a 'DatetimeInterval' object whose value is the difference between
-    // the specified 'lhs' and 'rhs' time intervals.  The behavior is undefined
-    // unless the resulting time interval value is valid (i.e., the days field
-    // must not overflow a 32-bit integer).
 
+/// Return a `DatetimeInterval` object whose value is the negative of the
+/// specified time interval `value`.  The behavior is undefined unless
+/// `INT_MIN < value.days()`.
 DatetimeInterval operator-(const DatetimeInterval& value);
-    // Return a 'DatetimeInterval' object whose value is the negative of the
-    // specified time interval 'value'.  The behavior is undefined unless
-    // 'INT_MIN < value.days()'.
 
+/// Return `true` if the specified `lhs` and `rhs` time intervals have the
+/// same value, and `false` otherwise.  Two time intervals have the same
+/// value if all of the corresponding values of their days, hours, minutes,
+/// seconds, milliseconds, and microseconds fields are the same.
 bool operator==(const DatetimeInterval& lhs, const DatetimeInterval& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' time intervals have the
-    // same value, and 'false' otherwise.  Two time intervals have the same
-    // value if all of the corresponding values of their days, hours, minutes,
-    // seconds, milliseconds, and microseconds fields are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` time intervals do not
+/// have the same value, and `false` otherwise.  Two time intervals do not
+/// have the same value if any of the corresponding values of their days,
+/// hours, minutes, seconds, milliseconds, or microseconds fields is not
+/// the same.
 bool operator!=(const DatetimeInterval& lhs, const DatetimeInterval& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' time intervals do not
-    // have the same value, and 'false' otherwise.  Two time intervals do not
-    // have the same value if any of the corresponding values of their days,
-    // hours, minutes, seconds, milliseconds, or microseconds fields is not
-    // the same.
 
+/// Return `true` if the nominal relation between the specified `lhs` and
+/// `rhs` time interval values holds, and `false` otherwise.  `lhs` is less
+/// than `rhs` if the following expression evaluates to `true`:
+/// ```
+///    lhs.days() < rhs.days()
+/// || (lhs.days() == rhs.days() && lhs.fractionalDayInMicroseconds()
+///                                    < rhs.fractionalDayInMicroseconds())
+/// ```
+/// The other relationships are defined similarly.
 bool operator< (const DatetimeInterval& lhs, const DatetimeInterval& rhs);
 bool operator<=(const DatetimeInterval& lhs, const DatetimeInterval& rhs);
 bool operator> (const DatetimeInterval& lhs, const DatetimeInterval& rhs);
 bool operator>=(const DatetimeInterval& lhs, const DatetimeInterval& rhs);
-    // Return 'true' if the nominal relation between the specified 'lhs' and
-    // 'rhs' time interval values holds, and 'false' otherwise.  'lhs' is less
-    // than 'rhs' if the following expression evaluates to 'true':
-    //..
-    //     lhs.days() < rhs.days()
-    //  || (lhs.days() == rhs.days() && lhs.fractionalDayInMicroseconds()
-    //                                     < rhs.fractionalDayInMicroseconds())
-    //..
-    // The other relationships are defined similarly.
 
+/// Write the value of the specified `object` to the specified output
+/// `stream` in a single-line format, and return a reference providing
+/// modifiable access to `stream`.  If `stream` is not valid on entry, this
+/// operation has no effect.  Note that this human-readable format is not
+/// fully specified and can change without notice.  Also note that this
+/// method has the same behavior as `object.print(stream, 0, -1)`.
 bsl::ostream& operator<<(bsl::ostream& stream, const DatetimeInterval& object);
-    // Write the value of the specified 'object' to the specified output
-    // 'stream' in a single-line format, and return a reference providing
-    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
-    // operation has no effect.  Note that this human-readable format is not
-    // fully specified and can change without notice.  Also note that this
-    // method has the same behavior as 'object.print(stream, 0, -1)'.
 
 // FREE FUNCTIONS
+
+/// Pass the specified `object` to the specified `hashAlg`.  This function
+/// integrates with the `bslh` modular hashing system and effectively
+/// provides a `bsl::hash` specialization for `DatetimeInterval`.
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const DatetimeInterval& object);
-    // Pass the specified 'object' to the specified 'hashAlg'.  This function
-    // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for 'DatetimeInterval'.
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -1318,11 +1328,12 @@ void bdlt::hashAppend(HASHALG& hashAlg, const DatetimeInterval& object)
 namespace bsl {
 
 // TRAITS
+
+/// This template specialization for `is_trivially_copyable` indicates that
+/// `DatetimeInterval` is a trivially copyable type.
 template <>
 struct is_trivially_copyable<BloombergLP::bdlt::DatetimeInterval> :
                                                                bsl::true_type {
-    // This template specialization for 'is_trivially_copyable' indicates that
-    // 'DatetimeInterval' is a trivially copyable type.
 };
 
 }  // close namespace bsl

@@ -14,90 +14,90 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlb_nullinputiterator
 //
 //@DESCRIPTION: This component provides a mechanism,
-// 'bdlb::NullOutputIterator', that defines an output iterator with the
+// `bdlb::NullOutputIterator`, that defines an output iterator with the
 // following attributes:
-//: o Meets exactly the requirements for an output iterator according to the
-//:   C++ Standard (C++98, Section 24.1.2 [lib.output.iterators]).
-//: o De-referencing an iterator and assigning to the returned value has no
-//:   effect.
-//: o Incrementing an iterator has no effect.
+// * Meets exactly the requirements for an output iterator according to the
+//   C++ Standard (C++98, Section 24.1.2 [lib.output.iterators]).
+// * De-referencing an iterator and assigning to the returned value has no
+//   effect.
+// * Incrementing an iterator has no effect.
 //
 // This iterator type is typically used to call functions purely for their
 // side-effects, discarding the normal output.  It is also useful for testing
 // whether a template function will compile when presented with a pure output
 // iterator.  This component also provides a template
-// 'bdlb::NullOutputIterator::AssignmentProxy', that is used as the return type
-// of 'bdlb::NullOutputIterator::operator*'.  The 'AssignmentProxy' provides an
-// 'operator=' that does nothing, so that the result of the iterator's
-// 'operator*' can be assigned to even if the value type of the
-// 'bdlb::NullOutputIterator' does not provide a default constructor:
-//..
-//  class ValueType {
-//      // ... data members ...
+// `bdlb::NullOutputIterator::AssignmentProxy`, that is used as the return type
+// of `bdlb::NullOutputIterator::operator*`.  The `AssignmentProxy` provides an
+// `operator=` that does nothing, so that the result of the iterator's
+// `operator*` can be assigned to even if the value type of the
+// `bdlb::NullOutputIterator` does not provide a default constructor:
+// ```
+// class ValueType {
+//     // ... data members ...
 //
-//    public:
-//      ValueType(int value) { ... implementation elided ... }
+//   public:
+//     ValueType(int value) { ... implementation elided ... }
 //
-//      // ... rest of class definition elided ...
+//     // ... rest of class definition elided ...
 //
-//  };
+// };
 //
-//  ValueType v(42);
-//  bdlb::NullOutputIterator<ValueType> i;
+// ValueType v(42);
+// bdlb::NullOutputIterator<ValueType> i;
 //
-//  // With a non-proxy return type for 'operator*' it would be difficult to
-//  // provide a value for the lefthand side of this expression:
+// // With a non-proxy return type for 'operator*' it would be difficult to
+// // provide a value for the lefthand side of this expression:
 //
-//  *i = v;
-//..
+// *i = v;
+// ```
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-/// Example 1: Basic Use of 'bdlb::NullOutputIterator'
+/// Example 1: Basic Use of `bdlb::NullOutputIterator`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we use a 'bdlb::NullOutputIterator' to enable us to
+// In the following example we use a `bdlb::NullOutputIterator` to enable us to
 // call a function to capture its return code, while ignoring the output
 // provided through an iterator.
 //
-// First, we define a function 'runningSum' that returns output both through an
+// First, we define a function `runningSum` that returns output both through an
 // output iterator and through a return status code:
-//..
-//  template <class IN_ITER, class OUT_ITER>
-//  typename bsl::iterator_traits<OUT_ITER>::value_type
-//  runningSum(IN_ITER first, IN_ITER last, OUT_ITER output)
-//  {
-//      typename bsl::iterator_traits<OUT_ITER>::value_type total = 0;
-//      while (first != last) {
-//          total += *first++;
-//          *output++ = total;
-//      }
-//      return total;
-//  }
-//..
-// Now, we define a function 'average' that captures the total sum returned by
-// 'runningSum' and uses a 'bdlb::NullOutputIterator' to facilitate calling the
+// ```
+// template <class IN_ITER, class OUT_ITER>
+// typename bsl::iterator_traits<OUT_ITER>::value_type
+// runningSum(IN_ITER first, IN_ITER last, OUT_ITER output)
+// {
+//     typename bsl::iterator_traits<OUT_ITER>::value_type total = 0;
+//     while (first != last) {
+//         total += *first++;
+//         *output++ = total;
+//     }
+//     return total;
+// }
+// ```
+// Now, we define a function `average` that captures the total sum returned by
+// `runningSum` and uses a `bdlb::NullOutputIterator` to facilitate calling the
 // function, and ignoring the output it provides through its output iterator
 // parameter:
-//..
-//  int average(int values[], int numValues)
-//  {
-//      // ... input validation elided ...
-//      return runningSum(values, values + numValues,
-//                        bdlb::NullOutputIterator<int>()) / numValues;
-//  }
-//..
-// Finally, we invoke function 'average' on user array and validate result.
-//..
-//  void usageExample()
-//  {
-//      const int myArray[5] = { 3, 4, 5, 7, 11 };
+// ```
+// int average(int values[], int numValues)
+// {
+//     // ... input validation elided ...
+//     return runningSum(values, values + numValues,
+//                       bdlb::NullOutputIterator<int>()) / numValues;
+// }
+// ```
+// Finally, we invoke function `average` on user array and validate result.
+// ```
+// void usageExample()
+// {
+//     const int myArray[5] = { 3, 4, 5, 7, 11 };
 //
-//      int averageValue = average(myArray, 5);
-//      assert( averageValue == 6 );
-//  }
-//..
+//     int averageValue = average(myArray, 5);
+//     assert( averageValue == 6 );
+// }
+// ```
 
 #include <bdlscm_version.h>
 
@@ -111,22 +111,26 @@ namespace bdlb {
                    // class NullOutputIteratorAssignmentProxy
                    // =======================================
 
+/// Provide an object that can appear on the left side of an assignment
+/// from `TYPE`.  The operation AssignmentProxy() = TYPE() is valid and has
+/// no effect.
 template <class  TYPE>
 class NullOutputIteratorAssignmentProxy {
-    // Provide an object that can appear on the left side of an assignment
-    // from 'TYPE'.  The operation AssignmentProxy() = TYPE() is valid and has
-    // no effect.
   public:
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs`. The operator
+    /// has no effect.
     void operator=(const TYPE& rhs);
-        // Assign to this object the value of the specified 'rhs'. The operator
-        // has no effect.
 };
 
                         // ========================
                         // class NullOutputIterator
                         // ========================
 
+/// Provide an output iterator that ignores the output that is provided.
+/// De-referencing an iterator and assigning to the returned value has no
+/// effect.
 template <class TYPE>
 class NullOutputIterator
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
@@ -137,15 +141,13 @@ class NullOutputIterator
                          : public bsl::iterator<bsl::output_iterator_tag, TYPE>
 #endif
 {
-    // Provide an output iterator that ignores the output that is provided.
-    // De-referencing an iterator and assigning to the returned value has no
-    // effect.
 
   public:
     // TYPES
+
+    /// `AssignmentProxy` is an alias for an object type returned by
+    /// de-referencing operator.
     typedef NullOutputIteratorAssignmentProxy<TYPE> AssignmentProxy;
-        // 'AssignmentProxy' is an alias for an object type returned by
-        // de-referencing operator.
 
     typedef bsl::output_iterator_tag  iterator_category;
     typedef TYPE                      value_type;
@@ -155,35 +157,37 @@ class NullOutputIterator
 
   public:
     // CREATORS
+
+    /// Create a `NullOutputIterator` object.
     NullOutputIterator();
-        // Create a 'NullOutputIterator' object.
 
+    /// Create a `NullOutputIterator` object having the value of the
+    /// specified `original`.
     NullOutputIterator(const NullOutputIterator& original);
-        // Create a 'NullOutputIterator' object having the value of the
-        // specified 'original'.
 
+    /// Destroy this object.
     ~NullOutputIterator();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` iterator, and
+    /// return a reference providing modifiable access to this object.
     NullOutputIterator& operator=(const NullOutputIterator& rhs);
-        // Assign to this object the value of the specified 'rhs' iterator, and
-        // return a reference providing modifiable access to this object.
 
+    /// Return an object that can appear on the left-hand side of an
+    /// assignment from `TYPE`.  The assignment to the returned object has
+    /// no effect.
     AssignmentProxy operator*();
-        // Return an object that can appear on the left-hand side of an
-        // assignment from 'TYPE'.  The assignment to the returned object has
-        // no effect.
 
+    /// Set this object to point to the next writable element, and return a
+    /// reference providing modifiable access to this object.  This
+    /// operation has no effect.
     NullOutputIterator& operator++();
-        // Set this object to point to the next writable element, and return a
-        // reference providing modifiable access to this object.  This
-        // operation has no effect.
 
+    /// Set this object to point to the next writable element, and return a
+    /// reference providing modifiable access to this object.  This
+    /// operation has no effect.
     NullOutputIterator& operator++(int);
-        // Set this object to point to the next writable element, and return a
-        // reference providing modifiable access to this object.  This
-        // operation has no effect.
 };
 
 // ============================================================================

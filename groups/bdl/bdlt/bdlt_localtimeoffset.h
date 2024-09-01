@@ -12,19 +12,19 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_timeinterval, bsls_systemtime, bdlt_currenttime
 //
-//@DESCRIPTION: This component provides a 'struct', 'bdlt::LocalTimeOffset', in
+//@DESCRIPTION: This component provides a `struct`, `bdlt::LocalTimeOffset`, in
 // which are defined a series of static methods for using a callback function
 // to retrieve the local time offset (the difference between the currently
 // executing task's local time and UTC time) at a specified UTC date and time.
-// 'LocalTimeoffset' provides a function 'localTimeOffset' that delegates to
+// `LocalTimeoffset` provides a function `localTimeOffset` that delegates to
 // the currently installed local time offset callback.  By default,
-// 'localTimeOffsetDefault' is installed as the local time offset callback.
+// `localTimeOffsetDefault` is installed as the local time offset callback.
 // Clients can configure the default callback function by calling the
-// 'setLocalTimeOffsetCallback' function.
+// `setLocalTimeOffsetCallback` function.
 //
 ///Thread Safety
 ///-------------
-// The functions provided by 'bdlt::LocalTimeOffset' are *thread-safe* (meaning
+// The functions provided by `bdlt::LocalTimeOffset` are *thread-safe* (meaning
 // they may be called concurrently from multiple threads), including those that
 // set and retrieve the callback function.  In addition, user-supplied callback
 // functions must be *thread-safe*.
@@ -33,39 +33,39 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic 'bdlt::LocalTimeOffset' Usage
+///Example 1: Basic `bdlt::LocalTimeOffset` Usage
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to use 'bdlt::LocalTimeOffset'.
+// This example demonstrates how to use `bdlt::LocalTimeOffset`.
 //
 // First, obtain the current UTC time - ignoring milliseconds - using
-// 'bsls::SystemTime' and 'bdlt::EpochUtil' (note that clients may prefer
-// 'bdlt_currenttime', which is not shown here for dependency reasons):
-//..
-//  bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
+// `bsls::SystemTime` and `bdlt::EpochUtil` (note that clients may prefer
+// `bdlt_currenttime`, which is not shown here for dependency reasons):
+// ```
+// bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
 //
-//  bdlt::Datetime utc = bdlt::EpochUtil::epoch() +
-//                              bdlt::DatetimeInterval(0, 0, 0, now.seconds());
-//..
+// bdlt::Datetime utc = bdlt::EpochUtil::epoch() +
+//                             bdlt::DatetimeInterval(0, 0, 0, now.seconds());
+// ```
 // Then, obtain the local time offset:
-//..
-//  bsls::TimeInterval localOffset =
-//                                 bdlt::LocalTimeOffset::localTimeOffset(utc);
-//..
+// ```
+// bsls::TimeInterval localOffset =
+//                                bdlt::LocalTimeOffset::localTimeOffset(utc);
+// ```
 // Next, add the offset to the UTC time to obtain the local time:
-//..
-//  bdlt::Datetime local = utc;
-//  local.addSeconds(localOffset.seconds());
-//..
-// Finally, stream the two time values to 'stdout':
-//..
-//  bsl::cout << "utc   = " << utc << bsl::endl;
-//  bsl::cout << "local = " << local << bsl::endl;
-//..
-// The streaming operator produces output in the following format on 'stdout':
-//..
-//  utc   = ddMONyyyy_hh:mm::ss.000
-//  local = ddMONyyyy_hh:mm::ss.000
-//..
+// ```
+// bdlt::Datetime local = utc;
+// local.addSeconds(localOffset.seconds());
+// ```
+// Finally, stream the two time values to `stdout`:
+// ```
+// bsl::cout << "utc   = " << utc << bsl::endl;
+// bsl::cout << "local = " << local << bsl::endl;
+// ```
+// The streaming operator produces output in the following format on `stdout`:
+// ```
+// utc   = ddMONyyyy_hh:mm::ss.000
+// local = ddMONyyyy_hh:mm::ss.000
+// ```
 //
 ///Example 2: Using the Local Time Offset Callback
 ///- - - - - - - - - - - - - - - - - - - - - - - -
@@ -78,110 +78,110 @@ BSLS_IDENT("$Id: $")
 // offset allows one to solve this problem.
 //
 // First, create a utility class that provides a method of type
-// 'bdlt::LocalTimeOffset::LocalTimeOffsetCallback' that is valid for the
+// `bdlt::LocalTimeOffset::LocalTimeOffsetCallback` that is valid for the
 // location of interest (New York) for the period of interest (the year 2013).
-//..
-//  struct MyLocalTimeOffsetUtilNewYork2013 {
+// ```
+// struct MyLocalTimeOffsetUtilNewYork2013 {
 //
-//    private:
-//      // DATA
-//      static int            s_useCount;
-//      static bdlt::Datetime s_startOfDaylightSavingTime;  // UTC Datetime
-//      static bdlt::Datetime s_resumptionOfStandardTime;   // UTC Datetime
+//   private:
+//     // DATA
+//     static int            s_useCount;
+//     static bdlt::Datetime s_startOfDaylightSavingTime;  // UTC Datetime
+//     static bdlt::Datetime s_resumptionOfStandardTime;   // UTC Datetime
 //
-//    public:
-//      // CLASS METHODS
-//      static bsls::TimeInterval localTimeOffset(
-//                                          const bdlt::Datetime& utcDatetime);
-//          // Return a 'bsls::TimeInterval' value representing the difference
-//          // between the local time for the "America/New_York" timezone and
-//          // UTC time at the specified 'utcDatetime'.  The behavior is
-//          // undefined unless '2013 == utcDatetime.date().year()'.
+//   public:
+//     // CLASS METHODS
+//     static bsls::TimeInterval localTimeOffset(
+//                                         const bdlt::Datetime& utcDatetime);
+//         // Return a 'bsls::TimeInterval' value representing the difference
+//         // between the local time for the "America/New_York" timezone and
+//         // UTC time at the specified 'utcDatetime'.  The behavior is
+//         // undefined unless '2013 == utcDatetime.date().year()'.
 //
-//      static int useCount();
-//          // Return the number of invocations of the 'localTimeOffset' since
-//          // the start of the process.
-//  };
+//     static int useCount();
+//         // Return the number of invocations of the 'localTimeOffset' since
+//         // the start of the process.
+// };
 //
-//  // DATA
-//  int MyLocalTimeOffsetUtilNewYork2013::s_useCount = 0;
+// // DATA
+// int MyLocalTimeOffsetUtilNewYork2013::s_useCount = 0;
 //
-//  bdlt::Datetime
-//  MyLocalTimeOffsetUtilNewYork2013::s_startOfDaylightSavingTime(2013,
-//                                                                   3,
-//                                                                  10,
-//                                                                   7);
-//  bdlt::Datetime
-//  MyLocalTimeOffsetUtilNewYork2013::s_resumptionOfStandardTime(2013,
-//                                                                 11,
+// bdlt::Datetime
+// MyLocalTimeOffsetUtilNewYork2013::s_startOfDaylightSavingTime(2013,
 //                                                                  3,
-//                                                                  6);
+//                                                                 10,
+//                                                                  7);
+// bdlt::Datetime
+// MyLocalTimeOffsetUtilNewYork2013::s_resumptionOfStandardTime(2013,
+//                                                                11,
+//                                                                 3,
+//                                                                 6);
 //
-//  // CLASS METHODS
-//  bsls::TimeInterval MyLocalTimeOffsetUtilNewYork2013::localTimeOffset(
-//                                           const bdlt::Datetime& utcDatetime)
-//  {
-//      assert(2013 == utcDatetime.date().year());
+// // CLASS METHODS
+// bsls::TimeInterval MyLocalTimeOffsetUtilNewYork2013::localTimeOffset(
+//                                          const bdlt::Datetime& utcDatetime)
+// {
+//     assert(2013 == utcDatetime.date().year());
 //
-//      ++s_useCount;
-//      int seconds = utcDatetime < s_startOfDaylightSavingTime ? -18000 :
-//                    utcDatetime < s_resumptionOfStandardTime  ? -14400 :
-//                                                                -18000;
-//      return bsls::TimeInterval(seconds, 0);
-//  }
+//     ++s_useCount;
+//     int seconds = utcDatetime < s_startOfDaylightSavingTime ? -18000 :
+//                   utcDatetime < s_resumptionOfStandardTime  ? -14400 :
+//                                                               -18000;
+//     return bsls::TimeInterval(seconds, 0);
+// }
 //
-//  int MyLocalTimeOffsetUtilNewYork2013::useCount()
-//  {
-//      return s_useCount;
-//  }
-//..
+// int MyLocalTimeOffsetUtilNewYork2013::useCount()
+// {
+//     return s_useCount;
+// }
+// ```
 // Note that the transition times into and out of daylight saving for New York
 // are given in UTC.  Also notice that we do not attempt to make the
-// 'localTimeOffset' method 'inline', since we must take its address to install
+// `localTimeOffset` method `inline`, since we must take its address to install
 // it as the callback.
 //
-// Then, we install this 'localTimeOffset' as the local time offset callback.
-//..
-//  bdlt::LocalTimeOffset::LocalTimeOffsetCallback defaultCallback =
-//                           bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
-//                                          &MyLocalTimeOffsetUtilNewYork2013::
-//                                                            localTimeOffset);
+// Then, we install this `localTimeOffset` as the local time offset callback.
+// ```
+// bdlt::LocalTimeOffset::LocalTimeOffsetCallback defaultCallback =
+//                          bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
+//                                         &MyLocalTimeOffsetUtilNewYork2013::
+//                                                           localTimeOffset);
 //
-//  assert(bdlt::LocalTimeOffset::localTimeOffsetDefault == defaultCallback);
-//  assert(&MyLocalTimeOffsetUtilNewYork2013::localTimeOffset
-//                        == bdlt::LocalTimeOffset::localTimeOffsetCallback());
-//..
-// Now, we can use the 'bdlt::LocalTimeOffset::localTimeOffset' method to
+// assert(bdlt::LocalTimeOffset::localTimeOffsetDefault == defaultCallback);
+// assert(&MyLocalTimeOffsetUtilNewYork2013::localTimeOffset
+//                       == bdlt::LocalTimeOffset::localTimeOffsetCallback());
+// ```
+// Now, we can use the `bdlt::LocalTimeOffset::localTimeOffset` method to
 // obtain the local time offsets in New York on several dates of interest.  The
-// increasing values from our 'useCount' method assures us that the callback we
+// increasing values from our `useCount` method assures us that the callback we
 // defined is indeed being used.
-//..
-//  assert(0 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+// ```
+// assert(0 == MyLocalTimeOffsetUtilNewYork2013::useCount());
 //
-//  bsls::Types::Int64 offset;
-//  bdlt::Datetime     newYearsDay(2013,  1,  1);
-//  bdlt::Datetime     independenceDay(2013,  7,  4);
-//  bdlt::Datetime     newYearsEve(2013, 12, 31);
+// bsls::Types::Int64 offset;
+// bdlt::Datetime     newYearsDay(2013,  1,  1);
+// bdlt::Datetime     independenceDay(2013,  7,  4);
+// bdlt::Datetime     newYearsEve(2013, 12, 31);
 //
-//  offset = bdlt::LocalTimeOffset::localTimeOffset(newYearsDay).seconds();
-//  assert(-5 * 3600 == offset);
-//  assert(        1 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+// offset = bdlt::LocalTimeOffset::localTimeOffset(newYearsDay).seconds();
+// assert(-5 * 3600 == offset);
+// assert(        1 == MyLocalTimeOffsetUtilNewYork2013::useCount());
 //
-//  offset = bdlt::LocalTimeOffset::localTimeOffset(independenceDay).seconds();
-//  assert(-4 * 3600 == offset);
-//  assert(        2 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+// offset = bdlt::LocalTimeOffset::localTimeOffset(independenceDay).seconds();
+// assert(-4 * 3600 == offset);
+// assert(        2 == MyLocalTimeOffsetUtilNewYork2013::useCount());
 //
-//  offset = bdlt::LocalTimeOffset::localTimeOffset(newYearsEve).seconds();
-//  assert(-5 * 3600 == offset);
-//  assert(        3 == MyLocalTimeOffsetUtilNewYork2013::useCount());
-//..
+// offset = bdlt::LocalTimeOffset::localTimeOffset(newYearsEve).seconds();
+// assert(-5 * 3600 == offset);
+// assert(        3 == MyLocalTimeOffsetUtilNewYork2013::useCount());
+// ```
 // Finally, to be neat, we restore the local time offset callback to the
 // default callback:
-//..
-//  bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(defaultCallback);
-//  assert(&bdlt::LocalTimeOffset::localTimeOffsetDefault
-//                        == bdlt::LocalTimeOffset::localTimeOffsetCallback());
-//..
+// ```
+// bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(defaultCallback);
+// assert(&bdlt::LocalTimeOffset::localTimeOffsetDefault
+//                       == bdlt::LocalTimeOffset::localTimeOffsetCallback());
+// ```
 
 #include <bdlscm_version.h>
 
@@ -200,20 +200,21 @@ namespace bdlt {
                             // class LocalTimeOffset
                             // =====================
 
+/// This `struct` provides a namespace for local-time-offset procedures
+/// including a configurable global callback mechanism.  The use of these
+/// procedures is thread-safe (see `Thread Safety`).
 struct LocalTimeOffset {
-    // This 'struct' provides a namespace for local-time-offset procedures
-    // including a configurable global callback mechanism.  The use of these
-    // procedures is thread-safe (see 'Thread Safety').
 
     // TYPES
+
+    /// `LocalTimeOffsetCallback` is an alias for the type of a function
+    /// that returns a `bsls::TimeInterval` value representing the
+    /// difference between local time and UTC time at the specified
+    /// `utcDatetime`.  This function must be thread-safe in multi-threaded
+    /// builds.  Note that the installed callback function must have
+    /// geographic information specifying the local timezone.
     typedef bsls::TimeInterval (*LocalTimeOffsetCallback)(
                                                   const Datetime& utcDatetime);
-        // 'LocalTimeOffsetCallback' is an alias for the type of a function
-        // that returns a 'bsls::TimeInterval' value representing the
-        // difference between local time and UTC time at the specified
-        // 'utcDatetime'.  This function must be thread-safe in multi-threaded
-        // builds.  Note that the installed callback function must have
-        // geographic information specifying the local timezone.
 
   private:
     static bsls::AtomicOperations::AtomicTypes::Pointer
@@ -225,35 +226,35 @@ struct LocalTimeOffset {
 
                         // ** computation method **
 
+    /// Return a `bsls::TimeInterval` value representing the difference
+    /// between local time and UTC time at the specified `utcDatetime`.
+    /// This method uses the currently installed local-time-offset callback
+    /// mechanism.
     static bsls::TimeInterval localTimeOffset(const Datetime& utcDatetime);
-        // Return a 'bsls::TimeInterval' value representing the difference
-        // between local time and UTC time at the specified 'utcDatetime'.
-        // This method uses the currently installed local-time-offset callback
-        // mechanism.
 
                         // ** default callback **
 
+    /// Return a `bsls::TimeInterval` value representing the difference
+    /// between local time and UTC time at the specified `utcDatetime`.
+    /// Note that the local time zone is determined by the `TZ` environment
+    /// variable in the same manner as the `localtime` POSIX function.
     static bsls::TimeInterval localTimeOffsetDefault(
                                                   const Datetime& utcDatetime);
-        // Return a 'bsls::TimeInterval' value representing the difference
-        // between local time and UTC time at the specified 'utcDatetime'.
-        // Note that the local time zone is determined by the 'TZ' environment
-        // variable in the same manner as the 'localtime' POSIX function.
 
                         // ** set callback **
 
+    /// Set the specified `callback` as the function to be used to return a
+    /// `bsls::TimeInterval` value representing the difference between
+    /// local time and UTC time at a specified UTC date and time.  Return
+    /// the previously installed `LocalTimeOffsetCallback` function.  The
+    /// behavior is undefined unless `0 != callback`.
     static LocalTimeOffsetCallback setLocalTimeOffsetCallback(
                                              LocalTimeOffsetCallback callback);
-        // Set the specified 'callback' as the function to be used to return a
-        // 'bsls::TimeInterval' value representing the difference between
-        // local time and UTC time at a specified UTC date and time.  Return
-        // the previously installed 'LocalTimeOffsetCallback' function.  The
-        // behavior is undefined unless '0 != callback'.
 
                         // ** get current callback **
 
+    /// Return the currently installed `LocalTimeOffsetCallback` function.
     static LocalTimeOffsetCallback localTimeOffsetCallback();
-        // Return the currently installed 'LocalTimeOffsetCallback' function.
 };
 
 // ============================================================================

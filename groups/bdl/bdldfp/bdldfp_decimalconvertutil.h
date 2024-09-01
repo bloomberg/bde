@@ -13,7 +13,7 @@ BSLS_IDENT("$Id$")
 //@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION: This component provides namespace,
-// 'bdldfp::DecimalConvertUtil', containing functions that are able to convert
+// `bdldfp::DecimalConvertUtil`, containing functions that are able to convert
 // between the native decimal types of the platform and various other possible
 // representations, such as binary floating-point, network encoding formats.
 //
@@ -22,16 +22,14 @@ BSLS_IDENT("$Id$")
 // This utility contains functions to encode decimal values to and from three
 // different encoding formats:
 //
-//: o the IEEE decimal interchange format using decimal encoding for the
-//:   significant (also known as the Densely Packed Decimal format, see IEEE
-//:   754 - 2008, section 3.5.2, for more details)
-//:
-//: o the multi-width encoding format, which is a custom format that can encode
-//:   subsets of decimal values using a smaller number of bytes
-//:
-//: o the variable-width encoding format, which is a custom format that is
-//:   similar to the multi-width encoding format with the main difference being
-//:   that it self describes its own width
+// * the IEEE decimal interchange format using decimal encoding for the
+//   significant (also known as the Densely Packed Decimal format, see IEEE
+//   754. - 2008, section 3.5.2, for more details)
+// * the multi-width encoding format, which is a custom format that can encode
+//   subsets of decimal values using a smaller number of bytes
+// * the variable-width encoding format, which is a custom format that is
+//   similar to the multi-width encoding format with the main difference being
+//   that it self describes its own width
 //
 // 64-bit decimal values encoded by the IEEE decimal interchange format always
 // uses 8 bytes, which can be inefficient.  The two custom encoding formats
@@ -54,7 +52,7 @@ BSLS_IDENT("$Id$")
 ///- - - - - - - - - - - - - - - -
 // The IEEE decimal interchange format is defined by the IEEE standard.  64 bit
 // decimal values encoded by this format always uses 8 bytes.  The
-// 'decimalFromNetwork' and 'decimalToNetwork' functions can be used encode to
+// `decimalFromNetwork` and `decimalToNetwork` functions can be used encode to
 // and decode from this format.
 //
 ///Multi-Width Encoding Format
@@ -65,7 +63,7 @@ BSLS_IDENT("$Id$")
 // by the full format.  The following configuration is used to encode 64-bit
 // decimal values:
 //
-//..
+// ```
 // |------|----------|----------|-----|----------|----------------|
 // | size | S (bits) | E (bits) |   B | T (bits) | max signficand |
 // |------|----------|----------|-----|----------|----------------|
@@ -87,14 +85,14 @@ BSLS_IDENT("$Id$")
 //
 // ** If the value to be encoded can not fit in the 5-byte encoding or is -Inf,
 //    +Inf, or Nan, then the full 8-byte IEEE format will be used.
-//..
+// ```
 //
 // Since the multi-width encoding format consists of subformats having varying
 // widths, the size of the subformat used must be supplied long with the
 // encoding to the decode function.  This is not required for either the IEEE
 // format or the variable-width encoding format.
 //
-// The 'decimal64ToMultiWidthEncoding' and 'decimal64FromMultiWidthEncoding'
+// The `decimal64ToMultiWidthEncoding` and `decimal64FromMultiWidthEncoding`
 // can be used to encode to and decode from this format.  Currently, only
 // 64-bit decimal values are supported by this encoding format.
 //
@@ -107,7 +105,7 @@ BSLS_IDENT("$Id$")
 // function does not require the size of the encoding to work.  The following
 // configuration is used to encode 64-bit decimal values:
 //
-//..
+// ```
 // |------|------------|---|---|-----|----|-----------------|
 // | size |          P | S | E |   B |  T | max significant |
 // |------|------------|---|---|-----|----|-----------------|
@@ -125,10 +123,10 @@ BSLS_IDENT("$Id$")
 // * If the value to be encoded can not fit in the 4-byte encoding or is -Inf,
 //   +Inf, or Nan, then the full 8-byte IEEE format will be used prefixed by a
 //   1 byte predicate having the value of 0xFF.
-//..
+// ```
 //
-// The 'decimal64ToVariableWidthEncoding' and
-// 'decimal64FromVariableWidthEncoding' can be used to encode to and decode
+// The `decimal64ToVariableWidthEncoding` and
+// `decimal64FromVariableWidthEncoding` can be used to encode to and decode
 // from this format.  Currently, only 64-bit decimal values are supported by
 // this encoding format.
 //
@@ -145,7 +143,7 @@ BSLS_IDENT("$Id$")
 // format to IEEE format.
 //
 // Generically, when a decimal is converted to floating-point (using, for
-// example, scanf from text, or 'DecimalConvertUtil::decimalToDouble'), the
+// example, scanf from text, or `DecimalConvertUtil::decimalToDouble`), the
 // result is the representable binary number nearest in value to that decimal.
 // If there are two such, the one whose least significant bit is 0 is generally
 // chosen.  (This is also true for conversion of decimals to 32-bit
@@ -155,7 +153,7 @@ BSLS_IDENT("$Id$")
 // bits of representation compared to the IEEE format.)  Unless the decimal
 // value is exactly a multiple of a power of two (e.g., 3.4375 = 55 * 1/16),
 // the converted binary value cannot equal the decimal value, it can only be
-// close.  This utility provides 'decimal{,32,64,128}To{Float,Double}'
+// close.  This utility provides `decimal{,32,64,128}To{Float,Double}`
 // functions to convert decimal floating-point numbers to their closest binary
 // floating-point values.
 //
@@ -163,14 +161,14 @@ BSLS_IDENT("$Id$")
 // decimal values (in the representable range of the target binary type)
 // convert to two different binary values.  There is a maximum number of
 // significant digits for which this will be true.  For example, all decimals
-// with 6 significant digits convert to distinct 'float' values, but 8589973000
-// and 8589974000, with 7 significant digits, convert to the same 'float'
+// with 6 significant digits convert to distinct `float` values, but 8589973000
+// and 8589974000, with 7 significant digits, convert to the same `float`
 // value.  Similarly, all decimals with 15 significant digits convert to unique
-// 'double' values but 900719925474.0992 and 900719925474.0993, with 16
-// significant digits, convert to the same 'double' value.  Over restricted
+// `double` values but 900719925474.0992 and 900719925474.0993, with 16
+// significant digits, convert to the same `double` value.  Over restricted
 // ranges, the maximum may be higher - for example, every decimal value with 7
 // or fewer significant digits between 1e-3 and 8.5e9 converts to a unique
-// 'float' value.
+// `float` value.
 //
 // Because binary floating-point values are generally not equal to their
 // decimal progenitors, "converting from binary to decimal" does not have a
@@ -178,83 +176,69 @@ BSLS_IDENT("$Id$")
 // know and specify the conversion they want.  Common examples of conversions a
 // programmer might seek are listed below:
 //
-//: 1 Express the value as its nearest decimal value.
-//:
-//:   o For this conversion, use the conversion constructors:
-//:   o 'Decimal{32,64,128}(value)'
-//:
-//: 2 Express the value rounded to a given number of significant digits.  (The
-//:   significant digits of a decimal number are the digits with all leading
-//:   and trailing 0s removed; e.g., 0.00103, 10.3 and 10300 each have 3
-//:   significant digits.)  This conversion is the one that leads programmers
-//:   to complain about "rounding error" (for example, .1f rounded to 9 digits
-//:   is .100000001) but is the appropriate one to use when the programmer
-//:   knows that the binary value was originally converted from a decimal value
-//:   with that many significant digits.
-//:
-//:   o For this conversion, use:
-//:   o 'Decimal{32,64,128}From{Float,Double}(value, digits)'
-//:
-//: 3 Express the value using the minimum number of significant digits for the
-//:   type of the binary such that converting the decimal value back to binary
-//:   will yield the same value.  (Note that 17 digits are needed for 'double'
-//:   and 9 for 'float', so not all decimal types can hold such a result.)
-//:
-//:   o For this conversion, use:
-//:   o 'Decimal{64,128}FromFloat(value, 9)' or
-//:   o 'Decimal128FromDouble(value, 17)'
-//:
-//: 4 Express the value using a number of decimal places that restores the
-//:   original decimal value from which the binary value was converted,
-//:   assuming that the original decimal value had sufficiently few significant
-//:   digits so that no two values with that number of digits would convert to
-//:   the same binary value.  (That number is 15 for 'double' and 6 for 'float'
-//:   in general but 7 over a limited range that spans '[1e-3 .. 8.5e9]').
-//:
-//:   o For this conversion, use:
-//:   o 'Decimal{32,64,128}From{Float,Double}(value)'
-//:
-//: 5 Express the value as the shortest decimal number that converts back
-//:   exactly to the binary value.  For example. given the binary value
+// 1. Express the value as its nearest decimal value.
+//   - For this conversion, use the conversion constructors:
+//   - `Decimal{32,64,128}(value)`
+// 2. Express the value rounded to a given number of significant digits.  (The
+//    significant digits of a decimal number are the digits with all leading
+//    and trailing 0s removed; e.g., 0.00103, 10.3 and 10300 each have 3
+//    significant digits.)  This conversion is the one that leads programmers
+//    to complain about "rounding error" (for example, .1f rounded to 9 digits
+//    is .100000001) but is the appropriate one to use when the programmer
+//    knows that the binary value was originally converted from a decimal value
+//    with that many significant digits.
+//   - For this conversion, use:
+//   - `Decimal{32,64,128}From{Float,Double}(value, digits)`
+// 3. Express the value using the minimum number of significant digits for the
+//    type of the binary such that converting the decimal value back to binary
+//    will yield the same value.  (Note that 17 digits are needed for `double`
+//    and 9 for `float`, so not all decimal types can hold such a result.)
+//   - For this conversion, use:
+//   - `Decimal{64,128}FromFloat(value, 9)` or
+//   - `Decimal128FromDouble(value, 17)`
+// 4. Express the value using a number of decimal places that restores the
+//    original decimal value from which the binary value was converted,
+//    assuming that the original decimal value had sufficiently few significant
+//    digits so that no two values with that number of digits would convert to
+//    the same binary value.  (That number is 15 for `double` and 6 for `float`
+//    in general but 7 over a limited range that spans `[1e-3 .. 8.5e9]`).
+//   - For this conversion, use:
+//   - `Decimal{32,64,128}From{Float,Double}(value)`
+// 5. Express the value as the shortest decimal number that converts back
+//    exactly to the binary value.  For example. given the binary value
 //:   0x3DCCCCCD above, that corresponding shortest decimal value is
 //:   (unsurprisingly) .1, while the next lower value 0x3DCCCCCC has the
 //:   shortest decimal .099999994 and the next higher value 0x3DCCCCCE has the
 //:   shortest decimal .010000001.  This is the most visually appealing result,
 //:   but can be expensive and slow to compute.
 //:
-//:   o For this conversion, use:
-//:   o 'Decimal{32,64,128}From{Float,Double}(value, -1)'
-//:
-//: 6 Express the value using a number of decimal places that restores the
-//:   original decimal value assuming that it is a 'float' which originated as
-//:   an IBM/Perkin-Elmer/Interdata 'float' value itself originally converted
-//:   from a decimal value.
-//:
-//:   o For this conversion, use:
-//:   o 'Decimal{32,64,128}FromFloat(value, 6)'
-//:
-//: 7 Express the value exactly as a decimal.  For example, the decimal
-//:   value .1 converts to the 32-bit IEEE float value 0x3DCCCCCD, which has
-//:   the exact value .100000001490116119384765625.  This conversion is seldom
-//:   useful, except perhaps for debugging, since the exact value may have over
-//:   1000 digits, and as well cannot be represented as a decimal
-//:   floating-point type since those types do not have enough digits.
-//:
-//:   o For this conversion, use 'sprintf' into a large-enough buffer:
-//:   o 'char buf[2000]; double value; sprintf(buf, "%.1100f", value);'
-//:   o The result will have trailing 0s, which may be trimmed.
-//:
-//: 8 Express the value rounded to a given number of decimal places.  (The
-//:   decimal places of a decimal number are the number of digits after the
-//:   decimal point, with trailing 0s removed; .01, 10.01, and 1000.01 each
-//:   have two decimal places.)  This conversion can be problematic when the
-//:   integer portion of the value is large, as there may not be enough
-//:   precision remaining to deliver a meaningful number of decimal places.  As
-//:   seen above, for example, for numbers near one trillion, there is not
-//:   enough precision in a 'double' for 4 decimal places.
-//:
-//:   o For this conversion, use 'sprintf' into a large-enough buffer:
-//:   o 'char buf[2000]; double value; sprintf(buf, "%.*f", places, value);'
+//   - For this conversion, use:
+//   - `Decimal{32,64,128}From{Float,Double}(value, -1)`
+// 6. Express the value using a number of decimal places that restores the
+//    original decimal value assuming that it is a `float` which originated as
+//    an IBM/Perkin-Elmer/Interdata `float` value itself originally converted
+//    from a decimal value.
+//   - For this conversion, use:
+//   - `Decimal{32,64,128}FromFloat(value, 6)`
+// 7. Express the value exactly as a decimal.  For example, the decimal
+//    value .1 converts to the 32-bit IEEE float value 0x3DCCCCCD, which has
+//    the exact value .100000001490116119384765625.  This conversion is seldom
+//    useful, except perhaps for debugging, since the exact value may have over
+//   1000. digits, and as well cannot be represented as a decimal
+//    floating-point type since those types do not have enough digits.
+//   - For this conversion, use `sprintf` into a large-enough buffer:
+//   - `char buf[2000]; double value; sprintf(buf, "%.1100f", value);`
+//   - The result will have trailing 0s, which may be trimmed.
+// 8. Express the value rounded to a given number of decimal places.  (The
+//    decimal places of a decimal number are the number of digits after the
+//    decimal point, with trailing 0s removed; .01, 10.01, and 1000.01 each
+//    have two decimal places.)  This conversion can be problematic when the
+//    integer portion of the value is large, as there may not be enough
+//    precision remaining to deliver a meaningful number of decimal places.  As
+//    seen above, for example, for numbers near one trillion, there is not
+//    enough precision in a `double` for 4 decimal places.
+//   - For this conversion, use `sprintf` into a large-enough buffer:
+//   - `char buf[2000]; double value; sprintf(buf, "%.*f", places, value);`
 //
 ///Usage
 ///-----
@@ -269,31 +253,31 @@ BSLS_IDENT("$Id$")
 // server that has just finished an expensive calculation involving millions
 // of numbers and needs to send the result to its client) will need to convert
 // the data to network format before sending:
-//..
-//  unsigned char  msgbuffer[256];
-//  unsigned char *next = msgbuffer;
+// ```
+// unsigned char  msgbuffer[256];
+// unsigned char *next = msgbuffer;
 //
-//  BDEC::Decimal64 number(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
-//  unsigned char   expected[] = {
-//                            0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
+// BDEC::Decimal64 number(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
+// unsigned char   expected[] = {
+//                           0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
 //
-//  next = bdldfp::DecimalConvertUtil::decimalToNetwork(next, number);
+// next = bdldfp::DecimalConvertUtil::decimalToNetwork(next, number);
 //
-//  assert(memcmp(msgbuffer, expected, sizeof(number)) == 0);
-//..
+// assert(memcmp(msgbuffer, expected, sizeof(number)) == 0);
+// ```
 // The receiver/client shall then restore the number from network format:
-//..
-//  unsigned char  msgbuffer[] ={
-//                            0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
-//  unsigned char *next = msgbuffer;
+// ```
+// unsigned char  msgbuffer[] ={
+//                           0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
+// unsigned char *next = msgbuffer;
 //
-//  BDEC::Decimal64 number;
-//  BDEC::Decimal64 expected(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
+// BDEC::Decimal64 number;
+// BDEC::Decimal64 expected(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
 //
-//  next = bdldfp::DecimalConvertUtil::decimalFromNetwork(number, next);
+// next = bdldfp::DecimalConvertUtil::decimalFromNetwork(number, next);
 //
-//  assert(number == expected);
-//..
+// assert(number == expected);
+// ```
 //
 ///Example 2: Storing/Sending Decimals In Binary Floating-Point
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -303,27 +287,27 @@ BSLS_IDENT("$Id$")
 // decimal into a binary FP variable, ensure that it can be restored (in other
 // words that it has "fit" into the binary type) when sending, and restore the
 // decimal number (from the binary type) when receiving:
-//..
-//  const BDEC::Decimal64 number(BDLDFP_DECIMAL_DD(1.23456789012345e-42));
+// ```
+// const BDEC::Decimal64 number(BDLDFP_DECIMAL_DD(1.23456789012345e-42));
 //
-//  typedef bdldfp::DecimalConvertUtil Util;
-//  double dbl = Util::decimalToDouble(number);
+// typedef bdldfp::DecimalConvertUtil Util;
+// double dbl = Util::decimalToDouble(number);
 //
-//  if (Util::decimal64FromDouble(dbl) != number) {
-//      // Do what is appropriate for the application
-//  }
-//..
+// if (Util::decimal64FromDouble(dbl) != number) {
+//     // Do what is appropriate for the application
+// }
+// ```
 // Note that the above assert would probably be a lot more complicated if
 // statement in production code.  It may actually be acceptable to put the
 // decimal onto the wire with certain amount of imprecision.
 //
 // The receiver would then restore the number using the appropriate
-// 'decimal64FromDouble' function:
-//..
-//  BDEC::Decimal64 restored = Util::decimal64FromDouble(dbl);
+// `decimal64FromDouble` function:
+// ```
+// BDEC::Decimal64 restored = Util::decimal64FromDouble(dbl);
 //
-//  assert(number == restored);
-//..
+// assert(number == restored);
+// ```
 
 #include <bdlscm_version.h>
 
@@ -353,10 +337,10 @@ namespace bdldfp {
                         // class DecimalConvertUtil
                         // ========================
 
+/// This `struct` provides a namespace for utility functions that convert
+/// between the decimal floating-point types of `bdldfp_decimal` and various
+/// other formats.
 struct DecimalConvertUtil {
-    // This 'struct' provides a namespace for utility functions that convert
-    // between the decimal floating-point types of 'bdldfp_decimal' and various
-    // other formats.
 
   private:
     // PRIVATE TYPES
@@ -378,41 +362,42 @@ struct DecimalConvertUtil {
         0x001fffffffffffffull;                      // mask for mantissa
 
     // PRIVATE CLASS METHODS
+
+    /// If the specified `value` is NaN, +infinity, -infinity, or its
+    /// unbiased exponent is 384, return a non-zero value and leave all
+    /// output parameters unmodified.  Otherwise, partition the `value` into
+    /// sign, biased exponent, and mantissa compartments, and load the
+    /// corresponding values into the specified `isNegative`,
+    /// `biasedExponent`, and `mantissa`.  Return 0.  Note that a non-zero
+    /// value does not indicate that `value` can not be partitioned, just
+    /// that it can not be partitioned by this function.  Also note that the
+    /// bias for `Decimal64` is 398.
     static int decimal64ToUnpackedSpecial(bool                *isNegative,
                                           int                 *biasedExponent,
                                           bsls::Types::Uint64 *mantissa,
                                           bdldfp::Decimal64    value);
-        // If the specified 'value' is NaN, +infinity, -infinity, or its
-        // unbiased exponent is 384, return a non-zero value and leave all
-        // output parameters unmodified.  Otherwise, partition the 'value' into
-        // sign, biased exponent, and mantissa compartments, and load the
-        // corresponding values into the specified 'isNegative',
-        // 'biasedExponent', and 'mantissa'.  Return 0.  Note that a non-zero
-        // value does not indicate that 'value' can not be partitioned, just
-        // that it can not be partitioned by this function.  Also note that the
-        // bias for 'Decimal64' is 398.
 
+    /// Return a `Decimal64` object that has the specified `mantissa`,
+    /// `exponent`, and a sign based on the specified `isNegative`.  The
+    /// behavior is undefined unless `isNegative`, `mantissa`, and the
+    /// biased exponent were originally obtained from
+    /// `decimal64ToUnpackedSpecial`.  Note that `exponent` should be
+    /// unbiased, so 398 should be subtracted from the biased exponent
+    /// gotten from `decimal64ToUnpackedSpecial`.
     static bdldfp::Decimal64 decimal64FromUnpackedSpecial(
                                                 bool                isNegative,
                                                 bsls::Types::Uint64 mantissa,
                                                 int                 exponent);
-        // Return a 'Decimal64' object that has the specified 'mantissa',
-        // 'exponent', and a sign based on the specified 'isNegative'.  The
-        // behavior is undefined unless 'isNegative', 'mantissa', and the
-        // biased exponent were originally obtained from
-        // 'decimal64ToUnpackedSpecial'.  Note that 'exponent' should be
-        // unbiased, so 398 should be subtracted from the biased exponent
-        // gotten from 'decimal64ToUnpackedSpecial'.
 
 
+    /// Return a `Decimal64` object that has the specified `mantissa`,
+    /// `exponent`.  The behavior is undefined unless `isNegative`,
+    /// `mantissa`, and the biased exponent were originally obtained from
+    /// `decimal64ToUnpackedSpecial`.  Note that `exponent` should be
+    /// unbiased, so 398 should be subtracted from the biased exponent
+    /// gotten from `decimal64ToUnpackedSpecial`.
     static bdldfp::Decimal64 decimal64FromUnpackedSpecial(int mantissa,
                                                           int exponent);
-        // Return a 'Decimal64' object that has the specified 'mantissa',
-        // 'exponent'.  The behavior is undefined unless 'isNegative',
-        // 'mantissa', and the biased exponent were originally obtained from
-        // 'decimal64ToUnpackedSpecial'.  Note that 'exponent' should be
-        // unbiased, so 398 should be subtracted from the biased exponent
-        // gotten from 'decimal64ToUnpackedSpecial'.
 
   public:
     // CLASS METHODS
@@ -421,95 +406,83 @@ struct DecimalConvertUtil {
 
     static double decimal32ToDouble (Decimal32  decimal);
     static double decimal64ToDouble (Decimal64  decimal);
-    static double decimal128ToDouble(Decimal128 decimal);
-        // [!DEPRECATED!] Use 'deciamalToDouble' instead.
 
+    /// [**DEPRECATED**] Use `deciamalToDouble` instead.
+    static double decimal128ToDouble(Decimal128 decimal);
+
+    /// Return a `double` object having the value closest to the value of
+    /// the specified `decimal` object following the conversion rules
+    /// defined by IEEE-754:
+    ///
+    /// * If the `decimal` object is a NaN, return a NaN.
+    /// * Otherwise if `decimal` is positive or negative infinity, return
+    ///   infinity of the same sign.
+    /// * Otherwise if `decimal` is positive or negative zero, return zero
+    ///   of the same sign.
+    /// * Otherwise if `decimal` object has an absolute value that is
+    ///   larger than `std::numeric_limits<double>::max()`, raise the
+    ///   "overflow" floating-point exception and return infinity of the
+    ///   same sign as `decimal`.
+    /// * Otherwise if `decimal` has an absolute value that is smaller than
+    ///   `std::numeric_limits<double>::min()`, raise the "underflow"
+    ///   floating-point exception and return zero of the same sign as
+    ///   `decimal`.
+    /// * Otherwise if `decimal` has a value that has more significant
+    ///   base-10 digits than `std::numeric_limits<double>::digits10`,
+    ///   raise the "inexact" floating-point exception, round that value
+    ///   according to the *binary* rounding direction setting of the
+    ///   floating-point environment, and return the result of that.
+    /// * Otherwise if `decimal` has a significand that cannot be exactly
+    ///   represented using binary floating-point, raise the "inexact"
+    ///   floating-point exception, round that value according to the
+    ///   *binary* rounding direction setting of the environment, and
+    ///   return the result of that.
+    /// * Otherwise use the exact value of the `other` object for the
+    ///   initialization if this object.
     static double decimalToDouble   (Decimal32  decimal);
     static double decimalToDouble   (Decimal64  decimal);
     static double decimalToDouble   (Decimal128 decimal);
-        // Return a 'double' object having the value closest to the value of
-        // the specified 'decimal' object following the conversion rules
-        // defined by IEEE-754:
-        //
-        //: o If the 'decimal' object is a NaN, return a NaN.
-        //:
-        //: o Otherwise if 'decimal' is positive or negative infinity, return
-        //:   infinity of the same sign.
-        //:
-        //: o Otherwise if 'decimal' is positive or negative zero, return zero
-        //:   of the same sign.
-        //:
-        //: o Otherwise if 'decimal' object has an absolute value that is
-        //:   larger than 'std::numeric_limits<double>::max()', raise the
-        //:   "overflow" floating-point exception and return infinity of the
-        //:   same sign as 'decimal'.
-        //:
-        //: o Otherwise if 'decimal' has an absolute value that is smaller than
-        //:   'std::numeric_limits<double>::min()', raise the "underflow"
-        //:   floating-point exception and return zero of the same sign as
-        //:   'decimal'.
-        //:
-        //: o Otherwise if 'decimal' has a value that has more significant
-        //:   base-10 digits than 'std::numeric_limits<double>::digits10',
-        //:   raise the "inexact" floating-point exception, round that value
-        //:   according to the *binary* rounding direction setting of the
-        //:   floating-point environment, and return the result of that.
-        //:
-        //: o Otherwise if 'decimal' has a significand that cannot be exactly
-        //:   represented using binary floating-point, raise the "inexact"
-        //:   floating-point exception, round that value according to the
-        //:   *binary* rounding direction setting of the environment, and
-        //:   return the result of that.
-        //:
-        //: o Otherwise use the exact value of the 'other' object for the
-        //:   initialization if this object.
 
                         // decimalToFloat functions
 
     static float decimal32ToFloat (Decimal32  decimal);
     static float decimal64ToFloat (Decimal64  decimal);
-    static float decimal128ToFloat(Decimal128 decimal);
-        // [!DEPRECATED!] Use 'deciamalToFloat' instead.
 
+    /// [**DEPRECATED**] Use `deciamalToFloat` instead.
+    static float decimal128ToFloat(Decimal128 decimal);
+
+    /// Return a `float` object having the value closest to the value of the
+    /// specified `decimal` object following the conversion rules defined
+    /// by IEEE-754:
+    ///
+    /// * If the `decimal` object is a NaN, return a NaN.
+    /// * Otherwise if `decimal` is positive or negative infinity, return
+    ///   infinity of the same sign.
+    /// * Otherwise if `decimal` is positive or negative zero, return zero
+    ///   of the same sign.
+    /// * Otherwise if `decimal` object has an absolute value that is
+    ///   larger than `std::numeric_limits<long double>::max()`, raise the
+    ///   "overflow" floating-point exception and return infinity of the
+    ///   same sign as `decimal`.
+    /// * Otherwise if `decimal` has an absolute value that is smaller than
+    ///   `std::numeric_limits<float>::min()`, raise the "underflow"
+    ///   floating-point exception and return zero of the same sign as
+    ///   `decimal`.
+    /// * Otherwise if `decimal` has a value that has more significant
+    ///   base-10 digits than `std::numeric_limits<float>::digits10`,
+    ///   raise the "inexact" floating-point exception, round that value
+    ///   according to the *binary* rounding direction setting of the
+    ///   floating-point environment, and return the result of that.
+    /// * Otherwise if `decimal` has a significand that cannot be exactly
+    ///   represented using binary floating-point, raise the "inexact"
+    ///   floating-point exception, round that value according to the
+    ///   *binary* rounding direction setting of the environment, and
+    ///   return the result of that.
+    /// * Otherwise use the exact value of the `other` object for the
+    ///   initialization if this object.
     static float decimalToFloat   (Decimal32  decimal);
     static float decimalToFloat   (Decimal64  decimal);
     static float decimalToFloat   (Decimal128 decimal);
-        // Return a 'float' object having the value closest to the value of the
-        // specified 'decimal' object following the conversion rules defined
-        // by IEEE-754:
-        //
-        //: o If the 'decimal' object is a NaN, return a NaN.
-        //:
-        //: o Otherwise if 'decimal' is positive or negative infinity, return
-        //:   infinity of the same sign.
-        //:
-        //: o Otherwise if 'decimal' is positive or negative zero, return zero
-        //:   of the same sign.
-        //:
-        //: o Otherwise if 'decimal' object has an absolute value that is
-        //:   larger than 'std::numeric_limits<long double>::max()', raise the
-        //:   "overflow" floating-point exception and return infinity of the
-        //:   same sign as 'decimal'.
-        //:
-        //: o Otherwise if 'decimal' has an absolute value that is smaller than
-        //:   'std::numeric_limits<float>::min()', raise the "underflow"
-        //:   floating-point exception and return zero of the same sign as
-        //:   'decimal'.
-        //:
-        //: o Otherwise if 'decimal' has a value that has more significant
-        //:   base-10 digits than 'std::numeric_limits<float>::digits10',
-        //:   raise the "inexact" floating-point exception, round that value
-        //:   according to the *binary* rounding direction setting of the
-        //:   floating-point environment, and return the result of that.
-        //:
-        //: o Otherwise if 'decimal' has a significand that cannot be exactly
-        //:   represented using binary floating-point, raise the "inexact"
-        //:   floating-point exception, round that value according to the
-        //:   *binary* rounding direction setting of the environment, and
-        //:   return the result of that.
-        //:
-        //: o Otherwise use the exact value of the 'other' object for the
-        //:   initialization if this object.
 
                         // decimalFromDouble functions
 
@@ -518,50 +491,51 @@ struct DecimalConvertUtil {
     static Decimal64  decimal64FromDouble (double binary, int digits = 0);
     static Decimal64  decimal64FromFloat  (float  binary, int digits = 0);
     static Decimal128 decimal128FromDouble(double binary, int digits = 0);
+
+    /// Return a decimal floating-point number converted from the specified
+    /// `binary`.
+    ///
+    /// If `binary` is singular (+/-NaN, +/-Inf, or +/-0) or is not within
+    /// the representable range of the return type, return a corresponding
+    /// decimal singular value.
+    ///
+    /// Optionally specify `digits` to indicate the number of significant
+    /// digits to produce in the returned value.  The `digits` parameter is
+    /// treated as follows:
+    ///
+    /// If `digits` is larger than the number of digits in the destination
+    /// type, it will be reduced to that number of digits.
+    ///
+    /// If `digits` is positive, the result is `binary` rounded to that many
+    /// significant digits.
+    ///
+    /// If `digits` is negative, the decimal value with the fewest
+    /// significant digits that converts back to `binary` is returned if
+    /// possible, and otherwise the value closest to `binary` is returned.
+    /// Note that this provides the most visually appealing result but is
+    /// the most expensive to compute.
+    ///
+    /// If `digits` is not specified or 0, a default value will be used
+    /// (possibly depending on the value of `binary`) based on the premise
+    /// that `binary` is a converted decimal value of no more significant
+    /// digits than is guaranteed to have a uniquely converted binary value
+    /// (15 for `double`, 6 for `float` in general, and 7 for `float` in the
+    /// range `[ .0009999995 .. 8589972000 ]`).  Note that this is likely to
+    /// have the best performance for "business" numbers (i.e., numbers that
+    /// originate as decimal values in external market quote feeds).
+    ///
+    /// Note that the purpose of these functions is to restore a decimal
+    /// value that has been converted to a binary floating-point type.  It
+    /// is more efficient to use conversion constructors when all that is
+    /// needed is the nearest decimal to the `binary` value.
+    ///
+    /// Note that if `binary` is a `float` value that was converted from an
+    /// IBM/Perkin-Elmer/Interdata binary `float` value itself converted
+    /// from a decimal value of no more than 6 significant digits,
+    /// specifying 6 for `digits` will recover the original decimal value.
+    /// Not specifying `digits` may result in a value having a spurious
+    /// seventh digit.
     static Decimal128 decimal128FromFloat (float  binary, int digits = 0);
-        // Return a decimal floating-point number converted from the specified
-        // 'binary'.
-        //
-        // If 'binary' is singular (+/-NaN, +/-Inf, or +/-0) or is not within
-        // the representable range of the return type, return a corresponding
-        // decimal singular value.
-        //
-        // Optionally specify 'digits' to indicate the number of significant
-        // digits to produce in the returned value.  The 'digits' parameter is
-        // treated as follows:
-        //
-        // If 'digits' is larger than the number of digits in the destination
-        // type, it will be reduced to that number of digits.
-        //
-        // If 'digits' is positive, the result is 'binary' rounded to that many
-        // significant digits.
-        //
-        // If 'digits' is negative, the decimal value with the fewest
-        // significant digits that converts back to 'binary' is returned if
-        // possible, and otherwise the value closest to 'binary' is returned.
-        // Note that this provides the most visually appealing result but is
-        // the most expensive to compute.
-        //
-        // If 'digits' is not specified or 0, a default value will be used
-        // (possibly depending on the value of 'binary') based on the premise
-        // that 'binary' is a converted decimal value of no more significant
-        // digits than is guaranteed to have a uniquely converted binary value
-        // (15 for 'double', 6 for 'float' in general, and 7 for 'float' in the
-        // range '[ .0009999995 .. 8589972000 ]').  Note that this is likely to
-        // have the best performance for "business" numbers (i.e., numbers that
-        // originate as decimal values in external market quote feeds).
-        //
-        // Note that the purpose of these functions is to restore a decimal
-        // value that has been converted to a binary floating-point type.  It
-        // is more efficient to use conversion constructors when all that is
-        // needed is the nearest decimal to the 'binary' value.
-        //
-        // Note that if 'binary' is a 'float' value that was converted from an
-        // IBM/Perkin-Elmer/Interdata binary 'float' value itself converted
-        // from a decimal value of no more than 6 significant digits,
-        // specifying 6 for 'digits' will recover the original decimal value.
-        // Not specifying 'digits' may result in a value having a spurious
-        // seventh digit.
 
                         // decimalToDPD functions
 
@@ -571,30 +545,32 @@ struct DecimalConvertUtil {
                                 Decimal64      decimal);
     static void decimal128ToDPD(unsigned char *buffer,
                                 Decimal128     decimal);
+
+    /// Populate the specified `buffer` with the Densely Packed Decimal
+    /// (DPD) representation of the specified `decimal` value.  The DPD
+    /// representations of `Decimal32`, `Decimal64`, and `Decimal128`
+    /// require 4, 8, and 16 bytes respectively.  The behavior is undefined
+    /// unless `buffer` points to a contiguous sequence of at least
+    /// `sizeof(decimal)` bytes.  Note that the DPD representation is
+    /// defined in section 3.5 of IEEE 754-2008.
     static void decimalToDPD   (unsigned char *buffer,
                                 Decimal32      decimal);
     static void decimalToDPD   (unsigned char *buffer,
                                 Decimal64      decimal);
     static void decimalToDPD   (unsigned char *buffer,
                                 Decimal128     decimal);
-        // Populate the specified 'buffer' with the Densely Packed Decimal
-        // (DPD) representation of the specified 'decimal' value.  The DPD
-        // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
-        // require 4, 8, and 16 bytes respectively.  The behavior is undefined
-        // unless 'buffer' points to a contiguous sequence of at least
-        // 'sizeof(decimal)' bytes.  Note that the DPD representation is
-        // defined in section 3.5 of IEEE 754-2008.
 
                         // decimalFromDPD functions
 
     static Decimal32  decimal32FromDPD (const unsigned char *buffer);
     static Decimal64  decimal64FromDPD (const unsigned char *buffer);
+
+    /// Return the native implementation representation of the value of the
+    /// same size base-10 floating-point value stored in Densely Packed
+    /// Decimal format at the specified `buffer` address.  The behavior is
+    /// undefined unless `buffer` points to a memory area at least
+    /// `sizeof(decimal)` in size containing a value in DPD format.
     static Decimal128 decimal128FromDPD(const unsigned char *buffer);
-        // Return the native implementation representation of the value of the
-        // same size base-10 floating-point value stored in Densely Packed
-        // Decimal format at the specified 'buffer' address.  The behavior is
-        // undefined unless 'buffer' points to a memory area at least
-        // 'sizeof(decimal)' in size containing a value in DPD format.
 
     static void decimal32FromDPD (Decimal32           *decimal,
                                   const unsigned char *buffer);
@@ -602,18 +578,19 @@ struct DecimalConvertUtil {
                                   const unsigned char *buffer);
     static void decimal128FromDPD(Decimal128          *decimal,
                                   const unsigned char *buffer);
+
+    /// Store, into the specified `decimal`, the native implementation
+    /// representation of the value of the same size base-10 floating point
+    /// value represented in Densely Packed Decimal format, at the specified
+    /// `buffer` address.  The behavior is undefined unless `buffer` points
+    /// to a memory area at least `sizeof(decimal)` in size containing a
+    /// value in DPD format.
     static void decimalFromDPD   (Decimal32           *decimal,
                                   const unsigned char *buffer);
     static void decimalFromDPD   (Decimal64           *decimal,
                                   const unsigned char *buffer);
     static void decimalFromDPD   (Decimal128          *decimal,
                                   const unsigned char *buffer);
-        // Store, into the specified 'decimal', the native implementation
-        // representation of the value of the same size base-10 floating point
-        // value represented in Densely Packed Decimal format, at the specified
-        // 'buffer' address.  The behavior is undefined unless 'buffer' points
-        // to a memory area at least 'sizeof(decimal)' in size containing a
-        // value in DPD format.
 
                         // decimalToBID functions
 
@@ -623,30 +600,32 @@ struct DecimalConvertUtil {
                                 Decimal64      decimal);
     static void decimal128ToBID(unsigned char *buffer,
                                 Decimal128     decimal);
+
+    /// Populate the specified `buffer` with the Binary Integer Decimal
+    /// (BID) representation of the specified `decimal` value.  The BID
+    /// representations of `Decimal32`, `Decimal64`, and `Decimal128`
+    /// require 4, 8, and 16 bytes respectively.  The behavior is undefined
+    /// unless `buffer` points to a contiguous sequence of at least
+    /// `sizeof(decimal)` bytes.  Note that the BID representation is
+    /// defined in section 3.5 of IEEE 754-2008.
     static void decimalToBID   (unsigned char *buffer,
                                 Decimal32      decimal);
     static void decimalToBID   (unsigned char *buffer,
                                 Decimal64      decimal);
     static void decimalToBID   (unsigned char *buffer,
                                 Decimal128     decimal);
-        // Populate the specified 'buffer' with the Binary Integer Decimal
-        // (BID) representation of the specified 'decimal' value.  The BID
-        // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
-        // require 4, 8, and 16 bytes respectively.  The behavior is undefined
-        // unless 'buffer' points to a contiguous sequence of at least
-        // 'sizeof(decimal)' bytes.  Note that the BID representation is
-        // defined in section 3.5 of IEEE 754-2008.
 
                          // decimalFromBID functions
 
     static Decimal32  decimal32FromBID (const unsigned char *buffer);
     static Decimal64  decimal64FromBID (const unsigned char *buffer);
+
+    /// Return the native implementation representation of the value of the
+    /// same size base-10 floating-point value stored in Binary Integer
+    /// Decimal format at the specified `buffer` address.  The behavior is
+    /// undefined unless `buffer` points to a memory area at least
+    /// `sizeof(decimal)` in size containing a value in BID format.
     static Decimal128 decimal128FromBID(const unsigned char *buffer);
-        // Return the native implementation representation of the value of the
-        // same size base-10 floating-point value stored in Binary Integer
-        // Decimal format at the specified 'buffer' address.  The behavior is
-        // undefined unless 'buffer' points to a memory area at least
-        // 'sizeof(decimal)' in size containing a value in BID format.
 
     static void decimal32FromBID (Decimal32           *decimal,
                                   const unsigned char *buffer);
@@ -654,18 +633,19 @@ struct DecimalConvertUtil {
                                   const unsigned char *buffer);
     static void decimal128FromBID(Decimal128          *decimal,
                                   const unsigned char *buffer);
+
+    /// Store, into the specified `decimal`, the native implementation
+    /// representation of the value of the same size base-10 floating point
+    /// value represented in Binary Integer Decimal format, at the specified
+    /// `buffer` address.  The behavior is undefined unless `buffer` points
+    /// to a memory area at least `sizeof(decimal)` in size containing a
+    /// value in BID format.
     static void decimalFromBID   (Decimal32           *decimal,
                                   const unsigned char *buffer);
     static void decimalFromBID   (Decimal64           *decimal,
                                   const unsigned char *buffer);
     static void decimalFromBID   (Decimal128          *decimal,
                                   const unsigned char *buffer);
-        // Store, into the specified 'decimal', the native implementation
-        // representation of the value of the same size base-10 floating point
-        // value represented in Binary Integer Decimal format, at the specified
-        // 'buffer' address.  The behavior is undefined unless 'buffer' points
-        // to a memory area at least 'sizeof(decimal)' in size containing a
-        // value in BID format.
 
                         // decimalToNetwork functions
 
@@ -675,21 +655,22 @@ struct DecimalConvertUtil {
                                               Decimal64      decimal);
     static unsigned char *decimal128ToNetwork(unsigned char *buffer,
                                               Decimal128     decimal);
+
+    /// Store the specified `decimal`, in network format, into the specified
+    /// `buffer` and return the address one past the last byte written into
+    /// the `buffer`.  The network format is defined as big endian byte
+    /// order and densely packed base-10 significand encoding.  This
+    /// corresponds to the way IBM hardware represents these numbers in
+    /// memory.  The behavior is undefined unless `buffer` points to a
+    /// memory area at least `sizeof(decimal)` in size.  Note that these
+    /// functions always return `buffer + sizeof(decimal)` on the supported
+    /// 8-bits-byte architectures.
     static unsigned char *decimalToNetwork   (unsigned char *buffer,
                                               Decimal32      decimal);
     static unsigned char *decimalToNetwork   (unsigned char *buffer,
                                               Decimal64      decimal);
     static unsigned char *decimalToNetwork   (unsigned char *buffer,
                                               Decimal128     decimal);
-        // Store the specified 'decimal', in network format, into the specified
-        // 'buffer' and return the address one past the last byte written into
-        // the 'buffer'.  The network format is defined as big endian byte
-        // order and densely packed base-10 significand encoding.  This
-        // corresponds to the way IBM hardware represents these numbers in
-        // memory.  The behavior is undefined unless 'buffer' points to a
-        // memory area at least 'sizeof(decimal)' in size.  Note that these
-        // functions always return 'buffer + sizeof(decimal)' on the supported
-        // 8-bits-byte architectures.
 
                         // decimalFromNetwork functions
 
@@ -702,6 +683,17 @@ struct DecimalConvertUtil {
     static const unsigned char *decimal128FromNetwork(
                                                   Decimal128          *decimal,
                                                   const unsigned char *buffer);
+
+    /// Store into the specified `decimal`, the value of the same size
+    /// base-10 floating-point value stored in network format at the
+    /// specified `buffer` address and return the address one past the last
+    /// byte read from `buffer`.  The network format is defined as big
+    /// endian byte order and densely packed base-10 significand encoding.
+    /// This corresponds to the way IBM hardware represents these numbers in
+    /// memory.  The behavior is undefined unless `buffer` points to a
+    /// memory area at least `sizeof(decimal)` bytes.  Note that these
+    /// functions always return `buffer + sizeof(decimal)` on the supported
+    /// 8-bits-byte architectures.
     static const unsigned char *decimalFromNetwork(
                                                   Decimal32           *decimal,
                                                   const unsigned char *buffer);
@@ -711,94 +703,84 @@ struct DecimalConvertUtil {
     static const unsigned char *decimalFromNetwork(
                                                   Decimal128          *decimal,
                                                   const unsigned char *buffer);
-        // Store into the specified 'decimal', the value of the same size
-        // base-10 floating-point value stored in network format at the
-        // specified 'buffer' address and return the address one past the last
-        // byte read from 'buffer'.  The network format is defined as big
-        // endian byte order and densely packed base-10 significand encoding.
-        // This corresponds to the way IBM hardware represents these numbers in
-        // memory.  The behavior is undefined unless 'buffer' points to a
-        // memory area at least 'sizeof(decimal)' bytes.  Note that these
-        // functions always return 'buffer + sizeof(decimal)' on the supported
-        // 8-bits-byte architectures.
 
+    /// Store the specified `decimal`, in the *multi-width encoding* format,
+    /// into the specified `buffer` and return the number of bytes used by
+    /// the encoding.  The behavior is undefined unless `buffer` points to a
+    /// memory area with enough room to hold the encode value (which has a
+    /// maximum size of 8 bytes).
     static bsls::Types::size_type decimal64ToMultiWidthEncoding(
                                                    unsigned char     *buffer,
                                                    bdldfp::Decimal64  decimal);
-        // Store the specified 'decimal', in the *multi-width encoding* format,
-        // into the specified 'buffer' and return the number of bytes used by
-        // the encoding.  The behavior is undefined unless 'buffer' points to a
-        // memory area with enough room to hold the encode value (which has a
-        // maximum size of 8 bytes).
 
+    /// If the specified `decimal` can be encoded in 5 or fewer bytes of the
+    /// *multi-width encoding* format, then store `decimal` into the
+    /// specified `buffer` in that format, and return the number of bytes
+    /// written to `buffer`.  Otherwise, return 0.  The behavior is
+    /// undefined unless `buffer` points to a memory area having at least 5
+    /// bytes.  Note that this function does not supporting encoding values
+    /// requiring a full IEEE network encoding, which is supported by the
+    /// `decimal64ToMultiWidthEncoding` function.
     static bsls::Types::size_type decimal64ToMultiWidthEncodingRaw(
                                                    unsigned char     *buffer,
                                                    bdldfp::Decimal64  decimal);
-        // If the specified 'decimal' can be encoded in 5 or fewer bytes of the
-        // *multi-width encoding* format, then store 'decimal' into the
-        // specified 'buffer' in that format, and return the number of bytes
-        // written to 'buffer'.  Otherwise, return 0.  The behavior is
-        // undefined unless 'buffer' points to a memory area having at least 5
-        // bytes.  Note that this function does not supporting encoding values
-        // requiring a full IEEE network encoding, which is supported by the
-        // 'decimal64ToMultiWidthEncoding' function.
 
+    /// Decode a decimal value in the *multi-width encoding* format from the
+    /// specified `buffer` having the specified `size`.  Return the decoded
+    /// value.  The behavior is undefined unless `buffer` has at least
+    /// `size` bytes, `size` is a valid encoding size in the
+    /// `multi-width encoding` format, and `size <= 5`.  Note that this
+    /// function does not support decoding values requiring a full IEEE
+    /// network encoding, which is supported by the
+    /// `decimal64FromMultiWidthEncoding` function.
     static Decimal64 decimal64FromMultiWidthEncodingRaw(
                                                 const unsigned char    *buffer,
                                                 bsls::Types::size_type  size);
-        // Decode a decimal value in the *multi-width encoding* format from the
-        // specified 'buffer' having the specified 'size'.  Return the decoded
-        // value.  The behavior is undefined unless 'buffer' has at least
-        // 'size' bytes, 'size' is a valid encoding size in the
-        // 'multi-width encoding' format, and 'size <= 5'.  Note that this
-        // function does not support decoding values requiring a full IEEE
-        // network encoding, which is supported by the
-        // 'decimal64FromMultiWidthEncoding' function.
 
+    /// Return `true` if the specified `size` is a valid encoding size in
+    /// the *multi-width encoding* format, and `false` otherwise.  Note that
+    /// valid encoding sizes are 1, 2, 3, 4, 5 and 8 bytes.
     static bool isValidMultiWidthSize(bsls::Types::size_type  size);
-        // Return 'true' if the specified 'size' is a valid encoding size in
-        // the *multi-width encoding* format, and 'false' otherwise.  Note that
-        // valid encoding sizes are 1, 2, 3, 4, 5 and 8 bytes.
 
+    /// Decode a decimal value in the *multi-width encoding* format from the
+    /// specified `buffer` having the specified `size`.  Return the decoded
+    /// value.  The behavior is undefined unless `buffer` has at least
+    /// `size` bytes, and `size` is a valid encoding size in the
+    /// `multi-width encoding` format.
     static Decimal64 decimal64FromMultiWidthEncoding(
                                                 const unsigned char    *buffer,
                                                 bsls::Types::size_type  size);
-        // Decode a decimal value in the *multi-width encoding* format from the
-        // specified 'buffer' having the specified 'size'.  Return the decoded
-        // value.  The behavior is undefined unless 'buffer' has at least
-        // 'size' bytes, and 'size' is a valid encoding size in the
-        // 'multi-width encoding' format.
 
+    /// Decode a decimal value in the *multi-width encoding* format from the
+    /// specified `buffer` having the specified `size` and store the result
+    /// into the specified `decimal` parameter.  Return 0 on success, and
+    /// non-zero value otherwise.  The behavior is undefined unless `buffer`
+    /// has at least `size` bytes.  Note that this function returns a
+    /// non-zero value and leaves `decimal` unchanged if `size` is not a
+    /// valid encoding size of the *multi-width encoding* format.
     static int decimal64FromMultiWidthEncodingIfValid(
                                                Decimal64              *decimal,
                                                const unsigned char    *buffer,
                                                bsls::Types::size_type  size);
-        // Decode a decimal value in the *multi-width encoding* format from the
-        // specified 'buffer' having the specified 'size' and store the result
-        // into the specified 'decimal' parameter.  Return 0 on success, and
-        // non-zero value otherwise.  The behavior is undefined unless 'buffer'
-        // has at least 'size' bytes.  Note that this function returns a
-        // non-zero value and leaves 'decimal' unchanged if 'size' is not a
-        // valid encoding size of the *multi-width encoding* format.
 
+    /// Store the specified `decimal`, in the *variable-width encoding*
+    /// format, into the specified `buffer` and return the address one past
+    /// the last byte written into the `buffer`.  The behavior is undefined
+    /// unless `buffer` points to a memory area with enough room to hold the
+    /// encoded value (which has a maximum size of 9 bytes).
     static unsigned char *decimal64ToVariableWidthEncoding(
                                                    unsigned char     *buffer,
                                                    bdldfp::Decimal64  decimal);
-        // Store the specified 'decimal', in the *variable-width encoding*
-        // format, into the specified 'buffer' and return the address one past
-        // the last byte written into the 'buffer'.  The behavior is undefined
-        // unless 'buffer' points to a memory area with enough room to hold the
-        // encoded value (which has a maximum size of 9 bytes).
 
+    /// Store into the specified `decimal`, the value of `Decimal64` value
+    /// stored in the *variable-width encoding* format at the specified
+    /// `buffer` address.  Return the address one past the last byte read
+    /// from `buffer`.  The behavior is undefined unless `buffer` points to
+    /// a memory area holding a `Decimal64` value encoded in the
+    /// *variable-width encoding* format.
     static const unsigned char *decimal64FromVariableWidthEncoding(
                                                   bdldfp::Decimal64   *decimal,
                                                   const unsigned char *buffer);
-        // Store into the specified 'decimal', the value of 'Decimal64' value
-        // stored in the *variable-width encoding* format at the specified
-        // 'buffer' address.  Return the address one past the last byte read
-        // from 'buffer'.  The behavior is undefined unless 'buffer' points to
-        // a memory area holding a 'Decimal64' value encoded in the
-        // *variable-width encoding* format.
 };
 
 // ============================================================================

@@ -7,23 +7,23 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a tag type and constant indicating an empty nullable value.
 //
-//@DEPRECATED: use 'bsl::nullopt_t' from 'bsl_optional.h' instead.
+//@DEPRECATED: use `bsl::nullopt_t` from `bsl_optional.h` instead.
 //
 //@CLASSES:
 //  NullOptType: tag type representing an empty nullable value
-//  nullOpt:     literal value of type 'NullOptType'
+//  nullOpt:     literal value of type `NullOptType`
 //
 //@SEE_ALSO: bsl::optional
 //
-//@DESCRIPTION: This component provides a class, 'bdlb::NullOptType', that
-// is a synonym for 'bsl::nullopt_t'.
+//@DESCRIPTION: This component provides a class, `bdlb::NullOptType`, that
+// is a synonym for `bsl::nullopt_t`.
 //
-// In addition to the 'NullOptType' class type, this component defines a
-// constant, 'bdlb::nullOpt', of type 'NullOptType', which is a synonym for
-// 'bsl::nullopt'.
+// In addition to the `NullOptType` class type, this component defines a
+// constant, `bdlb::nullOpt`, of type `NullOptType`, which is a synonym for
+// `bsl::nullopt`.
 //
-// Please use 'bsl::nullopt_t' and 'bsl::nullopt' instead of
-// 'bdlb::NullOptType' and 'bdlb::nullOpt', respectively.
+// Please use `bsl::nullopt_t` and `bsl::nullopt` instead of
+// `bdlb::NullOptType` and `bdlb::nullOpt`, respectively.
 //
 
 #include <bslscm_version.h>
@@ -42,12 +42,12 @@ namespace bdlb {
                                 // =================
 
 BSLS_DEPRECATE_FEATURE("bdl", "NullOptType", "Use 'bsl::nullopt_t' instead")
+/// This `class` provides an empty tag type so that `bdlb::NullableValue`
+/// can be explicitly constructed in or assigned to an empty state.  There
+/// are no publicly accessible constructors for this type other than the
+/// copy constructor.  In particular, it is not default constructible, nor
+/// list-initializable in C++11.
 typedef bsl::nullopt_t NullOptType;
-    // This 'class' provides an empty tag type so that 'bdlb::NullableValue'
-    // can be explicitly constructed in or assigned to an empty state.  There
-    // are no publicly accessible constructors for this type other than the
-    // copy constructor.  In particular, it is not default constructible, nor
-    // list-initializable in C++11.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
 inline constexpr bsl::nullopt_t nullOpt = bsl::nullopt;
