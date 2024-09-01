@@ -24,10 +24,10 @@ namespace s_baltst {
                           // class GenerateTestChoice
                           // ========================
 
+/// This in-core value-semantic class provides a function object whose
+/// function call operator can be used to generate objects of
+/// specializations of `TestChoice`.
 class GenerateTestChoice {
-    // This in-core value-semantic class provides a function object whose
-    // function call operator can be used to generate objects of
-    // specializations of 'TestChoice'.
 
   public:
     // TYPES
@@ -63,10 +63,10 @@ class GenerateTestChoice {
                     // class GenerateTestChoicePlaceHolder
                     // ===================================
 
+/// This in-core value-semantic class provides a function object whose
+/// function call operator can be used to generate objects of
+/// specializations of `TestChoice`.
 class GenerateTestChoicePlaceHolder {
-    // This in-core value-semantic class provides a function object whose
-    // function call operator can be used to generate objects of
-    // specializations of 'TestChoice'.
 
   public:
     // TYPES

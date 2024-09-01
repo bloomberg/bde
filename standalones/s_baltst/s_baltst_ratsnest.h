@@ -101,207 +101,212 @@ class Sequence3 {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence3(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Sequence3' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `Sequence3` having the default value.  Use
+    /// the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit Sequence3(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `Sequence3` having the value of the
+    /// specified `original` object.  Use the optionally specified
+    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     Sequence3(const Sequence3& original,
               bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Sequence3' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `Sequence3` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
     Sequence3(Sequence3&& original) noexcept;
-        // Create an object of type 'Sequence3' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
 
+    /// Create an object of type `Sequence3` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
+    /// Use the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     Sequence3(Sequence3&& original,
               bslma::Allocator *basicAllocator);
-        // Create an object of type 'Sequence3' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 #endif
 
+    /// Destroy this object.
     ~Sequence3();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Sequence3& operator=(const Sequence3& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     Sequence3& operator=(Sequence3&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Element1" attribute of this
+    /// object.
     bsl::vector<s_baltst::Enumerated::Value>& element1();
-        // Return a reference to the modifiable "Element1" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element2" attribute of this
+    /// object.
     bsl::vector<bsl::string>& element2();
-        // Return a reference to the modifiable "Element2" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element3" attribute of this
+    /// object.
     bdlb::NullableValue<bool>& element3();
-        // Return a reference to the modifiable "Element3" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element4" attribute of this
+    /// object.
     bdlb::NullableValue<bsl::string>& element4();
-        // Return a reference to the modifiable "Element4" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element5" attribute of this
+    /// object.
     bdlb::NullableAllocatedValue<Sequence5>& element5();
-        // Return a reference to the modifiable "Element5" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element6" attribute of this
+    /// object.
     bsl::vector<bdlb::NullableValue<s_baltst::Enumerated::Value> >& element6();
-        // Return a reference to the modifiable "Element6" attribute of this
-        // object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference offering non-modifiable access to the "Element1"
+    /// attribute of this object.
     const bsl::vector<s_baltst::Enumerated::Value>& element1() const;
-        // Return a reference offering non-modifiable access to the "Element1"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element2"
+    /// attribute of this object.
     const bsl::vector<bsl::string>& element2() const;
-        // Return a reference offering non-modifiable access to the "Element2"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element3"
+    /// attribute of this object.
     const bdlb::NullableValue<bool>& element3() const;
-        // Return a reference offering non-modifiable access to the "Element3"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element4"
+    /// attribute of this object.
     const bdlb::NullableValue<bsl::string>& element4() const;
-        // Return a reference offering non-modifiable access to the "Element4"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element5"
+    /// attribute of this object.
     const bdlb::NullableAllocatedValue<Sequence5>& element5() const;
-        // Return a reference offering non-modifiable access to the "Element5"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element6"
+    /// attribute of this object.
     const bsl::vector<bdlb::NullableValue<s_baltst::Enumerated::Value> >& element6() const;
-        // Return a reference offering non-modifiable access to the "Element6"
-        // attribute of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const Sequence3& lhs, const Sequence3& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const Sequence3& lhs, const Sequence3& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sequence3& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 
@@ -360,215 +365,220 @@ class Sequence5 {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence5(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Sequence5' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `Sequence5` having the default value.  Use
+    /// the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit Sequence5(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `Sequence5` having the value of the
+    /// specified `original` object.  Use the optionally specified
+    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     Sequence5(const Sequence5& original,
               bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Sequence5' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `Sequence5` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
     Sequence5(Sequence5&& original) noexcept;
-        // Create an object of type 'Sequence5' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
 
+    /// Create an object of type `Sequence5` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
+    /// Use the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     Sequence5(Sequence5&& original,
               bslma::Allocator *basicAllocator);
-        // Create an object of type 'Sequence5' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 #endif
 
+    /// Destroy this object.
     ~Sequence5();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Sequence5& operator=(const Sequence5& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     Sequence5& operator=(Sequence5&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Element1" attribute of this
+    /// object.
     Sequence3& element1();
-        // Return a reference to the modifiable "Element1" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element2" attribute of this
+    /// object.
     bsl::vector<bdlb::NullableValue<bool> >& element2();
-        // Return a reference to the modifiable "Element2" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element3" attribute of this
+    /// object.
     bsl::vector<bdlb::NullableValue<double> >& element3();
-        // Return a reference to the modifiable "Element3" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element4" attribute of this
+    /// object.
     bdlb::NullableValue<bsl::vector<char> >& element4();
-        // Return a reference to the modifiable "Element4" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element5" attribute of this
+    /// object.
     bsl::vector<bdlb::NullableValue<int> >& element5();
-        // Return a reference to the modifiable "Element5" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element6" attribute of this
+    /// object.
     bsl::vector<bdlb::NullableValue<bdlt::DatetimeTz> >& element6();
-        // Return a reference to the modifiable "Element6" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element7" attribute of this
+    /// object.
     bsl::vector<bdlb::NullableAllocatedValue<Sequence3> >& element7();
-        // Return a reference to the modifiable "Element7" attribute of this
-        // object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference offering non-modifiable access to the "Element1"
+    /// attribute of this object.
     const Sequence3& element1() const;
-        // Return a reference offering non-modifiable access to the "Element1"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element2"
+    /// attribute of this object.
     const bsl::vector<bdlb::NullableValue<bool> >& element2() const;
-        // Return a reference offering non-modifiable access to the "Element2"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element3"
+    /// attribute of this object.
     const bsl::vector<bdlb::NullableValue<double> >& element3() const;
-        // Return a reference offering non-modifiable access to the "Element3"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element4"
+    /// attribute of this object.
     const bdlb::NullableValue<bsl::vector<char> >& element4() const;
-        // Return a reference offering non-modifiable access to the "Element4"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element5"
+    /// attribute of this object.
     const bsl::vector<bdlb::NullableValue<int> >& element5() const;
-        // Return a reference offering non-modifiable access to the "Element5"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element6"
+    /// attribute of this object.
     const bsl::vector<bdlb::NullableValue<bdlt::DatetimeTz> >& element6() const;
-        // Return a reference offering non-modifiable access to the "Element6"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element7"
+    /// attribute of this object.
     const bsl::vector<bdlb::NullableAllocatedValue<Sequence3> >& element7() const;
-        // Return a reference offering non-modifiable access to the "Element7"
-        // attribute of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const Sequence5& lhs, const Sequence5& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const Sequence5& lhs, const Sequence5& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sequence5& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 
@@ -650,277 +660,282 @@ class Sequence6 {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence6(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Sequence6' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `Sequence6` having the default value.  Use
+    /// the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit Sequence6(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `Sequence6` having the value of the
+    /// specified `original` object.  Use the optionally specified
+    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     Sequence6(const Sequence6& original,
               bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Sequence6' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `Sequence6` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
     Sequence6(Sequence6&& original) noexcept;
-        // Create an object of type 'Sequence6' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
 
+    /// Create an object of type `Sequence6` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
+    /// Use the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     Sequence6(Sequence6&& original,
               bslma::Allocator *basicAllocator);
-        // Create an object of type 'Sequence6' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 #endif
 
+    /// Destroy this object.
     ~Sequence6();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Sequence6& operator=(const Sequence6& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     Sequence6& operator=(Sequence6&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Element1" attribute of this
+    /// object.
     bdlb::NullableValue<unsigned char>& element1();
-        // Return a reference to the modifiable "Element1" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element2" attribute of this
+    /// object.
     bdlb::NullableValue<s_baltst::CustomString>& element2();
-        // Return a reference to the modifiable "Element2" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element3" attribute of this
+    /// object.
     bdlb::NullableValue<s_baltst::CustomInt>& element3();
-        // Return a reference to the modifiable "Element3" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element4" attribute of this
+    /// object.
     unsigned int& element4();
-        // Return a reference to the modifiable "Element4" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element5" attribute of this
+    /// object.
     unsigned char& element5();
-        // Return a reference to the modifiable "Element5" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element6" attribute of this
+    /// object.
     bsl::vector<bdlb::NullableValue<s_baltst::CustomInt> >& element6();
-        // Return a reference to the modifiable "Element6" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element7" attribute of this
+    /// object.
     s_baltst::CustomString& element7();
-        // Return a reference to the modifiable "Element7" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element8" attribute of this
+    /// object.
     s_baltst::CustomInt& element8();
-        // Return a reference to the modifiable "Element8" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element9" attribute of this
+    /// object.
     bdlb::NullableValue<unsigned int>& element9();
-        // Return a reference to the modifiable "Element9" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element10" attribute of this
+    /// object.
     bsl::vector<unsigned char>& element10();
-        // Return a reference to the modifiable "Element10" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element11" attribute of this
+    /// object.
     bsl::vector<s_baltst::CustomString>& element11();
-        // Return a reference to the modifiable "Element11" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element12" attribute of this
+    /// object.
     bsl::vector<unsigned int>& element12();
-        // Return a reference to the modifiable "Element12" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element13" attribute of this
+    /// object.
     bsl::vector<bdlb::NullableValue<unsigned char> >& element13();
-        // Return a reference to the modifiable "Element13" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element14" attribute of this
+    /// object.
     bsl::vector<s_baltst::CustomInt>& element14();
-        // Return a reference to the modifiable "Element14" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element15" attribute of this
+    /// object.
     bsl::vector<bdlb::NullableValue<unsigned int> >& element15();
-        // Return a reference to the modifiable "Element15" attribute of this
-        // object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference offering non-modifiable access to the "Element1"
+    /// attribute of this object.
     const bdlb::NullableValue<unsigned char>& element1() const;
-        // Return a reference offering non-modifiable access to the "Element1"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element2"
+    /// attribute of this object.
     const bdlb::NullableValue<s_baltst::CustomString>& element2() const;
-        // Return a reference offering non-modifiable access to the "Element2"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element3"
+    /// attribute of this object.
     const bdlb::NullableValue<s_baltst::CustomInt>& element3() const;
-        // Return a reference offering non-modifiable access to the "Element3"
-        // attribute of this object.
 
+    /// Return the value of the "Element4" attribute of this object.
     unsigned int element4() const;
-        // Return the value of the "Element4" attribute of this object.
 
+    /// Return the value of the "Element5" attribute of this object.
     unsigned char element5() const;
-        // Return the value of the "Element5" attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element6"
+    /// attribute of this object.
     const bsl::vector<bdlb::NullableValue<s_baltst::CustomInt> >& element6() const;
-        // Return a reference offering non-modifiable access to the "Element6"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element7"
+    /// attribute of this object.
     const s_baltst::CustomString& element7() const;
-        // Return a reference offering non-modifiable access to the "Element7"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element8"
+    /// attribute of this object.
     const s_baltst::CustomInt& element8() const;
-        // Return a reference offering non-modifiable access to the "Element8"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element9"
+    /// attribute of this object.
     const bdlb::NullableValue<unsigned int>& element9() const;
-        // Return a reference offering non-modifiable access to the "Element9"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element10"
+    /// attribute of this object.
     const bsl::vector<unsigned char>& element10() const;
-        // Return a reference offering non-modifiable access to the "Element10"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element11"
+    /// attribute of this object.
     const bsl::vector<s_baltst::CustomString>& element11() const;
-        // Return a reference offering non-modifiable access to the "Element11"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element12"
+    /// attribute of this object.
     const bsl::vector<unsigned int>& element12() const;
-        // Return a reference offering non-modifiable access to the "Element12"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element13"
+    /// attribute of this object.
     const bsl::vector<bdlb::NullableValue<unsigned char> >& element13() const;
-        // Return a reference offering non-modifiable access to the "Element13"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element14"
+    /// attribute of this object.
     const bsl::vector<s_baltst::CustomInt>& element14() const;
-        // Return a reference offering non-modifiable access to the "Element14"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element15"
+    /// attribute of this object.
     const bsl::vector<bdlb::NullableValue<unsigned int> >& element15() const;
-        // Return a reference offering non-modifiable access to the "Element15"
-        // attribute of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const Sequence6& lhs, const Sequence6& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const Sequence6& lhs, const Sequence6& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sequence6& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 
@@ -975,77 +990,80 @@ class Choice3 {
     static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
-        // Return selection information for the selection indicated by the
-        // specified 'id' if the selection exists, and 0 otherwise.
 
+    /// Return selection information for the selection indicated by the
+    /// specified `id` if the selection exists, and 0 otherwise.
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
+
+    /// Return selection information for the selection indicated by the
+    /// specified `name` of the specified `nameLength` if the selection
+    /// exists, and 0 otherwise.
     static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return selection information for the selection indicated by the
-        // specified 'name' of the specified 'nameLength' if the selection
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Choice3(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Choice3' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `Choice3` having the default value.  Use
+    /// the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit Choice3(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `Choice3` having the value of the specified
+    /// `original` object.  Use the optionally specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Choice3(const Choice3& original,
            bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Choice3' having the value of the specified
-        // 'original' object.  Use the optionally specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `Choice3` having the value of the specified
+    /// `original` object.  After performing this action, the `original`
+    /// object will be left in a valid, but unspecified state.
     Choice3(Choice3&& original) noexcept;
-        // Create an object of type 'Choice3' having the value of the specified
-        // 'original' object.  After performing this action, the 'original'
-        // object will be left in a valid, but unspecified state.
 
+    /// Create an object of type `Choice3` having the value of the specified
+    /// `original` object.  After performing this action, the `original`
+    /// object will be left in a valid, but unspecified state.  Use the
+    /// optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     Choice3(Choice3&& original,
            bslma::Allocator *basicAllocator);
-        // Create an object of type 'Choice3' having the value of the specified
-        // 'original' object.  After performing this action, the 'original'
-        // object will be left in a valid, but unspecified state.  Use the
-        // optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 #endif
 
+    /// Destroy this object.
     ~Choice3();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Choice3& operator=(const Choice3& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     Choice3& operator=(Choice3&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Reset this object to the default value (i.e., its value upon default
+    /// construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon default
-        // construction).
 
+    /// Set the value of this object to be the default for the selection
+    /// indicated by the specified `selectionId`.  Return 0 on success, and
+    /// non-zero value otherwise (i.e., the selection is not found).
     int makeSelection(int selectionId);
-        // Set the value of this object to be the default for the selection
-        // indicated by the specified 'selectionId'.  Return 0 on success, and
-        // non-zero value otherwise (i.e., the selection is not found).
 
+    /// Set the value of this object to be the default for the selection
+    /// indicated by the specified `name` of the specified `nameLength`.
+    /// Return 0 on success, and non-zero value otherwise (i.e., the
+    /// selection is not found).
     int makeSelection(const char *name, int nameLength);
-        // Set the value of this object to be the default for the selection
-        // indicated by the specified 'name' of the specified 'nameLength'.
-        // Return 0 on success, and non-zero value otherwise (i.e., the
-        // selection is not found).
 
     Sequence6& makeSelection1();
     Sequence6& makeSelection1(const Sequence6& value);
@@ -1057,11 +1075,11 @@ class Choice3 {
         // specify the 'value' of the "Selection1".  If 'value' is not
         // specified, the default "Selection1" value is used.
 
+    /// Set the value of this object to be a "Selection2" value.  Optionally
+    /// specify the `value` of the "Selection2".  If `value` is not
+    /// specified, the default "Selection2" value is used.
     unsigned char& makeSelection2();
     unsigned char& makeSelection2(unsigned char value);
-        // Set the value of this object to be a "Selection2" value.  Optionally
-        // specify the 'value' of the "Selection2".  If 'value' is not
-        // specified, the default "Selection2" value is used.
 
     s_baltst::CustomString& makeSelection3();
     s_baltst::CustomString& makeSelection3(const s_baltst::CustomString& value);
@@ -1083,122 +1101,124 @@ class Choice3 {
         // specify the 'value' of the "Selection4".  If 'value' is not
         // specified, the default "Selection4" value is used.
 
+    /// Invoke the specified `manipulator` on the address of the modifiable
+    /// selection, supplying `manipulator` with the corresponding selection
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if this object has a defined selection,
+    /// and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' on the address of the modifiable
-        // selection, supplying 'manipulator' with the corresponding selection
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if this object has a defined selection,
-        // and -1 otherwise.
 
+    /// Return a reference to the modifiable "Selection1" selection of this
+    /// object if "Selection1" is the current selection.  The behavior is
+    /// undefined unless "Selection1" is the selection of this object.
     Sequence6& selection1();
-        // Return a reference to the modifiable "Selection1" selection of this
-        // object if "Selection1" is the current selection.  The behavior is
-        // undefined unless "Selection1" is the selection of this object.
 
+    /// Return a reference to the modifiable "Selection2" selection of this
+    /// object if "Selection2" is the current selection.  The behavior is
+    /// undefined unless "Selection2" is the selection of this object.
     unsigned char& selection2();
-        // Return a reference to the modifiable "Selection2" selection of this
-        // object if "Selection2" is the current selection.  The behavior is
-        // undefined unless "Selection2" is the selection of this object.
 
+    /// Return a reference to the modifiable "Selection3" selection of this
+    /// object if "Selection3" is the current selection.  The behavior is
+    /// undefined unless "Selection3" is the selection of this object.
     s_baltst::CustomString& selection3();
-        // Return a reference to the modifiable "Selection3" selection of this
-        // object if "Selection3" is the current selection.  The behavior is
-        // undefined unless "Selection3" is the selection of this object.
 
+    /// Return a reference to the modifiable "Selection4" selection of this
+    /// object if "Selection4" is the current selection.  The behavior is
+    /// undefined unless "Selection4" is the selection of this object.
     s_baltst::CustomInt& selection4();
-        // Return a reference to the modifiable "Selection4" selection of this
-        // object if "Selection4" is the current selection.  The behavior is
-        // undefined unless "Selection4" is the selection of this object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Return the id of the current selection if the selection is defined,
+    /// and -1 otherwise.
     int selectionId() const;
-        // Return the id of the current selection if the selection is defined,
-        // and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the non-modifiable selection,
+    /// supplying `accessor` with the corresponding selection information
+    /// structure.  Return the value returned from the invocation of
+    /// `accessor` if this object has a defined selection, and -1 otherwise.
     template<class ACCESSOR>
     int accessSelection(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' on the non-modifiable selection,
-        // supplying 'accessor' with the corresponding selection information
-        // structure.  Return the value returned from the invocation of
-        // 'accessor' if this object has a defined selection, and -1 otherwise.
 
+    /// Return a reference to the non-modifiable "Selection1" selection of
+    /// this object if "Selection1" is the current selection.  The behavior
+    /// is undefined unless "Selection1" is the selection of this object.
     const Sequence6& selection1() const;
-        // Return a reference to the non-modifiable "Selection1" selection of
-        // this object if "Selection1" is the current selection.  The behavior
-        // is undefined unless "Selection1" is the selection of this object.
 
+    /// Return a reference to the non-modifiable "Selection2" selection of
+    /// this object if "Selection2" is the current selection.  The behavior
+    /// is undefined unless "Selection2" is the selection of this object.
     const unsigned char& selection2() const;
-        // Return a reference to the non-modifiable "Selection2" selection of
-        // this object if "Selection2" is the current selection.  The behavior
-        // is undefined unless "Selection2" is the selection of this object.
 
+    /// Return a reference to the non-modifiable "Selection3" selection of
+    /// this object if "Selection3" is the current selection.  The behavior
+    /// is undefined unless "Selection3" is the selection of this object.
     const s_baltst::CustomString& selection3() const;
-        // Return a reference to the non-modifiable "Selection3" selection of
-        // this object if "Selection3" is the current selection.  The behavior
-        // is undefined unless "Selection3" is the selection of this object.
 
+    /// Return a reference to the non-modifiable "Selection4" selection of
+    /// this object if "Selection4" is the current selection.  The behavior
+    /// is undefined unless "Selection4" is the selection of this object.
     const s_baltst::CustomInt& selection4() const;
-        // Return a reference to the non-modifiable "Selection4" selection of
-        // this object if "Selection4" is the current selection.  The behavior
-        // is undefined unless "Selection4" is the selection of this object.
 
+    /// Return `true` if the value of this object is a "Selection1" value,
+    /// and return `false` otherwise.
     bool isSelection1Value() const;
-        // Return 'true' if the value of this object is a "Selection1" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is a "Selection2" value,
+    /// and return `false` otherwise.
     bool isSelection2Value() const;
-        // Return 'true' if the value of this object is a "Selection2" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is a "Selection3" value,
+    /// and return `false` otherwise.
     bool isSelection3Value() const;
-        // Return 'true' if the value of this object is a "Selection3" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is a "Selection4" value,
+    /// and return `false` otherwise.
     bool isSelection4Value() const;
-        // Return 'true' if the value of this object is a "Selection4" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is undefined, and `false`
+    /// otherwise.
     bool isUndefinedValue() const;
-        // Return 'true' if the value of this object is undefined, and 'false'
-        // otherwise.
 
+    /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
-        // Return the symbolic name of the current selection of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `Choice3` objects have the same
+/// value if either the selections in both objects have the same ids and
+/// the same values, or both selections are undefined.
 inline
 bool operator==(const Choice3& lhs, const Choice3& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'Choice3' objects have the same
-    // value if either the selections in both objects have the same ids and
-    // the same values, or both selections are undefined.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same values, as determined by `operator==`, and `false` otherwise.
 inline
 bool operator!=(const Choice3& lhs, const Choice3& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same values, as determined by 'operator==', and 'false' otherwise.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Choice3& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 
@@ -1253,89 +1273,92 @@ class Choice1 {
     static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
-        // Return selection information for the selection indicated by the
-        // specified 'id' if the selection exists, and 0 otherwise.
 
+    /// Return selection information for the selection indicated by the
+    /// specified `id` if the selection exists, and 0 otherwise.
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
+
+    /// Return selection information for the selection indicated by the
+    /// specified `name` of the specified `nameLength` if the selection
+    /// exists, and 0 otherwise.
     static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return selection information for the selection indicated by the
-        // specified 'name' of the specified 'nameLength' if the selection
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Choice1(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Choice1' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `Choice1` having the default value.  Use
+    /// the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit Choice1(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `Choice1` having the value of the specified
+    /// `original` object.  Use the optionally specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Choice1(const Choice1& original,
            bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Choice1' having the value of the specified
-        // 'original' object.  Use the optionally specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `Choice1` having the value of the specified
+    /// `original` object.  After performing this action, the `original`
+    /// object will be left in a valid, but unspecified state.
     Choice1(Choice1&& original) noexcept;
-        // Create an object of type 'Choice1' having the value of the specified
-        // 'original' object.  After performing this action, the 'original'
-        // object will be left in a valid, but unspecified state.
 
+    /// Create an object of type `Choice1` having the value of the specified
+    /// `original` object.  After performing this action, the `original`
+    /// object will be left in a valid, but unspecified state.  Use the
+    /// optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     Choice1(Choice1&& original,
            bslma::Allocator *basicAllocator);
-        // Create an object of type 'Choice1' having the value of the specified
-        // 'original' object.  After performing this action, the 'original'
-        // object will be left in a valid, but unspecified state.  Use the
-        // optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 #endif
 
+    /// Destroy this object.
     ~Choice1();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Choice1& operator=(const Choice1& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     Choice1& operator=(Choice1&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Reset this object to the default value (i.e., its value upon default
+    /// construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon default
-        // construction).
 
+    /// Set the value of this object to be the default for the selection
+    /// indicated by the specified `selectionId`.  Return 0 on success, and
+    /// non-zero value otherwise (i.e., the selection is not found).
     int makeSelection(int selectionId);
-        // Set the value of this object to be the default for the selection
-        // indicated by the specified 'selectionId'.  Return 0 on success, and
-        // non-zero value otherwise (i.e., the selection is not found).
 
+    /// Set the value of this object to be the default for the selection
+    /// indicated by the specified `name` of the specified `nameLength`.
+    /// Return 0 on success, and non-zero value otherwise (i.e., the
+    /// selection is not found).
     int makeSelection(const char *name, int nameLength);
-        // Set the value of this object to be the default for the selection
-        // indicated by the specified 'name' of the specified 'nameLength'.
-        // Return 0 on success, and non-zero value otherwise (i.e., the
-        // selection is not found).
 
+    /// Set the value of this object to be a "Selection1" value.  Optionally
+    /// specify the `value` of the "Selection1".  If `value` is not
+    /// specified, the default "Selection1" value is used.
     int& makeSelection1();
     int& makeSelection1(int value);
-        // Set the value of this object to be a "Selection1" value.  Optionally
-        // specify the 'value' of the "Selection1".  If 'value' is not
-        // specified, the default "Selection1" value is used.
 
+    /// Set the value of this object to be a "Selection2" value.  Optionally
+    /// specify the `value` of the "Selection2".  If `value` is not
+    /// specified, the default "Selection2" value is used.
     double& makeSelection2();
     double& makeSelection2(double value);
-        // Set the value of this object to be a "Selection2" value.  Optionally
-        // specify the 'value' of the "Selection2".  If 'value' is not
-        // specified, the default "Selection2" value is used.
 
     Sequence4& makeSelection3();
     Sequence4& makeSelection3(const Sequence4& value);
@@ -1357,122 +1380,124 @@ class Choice1 {
         // specify the 'value' of the "Selection4".  If 'value' is not
         // specified, the default "Selection4" value is used.
 
+    /// Invoke the specified `manipulator` on the address of the modifiable
+    /// selection, supplying `manipulator` with the corresponding selection
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if this object has a defined selection,
+    /// and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' on the address of the modifiable
-        // selection, supplying 'manipulator' with the corresponding selection
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if this object has a defined selection,
-        // and -1 otherwise.
 
+    /// Return a reference to the modifiable "Selection1" selection of this
+    /// object if "Selection1" is the current selection.  The behavior is
+    /// undefined unless "Selection1" is the selection of this object.
     int& selection1();
-        // Return a reference to the modifiable "Selection1" selection of this
-        // object if "Selection1" is the current selection.  The behavior is
-        // undefined unless "Selection1" is the selection of this object.
 
+    /// Return a reference to the modifiable "Selection2" selection of this
+    /// object if "Selection2" is the current selection.  The behavior is
+    /// undefined unless "Selection2" is the selection of this object.
     double& selection2();
-        // Return a reference to the modifiable "Selection2" selection of this
-        // object if "Selection2" is the current selection.  The behavior is
-        // undefined unless "Selection2" is the selection of this object.
 
+    /// Return a reference to the modifiable "Selection3" selection of this
+    /// object if "Selection3" is the current selection.  The behavior is
+    /// undefined unless "Selection3" is the selection of this object.
     Sequence4& selection3();
-        // Return a reference to the modifiable "Selection3" selection of this
-        // object if "Selection3" is the current selection.  The behavior is
-        // undefined unless "Selection3" is the selection of this object.
 
+    /// Return a reference to the modifiable "Selection4" selection of this
+    /// object if "Selection4" is the current selection.  The behavior is
+    /// undefined unless "Selection4" is the selection of this object.
     Choice2& selection4();
-        // Return a reference to the modifiable "Selection4" selection of this
-        // object if "Selection4" is the current selection.  The behavior is
-        // undefined unless "Selection4" is the selection of this object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Return the id of the current selection if the selection is defined,
+    /// and -1 otherwise.
     int selectionId() const;
-        // Return the id of the current selection if the selection is defined,
-        // and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the non-modifiable selection,
+    /// supplying `accessor` with the corresponding selection information
+    /// structure.  Return the value returned from the invocation of
+    /// `accessor` if this object has a defined selection, and -1 otherwise.
     template<class ACCESSOR>
     int accessSelection(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' on the non-modifiable selection,
-        // supplying 'accessor' with the corresponding selection information
-        // structure.  Return the value returned from the invocation of
-        // 'accessor' if this object has a defined selection, and -1 otherwise.
 
+    /// Return a reference to the non-modifiable "Selection1" selection of
+    /// this object if "Selection1" is the current selection.  The behavior
+    /// is undefined unless "Selection1" is the selection of this object.
     const int& selection1() const;
-        // Return a reference to the non-modifiable "Selection1" selection of
-        // this object if "Selection1" is the current selection.  The behavior
-        // is undefined unless "Selection1" is the selection of this object.
 
+    /// Return a reference to the non-modifiable "Selection2" selection of
+    /// this object if "Selection2" is the current selection.  The behavior
+    /// is undefined unless "Selection2" is the selection of this object.
     const double& selection2() const;
-        // Return a reference to the non-modifiable "Selection2" selection of
-        // this object if "Selection2" is the current selection.  The behavior
-        // is undefined unless "Selection2" is the selection of this object.
 
+    /// Return a reference to the non-modifiable "Selection3" selection of
+    /// this object if "Selection3" is the current selection.  The behavior
+    /// is undefined unless "Selection3" is the selection of this object.
     const Sequence4& selection3() const;
-        // Return a reference to the non-modifiable "Selection3" selection of
-        // this object if "Selection3" is the current selection.  The behavior
-        // is undefined unless "Selection3" is the selection of this object.
 
+    /// Return a reference to the non-modifiable "Selection4" selection of
+    /// this object if "Selection4" is the current selection.  The behavior
+    /// is undefined unless "Selection4" is the selection of this object.
     const Choice2& selection4() const;
-        // Return a reference to the non-modifiable "Selection4" selection of
-        // this object if "Selection4" is the current selection.  The behavior
-        // is undefined unless "Selection4" is the selection of this object.
 
+    /// Return `true` if the value of this object is a "Selection1" value,
+    /// and return `false` otherwise.
     bool isSelection1Value() const;
-        // Return 'true' if the value of this object is a "Selection1" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is a "Selection2" value,
+    /// and return `false` otherwise.
     bool isSelection2Value() const;
-        // Return 'true' if the value of this object is a "Selection2" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is a "Selection3" value,
+    /// and return `false` otherwise.
     bool isSelection3Value() const;
-        // Return 'true' if the value of this object is a "Selection3" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is a "Selection4" value,
+    /// and return `false` otherwise.
     bool isSelection4Value() const;
-        // Return 'true' if the value of this object is a "Selection4" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is undefined, and `false`
+    /// otherwise.
     bool isUndefinedValue() const;
-        // Return 'true' if the value of this object is undefined, and 'false'
-        // otherwise.
 
+    /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
-        // Return the symbolic name of the current selection of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `Choice1` objects have the same
+/// value if either the selections in both objects have the same ids and
+/// the same values, or both selections are undefined.
 inline
 bool operator==(const Choice1& lhs, const Choice1& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'Choice1' objects have the same
-    // value if either the selections in both objects have the same ids and
-    // the same values, or both selections are undefined.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same values, as determined by `operator==`, and `false` otherwise.
 inline
 bool operator!=(const Choice1& lhs, const Choice1& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same values, as determined by 'operator==', and 'false' otherwise.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Choice1& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 
@@ -1527,83 +1552,86 @@ class Choice2 {
     static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
-        // Return selection information for the selection indicated by the
-        // specified 'id' if the selection exists, and 0 otherwise.
 
+    /// Return selection information for the selection indicated by the
+    /// specified `id` if the selection exists, and 0 otherwise.
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
+
+    /// Return selection information for the selection indicated by the
+    /// specified `name` of the specified `nameLength` if the selection
+    /// exists, and 0 otherwise.
     static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return selection information for the selection indicated by the
-        // specified 'name' of the specified 'nameLength' if the selection
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Choice2(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Choice2' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `Choice2` having the default value.  Use
+    /// the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit Choice2(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `Choice2` having the value of the specified
+    /// `original` object.  Use the optionally specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Choice2(const Choice2& original,
            bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Choice2' having the value of the specified
-        // 'original' object.  Use the optionally specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `Choice2` having the value of the specified
+    /// `original` object.  After performing this action, the `original`
+    /// object will be left in a valid, but unspecified state.
     Choice2(Choice2&& original) noexcept;
-        // Create an object of type 'Choice2' having the value of the specified
-        // 'original' object.  After performing this action, the 'original'
-        // object will be left in a valid, but unspecified state.
 
+    /// Create an object of type `Choice2` having the value of the specified
+    /// `original` object.  After performing this action, the `original`
+    /// object will be left in a valid, but unspecified state.  Use the
+    /// optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     Choice2(Choice2&& original,
            bslma::Allocator *basicAllocator);
-        // Create an object of type 'Choice2' having the value of the specified
-        // 'original' object.  After performing this action, the 'original'
-        // object will be left in a valid, but unspecified state.  Use the
-        // optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 #endif
 
+    /// Destroy this object.
     ~Choice2();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Choice2& operator=(const Choice2& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     Choice2& operator=(Choice2&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Reset this object to the default value (i.e., its value upon default
+    /// construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon default
-        // construction).
 
+    /// Set the value of this object to be the default for the selection
+    /// indicated by the specified `selectionId`.  Return 0 on success, and
+    /// non-zero value otherwise (i.e., the selection is not found).
     int makeSelection(int selectionId);
-        // Set the value of this object to be the default for the selection
-        // indicated by the specified 'selectionId'.  Return 0 on success, and
-        // non-zero value otherwise (i.e., the selection is not found).
 
+    /// Set the value of this object to be the default for the selection
+    /// indicated by the specified `name` of the specified `nameLength`.
+    /// Return 0 on success, and non-zero value otherwise (i.e., the
+    /// selection is not found).
     int makeSelection(const char *name, int nameLength);
-        // Set the value of this object to be the default for the selection
-        // indicated by the specified 'name' of the specified 'nameLength'.
-        // Return 0 on success, and non-zero value otherwise (i.e., the
-        // selection is not found).
 
+    /// Set the value of this object to be a "Selection1" value.  Optionally
+    /// specify the `value` of the "Selection1".  If `value` is not
+    /// specified, the default "Selection1" value is used.
     bool& makeSelection1();
     bool& makeSelection1(bool value);
-        // Set the value of this object to be a "Selection1" value.  Optionally
-        // specify the 'value' of the "Selection1".  If 'value' is not
-        // specified, the default "Selection1" value is used.
 
     bsl::string& makeSelection2();
     bsl::string& makeSelection2(const bsl::string& value);
@@ -1625,128 +1653,130 @@ class Choice2 {
         // specify the 'value' of the "Selection3".  If 'value' is not
         // specified, the default "Selection3" value is used.
 
+    /// Set the value of this object to be a "Selection4" value.  Optionally
+    /// specify the `value` of the "Selection4".  If `value` is not
+    /// specified, the default "Selection4" value is used.
     unsigned int& makeSelection4();
     unsigned int& makeSelection4(unsigned int value);
-        // Set the value of this object to be a "Selection4" value.  Optionally
-        // specify the 'value' of the "Selection4".  If 'value' is not
-        // specified, the default "Selection4" value is used.
 
+    /// Invoke the specified `manipulator` on the address of the modifiable
+    /// selection, supplying `manipulator` with the corresponding selection
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if this object has a defined selection,
+    /// and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' on the address of the modifiable
-        // selection, supplying 'manipulator' with the corresponding selection
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if this object has a defined selection,
-        // and -1 otherwise.
 
+    /// Return a reference to the modifiable "Selection1" selection of this
+    /// object if "Selection1" is the current selection.  The behavior is
+    /// undefined unless "Selection1" is the selection of this object.
     bool& selection1();
-        // Return a reference to the modifiable "Selection1" selection of this
-        // object if "Selection1" is the current selection.  The behavior is
-        // undefined unless "Selection1" is the selection of this object.
 
+    /// Return a reference to the modifiable "Selection2" selection of this
+    /// object if "Selection2" is the current selection.  The behavior is
+    /// undefined unless "Selection2" is the selection of this object.
     bsl::string& selection2();
-        // Return a reference to the modifiable "Selection2" selection of this
-        // object if "Selection2" is the current selection.  The behavior is
-        // undefined unless "Selection2" is the selection of this object.
 
+    /// Return a reference to the modifiable "Selection3" selection of this
+    /// object if "Selection3" is the current selection.  The behavior is
+    /// undefined unless "Selection3" is the selection of this object.
     Choice1& selection3();
-        // Return a reference to the modifiable "Selection3" selection of this
-        // object if "Selection3" is the current selection.  The behavior is
-        // undefined unless "Selection3" is the selection of this object.
 
+    /// Return a reference to the modifiable "Selection4" selection of this
+    /// object if "Selection4" is the current selection.  The behavior is
+    /// undefined unless "Selection4" is the selection of this object.
     unsigned int& selection4();
-        // Return a reference to the modifiable "Selection4" selection of this
-        // object if "Selection4" is the current selection.  The behavior is
-        // undefined unless "Selection4" is the selection of this object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Return the id of the current selection if the selection is defined,
+    /// and -1 otherwise.
     int selectionId() const;
-        // Return the id of the current selection if the selection is defined,
-        // and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the non-modifiable selection,
+    /// supplying `accessor` with the corresponding selection information
+    /// structure.  Return the value returned from the invocation of
+    /// `accessor` if this object has a defined selection, and -1 otherwise.
     template<class ACCESSOR>
     int accessSelection(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' on the non-modifiable selection,
-        // supplying 'accessor' with the corresponding selection information
-        // structure.  Return the value returned from the invocation of
-        // 'accessor' if this object has a defined selection, and -1 otherwise.
 
+    /// Return a reference to the non-modifiable "Selection1" selection of
+    /// this object if "Selection1" is the current selection.  The behavior
+    /// is undefined unless "Selection1" is the selection of this object.
     const bool& selection1() const;
-        // Return a reference to the non-modifiable "Selection1" selection of
-        // this object if "Selection1" is the current selection.  The behavior
-        // is undefined unless "Selection1" is the selection of this object.
 
+    /// Return a reference to the non-modifiable "Selection2" selection of
+    /// this object if "Selection2" is the current selection.  The behavior
+    /// is undefined unless "Selection2" is the selection of this object.
     const bsl::string& selection2() const;
-        // Return a reference to the non-modifiable "Selection2" selection of
-        // this object if "Selection2" is the current selection.  The behavior
-        // is undefined unless "Selection2" is the selection of this object.
 
+    /// Return a reference to the non-modifiable "Selection3" selection of
+    /// this object if "Selection3" is the current selection.  The behavior
+    /// is undefined unless "Selection3" is the selection of this object.
     const Choice1& selection3() const;
-        // Return a reference to the non-modifiable "Selection3" selection of
-        // this object if "Selection3" is the current selection.  The behavior
-        // is undefined unless "Selection3" is the selection of this object.
 
+    /// Return a reference to the non-modifiable "Selection4" selection of
+    /// this object if "Selection4" is the current selection.  The behavior
+    /// is undefined unless "Selection4" is the selection of this object.
     const unsigned int& selection4() const;
-        // Return a reference to the non-modifiable "Selection4" selection of
-        // this object if "Selection4" is the current selection.  The behavior
-        // is undefined unless "Selection4" is the selection of this object.
 
+    /// Return `true` if the value of this object is a "Selection1" value,
+    /// and return `false` otherwise.
     bool isSelection1Value() const;
-        // Return 'true' if the value of this object is a "Selection1" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is a "Selection2" value,
+    /// and return `false` otherwise.
     bool isSelection2Value() const;
-        // Return 'true' if the value of this object is a "Selection2" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is a "Selection3" value,
+    /// and return `false` otherwise.
     bool isSelection3Value() const;
-        // Return 'true' if the value of this object is a "Selection3" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is a "Selection4" value,
+    /// and return `false` otherwise.
     bool isSelection4Value() const;
-        // Return 'true' if the value of this object is a "Selection4" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is undefined, and `false`
+    /// otherwise.
     bool isUndefinedValue() const;
-        // Return 'true' if the value of this object is undefined, and 'false'
-        // otherwise.
 
+    /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
-        // Return the symbolic name of the current selection of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `Choice2` objects have the same
+/// value if either the selections in both objects have the same ids and
+/// the same values, or both selections are undefined.
 inline
 bool operator==(const Choice2& lhs, const Choice2& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'Choice2' objects have the same
-    // value if either the selections in both objects have the same ids and
-    // the same values, or both selections are undefined.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same values, as determined by `operator==`, and `false` otherwise.
 inline
 bool operator!=(const Choice2& lhs, const Choice2& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same values, as determined by 'operator==', and 'false' otherwise.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Choice2& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 
@@ -1840,307 +1870,312 @@ class Sequence4 {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence4(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Sequence4' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `Sequence4` having the default value.  Use
+    /// the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit Sequence4(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `Sequence4` having the value of the
+    /// specified `original` object.  Use the optionally specified
+    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     Sequence4(const Sequence4& original,
               bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Sequence4' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `Sequence4` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
     Sequence4(Sequence4&& original) noexcept;
-        // Create an object of type 'Sequence4' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
 
+    /// Create an object of type `Sequence4` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
+    /// Use the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     Sequence4(Sequence4&& original,
               bslma::Allocator *basicAllocator);
-        // Create an object of type 'Sequence4' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 #endif
 
+    /// Destroy this object.
     ~Sequence4();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Sequence4& operator=(const Sequence4& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     Sequence4& operator=(Sequence4&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Element1" attribute of this
+    /// object.
     bsl::vector<Sequence3>& element1();
-        // Return a reference to the modifiable "Element1" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element2" attribute of this
+    /// object.
     bsl::vector<Choice1>& element2();
-        // Return a reference to the modifiable "Element2" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element3" attribute of this
+    /// object.
     bdlb::NullableValue<bsl::vector<char> >& element3();
-        // Return a reference to the modifiable "Element3" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element4" attribute of this
+    /// object.
     bdlb::NullableValue<int>& element4();
-        // Return a reference to the modifiable "Element4" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element5" attribute of this
+    /// object.
     bdlb::NullableValue<bdlt::DatetimeTz>& element5();
-        // Return a reference to the modifiable "Element5" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element6" attribute of this
+    /// object.
     bdlb::NullableValue<s_baltst::CustomString>& element6();
-        // Return a reference to the modifiable "Element6" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element7" attribute of this
+    /// object.
     bdlb::NullableValue<s_baltst::Enumerated::Value>& element7();
-        // Return a reference to the modifiable "Element7" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element8" attribute of this
+    /// object.
     bool& element8();
-        // Return a reference to the modifiable "Element8" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element9" attribute of this
+    /// object.
     bsl::string& element9();
-        // Return a reference to the modifiable "Element9" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element10" attribute of this
+    /// object.
     double& element10();
-        // Return a reference to the modifiable "Element10" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element11" attribute of this
+    /// object.
     bsl::vector<char>& element11();
-        // Return a reference to the modifiable "Element11" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element12" attribute of this
+    /// object.
     int& element12();
-        // Return a reference to the modifiable "Element12" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element13" attribute of this
+    /// object.
     s_baltst::Enumerated::Value& element13();
-        // Return a reference to the modifiable "Element13" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element14" attribute of this
+    /// object.
     bsl::vector<bool>& element14();
-        // Return a reference to the modifiable "Element14" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element15" attribute of this
+    /// object.
     bsl::vector<double>& element15();
-        // Return a reference to the modifiable "Element15" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element16" attribute of this
+    /// object.
     bdlb::NullableValue<bsl::vector<char> >& element16();
-        // Return a reference to the modifiable "Element16" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element17" attribute of this
+    /// object.
     bsl::vector<int>& element17();
-        // Return a reference to the modifiable "Element17" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element18" attribute of this
+    /// object.
     bsl::vector<bdlt::DatetimeTz>& element18();
-        // Return a reference to the modifiable "Element18" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element19" attribute of this
+    /// object.
     bsl::vector<s_baltst::CustomString>& element19();
-        // Return a reference to the modifiable "Element19" attribute of this
-        // object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference offering non-modifiable access to the "Element1"
+    /// attribute of this object.
     const bsl::vector<Sequence3>& element1() const;
-        // Return a reference offering non-modifiable access to the "Element1"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element2"
+    /// attribute of this object.
     const bsl::vector<Choice1>& element2() const;
-        // Return a reference offering non-modifiable access to the "Element2"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element3"
+    /// attribute of this object.
     const bdlb::NullableValue<bsl::vector<char> >& element3() const;
-        // Return a reference offering non-modifiable access to the "Element3"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element4"
+    /// attribute of this object.
     const bdlb::NullableValue<int>& element4() const;
-        // Return a reference offering non-modifiable access to the "Element4"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element5"
+    /// attribute of this object.
     const bdlb::NullableValue<bdlt::DatetimeTz>& element5() const;
-        // Return a reference offering non-modifiable access to the "Element5"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element6"
+    /// attribute of this object.
     const bdlb::NullableValue<s_baltst::CustomString>& element6() const;
-        // Return a reference offering non-modifiable access to the "Element6"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element7"
+    /// attribute of this object.
     const bdlb::NullableValue<s_baltst::Enumerated::Value>& element7() const;
-        // Return a reference offering non-modifiable access to the "Element7"
-        // attribute of this object.
 
+    /// Return the value of the "Element8" attribute of this object.
     bool element8() const;
-        // Return the value of the "Element8" attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element9"
+    /// attribute of this object.
     const bsl::string& element9() const;
-        // Return a reference offering non-modifiable access to the "Element9"
-        // attribute of this object.
 
+    /// Return the value of the "Element10" attribute of this object.
     double element10() const;
-        // Return the value of the "Element10" attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element11"
+    /// attribute of this object.
     const bsl::vector<char>& element11() const;
-        // Return a reference offering non-modifiable access to the "Element11"
-        // attribute of this object.
 
+    /// Return the value of the "Element12" attribute of this object.
     int element12() const;
-        // Return the value of the "Element12" attribute of this object.
 
+    /// Return the value of the "Element13" attribute of this object.
     s_baltst::Enumerated::Value element13() const;
-        // Return the value of the "Element13" attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element14"
+    /// attribute of this object.
     const bsl::vector<bool>& element14() const;
-        // Return a reference offering non-modifiable access to the "Element14"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element15"
+    /// attribute of this object.
     const bsl::vector<double>& element15() const;
-        // Return a reference offering non-modifiable access to the "Element15"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element16"
+    /// attribute of this object.
     const bdlb::NullableValue<bsl::vector<char> >& element16() const;
-        // Return a reference offering non-modifiable access to the "Element16"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element17"
+    /// attribute of this object.
     const bsl::vector<int>& element17() const;
-        // Return a reference offering non-modifiable access to the "Element17"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element18"
+    /// attribute of this object.
     const bsl::vector<bdlt::DatetimeTz>& element18() const;
-        // Return a reference offering non-modifiable access to the "Element18"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element19"
+    /// attribute of this object.
     const bsl::vector<s_baltst::CustomString>& element19() const;
-        // Return a reference offering non-modifiable access to the "Element19"
-        // attribute of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const Sequence4& lhs, const Sequence4& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const Sequence4& lhs, const Sequence4& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sequence4& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 
@@ -2193,199 +2228,204 @@ class Sequence1 {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence1(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Sequence1' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `Sequence1` having the default value.  Use
+    /// the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit Sequence1(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `Sequence1` having the value of the
+    /// specified `original` object.  Use the optionally specified
+    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     Sequence1(const Sequence1& original,
               bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Sequence1' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `Sequence1` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
     Sequence1(Sequence1&& original) noexcept;
-        // Create an object of type 'Sequence1' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
 
+    /// Create an object of type `Sequence1` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
+    /// Use the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     Sequence1(Sequence1&& original,
               bslma::Allocator *basicAllocator);
-        // Create an object of type 'Sequence1' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 #endif
 
+    /// Destroy this object.
     ~Sequence1();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Sequence1& operator=(const Sequence1& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     Sequence1& operator=(Sequence1&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Element1" attribute of this
+    /// object.
     bdlb::NullableValue<Choice3>& element1();
-        // Return a reference to the modifiable "Element1" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element2" attribute of this
+    /// object.
     bsl::vector<Choice1>& element2();
-        // Return a reference to the modifiable "Element2" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element3" attribute of this
+    /// object.
     Choice2& element3();
-        // Return a reference to the modifiable "Element3" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element4" attribute of this
+    /// object.
     bsl::vector<bdlb::NullableValue<Choice1> >& element4();
-        // Return a reference to the modifiable "Element4" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element5" attribute of this
+    /// object.
     bsl::vector<Choice3>& element5();
-        // Return a reference to the modifiable "Element5" attribute of this
-        // object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference offering non-modifiable access to the "Element1"
+    /// attribute of this object.
     const bdlb::NullableValue<Choice3>& element1() const;
-        // Return a reference offering non-modifiable access to the "Element1"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element2"
+    /// attribute of this object.
     const bsl::vector<Choice1>& element2() const;
-        // Return a reference offering non-modifiable access to the "Element2"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element3"
+    /// attribute of this object.
     const Choice2& element3() const;
-        // Return a reference offering non-modifiable access to the "Element3"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element4"
+    /// attribute of this object.
     const bsl::vector<bdlb::NullableValue<Choice1> >& element4() const;
-        // Return a reference offering non-modifiable access to the "Element4"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element5"
+    /// attribute of this object.
     const bsl::vector<Choice3>& element5() const;
-        // Return a reference offering non-modifiable access to the "Element5"
-        // attribute of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const Sequence1& lhs, const Sequence1& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const Sequence1& lhs, const Sequence1& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sequence1& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 
@@ -2443,214 +2483,219 @@ class Sequence2 {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence2(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Sequence2' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `Sequence2` having the default value.  Use
+    /// the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit Sequence2(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `Sequence2` having the value of the
+    /// specified `original` object.  Use the optionally specified
+    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     Sequence2(const Sequence2& original,
               bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Sequence2' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `Sequence2` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
     Sequence2(Sequence2&& original) noexcept;
-        // Create an object of type 'Sequence2' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
 
+    /// Create an object of type `Sequence2` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
+    /// Use the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     Sequence2(Sequence2&& original,
               bslma::Allocator *basicAllocator);
-        // Create an object of type 'Sequence2' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 #endif
 
+    /// Destroy this object.
     ~Sequence2();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Sequence2& operator=(const Sequence2& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     Sequence2& operator=(Sequence2&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Element1" attribute of this
+    /// object.
     s_baltst::CustomString& element1();
-        // Return a reference to the modifiable "Element1" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element2" attribute of this
+    /// object.
     unsigned char& element2();
-        // Return a reference to the modifiable "Element2" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element3" attribute of this
+    /// object.
     bdlt::DatetimeTz& element3();
-        // Return a reference to the modifiable "Element3" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element4" attribute of this
+    /// object.
     bdlb::NullableValue<Choice1>& element4();
-        // Return a reference to the modifiable "Element4" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element5" attribute of this
+    /// object.
     bdlb::NullableValue<double>& element5();
-        // Return a reference to the modifiable "Element5" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element6" attribute of this
+    /// object.
     bsl::vector<bdlb::NullableValue<bsl::string> >& element6();
-        // Return a reference to the modifiable "Element6" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Element7" attribute of this
+    /// object.
     bsl::vector<bdlb::NullableValue<s_baltst::CustomString> >& element7();
-        // Return a reference to the modifiable "Element7" attribute of this
-        // object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference offering non-modifiable access to the "Element1"
+    /// attribute of this object.
     const s_baltst::CustomString& element1() const;
-        // Return a reference offering non-modifiable access to the "Element1"
-        // attribute of this object.
 
+    /// Return the value of the "Element2" attribute of this object.
     unsigned char element2() const;
-        // Return the value of the "Element2" attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element3"
+    /// attribute of this object.
     const bdlt::DatetimeTz& element3() const;
-        // Return a reference offering non-modifiable access to the "Element3"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element4"
+    /// attribute of this object.
     const bdlb::NullableValue<Choice1>& element4() const;
-        // Return a reference offering non-modifiable access to the "Element4"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element5"
+    /// attribute of this object.
     const bdlb::NullableValue<double>& element5() const;
-        // Return a reference offering non-modifiable access to the "Element5"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element6"
+    /// attribute of this object.
     const bsl::vector<bdlb::NullableValue<bsl::string> >& element6() const;
-        // Return a reference offering non-modifiable access to the "Element6"
-        // attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Element7"
+    /// attribute of this object.
     const bsl::vector<bdlb::NullableValue<s_baltst::CustomString> >& element7() const;
-        // Return a reference offering non-modifiable access to the "Element7"
-        // attribute of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const Sequence2& lhs, const Sequence2& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const Sequence2& lhs, const Sequence2& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sequence2& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 

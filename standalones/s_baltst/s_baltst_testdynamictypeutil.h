@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide non-primitive operations on 's_baltst::TestDynamicType'.
+//@PURPOSE: Provide non-primitive operations on `s_baltst::TestDynamicType`.
 //
 //@CLASSES:
 //  s_baltst::TestDynamicTypeUtil: utilities for test dynamic types

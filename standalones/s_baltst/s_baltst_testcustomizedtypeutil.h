@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide non-primitive operations on 's_baltst::TestCustomizedType'.
+//@PURPOSE: Provide non-primitive operations on `s_baltst::TestCustomizedType`.
 //
 //@CLASSES:
 //  s_baltst::TestCustomizedTypeUtil: utilities for test customized types

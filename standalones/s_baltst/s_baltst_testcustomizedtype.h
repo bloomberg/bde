@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a test implementation of a 'bdlat' "customized type".
+//@PURPOSE: Provide a test implementation of a `bdlat` "customized type".
 //
 //@CLASSES:
 //  s_baltst::TestCustomizedType: test implementation of a customized type
@@ -28,15 +28,15 @@ namespace s_baltst {
                           // class TestCustomizedType
                           // ========================
 
+/// This in-core value-semantic class provides a basic implementation of the
+/// `bdlat` `CustomizedType` concept.  The template parameter `VALUE_TYPE`
+/// specifies the underlying value for objects of this type, and the
+/// template parameter `BASE_TYPE` specifies one of the public base types of
+/// `VALUE_TYPE`.  This type is said to "customize" the `BASE_TYPE`.  The
+/// program is ill-formed unless `VALUE_TYPE` is the same as `BASE_TYPE`, or
+/// publicly inherits from it.
 template <class VALUE_TYPE, class BASE_TYPE>
 class TestCustomizedType {
-    // This in-core value-semantic class provides a basic implementation of the
-    // 'bdlat' 'CustomizedType' concept.  The template parameter 'VALUE_TYPE'
-    // specifies the underlying value for objects of this type, and the
-    // template parameter 'BASE_TYPE' specifies one of the public base types of
-    // 'VALUE_TYPE'.  This type is said to "customize" the 'BASE_TYPE'.  The
-    // program is ill-formed unless 'VALUE_TYPE' is the same as 'BASE_TYPE', or
-    // publicly inherits from it.
 
   public:
     // TYPES
@@ -99,15 +99,25 @@ bool operator!=(const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& lhs,
                 const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& rhs);
 
 // TRAITS
+
+/// Return a null-terminated string containing the exported name of the type
+/// for the specified `object`.
 template <class VALUE_TYPE, class BASE_TYPE>
 const char *bdlat_TypeName_className(
                       const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& object);
 
+/// If an explicit conversion from the specified `OTHER_BASE_TYPE` type to
+/// the specified `VALUE_TYPE` type exists, load into the underlying value
+/// of the specified `object` the value of the specified `base` object
+/// explicitly converted to `VALUE_TYPE`.  Return 0 on success, and a
+/// non-zero value otherwise.
 template <class VALUE_TYPE, class BASE_TYPE, class OTHER_BASE_TYPE>
 int bdlat_customizedTypeConvertFromBaseType(
                              TestCustomizedType<VALUE_TYPE, BASE_TYPE> *object,
                              const OTHER_BASE_TYPE&                     base);
 
+/// Return a reference providing non-modifiable access to the `Base`
+/// subobject of the underlying value of the specified `object`.
 template <class VALUE_TYPE, class BASE_TYPE>
 const BASE_TYPE& bdlat_customizedTypeConvertToBaseType(
                       const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& object);
@@ -201,14 +211,14 @@ TestCustomizedType<VALUE_TYPE, BASE_TYPE>::operator=(
     return *this;
 }
 
+/// If an explicit conversion from the specified `OTHER_BASE_TYPE` type to
+/// the `Value` type exists, load into the value of this object the value of
+/// the specified `base` object explicitly converted to `Value`.  Return 0
+/// on success, and a non-zero value otherwise.
 template <class VALUE_TYPE, class BASE_TYPE>
 template <class OTHER_BASE_TYPE>
 int TestCustomizedType<VALUE_TYPE, BASE_TYPE>::convertFromBaseType(
                                                   const OTHER_BASE_TYPE& value)
-    // If an explicit conversion from the specified 'OTHER_BASE_TYPE' type to
-    // the 'Value' type exists, load into the value of this object the value of
-    // the specified 'base' object explicitly converted to 'Value'.  Return 0
-    // on success, and a non-zero value otherwise.
 {
     if (!bslmf::IsConvertible<Value, OTHER_BASE_TYPE>::value) {
         return -1;                                                    // RETURN
@@ -231,19 +241,20 @@ void TestCustomizedType<VALUE_TYPE, BASE_TYPE>::reset()
 }
 
 // ACCESSORS
+
+/// Return a null-terminated string containing the exported name for this
+/// type.
 template <class VALUE_TYPE, class BASE_TYPE>
 const char *TestCustomizedType<VALUE_TYPE, BASE_TYPE>::className() const
-    // Return a null-terminated string containing the exported name for this
-    // type.
 {
     return "MyCustomizedType";
 }
 
+/// Return a reference providing non-modifiable access to the `Base`
+/// subobject of the underlying value of this object.
 template <class VALUE_TYPE, class BASE_TYPE>
 const BASE_TYPE&
 TestCustomizedType<VALUE_TYPE, BASE_TYPE>::convertToBaseType() const
-    // Return a reference providing non-modifiable access to the 'Base'
-    // subobject of the underlying value of this object.
 {
     return d_value.object();
 }
@@ -284,8 +295,6 @@ bool operator!=(const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& lhs,
 template <class VALUE_TYPE, class BASE_TYPE>
 const char *bdlat_TypeName_className(
                        const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& object)
-    // Return a null-terminated string containing the exported name of the type
-    // for the specified 'object'.
 {
     return object.className();
 }
@@ -294,11 +303,6 @@ template <class VALUE_TYPE, class BASE_TYPE, class OTHER_BASE_TYPE>
 int bdlat_customizedTypeConvertFromBaseType(
                              TestCustomizedType<VALUE_TYPE, BASE_TYPE> *object,
                              const OTHER_BASE_TYPE&                     base)
-    // If an explicit conversion from the specified 'OTHER_BASE_TYPE' type to
-    // the specified 'VALUE_TYPE' type exists, load into the underlying value
-    // of the specified 'object' the value of the specified 'base' object
-    // explicitly converted to 'VALUE_TYPE'.  Return 0 on success, and a
-    // non-zero value otherwise.
 {
     return object->convertFromBaseType(base);
 }
@@ -306,8 +310,6 @@ int bdlat_customizedTypeConvertFromBaseType(
 template <class VALUE_TYPE, class BASE_TYPE>
 const BASE_TYPE& bdlat_customizedTypeConvertToBaseType(
                        const TestCustomizedType<VALUE_TYPE, BASE_TYPE>& object)
-    // Return a reference providing non-modifiable access to the 'Base'
-    // subobject of the underlying value of the specified 'object'.
 {
     return object.convertToBaseType();
 }

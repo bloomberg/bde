@@ -5,10 +5,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a test 'bdlat'-compatible type with interceptable methods.
+//@PURPOSE: Provide a test `bdlat`-compatible type with interceptable methods.
 //
 //@CLASSES:
-//  s_baltst::TestTaggedValue: interceptible test 'bdlat'-compatible type
+//  s_baltst::TestTaggedValue: interceptible test `bdlat`-compatible type
 
 #include <s_baltst_testplaceholder.h>
 
@@ -37,6 +37,9 @@ namespace s_baltst {
 template <class TAG_TYPE, class VALUE_TYPE>
 class TestTaggedValue;
 
+/// This class provides a base class and member functions implementing the
+/// `bdlat` `Array` concept for `TestTaggedValue` specializations having a
+/// `VALUE_TYPE` that itself implements the `bdlat` `Array` concept.
 template <class TAG_TYPE,
           class VALUE_TYPE,
           bool = static_cast<bdlat_TypeCategory::Value>(
@@ -46,9 +49,6 @@ template <class TAG_TYPE,
                      bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
                          bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_ArrayBase {
-    // This class provides a base class and member functions implementing the
-    // 'bdlat' 'Array' concept for 'TestTaggedValue' specializations having a
-    // 'VALUE_TYPE' that itself implements the 'bdlat' 'Array' concept.
 
   public:
     // TYPES
@@ -81,11 +81,11 @@ class TestTaggedValue_ArrayBase {
     bsl::size_t size() const;
 };
 
+/// This class provides a base class for `TestTaggedValue` specializations
+/// having a `VALUE_TYPE` that does not implement the `bdlat` `Array`
+/// concept.
 template <class TAG_TYPE, class VALUE_TYPE>
 class TestTaggedValue_ArrayBase<TAG_TYPE, VALUE_TYPE, false> {
-    // This class provides a base class for 'TestTaggedValue' specializations
-    // having a 'VALUE_TYPE' that does not implement the 'bdlat' 'Array'
-    // concept.
 
   public:
     // CLASS DATA
@@ -96,6 +96,9 @@ class TestTaggedValue_ArrayBase<TAG_TYPE, VALUE_TYPE, false> {
                       // class TestTaggedValue_ChoiceBase
                       // ================================
 
+/// This class provides a base class and member functions implementing the
+/// `bdlat` `Choice` concept for `TestTaggedValue` specializations having a
+/// `VALUE_TYPE` that itself implements the `bdlat` `Choice` concept.
 template <class TAG_TYPE,
           class VALUE_TYPE,
           bool = static_cast<bdlat_TypeCategory::Value>(
@@ -105,9 +108,6 @@ template <class TAG_TYPE,
                      bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
                          bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_ChoiceBase {
-    // This class provides a base class and member functions implementing the
-    // 'bdlat' 'Choice' concept for 'TestTaggedValue' specializations having a
-    // 'VALUE_TYPE' that itself implements the 'bdlat' 'Choice' concept.
 
   public:
     // CLASS DATA
@@ -141,11 +141,11 @@ class TestTaggedValue_ChoiceBase {
     int selectionId() const;
 };
 
+/// This class provides a base class for `TestTaggedValue` specializations
+/// having a `VALUE_TYPE` that does not implement the `bdlat` `Choice`
+/// concept.
 template <class TAG_TYPE, class VALUE_TYPE>
 class TestTaggedValue_ChoiceBase<TAG_TYPE, VALUE_TYPE, false> {
-    // This class provides a base class for 'TestTaggedValue' specializations
-    // having a 'VALUE_TYPE' that does not implement the 'bdlat' 'Choice'
-    // concept.
 
   public:
     // CLASS DATA
@@ -156,6 +156,10 @@ class TestTaggedValue_ChoiceBase<TAG_TYPE, VALUE_TYPE, false> {
                   // class TestTaggedValue_CustomizedTypeBase
                   // ========================================
 
+/// This class provides a base class and member functions implementing the
+/// `bdlat` `CustomizedType` concept for `TestTaggedValue` specializations
+/// having a `VALUE_TYPE` that itself implements the `bdlat`
+/// `CustomizedType` concept.
 template <class TAG_TYPE,
           class VALUE_TYPE,
           bool = static_cast<bdlat_TypeCategory::Value>(
@@ -165,10 +169,6 @@ template <class TAG_TYPE,
                      bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
                          bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_CustomizedTypeBase {
-    // This class provides a base class and member functions implementing the
-    // 'bdlat' 'CustomizedType' concept for 'TestTaggedValue' specializations
-    // having a 'VALUE_TYPE' that itself implements the 'bdlat'
-    // 'CustomizedType' concept.
 
   public:
     // TYPES
@@ -197,11 +197,11 @@ class TestTaggedValue_CustomizedTypeBase {
     const BaseType& convertToBaseType() const;
 };
 
+/// This class provides a base class for `TestTaggedValue` specializations
+/// having a `VALUE_TYPE` that does not implement the `bdlat`
+/// `CustomizedType` concept.
 template <class TAG_TYPE, class VALUE_TYPE>
 class TestTaggedValue_CustomizedTypeBase<TAG_TYPE, VALUE_TYPE, false> {
-    // This class provides a base class for 'TestTaggedValue' specializations
-    // having a 'VALUE_TYPE' that does not implement the 'bdlat'
-    // 'CustomizedType' concept.
 
   public:
     // CLASS DATA
@@ -212,16 +212,16 @@ class TestTaggedValue_CustomizedTypeBase<TAG_TYPE, VALUE_TYPE, false> {
                    // class TestTaggedValue_DynamicTypeBase
                    // =====================================
 
+/// This class provides a base class and member functions implementing the
+/// `bdlat` `DynamicType` concept for `TestTaggedValue` specializations
+/// having a `VALUE_TYPE` that itself implements the `bdlat` `DynamicType`
+/// concept.
 template <class TAG_TYPE,
           class VALUE_TYPE,
           bool = static_cast<bdlat_TypeCategory::Value>(
                      bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
                          bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_DynamicTypeBase {
-    // This class provides a base class and member functions implementing the
-    // 'bdlat' 'DynamicType' concept for 'TestTaggedValue' specializations
-    // having a 'VALUE_TYPE' that itself implements the 'bdlat' 'DynamicType'
-    // concept.
 
   public:
     // CLASS DATA
@@ -236,11 +236,11 @@ class TestTaggedValue_DynamicTypeBase {
     bdlat_TypeCategory::Value select() const;
 };
 
+/// This class provides a base class for `TestTaggedValue` specializations
+/// having a `VALUE_TYPE` that does not implement the `bdlat` `DynamicType`
+/// concept.
 template <class TAG_TYPE, class VALUE_TYPE>
 class TestTaggedValue_DynamicTypeBase<TAG_TYPE, VALUE_TYPE, false> {
-    // This class provides a base class for 'TestTaggedValue' specializations
-    // having a 'VALUE_TYPE' that does not implement the 'bdlat' 'DynamicType'
-    // concept.
 
   public:
     // CLASS DATA
@@ -251,6 +251,10 @@ class TestTaggedValue_DynamicTypeBase<TAG_TYPE, VALUE_TYPE, false> {
                    // class TestTaggedValue_EnumerationBase
                    // =====================================
 
+/// This class provides a base class and member functions implementing the
+/// `bdlat` `Enumeration` concept for `TestTaggedValue` specializations
+/// having a `VALUE_TYPE` that itself implements the `bdlat` `Enumeration`
+/// concept.
 template <class TAG_TYPE,
           class VALUE_TYPE,
           bool = static_cast<bdlat_TypeCategory::Value>(
@@ -260,10 +264,6 @@ template <class TAG_TYPE,
                      bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
                          bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_EnumerationBase {
-    // This class provides a base class and member functions implementing the
-    // 'bdlat' 'Enumeration' concept for 'TestTaggedValue' specializations
-    // having a 'VALUE_TYPE' that itself implements the 'bdlat' 'Enumeration'
-    // concept.
 
   public:
     // CLASS DATA
@@ -291,11 +291,11 @@ class TestTaggedValue_EnumerationBase {
     void toString(bsl::string *result) const;
 };
 
+/// This class provides a base class for `TestTaggedValue` specializations
+/// having a `VALUE_TYPE` that does not implement the `bdlat` `Enumeration`
+/// concept.
 template <class TAG_TYPE, class VALUE_TYPE>
 class TestTaggedValue_EnumerationBase<TAG_TYPE, VALUE_TYPE, false> {
-    // This class provides a base class for 'TestTaggedValue' specializations
-    // having a 'VALUE_TYPE' that does not implement the 'bdlat' 'Enumeration'
-    // concept.
 
   public:
     // CLASS DATA
@@ -306,6 +306,10 @@ class TestTaggedValue_EnumerationBase<TAG_TYPE, VALUE_TYPE, false> {
                   // class TestTaggedValue_NullableValueBase
                   // =======================================
 
+/// This class provides a base class and member functions implementing the
+/// `bdlat` `NullableValue` concept for `TestTaggedValue` specializations
+/// having a `VALUE_TYPE` that itself implements the `bdlat` `NullableValue`
+/// concept.
 template <class TAG_TYPE,
           class VALUE_TYPE,
           bool = static_cast<bdlat_TypeCategory::Value>(
@@ -315,10 +319,6 @@ template <class TAG_TYPE,
                      bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
                          bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_NullableValueBase {
-    // This class provides a base class and member functions implementing the
-    // 'bdlat' 'NullableValue' concept for 'TestTaggedValue' specializations
-    // having a 'VALUE_TYPE' that itself implements the 'bdlat' 'NullableValue'
-    // concept.
 
   public:
     // TYPES
@@ -352,11 +352,11 @@ class TestTaggedValue_NullableValueBase {
     bool isNull() const;
 };
 
+/// This class provides a base class for `TestTaggedValue` specializations
+/// having a `VALUE_TYPE` that does not implement the `bdlat`
+/// `NullableValue` concept.
 template <class TAG_TYPE, class VALUE_TYPE>
 class TestTaggedValue_NullableValueBase<TAG_TYPE, VALUE_TYPE, false> {
-    // This class provides a base class for 'TestTaggedValue' specializations
-    // having a 'VALUE_TYPE' that does not implement the 'bdlat'
-    // 'NullableValue' concept.
 
   public:
     // CLASS DATA
@@ -367,6 +367,9 @@ class TestTaggedValue_NullableValueBase<TAG_TYPE, VALUE_TYPE, false> {
                      // class TestTaggedValue_SequenceBase
                      // ==================================
 
+/// This class provides a base class and member functions implementing the
+/// `bdlat` `Sequence` concept for `TestTaggedValue` specializations having
+/// a `VALUE_TYPE` that itself implements the `bdlat` `Sequence` concept.
 template <class TAG_TYPE,
           class VALUE_TYPE,
           bool = static_cast<bdlat_TypeCategory::Value>(
@@ -376,9 +379,6 @@ template <class TAG_TYPE,
                      bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION) ==
                          bdlat_TypeCategory::e_DYNAMIC_CATEGORY>
 class TestTaggedValue_SequenceBase {
-    // This class provides a base class and member functions implementing the
-    // 'bdlat' 'Sequence' concept for 'TestTaggedValue' specializations having
-    // a 'VALUE_TYPE' that itself implements the 'bdlat' 'Sequence' concept.
 
   public:
     // CLASS DATA
@@ -424,11 +424,11 @@ class TestTaggedValue_SequenceBase {
                       int         attributeNameLength) const;
 };
 
+/// This class provides a base class for `TestTaggedValue` specializations
+/// having a `VALUE_TYPE` that does not implement the `bdlat` `Sequence`
+/// concept.
 template <class TAG_TYPE, class VALUE_TYPE>
 class TestTaggedValue_SequenceBase<TAG_TYPE, VALUE_TYPE, false> {
-    // This class provides a base class for 'TestTaggedValue' specializations
-    // having a 'VALUE_TYPE' that does not implement the 'bdlat' 'Sequence'
-    // concept.
 
   public:
     // CLASS DATA
@@ -439,6 +439,14 @@ class TestTaggedValue_SequenceBase<TAG_TYPE, VALUE_TYPE, false> {
                            // class TestTaggedValue
                            // =====================
 
+/// This class provides a wrapper around an object of the specified
+/// `VALUE_TYPE` that implements all `bdlat` value category concepts the
+/// `VALUE_TYPE` implements by delegating the implementation to the wrapped
+/// object.  However, more than just forwarding these operations, this class
+/// permits one to overload particular `bdlat` operations of the underlying
+/// `VALUE_TYPE` object by providing an overload for the corresponding
+/// `bdlat` free function with a particular `TAG_TYPE`.  Such overloads will
+/// be better matches during overload resolution.
 template <class TAG_TYPE, class VALUE_TYPE>
 class TestTaggedValue
 : public TestTaggedValue_ArrayBase<TAG_TYPE, VALUE_TYPE>,
@@ -448,14 +456,6 @@ class TestTaggedValue
   public TestTaggedValue_EnumerationBase<TAG_TYPE, VALUE_TYPE>,
   public TestTaggedValue_NullableValueBase<TAG_TYPE, VALUE_TYPE>,
   public TestTaggedValue_SequenceBase<TAG_TYPE, VALUE_TYPE> {
-    // This class provides a wrapper around an object of the specified
-    // 'VALUE_TYPE' that implements all 'bdlat' value category concepts the
-    // 'VALUE_TYPE' implements by delegating the implementation to the wrapped
-    // object.  However, more than just forwarding these operations, this class
-    // permits one to overload particular 'bdlat' operations of the underlying
-    // 'VALUE_TYPE' object by providing an overload for the corresponding
-    // 'bdlat' free function with a particular 'TAG_TYPE'.  Such overloads will
-    // be better matches during overload resolution.
 
   public:
     // TYPES

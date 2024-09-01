@@ -23,10 +23,10 @@ namespace s_baltst {
                        // class GenerateTestEnumeration
                        // =============================
 
+/// This in-core value-semantic class provides a function object whose
+/// function call operator can be used to generate `TestEnumeration`
+/// objects.
 class GenerateTestEnumeration {
-    // This in-core value-semantic class provides a function object whose
-    // function call operator can be used to generate 'TestEnumeration'
-    // objects.
 
   public:
     // TYPES
@@ -51,10 +51,10 @@ class GenerateTestEnumeration {
                   // class GenerateTestEnumerationPlaceHolder
                   // ========================================
 
+/// This in-core value-semantic class provides a function object whose
+/// function call operator can be used to generate `PlaceHolder`
+/// specializations for `TestEnumeration` types.
 class GenerateTestEnumerationPlaceHolder {
-    // This in-core value-semantic class provides a function object whose
-    // function call operator can be used to generate 'PlaceHolder'
-    // specializations for 'TestEnumeration' types.
 
   public:
     // TYPES

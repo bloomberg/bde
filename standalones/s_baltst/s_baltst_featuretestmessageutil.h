@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: s_baltst_featuretestmessage
 //
-//@DESCRIPTION: This component provides a utility 'struct',
-// 's_baltst::FeatureTestMessageUtil', that provides the encoded representation
-// of many 's_baltst::FeatureTestMessage' values in 3 different formats:
+//@DESCRIPTION: This component provides a utility `struct`,
+// `s_baltst::FeatureTestMessageUtil`, that provides the encoded representation
+// of many `s_baltst::FeatureTestMessage` values in 3 different formats:
 // pretty JSON, compact JSON, and XML.  These encoded representations may be
 // incorporated into the testing infrastructure of codecs.
 
@@ -27,15 +27,15 @@ namespace s_baltst {
                        // struct FeatureTestMessageUtil
                        // =============================
 
+/// This utility `struct` provides a namespace for a set of encoded
+/// representations of `s_baltst::FeatureTestMessage` objects in 3
+/// different formats: pretty JSON, compact JSON, and XML.  The
+/// `s_COMPACT_JSON_MESSAGES`, `s_PRETTY_JSON_MESSAGES`, and
+/// `s_XML_MESSAGES` static data members provide these sets as arrays of
+/// string literals.  For all integer indices `0 <= i < k_NUM_MESSAGES`, the
+/// string literal at index `i` in each array is an encoded representation
+/// of the same value.
 struct FeatureTestMessageUtil {
-    // This utility 'struct' provides a namespace for a set of encoded
-    // representations of 's_baltst::FeatureTestMessage' objects in 3
-    // different formats: pretty JSON, compact JSON, and XML.  The
-    // 's_COMPACT_JSON_MESSAGES', 's_PRETTY_JSON_MESSAGES', and
-    // 's_XML_MESSAGES' static data members provide these sets as arrays of
-    // string literals.  For all integer indices '0 <= i < k_NUM_MESSAGES', the
-    // string literal at index 'i' in each array is an encoded representation
-    // of the same value.
 
     // TYPES
     enum {
@@ -50,17 +50,18 @@ struct FeatureTestMessageUtil {
     };
 
     // CLASS DATA
+
+    /// an array of `s_baltst::FeatureTestMessage` values encoded in
+    /// human-readable ("pretty") JSON
     static const char *s_COMPACT_JSON_MESSAGES[k_NUM_MESSAGES];
-        // an array of 's_baltst::FeatureTestMessage' values encoded in
-        // human-readable ("pretty") JSON
 
+    /// an array of `s_baltst::FeatureTestMessage` values encoded in
+    /// JSON having no unnecessary whitespace
     static const char *s_PRETTY_JSON_MESSAGES[k_NUM_MESSAGES];
-        // an array of 's_baltst::FeatureTestMessage' values encoded in
-        // JSON having no unnecessary whitespace
 
+    /// an array of `s_baltst::FeatureTestMessage` values encoded in
+    /// human-readable ("pretty") XML
     static const char *s_XML_MESSAGES[k_NUM_MESSAGES];
-        // an array of 's_baltst::FeatureTestMessage' values encoded in
-        // human-readable ("pretty") XML
 };
 
 }  // close enterprise namespace

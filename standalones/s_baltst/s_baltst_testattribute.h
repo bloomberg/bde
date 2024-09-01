@@ -27,10 +27,10 @@ namespace s_baltst {
                         // struct TestAttributeDefaults
                         // ============================
 
+/// This utility `struct` provides a namespace for non-modifiable,
+/// constant-initialized default values for the non-type template parameters
+/// of a `TestAttribute`.
 struct TestAttributeDefaults {
-    // This utility 'struct' provides a namespace for non-modifiable,
-    // constant-initialized default values for the non-type template parameters
-    // of a 'TestAttribute'.
 
     // CLASS DATA
     static const char k_DEFAULT_ANNOTATION[1];
@@ -42,15 +42,15 @@ struct TestAttributeDefaults {
                             // class TestAttribute
                             // ===================
 
+/// This class provides a namespace for a suite of non-modifiable,
+/// constant-initialized data that can be used to specify all attributes of
+/// a `bdlat_AttributeInfo` object.
 template <int         ID,
           const char *NAME       = TestAttributeDefaults::k_DEFAULT_NAME,
           const char *ANNOTATION = TestAttributeDefaults::k_DEFAULT_ANNOTATION,
           int         FORMATTING_MODE =
               TestAttributeDefaults::k_DEFAULT_FORMATTING_MODE>
 class TestAttribute {
-    // This class provides a namespace for a suite of non-modifiable,
-    // constant-initialized data that can be used to specify all attributes of
-    // a 'bdlat_AttributeInfo' object.
 
   public:
     // CLASS DATA
@@ -93,11 +93,11 @@ const char
                           // class TypedTestAttribute
                           // ========================
 
+/// This class provides two member type definitions, `Type`, and
+/// `Attribute`, which are aliases to the arguments supplied to the `TYPE`
+/// and `TEST_SELECTION` template parameters, respectively.
 template <class TYPE, class TEST_ATTRIBUTE>
 class TypedTestAttribute {
-    // This class provides two member type definitions, 'Type', and
-    // 'Attribute', which are aliases to the arguments supplied to the 'TYPE'
-    // and 'TEST_SELECTION' template parameters, respectively.
 
   public:
     // TYPES

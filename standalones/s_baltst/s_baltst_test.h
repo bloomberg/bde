@@ -6,7 +6,7 @@
 BSLS_IDENT_RCSID(s_baltst_test_h,"$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
-//@PURPOSE: Provide a superficial test of all classes in 'baltst' package.
+//@PURPOSE: Provide a superficial test of all classes in `baltst` package.
 
 namespace BloombergLP {
 namespace s_baltst {

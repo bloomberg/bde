@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide non-primitive operations on 's_baltst::TestTaggedValue'.
+//@PURPOSE: Provide non-primitive operations on `s_baltst::TestTaggedValue`.
 //
 //@CLASSES:
 //  s_baltst::TestTaggedValueUtil: utilities for test tagged values

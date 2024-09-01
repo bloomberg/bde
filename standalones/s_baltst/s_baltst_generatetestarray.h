@@ -23,9 +23,9 @@ namespace s_baltst {
                           // class GenerateTestArray
                           // =======================
 
+/// This class provides a function object whose function call operator can
+/// be used to generate objects of specializations of `bsl::vector`.
 class GenerateTestArray {
-    // This class provides a function object whose function call operator can
-    // be used to generate objects of specializations of 'bsl::vector'.
 
   public:
     // TYPES
@@ -56,10 +56,10 @@ class GenerateTestArray {
                      // class GenerateTestArrayPlaceHolder
                      // ==================================
 
+/// This class provides a function object whose function call operator can
+/// be used to generate `TestPlaceHolder` specializations for `bsl::vector`
+/// types.
 class GenerateTestArrayPlaceHolder {
-    // This class provides a function object whose function call operator can
-    // be used to generate 'TestPlaceHolder' specializations for 'bsl::vector'
-    // types.
 
   public:
     // TYPES

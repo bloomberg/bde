@@ -20,10 +20,10 @@ namespace s_baltst {
                       // class GenerateTestCustomizedType
                       // ================================
 
+/// This in-core value-semantic class provides a function object whose
+/// function call operator can be used to generate objects of
+/// specializations of `TestCustomizedType`.
 class GenerateTestCustomizedType {
-    // This in-core value-semantic class provides a function object whose
-    // function call operator can be used to generate objects of
-    // specializations of 'TestCustomizedType'.
 
   public:
     // TYPES

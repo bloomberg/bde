@@ -19,9 +19,9 @@ namespace s_baltst {
                              // class TestNilValue
                              // ==================
 
+/// This in-memory value-semantic class provides a representation of the
+/// type having only one value.
 class TestNilValue {
-    // This in-memory value-semantic class provides a representation of the
-    // type having only one value.
 };
 
 // FREE FUNCTIONS

@@ -20,11 +20,11 @@ namespace s_baltst {
                             // class TestEnumerator
                             // ====================
 
+/// This class provides a namespace for a suite of constant-initialized data
+/// that can be used to specify the integer and string values of an
+/// enumerator for a `bdlat` `Enumeration` type.
 template <int INT_VALUE, const char *STRING_VALUE>
 class TestEnumerator {
-    // This class provides a namespace for a suite of constant-initialized data
-    // that can be used to specify the integer and string values of an
-    // enumerator for a 'bdlat' 'Enumeration' type.
 
   public:
     // CLASS DATA
@@ -43,10 +43,10 @@ class TestEnumerator {
                           // class TestNilEnumerator
                           // =======================
 
+/// This class provides a namespace for a type having a set of public
+/// members with the same names and types as `TestEnumerator`, and that can
+/// be used as a sentinel type to indicate that no such enumerator exists.
 class TestNilEnumerator {
-    // This class provides a namespace for a type having a set of public
-    // members with the same names and types as 'TestEnumerator', and that can
-    // be used as a sentinel type to indicate that no such enumerator exists.
 
   public:
     // CLASS DATA

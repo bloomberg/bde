@@ -5,23 +5,23 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide utilities for 's_baltst::BasicSchema' objects.
+//@PURPOSE: Provide utilities for `s_baltst::BasicSchema` objects.
 //
 //@CLASSES:
 //  s_baltst::BasicSchemaUtil: Namespace for utilities for basic schema objects
 //
 //@SEE_ALSO: balxml_configschema, bdem_configschema
 //
-//@DESCRIPTION: This component defines a 'struct',
-// 's_baltst::BasicSchemaUtil', that acts as a namespace for a suite of
+//@DESCRIPTION: This component defines a `struct`,
+// `s_baltst::BasicSchemaUtil`, that acts as a namespace for a suite of
 // utility functions providing non-primitive operations on
-// 's_baltst::BasicSchema' objects.
+// `s_baltst::BasicSchema` objects.
 //
 ///Checking Structural Equivalence Up To Annotation
 ///------------------------------------------------
-// The most important operation provided by 's_baltst::BasicSchemaUtil' is
-// 'areEqualUpToAnnotation', which compares 2 basic schema objects and returns
-// 'true' if they are structurally equal except for the presence or absence of
+// The most important operation provided by `s_baltst::BasicSchemaUtil` is
+// `areEqualUpToAnnotation`, which compares 2 basic schema objects and returns
+// `true` if they are structurally equal except for the presence or absence of
 // annotations.  This can be used, for example, to test that a basic schema
 // object parsed from an XML schema definition has an expected structure,
 // without worrying about having to check the structure of its documentation.
@@ -46,73 +46,75 @@ namespace s_baltst {
                            // struct BasicSchemaUtil
                            // ======================
 
+/// forward declaration
 template <class ELEMENT_TYPE>
 struct BasicSchemaUtil_IsElement;
-    // forward declaration
 
+/// forward declaration
 template <class ELEMENT_TYPE>
 struct BasicSchemaUtil_IsElementOrSchema;
-    // forward declaration
 
+/// This utility `struct` provides a namespace for a suite of functions for
+/// non-primitive operations on `s_baltst::BasicSchema` objects.
 struct BasicSchemaUtil {
-    // This utility 'struct' provides a namespace for a suite of functions for
-    // non-primitive operations on 's_baltst::BasicSchema' objects.
 
   private:
     // PRIVATE TYPES
+
+    /// This boolean-valued metafunction provides a member constant `value`
+    /// that is equal to `true` if the specified `ELEMENT_TYPE` represents
+    /// an element, excluding the top-level schema element, in an XML Schema
+    /// Definition.  Otherwise, `value` is equal to `false`.
     template <class ELEMENT_TYPE>
     struct IsElement : BasicSchemaUtil_IsElement<ELEMENT_TYPE> {
-        // This boolean-valued metafunction provides a member constant 'value'
-        // that is equal to 'true' if the specified 'ELEMENT_TYPE' represents
-        // an element, excluding the top-level schema element, in an XML Schema
-        // Definition.  Otherwise, 'value' is equal to 'false'.
     };
 
+    /// This boolean-valued metafunction provides a member constant `value`
+    /// that is equal to `true` if the specified `ELEMENT_TYPE` represents
+    /// an element, including the top-level schema element, in an XML Schema
+    /// Definition.  Otherwise, `value` is equal to `false`.
     template <class ELEMENT_TYPE>
     struct IsElementOrSchema
     : BasicSchemaUtil_IsElementOrSchema<ELEMENT_TYPE> {
-        // This boolean-valued metafunction provides a member constant 'value'
-        // that is equal to 'true' if the specified 'ELEMENT_TYPE' represents
-        // an element, including the top-level schema element, in an XML Schema
-        // Definition.  Otherwise, 'value' is equal to 'false'.
     };
 
   public:
     // CLASS METHODS
+
+    /// Insert the specified `element` after the last element in the
+    /// `choice` vector of the specified `parent`.  This function
+    /// participates in overload resolution if `PARENT_TYPE` is a
+    /// non-`const` type for which `IsElementOrSchema<PARENT_TYPE>::value`
+    /// is `true` and `IsElement<CHILD_TYPE>::value` is `true`.
     template <class PARENT_TYPE, class CHILD_TYPE>
     static typename bsl::enable_if<!bsl::is_const<PARENT_TYPE>::value &&
                                    IsElementOrSchema<PARENT_TYPE>::value &&
                                    IsElement<CHILD_TYPE>::value>::type
     append(PARENT_TYPE *parent, const CHILD_TYPE& element);
-        // Insert the specified 'element' after the last element in the
-        // 'choice' vector of the specified 'parent'.  This function
-        // participates in overload resolution if 'PARENT_TYPE' is a
-        // non-'const' type for which 'IsElementOrSchema<PARENT_TYPE>::value'
-        // is 'true' and 'IsElement<CHILD_TYPE>::value' is 'true'.
 
+    /// Insert a `s_baltst::EnumerationElement` with the specified `value`
+    /// after the last element in the `choice` vector of the specified
+    /// `parent`.
     static void appendEnumeration(BasicSchemaRestrictionElement *parent,
                                   const bsl::string_view&        value);
-        // Insert a 's_baltst::EnumerationElement' with the specified 'value'
-        // after the last element in the 'choice' vector of the specified
-        // 'parent'.
 
+    /// Return `true` if the specified `a` and `b` are structurally
+    /// equivalent except for the presence, absence, or order of
+    /// annotations, and return false otherwise.
     static bool areEqualUpToAnnotation(const BasicSchema& a,
                                        const BasicSchema& b);
-        // Return 'true' if the specified 'a' and 'b' are structurally
-        // equivalent except for the presence, absence, or order of
-        // annotations, and return false otherwise.
 };
 
                       // ================================
                       // struct BasicSchemaUtil_IsElement
                       // ================================
 
+/// This boolean-valued metafunction provides a member constant `value` that
+/// is equal to `true` if the specified `ELEMENT_TYPE` represents an
+/// element, excluding the top-level schema element, in an XML Schema
+/// Definition.  Otherwise, `value` is equal to `false`.
 template <class ELEMENT_TYPE>
 struct BasicSchemaUtil_IsElement : bsl::false_type {
-    // This boolean-valued metafunction provides a member constant 'value' that
-    // is equal to 'true' if the specified 'ELEMENT_TYPE' represents an
-    // element, excluding the top-level schema element, in an XML Schema
-    // Definition.  Otherwise, 'value' is equal to 'false'.
 };
 
 template <>
@@ -159,13 +161,13 @@ struct BasicSchemaUtil_IsElement<BasicSchemaSimpleTypeElement>
                   // struct BasicSchemaUtil_IsElementOrSchema
                   // ========================================
 
+/// This boolean-valued metafunction provides a member constant `value` that
+/// is equal to `true` if the specified `ELEMENT_TYPE` represents an
+/// element, including the top-level schema element, in an XML Schema
+/// Definition.  Otherwise, `value` is equal to `false`.
 template <class ELEMENT_TYPE>
 struct BasicSchemaUtil_IsElementOrSchema
 : BasicSchemaUtil_IsElement<ELEMENT_TYPE> {
-    // This boolean-valued metafunction provides a member constant 'value' that
-    // is equal to 'true' if the specified 'ELEMENT_TYPE' represents an
-    // element, including the top-level schema element, in an XML Schema
-    // Definition.  Otherwise, 'value' is equal to 'false'.
 };
 
 template <>
@@ -176,9 +178,9 @@ struct BasicSchemaUtil_IsElementOrSchema<BasicSchema> : bsl::true_type {
                       // struct BasicSchemaUtil_ImplUtil
                       // ===============================
 
+/// This component-private utility `struct` provides implementation details
+/// for `BasicSchemaUtil`.
 struct BasicSchemaUtil_ImplUtil {
-    // This component-private utility 'struct' provides implementation details
-    // for 'BasicSchemaUtil'.
 
     // TYPES
     typedef BasicSchemaAnnotationElement  AnnotationElement;
@@ -192,28 +194,35 @@ struct BasicSchemaUtil_ImplUtil {
 
   private:
     // PRIVATE CLASS METHODS
-    static void doRemoveAnnotations(AnnotationElement *element);
-        // The behavior of this function is undefined.  It is provided for the
-        // purpose of overload set formation.  Note that the specified
-        // 'element' is not used.
 
+    /// The behavior of this function is undefined.  It is provided for the
+    /// purpose of overload set formation.  Note that the specified
+    /// `element` is not used.
+    static void doRemoveAnnotations(AnnotationElement *element);
+
+    /// Remove all annotation sub-elements from the specified `element`.
     template <class ELEMENT_TYPE>
     static void doRemoveAnnotations(ELEMENT_TYPE *element);
-        // Remove all annotation sub-elements from the specified 'element'.
 
+    /// Recursively remove all annotation sub-elements from the set of
+    /// element choices specified by the range '[beginElementChoices,
+    /// endElementChoices)', and return the past-the-end iterator for the
+    /// new range of element choices.  Note that the element re-ordering and
+    /// removal behavior of this function is similar to that of the
+    /// `bsl::remove` algorithm.
     template <class ELEMENT_CHOICE_FORWARD_ITERATOR>
     static ELEMENT_CHOICE_FORWARD_ITERATOR doRemoveAnnotations(
                            ELEMENT_CHOICE_FORWARD_ITERATOR beginElementChoices,
                            ELEMENT_CHOICE_FORWARD_ITERATOR endElementChoices);
-        // Recursively remove all annotation sub-elements from the set of
-        // element choices specified by the range '[beginElementChoices,
-        // endElementChoices)', and return the past-the-end iterator for the
-        // new range of element choices.  Note that the element re-ordering and
-        // removal behavior of this function is similar to that of the
-        // 'bsl::remove' algorithm.
 
   public:
     // CLASS METHODS
+
+    /// Insert the specified `element` after the last element in the
+    /// `choice` vector of the specified `parent`.  The behavior is
+    /// undefined unless the specified `PARENT_TYPE` parameter is one of the
+    /// non-"Choice"-suffixed types provided by the `s_baltst_basicschema`
+    /// component.
     template <class PARENT_TYPE>
     static void append(PARENT_TYPE *parent, const AnnotationElement& element);
     template <class PARENT_TYPE>
@@ -230,92 +239,93 @@ struct BasicSchemaUtil_ImplUtil {
     static void append(PARENT_TYPE *parent, const SequenceElement& element);
     template <class PARENT_TYPE>
     static void append(PARENT_TYPE *parent, const SimpleTypeElement& element);
-        // Insert the specified 'element' after the last element in the
-        // 'choice' vector of the specified 'parent'.  The behavior is
-        // undefined unless the specified 'PARENT_TYPE' parameter is one of the
-        // non-"Choice"-suffixed types provided by the 's_baltst_basicschema'
-        // component.
 
+    /// Return `true` if the specified `choice` element choice is an
+    /// annotation element, and return `false` otherwise.  The behavior is
+    /// undefined unless the specified `ELEMENT_CHOICE_TYPE` parameter is
+    /// one of the "Choice"-suffixed types provided by
+    /// `s_baltst::BasicSchema`.
     template <class ELEMENT_CHOICE_TYPE>
     static bool isAnnotation(const ELEMENT_CHOICE_TYPE& choice);
-        // Return 'true' if the specified 'choice' element choice is an
-        // annotation element, and return 'false' otherwise.  The behavior is
-        // undefined unless the specified 'ELEMENT_CHOICE_TYPE' parameter is
-        // one of the "Choice"-suffixed types provided by
-        // 's_baltst::BasicSchema'.
 
+    /// Remove all annotation sub-elements from the specified `element`.
     template <class ELEMENT_TYPE>
     static void removeAnnotations(ELEMENT_TYPE *element);
-        // Remove all annotation sub-elements from the specified 'element'.
 };
 
                // =============================================
                // class BasicSchemaUtil_ChoiceAnnotationRemover
                // =============================================
 
+/// This function-object class provides a function-call operator that
+/// removes all annotations from an element choice.
 class BasicSchemaUtil_ChoiceAnnotationRemover {
-    // This function-object class provides a function-call operator that
-    // removes all annotations from an element choice.
 
   public:
     // CREATORS
+
+    /// Create a `BasicSchemaUtil_ChoiceAnnotationRemover` object.
     BasicSchemaUtil_ChoiceAnnotationRemover();
-        // Create a 'BasicSchemaUtil_ChoiceAnnotationRemover' object.
 
     // ACCESSORS
+
+    /// Recursively remove all annotation sub-elements from the specified
+    /// `element`.  The behavior is undefined unless the specified
+    /// `ELEMENT_CHOICE_TYPE` parameter is one of the "Choice"-suffixed
+    /// types provided by `s_baltst::BasicSchema`.
     template <class ELEMENT_CHOICE_TYPE>
     void operator()(ELEMENT_CHOICE_TYPE& element) const;
-        // Recursively remove all annotation sub-elements from the specified
-        // 'element'.  The behavior is undefined unless the specified
-        // 'ELEMENT_CHOICE_TYPE' parameter is one of the "Choice"-suffixed
-        // types provided by 's_baltst::BasicSchema'.
 };
 
               // ================================================
               // class BasicSchemaUtil_SelectionAnnotationRemover
               // ================================================
 
+/// This function-object class provides a function-call operator that
+/// removes all annotations from an element that is the `selection` of a
+/// `bdlat` `Choice`-compatible object.
 class BasicSchemaUtil_SelectionAnnotationRemover {
-    // This function-object class provides a function-call operator that
-    // removes all annotations from an element that is the 'selection' of a
-    // 'bdlat' 'Choice'-compatible object.
 
   public:
     // CREATORS
+
+    /// Create a `BasicSchemaUtil_SelectionAnnotationRemover` object.
     BasicSchemaUtil_SelectionAnnotationRemover();
-        // Create a 'BasicSchemaUtil_SelectionAnnotationRemover' object.
 
     // ACCESSORS
+
+    /// Recursively remove all annotation sub-elements from the specified
+    /// `selection` element.  The behavior is undefined unless the specified
+    /// `SELECTION_TYPE` is the `selection` of a `bdlat` `Choice`-compatible
+    /// object, and is one of the non-"Choice"-suffixed types provided by
+    /// `s_baltst::BasicSchema`.
     template <class SELECTION_TYPE>
     int operator()(SELECTION_TYPE             *selection,
                    const bdlat_SelectionInfo&) const;
-        // Recursively remove all annotation sub-elements from the specified
-        // 'selection' element.  The behavior is undefined unless the specified
-        // 'SELECTION_TYPE' is the 'selection' of a 'bdlat' 'Choice'-compatible
-        // object, and is one of the non-"Choice"-suffixed types provided by
-        // 's_baltst::BasicSchema'.
 };
 
                 // ===========================================
                 // class BasicSchemaUtil_IsAnnotationPredicate
                 // ===========================================
 
+/// This function-object class provides a function-call operator that
+/// determines whether or not an object is an annotation element.
 class BasicSchemaUtil_IsAnnotationPredicate {
-    // This function-object class provides a function-call operator that
-    // determines whether or not an object is an annotation element.
 
   public:
     // CREATORS
+
+    /// Create a `BasicSchemaUtil_IsAnnotationPredicate` object.
     BasicSchemaUtil_IsAnnotationPredicate();
-        // Create a 'BasicSchemaUtil_IsAnnotationPredicate' object.
 
     // ACCESSORS
+
+    /// Return `true` if the specified `element` choice is an annotation
+    /// element, and return `false` otherwise.  The behavior is undefined
+    /// unless the specified `ELEMENT_CHOICE_TYPE` parameter is one of the
+    /// "Choice"-suffixed types provided by `s_baltst::BasicSchema`.
     template <class ELEMENT_CHOICE_TYPE>
     bool operator()(const ELEMENT_CHOICE_TYPE& element) const;
-        // Return 'true' if the specified 'element' choice is an annotation
-        // element, and return 'false' otherwise.  The behavior is undefined
-        // unless the specified 'ELEMENT_CHOICE_TYPE' parameter is one of the
-        // "Choice"-suffixed types provided by 's_baltst::BasicSchema'.
 };
 
                     // ====================================
@@ -324,22 +334,23 @@ class BasicSchemaUtil_IsAnnotationPredicate {
 
 struct BasicSchemaUtil_AlgorithmUtil {
     // CLASS METHODS
+
+    /// Erase all of the elements in the specified `container` from the
+    /// specified `position` iterator to the end of the container, as if by
+    /// `container->erase(position, container.end())`.  The behavior is
+    /// undefined unless `container->erase(position, container.end())` is
+    /// well-formed.
     template <class SEQUENCE_CONTAINER>
     static void eraseToEnd(SEQUENCE_CONTAINER                    *container,
                            typename SEQUENCE_CONTAINER::iterator  position);
-        // Erase all of the elements in the specified 'container' from the
-        // specified 'position' iterator to the end of the container, as if by
-        // 'container->erase(position, container.end())'.  The behavior is
-        // undefined unless 'container->erase(position, container.end())' is
-        // well-formed.
 
+    /// Invoke the specified `transform` on each object in the range
+    /// specified by `[first, last)` and return an input iterator equal to
+    /// `last`.
     template <class INPUT_ITERATOR, class TRANSFORM>
     static INPUT_ITERATOR forEach(INPUT_ITERATOR first,
                                   INPUT_ITERATOR last,
                                   TRANSFORM      transform);
-        // Invoke the specified 'transform' on each object in the range
-        // specified by '[first, last)' and return an input iterator equal to
-        // 'last'.
 };
 
 // ============================================================================

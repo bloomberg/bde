@@ -23,9 +23,9 @@ namespace s_baltst {
                          // class GenerateTestSequence
                          // ==========================
 
+/// This class provides a function object whose function call operator can
+/// be used to generate objects of `TestSequence` specializations.
 class GenerateTestSequence {
-    // This class provides a function object whose function call operator can
-    // be used to generate objects of 'TestSequence' specializations.
 
   public:
     // TYPES
@@ -69,10 +69,10 @@ class GenerateTestSequence {
                    // class GenerateTestSequencePlaceHolder
                    // =====================================
 
+/// This class provides a function object whose function call operator can
+/// be used to generate `PlaceHolder` specializations for `TestSequence`
+/// types.
 class GenerateTestSequencePlaceHolder {
-    // This class provides a function object whose function call operator can
-    // be used to generate 'PlaceHolder' specializations for 'TestSequence'
-    // types.
 
   public:
     // TYPES

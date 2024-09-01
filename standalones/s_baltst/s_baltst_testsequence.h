@@ -5,10 +5,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a test implementation of a 'bdlat' "sequence" type.
+//@PURPOSE: Provide a test implementation of a `bdlat` "sequence" type.
 //
 //@CLASSES:
-//  s_baltst::TestSequence: test implementation of a 'bdlat' "sequence" type
+//  s_baltst::TestSequence: test implementation of a `bdlat` "sequence" type
 
 #include <bdlat_sequencefunctions.h>
 #include <bdlat_typetraits.h>
@@ -58,6 +58,30 @@ struct TestSequence_ImplUtil {
                              // class TestSequence
                              // ==================
 
+/// This in-core value-semantic class provides a basic implementation of the
+/// concept defined by the `bdlat` `Sequence` type category.  The template
+/// parameters `TYPED_ATTRIBUTE_0`, `TYPED_ATTRIBUTE_1`, and
+/// `TYPED_ATTRIBUTE_2` must all satisfy the following requirements:
+/// * The type must have two member type definitions, `Type` and
+/// `Attribute`.
+/// * `Type` must meet the requirements of an in-core value-semantic type.
+/// * `Type` must meet the requirements of exactly one of the
+///    `bdlat` value categories.
+/// * `Attribute` must be a specialization of the `TestAttribute` type.
+/// Further, each `TestAttribute` member type definition of a template
+/// argument must return values for `TestAttribute::id()` and
+/// `TestAttribute::name()` that are different from all others within this
+/// `TestSequence` specialization.
+///
+/// Additionally, the `Type` of any template argument may be `TestNilValue`
+/// if all `Type` member type definitions of subsequent template arguments
+/// are also `TestNilValue`.
+///
+/// The `Type` and `Attribute` member type definitions of the template
+/// arguments define the type and `bdlat_AttributeInfo` of the attributes of
+/// the `bdlat` `Selection` implementation provided by this class.  A
+/// template argument having a `TestNilValue` `Type` indicates that the
+/// corresponding attribute does not exist.
 template <class TYPED_ATTRIBUTE_0 =
               TypedTestAttribute<TestNilValue, TestAttribute<0> >,
           class TYPED_ATTRIBUTE_1 =
@@ -65,30 +89,6 @@ template <class TYPED_ATTRIBUTE_0 =
           class TYPED_ATTRIBUTE_2 =
               TypedTestAttribute<TestNilValue, TestAttribute<0> > >
 class TestSequence {
-    // This in-core value-semantic class provides a basic implementation of the
-    // concept defined by the 'bdlat' 'Sequence' type category.  The template
-    // parameters 'TYPED_ATTRIBUTE_0', 'TYPED_ATTRIBUTE_1', and
-    // 'TYPED_ATTRIBUTE_2' must all satisfy the following requirements:
-    //: o The type must have two member type definitions, 'Type' and
-    // 'Attribute'.
-    //: o 'Type' must meet the requirements of an in-core value-semantic type.
-    //: o 'Type' must meet the requirements of exactly one of the
-    //:    'bdlat' value categories.
-    //: o 'Attribute' must be a specialization of the 'TestAttribute' type.
-    // Further, each 'TestAttribute' member type definition of a template
-    // argument must return values for 'TestAttribute::id()' and
-    // 'TestAttribute::name()' that are different from all others within this
-    // 'TestSequence' specialization.
-    //
-    // Additionally, the 'Type' of any template argument may be 'TestNilValue'
-    // if all 'Type' member type definitions of subsequent template arguments
-    // are also 'TestNilValue'.
-    //
-    // The 'Type' and 'Attribute' member type definitions of the template
-    // arguments define the type and 'bdlat_AttributeInfo' of the attributes of
-    // the 'bdlat' 'Selection' implementation provided by this class.  A
-    // template argument having a 'TestNilValue' 'Type' indicates that the
-    // corresponding attribute does not exist.
 
   public:
     // TYPES
@@ -207,16 +207,16 @@ class TestSequence {
         return *this;
     }
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `attributeName`
+    /// and `attributeNameLength` of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure.  Return a
+    /// non-zero value if the attribute is not found, and the value returned
+    /// from the invocation of `manipulator` otherwise.
     template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *attributeName,
                             int           attributeNameLength)
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'attributeName'
-        // and 'attributeNameLength' of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure.  Return a
-        // non-zero value if the attribute is not found, and the value returned
-        // from the invocation of 'manipulator' otherwise.
     {
         const bslstl::StringRef attributeNameRef(attributeName       ,
                                                  attributeNameLength);
@@ -245,14 +245,14 @@ class TestSequence {
         return -1;
     }
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `attributeId` of
+    /// this object, supplying `manipulator` with the corresponding
+    /// attribute information structure.  Return a non-zero value if the
+    /// attribute is not found, and the value returned from the invocation
+    /// of `manipulator` otherwise.
     template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int attributeId)
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'attributeId' of
-        // this object, supplying 'manipulator' with the corresponding
-        // attribute information structure.  Return a non-zero value if the
-        // attribute is not found, and the value returned from the invocation
-        // of 'manipulator' otherwise.
     {
         if (k_HAS_ATTRIBUTE_0 && Attribute0::id() == attributeId) {
             return ImplUtil::manipulate(
@@ -278,13 +278,13 @@ class TestSequence {
         return -1;
     }
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the last
+    /// invocation of `manipulator`.
     template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator)
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the last
-        // invocation of 'manipulator'.
     {
         if (k_HAS_ATTRIBUTE_0) {
             int rc = ImplUtil::manipulate(manipulator,
@@ -332,16 +332,17 @@ class TestSequence {
     }
 
     // ACCESSORS
+
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute of
+    /// this object indicated by the specified `attributeName` and
+    /// `attributeNameLength`, supplying `accessor` with the corresponding
+    /// attribute information structure.  Return a non-zero value if the
+    /// attribute is not found, and the value returned from the invocation
+    /// of `accessor` otherwise.
     template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *attributeName,
                         int         attributeNameLength) const
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
-        // this object indicated by the specified 'attributeName' and
-        // 'attributeNameLength', supplying 'accessor' with the corresponding
-        // attribute information structure.  Return a non-zero value if the
-        // attribute is not found, and the value returned from the invocation
-        // of 'accessor' otherwise.
     {
         const bslstl::StringRef attributeNameRef(attributeName       ,
                                                  attributeNameLength);
@@ -367,13 +368,13 @@ class TestSequence {
         return -1;
     }
 
+    /// Invoke the specified `accessor` on the attribute of this object with
+    /// the given `attributeId`, supplying `accessor` with the corresponding
+    /// attribute information structure.  Return non-zero if the attribute
+    /// is not found, and the value returned from the invocation of
+    /// `accessor` otherwise.
     template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int attributeId) const
-        // Invoke the specified 'accessor' on the attribute of this object with
-        // the given 'attributeId', supplying 'accessor' with the corresponding
-        // attribute information structure.  Return non-zero if the attribute
-        // is not found, and the value returned from the invocation of
-        // 'accessor' otherwise.
     {
         if (k_HAS_ATTRIBUTE_0 && Attribute0::id() == attributeId) {
             return ImplUtil::access(accessor,
@@ -396,12 +397,12 @@ class TestSequence {
         return -1;
     }
 
+    /// Invoke the specified `accessor` sequentially on each attribute of
+    /// this object, supplying `accessor` with the corresponding attribute
+    /// information structure until such invocation returns a non-zero
+    /// value.  Return the value from the last invocation of `accessor`.
     template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const
-        // Invoke the specified 'accessor' sequentially on each attribute of
-        // this object, supplying 'accessor' with the corresponding attribute
-        // information structure until such invocation returns a non-zero
-        // value.  Return the value from the last invocation of 'accessor'.
     {
         if (k_HAS_ATTRIBUTE_0) {
             int rc = ImplUtil::access(accessor,
@@ -433,17 +434,17 @@ class TestSequence {
         return 0;
     }
 
+    /// Return a null-terminated string containing the exported name for
+    /// this class.
     const char *className() const
-        // Return a null-terminated string containing the exported name for
-        // this class.
     {
         return "MySequence";
     }
 
+    /// Return `true` if this object has an attribute with the specified
+    /// `attributeName` of the specified `attributeNameLength`, and `false`
+    /// otherwise.
     bool hasAttribute(const char *attributeName, int attributeNameLength) const
-        // Return 'true' if this object has an attribute with the specified
-        // 'attributeName' of the specified 'attributeNameLength', and 'false'
-        // otherwise.
     {
         const bslstl::StringRef attributeNameRef(attributeName       ,
                                                  attributeNameLength);
@@ -463,9 +464,9 @@ class TestSequence {
         return false;
     }
 
+    /// Return `true` if this object has an attribute with the specified
+    /// `attributeId`, and `false` otherwise.
     bool hasAttribute(int attributeId) const
-        // Return 'true' if this object has an attribute with the specified
-        // 'attributeId', and 'false' otherwise.
     {
         if (k_HAS_ATTRIBUTE_0 && Attribute0::id() == attributeId) {
             return true;                                              // RETURN
@@ -542,115 +543,116 @@ bool operator!=(const TestSequence<V0, V1, V2>& lhs,
 }
 
 // TRAITS
+
+/// Return a null-terminated string containing the exported name for the
+/// type of the specified `object`.
 template <class V0, class V1, class V2>
 const char *bdlat_TypeName_className(const TestSequence<V0, V1, V2>& object)
-    // Return a null-terminated string containing the exported name for the
-    // type of the specified 'object'.
 {
     return object.className();
 }
 
+/// Invoke the specified `manipulator` on the address of the (modifiable)
+/// attribute indicated by the specified `attributeName` and
+/// `attributeNameLength` of the specified `object`, supplying `manipulator`
+/// with the corresponding attribute information structure.  Return a
+/// non-zero value if the attribute is not found, and the value returned
+/// from the invocation of `manipulator` otherwise.
 template <class V0, class V1, class V2, class MANIPULATOR>
 int bdlat_sequenceManipulateAttribute(
                                  TestSequence<V0, V1, V2> *object,
                                  MANIPULATOR&              manipulator,
                                  const char               *attributeName,
                                  int                       attributeNameLength)
-    // Invoke the specified 'manipulator' on the address of the (modifiable)
-    // attribute indicated by the specified 'attributeName' and
-    // 'attributeNameLength' of the specified 'object', supplying 'manipulator'
-    // with the corresponding attribute information structure.  Return a
-    // non-zero value if the attribute is not found, and the value returned
-    // from the invocation of 'manipulator' otherwise.
 {
     return object->manipulateAttribute(
         manipulator, attributeName, attributeNameLength);
 }
 
+/// Invoke the specified `manipulator` on the address of the (modifiable)
+/// attribute indicated by the specified `attributeId` of the specified
+/// `object`, supplying `manipulator` with the corresponding attribute
+/// information structure.  Return a non-zero value if the attribute is not
+/// found, and the value returned from the invocation of `manipulator`
+/// otherwise.
 template <class V0, class V1, class V2, class MANIPULATOR>
 int bdlat_sequenceManipulateAttribute(TestSequence<V0, V1, V2> *object,
                                       MANIPULATOR&              manipulator,
                                       int                       attributeId)
-    // Invoke the specified 'manipulator' on the address of the (modifiable)
-    // attribute indicated by the specified 'attributeId' of the specified
-    // 'object', supplying 'manipulator' with the corresponding attribute
-    // information structure.  Return a non-zero value if the attribute is not
-    // found, and the value returned from the invocation of 'manipulator'
-    // otherwise.
 {
     return object->manipulateAttribute(manipulator, attributeId);
 }
 
+/// Invoke the specified `manipulator` sequentially on the address of each
+/// (modifiable) attribute of the specified `object`, supplying
+/// `manipulator` with the corresponding attribute information structure
+/// until such invocation returns a non-zero value.  Return the value from
+/// the last invocation of `manipulator`.
 template <class V0, class V1, class V2, class MANIPULATOR>
 int bdlat_sequenceManipulateAttributes(TestSequence<V0, V1, V2> *object,
                                        MANIPULATOR&              manipulator)
-    // Invoke the specified 'manipulator' sequentially on the address of each
-    // (modifiable) attribute of the specified 'object', supplying
-    // 'manipulator' with the corresponding attribute information structure
-    // until such invocation returns a non-zero value.  Return the value from
-    // the last invocation of 'manipulator'.
 {
     return object->manipulateAttributes(manipulator);
 }
 
+/// Invoke the specified `accessor` on the (non-modifiable) attribute of the
+/// specified `object` indicated by the specified `attributeName` and
+/// `attributeNameLength`, supplying `accessor` with the corresponding
+/// attribute information structure.  Return a non-zero value if the
+/// attribute is not found, and the value returned from the invocation of
+/// `accessor` otherwise.
 template <class V0, class V1, class V2, class ACCESSOR>
 int bdlat_sequenceAccessAttribute(
                           const TestSequence<V0, V1, V2>&  object,
                           ACCESSOR&                        accessor,
                           const char                      *attributeName,
                           int                              attributeNameLength)
-    // Invoke the specified 'accessor' on the (non-modifiable) attribute of the
-    // specified 'object' indicated by the specified 'attributeName' and
-    // 'attributeNameLength', supplying 'accessor' with the corresponding
-    // attribute information structure.  Return a non-zero value if the
-    // attribute is not found, and the value returned from the invocation of
-    // 'accessor' otherwise.
 {
     return object.accessAttribute(
         accessor, attributeName, attributeNameLength);
 }
 
+/// Invoke the specified `accessor` on the attribute of the specified
+/// `object` with the given `attributeId`, supplying `accessor` with the
+/// corresponding attribute information structure.  Return non-zero if the
+/// attribute is not found, and the value returned from the invocation of
+/// `accessor` otherwise.
 template <class V0, class V1, class V2, class ACCESSOR>
 int bdlat_sequenceAccessAttribute(const TestSequence<V0, V1, V2>& object,
                                   ACCESSOR&                       accessor,
                                   int                             attributeId)
-    // Invoke the specified 'accessor' on the attribute of the specified
-    // 'object' with the given 'attributeId', supplying 'accessor' with the
-    // corresponding attribute information structure.  Return non-zero if the
-    // attribute is not found, and the value returned from the invocation of
-    // 'accessor' otherwise.
 {
     return object.accessAttribute(accessor, attributeId);
 }
 
+/// Invoke the specified `accessor` sequentially on each attribute of the
+/// specified `object`, supplying `accessor` with the corresponding
+/// attribute information structure until such invocation returns a non-zero
+/// value.  Return the value from the last invocation of `accessor`.
 template <class V0, class V1, class V2, class ACCESSOR>
 int bdlat_sequenceAccessAttributes(const TestSequence<V0, V1, V2>& object,
                                    ACCESSOR&                       accessor)
-    // Invoke the specified 'accessor' sequentially on each attribute of the
-    // specified 'object', supplying 'accessor' with the corresponding
-    // attribute information structure until such invocation returns a non-zero
-    // value.  Return the value from the last invocation of 'accessor'.
 {
     return object.accessAttributes(accessor);
 }
 
+/// Return `true` if the specified `object` has an attribute with the
+/// specified `attributeName` of the specified `attributeNameLength`, and
+/// `false` otherwise.
 template <class V0, class V1, class V2>
 bool bdlat_sequenceHasAttribute(
                           const TestSequence<V0, V1, V2>&  object,
                           const char                      *attributeName,
                           int                              attributeNameLength)
-    // Return 'true' if the specified 'object' has an attribute with the
-    // specified 'attributeName' of the specified 'attributeNameLength', and
-    // 'false' otherwise.
 {
     return object.hasAttribute(attributeName, attributeNameLength);
 }
 
+/// Return `true` if the specified `object` has an attribute with the
+/// specified `attributeId`, and `false` otherwise.
 template <class V0, class V1, class V2>
 bool bdlat_sequenceHasAttribute(const TestSequence<V0, V1, V2>& object,
                                 int                             attributeId)
-    // Return 'true' if the specified 'object' has an attribute with the
-    // specified 'attributeId', and 'false' otherwise.
 {
     return object.hasAttribute(attributeId);
 }

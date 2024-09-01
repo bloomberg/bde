@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide non-primitive operations on 's_baltst::TestSequence'.
+//@PURPOSE: Provide non-primitive operations on `s_baltst::TestSequence`.
 //
 //@CLASSES:
 //  s_baltst::TestSequenceUtil: utilities for test sequences

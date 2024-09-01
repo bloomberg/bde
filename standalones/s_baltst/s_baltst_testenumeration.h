@@ -5,10 +5,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a test implementation of a 'bdlat' "enumeration" type.
+//@PURPOSE: Provide a test implementation of a `bdlat` "enumeration" type.
 //
 //@CLASSES:
-//  s_baltst::TestEnumeration: test implementation of a 'bdlat' "enumeration"
+//  s_baltst::TestEnumeration: test implementation of a `bdlat` "enumeration"
 
 #include <bdlat_enumfunctions.h>
 
@@ -29,10 +29,10 @@ namespace s_baltst {
                            // class TestEnumeration
                            // =====================
 
+/// This in-core value-semantic class provides a basic implementation of the
+/// `bdlat` `Enumeration` concept.
 template <class E0, class E1 = TestNilEnumerator, class E2 = TestNilEnumerator>
 class TestEnumeration {
-    // This in-core value-semantic class provides a basic implementation of the
-    // 'bdlat' 'Enumeration' concept.
 
   public:
     // INVARIANTS

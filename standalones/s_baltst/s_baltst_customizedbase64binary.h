@@ -49,94 +49,99 @@ class CustomizedBase64Binary {
     static const char CLASS_NAME[];
 
     // CREATORS
-    CustomizedBase64Binary();
-        // Create an object of type 'CustomizedBase64Binary' having the default
-        // value.
 
+    /// Create an object of type `CustomizedBase64Binary` having the default
+    /// value.
+    CustomizedBase64Binary();
+
+    /// Create an object of type `CustomizedBase64Binary` having the value
+    /// of the specified `original` object.
     CustomizedBase64Binary(const CustomizedBase64Binary& original);
-        // Create an object of type 'CustomizedBase64Binary' having the value
-        // of the specified 'original' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `CustomizedBase64Binary` having the value
+    /// of the specified `original` object.  After performing this action,
+    /// the `original` object will be left in a valid, but unspecified
+    /// state.
     CustomizedBase64Binary(CustomizedBase64Binary&& original) = default;
-        // Create an object of type 'CustomizedBase64Binary' having the value
-        // of the specified 'original' object.  After performing this action,
-        // the 'original' object will be left in a valid, but unspecified
-        // state.
 #endif
 
+    /// Create an object of type `CustomizedBase64Binary` having the
+    /// specified `value`.
     explicit CustomizedBase64Binary(const bsl::vector<char>& value);
-        // Create an object of type 'CustomizedBase64Binary' having the
-        // specified 'value'.
 
+    /// Destroy this object.
     ~CustomizedBase64Binary();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     CustomizedBase64Binary& operator=(const CustomizedBase64Binary& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     CustomizedBase64Binary& operator=(CustomizedBase64Binary&& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Convert from the specified `value` to this type.  Return 0 if
+    /// successful and non-zero otherwise.
     int fromVector(const bsl::vector<char>& value);
-        // Convert from the specified 'value' to this type.  Return 0 if
-        // successful and non-zero otherwise.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Convert this value to `bsl::vector<char>`.
     const bsl::vector<char>& toVector() const;
-        // Convert this value to 'bsl::vector<char>'.
 
     // PUBLIC CLASS METHODS
+
+    /// Check if the specified `value` satisfies the restrictions of this
+    /// class (i.e., "CustomizedBase64Binary").  Return 0 if successful
+    /// (i.e., the restrictions are satisfied) and non-zero otherwise.
     static int checkRestrictions(const bsl::vector<char>& value);
-        // Check if the specified 'value' satisfies the restrictions of this
-        // class (i.e., "CustomizedBase64Binary").  Return 0 if successful
-        // (i.e., the restrictions are satisfied) and non-zero otherwise.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const CustomizedBase64Binary& lhs, const CustomizedBase64Binary& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const CustomizedBase64Binary& lhs, const CustomizedBase64Binary& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedBase64Binary& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 

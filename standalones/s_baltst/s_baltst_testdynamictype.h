@@ -5,10 +5,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a test implementation of a 'bdlat' "dynamic type".
+//@PURPOSE: Provide a test implementation of a `bdlat` "dynamic type".
 //
 //@CLASSES:
-//  s_baltst::TestDynamicType: test implementation of 'bdlat' "dynamic type"
+//  s_baltst::TestDynamicType: test implementation of `bdlat` "dynamic type"
 
 #include <bdlat_arrayfunctions.h>
 #include <bdlat_choicefunctions.h>
@@ -33,16 +33,16 @@ namespace s_baltst {
                      // class TestDynamicType_ArrayImpUtil
                      // ==================================
 
+/// This utility `struct` provides a namespace for a suite of functions used
+/// by `TestDynamicType` to implement the `bdlat` `Array` concept for
+/// `VALUE_TYPE` template parameters that themselves satisfy the `bdlat`
+/// `Array` concept.
 template <class VALUE_TYPE,
           bool IS_ARRAY =
               bdlat_TypeCategory::e_ARRAY_CATEGORY ==
               static_cast<bdlat_TypeCategory::Value>(
                   bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
 struct TestDynamicType_ArrayImpUtil {
-    // This utility 'struct' provides a namespace for a suite of functions used
-    // by 'TestDynamicType' to implement the 'bdlat' 'Array' concept for
-    // 'VALUE_TYPE' template parameters that themselves satisfy the 'bdlat'
-    // 'Array' concept.
 
     // TYPES
     typedef VALUE_TYPE Value;
@@ -61,12 +61,12 @@ struct TestDynamicType_ArrayImpUtil {
     static bsl::size_t size(const Value& value);
 };
 
+/// This utility `struct` provides a namespace for a suite of functions used
+/// by `TestDynamicType` to provide a stub implementation of the `bdlat`
+/// `Array` concept for `VALUE_TYPE` template parameters that do not satisfy
+/// the `bdlat` `Array` concept.
 template <class VALUE_TYPE>
 struct TestDynamicType_ArrayImpUtil<VALUE_TYPE, false> {
-    // This utility 'struct' provides a namespace for a suite of functions used
-    // by 'TestDynamicType' to provide a stub implementation of the 'bdlat'
-    // 'Array' concept for 'VALUE_TYPE' template parameters that do not satisfy
-    // the 'bdlat' 'Array' concept.
 
     // TYPES
     typedef VALUE_TYPE Value;
@@ -87,16 +87,16 @@ struct TestDynamicType_ArrayImpUtil<VALUE_TYPE, false> {
                     // class TestDynamicType_ChoiceImpUtil
                     // ===================================
 
+/// This utility `struct` provides a namespace for a suite of functions used
+/// by `TestDynamicType` to implement the `bdlat` `Choice` concept for
+/// `VALUE_TYPE` template parameters that themselves satisfy the `bdlat`
+/// `Choice` concept.
 template <class VALUE_TYPE,
           bool IS_CHOICE =
               bdlat_TypeCategory::e_CHOICE_CATEGORY ==
               static_cast<bdlat_TypeCategory::Value>(
                   bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
 struct TestDynamicType_ChoiceImpUtil {
-    // This utility 'struct' provides a namespace for a suite of functions used
-    // by 'TestDynamicType' to implement the 'bdlat' 'Choice' concept for
-    // 'VALUE_TYPE' template parameters that themselves satisfy the 'bdlat'
-    // 'Choice' concept.
 
     // TYPES
     typedef VALUE_TYPE Value;
@@ -123,12 +123,12 @@ struct TestDynamicType_ChoiceImpUtil {
     static int selectionId(const Value& value);
 };
 
+/// This utility `struct` provides a namespace for a suite of functions used
+/// by `TestDynamicType` to provide a stub implementation of the `bdlat`
+/// `Choice` concept for `VALUE_TYPE` template parameters that do not
+/// satisfy the `bdlat` `Choice` concept.
 template <class VALUE_TYPE>
 struct TestDynamicType_ChoiceImpUtil<VALUE_TYPE, false> {
-    // This utility 'struct' provides a namespace for a suite of functions used
-    // by 'TestDynamicType' to provide a stub implementation of the 'bdlat'
-    // 'Choice' concept for 'VALUE_TYPE' template parameters that do not
-    // satisfy the 'bdlat' 'Choice' concept.
 
     // TYPES
     typedef VALUE_TYPE Value;
@@ -155,16 +155,16 @@ struct TestDynamicType_ChoiceImpUtil<VALUE_TYPE, false> {
                 // class TestDynamicType_CustomizedTypeImpUtil
                 // ===========================================
 
+/// This utility `struct` provides a namespace for a suite of utility
+/// functions used by `TestDynamicType` to implement the `bdlat`
+/// `CustomizedType` concept for `VALUE_TYPE` template parameters that
+/// themselves satisfy the `bdlat` `CustomizedType` concept.
 template <class VALUE_TYPE,
           bool IS_CUSTOMIZED_TYPE =
               bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY ==
               static_cast<bdlat_TypeCategory::Value>(
                   bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
 struct TestDynamicType_CustomizedTypeImpUtil {
-    // This utility 'struct' provides a namespace for a suite of utility
-    // functions used by 'TestDynamicType' to implement the 'bdlat'
-    // 'CustomizedType' concept for 'VALUE_TYPE' template parameters that
-    // themselves satisfy the 'bdlat' 'CustomizedType' concept.
 
     // TYPES
     typedef VALUE_TYPE Value;
@@ -179,12 +179,12 @@ struct TestDynamicType_CustomizedTypeImpUtil {
     static const BaseType& convertToBaseType(const Value& value);
 };
 
+/// This utility `struct` provides a namespace for a suite of utility
+/// functions used by `TestDynamicType` to provide a stub implementation of
+/// the `bdlat` `CustomizedType` concept for `VALUE_TYPE` template
+/// parameters that do not satisfy the `bdlat` `CustomizedType` concept.
 template <class VALUE_TYPE>
 struct TestDynamicType_CustomizedTypeImpUtil<VALUE_TYPE, false> {
-    // This utility 'struct' provides a namespace for a suite of utility
-    // functions used by 'TestDynamicType' to provide a stub implementation of
-    // the 'bdlat' 'CustomizedType' concept for 'VALUE_TYPE' template
-    // parameters that do not satisfy the 'bdlat' 'CustomizedType' concept.
 
     // TYPES
     typedef VALUE_TYPE Value;
@@ -201,16 +201,16 @@ struct TestDynamicType_CustomizedTypeImpUtil<VALUE_TYPE, false> {
                   // class TestDynamicType_EnumerationImpUtil
                   // ========================================
 
+/// This utility `struct` provides a namespace for a suite of functions used
+/// by `TestDynamicType` to implement the `bdlat` `Enumeration` concept for
+/// `VALUE_TYPE` template parameters that themselves satisfy the `bdlat`
+/// `Enumeration` concept.
 template <class VALUE_TYPE,
           bool IS_ENUMERATION =
               bdlat_TypeCategory::e_ENUMERATION_CATEGORY ==
               static_cast<bdlat_TypeCategory::Value>(
                   bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
 struct TestDynamicType_EnumerationImpUtil {
-    // This utility 'struct' provides a namespace for a suite of functions used
-    // by 'TestDynamicType' to implement the 'bdlat' 'Enumeration' concept for
-    // 'VALUE_TYPE' template parameters that themselves satisfy the 'bdlat'
-    // 'Enumeration' concept.
 
     // TYPES
     typedef VALUE_TYPE Value;
@@ -225,12 +225,12 @@ struct TestDynamicType_EnumerationImpUtil {
     static void toString(bsl::string *result, const Value& value);
 };
 
+/// This utility `struct` provides a namespace for a suite of functions used
+/// by `TestDynamicType` to provide a stub implementation of the `bdlat`
+/// `Enumeration` concept for `VALUE_TYPE` template parameters that do not
+/// satisfy the `bdlat` `Enumeration` concept.
 template <class VALUE_TYPE>
 struct TestDynamicType_EnumerationImpUtil<VALUE_TYPE, false> {
-    // This utility 'struct' provides a namespace for a suite of functions used
-    // by 'TestDynamicType' to provide a stub implementation of the 'bdlat'
-    // 'Enumeration' concept for 'VALUE_TYPE' template parameters that do not
-    // satisfy the 'bdlat' 'Enumeration' concept.
 
     // TYPES
     typedef VALUE_TYPE Value;
@@ -249,16 +249,16 @@ struct TestDynamicType_EnumerationImpUtil<VALUE_TYPE, false> {
                  // class TestDynamicType_NullableValueImpUtil
                  // ==========================================
 
+/// This utility `struct` provides a namespace for a suite of functions used
+/// by `TestDynamicType` to implement the `bdlat` `NullableValue` concept
+/// for `VALUE_TYPE` template parameters that themselves satisfy the `bdlat`
+/// `NullableValue` concept.
 template <class VALUE_TYPE,
           bool IS_NULLABLE_VALUE =
               bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY ==
               static_cast<bdlat_TypeCategory::Value>(
                   bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
 struct TestDynamicType_NullableValueImpUtil {
-    // This utility 'struct' provides a namespace for a suite of functions used
-    // by 'TestDynamicType' to implement the 'bdlat' 'NullableValue' concept
-    // for 'VALUE_TYPE' template parameters that themselves satisfy the 'bdlat'
-    // 'NullableValue' concept.
 
     // TYPES
     typedef VALUE_TYPE Value;
@@ -275,12 +275,12 @@ struct TestDynamicType_NullableValueImpUtil {
     static bool isNull(const Value& value);
 };
 
+/// This utility `struct` provides a namespace for a suite of functions used
+/// by `TestDynamicType` to provide a stub implementation of the `bdlat`
+/// `NullableValue` concept for `VALUE_TYPE` template parameters that do not
+/// satisfy the `bdlat` `NullableValue` concept.
 template <class VALUE_TYPE>
 struct TestDynamicType_NullableValueImpUtil<VALUE_TYPE, false> {
-    // This utility 'struct' provides a namespace for a suite of functions used
-    // by 'TestDynamicType' to provide a stub implementation of the 'bdlat'
-    // 'NullableValue' concept for 'VALUE_TYPE' template parameters that do not
-    // satisfy the 'bdlat' 'NullableValue' concept.
 
     // TYPES
     typedef VALUE_TYPE Value;
@@ -301,16 +301,16 @@ struct TestDynamicType_NullableValueImpUtil<VALUE_TYPE, false> {
                    // class TestDynamicType_SequenceImpUtil
                    // =====================================
 
+/// This utility `struct` provides a namespace for a suite of functions used
+/// by `TestDynamicType` to implement the `bdlat` `Sequence` concept for
+/// `VALUE_TYPE` template parameters that themselves satisfy the `bdlat`
+/// `Sequence` concept.
 template <class VALUE_TYPE,
           bool IS_SEQUENCE =
               bdlat_TypeCategory::e_SEQUENCE_CATEGORY ==
               static_cast<bdlat_TypeCategory::Value>(
                   bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION)>
 struct TestDynamicType_SequenceImpUtil {
-    // This utility 'struct' provides a namespace for a suite of functions used
-    // by 'TestDynamicType' to implement the 'bdlat' 'Sequence' concept for
-    // 'VALUE_TYPE' template parameters that themselves satisfy the 'bdlat'
-    // 'Sequence' concept.
 
     // TYPES
     typedef VALUE_TYPE Value;
@@ -351,12 +351,12 @@ struct TestDynamicType_SequenceImpUtil {
     static int manipulateAttributes(Value *value, MANIPULATOR& manipulator);
 };
 
+/// This utility `struct` provides a namespace for a suite of functions used
+/// by `TestDynamicType` to provide stub implementations of the `bdlat`
+/// `Sequence` concept for `VALUE_TYPE` template parameters that do not
+/// satisfy the `bdlat` `Sequence` concept.
 template <class VALUE_TYPE>
 struct TestDynamicType_SequenceImpUtil<VALUE_TYPE, false> {
-    // This utility 'struct' provides a namespace for a suite of functions used
-    // by 'TestDynamicType' to provide stub implementations of the 'bdlat'
-    // 'Sequence' concept for 'VALUE_TYPE' template parameters that do not
-    // satisfy the 'bdlat' 'Sequence' concept.
 
     // TYPES
     typedef VALUE_TYPE Value;
@@ -389,23 +389,24 @@ struct TestDynamicType_SequenceImpUtil<VALUE_TYPE, false> {
                            // class TestDynamicType
                            // =====================
 
+/// This in-core value-semantic class provides a basic implementation of the
+/// `bdlat` `DynamicType` concept.  The template parameter `VALUE_TYPE`
+/// specifies the underlying value of this type, and further, specifies
+/// which of the `bdlat` attribute concepts this type implements.  This type
+/// implements the same `bdlat` concept as the `VALUE_TYPE` through the
+/// `bdlat` `DynamicType` interface.  The program is ill-formed unless
+/// `VALUE_TYPE` meets the requirements of at least one of the `bdlat`
+/// `Array`, `Choice`, `CustomizedType`, `Enumeration`, `NullableValue`, or
+/// `Sequence` concepts.
 template <class VALUE_TYPE>
 class TestDynamicType {
-    // This in-core value-semantic class provides a basic implementation of the
-    // 'bdlat' 'DynamicType' concept.  The template parameter 'VALUE_TYPE'
-    // specifies the underlying value of this type, and further, specifies
-    // which of the 'bdlat' attribute concepts this type implements.  This type
-    // implements the same 'bdlat' concept as the 'VALUE_TYPE' through the
-    // 'bdlat' 'DynamicType' interface.  The program is ill-formed unless
-    // 'VALUE_TYPE' meets the requirements of at least one of the 'bdlat'
-    // 'Array', 'Choice', 'CustomizedType', 'Enumeration', 'NullableValue', or
-    // 'Sequence' concepts.
 
   public:
     // TYPES
+
+    /// An alias to the type that defines the underlying value of this
+    /// object.
     typedef VALUE_TYPE Value;
-        // An alias to the type that defines the underlying value of this
-        // object.
 
   private:
     // PRIVATE TYPES

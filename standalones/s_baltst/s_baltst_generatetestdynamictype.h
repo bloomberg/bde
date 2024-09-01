@@ -22,10 +22,10 @@ namespace s_baltst {
                        // class GenerateTestDynamicType
                        // =============================
 
+/// This in-core value-semantic class provides a function object whose
+/// function call operator can be used to generate objects of
+/// specializations of `TestDynamicType`.
 class GenerateTestDynamicType {
-    // This in-core value-semantic class provides a function object whose
-    // function call operator can be used to generate objects of
-    // specializations of 'TestDynamicType'.
 
   public:
     // TYPES
@@ -43,10 +43,10 @@ class GenerateTestDynamicType {
                     // class GenerateTestDynamicPlaceHolder
                     // ====================================
 
+/// This in-core value-semantic class provides a function object whose
+/// function call operator can be used to generate `PlaceHolder`
+/// specializations for `TestDynamicType` types.
 class GenerateTestDynamicPlaceHolder {
-    // This in-core value-semantic class provides a function object whose
-    // function call operator can be used to generate 'PlaceHolder'
-    // specializations for 'TestDynamicType' types.
 
   public:
     // TYPES

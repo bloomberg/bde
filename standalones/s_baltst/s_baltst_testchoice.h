@@ -5,10 +5,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a test implementation of a 'bdlat' "choice" type.
+//@PURPOSE: Provide a test implementation of a `bdlat` "choice" type.
 //
 //@CLASSES:
-//  s_baltst::TestChoice: test implementation of a 'bdlat' "choice" type
+//  s_baltst::TestChoice: test implementation of a `bdlat` "choice" type
 
 #include <bdlb_variant.h>
 
@@ -61,6 +61,30 @@ struct TestChoice_ImplUtil {
                               // class TestChoice
                               // ================
 
+/// This in-core value-semantic class provides a basic implementation of the
+/// concept defined by the `Choice` `bdlat` type category.  The template
+/// parameters `TYPED_SELECTION_0`, `TYPED_SELECTION_1`, and
+/// `TYPED_SELECTION_2` must all satisfy the following requirements:
+/// * The type must have two member type definitions, `Type`, and
+///   `Selection`.
+/// * `Type` must meet the requirements of an in-core value-semantic type.
+/// * `Type` must meet the requirements of exactly one of the `bdlat` value
+///   categories.
+/// * `Selection` must be a specialization of the `TestSelection` type.
+/// Further, each `TestSelection` member type definition of a template
+/// argument must return values for `TestSelection::id()` and
+/// `TestSelection::name()` that are different from all others within this
+/// `TestChoice` specialization.
+///
+/// Additionally, The `Type` of any template argument may be `TestNilValue`
+/// if all `Type` member type definitions of subsequent template arguments
+/// are also `TestNilValue`.
+///
+/// The `Type` and `Selection` member type definitions of the template
+/// arguments define the type and `bdlat_SelectionInfo` of the selections of
+/// the `bdlat` `Choice` implementation provided by this class.  A template
+/// argument having a `TestNilValue` `Type` indicates that the corresponding
+/// selection does not exist.
 template <class TYPED_SELECTION_0 =
               TypedTestSelection<TestNilValue, TestSelection<0> >,
           class TYPED_SELECTION_1 =
@@ -68,30 +92,6 @@ template <class TYPED_SELECTION_0 =
           class TYPED_SELECTION_2 =
               TypedTestSelection<TestNilValue, TestSelection<0> > >
 class TestChoice {
-    // This in-core value-semantic class provides a basic implementation of the
-    // concept defined by the 'Choice' 'bdlat' type category.  The template
-    // parameters 'TYPED_SELECTION_0', 'TYPED_SELECTION_1', and
-    // 'TYPED_SELECTION_2' must all satisfy the following requirements:
-    //: o The type must have two member type definitions, 'Type', and
-    //:   'Selection'.
-    //: o 'Type' must meet the requirements of an in-core value-semantic type.
-    //: o 'Type' must meet the requirements of exactly one of the 'bdlat' value
-    //:   categories.
-    //: o 'Selection' must be a specialization of the 'TestSelection' type.
-    // Further, each 'TestSelection' member type definition of a template
-    // argument must return values for 'TestSelection::id()' and
-    // 'TestSelection::name()' that are different from all others within this
-    // 'TestChoice' specialization.
-    //
-    // Additionally, The 'Type' of any template argument may be 'TestNilValue'
-    // if all 'Type' member type definitions of subsequent template arguments
-    // are also 'TestNilValue'.
-    //
-    // The 'Type' and 'Selection' member type definitions of the template
-    // arguments define the type and 'bdlat_SelectionInfo' of the selections of
-    // the 'bdlat' 'Choice' implementation provided by this class.  A template
-    // argument having a 'TestNilValue' 'Type' indicates that the corresponding
-    // selection does not exist.
 
   public:
     // TYPES
@@ -183,22 +183,42 @@ bool operator!=(const TestChoice<C0, C1, C2>& lhs,
                 const TestChoice<C0, C1, C2>& rhs);
 
 // TRAITS
+
+/// Return a null-terminated string containing the exported name of the type
+/// for the specified `object`.
 template <class C0, class C1, class C2>
 const char *bdlat_TypeName_className(const TestChoice<C0, C1, C2>& object);
 
+/// Set the value of the specified `object` to the default for the selection
+/// indicated by the specified `selectionId`.  Return 0 on success, and a
+/// non-zero value otherwise.
 template <class C0, class C1, class C2>
 int bdlat_choiceMakeSelection(TestChoice<C0, C1, C2> *object, int selectionId);
 
 
+/// Set the value of the specified `object` to be the default for the
+/// selection indicated by the specified `selectionName` of the specified
+/// `selectionNameLength`.  Return 0 on success, and a non-zero value
+/// otherwise.
 template <class C0, class C1, class C2>
 int bdlat_choiceMakeSelection(TestChoice<C0, C1, C2> *object,
                               const char             *selectionName,
                               int                     selectionNameLength);
 
+/// Invoke the specified `manipulator` on the address of the (modifiable)
+/// selection of the specified `object`, supplying `manipulator` with the
+/// corresponding selection information structure.  Return -1 if the
+/// selection is undefined, and the value returned from the invocation of
+/// `manipulator` otherwise.
 template <class C0, class C1, class C2, class MANIPULATOR>
 int bdlat_choiceManipulateSelection(TestChoice<C0, C1, C2> *object,
                                     MANIPULATOR&            manipulator);
 
+/// Invoke the specified `accessor` on the (non-modifiable) selection of the
+/// specified `object`, supplying `accessor` with the corresponding
+/// selection information structure.  Return -1 if the selection is
+/// undefined, and the value returned from the invocation of `accessor`
+/// otherwise.
 template <class C0, class C1, class C2, class ACCESSOR>
 int bdlat_choiceAccessSelection(const TestChoice<C0, C1, C2>& object,
                                 ACCESSOR&                     accessor);
@@ -213,6 +233,8 @@ template <class C0, class C1, class C2>
 bool bdlat_choiceHasSelection(const TestChoice<C0, C1, C2>& object,
                               int                           selectionId);
 
+/// Return the id of the current selection if the selection is defined, and
+/// `k_UNDEFINED_SELECTION_ID` otherwise.
 template <class C0, class C1, class C2>
 int bdlat_choiceSelectionId(const TestChoice<C0, C1, C2>& object);
 
@@ -347,14 +369,14 @@ operator=(const TestChoice& original)
     return *this;
 }
 
+/// Set the value of this object to the default for the selection indicated
+/// by the specified `selectionId`.  Return 0 on success, and a non-zero
+/// value otherwise.
 template <class TYPED_SELECTION_0,
           class TYPED_SELECTION_1,
           class TYPED_SELECTION_2>
 int TestChoice<TYPED_SELECTION_0, TYPED_SELECTION_1, TYPED_SELECTION_2>::
     makeSelection(int selectionId)
-    // Set the value of this object to the default for the selection indicated
-    // by the specified 'selectionId'.  Return 0 on success, and a non-zero
-    // value otherwise.
 {
     switch (selectionId) {
       case 0: {
@@ -386,14 +408,14 @@ int TestChoice<TYPED_SELECTION_0, TYPED_SELECTION_1, TYPED_SELECTION_2>::
     return -1;
 }
 
+/// Set the value of this object to the default for the selection indicated
+/// by the specified `selectionName` of the specified `selectionNameLength`.
+/// Return 0 on success, and a non-zero value otherwise.
 template <class TYPED_SELECTION_0,
           class TYPED_SELECTION_1,
           class TYPED_SELECTION_2>
 int TestChoice<TYPED_SELECTION_0, TYPED_SELECTION_1, TYPED_SELECTION_2>::
     makeSelection(const char *selectionName, int selectionNameLength)
-    // Set the value of this object to the default for the selection indicated
-    // by the specified 'selectionName' of the specified 'selectionNameLength'.
-    // Return 0 on success, and a non-zero value otherwise.
 {
     const bsl::string_view selection(selectionName, selectionNameLength);
 
@@ -415,17 +437,17 @@ int TestChoice<TYPED_SELECTION_0, TYPED_SELECTION_1, TYPED_SELECTION_2>::
     return -1;
 }
 
+/// Invoke the specified `manipulator` on the address of the (modifiable)
+/// selection of this object, supplying `manipulator` with the corresponding
+/// selection information structure.  Return -1 if the selection is
+/// undefined, and the value returned from the invocation of `manipulator`
+/// otherwise.
 template <class TYPED_SELECTION_0,
           class TYPED_SELECTION_1,
           class TYPED_SELECTION_2>
 template <class MANIPULATOR>
 int TestChoice<TYPED_SELECTION_0, TYPED_SELECTION_1, TYPED_SELECTION_2>::
     manipulateSelection(MANIPULATOR& manipulator)
-    // Invoke the specified 'manipulator' on the address of the (modifiable)
-    // selection of this object, supplying 'manipulator' with the corresponding
-    // selection information structure.  Return -1 if the selection is
-    // undefined, and the value returned from the invocation of 'manipulator'
-    // otherwise.
 {
     switch (d_value.object().typeIndex()) {
       case 0: {
@@ -471,16 +493,16 @@ void TestChoice<TYPED_SELECTION_0, TYPED_SELECTION_1, TYPED_SELECTION_2>::
 
 // ACCESSORS
 
+/// Invoke the specified `accessor` on the (non-modifiable) selection of the
+/// this object, supplying `accessor` with the corresponding selection
+/// information structure.  Return -1 if the selection is undefined, and the
+/// value returned from the invocation of `accessor` otherwise.
 template <class TYPED_SELECTION_0,
           class TYPED_SELECTION_1,
           class TYPED_SELECTION_2>
 template <class ACCESSOR>
 int TestChoice<TYPED_SELECTION_0, TYPED_SELECTION_1, TYPED_SELECTION_2>::
     accessSelection(ACCESSOR& accessor) const
-    // Invoke the specified 'accessor' on the (non-modifiable) selection of the
-    // this object, supplying 'accessor' with the corresponding selection
-    // information structure.  Return -1 if the selection is undefined, and the
-    // value returned from the invocation of 'accessor' otherwise.
 {
     switch (d_value.object().typeIndex()) {
       case 0: {
@@ -559,14 +581,14 @@ bool TestChoice<TYPED_SELECTION_0, TYPED_SELECTION_1, TYPED_SELECTION_2>::
     return false;
 }
 
+/// Return a null-terminated string containing the exported name for this
+/// type.
 template <class TYPED_SELECTION_0,
           class TYPED_SELECTION_1,
           class TYPED_SELECTION_2>
 const char *TestChoice<TYPED_SELECTION_0,
                        TYPED_SELECTION_1,
                        TYPED_SELECTION_2>::className() const
-    // Return a null-terminated string containing the exported name for this
-    // type.
 {
     return "MyChoice";
 }
@@ -658,17 +680,12 @@ bool operator!=(const TestChoice<C0, C1, C2>& lhs,
 // TRAITS
 template <class C0, class C1, class C2>
 const char *bdlat_TypeName_className(const TestChoice<C0, C1, C2>& object)
-    // Return a null-terminated string containing the exported name of the type
-    // for the specified 'object'.
 {
     return object.className();
 }
 
 template <class C0, class C1, class C2>
 int bdlat_choiceMakeSelection(TestChoice<C0, C1, C2> *object, int selectionId)
-    // Set the value of the specified 'object' to the default for the selection
-    // indicated by the specified 'selectionId'.  Return 0 on success, and a
-    // non-zero value otherwise.
 {
     return object->makeSelection(selectionId);
 }
@@ -677,10 +694,6 @@ template <class C0, class C1, class C2>
 int bdlat_choiceMakeSelection(TestChoice<C0, C1, C2> *object,
                               const char             *selectionName,
                               int                     selectionNameLength)
-    // Set the value of the specified 'object' to be the default for the
-    // selection indicated by the specified 'selectionName' of the specified
-    // 'selectionNameLength'.  Return 0 on success, and a non-zero value
-    // otherwise.
 {
     return object->makeSelection(selectionName, selectionNameLength);
 }
@@ -688,11 +701,6 @@ int bdlat_choiceMakeSelection(TestChoice<C0, C1, C2> *object,
 template <class C0, class C1, class C2, class MANIPULATOR>
 int bdlat_choiceManipulateSelection(TestChoice<C0, C1, C2> *object,
                                     MANIPULATOR&            manipulator)
-    // Invoke the specified 'manipulator' on the address of the (modifiable)
-    // selection of the specified 'object', supplying 'manipulator' with the
-    // corresponding selection information structure.  Return -1 if the
-    // selection is undefined, and the value returned from the invocation of
-    // 'manipulator' otherwise.
 {
     return object->manipulateSelection(manipulator);
 }
@@ -700,11 +708,6 @@ int bdlat_choiceManipulateSelection(TestChoice<C0, C1, C2> *object,
 template <class C0, class C1, class C2, class ACCESSOR>
 int bdlat_choiceAccessSelection(const TestChoice<C0, C1, C2>& object,
                                 ACCESSOR&                     accessor)
-    // Invoke the specified 'accessor' on the (non-modifiable) selection of the
-    // specified 'object', supplying 'accessor' with the corresponding
-    // selection information structure.  Return -1 if the selection is
-    // undefined, and the value returned from the invocation of 'accessor'
-    // otherwise.
 {
     return object.accessSelection(accessor);
 }
@@ -727,8 +730,6 @@ bool bdlat_choiceHasSelection(const TestChoice<C0, C1, C2>& object,
 
 template <class C0, class C1, class C2>
 int bdlat_choiceSelectionId(const TestChoice<C0, C1, C2>& object)
-    // Return the id of the current selection if the selection is defined, and
-    // 'k_UNDEFINED_SELECTION_ID' otherwise.
 {
     return object.selectionId();
 }

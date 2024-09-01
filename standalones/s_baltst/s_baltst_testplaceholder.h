@@ -17,14 +17,14 @@ namespace s_baltst {
                            // class TestPlaceHolder
                            // =====================
 
+/// This class provides subset of the semantics of an in-core value-semantic
+/// type.  It is intended to be used to guide template (type) argument
+/// deduction in function invocation expressions, where it may not make
+/// sense for a value of the type to be supplied to guide the deduction, and
+/// where specifying a template argument may require more characters than a
+/// function argument.
 template <class TYPE>
 class TestPlaceHolder {
-    // This class provides subset of the semantics of an in-core value-semantic
-    // type.  It is intended to be used to guide template (type) argument
-    // deduction in function invocation expressions, where it may not make
-    // sense for a value of the type to be supplied to guide the deduction, and
-    // where specifying a template argument may require more characters than a
-    // function argument.
 
   public:
     // CREATORS

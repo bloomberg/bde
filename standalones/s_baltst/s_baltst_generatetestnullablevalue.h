@@ -21,10 +21,10 @@ namespace s_baltst {
                       // class GenerateTestNullableValue
                       // ===============================
 
+/// This in-core value-semantic class provides a function object whose
+/// function call operator can be used to generate objects of
+/// `bdlb::NullableValue` specializations.
 class GenerateTestNullableValue {
-    // This in-core value-semantic class provides a function object whose
-    // function call operator can be used to generate objects of
-    // 'bdlb::NullableValue' specializations.
 
   public:
     // TYPES
@@ -47,10 +47,10 @@ class GenerateTestNullableValue {
                    // class GenerateTestNullablePlaceHolder
                    // =====================================
 
+/// This in-core value-semantic class provides a function object whose
+/// function call operator can be used to generate `PlaceHolder`
+/// specializations for `bdlb::NullableValue` types.
 class GenerateTestNullablePlaceHolder {
-    // This in-core value-semantic class provides a function object whose
-    // function call operator can be used to generate 'PlaceHolder'
-    // specializations for 'bdlb::NullableValue' types.
 
   public:
     // TYPES

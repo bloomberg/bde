@@ -27,10 +27,10 @@ namespace s_baltst {
                         // struct TestSelectionDefaults
                         // ============================
 
+/// This utility `struct` provides a namespace for non-modifiable,
+/// constant-initialized default values for the non-type template parameters
+/// of a `TestSelection`.
 struct TestSelectionDefaults {
-    // This utility 'struct' provides a namespace for non-modifiable,
-    // constant-initialized default values for the non-type template parameters
-    // of a 'TestSelection'.
 
     // CLASS DATA
     static const char k_DEFAULT_ANNOTATION[1];
@@ -42,6 +42,9 @@ struct TestSelectionDefaults {
                             // class TestSelection
                             // ===================
 
+/// This class provides a namespace for a suite of non-modifiable,
+/// constant-initialized data that can be used to specify all attribute of a
+/// `bdlat_SelectionInfo` object.
 template <int         ID,
           const char *NAME = TestSelectionDefaults::k_DEFAULT_NAME,
 
@@ -49,9 +52,6 @@ template <int         ID,
           int         FORMATTING_MODE =
               TestSelectionDefaults::k_DEFAULT_FORMATTING_MODE>
 class TestSelection {
-    // This class provides a namespace for a suite of non-modifiable,
-    // constant-initialized data that can be used to specify all attribute of a
-    // 'bdlat_SelectionInfo' object.
 
   public:
     // PUBLIC CLASS DATA
@@ -78,11 +78,11 @@ class TestSelection {
                           // class TypedTestSelection
                           // ========================
 
+/// This class provides two member type definitions, `Type` and `Selection`,
+/// which are aliases to the arguments supplied to the `TYPE` and
+/// `TEST_SELECTION` template parameters, respectively.
 template <class TYPE, class TEST_SELECTION>
 class TypedTestSelection {
-    // This class provides two member type definitions, 'Type' and 'Selection',
-    // which are aliases to the arguments supplied to the 'TYPE' and
-    // 'TEST_SELECTION' template parameters, respectively.
 
   public:
     // TYPES
