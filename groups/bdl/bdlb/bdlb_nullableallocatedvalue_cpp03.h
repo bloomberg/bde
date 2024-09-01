@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Mar  7 06:52:23 2024
+// Generated on Sun Sep  1 06:01:47 2024
 // Command line: sim_cpp11_features.pl bdlb_nullableallocatedvalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEALLOCATEDVALUE_H
@@ -33,21 +33,21 @@ namespace bdlb {
                       // class NullableAllocatedValue<TYPE>
                       // ==================================
 
+/// This template class extends the set of values of its value-semantic
+/// `TYPE` parameter to include the notion of a "null" value.  If `TYPE` is
+/// fully value-semantic, then the augmented type
+/// `NullableAllocatedValue<TYPE>` will be as well.  In addition to
+/// supporting all homogeneous value-semantic operations, conversions
+/// between comparable underlying value types is also supported.  Two
+/// nullable objects with different underlying types compare equal if their
+/// underlying types are comparable and either (1) both objects are null or
+/// (2) the non-null values compare equal.  Attempts to copy construct, copy
+/// assign, or compare incompatible values types will fail to compile.  The
+/// `NullableAllocatedValue` template can be instantiated on an incomplete
+/// type, but it cannot be instantiated on a type that overloads
+/// `operator&`.
 template <class TYPE>
 class NullableAllocatedValue {
-    // This template class extends the set of values of its value-semantic
-    // 'TYPE' parameter to include the notion of a "null" value.  If 'TYPE' is
-    // fully value-semantic, then the augmented type
-    // 'NullableAllocatedValue<TYPE>' will be as well.  In addition to
-    // supporting all homogeneous value-semantic operations, conversions
-    // between comparable underlying value types is also supported.  Two
-    // nullable objects with different underlying types compare equal if their
-    // underlying types are comparable and either (1) both objects are null or
-    // (2) the non-null values compare equal.  Attempts to copy construct, copy
-    // assign, or compare incompatible values types will fail to compile.  The
-    // 'NullableAllocatedValue' template can be instantiated on an incomplete
-    // type, but it cannot be instantiated on a type that overloads
-    // 'operator&'.
 
     enum { k_HAS_VALUE = 0 };
     // flag for checking if the value is present
@@ -73,53 +73,56 @@ class NullableAllocatedValue {
 #  endif
 
     // PRIVATE CLASS METHODS
+
+    /// Returns `true` if an object of the template parameter `TYPE` can be
+    /// stored locally, instead of being allocated on the heap.
     static bool isLocal() BSLS_KEYWORD_NOEXCEPT;
-        // Returns 'true' if an object of the template parameter 'TYPE' can be
-        // stored locally, instead of being allocated on the heap.
 
     // PRIVATE ACCESSORS
+
+    /// return a pointer to the held value.  If the value does not exist and
+    /// the storage is local, then return a pointer to storage suitable for
+    /// constructing the held value.  If the value does not exist and the
+    /// storage is not local, return NULL.
     TYPE *getAddress();
     const TYPE *getAddress() const;
-        // return a pointer to the held value.  If the value does not exist and
-        // the storage is local, then return a pointer to storage suitable for
-        // constructing the held value.  If the value does not exist and the
-        // storage is not local, return NULL.
 
     // PRIVATE MANIPULATORS
+
+    /// Clear the flag in the `d_allocator` field that indicates that this
+    /// object does not hold a value.
     void clearHasValueFlag() BSLS_KEYWORD_NOEXCEPT;
-        // Clear the flag in the 'd_allocator' field that indicates that this
-        // object does not hold a value.
 
+    /// Set the flag in the `d_allocator` field that indicates that this
+    /// object holds a value.
     void setHasValueFlag() BSLS_KEYWORD_NOEXCEPT;
-        // Set the flag in the 'd_allocator' field that indicates that this
-        // object holds a value.
 
+    /// Set the value of the pointer to the held value to the specified
+    /// `newPtr`.  The behavior is undefined if the storage is local.
     void setRemoteAddress(TYPE *newPtr);
-        // Set the value of the pointer to the held value to the specified
-        // 'newPtr'.  The behavior is undefined if the storage is local.
 
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  At least one of `this` or `other` is not
+    /// empty, and the values are stored locally.  This method provides the
+    /// no-throw exception-safety guarantee.  The behavior is undefined
+    /// unless this object was created with the same allocator as `other`.
     void swapLocal(NullableAllocatedValue& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  At least one of 'this' or 'other' is not
-        // empty, and the values are stored locally.  This method provides the
-        // no-throw exception-safety guarantee.  The behavior is undefined
-        // unless this object was created with the same allocator as 'other'.
 
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  At least one of `this` or `other` is not
+    /// empty, and the values are stored remotely.  This method provides the
+    /// no-throw exception-safety guarantee.  The behavior is undefined
+    /// unless this object was created with the same allocator as `other`.
     void swapRemote(NullableAllocatedValue& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  At least one of 'this' or 'other' is not
-        // empty, and the values are stored remotely.  This method provides the
-        // no-throw exception-safety guarantee.  The behavior is undefined
-        // unless this object was created with the same allocator as 'other'.
 
 
   public:
     // TYPES
 
+    /// `ValueType` is an alias for the underlying `TYPE` upon which this
+    /// template class is instantiated, and represents the type of the
+    /// managed object.
     typedef TYPE ValueType;
-        // 'ValueType' is an alias for the underlying 'TYPE' upon which this
-        // template class is instantiated, and represents the type of the
-        // managed object.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(NullableAllocatedValue,
@@ -130,69 +133,71 @@ class NullableAllocatedValue {
                                    bdlb::HasPrintMethod);
 
     // CREATORS
+
+    /// Create a nullable object having the null value.  Use the currently
+    /// installed default allocator to supply memory.
     NullableAllocatedValue();
-        // Create a nullable object having the null value.  Use the currently
-        // installed default allocator to supply memory.
 
+    /// Create a nullable object that has the null value and that uses the
+    /// mechanism of the specified `allocator` to supply memory.
     explicit NullableAllocatedValue(const bsl::allocator<char>& allocator);
-        // Create a nullable object that has the null value and that uses the
-        // mechanism of the specified 'allocator' to supply memory.
 
+    /// Create a nullable object having the null value.  Use the currently
+    /// installed default allocator to supply memory.
     NullableAllocatedValue(const bsl::nullopt_t&);                  // IMPLICIT
-        // Create a nullable object having the null value.  Use the currently
-        // installed default allocator to supply memory.
 
+    /// Create a nullable object that has the null value and that uses the
+    /// mechanism of the specified `allocator` to supply memory.
     NullableAllocatedValue(const bsl::nullopt_t&,
                            const bsl::allocator<char>& allocator);
-        // Create a nullable object that has the null value and that uses the
-        // mechanism of the specified 'allocator' to supply memory.
 
+    /// Create a nullable object having the value of the specified
+    /// `original` object.  Use the currently installed default allocator
+    /// to supply memory.
     NullableAllocatedValue(const NullableAllocatedValue&  original);
-        // Create a nullable object having the value of the specified
-        // 'original' object.  Use the currently installed default allocator
-        // to supply memory.
 
+    /// Create a nullable object having the value of the specified
+    /// `original` object and that uses the mechanism of the specified
+    /// `allocator` to supply memory.
     NullableAllocatedValue(const NullableAllocatedValue&  original,
                            const bsl::allocator<char>&    allocator);
-        // Create a nullable object having the value of the specified
-        // 'original' object and that uses the mechanism of the specified
-        // 'allocator' to supply memory.
 
+    /// Create a nullable object having the specified `value`.  Use the
+    /// currently installed default allocator to supply memory.
     NullableAllocatedValue(const TYPE& value);                      // IMPLICIT
-        // Create a nullable object having the specified 'value'.  Use the
-        // currently installed default allocator to supply memory.
 
+    /// Create a nullable object having the specified `value` and that uses
+    /// the mechanism of specified `allocator` to supply memory.
     NullableAllocatedValue(const TYPE&                    value,
                            const bsl::allocator<char>&    allocator);
-        // Create a nullable object having the specified 'value' and that uses
-        // the mechanism of specified 'allocator' to supply memory.
 
+    /// Destroy this object.
     ~NullableAllocatedValue();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to this object.
     NullableAllocatedValue<TYPE>& operator=(const NullableAllocatedValue& rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.
 
+    /// Reset this object to the default constructed state (i.e., to have
+    /// the null value).
     NullableAllocatedValue<TYPE>& operator=(const bsl::nullopt_t&);
-        // Reset this object to the default constructed state (i.e., to have
-        // the null value).
 
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to the underlying `TYPE`
+    /// object.
     NullableAllocatedValue<TYPE>& operator=(const TYPE& rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to the underlying 'TYPE'
-        // object.
 
+    /// Return a pointer providing modifiable access to the underlying
+    /// `TYPE` object.  The behavior is undefined if the object has no
+    /// value.
     TYPE *operator->();
-        // Return a pointer providing modifiable access to the underlying
-        // 'TYPE' object.  The behavior is undefined if the object has no
-        // value.
 
+    /// Return a reference providing modifiable access to the underlying
+    /// `TYPE` object.  The behavior is undefined if the object has no
+    /// value.
     TYPE& operator*();
-        // Return a reference providing modifiable access to the underlying
-        // 'TYPE' object.  The behavior is undefined if the object has no
-        // value.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -326,109 +331,110 @@ class NullableAllocatedValue {
 // }}} END GENERATED CODE
 #endif
 
+    /// Assign to this object the value read from the specified input
+    /// `stream` using the specified `version` format, and return a
+    /// reference to `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `version` is not supported, this object
+    /// is unaltered and `stream` is invalidated, but otherwise unmodified.
+    /// If `version` is supported but `stream` becomes invalid during this
+    /// operation, this object has an undefined, but valid, state.  Note
+    /// that no version is read from `stream`.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format, and return a
-        // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, this object
-        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
-        // If 'version' is supported but 'stream' becomes invalid during this
-        // operation, this object has an undefined, but valid, state.  Note
-        // that no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
+    /// Assign to this object the specified `val`, and return a reference
+    /// providing modifiable access to the underlying `TYPE` object.
     TYPE& makeValue(const TYPE& val);
-        // Assign to this object the specified 'val', and return a reference
-        // providing modifiable access to the underlying 'TYPE' object.
 
+    /// Assign to this object the default value for `TYPE`, and return a
+    /// reference providing modifiable access to the underlying `TYPE`
+    /// object.
     TYPE& makeValue();
-        // Assign to this object the default value for 'TYPE', and return a
-        // reference providing modifiable access to the underlying 'TYPE'
-        // object.
 
+    /// Reset this object to the default constructed state (i.e., to have
+    /// the null value).
     void reset();
-        // Reset this object to the default constructed state (i.e., to have
-        // the null value).
 
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.  The behavior is undefined unless this
+    /// object was created with the same allocator as `other`.
     void swap(NullableAllocatedValue& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless this
-        // object was created with the same allocator as 'other'.
 
+    /// Return a reference providing modifiable access to the underlying
+    /// `TYPE` object.  The behavior is undefined unless this object is
+    /// non-null.
     TYPE& value();
-        // Return a reference providing modifiable access to the underlying
-        // 'TYPE' object.  The behavior is undefined unless this object is
-        // non-null.
 
     // ACCESSORS
+
+    /// Write the value of this object, using the specified `version`
+    /// format, to the specified output `stream`, and return a reference to
+    /// `stream`.  If `stream` is initially invalid, this operation has no
+    /// effect.  If `version` is not supported, `stream` is invalidated, but
+    /// otherwise unmodified.  Note that `version` is not written to
+    /// `stream`.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object, using the specified 'version'
-        // format, to the specified output 'stream', and return a reference to
-        // 'stream'.  If 'stream' is initially invalid, this operation has no
-        // effect.  If 'version' is not supported, 'stream' is invalidated, but
-        // otherwise unmodified.  Note that 'version' is not written to
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Return a `bsl::allocator` constructed from the `bslma::Allocator`
+    /// used by this object to supply memory.  Note that if no allocator was
+    /// supplied at construction the default allocator in effect at
+    /// construction is used.
     bsl::allocator<char> get_allocator() const;
-        // Return a 'bsl::allocator' constructed from the 'bslma::Allocator'
-        // used by this object to supply memory.  Note that if no allocator was
-        // supplied at construction the default allocator in effect at
-        // construction is used.
 
+    /// Return `true` if this object contains a value, and `false`
+    /// otherwise.
     bool has_value() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if this object contains a value, and 'false'
-        // otherwise.
 
+    /// Return `false` if this object contains a value, and `true`
+    /// otherwise.  Note that this is the opposite of `has_value`.
     bool isNull() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'false' if this object contains a value, and 'true'
-        // otherwise.  Note that this is the opposite of 'has_value'.
 
+    /// Return the maximum valid BDEX format version, as indicated by the
+    /// specified `versionSelector`, to be passed to the `bdexStreamOut`
+    /// method.  Note that it is highly recommended that `versionSelector`
+    /// be formatted as "YYYYMMDD", a date representation.  Also note that
+    /// `versionSelector` should be a *compile*-time-chosen value that
+    /// selects a format version supported by both externalizer and
+    /// unexternalizer.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     int maxSupportedBdexVersion(int versionSelector) const;
-        // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
-        // method.  Note that it is highly recommended that 'versionSelector'
-        // be formatted as "YYYYMMDD", a date representation.  Also note that
-        // 'versionSelector' should be a *compile*-time-chosen value that
-        // selects a format version supported by both externalizer and
-        // unexternalizer.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    /// Return the most current BDEX streaming version number supported by
+    /// this class.  (See the package-group-level documentation for more
+    /// information on BDEX streaming of container types.)
     int maxSupportedBdexVersion() const;
-        // Return the most current BDEX streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on BDEX streaming of container types.)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
+    /// Return the value of the underlying object of a (template parameter)
+    /// `TYPE` if this object is non-null, and the specified `default_value`
+    /// otherwise.  Note that this method returns *by* *value*, so may be
+    /// inefficient in some contexts.
     template <class ANY_TYPE>
     TYPE value_or(const ANY_TYPE& default_value) const;
-        // Return the value of the underlying object of a (template parameter)
-        // 'TYPE' if this object is non-null, and the specified 'default_value'
-        // otherwise.  Note that this method returns *by* *value*, so may be
-        // inefficient in some contexts.
 
+    /// Return a pointer providing non-modifiable access to the underlying
+    /// `TYPE` object.  The behavior is undefined if the object has no
+    /// value.
     const TYPE *operator->() const;
-        // Return a pointer providing non-modifiable access to the underlying
-        // 'TYPE' object.  The behavior is undefined if the object has no
-        // value.
 
+    /// Return a reference providing non-modifiable access to the underlying
+    /// `TYPE` object.  The behavior is undefined if the object has no
+    /// value.
     const TYPE& operator*() const;
-        // Return a reference providing non-modifiable access to the underlying
-        // 'TYPE' object.  The behavior is undefined if the object has no
-        // value.
 
 
 #  ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    /// Return `true` if this object is contains a value, and `true`
+    /// otherwise.
     BSLS_KEYWORD_EXPLICIT operator bool() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if this object is contains a value, and 'true'
-        // otherwise.
 #  else  // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     // Simulation of explicit conversion to bool.  Inlined to work around xlC
     // bug when out-of-line.
@@ -440,36 +446,36 @@ class NullableAllocatedValue {
 
                               // Aspects
 
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level` and return a
+    /// reference to `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for
+    /// this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  If `stream` is
+    /// not valid on entry, this operation has no effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level' and return a
-        // reference to 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.
 
+    /// Return a reference providing non-modifiable access to the underlying
+    /// `TYPE` object.  The behavior is undefined unless this object is
+    /// non-null.
     const TYPE& value() const;
-        // Return a reference providing non-modifiable access to the underlying
-        // 'TYPE' object.  The behavior is undefined unless this object is
-        // non-null.
 
     // DEPRECATED FUNCTIONS
     //  provided for compatibility with NullableValue
 
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::addressOr",
                               "Use 'has_value() ? &value() : address' instead")
+    /// Return an address providing non-modifiable access to the underlying
+    /// object of a (template parameter) `TYPE` if this object is non-null,
+    /// and the specified `address` otherwise.
     const TYPE *addressOr(const TYPE *address) const;
-        // Return an address providing non-modifiable access to the underlying
-        // object of a (template parameter) 'TYPE' if this object is non-null,
-        // and the specified 'address' otherwise.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -480,6 +486,7 @@ class NullableAllocatedValue {
 #ifndef BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B
 #define BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT
 #endif
+
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 0
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::makeValueInplace",
                                                        "Use 'emplace' instead")
@@ -544,6 +551,7 @@ class NullableAllocatedValue {
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
+
     template <class... ARGS>
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::makeValueInplace",
                                                        "Use 'emplace' instead")
@@ -553,355 +561,357 @@ class NullableAllocatedValue {
 
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::valueOr",
                                                       "Use 'value_or' instead")
+    /// Return the value of the underlying object of a (template parameter)
+    /// `TYPE` if this object is non-null, and the specified `otherValue`
+    /// otherwise.  Note that this method returns *by* *value*, so may be
+    /// inefficient in some contexts.
     TYPE valueOr(const TYPE& otherValue) const;
-        // Return the value of the underlying object of a (template parameter)
-        // 'TYPE' if this object is non-null, and the specified 'otherValue'
-        // otherwise.  Note that this method returns *by* *value*, so may be
-        // inefficient in some contexts.
 
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::valueOrNull",
                                  "Use 'has_value() ? &value() : NULL' instead")
+    /// Return an address providing non-modifiable access to the underlying
+    /// object of a (template parameter) `TYPE` if this object is non-null,
+    /// and 0 otherwise.
     const TYPE *valueOrNull() const;
-        // Return an address providing non-modifiable access to the underlying
-        // object of a (template parameter) 'TYPE' if this object is non-null,
-        // and 0 otherwise.
 
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` nullable objects have the
+/// same value, and `false` otherwise.  Two nullable objects have the same
+/// value if both are null, or if both are non-null and the values of their
+/// underlying objects compare equal.  Note that this function will fail to
+/// compile if `LHS_TYPE` and `RHS_TYPE` are not compatible.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' nullable objects have the
-    // same value, and 'false' otherwise.  Two nullable objects have the same
-    // value if both are null, or if both are non-null and the values of their
-    // underlying objects compare equal.  Note that this function will fail to
-    // compile if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  A nullable object and a value of some
+/// type have the same value if the nullable object is non-null and its
+/// underlying value compares equal to the other value.  Note that this
+/// function will fail to compile if `LHS_TYPE` and `RHS_TYPE` are not
+/// compatible.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const RHS_TYPE&                         rhs);
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const LHS_TYPE&                         lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  A nullable object and a value of some
-    // type have the same value if the nullable object is non-null and its
-    // underlying value compares equal to the other value.  Note that this
-    // function will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are not
-    // compatible.
 
+/// Return `true` if the specified `lhs` and `rhs` nullable objects do not
+/// have the same value, and `false` otherwise.  Two nullable objects do not
+/// have the same value if one is null and the other is non-null, or if both
+/// are non-null and the values of their underlying objects do not compare
+/// equal.  Note that this function will fail to compile if `LHS_TYPE` and
+/// `RHS_TYPE` are not compatible.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' nullable objects do not
-    // have the same value, and 'false' otherwise.  Two nullable objects do not
-    // have the same value if one is null and the other is non-null, or if both
-    // are non-null and the values of their underlying objects do not compare
-    // equal.  Note that this function will fail to compile if 'LHS_TYPE' and
-    // 'RHS_TYPE' are not compatible.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  A nullable object and a value of
+/// some type do not have the same value if either the nullable object is
+/// null, or its underlying value does not compare equal to the other value.
+/// Note that this function will fail to compile if `LHS_TYPE` and
+/// `RHS_TYPE` are not compatible.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const RHS_TYPE&                         rhs);
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const LHS_TYPE&                         lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  A nullable object and a value of
-    // some type do not have the same value if either the nullable object is
-    // null, or its underlying value does not compare equal to the other value.
-    // Note that this function will fail to compile if 'LHS_TYPE' and
-    // 'RHS_TYPE' are not compatible.
 
+/// Return `true` if the specified `lhs` nullable object is ordered before
+/// the specified `rhs` nullable object, and `false` otherwise.  `lhs` is
+/// ordered before `rhs` if `lhs` is null and `rhs` is non-null or if both
+/// are non-null and `lhs.value()` is ordered before `rhs.value()`.  Note
+/// that this function will fail to compile if `LHS_TYPE` and `RHS_TYPE` are
+/// not compatible.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
                const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' nullable object is ordered before
-    // the specified 'rhs' nullable object, and 'false' otherwise.  'lhs' is
-    // ordered before 'rhs' if 'lhs' is null and 'rhs' is non-null or if both
-    // are non-null and 'lhs.value()' is ordered before 'rhs.value()'.  Note
-    // that this function will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are
-    // not compatible.
 
+/// Return `true` if the specified `lhs` nullable object is ordered before
+/// the specified `rhs`, and `false` otherwise.  `lhs` is ordered before
+/// `rhs` if `lhs` is null or `lhs.value()` is ordered before `rhs`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
                const RHS_TYPE&                         rhs);
-    // Return 'true' if the specified 'lhs' nullable object is ordered before
-    // the specified 'rhs', and 'false' otherwise.  'lhs' is ordered before
-    // 'rhs' if 'lhs' is null or 'lhs.value()' is ordered before 'rhs'.
 
+/// Return `true` if the specified `lhs` is ordered before the specified
+/// `rhs` nullable object, and `false` otherwise.  `lhs` is ordered before
+/// `rhs` if `rhs` is not null and `lhs` is ordered before `rhs.value()`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const LHS_TYPE&                         lhs,
                const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' is ordered before the specified
-    // 'rhs' nullable object, and 'false' otherwise.  'lhs' is ordered before
-    // 'rhs' if 'rhs' is not null and 'lhs' is ordered before 'rhs.value()'.
 
 
+/// Return `true` if the specified `lhs` nullable object is ordered before
+/// the specified `rhs` nullable object or `lhs` and `rhs` have the same
+/// value, and `false` otherwise.  (See `operator<` and `operator==`.)  Note
+/// that this operator returns `!(rhs < lhs)` when both operands are of
+/// `NullableValue` type.  Also note that this function will fail to compile
+/// if `LHS_TYPE` and `RHS_TYPE` are not compatible.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' nullable object is ordered before
-    // the specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
-    // value, and 'false' otherwise.  (See 'operator<' and 'operator=='.)  Note
-    // that this operator returns '!(rhs < lhs)' when both operands are of
-    // 'NullableValue' type.  Also note that this function will fail to compile
-    // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
+/// Return `true` if the specified `lhs` nullable object is ordered before
+/// the specified `rhs` or `lhs` and `rhs` have the same value, and `false`
+/// otherwise.  (See `operator<` and `operator==`.)  Note that this operator
+/// returns `!(rhs < lhs)`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const RHS_TYPE&                         rhs);
-    // Return 'true' if the specified 'lhs' nullable object is ordered before
-    // the specified 'rhs' or 'lhs' and 'rhs' have the same value, and 'false'
-    // otherwise.  (See 'operator<' and 'operator=='.)  Note that this operator
-    // returns '!(rhs < lhs)'.
 
+/// Return `true` if the specified `lhs` is ordered before the specified
+/// `rhs` nullable object or `lhs` and `rhs` have the same value, and
+/// `false` otherwise.  (See `operator<` and `operator==`.)  Note that this
+/// operator returns `!(rhs < lhs)`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const LHS_TYPE&                         lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' is ordered before the specified
-    // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
-    // 'false' otherwise.  (See 'operator<' and 'operator=='.)  Note that this
-    // operator returns '!(rhs < lhs)'.
 
+/// Return `true` if the specified `lhs` nullable object is ordered after
+/// the specified `rhs` nullable object, and `false` otherwise.  `lhs` is
+/// ordered after `rhs` if `lhs` is non-null and `rhs` is null or if both
+/// are non-null and `lhs.value()` is ordered after `rhs.value()`.  Note
+/// that this operator returns `rhs < lhs` when both operands are of
+/// `NullableValue` type.  Also note that this function will fail to compile
+/// if `LHS_TYPE` and `RHS_TYPE` are not compatible.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
                const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' nullable object is ordered after
-    // the specified 'rhs' nullable object, and 'false' otherwise.  'lhs' is
-    // ordered after 'rhs' if 'lhs' is non-null and 'rhs' is null or if both
-    // are non-null and 'lhs.value()' is ordered after 'rhs.value()'.  Note
-    // that this operator returns 'rhs < lhs' when both operands are of
-    // 'NullableValue' type.  Also note that this function will fail to compile
-    // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
+/// Return `true` if the specified `lhs` nullable object is ordered after
+/// the specified `rhs`, and `false` otherwise.  `lhs` is ordered after
+/// `rhs` if `lhs` is not null and `lhs.value()` is ordered after `rhs`.
+/// Note that this operator returns `rhs < lhs`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
                const RHS_TYPE&                         rhs);
-    // Return 'true' if the specified 'lhs' nullable object is ordered after
-    // the specified 'rhs', and 'false' otherwise.  'lhs' is ordered after
-    // 'rhs' if 'lhs' is not null and 'lhs.value()' is ordered after 'rhs'.
-    // Note that this operator returns 'rhs < lhs'.
 
+/// Return `true` if the specified `lhs` is ordered after the specified
+/// `rhs` nullable object, and `false` otherwise.  `lhs` is ordered after
+/// `rhs` if `rhs` is null or `lhs` is ordered after `rhs.value()`.  Note
+/// that this operator returns `rhs < lhs`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const LHS_TYPE&                         lhs,
                const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' is ordered after the specified
-    // 'rhs' nullable object, and 'false' otherwise.  'lhs' is ordered after
-    // 'rhs' if 'rhs' is null or 'lhs' is ordered after 'rhs.value()'.  Note
-    // that this operator returns 'rhs < lhs'.
 
+/// Return `true` if the specified `lhs` nullable object is ordered after
+/// the specified `rhs` nullable object or `lhs` and `rhs` have the same
+/// value, and `false` otherwise.  (See `operator>` and `operator==`.)  Note
+/// that this operator returns `!(lhs < rhs)` when both operands are of
+/// `NullableValue` type.  Also note that this function will fail to compile
+/// if `LHS_TYPE` and `RHS_TYPE` are not compatible.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' nullable object is ordered after
-    // the specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
-    // value, and 'false' otherwise.  (See 'operator>' and 'operator=='.)  Note
-    // that this operator returns '!(lhs < rhs)' when both operands are of
-    // 'NullableValue' type.  Also note that this function will fail to compile
-    // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
+/// Return `true` if the specified `lhs` nullable object is ordered after
+/// the specified `rhs` or `lhs` and `rhs` have the same value, and `false`
+/// otherwise.  (See `operator>` and `operator==`.)  Note that this operator
+/// returns `!(lhs < rhs)`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const RHS_TYPE&                         rhs);
-    // Return 'true' if the specified 'lhs' nullable object is ordered after
-    // the specified 'rhs' or 'lhs' and 'rhs' have the same value, and 'false'
-    // otherwise.  (See 'operator>' and 'operator=='.)  Note that this operator
-    // returns '!(lhs < rhs)'.
 
+/// Return `true` if the specified `lhs` is ordered after the specified
+/// `rhs` nullable object or `lhs` and `rhs` have the same value, and
+/// `false` otherwise.  (See `operator>` and `operator==`.)  Note that this
+/// operator returns `!(lhs < rhs)`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const LHS_TYPE&                         lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' is ordered after the specified
-    // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
-    // 'false' otherwise.  (See 'operator>' and 'operator=='.)  Note that this
-    // operator returns '!(lhs < rhs)'.
 
+/// Write the value of the specified `object` to the specified output
+/// `stream` in a single-line format, and return a reference to `stream`.
+/// If `stream` is not valid on entry, this operation has no effect.  Note
+/// that this human-readable format is not fully specified, can change
+/// without notice, and is logically equivalent to:
+/// ```
+/// print(stream, 0, -1);
+/// ```
 template <class TYPE>
 bsl::ostream& operator<<(bsl::ostream&                       stream,
                          const NullableAllocatedValue<TYPE>& object);
-    // Write the value of the specified 'object' to the specified output
-    // 'stream' in a single-line format, and return a reference to 'stream'.
-    // If 'stream' is not valid on entry, this operation has no effect.  Note
-    // that this human-readable format is not fully specified, can change
-    // without notice, and is logically equivalent to:
-    //..
-    //  print(stream, 0, -1);
-    //..
 
                   //================================
                   // Comparisons with bsl::nullopt_t
                   //================================
 
+/// Return `true` if the specified `lhs` is null, and `false` otherwise.
 template <class TYPE>
 bool operator==(const NullableAllocatedValue<TYPE>& lhs, const bsl::nullopt_t&)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'lhs' is null, and 'false' otherwise.
 
+/// Return `true` if the specified `rhs` is null, and `false` otherwise.
 template <class TYPE>
 bool operator==(const bsl::nullopt_t&, const NullableAllocatedValue<TYPE>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'rhs' is null, and 'false' otherwise.
 
+/// Return `true` if the specified `lhs` is not null, and `false` otherwise.
 template <class TYPE>
 bool operator!=(const NullableAllocatedValue<TYPE>& lhs, const bsl::nullopt_t&)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'lhs' is not null, and 'false' otherwise.
 
+/// Return `true` if the specified `rhs` is not null, and `false`
+/// otherwise.
 template <class TYPE>
 bool operator!=(const bsl::nullopt_t&, const NullableAllocatedValue<TYPE>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'rhs' is not null, and 'false'
-    // otherwise.
 
+/// Return `false`.  Note that `bsl::nullopt` never orders after a
+/// `NullableAllocatedValue`.
 template <class TYPE>
 bool operator<(const NullableAllocatedValue<TYPE>&, const bsl::nullopt_t&)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'false'.  Note that 'bsl::nullopt' never orders after a
-    // 'NullableAllocatedValue'.
 
+/// Return `true` if the specified `rhs` is not null, and `false` otherwise.
+/// Note that `bsl::nullopt` is ordered before any `NullableAllocatedValue`
+/// that is not null.
 template <class TYPE>
 bool operator<(const bsl::nullopt_t&, const NullableAllocatedValue<TYPE>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'rhs' is not null, and 'false' otherwise.
-    // Note that 'bsl::nullopt' is ordered before any 'NullableAllocatedValue'
-    // that is not null.
 
+/// Return `true` if the specified `lhs` is not null, and `false`
+/// otherwise.
 template <class TYPE>
 bool operator>(const NullableAllocatedValue<TYPE>& lhs, const bsl::nullopt_t&)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'lhs' is not null, and 'false'
-    // otherwise.
 
+/// Return `false`.  Note that `bsl::nullopt` never orders after a
+/// `NullableAllocatedValue`.
 template <class TYPE>
 bool operator>(const bsl::nullopt_t&, const NullableAllocatedValue<TYPE>&)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'false'.  Note that 'bsl::nullopt' never orders after a
-    // 'NullableAllocatedValue'.
 
+/// Return `true` if the specified `lhs` is null, and `false` otherwise.
 template <class TYPE>
 bool operator<=(const NullableAllocatedValue<TYPE>& lhs, const bsl::nullopt_t&)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'lhs' is null, and 'false' otherwise.
 
+/// Return `true`.
 template <class TYPE>
 bool operator<=(const bsl::nullopt_t&, const NullableAllocatedValue<TYPE>&)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true'.
 
+/// Return `true`.
 template <class TYPE>
 bool operator>=(const NullableAllocatedValue<TYPE>&, const bsl::nullopt_t&)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true'.
 
+/// Return `true` if the specified `rhs` is null, and `false` otherwise.
 template <class TYPE>
 bool operator>=(const bsl::nullopt_t&, const NullableAllocatedValue<TYPE>& rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'rhs' is null, and 'false' otherwise.
 
                   //===============================
                   // Comparisons with bsl::optional
                   //===============================
 
+/// If neither of the specified `lhs` and `rhs` contain a value, return
+/// `true`.  If one contains a value, and the other does not, return
+/// `false`.  Otherwise, return `lhs.value == rhs.value()`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const bsl::optional<RHS_TYPE>&          rhs);
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const bsl::optional<LHS_TYPE>&          lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // If neither of the specified 'lhs' and 'rhs' contain a value, return
-    // 'true'.  If one contains a value, and the other does not, return
-    // 'false'.  Otherwise, return 'lhs.value == rhs.value()'.
 
+/// If neither of the specified `lhs` and `rhs` contain a value, return
+/// `false`.  If one contains a value, and the other does not, return
+/// `true`.  Otherwise, return `lhs.value != rhs.value()`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const bsl::optional<RHS_TYPE>&          rhs);
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const bsl::optional<LHS_TYPE>&          lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // If neither of the specified 'lhs' and 'rhs' contain a value, return
-    // 'false'.  If one contains a value, and the other does not, return
-    // 'true'.  Otherwise, return 'lhs.value != rhs.value()'.
 
+/// If neither of the specified `lhs` and `rhs` contain a value, return
+/// `false`.  If `lhs` contains a value, and `rhs` does not, return `false`.
+/// If `lhs` does not contains a value, `rhs` does, return `true`.
+/// Otherwise, return `lhs.value < rhs.value()`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const NullableAllocatedValue<LHS_TYPE>& lhs,
                const bsl::optional<RHS_TYPE>&          rhs);
-    // If neither of the specified 'lhs' and 'rhs' contain a value, return
-    // 'false'.  If 'lhs' contains a value, and 'rhs' does not, return 'false'.
-    // If 'lhs' does not contains a value, 'rhs' does, return 'true'.
-    // Otherwise, return 'lhs.value < rhs.value()'.
 
+/// If neither of the specified `lhs` and `rhs` contain a value, return
+/// `false`.  If `lhs` contains a value, and `rhs` does not, return `false`.
+/// If `lhs` does not contains a value, `rhs` does, return `true`.
+/// Otherwise, return `lhs.value < rhs.value()`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const bsl::optional<LHS_TYPE>&          lhs,
                const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // If neither of the specified 'lhs' and 'rhs' contain a value, return
-    // 'false'.  If 'lhs' contains a value, and 'rhs' does not, return 'false'.
-    // If 'lhs' does not contains a value, 'rhs' does, return 'true'.
-    // Otherwise, return 'lhs.value < rhs.value()'.
 
+/// If neither of the specified `lhs` and `rhs` contain a value, return
+/// `false`.  If `lhs` contains a value, and `rhs` does not, return `true`.
+/// If `lhs` does not contains a value, `rhs` does, return `false`.
+/// Otherwise, return `lhs.value > rhs.value()`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const NullableAllocatedValue<LHS_TYPE>& lhs,
                const bsl::optional<RHS_TYPE>&          rhs);
-    // If neither of the specified 'lhs' and 'rhs' contain a value, return
-    // 'false'.  If 'lhs' contains a value, and 'rhs' does not, return 'true'.
-    // If 'lhs' does not contains a value, 'rhs' does, return 'false'.
-    // Otherwise, return 'lhs.value > rhs.value()'.
 
+/// If neither of the specified `lhs` and `rhs` contain a value, return
+/// `false`.  If `lhs` contains a value, and `rhs` does not, return `true`.
+/// If `lhs` does not contains a value, `rhs` does, return `false`.
+/// Otherwise, return `lhs.value > rhs.value()`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const bsl::optional<LHS_TYPE>&          lhs,
                const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // If neither of the specified 'lhs' and 'rhs' contain a value, return
-    // 'false'.  If 'lhs' contains a value, and 'rhs' does not, return 'true'.
-    // If 'lhs' does not contains a value, 'rhs' does, return 'false'.
-    // Otherwise, return 'lhs.value > rhs.value()'.
 
+/// If neither of the specified `lhs` and `rhs` contain a value, return
+/// `true`.  If `lhs` contains a value, and `rhs` does not, return `false`.
+/// If `lhs` does not contains a value, `rhs` does, return `true`.
+/// Otherwise, return `lhs.value <= rhs.value()`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const bsl::optional<RHS_TYPE>&          rhs);
-    // If neither of the specified 'lhs' and 'rhs' contain a value, return
-    // 'true'.  If 'lhs' contains a value, and 'rhs' does not, return 'false'.
-    // If 'lhs' does not contains a value, 'rhs' does, return 'true'.
-    // Otherwise, return 'lhs.value <= rhs.value()'.
 
+/// If neither of the specified `lhs` and `rhs` contain a value, return
+/// `true`.  If `lhs` contains a value, and `rhs` does not, return `false`.
+/// If `lhs` does not contains a value, `rhs` does, return `true`.
+/// Otherwise, return `lhs.value <= rhs.value()`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const bsl::optional<LHS_TYPE>&          lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // If neither of the specified 'lhs' and 'rhs' contain a value, return
-    // 'true'.  If 'lhs' contains a value, and 'rhs' does not, return 'false'.
-    // If 'lhs' does not contains a value, 'rhs' does, return 'true'.
-    // Otherwise, return 'lhs.value <= rhs.value()'.
 
+/// If neither of the specified `lhs` and `rhs` contain a value, return
+/// `true`.  If `lhs` contains a value, and `rhs` does not, return `true`.
+/// If `lhs` does not contains a value, `rhs` does, return `false`.
+/// Otherwise, return `lhs.value >= rhs.value()`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const NullableAllocatedValue<LHS_TYPE>& lhs,
                 const bsl::optional<RHS_TYPE>&          rhs);
-    // If neither of the specified 'lhs' and 'rhs' contain a value, return
-    // 'true'.  If 'lhs' contains a value, and 'rhs' does not, return 'true'.
-    // If 'lhs' does not contains a value, 'rhs' does, return 'false'.
-    // Otherwise, return 'lhs.value >= rhs.value()'.
 
+/// If neither of the specified `lhs` and `rhs` contain a value, return
+/// `true`.  If `lhs` contains a value, and `rhs` does not, return `true`.
+/// If `lhs` does not contains a value, `rhs` does, return `false`.
+/// Otherwise, return `lhs.value >= rhs.value()`.
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const bsl::optional<LHS_TYPE>&          lhs,
                 const NullableAllocatedValue<RHS_TYPE>& rhs);
-    // If neither of the specified 'lhs' and 'rhs' contain a value, return
-    // 'true'.  If 'lhs' contains a value, and 'rhs' does not, return 'true'.
-    // If 'lhs' does not contains a value, 'rhs' does, return 'false'.
-    // Otherwise, return 'lhs.value >= rhs.value()'.
 
 // FREE FUNCTIONS
+
+/// Pass the boolean value of whether the specified `input` contains a value
+/// to the specified `hashAlg` hashing algorithm of (template parameter)
+/// type `HASHALG`.  If `input` contains a value, additionally pass that
+/// value to `hashAlg`.
 template <class HASHALG, class TYPE>
 void hashAppend(HASHALG& hashAlg, const NullableAllocatedValue<TYPE>& input);
-    // Pass the boolean value of whether the specified 'input' contains a value
-    // to the specified 'hashAlg' hashing algorithm of (template parameter)
-    // type 'HASHALG'.  If 'input' contains a value, additionally pass that
-    // value to 'hashAlg'.
 
+/// Exchange the values of the specified `a` and `b` objects.  This function
+/// provides the no-throw exception-safety guarantee if the two objects were
+/// created with the same allocator and the basic guarantee otherwise.
 template <class TYPE>
 void swap(NullableAllocatedValue<TYPE>& a,
           NullableAllocatedValue<TYPE>& b);
-    // Exchange the values of the specified 'a' and 'b' objects.  This function
-    // provides the no-throw exception-safety guarantee if the two objects were
-    // created with the same allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                           INLINE DEFINITIONS

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Aug 15 14:01:22 2024
+// Generated on Sun Sep  1 06:01:47 2024
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -79,21 +79,21 @@ concept NullableValue_DerivedFromOptional =
                       // class NullableValue<TYPE>
                       // =========================
 
+/// This template class extends the set of values of its value-semantic
+/// `TYPE` parameter to include the notion of a "null" value.  If `TYPE` is
+/// fully value-semantic, then the augmented type `NullableValue<TYPE>` will
+/// be as well.  In addition to supporting all homogeneous value-semantic
+/// operations, conversions between comparable underlying value types is
+/// also supported.  Two nullable objects with different underlying types
+/// compare equal if their underlying types are comparable and either (1)
+/// both objects are null or (2) the non-null values compare equal.  A null
+/// nullable object is considered ordered before any non-null nullable
+/// object.  Attempts to copy construct, copy assign, or compare
+/// incompatible values types will fail to compile.  The `NullableValue`
+/// template cannot be instantiated on an incomplete type, a type that
+/// overloads unary `operator&`, or `bsl::nullopt_t`.
 template <class TYPE>
 class NullableValue : public bsl::optional<TYPE> {
-    // This template class extends the set of values of its value-semantic
-    // 'TYPE' parameter to include the notion of a "null" value.  If 'TYPE' is
-    // fully value-semantic, then the augmented type 'NullableValue<TYPE>' will
-    // be as well.  In addition to supporting all homogeneous value-semantic
-    // operations, conversions between comparable underlying value types is
-    // also supported.  Two nullable objects with different underlying types
-    // compare equal if their underlying types are comparable and either (1)
-    // both objects are null or (2) the non-null values compare equal.  A null
-    // nullable object is considered ordered before any non-null nullable
-    // object.  Attempts to copy construct, copy assign, or compare
-    // incompatible values types will fail to compile.  The 'NullableValue'
-    // template cannot be instantiated on an incomplete type, a type that
-    // overloads unary 'operator&', or 'bsl::nullopt_t'.
 
     // PRIVATE TYPES
     typedef bslmf::MovableRefUtil MoveUtil;
@@ -101,18 +101,18 @@ class NullableValue : public bsl::optional<TYPE> {
     struct EnableType {
     };
 
+    /// This trivial tag type is used as a dummy when `NullableValue` wraps
+    /// a non-allocator-aware type.
     struct NoAlloc {
-        // This trivial tag type is used as a dummy when 'NullableValue' wraps
-        // a non-allocator-aware type.
     };
 
+    /// Type alias to the allocator type used by this `NullableValue`.  Note
+    /// that we can't refer to `optional::allocator_type` because the
+    /// conditional needs the type to exist even for non allocator aware
+    /// types.
     typedef typename bsl::conditional<bslma::UsesBslmaAllocator<TYPE>::value,
                                       bsl::allocator<char>,
                                       NoAlloc>::type AllocType;
-        // Type alias to the allocator type used by this 'NullableValue'.  Note
-        // that we can't refer to 'optional::allocator_type' because the
-        // conditional needs the type to exist even for non allocator aware
-        // types.
 
     // FRIENDS
     template <class ANY_TYPE>
@@ -120,19 +120,20 @@ class NullableValue : public bsl::optional<TYPE> {
 
   public:
     // TYPES
+
+    /// Base class of this type.
     typedef bsl::optional<TYPE>   Base;
-        // Base class of this type.
 
+    /// `ValueType` is an alias for the underlying `TYPE` upon which this
+    /// template class is instantiated, and represents the type of the
+    /// managed object.
     typedef TYPE ValueType;
-        // 'ValueType' is an alias for the underlying 'TYPE' upon which this
-        // template class is instantiated, and represents the type of the
-        // managed object.
 
+    /// The type of allocator used by this object.  If `TYPE` is not
+    /// allocator aware, `allocator_type` is a private non-allocator type
+    /// that effectively removes the allocator-specific constructors from
+    /// consideration during overload resolution.
     typedef AllocType allocator_type;
-        // The type of allocator used by this object.  If 'TYPE' is not
-        // allocator aware, 'allocator_type' is a private non-allocator type
-        // that effectively removes the allocator-specific constructors from
-        // consideration during overload resolution.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(NullableValue,
@@ -150,23 +151,24 @@ class NullableValue : public bsl::optional<TYPE> {
         // for 'TYPE'.  'HasPrintMethod' is always true for 'NullableValue'.
 
     // CREATORS
-    NullableValue() BSLS_KEYWORD_NOEXCEPT;
-        // Create a nullable object having the null value.  If 'TYPE' takes an
-        // optional allocator at construction, use the currently installed
-        // default allocator to supply memory.
 
+    /// Create a nullable object having the null value.  If `TYPE` takes an
+    /// optional allocator at construction, use the currently installed
+    /// default allocator to supply memory.
+    NullableValue() BSLS_KEYWORD_NOEXCEPT;
+
+    /// Create a nullable object that has the null value and that uses the
+    /// specified `allocator` (e.g., the address of a `bslma::Allocator`
+    /// object) to supply memory.  Note that this constructor will not
+    /// participate in overload resolution unless `TYPE` is allocator aware.
     explicit NullableValue(const allocator_type& allocator)
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Create a nullable object that has the null value and that uses the
-        // specified 'allocator' (e.g., the address of a 'bslma::Allocator'
-        // object) to supply memory.  Note that this constructor will not
-        // participate in overload resolution unless 'TYPE' is allocator aware.
 
+    /// Create a nullable object having the value of the specified
+    /// `original` object.  If `TYPE` takes an optional allocator at
+    /// construction, use the currently installed default allocator to
+    /// supply memory.
     NullableValue(const NullableValue& original);
-        // Create a nullable object having the value of the specified
-        // 'original' object.  If 'TYPE' takes an optional allocator at
-        // construction, use the currently installed default allocator to
-        // supply memory.
 
     NullableValue(bslmf::MovableRef<NullableValue> original)
                       BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
@@ -178,24 +180,30 @@ class NullableValue : public bsl::optional<TYPE> {
         // for use in the newly-created object.  'original' is left in a valid
         // but unspecified state.
 
+    /// Create a nullable object that has the value of the specified
+    /// `original` object and uses the specified `allocator` (e.g., the
+    /// address of a `bslma::Allocator` object) to supply memory.  Note that
+    /// this constructor will not participate in overload resolution unless
+    /// `TYPE` is allocator aware.
     NullableValue(const NullableValue&  original,
                   const allocator_type& allocator);
-        // Create a nullable object that has the value of the specified
-        // 'original' object and uses the specified 'allocator' (e.g., the
-        // address of a 'bslma::Allocator' object) to supply memory.  Note that
-        // this constructor will not participate in overload resolution unless
-        // 'TYPE' is allocator aware.
 
+    /// Create a nullable object having the same value as the specified
+    /// `original` object but using the specified `allocator` (e.g., the
+    /// address of a `bslma::Allocator` object) to supply memory.  The
+    /// contents of `original` are moved to the newly-created object using
+    /// the extended move constructor for `TYPE`.  `original` is left in a
+    /// valid but unspecified state.  Note that this constructor will not
+    /// participate in overload resolution unless `TYPE` is allocator aware.
     NullableValue(bslmf::MovableRef<NullableValue>  original,
                   const allocator_type&             allocator);
-        // Create a nullable object having the same value as the specified
-        // 'original' object but using the specified 'allocator' (e.g., the
-        // address of a 'bslma::Allocator' object) to supply memory.  The
-        // contents of 'original' are moved to the newly-created object using
-        // the extended move constructor for 'TYPE'.  'original' is left in a
-        // valid but unspecified state.  Note that this constructor will not
-        // participate in overload resolution unless 'TYPE' is allocator aware.
 
+    /// Create a nullable object having the specified `value` (of
+    /// `BDE_OTHER_TYPE`) converted to `TYPE`.  If `TYPE` takes an optional
+    /// allocator at construction, use the currently installed default
+    /// allocator to supply memory.  Note that this constructor will not
+    /// participate in overload resolution unless `BDE_OTHER_TYPE` is
+    /// convertible to `TYPE` and is not convertible to `allocator_type`.
     template <class BDE_OTHER_TYPE>
     NullableValue(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value,
                   typename bsl::enable_if<
@@ -203,13 +211,13 @@ class NullableValue : public bsl::optional<TYPE> {
                       !bsl::is_convertible<BDE_OTHER_TYPE,
                                            allocator_type>::value,
                       EnableType>::type = EnableType());            // IMPLICIT
-        // Create a nullable object having the specified 'value' (of
-        // 'BDE_OTHER_TYPE') converted to 'TYPE'.  If 'TYPE' takes an optional
-        // allocator at construction, use the currently installed default
-        // allocator to supply memory.  Note that this constructor will not
-        // participate in overload resolution unless 'BDE_OTHER_TYPE' is
-        // convertible to 'TYPE' and is not convertible to 'allocator_type'.
 
+    /// Create a nullable object that has the specified `value` (of
+    /// `BDE_OTHER_TYPE`) converted to `TYPE` and that uses the specified
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory.  Note that this constructor will not participate in
+    /// overload resolution unless `TYPE` is allocator aware and
+    /// `BDE_OTHER_TYPE` is convertible to `TYPE`.
     template <class BDE_OTHER_TYPE>
     NullableValue(
              BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value,
@@ -217,12 +225,6 @@ class NullableValue : public bsl::optional<TYPE> {
              typename bsl::enable_if<
                  bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
                  EnableType>::type = EnableType());
-        // Create a nullable object that has the specified 'value' (of
-        // 'BDE_OTHER_TYPE') converted to 'TYPE' and that uses the specified
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory.  Note that this constructor will not participate in
-        // overload resolution unless 'TYPE' is allocator aware and
-        // 'BDE_OTHER_TYPE' is convertible to 'TYPE'.
 
     template <class BDE_OTHER_TYPE>
     NullableValue(const bsl::optional<BDE_OTHER_TYPE>& value,
@@ -272,145 +274,146 @@ class NullableValue : public bsl::optional<TYPE> {
                      !bsl::is_same<bsl::optional<BDE_OTHER_TYPE>, TYPE>::value,
                      EnableType>::type = EnableType());             // IMPLICIT
 
+    /// Create a nullable object having the null value if the specified
+    /// `original` object is null, and the value of `original.value()` (of
+    /// `BDE_OTHER_TYPE`) converted to `TYPE` otherwise.  If `TYPE` takes an
+    /// optional allocator at construction, use the currently installed
+    /// default allocator to supply memory.  Note that this method will fail
+    /// to compile if `TYPE and `BDE_OTHER_TYPE' are not compatible.
     template <class BDE_OTHER_TYPE>
     explicit NullableValue(const NullableValue<BDE_OTHER_TYPE>& original);
-        // Create a nullable object having the null value if the specified
-        // 'original' object is null, and the value of 'original.value()' (of
-        // 'BDE_OTHER_TYPE') converted to 'TYPE' otherwise.  If 'TYPE' takes an
-        // optional allocator at construction, use the currently installed
-        // default allocator to supply memory.  Note that this method will fail
-        // to compile if 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
 
+    /// Create a nullable object that has the null value if the specified
+    /// `original` object is null, and the value of `original.value()` (of
+    /// `BDE_OTHER_TYPE`) converted to `TYPE` otherwise.  Use the specified
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory.  Note that this constructor will not participate in
+    /// overload resolution unless `TYPE` is allocator aware.  Also note
+    /// that compilation will fail if this function is called with a
+    /// `BDE_OTHER_TYPE` that is not convertible to `TYPE`.
     template <class BDE_OTHER_TYPE>
     NullableValue(const NullableValue<BDE_OTHER_TYPE>& original,
                   const allocator_type&                allocator);
-        // Create a nullable object that has the null value if the specified
-        // 'original' object is null, and the value of 'original.value()' (of
-        // 'BDE_OTHER_TYPE') converted to 'TYPE' otherwise.  Use the specified
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory.  Note that this constructor will not participate in
-        // overload resolution unless 'TYPE' is allocator aware.  Also note
-        // that compilation will fail if this function is called with a
-        // 'BDE_OTHER_TYPE' that is not convertible to 'TYPE'.
 
+    /// Create a nullable object having the null value.  If `TYPE` takes an
+    /// optional allocator at construction, use the currently installed
+    /// default allocator to supply memory for subsequent values assigned to
+    /// this object.
     NullableValue(const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT;     // IMPLICIT
-        // Create a nullable object having the null value.  If 'TYPE' takes an
-        // optional allocator at construction, use the currently installed
-        // default allocator to supply memory for subsequent values assigned to
-        // this object.
 
+    /// Create a nullable object that has the null value; use the specified
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory for subsequent values assigned to this object.  Note
+    /// that this constructor will not participate in overload resolution
+    /// unless `TYPE` is allocator aware.
     NullableValue(const bsl::nullopt_t&,
                   const allocator_type& allocator) BSLS_KEYWORD_NOEXCEPT;
-        // Create a nullable object that has the null value; use the specified
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory for subsequent values assigned to this object.  Note
-        // that this constructor will not participate in overload resolution
-        // unless 'TYPE' is allocator aware.
 
     // ~NullableValue();
         // Destroy this object.  Note that this destructor is generated by the
         // compiler.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to this object.
     NullableValue<TYPE>& operator=(const NullableValue& rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.
 
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to this object.  The contents
+    /// of `rhs` are either move-inserted into or move-assigned to this
+    /// object.  `rhs` is left in a valid but unspecified state.
     NullableValue<TYPE>& operator=(bslmf::MovableRef<NullableValue> rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.  The contents
-        // of 'rhs' are either move-inserted into or move-assigned to this
-        // object.  'rhs' is left in a valid but unspecified state.
 
+    /// Assign to this object the null value if the specified `rhs` object
+    /// is null, and the value of `rhs.value()` (of `BDE_OTHER_TYPE`)
+    /// converted to `TYPE` otherwise.  Return a reference providing
+    /// modifiable access to this object.  Note that this method will fail
+    /// to compile if `TYPE and `BDE_OTHER_TYPE' are not compatible.
     template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>& operator=(const NullableValue<BDE_OTHER_TYPE>& rhs);
-        // Assign to this object the null value if the specified 'rhs' object
-        // is null, and the value of 'rhs.value()' (of 'BDE_OTHER_TYPE')
-        // converted to 'TYPE' otherwise.  Return a reference providing
-        // modifiable access to this object.  Note that this method will fail
-        // to compile if 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
 
+    /// Assign to this object the null value if the specified `rhs` object
+    /// is null, and the value of `rhs.value()` (of `BDE_OTHER_TYPE`)
+    /// converted to `TYPE` otherwise.  Return a reference providing
+    /// modifiable access to this object.  Note that this method will fail
+    /// to compile if `TYPE and `BDE_OTHER_TYPE' are not compatible.
     template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>& operator=(
                             BSLMF_MOVABLEREF_DEDUCE(
                                            NullableValue<BDE_OTHER_TYPE>) rhs);
-        // Assign to this object the null value if the specified 'rhs' object
-        // is null, and the value of 'rhs.value()' (of 'BDE_OTHER_TYPE')
-        // converted to 'TYPE' otherwise.  Return a reference providing
-        // modifiable access to this object.  Note that this method will fail
-        // to compile if 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
 
+    /// Assign to this object the null value if the specified `rhs` object
+    /// is null, and the value of `rhs.value()` (of `BDE_OTHER_TYPE`)
+    /// converted to `TYPE` otherwise.  Return a reference providing
+    /// modifiable access to this object.  Note that this method will fail
+    /// to compile if `TYPE and `BDE_OTHER_TYPE' are not compatible.
     template <class BDE_OTHER_TYPE>
     typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
                             NullableValue<TYPE>&>::type
     operator=(const bsl::optional<BDE_OTHER_TYPE>& rhs);
-        // Assign to this object the null value if the specified 'rhs' object
-        // is null, and the value of 'rhs.value()' (of 'BDE_OTHER_TYPE')
-        // converted to 'TYPE' otherwise.  Return a reference providing
-        // modifiable access to this object.  Note that this method will fail
-        // to compile if 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
 
+    /// Assign to this object the null value if the specified `rhs` object
+    /// is null, and the value of `rhs.value()` (of `BDE_OTHER_TYPE`)
+    /// converted to `TYPE` otherwise.  Return a reference providing
+    /// modifiable access to this object.  Note that this method will fail
+    /// to compile if `TYPE and `BDE_OTHER_TYPE' are not compatible.
     template <class BDE_OTHER_TYPE>
     typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
                             NullableValue<TYPE>&>::type
     operator=(BSLMF_MOVABLEREF_DEDUCE(bsl::optional<BDE_OTHER_TYPE>) rhs);
-        // Assign to this object the null value if the specified 'rhs' object
-        // is null, and the value of 'rhs.value()' (of 'BDE_OTHER_TYPE')
-        // converted to 'TYPE' otherwise.  Return a reference providing
-        // modifiable access to this object.  Note that this method will fail
-        // to compile if 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
 
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to this object.
     NullableValue<TYPE>& operator=(const TYPE& rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.
 
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to this object.  The contents
+    /// of `rhs` are either move-inserted into or move-assigned to this
+    /// object.  `rhs` is left in a valid but unspecified state.
     NullableValue<TYPE>& operator=(bslmf::MovableRef<TYPE> rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.  The contents
-        // of 'rhs' are either move-inserted into or move-assigned to this
-        // object.  'rhs' is left in a valid but unspecified state.
 
+    /// Assign to this object the value of the specified `rhs` object (of
+    /// `BDE_OTHER_TYPE`) converted to `TYPE`, and return a reference
+    /// providing modifiable access to this object.  Note that this method
+    /// will fail to compile if `TYPE` and `BDE_OTHER_TYPE` are not
+    /// compatible.  Note that on C++03 but not in C++11 and beyond, if
+    /// `BDE_OTHER_TYPE` is `bslmf::MovableRef<TYPE3>` and `TYPE` supports
+    /// moves and/or assigns from that type, a move rather than a copy may
+    /// take place.
     template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>& operator=(const BDE_OTHER_TYPE& rhs);
-        // Assign to this object the value of the specified 'rhs' object (of
-        // 'BDE_OTHER_TYPE') converted to 'TYPE', and return a reference
-        // providing modifiable access to this object.  Note that this method
-        // will fail to compile if 'TYPE' and 'BDE_OTHER_TYPE' are not
-        // compatible.  Note that on C++03 but not in C++11 and beyond, if
-        // 'BDE_OTHER_TYPE' is 'bslmf::MovableRef<TYPE3>' and 'TYPE' supports
-        // moves and/or assigns from that type, a move rather than a copy may
-        // take place.
 
+    /// Reset this object to the default constructed state (i.e., to have
+    /// the null value), and return a reference providing modifiable access
+    /// to this object.
     NullableValue<TYPE>& operator=(const bsl::nullopt_t&)
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Reset this object to the default constructed state (i.e., to have
-        // the null value), and return a reference providing modifiable access
-        // to this object.
 
+    /// Assign to this object the value read from the specified input
+    /// `stream` using the specified `version` format, and return a
+    /// reference to `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `version` is not supported, this object
+    /// is unaltered and `stream` is invalidated, but otherwise unmodified.
+    /// If `version` is supported but `stream` becomes invalid during this
+    /// operation, this object has an undefined, but valid, state.  Note
+    /// that no version is read from `stream`.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format, and return a
-        // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, this object
-        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
-        // If 'version' is supported but 'stream' becomes invalid during this
-        // operation, this object has an undefined, but valid, state.  Note
-        // that no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
+    /// Assign to this object the specified `value` (of `BDE_OTHER_TYPE`)
+    /// converted to `TYPE`, and return a reference providing modifiable
+    /// access to the underlying `TYPE` object.  Note that this method will
+    /// fail to compile if `TYPE and `BDE_OTHER_TYPE' are not compatible.
     template <class BDE_OTHER_TYPE>
     TYPE& makeValue(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value);
-        // Assign to this object the specified 'value' (of 'BDE_OTHER_TYPE')
-        // converted to 'TYPE', and return a reference providing modifiable
-        // access to the underlying 'TYPE' object.  Note that this method will
-        // fail to compile if 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
 
+    /// Assign to this object the default value for `TYPE`, and return a
+    /// reference providing modifiable access to the underlying `TYPE`
+    /// object.
     TYPE& makeValue();
-        // Assign to this object the default value for 'TYPE', and return a
-        // reference providing modifiable access to the underlying 'TYPE'
-        // object.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -421,6 +424,7 @@ class NullableValue : public bsl::optional<TYPE> {
 #ifndef BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A
 #define BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A BDLB_NULLABLEVALUE_VARIADIC_LIMIT
 #endif
+
 #if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 0
     TYPE& makeValueInplace();
 #endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 0
@@ -473,93 +477,95 @@ class NullableValue : public bsl::optional<TYPE> {
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
+
     template <class... ARGS>
     TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
 // }}} END GENERATED CODE
 #endif
 
+    /// Return a reference providing modifiable access to the underlying
+    /// `TYPE` object.  The behavior is undefined unless this object is
+    /// non-null.
     TYPE& value();
-        // Return a reference providing modifiable access to the underlying
-        // 'TYPE' object.  The behavior is undefined unless this object is
-        // non-null.
 
     // ACCESSORS
-    const TYPE *addressOr(const TYPE *address) const;
-        // Return an address providing non-modifiable access to the underlying
-        // object of a (template parameter) 'TYPE' if this object is non-null,
-        // and the specified 'address' otherwise.
 
+    /// Return an address providing non-modifiable access to the underlying
+    /// object of a (template parameter) `TYPE` if this object is non-null,
+    /// and the specified `address` otherwise.
+    const TYPE *addressOr(const TYPE *address) const;
+
+    /// Write the value of this object, using the specified `version`
+    /// format, to the specified output `stream`, and return a reference to
+    /// `stream`.  If `stream` is initially invalid, this operation has no
+    /// effect.  If `version` is not supported, `stream` is invalidated, but
+    /// otherwise unmodified.  Note that `version` is not written to
+    /// `stream`.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object, using the specified 'version'
-        // format, to the specified output 'stream', and return a reference to
-        // 'stream'.  If 'stream' is initially invalid, this operation has no
-        // effect.  If 'version' is not supported, 'stream' is invalidated, but
-        // otherwise unmodified.  Note that 'version' is not written to
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Return `true` if this object is null, and `false` otherwise.
     bool isNull() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if this object is null, and 'false' otherwise.
 
+    /// Return the maximum valid BDEX format version, as indicated by the
+    /// specified `versionSelector`, to be passed to the `bdexStreamOut`
+    /// method.  Note that it is highly recommended that `versionSelector`
+    /// be formatted as "YYYYMMDD", a date representation.  Also note that
+    /// `versionSelector` should be a *compile*-time-chosen value that
+    /// selects a format version supported by both externalizer and
+    /// unexternalizer.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     int maxSupportedBdexVersion(int versionSelector) const;
-        // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
-        // method.  Note that it is highly recommended that 'versionSelector'
-        // be formatted as "YYYYMMDD", a date representation.  Also note that
-        // 'versionSelector' should be a *compile*-time-chosen value that
-        // selects a format version supported by both externalizer and
-        // unexternalizer.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    /// Return the most current BDEX streaming version number supported by
+    /// this class.  (See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.)
     int maxSupportedBdexVersion() const;
-        // Return the most current BDEX streaming version number supported by
-        // this class.  (See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.)
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level` and return a
+    /// reference to `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for
+    /// this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  If `stream` is
+    /// not valid on entry, this operation has no effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level' and return a
-        // reference to 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.
 
+    /// Return a reference providing non-modifiable access to the underlying
+    /// object of a (template parameter) `TYPE`.  The behavior is undefined
+    /// unless this object is non-null.
     const TYPE& value() const;
-        // Return a reference providing non-modifiable access to the underlying
-        // object of a (template parameter) 'TYPE'.  The behavior is undefined
-        // unless this object is non-null.
 
+    /// Return the value of the underlying object of a (template parameter)
+    /// `TYPE` if this object is non-null, and the specified `value`
+    /// otherwise.  Note that this method returns *by* *value*, so may be
+    /// inefficient in some contexts.
     TYPE valueOr(const TYPE& value) const;
-        // Return the value of the underlying object of a (template parameter)
-        // 'TYPE' if this object is non-null, and the specified 'value'
-        // otherwise.  Note that this method returns *by* *value*, so may be
-        // inefficient in some contexts.
 
     #if BSLS_DEPRECATE_IS_ACTIVE(BDL, 3, 5)
     BSLS_DEPRECATE
     #endif
+    /// **DEPRECATED**: Use `addressOr` instead.
+    ///
+    /// Return an address providing non-modifiable access to the underlying
+    /// object of a (template parameter) `TYPE` if this object is non-null,
+    /// and the specified `value` otherwise.
     const TYPE *valueOr(const TYPE *value) const;
-        // !DEPRECATED!: Use 'addressOr' instead.
-        //
-        // Return an address providing non-modifiable access to the underlying
-        // object of a (template parameter) 'TYPE' if this object is non-null,
-        // and the specified 'value' otherwise.
 
+    /// Return an address providing non-modifiable access to the underlying
+    /// object of a (template parameter) `TYPE` if this object is non-null,
+    /// and 0 otherwise.
     const TYPE *valueOrNull() const;
-        // Return an address providing non-modifiable access to the underlying
-        // object of a (template parameter) 'TYPE' if this object is non-null,
-        // and 0 otherwise.
 
 };
 
@@ -1035,6 +1041,9 @@ bool operator>=(const LHS_TYPE&                lhs,
 #if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
     defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 
+/// Perform a three-way comparison of the specified `lhs` and the specified
+/// `rhs` objects by using the comparison operators of `t_LHS` and `t_RHS`;
+/// return the result of that comparison.
 template <class LHS_TYPE, bsl::three_way_comparable_with<LHS_TYPE> RHS_TYPE>
 constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE> operator<=>(
                                            const NullableValue<LHS_TYPE>& lhs,
@@ -1052,24 +1061,21 @@ template <class LHS_TYPE, class RHS_TYPE>
               bsl::three_way_comparable_with<LHS_TYPE, RHS_TYPE>
 constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE>
     operator<=>(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs);
-    // Perform a three-way comparison of the specified 'lhs' and the specified
-    // 'rhs' objects by using the comparison operators of 't_LHS' and 't_RHS';
-    // return the result of that comparison.
 
+/// Perform a three-way comparison of the specified `value` and one of type
+/// `bsl::nullopt_t`; return the result of that comparison.
 template <class TYPE>
 constexpr std::strong_ordering
     operator<=>(const NullableValue<TYPE>& value,
                 const bsl::nullopt_t&         ) BSLS_KEYWORD_NOEXCEPT;
-    // Perform a three-way comparison of the specified 'value' and one of type
-    // 'bsl::nullopt_t'; return the result of that comparison.
 
 #endif // SUPPORT_THREE_WAY_COMPARISON && HAS_CPP20_CONCEPTS
 
+/// Return `true` if the specified `value` is null, and `false` otherwise.
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
 bool operator==(const NullableValue<TYPE>& value, const bsl::nullopt_t&)
                                                          BSLS_KEYWORD_NOEXCEPT;
-    // Return 'true' if the specified 'value' is null, and 'false' otherwise.
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
@@ -1148,26 +1154,33 @@ bool operator>=(const bsl::nullopt_t&,const NullableValue<TYPE>& value)
 #  endif // !BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 #endif // !BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
+/// Write the value of the specified `object` to the specified output
+/// `stream` in a single-line format, and return a reference to `stream`.
+/// If `stream` is not valid on entry, this operation has no effect.  Note
+/// that this human-readable format is not fully specified, can change
+/// without notice, and is logically equivalent to:
+/// ```
+/// print(stream, 0, -1);
+/// ```
 template <class TYPE>
 bsl::ostream& operator<<(bsl::ostream&              stream,
                          const NullableValue<TYPE>& object);
-    // Write the value of the specified 'object' to the specified output
-    // 'stream' in a single-line format, and return a reference to 'stream'.
-    // If 'stream' is not valid on entry, this operation has no effect.  Note
-    // that this human-readable format is not fully specified, can change
-    // without notice, and is logically equivalent to:
-    //..
-    //  print(stream, 0, -1);
-    //..
 
 // FREE FUNCTIONS
+
+/// Pass the boolean value of whether the specified `input` contains a value
+/// to the specified `hashAlg` hashing algorithm of (template parameter)
+/// type `HASHALG`.  If `input` contains a value, additionally pass that
+/// value to `hashAlg`.
 template <class HASHALG, class TYPE>
 void hashAppend(HASHALG& hashAlg, const NullableValue<TYPE>& input);
-    // Pass the boolean value of whether the specified 'input' contains a value
-    // to the specified 'hashAlg' hashing algorithm of (template parameter)
-    // type 'HASHALG'.  If 'input' contains a value, additionally pass that
-    // value to 'hashAlg'.
 
+/// Exchange the values of the specified `rhs` and `lhs` objects.  This
+/// function provides the no-throw exception-safety guarantee if the
+/// (template parameter) `TYPE` provides that guarantee, the two objects
+/// were created with the same allocator (if applicable), and the result of
+/// the `isNull` method for the two objects is the same; otherwise this
+/// function provides the basic guarantee.
 template <class TYPE>
 typename bsl::enable_if<BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value,
                         void>::type
@@ -1176,12 +1189,6 @@ template <class TYPE>
 typename bsl::enable_if<!BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value,
                         void>::type
 swap(NullableValue<TYPE>& lhs, NullableValue<TYPE>& rhs);
-    // Exchange the values of the specified 'rhs' and 'lhs' objects.  This
-    // function provides the no-throw exception-safety guarantee if the
-    // (template parameter) 'TYPE' provides that guarantee, the two objects
-    // were created with the same allocator (if applicable), and the result of
-    // the 'isNull' method for the two objects is the same; otherwise this
-    // function provides the basic guarantee.
 
 // ============================================================================
 //                           INLINE DEFINITIONS

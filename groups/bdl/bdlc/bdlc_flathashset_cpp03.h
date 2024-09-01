@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Feb 15 08:55:18 2024
+// Generated on Sun Sep  1 06:02:14 2024
 // Command line: sim_cpp11_features.pl bdlc_flathashset.h
 
 #ifdef COMPILING_BDLC_FLATHASHSET_H
@@ -50,11 +50,11 @@ void swap(FlatHashSet<KEY, HASH, EQUAL>& a, FlatHashSet<KEY, HASH, EQUAL>& b);
                        // struct FlatHashSet_EntryUtil
                        // ============================
 
+/// This templated utility provides methods to construct an `ENTRY` and a
+/// method to extract the key from an `ENTRY` (which is, identically, the
+/// `ENTRY`).
 template <class ENTRY>
 struct FlatHashSet_EntryUtil
-    // This templated utility provides methods to construct an 'ENTRY' and a
-    // method to extract the key from an 'ENTRY' (which is, identically, the
-    // 'ENTRY').
 {
     // CLASS METHODS
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -253,41 +253,42 @@ struct FlatHashSet_EntryUtil
 // }}} END GENERATED CODE
 #endif
 
+    /// Load into the specified `entry` the `ENTRY` value comprised of the
+    /// specified `key`, using the specified `allocator` to supply memory.
+    /// `allocator` is ignored if the (template parameter) type `ENTRY` is
+    /// not allocator aware.
     template <class KEY_TYPE>
     static void constructFromKey(
                         ENTRY                                       *entry,
                         bslma::Allocator                            *allocator,
                         BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE)  key);
-        // Load into the specified 'entry' the 'ENTRY' value comprised of the
-        // specified 'key', using the specified 'allocator' to supply memory.
-        // 'allocator' is ignored if the (template parameter) type 'ENTRY' is
-        // not allocator aware.
 
+    /// Return the specified `entry`.
     static const ENTRY& key(const ENTRY& entry);
-        // Return the specified 'entry'.
 };
 
                             // =================
                             // class FlatHashSet
                             // =================
 
+/// This class template implements a value-semantic container type holding
+/// an unordered set of unique values of (template parameter) type `KEY`.
+/// The (template parameter) type `HASH` is a functor providing the hash
+/// value for `KEY`.  The (template parameter) type `EQUAL` is a functor
+/// providing the equality function for two `KEY` values.  See {Requirements
+/// on `KEY`, `HASH`, and `EQUAL`} for more information.
 template <class KEY, class HASH, class EQUAL>
 class FlatHashSet {
-    // This class template implements a value-semantic container type holding
-    // an unordered set of unique values of (template parameter) type 'KEY'.
-    // The (template parameter) type 'HASH' is a functor providing the hash
-    // value for 'KEY'.  The (template parameter) type 'EQUAL' is a functor
-    // providing the equality function for two 'KEY' values.  See {Requirements
-    // on 'KEY', 'HASH', and 'EQUAL'} for more information.
 
   private:
     // PRIVATE TYPES
+
+    /// This is the underlying implementation class.
     typedef FlatHashTable<KEY,
                           KEY,
                           FlatHashSet_EntryUtil<KEY>,
                           HASH,
                           EQUAL> ImplType;
-        // This is the underlying implementation class.
 
     // FRIENDS
     friend bool operator==<>(const FlatHashSet&, const FlatHashSet&);
@@ -319,6 +320,20 @@ class FlatHashSet {
 
   public:
     // CREATORS
+
+    /// Create an empty `FlatHashSet` object.  Optionally specify a
+    /// `capacity` indicating the minimum initial size of the underlying
+    /// array of entries of this container.  If `capacity` is not supplied
+    /// or is 0, no memory is allocated.  Optionally specify a `hash`
+    /// functor used to generate the hash values associated with the
+    /// elements in this container.  If `hash` is not supplied, a
+    /// default-constructed object of the (template parameter) type `HASH`
+    /// is used.  Optionally specify an equality functor `equal` used to
+    /// determine whether two elements are equivalent.  If `equal` is not
+    /// supplied, a default-constructed object of the (template parameter)
+    /// type `EQUAL` is used.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is not supplied or is 0, the
+    /// currently installed default allocator is used.
     FlatHashSet();
     explicit FlatHashSet(bslma::Allocator *basicAllocator);
     explicit FlatHashSet(bsl::size_t capacity);
@@ -330,20 +345,26 @@ class FlatHashSet {
                 const HASH&       hash,
                 const EQUAL&      equal,
                 bslma::Allocator *basicAllocator = 0);
-        // Create an empty 'FlatHashSet' object.  Optionally specify a
-        // 'capacity' indicating the minimum initial size of the underlying
-        // array of entries of this container.  If 'capacity' is not supplied
-        // or is 0, no memory is allocated.  Optionally specify a 'hash'
-        // functor used to generate the hash values associated with the
-        // elements in this container.  If 'hash' is not supplied, a
-        // default-constructed object of the (template parameter) type 'HASH'
-        // is used.  Optionally specify an equality functor 'equal' used to
-        // determine whether two elements are equivalent.  If 'equal' is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type 'EQUAL' is used.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is not supplied or is 0, the
-        // currently installed default allocator is used.
 
+    /// Create a `FlatHashSet` object initialized by insertion of the values
+    /// from the input iterator range specified by `first` through `last`
+    /// (including `first`, excluding `last`).  Optionally specify a
+    /// `capacity` indicating the minimum initial size of the underlying
+    /// array of entries of this container.  If `capacity` is not supplied
+    /// or is 0, no memory is allocated.  Optionally specify a `hash`
+    /// functor used to generate hash values associated with the elements in
+    /// this container.  If `hash` is not supplied, a default-constructed
+    /// object of the (template parameter) type `HASH` is used.  Optionally
+    /// specify an equality functor `equal` used to verify that two elements
+    /// are equivalent.  If `equal` is not supplied, a default-constructed
+    /// object of the (template parameter) type `EQUAL` is used.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is not supplied or is 0, the currently installed
+    /// default allocator is used.  The behavior is undefined unless `first`
+    /// and `last` refer to a sequence of valid values where `first` is at a
+    /// position at or before `last`.  Note that if a member of the input
+    /// sequence is equivalent to an earlier member, the later member will
+    /// not be inserted.
     template <class INPUT_ITERATOR>
     FlatHashSet(INPUT_ITERATOR    first,
                 INPUT_ITERATOR    last,
@@ -366,27 +387,24 @@ class FlatHashSet {
                 const HASH&       hash,
                 const EQUAL&      equal,
                 bslma::Allocator *basicAllocator = 0);
-        // Create a 'FlatHashSet' object initialized by insertion of the values
-        // from the input iterator range specified by 'first' through 'last'
-        // (including 'first', excluding 'last').  Optionally specify a
-        // 'capacity' indicating the minimum initial size of the underlying
-        // array of entries of this container.  If 'capacity' is not supplied
-        // or is 0, no memory is allocated.  Optionally specify a 'hash'
-        // functor used to generate hash values associated with the elements in
-        // this container.  If 'hash' is not supplied, a default-constructed
-        // object of the (template parameter) type 'HASH' is used.  Optionally
-        // specify an equality functor 'equal' used to verify that two elements
-        // are equivalent.  If 'equal' is not supplied, a default-constructed
-        // object of the (template parameter) type 'EQUAL' is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not supplied or is 0, the currently installed
-        // default allocator is used.  The behavior is undefined unless 'first'
-        // and 'last' refer to a sequence of valid values where 'first' is at a
-        // position at or before 'last'.  Note that if a member of the input
-        // sequence is equivalent to an earlier member, the later member will
-        // not be inserted.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Create a `FlatHashSet` object initialized by insertion of the
+    /// specified `values`.  Optionally specify a `capacity` indicating the
+    /// minimum initial size of the underlying array of entries of this
+    /// container.  If `capacity` is not supplied or is 0, no memory is
+    /// allocated.  Optionally specify a `hash` functor used to generate
+    /// hash values associated with the elements in this container.  If
+    /// `hash` is not supplied, a default-constructed object of the
+    /// (template parameter) type `HASH` is used.  Optionally specify an
+    /// equality functor `equal` used to verify that two elements are
+    /// equivalent.  If `equal` is not supplied, a default-constructed
+    /// object of the (template parameter) type `EQUAL` is used.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is not supplied or is 0, the currently installed
+    /// default allocator is used.  Note that if a member of `values` has a
+    /// key equivalent to an earlier member, the later member will not be
+    /// inserted.
     FlatHashSet(bsl::initializer_list<KEY>  values,
                 bslma::Allocator           *basicAllocator = 0);
     FlatHashSet(bsl::initializer_list<KEY>  values,
@@ -401,83 +419,68 @@ class FlatHashSet {
                 const HASH&                 hash,
                 const EQUAL&                equal,
                 bslma::Allocator           *basicAllocator = 0);
-        // Create a 'FlatHashSet' object initialized by insertion of the
-        // specified 'values'.  Optionally specify a 'capacity' indicating the
-        // minimum initial size of the underlying array of entries of this
-        // container.  If 'capacity' is not supplied or is 0, no memory is
-        // allocated.  Optionally specify a 'hash' functor used to generate
-        // hash values associated with the elements in this container.  If
-        // 'hash' is not supplied, a default-constructed object of the
-        // (template parameter) type 'HASH' is used.  Optionally specify an
-        // equality functor 'equal' used to verify that two elements are
-        // equivalent.  If 'equal' is not supplied, a default-constructed
-        // object of the (template parameter) type 'EQUAL' is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not supplied or is 0, the currently installed
-        // default allocator is used.  Note that if a member of 'values' has a
-        // key equivalent to an earlier member, the later member will not be
-        // inserted.
 #endif
 
+    /// Create a `FlatHashSet` object having the same value, hasher, and
+    /// equality comparator as the specified `original` object.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is not specified or is 0, the currently installed
+    /// default allocator is used.
     FlatHashSet(const FlatHashSet&  original,
                 bslma::Allocator   *basicAllocator = 0);
-        // Create a 'FlatHashSet' object having the same value, hasher, and
-        // equality comparator as the specified 'original' object.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not specified or is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a `FlatHashSet` object having the same value, hasher,
+    /// equality comparator, and allocator as the specified `original`
+    /// object.  The contents of `original` are moved (in constant time) to
+    /// this object, `original` is left in a (valid) unspecified state, and
+    /// no exceptions will be thrown.
     FlatHashSet(bslmf::MovableRef<FlatHashSet> original);
-        // Create a 'FlatHashSet' object having the same value, hasher,
-        // equality comparator, and allocator as the specified 'original'
-        // object.  The contents of 'original' are moved (in constant time) to
-        // this object, 'original' is left in a (valid) unspecified state, and
-        // no exceptions will be thrown.
 
+    /// Create a `FlatHashSet` object having the same value, hasher, and
+    /// equality comparator as the specified `original` object, using the
+    /// specified `basicAllocator` to supply memory.  If `basicAllocator` is
+    /// 0, the currently installed default allocator is used.  The allocator
+    /// of `original` remains unchanged.  If `original` and the newly
+    /// created object have the same allocator then the contents of
+    /// `original` are moved (in constant time) to this object, `original`
+    /// is left in a (valid) unspecified state, and no exceptions will be
+    /// thrown; otherwise `original` is unchanged (and an exception may be
+    /// thrown).
     FlatHashSet(bslmf::MovableRef<FlatHashSet>  original,
                 bslma::Allocator               *basicAllocator);
-        // Create a 'FlatHashSet' object having the same value, hasher, and
-        // equality comparator as the specified 'original' object, using the
-        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.  The allocator
-        // of 'original' remains unchanged.  If 'original' and the newly
-        // created object have the same allocator then the contents of
-        // 'original' are moved (in constant time) to this object, 'original'
-        // is left in a (valid) unspecified state, and no exceptions will be
-        // thrown; otherwise 'original' is unchanged (and an exception may be
-        // thrown).
 
+    /// Destroy this object and each of its elements.
     ~FlatHashSet();
-        // Destroy this object and each of its elements.
 
     // MANIPULATORS
-    FlatHashSet& operator=(const FlatHashSet& rhs);
-        // Assign to this object the value, hasher, and equality functor of the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.
 
+    /// Assign to this object the value, hasher, and equality functor of the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.
+    FlatHashSet& operator=(const FlatHashSet& rhs);
+
+    /// Assign to this object the value, hasher, and equality comparator of
+    /// the specified `rhs` object, and return a reference providing
+    /// modifiable access to this object.  If this object and `rhs` use the
+    /// same allocator the contents of `rhs` are moved (in constant time) to
+    /// this object.  `rhs` is left in a (valid) unspecified state.
     FlatHashSet& operator=(bslmf::MovableRef<FlatHashSet> rhs);
-        // Assign to this object the value, hasher, and equality comparator of
-        // the specified 'rhs' object, and return a reference providing
-        // modifiable access to this object.  If this object and 'rhs' use the
-        // same allocator the contents of 'rhs' are moved (in constant time) to
-        // this object.  'rhs' is left in a (valid) unspecified state.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Assign to this object the value resulting from first clearing this
+    /// set and then inserting each object in the specified `values`
+    /// initializer list, ignoring those objects having a value equivalent
+    /// to that which appears earlier in the list; return a reference
+    /// providing modifiable access to this object.  This method requires
+    /// that the (template parameter) type `KEY` be `copy-insertable` into
+    /// this set (see {Requirements on `KEY`, `HASH`, and `EQUAL`}).
     FlatHashSet& operator=(bsl::initializer_list<KEY> values);
-        // Assign to this object the value resulting from first clearing this
-        // set and then inserting each object in the specified 'values'
-        // initializer list, ignoring those objects having a value equivalent
-        // to that which appears earlier in the list; return a reference
-        // providing modifiable access to this object.  This method requires
-        // that the (template parameter) type 'KEY' be 'copy-insertable' into
-        // this set (see {Requirements on 'KEY', 'HASH', and 'EQUAL'}).
 #endif
 
+    /// Remove all elements from this set.  Note that this set will be empty
+    /// after calling this method, but allocated memory may be retained for
+    /// future use.  See the `capacity` method.
     void clear();
-        // Remove all elements from this set.  Note that this set will be empty
-        // after calling this method, but allocated memory may be retained for
-        // future use.  See the 'capacity' method.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -812,48 +815,48 @@ class FlatHashSet {
 // }}} END GENERATED CODE
 #endif
 
+    /// Remove from this set the element whose key is equal to the specified
+    /// `key`, if it exists, and return 1; otherwise (there is no element
+    /// having `key` in this set), return 0 with no other effect.  This
+    /// method invalidates all iterators and references to the removed
+    /// element.
     bsl::size_t erase(const KEY& key);
-        // Remove from this set the element whose key is equal to the specified
-        // 'key', if it exists, and return 1; otherwise (there is no element
-        // having 'key' in this set), return 0 with no other effect.  This
-        // method invalidates all iterators and references to the removed
-        // element.
 
+    /// Remove from this set the element at the specified `position`, and
+    /// return a `const_iterator` referring to the element immediately
+    /// following the removed element, or to the past-the-end position if
+    /// the removed element was the last element in the sequence of elements
+    /// maintained by this set.  This method invalidates all iterators and
+    /// references to the removed element.  The behavior is undefined unless
+    /// `position` refers to an element in this set.
     const_iterator erase(const_iterator position);
-        // Remove from this set the element at the specified 'position', and
-        // return a 'const_iterator' referring to the element immediately
-        // following the removed element, or to the past-the-end position if
-        // the removed element was the last element in the sequence of elements
-        // maintained by this set.  This method invalidates all iterators and
-        // references to the removed element.  The behavior is undefined unless
-        // 'position' refers to an element in this set.
 
+    /// Remove from this set the elements starting at the specified `first`
+    /// position up to, but not including, the specified `last` position,
+    /// and return `last`.  This method invalidates all iterators and
+    /// references to the removed elements.  The behavior is undefined
+    /// unless `first` and `last` are valid iterators on this set, and the
+    /// `first` position is at or before the `last` position in the
+    /// iteration sequence provided by this container.
     const_iterator erase(const_iterator first, const_iterator last);
-        // Remove from this set the elements starting at the specified 'first'
-        // position up to, but not including, the specified 'last' position,
-        // and return 'last'.  This method invalidates all iterators and
-        // references to the removed elements.  The behavior is undefined
-        // unless 'first' and 'last' are valid iterators on this set, and the
-        // 'first' position is at or before the 'last' position in the
-        // iteration sequence provided by this container.
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class KEY_TYPE>
     bsl::pair<const_iterator, bool> insert(
                              BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
 #else
+    /// Insert the specified `value` into this set if the `value` does not
+    /// already exist in this set; otherwise, this method has no effect.
+    /// Return a `pair` whose `first` member is a `const_iterator` referring
+    /// to the (possibly newly inserted) element in this set whose value is
+    /// equivalent to that of the element to be inserted, and whose `second`
+    /// member is `true` if a new element was inserted, and `false` if an
+    /// equivalent value was already present.
     template <class KEY_TYPE>
     typename bsl::enable_if<bsl::is_convertible<KEY_TYPE, KEY>::value,
                             bsl::pair<const_iterator, bool> >::type
                       insert(BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
 #endif
-        // Insert the specified 'value' into this set if the 'value' does not
-        // already exist in this set; otherwise, this method has no effect.
-        // Return a 'pair' whose 'first' member is a 'const_iterator' referring
-        // to the (possibly newly inserted) element in this set whose value is
-        // equivalent to that of the element to be inserted, and whose 'second'
-        // member is 'true' if a new element was inserted, and 'false' if an
-        // equivalent value was already present.
     {
         // Note that some compilers require functions declared with 'enable_if'
         // to be defined inline.
@@ -866,17 +869,17 @@ class FlatHashSet {
     const_iterator insert(const_iterator                              ,
                           BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
 #else
+    /// Insert the specified `value` into this set if the `value` does not
+    /// already exist in this set; otherwise, this method has no effect.
+    /// Return a `const_iterator` referring to the (possibly newly inserted)
+    /// element in this set whose value is equivalent to that of the
+    /// element to be inserted.  The supplied `const_iterator` is ignored.
     template <class KEY_TYPE>
     typename bsl::enable_if<bsl::is_convertible<KEY_TYPE, KEY>::value,
                             const_iterator>::type
                       insert(const_iterator                              ,
                              BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
 #endif
-        // Insert the specified 'value' into this set if the 'value' does not
-        // already exist in this set; otherwise, this method has no effect.
-        // Return a 'const_iterator' referring to the (possibly newly inserted)
-        // element in this set whose value is equivalent to that of the
-        // element to be inserted.  The supplied 'const_iterator' is ignored.
     {
         // Note that some compilers require functions declared with 'enable_if'
         // to be defined inline.
@@ -885,193 +888,196 @@ class FlatHashSet {
                                                            value)).first;
     }
 
+    /// Insert into this set the value of each element in the input iterator
+    /// range specified by `first` through `last` (including `first`,
+    /// excluding `last`).  The behavior is undefined unless `first` and
+    /// `last` refer to a sequence of valid values where `first` is at a
+    /// position at or before `last`.  Note that if a member of the input
+    /// sequence is equivalent to an earlier member, the later member will
+    /// not be inserted.
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
-        // Insert into this set the value of each element in the input iterator
-        // range specified by 'first' through 'last' (including 'first',
-        // excluding 'last').  The behavior is undefined unless 'first' and
-        // 'last' refer to a sequence of valid values where 'first' is at a
-        // position at or before 'last'.  Note that if a member of the input
-        // sequence is equivalent to an earlier member, the later member will
-        // not be inserted.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Insert into this set an element having the value of each object in
+    /// the specified `values` initializer list if an equivalent value is
+    /// not already contained in this set.  This method requires that the
+    /// (template parameter) type `KEY` be copy-insertable (see
+    /// {Requirements on `KEY`, `HASH`, and `EQUAL`}).
     void insert(bsl::initializer_list<KEY> values);
-        // Insert into this set an element having the value of each object in
-        // the specified 'values' initializer list if an equivalent value is
-        // not already contained in this set.  This method requires that the
-        // (template parameter) type 'KEY' be copy-insertable (see
-        // {Requirements on 'KEY', 'HASH', and 'EQUAL'}).
 #endif
 
+    /// Change the capacity of this set to at least the specified
+    /// `minimumCapacity`, and redistribute all the contained elements into
+    /// a new sequence of entries according to their hash values.  If
+    /// `0 == minimumCapacity` and `0 == size()`, the set is returned to the
+    /// default constructed state.  After this call, `load_factor()` will be
+    /// less than or equal to `max_load_factor()` and all iterators,
+    /// pointers, and references to elements of this set are invalidated.
     void rehash(bsl::size_t minimumCapacity);
-        // Change the capacity of this set to at least the specified
-        // 'minimumCapacity', and redistribute all the contained elements into
-        // a new sequence of entries according to their hash values.  If
-        // '0 == minimumCapacity' and '0 == size()', the set is returned to the
-        // default constructed state.  After this call, 'load_factor()' will be
-        // less than or equal to 'max_load_factor()' and all iterators,
-        // pointers, and references to elements of this set are invalidated.
 
+    /// Change the capacity of this set to at least a capacity that can
+    /// accommodate the specified `numEntries` (accounting for the load
+    /// factor invariant), and redistribute all the contained elements into
+    /// a new sequence of entries according to their hash values.  If
+    /// `0 == numEntries` and `0 == size()`, the set is returned to the
+    /// default constructed state.  After this call, `load_factor()` will be
+    /// less than or equal to `max_load_factor()` and all iterators,
+    /// pointers, and references to elements of this set are invalidated.
+    /// Note that this method is effectively equivalent to:
+    /// ```
+    ///    rehash(bsl::ceil(numEntries / max_load_factor()))
+    /// ```
     void reserve(bsl::size_t numEntries);
-        // Change the capacity of this set to at least a capacity that can
-        // accommodate the specified 'numEntries' (accounting for the load
-        // factor invariant), and redistribute all the contained elements into
-        // a new sequence of entries according to their hash values.  If
-        // '0 == numEntries' and '0 == size()', the set is returned to the
-        // default constructed state.  After this call, 'load_factor()' will be
-        // less than or equal to 'max_load_factor()' and all iterators,
-        // pointers, and references to elements of this set are invalidated.
-        // Note that this method is effectively equivalent to:
-        //..
-        //     rehash(bsl::ceil(numEntries / max_load_factor()))
-        //..
 
+    /// Remove all elements from this set and release all memory from this
+    /// set, returning the set to the default constructed state.
     void reset();
-        // Remove all elements from this set and release all memory from this
-        // set, returning the set to the default constructed state.
 
                              // Aspects
 
+    /// Exchange the value of this object as well as its hasher and equality
+    /// functors with those of the specified `other` object.  The behavior
+    /// is undefined unless this object was created with the same allocator
+    /// as `other`.
     void swap(FlatHashSet& other);
-        // Exchange the value of this object as well as its hasher and equality
-        // functors with those of the specified 'other' object.  The behavior
-        // is undefined unless this object was created with the same allocator
-        // as 'other'.
 
     // ACCESSORS
+
+    /// Return the number of elements this set could hold if the load factor
+    /// were 1.
     bsl::size_t capacity() const;
-        // Return the number of elements this set could hold if the load factor
-        // were 1.
 
+    /// Return `true` if this set contains an element having the specified
+    /// `key`, and `false` otherwise.
     bool contains(const KEY& key) const;
-        // Return 'true' if this set contains an element having the specified
-        // 'key', and 'false' otherwise.
 
+    /// Return the number of elements in this set having the specified
+    /// `key`.  Note that since a flat hash set maintains unique keys, the
+    /// returned value will be either 0 or 1.
     bsl::size_t count(const KEY& key) const;
-        // Return the number of elements in this set having the specified
-        // 'key'.  Note that since a flat hash set maintains unique keys, the
-        // returned value will be either 0 or 1.
 
+    /// Return `true` if this set contains no elements, and `false`
+    /// otherwise.
     bool empty() const;
-        // Return 'true' if this set contains no elements, and 'false'
-        // otherwise.
 
+    /// Return a pair of `const_iterator`s defining the sequence of elements
+    /// in this set having the specified `key`, where the first iterator is
+    /// positioned at the start of the sequence and the second iterator is
+    /// positioned one past the end of the sequence.  If this set contains
+    /// no `KEY` elements equivalent to `key`, then the two returned
+    /// iterators will have the same value.  Note that since a set maintains
+    /// unique keys, the range will contain at most one element.
     bsl::pair<const_iterator, const_iterator> equal_range(
                                                          const KEY& key) const;
-        // Return a pair of 'const_iterator's defining the sequence of elements
-        // in this set having the specified 'key', where the first iterator is
-        // positioned at the start of the sequence and the second iterator is
-        // positioned one past the end of the sequence.  If this set contains
-        // no 'KEY' elements equivalent to 'key', then the two returned
-        // iterators will have the same value.  Note that since a set maintains
-        // unique keys, the range will contain at most one element.
 
+    /// Return a `const_iterator` referring to the element in this set
+    /// having the specified `key`, or `end()` if no such entry exists in
+    /// this set.
     const_iterator find(const KEY& key) const;
-        // Return a 'const_iterator' referring to the element in this set
-        // having the specified 'key', or 'end()' if no such entry exists in
-        // this set.
 
+    /// Return (a copy of) the unary hash functor used by this set to
+    /// generate a hash value (of type `bsl::size_t`) for a `KEY` object.
     HASH hash_function() const;
-        // Return (a copy of) the unary hash functor used by this set to
-        // generate a hash value (of type 'bsl::size_t') for a 'KEY' object.
 
+    /// Return (a copy of) the binary key-equality functor that returns
+    /// `true` if the value of two `KEY` objects are equivalent, and `false`
+    /// otherwise.
     EQUAL key_eq() const;
-        // Return (a copy of) the binary key-equality functor that returns
-        // 'true' if the value of two 'KEY' objects are equivalent, and 'false'
-        // otherwise.
 
+    /// Return the current ratio between the number of elements in this
+    /// container and its capacity.
     float load_factor() const;
-        // Return the current ratio between the number of elements in this
-        // container and its capacity.
 
+    /// Return the maximum load factor allowed for this set.  Note that if
+    /// an insert operation would cause the load factor to exceed
+    /// `max_load_factor()`, that same insert operation will increase the
+    /// capacity and rehash the entries of the container (see {Load Factor
+    /// and Resizing}).  Also note that the value returned by
+    /// `max_load_factor` is implementation defined and cannot be changed by
+    /// the user.
     float max_load_factor() const;
-        // Return the maximum load factor allowed for this set.  Note that if
-        // an insert operation would cause the load factor to exceed
-        // 'max_load_factor()', that same insert operation will increase the
-        // capacity and rehash the entries of the container (see {Load Factor
-        // and Resizing}).  Also note that the value returned by
-        // 'max_load_factor' is implementation defined and cannot be changed by
-        // the user.
 
+    /// Return the number of elements in this set.
     bsl::size_t size() const;
-        // Return the number of elements in this set.
 
                           // Iterators
 
+    /// Return a `const_iterator` to the first element in the sequence of
+    /// elements maintained by this set, or the `end` iterator if this set
+    /// is empty.
     const_iterator begin() const;
-        // Return a 'const_iterator' to the first element in the sequence of
-        // elements maintained by this set, or the 'end' iterator if this set
-        // is empty.
 
+    /// Return a `const_iterator` to the first element in the sequence of
+    /// elements maintained by this set, or the `end` iterator if this set
+    /// is empty.
     const_iterator cbegin() const;
-        // Return a 'const_iterator' to the first element in the sequence of
-        // elements maintained by this set, or the 'end' iterator if this set
-        // is empty.
 
+    /// Return a `const_iterator` to the past-the-end element in the
+    /// sequence of `KEY` elements maintained by this set.
     const_iterator cend() const;
-        // Return a 'const_iterator' to the past-the-end element in the
-        // sequence of 'KEY' elements maintained by this set.
 
+    /// Return a `const_iterator` to the past-the-end element in the
+    /// sequence of `KEY` elements maintained by this set.
     const_iterator end() const;
-        // Return a 'const_iterator' to the past-the-end element in the
-        // sequence of 'KEY' elements maintained by this set.
 
                            // Aspects
 
+    /// Return the allocator used by this flat hash set to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this flat hash set to supply memory.
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level`, and return a
+    /// reference to the modifiable `stream`.  If `level` is specified,
+    /// optionally specify `spacesPerLevel`, the number of spaces per
+    /// indentation level for this and all of its nested objects.  If
+    /// `level` is negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, format the entire output on one line,
+    /// suppressing all but the initial indentation (as governed by
+    /// `level`).  If `stream` is not valid on entry, this operation has no
+    /// effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level', and return a
-        // reference to the modifiable 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `FlatHashSet` objects have the same
+/// value if their sizes are the same and each element contained in one is
+/// equal to an element of the other.  The hash and equality functors are
+/// not involved in the comparison.
 template <class KEY, class HASH, class EQUAL>
 bool operator==(const FlatHashSet<KEY, HASH, EQUAL> &lhs,
                 const FlatHashSet<KEY, HASH, EQUAL> &rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'FlatHashSet' objects have the same
-    // value if their sizes are the same and each element contained in one is
-    // equal to an element of the other.  The hash and equality functors are
-    // not involved in the comparison.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `FlatHashSet` objects do not
+/// have the same value if their sizes are different or one contains an
+/// element equal to no element of the other.  The hash and equality
+/// functors are not involved in the comparison.
 template <class KEY, class HASH, class EQUAL>
 bool operator!=(const FlatHashSet<KEY, HASH, EQUAL> &lhs,
                 const FlatHashSet<KEY, HASH, EQUAL> &rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'FlatHashSet' objects do not
-    // have the same value if their sizes are different or one contains an
-    // element equal to no element of the other.  The hash and equality
-    // functors are not involved in the comparison.
 
+/// Write the value of the specified `set` to the specified output `stream`
+/// in a single-line format, and return a reference providing modifiable
+/// access to `stream`.  If `stream` is not valid on entry, this operation
+/// has no effect.  Note that this human-readable format is not fully
+/// specified and can change without notice.
 template <class KEY, class HASH, class EQUAL>
 bsl::ostream& operator<<(bsl::ostream&                        stream,
                          const FlatHashSet<KEY, HASH, EQUAL>& set);
-    // Write the value of the specified 'set' to the specified output 'stream'
-    // in a single-line format, and return a reference providing modifiable
-    // access to 'stream'.  If 'stream' is not valid on entry, this operation
-    // has no effect.  Note that this human-readable format is not fully
-    // specified and can change without notice.
 
 // FREE FUNCTIONS
+
+/// Exchange the value, the hasher, and the key-equality functor of the
+/// specified `a` and `b` objects.  This function provides the no-throw
+/// exception-safety guarantee if the two objects were created with the same
+/// allocator and the basic guarantee otherwise.
 template <class KEY, class HASH, class EQUAL>
 void swap(FlatHashSet<KEY, HASH, EQUAL>& a, FlatHashSet<KEY, HASH, EQUAL>& b);
-    // Exchange the value, the hasher, and the key-equality functor of the
-    // specified 'a' and 'b' objects.  This function provides the no-throw
-    // exception-safety guarantee if the two objects were created with the same
-    // allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Apr  5 12:00:49 2024
+// Generated on Sun Sep  1 06:02:06 2024
 // Command line: sim_cpp11_features.pl bdlma_localbufferedobject.h
 
 #ifdef COMPILING_BDLMA_LOCALBUFFEREDOBJECT_H
@@ -40,17 +40,17 @@ namespace bdlma {
                         // class LocalBufferedObject
                         // =========================
 
+/// This `class` contains an object of type `t_TYPE` and a local sequential
+/// allocator with an arena size of `t_BUFFER_SIZE`, from which the `t_TYPE`
+/// object allocates memory, in a single object.  The
+/// `t_DISABLE_DESTRUCTION` template parameter can be used to prevent this
+/// `class` from calling `~t_TYPE()` in cases where it is known that
+/// `t_TYPE` manages no resources other than memory, since the memory will
+/// be adequately managed by the local sequential allocator.
 template <class       t_TYPE,
           bsl::size_t t_BUFFER_SIZE         = 1024,
           bool        t_DISABLE_DESTRUCTION = false>
 class LocalBufferedObject {
-    // This 'class' contains an object of type 't_TYPE' and a local sequential
-    // allocator with an arena size of 't_BUFFER_SIZE', from which the 't_TYPE'
-    // object allocates memory, in a single object.  The
-    // 't_DISABLE_DESTRUCTION' template parameter can be used to prevent this
-    // 'class' from calling '~t_TYPE()' in cases where it is known that
-    // 't_TYPE' manages no resources other than memory, since the memory will
-    // be adequately managed by the local sequential allocator.
 
     BSLMF_ASSERT(bslma::UsesBslmaAllocator<t_TYPE>::value);
 
@@ -75,9 +75,10 @@ class LocalBufferedObject {
                                                           BSLS_KEYWORD_DELETED;
 
     // PRIVATE MANIPULATORS
+
+    /// Call `d_arenaAllocator.release()`.  If `t_DISABLE_DESTRUCTION` is
+    /// `false`, destroy the held object first.
     void destroyHeldObject();
-        // Call 'd_arenaAllocator.release()'.  If 't_DISABLE_DESTRUCTION' is
-        // 'false', destroy the held object first.
 
   public:
     // TRAITS
@@ -430,31 +431,31 @@ class LocalBufferedObject {
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Create the `value_type` object using the specified
+    /// `initializer_list` and using the sequential allocator based on a
+    /// local stack buffer of (template parameter) `t_BUFFER_SIZE` size; if
+    /// local stack memory is exausted, use the default allocator to supply
+    /// additional heap memory.
     template <class INIT_LIST_TYPE>
     LocalBufferedObject(std::initializer_list<INIT_LIST_TYPE>  il);
-        // Create the 'value_type' object using the specified
-        // 'initializer_list' and using the sequential allocator based on a
-        // local stack buffer of (template parameter) 't_BUFFER_SIZE' size; if
-        // local stack memory is exausted, use the default allocator to supply
-        // additional heap memory.
 
+    /// Create the `value_type` object using the specified
+    /// `initializer_list` and using the sequential allocator based on a
+    /// local stack buffer of (template parameter) `t_BUFFER_SIZE` size; if
+    /// local stack memory is exausted, use the specified `allocator` to
+    /// supply additional heap memory.
     template <class INIT_LIST_TYPE>
     LocalBufferedObject(bsl::allocator_arg_t                   ,
                         allocator_type                         allocator,
                         std::initializer_list<INIT_LIST_TYPE>  il);
-        // Create the 'value_type' object using the specified
-        // 'initializer_list' and using the sequential allocator based on a
-        // local stack buffer of (template parameter) 't_BUFFER_SIZE' size; if
-        // local stack memory is exausted, use the specified 'allocator' to
-        // supply additional heap memory.
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 
+    /// Destroy this object and free any memory it uses, and if the
+    /// (template parameter) `t_DISABLE_DESTRUCTION` is `true`, do this
+    /// *without* calling the destructor of `value_type` (see
+    /// `t_DISABLE_DESTRUCTION` template parameter in the component doc).
     ~LocalBufferedObject();
-        // Destroy this object and free any memory it uses, and if the
-        // (template parameter) 't_DISABLE_DESTRUCTION' is 'true', do this
-        // *without* calling the destructor of 'value_type' (see
-        // 't_DISABLE_DESTRUCTION' template parameter in the component doc).
 
     // MANIPULATORS
 // {{{ BEGIN GENERATED CODE
@@ -468,13 +469,13 @@ class LocalBufferedObject {
     operator=(BSLS_COMPILERFEATURES_FORWARD_REF(t_ANY_TYPE) value);
 // }}} END GENERATED CODE
 
+    /// Return a pointer providing modifiable access to the underlying
+    /// `t_TYPE` object.
     value_type *operator->();
-        // Return a pointer providing modifiable access to the underlying
-        // 't_TYPE' object.
 
+    /// Return a reference providing modifiable access to the underlying
+    /// `t_TYPE` object.
     value_type& operator*();
-        // Return a reference providing modifiable access to the underlying
-        // 't_TYPE' object.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -638,28 +639,29 @@ class LocalBufferedObject {
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Destroy the `value_type` object unless `t_DISABLE_DESTRUCTION` is
+    /// true, then release all allocated memory, the re-construct a new
+    /// `value_type` object using the specified `il` and using the
+    /// sequential allocator based on the local stack buffer.
     template <class INIT_LIST_TYPE>
     void emplace(std::initializer_list<INIT_LIST_TYPE> il);
-        // Destroy the 'value_type' object unless 't_DISABLE_DESTRUCTION' is
-        // true, then release all allocated memory, the re-construct a new
-        // 'value_type' object using the specified 'il' and using the
-        // sequential allocator based on the local stack buffer.
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 
     // ACCESSORS
+
+    /// Return a pointer providing const access to the underlying `t_TYPE`
+    /// object.
     const value_type *operator->() const;
-        // Return a pointer providing const access to the underlying 't_TYPE'
-        // object.
 
+    /// Return a reference providing const access to the underlying `t_TYPE`
+    /// object.
     const value_type& operator*() const;
-        // Return a reference providing const access to the underlying 't_TYPE'
-        // object.
 
+    /// Return the alloctor passed at construction, used to provide heap
+    /// memory after the local stack buffer is exhausted.  Note that this
+    /// is not the arena allocator contained in this object.
     allocator_type get_allocator() const;
-        // Return the alloctor passed at construction, used to provide heap
-        // memory after the local stack buffer is exhausted.  Note that this
-        // is not the arena allocator contained in this object.
 };
 
 // ============================================================================

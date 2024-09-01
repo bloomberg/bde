@@ -21,16 +21,16 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Aug 22 11:15:03 2024
+// Generated on Sun Sep  1 06:01:47 2024
 // Command line: sim_cpp11_features.pl bdlb_variant.h
 
 #ifdef COMPILING_BDLB_VARIANT_H
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+/// Note that this macro definition parallels that of a similar macro
+/// defined in `bslmf_typelist.h`.
 #define BDLB_VARIANT_USING_VARIADIC_TEMPLATES
-    // Note that this macro definition parallels that of a similar macro
-    // defined in 'bslmf_typelist.h'.
 #endif
 
 namespace BloombergLP {
@@ -63,51 +63,52 @@ typedef struct { char a[2]; } Variant_ReturnValueHelper_NoType;
 BSLMF_ASSERT(sizeof(Variant_ReturnValueHelper_YesType)
              != sizeof(Variant_ReturnValueHelper_NoType));
 
+/// This struct is a component-private struct.  Do *not* use.  This provides
+/// functions, the matching of which are used by Variant_ReturnValueHelper
+/// to determine whether the template parameter type `VISITOR` has the
+/// member `ResultType` defined.
 struct Variant_ReturnValueHelper_Matcher {
-    // This struct is a component-private struct.  Do *not* use.  This provides
-    // functions, the matching of which are used by Variant_ReturnValueHelper
-    // to determine whether the template parameter type 'VISITOR' has the
-    // member 'ResultType' defined.
 
+    /// Return `YesType` if `T::ResultType` exists, and `NoType` otherwise.
+    /// Note that if `T::ResultType` exists, then the first function is a
+    /// better match than the ellipsis version.
     template <class T>
     static Variant_ReturnValueHelper_YesType match(
                typename bsl::remove_reference<typename T::ResultType>::type *);
     template <class T>
     static Variant_ReturnValueHelper_NoType match(...);
-        // Return 'YesType' if 'T::ResultType' exists, and 'NoType' otherwise.
-        // Note that if 'T::ResultType' exists, then the first function is a
-        // better match than the ellipsis version.
 };
 
+/// This struct is a component-private meta-function.  Do *not* use.  This
+/// meta-function checks whether the template parameter type `VISITOR` has
+/// the member `ResultType` defined using "SFINAE" (Substitution Failure Is
+/// Not An Error).  A `value` of `true` indicates `VISITOR::ResultType`
+/// exists, and `false` otherwise.
 template <class VISITOR>
 struct Variant_ReturnValueHelper
 : public bsl::integral_constant<
       bool,
       sizeof(Variant_ReturnValueHelper_Matcher::match<VISITOR>(0)) ==
           sizeof(Variant_ReturnValueHelper_YesType)> {
-    // This struct is a component-private meta-function.  Do *not* use.  This
-    // meta-function checks whether the template parameter type 'VISITOR' has
-    // the member 'ResultType' defined using "SFINAE" (Substitution Failure Is
-    // Not An Error).  A 'value' of 'true' indicates 'VISITOR::ResultType'
-    // exists, and 'false' otherwise.
 };
 
                    // =====================================
                    // class VariantImp_AllocatorBase<TYPES>
                    // =====================================
 
+/// This class is component-private.  Do not use.  This class contains the
+/// `typedef`s and data members of the `Variant` class, and serves as the
+/// base class for the variant when any one of the types held by the variant
+/// has the `bslma::UsesBslmaAllocator` type trait.
 template <class TYPES>
 class VariantImp_AllocatorBase {
-    // This class is component-private.  Do not use.  This class contains the
-    // 'typedef's and data members of the 'Variant' class, and serves as the
-    // base class for the variant when any one of the types held by the variant
-    // has the 'bslma::UsesBslmaAllocator' type trait.
 
   public:
     // TYPES
+
+    /// `TypeList` is an alias for the `bslmf::TypeList` type serving as the
+    /// template parameter to this variant implementation.
     typedef TYPES TypeList;
-        // 'TypeList' is an alias for the 'bslmf::TypeList' type serving as the
-        // template parameter to this variant implementation.
 
     typedef typename bslmf::TypeListTypeOf< 1, TYPES>::TypeOrDefault Type1;
     typedef typename bslmf::TypeListTypeOf< 2, TYPES>::TypeOrDefault Type2;
@@ -128,10 +129,11 @@ class VariantImp_AllocatorBase {
     typedef typename bslmf::TypeListTypeOf<17, TYPES>::TypeOrDefault Type17;
     typedef typename bslmf::TypeListTypeOf<18, TYPES>::TypeOrDefault Type18;
     typedef typename bslmf::TypeListTypeOf<19, TYPES>::TypeOrDefault Type19;
+
+    /// `TypeN` is an alias for the `N`th type in the `TypeList` of this
+    /// variant implementation.  If less than `N` template arguments were
+    /// given to the `Variant` type, then `TypeN` is `bslmf::Nil`.
     typedef typename bslmf::TypeListTypeOf<20, TYPES>::TypeOrDefault Type20;
-        // 'TypeN' is an alias for the 'N'th type in the 'TypeList' of this
-        // variant implementation.  If less than 'N' template arguments were
-        // given to the 'Variant' type, then 'TypeN' is 'bslmf::Nil'.
 
   private:
     union Value {
@@ -185,39 +187,41 @@ class VariantImp_AllocatorBase {
     // CREATORS
     VariantImp_AllocatorBase(int type, bslma::Allocator *basicAllocator);
 
+    /// Create a `VariantImp_AllocatorBase` with the specified `type`
+    /// indicating the type of the object that the variant will initially
+    /// hold, and the specified `basicAllocator` to supply memory.
     VariantImp_AllocatorBase(int               type,
                              bslma::Allocator *basicAllocator,
                              bsl::true_type);
-        // Create a 'VariantImp_AllocatorBase' with the specified 'type'
-        // indicating the type of the object that the variant will initially
-        // hold, and the specified 'basicAllocator' to supply memory.
 
     template <class TYPE>
     VariantImp_AllocatorBase(int type, const TYPE&, bsl::false_type);
 
     // ACCESSORS
+
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *getAllocator() const;
-        // Return the allocator used by this object to supply memory.
 };
 
                   // =======================================
                   // class VariantImp_NoAllocatorBase<TYPES>
                   // =======================================
 
+/// This class is component-private.  Do not use.  This class contains the
+/// `typedef`s and data members of the `Variant` class, and serves as the
+/// base class for the variant when none of the types held by the variant
+/// has the `bslma::UsesBslmaAllocator` type trait.  The goal is to optimize
+/// the size of the variant to avoid holding an unnecessary allocator
+/// pointer.
 template <class TYPES>
 class VariantImp_NoAllocatorBase {
-    // This class is component-private.  Do not use.  This class contains the
-    // 'typedef's and data members of the 'Variant' class, and serves as the
-    // base class for the variant when none of the types held by the variant
-    // has the 'bslma::UsesBslmaAllocator' type trait.  The goal is to optimize
-    // the size of the variant to avoid holding an unnecessary allocator
-    // pointer.
 
   public:
     // TYPES
+
+    /// `TypeList` is an alias for the `bslmf::TypeList` type serving as the
+    /// template parameter to this variant implementation.
     typedef TYPES TypeList;
-        // 'TypeList' is an alias for the 'bslmf::TypeList' type serving as the
-        // template parameter to this variant implementation.
 
     typedef typename bslmf::TypeListTypeOf< 1, TYPES>::TypeOrDefault Type1;
     typedef typename bslmf::TypeListTypeOf< 2, TYPES>::TypeOrDefault Type2;
@@ -238,10 +242,11 @@ class VariantImp_NoAllocatorBase {
     typedef typename bslmf::TypeListTypeOf<17, TYPES>::TypeOrDefault Type17;
     typedef typename bslmf::TypeListTypeOf<18, TYPES>::TypeOrDefault Type18;
     typedef typename bslmf::TypeListTypeOf<19, TYPES>::TypeOrDefault Type19;
+
+    /// `TypeN` is an alias for the `N`th type in the `TypeList` of this
+    /// variant implementation.  If less than `N` template arguments were
+    /// given to the `Variant` type, then `TypeN` is `bslmf::Nil`.
     typedef typename bslmf::TypeListTypeOf<20, TYPES>::TypeOrDefault Type20;
-        // 'TypeN' is an alias for the 'N'th type in the 'TypeList' of this
-        // variant implementation.  If less than 'N' template arguments were
-        // given to the 'Variant' type, then 'TypeN' is 'bslmf::Nil'.
 
   private:
     union Value {
@@ -286,29 +291,30 @@ class VariantImp_NoAllocatorBase {
     // CREATORS
     VariantImp_NoAllocatorBase(int type, bslma::Allocator *);
 
+    /// Create a `VariantImp_NoAllocatorBase` with the specified `type`
+    /// indicating the type of the object that the variant will initially
+    /// hold.
     VariantImp_NoAllocatorBase(int type, bslma::Allocator *, bsl::true_type);
-        // Create a 'VariantImp_NoAllocatorBase' with the specified 'type'
-        // indicating the type of the object that the variant will initially
-        // hold.
 
     template <class TYPE>
     VariantImp_NoAllocatorBase(int type, const TYPE&, bsl::false_type);
 
     // ACCESSORS
+
+    /// Return 0.  Note that this object does not hold an allocator pointer.
     bslma::Allocator *getAllocator() const;
-        // Return 0.  Note that this object does not hold an allocator pointer.
 };
 
                        // ========================
                        // struct VariantImp_Traits
                        // ========================
 
+/// This struct is component-private.  Do not use.  This meta-function
+/// selects `VariantImp_AllocatorBase` as a base class type if any one of
+/// the types held by a variant has the `bslma::UsesBslmaAllocator` trait,
+/// and `VariantImp_NoAllocatorBase` otherwise.
 template <class TYPES>
 struct VariantImp_Traits {
-    // This struct is component-private.  Do not use.  This meta-function
-    // selects 'VariantImp_AllocatorBase' as a base class type if any one of
-    // the types held by a variant has the 'bslma::UsesBslmaAllocator' trait,
-    // and 'VariantImp_NoAllocatorBase' otherwise.
 
     // TYPES
     typedef typename bslmf::TypeListTypeOf< 1, TYPES>::TypeOrDefault Type1;
@@ -405,129 +411,133 @@ struct VariantImp_Traits {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+    /// Determines what the base type is.
     typedef typename bsl::conditional<k_VARIANT_USES_BSLMA_ALLOCATOR,
                                       VariantImp_AllocatorBase<TYPES>,
                                       VariantImp_NoAllocatorBase<TYPES> >::type
                                                                       BaseType;
-        // Determines what the base type is.
 };
 
                        // ==============================
                        // class Variant_RawVisitorHelper
                        // ==============================
 
+/// This `struct` provides a helper for implementing `Variant::applyRaw`
+/// that enables `applyRaw` to support visitor functors that do not provide
+/// an overload for `operator()(bslmf::Nil)`.  Objects of this type are
+/// constructed using a functor of (template parameter) type `VISITOR`,
+/// whose `operator()` returns the (template parameter) type `RESULT_TYPE`.
+/// A `Variant_RawVisitorHelper` wraps a functor of type `VISITOR` and
+/// provides an implementation of `operator()(bslmf::Nil)` that performs a
+/// `BSLS_ASSERT_OPT(false)`.  Note that this overload is needed to enable
+/// compilation (specifically, to instantiate `doApply` and `doApplyR`), but
+/// is never invoked by any code path at runtime.
 template <class RESULT_TYPE, class VISITOR>
 class Variant_RawVisitorHelper {
-    // This 'struct' provides a helper for implementing 'Variant::applyRaw'
-    // that enables 'applyRaw' to support visitor functors that do not provide
-    // an overload for 'operator()(bslmf::Nil)'.  Objects of this type are
-    // constructed using a functor of (template parameter) type 'VISITOR',
-    // whose 'operator()' returns the (template parameter) type 'RESULT_TYPE'.
-    // A 'Variant_RawVisitorHelper' wraps a functor of type 'VISITOR' and
-    // provides an implementation of 'operator()(bslmf::Nil)' that performs a
-    // 'BSLS_ASSERT_OPT(false)'.  Note that this overload is needed to enable
-    // compilation (specifically, to instantiate 'doApply' and 'doApplyR'), but
-    // is never invoked by any code path at runtime.
 
     // DATA
     VISITOR *d_visitor;  // visitor to which this helper delegates
 
   public:
     // CREATORS
+
+    /// Create a `RawVisitorHelper` functor that delegates to the specified
+    /// `visitor`.
     explicit
     Variant_RawVisitorHelper(VISITOR *visitor);
-        // Create a 'RawVisitorHelper' functor that delegates to the specified
-        // 'visitor'.
 
     // MANIPULATORS
+
+    /// Invoke the functor supplied at construction with the specified
+    /// `argument`, and return the result.
     template <class ARGUMENT_TYPE>
     RESULT_TYPE operator()(ARGUMENT_TYPE& argument);
     template <class ARGUMENT_TYPE>
     RESULT_TYPE operator()(const ARGUMENT_TYPE& argument);
-        // Invoke the functor supplied at construction with the specified
-        // 'argument', and return the result.
 
     // ACCESSORS
+
+    /// Invoke the functor supplied at construction with the specified
+    /// `argument`, and return the result.
     template <class ARGUMENT_TYPE>
     RESULT_TYPE operator()(ARGUMENT_TYPE& argument) const;
     template <class ARGUMENT_TYPE>
     RESULT_TYPE operator()(const ARGUMENT_TYPE& argument) const;
-        // Invoke the functor supplied at construction with the specified
-        // 'argument', and return the result.
 
+    /// Do not call.  The behavior of this method is undefined.
     RESULT_TYPE operator()(bslmf::Nil) const;
-        // Do not call.  The behavior of this method is undefined.
 };
 
                        // =======================
                        // class VariantImp<TYPES>
                        // =======================
 
+/// This class provides the implementation of `Variant` (except for the
+/// creators) given a list of template parameter `TYPES`.
+///
+/// More generally, if each of the types in the list of `TYPES` is
+/// value semantic, then this class also supports a complete set of *value*
+/// *semantic* operations, including copy construction, assignment, equality
+/// comparison, and `ostream` printing.  A precise operational definition of
+/// when two instances have the same value can be found in the description
+/// of `operator==` for the class.  This class is *exception* *neutral* with
+/// no guarantee of rollback: if an exception is thrown during the
+/// invocation of a method on a pre-existing instance, the object is left in
+/// a valid state, but its value is undefined.  In no event is memory
+/// leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+/// both source and destination) is supported in all cases.
+///
+/// If any of the types in the list of `TYPES` does not support
+/// `operator==`, or any of the value-semantic operations mentioned above,
+/// then this variant also does not support that operation and attempts to
+/// invoke it will trigger a compilation diagnostic.
 template <class TYPES>
 class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
-    // This class provides the implementation of 'Variant' (except for the
-    // creators) given a list of template parameter 'TYPES'.
-    //
-    // More generally, if each of the types in the list of 'TYPES' is
-    // value semantic, then this class also supports a complete set of *value*
-    // *semantic* operations, including copy construction, assignment, equality
-    // comparison, and 'ostream' printing.  A precise operational definition of
-    // when two instances have the same value can be found in the description
-    // of 'operator==' for the class.  This class is *exception* *neutral* with
-    // no guarantee of rollback: if an exception is thrown during the
-    // invocation of a method on a pre-existing instance, the object is left in
-    // a valid state, but its value is undefined.  In no event is memory
-    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
-    // both source and destination) is supported in all cases.
-    //
-    // If any of the types in the list of 'TYPES' does not support
-    // 'operator==', or any of the value-semantic operations mentioned above,
-    // then this variant also does not support that operation and attempts to
-    // invoke it will trigger a compilation diagnostic.
 
     // PRIVATE TYPES
     typedef VariantImp_Traits<TYPES>  Traits;
     typedef typename Traits::BaseType Base;
     typedef bslmf::MovableRefUtil     MoveUtil;
 
+    /// `SelfType` is an alias to this class.
     typedef VariantImp<TYPES>         SelfType;
-        // 'SelfType' is an alias to this class.
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Invoke `operator()` of the specified `visitor` on the current value
+    /// (of template parameter `TYPE`) held by this variant.  `TYPE` must be
+    /// the same as one of the types that this variant can hold.  The
+    /// behavior is undefined unless this variant holds a value of template
+    /// parameter `TYPE`.  Note that the second argument is for resolving
+    /// overloading ambiguity and is not used.
     template <class TYPE, class VISITOR_REF>
     void applyImp(VISITOR_REF visitor, bsl::false_type);
     template <class TYPE, class VISITOR_REF>
     void applyImp(VISITOR_REF visitor, bsl::true_type);
     template <class TYPE, class VISITOR_REF>
     void applyImp(VISITOR_REF visitor);
-        // Invoke 'operator()' of the specified 'visitor' on the current value
-        // (of template parameter 'TYPE') held by this variant.  'TYPE' must be
-        // the same as one of the types that this variant can hold.  The
-        // behavior is undefined unless this variant holds a value of template
-        // parameter 'TYPE'.  Note that the second argument is for resolving
-        // overloading ambiguity and is not used.
 
+    /// Invoke `operator()` of the specified `visitor` on the current value
+    /// (of template parameter `TYPE`) held by this variant, and return the
+    /// value (of template parameter `RET_TYPE`) returned by the `visitor`.
+    /// `TYPE` must be the same as one of the types that this variant can
+    /// hold.  The behavior is undefined unless this variant holds a value
+    /// of template parameter `TYPE`.  Note that the second argument is for
+    /// resolving overloading ambiguity and is not used.
     template <class TYPE, class VISITOR_REF, class RET_TYPE>
     RET_TYPE applyImpR(VISITOR_REF visitor, bsl::false_type);
     template <class TYPE, class VISITOR_REF, class RET_TYPE>
     RET_TYPE applyImpR(VISITOR_REF visitor, bsl::true_type);
     template <class TYPE, class VISITOR_REF, class RET_TYPE>
     RET_TYPE applyImpR(VISITOR_REF visitor);
-        // Invoke 'operator()' of the specified 'visitor' on the current value
-        // (of template parameter 'TYPE') held by this variant, and return the
-        // value (of template parameter 'RET_TYPE') returned by the 'visitor'.
-        // 'TYPE' must be the same as one of the types that this variant can
-        // hold.  The behavior is undefined unless this variant holds a value
-        // of template parameter 'TYPE'.  Note that the second argument is for
-        // resolving overloading ambiguity and is not used.
 
+    /// Assign to this variant the specified `value` of template parameter
+    /// `SOURCE_TYPE` converted to template parameter `TYPE`.  `TYPE` must
+    /// be the same as one of the types that this variant can hold and
+    /// `SOURCE_TYPE` must be convertible to `TYPE`.
     template <class TYPE, class SOURCE_TYPE>
     void assignImp(const SOURCE_TYPE& value);
-        // Assign to this variant the specified 'value' of template parameter
-        // 'SOURCE_TYPE' converted to template parameter 'TYPE'.  'TYPE' must
-        // be the same as one of the types that this variant can hold and
-        // 'SOURCE_TYPE' must be convertible to 'TYPE'.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -540,73 +550,74 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // 'value' left in a valid but unspecified state.  'TYPE' must be the
         // same as one of the types that this variant can hold.
 
+    /// Construct this variant object to initially hold the specified
+    /// `value` of template parameter `TYPE`.  `TYPE` must be the same as
+    /// one of the types that this variant can hold.  Note that the second
+    /// parameter is for resolving overloading ambiguity and is not used.
     template <class TYPE>
     void create(const TYPE& value, bsl::false_type);
-        // Construct this variant object to initially hold the specified
-        // 'value' of template parameter 'TYPE'.  'TYPE' must be the same as
-        // one of the types that this variant can hold.  Note that the second
-        // parameter is for resolving overloading ambiguity and is not used.
 
+    /// Construct this variant object to be initially in the unset state.
     void create(bslma::Allocator *, bsl::true_type);
-        // Construct this variant object to be initially in the unset state.
 
+    /// Apply the specified `visitor` on the current value held by this
+    /// variant by invoking `applyImp` with the appropriate template
+    /// arguments, determined by the specified `type`.  The behavior is
+    /// undefined unless `type != 0`.
     template <class VISITOR_REF>
     void doApply(VISITOR_REF visitor, int type);
-        // Apply the specified 'visitor' on the current value held by this
-        // variant by invoking 'applyImp' with the appropriate template
-        // arguments, determined by the specified 'type'.  The behavior is
-        // undefined unless 'type != 0'.
 
+    /// Apply the specified `visitor` on the current value held by this
+    /// variant by invoking `applyImpR` with the appropriate template
+    /// arguments, determined by the specified `type`, and return the value
+    /// (of template parameter `RET_TYPE`) returned by the `visitor`.  The
+    /// behavior is undefined unless `type != 0`.
     template <class VISITOR_REF, class RET_TYPE>
     RET_TYPE doApplyR(VISITOR_REF visitor, int type);
-        // Apply the specified 'visitor' on the current value held by this
-        // variant by invoking 'applyImpR' with the appropriate template
-        // arguments, determined by the specified 'type', and return the value
-        // (of template parameter 'RET_TYPE') returned by the 'visitor'.  The
-        // behavior is undefined unless 'type != 0'.
 
     // PRIVATE ACCESSORS
+
+    /// Invoke `operator()` of the specified `visitor` on the current value
+    /// (of template parameter `TYPE`) held by this variant.  `TYPE` must be
+    /// the same as one of the types that this variant can hold.  The
+    /// behavior is undefined unless this variant holds a value of template
+    /// parameter `TYPE`.  Note that the second argument is for resolving
+    /// overloading ambiguity and is not used.
     template <class TYPE, class VISITOR_REF>
     void applyImp(VISITOR_REF visitor, bsl::false_type) const;
     template <class TYPE, class VISITOR_REF>
     void applyImp(VISITOR_REF visitor, bsl::true_type) const;
     template <class TYPE, class VISITOR_REF>
     void applyImp(VISITOR_REF visitor) const;
-        // Invoke 'operator()' of the specified 'visitor' on the current value
-        // (of template parameter 'TYPE') held by this variant.  'TYPE' must be
-        // the same as one of the types that this variant can hold.  The
-        // behavior is undefined unless this variant holds a value of template
-        // parameter 'TYPE'.  Note that the second argument is for resolving
-        // overloading ambiguity and is not used.
 
+    /// Invoke `operator()` of the specified `visitor` on the current value
+    /// (of template parameter `TYPE`) held by this variant, and return the
+    /// value (of template parameter `RET_TYPE`) returned by the `visitor`.
+    /// `TYPE` must be the same as one of the types that this variant can
+    /// hold.  The behavior is undefined unless this variant holds a value
+    /// of template parameter `TYPE`.  Note that the second argument is for
+    /// resolving overloading ambiguity and is not used.
     template <class TYPE, class VISITOR_REF, class RET_TYPE>
     RET_TYPE applyImpR(VISITOR_REF visitor, bsl::false_type) const;
     template <class TYPE, class VISITOR_REF, class RET_TYPE>
     RET_TYPE applyImpR(VISITOR_REF visitor, bsl::true_type) const;
     template <class TYPE, class VISITOR_REF, class RET_TYPE>
     RET_TYPE applyImpR(VISITOR_REF visitor) const;
-        // Invoke 'operator()' of the specified 'visitor' on the current value
-        // (of template parameter 'TYPE') held by this variant, and return the
-        // value (of template parameter 'RET_TYPE') returned by the 'visitor'.
-        // 'TYPE' must be the same as one of the types that this variant can
-        // hold.  The behavior is undefined unless this variant holds a value
-        // of template parameter 'TYPE'.  Note that the second argument is for
-        // resolving overloading ambiguity and is not used.
 
+    /// Apply the specified `visitor` on the current value held by this
+    /// variant by invoking `applyImp` with the appropriate template
+    /// arguments, determined by the specified `type`.  The behavior is
+    /// undefined unless `type != 0`.
     template <class VISITOR_REF>
     void doApply(VISITOR_REF visitor, int type) const;
-        // Apply the specified 'visitor' on the current value held by this
-        // variant by invoking 'applyImp' with the appropriate template
-        // arguments, determined by the specified 'type'.  The behavior is
-        // undefined unless 'type != 0'.
 
+    /// Apply the specified `visitor` on the current value held by this
+    /// variant by invoking `applyImpR` with the appropriate template
+    /// arguments, determined by the specified `type`, and return the value
+    /// (of template parameter `RET_TYPE`) returned by the `visitor`.  The
+    /// behavior is undefined unless `type != 0`.
     template <class VISITOR_REF, class RET_TYPE>
     RET_TYPE doApplyR(VISITOR_REF visitor, int type) const;
-        // Apply the specified 'visitor' on the current value held by this
-        // variant by invoking 'applyImpR' with the appropriate template
-        // arguments, determined by the specified 'type', and return the value
-        // (of template parameter 'RET_TYPE') returned by the 'visitor'.  The
-        // behavior is undefined unless 'type != 0'.
 
   public:
     // TRAITS
@@ -622,35 +633,36 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     BSLMF_NESTED_TRAIT_DECLARATION(VariantImp, HasPrintMethod);
 
     // CREATORS
-    VariantImp();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    VariantImp();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     VariantImp(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     VariantImp(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -700,41 +712,42 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     VariantImp(const VariantImp&  original,
                bslma::Allocator  *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     VariantImp(bslmf::MovableRef<VariantImp> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     VariantImp(bslmf::MovableRef<VariantImp>  original,
                bslma::Allocator              *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
+    /// Destroy this variant object, invoking the destructor of the type of
+    /// object contained (if any) on the value of that type.
     ~VariantImp();
-        // Destroy this variant object, invoking the destructor of the type of
-        // object contained (if any) on the value of that type.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     VariantImp& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -757,33 +770,33 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     VariantImp& operator=(const VariantImp& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     VariantImp& operator=(bslmf::MovableRef<VariantImp> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value this variant currently holds to the `visitor` object's
+    /// `operator()`, and return the value returned by the `visitor`.  If
+    /// this variant is unset, a default constructed `bslmf::Nil` is passed
+    /// to the `visitor`.  Note that this method is selected only if the
+    /// template parameter type `VISITOR` defines a `typedef` of
+    /// `ResultType` in its public interface.  Also note that this method is
+    /// defined inline to work around a Windows compiler bug with SFINAE
+    /// functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 1,
                             typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) {
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value this variant currently holds to the 'visitor' object's
-        // 'operator()', and return the value returned by the 'visitor'.  If
-        // this variant is unset, a default constructed 'bslmf::Nil' is passed
-        // to the 'visitor'.  Note that this method is selected only if the
-        // template parameter type 'VISITOR' defines a 'typedef' of
-        // 'ResultType' in its public interface.  Also note that this method is
-        // defined inline to work around a Windows compiler bug with SFINAE
-        // functions.
 
         if (this->d_type) {
             return doApplyR<VISITOR&,
@@ -795,19 +808,19 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         return visitor(nil);
     }
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value this variant currently holds to the `visitor` object's
+    /// `operator()`, and return the value returned by the `visitor`.  If
+    /// If this variant is unset, a default constructed `bslmf::Nil` is
+    /// passed to the `visitor`.  Note that this method is selected only if
+    /// the template parameter type `VISITOR` defines a `typedef` of
+    /// `ResultType` in its public interface.  Also note that this method is
+    /// defined inline to work around a Windows compiler bug with SFINAE
+    /// functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 1,
                             typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) {
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value this variant currently holds to the 'visitor' object's
-        // 'operator()', and return the value returned by the 'visitor'.  If
-        // If this variant is unset, a default constructed 'bslmf::Nil' is
-        // passed to the 'visitor'.  Note that this method is selected only if
-        // the template parameter type 'VISITOR' defines a 'typedef' of
-        // 'ResultType' in its public interface.  Also note that this method is
-        // defined inline to work around a Windows compiler bug with SFINAE
-        // functions.
 
         if (this->d_type) {
             return doApplyR<const VISITOR&,
@@ -819,22 +832,22 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         return visitor(nil);
     }
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value (of template parameter `TYPE`) this variant currently
+    /// holds to the `visitor` object's `operator()`, and return the value
+    /// returned by the `visitor`.  If this variant is unset, the specified
+    /// `defaultValue` of template parameter `TYPE` is passed to the
+    /// `visitor`.  `TYPE` must be the same as one of the types that this
+    /// variant can hold.  The behavior is undefined unless this variant is
+    /// unset or holds a value of template parameter `TYPE`.  Note that this
+    /// method is selected only if the template parameter type `VISITOR`
+    /// defines a `typedef` of `ResultType` in its public interface.  Also
+    /// note that this method is defined inline to work around a Windows
+    /// compiler bug with SFINAE functions.
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 1,
                             typename VISITOR::ResultType>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) {
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value (of template parameter 'TYPE') this variant currently
-        // holds to the 'visitor' object's 'operator()', and return the value
-        // returned by the 'visitor'.  If this variant is unset, the specified
-        // 'defaultValue' of template parameter 'TYPE' is passed to the
-        // 'visitor'.  'TYPE' must be the same as one of the types that this
-        // variant can hold.  The behavior is undefined unless this variant is
-        // unset or holds a value of template parameter 'TYPE'.  Note that this
-        // method is selected only if the template parameter type 'VISITOR'
-        // defines a 'typedef' of 'ResultType' in its public interface.  Also
-        // note that this method is defined inline to work around a Windows
-        // compiler bug with SFINAE functions.
 
         if (this->d_type) {
             return doApplyR<VISITOR&,
@@ -845,22 +858,22 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         return visitor(defaultValue);
     }
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value (of template parameter `TYPE`) this variant currently
+    /// holds to the `visitor` object's `operator()`, and return the value
+    /// returned by the `visitor`.  If this variant is unset, the specified
+    /// `defaultValue` of template parameter `TYPE` is passed to the
+    /// `visitor`.  `TYPE` must be the same as one of the types that this
+    /// variant can hold.  The behavior is undefined unless this variant is
+    /// unset or holds a value of template parameter `TYPE`.  Note that this
+    /// method is selected only if the template parameter type `VISITOR`
+    /// defines a `typedef` of `ResultType` in its public interface.  Also
+    /// note that this method is defined inline to work around a Windows
+    /// compiler bug with SFINAE functions.
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 1,
                             typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) {
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value (of template parameter 'TYPE') this variant currently
-        // holds to the 'visitor' object's 'operator()', and return the value
-        // returned by the 'visitor'.  If this variant is unset, the specified
-        // 'defaultValue' of template parameter 'TYPE' is passed to the
-        // 'visitor'.  'TYPE' must be the same as one of the types that this
-        // variant can hold.  The behavior is undefined unless this variant is
-        // unset or holds a value of template parameter 'TYPE'.  Note that this
-        // method is selected only if the template parameter type 'VISITOR'
-        // defines a 'typedef' of 'ResultType' in its public interface.  Also
-        // note that this method is defined inline to work around a Windows
-        // compiler bug with SFINAE functions.
 
         if (this->d_type) {
             return doApplyR<const VISITOR&,
@@ -871,18 +884,18 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         return visitor(defaultValue);
     }
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value this variant currently holds to the `visitor` object's
+    /// `operator()`.  This method does not return a value.  If this variant
+    /// is unset, a default constructed `bslmf::Nil` is passed to the
+    /// `visitor`.  Note that this method is selected only if the template
+    /// parameter type `VISITOR` does not define a `typedef` of `ResultType`
+    /// in its public interface.  Also note that this method is defined
+    /// inline to work around a Windows compiler bug with SFINAE functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 0,
                             void>::type
     apply(VISITOR& visitor) {
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value this variant currently holds to the 'visitor' object's
-        // 'operator()'.  This method does not return a value.  If this variant
-        // is unset, a default constructed 'bslmf::Nil' is passed to the
-        // 'visitor'.  Note that this method is selected only if the template
-        // parameter type 'VISITOR' does not define a 'typedef' of 'ResultType'
-        // in its public interface.  Also note that this method is defined
-        // inline to work around a Windows compiler bug with SFINAE functions.
 
         if (this->d_type) {
             doApply<VISITOR&>(visitor, this->d_type);
@@ -893,18 +906,18 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         visitor(nil);
     }
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value this variant currently holds to the `visitor` object's
+    /// `operator()`.  This method does not return a value.  If this variant
+    /// is unset, a default constructed `bslmf::Nil` is passed to the
+    /// `visitor`.  Note that this method is selected only if the template
+    /// parameter type `VISITOR` does not define a `typedef` of `ResultType`
+    /// in its public interface.  Also note that this method is defined
+    /// inline to work around a Windows compiler bug with SFINAE functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 0,
                             void>::type
     apply(const VISITOR& visitor) {
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value this variant currently holds to the 'visitor' object's
-        // 'operator()'.  This method does not return a value.  If this variant
-        // is unset, a default constructed 'bslmf::Nil' is passed to the
-        // 'visitor'.  Note that this method is selected only if the template
-        // parameter type 'VISITOR' does not define a 'typedef' of 'ResultType'
-        // in its public interface.  Also note that this method is defined
-        // inline to work around a Windows compiler bug with SFINAE functions.
 
         if (this->d_type) {
             doApply<const VISITOR&>(visitor, this->d_type);
@@ -915,22 +928,22 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         visitor(nil);
     }
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value (of template parameter `TYPE`) this variant currently
+    /// holds to the `visitor` object's `operator()`.  This method does not
+    /// return a value.  If this variant is unset, the specified
+    /// `defaultValue` of template parameter `TYPE` is passed to the
+    /// `visitor`.  `TYPE` must be the same as one of the types that this
+    /// variant can hold.  The behavior is undefined unless this variant is
+    /// unset or holds a value of template parameter `TYPE`.  Note that this
+    /// method is selected only if the template parameter type `VISITOR`
+    /// does not define a `typedef` of `ResultType` in its public interface.
+    /// Also note that this method is defined inline to work around a
+    /// Windows compiler bug with SFINAE functions.
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 0,
                             void>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) {
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value (of template parameter 'TYPE') this variant currently
-        // holds to the 'visitor' object's 'operator()'.  This method does not
-        // return a value.  If this variant is unset, the specified
-        // 'defaultValue' of template parameter 'TYPE' is passed to the
-        // 'visitor'.  'TYPE' must be the same as one of the types that this
-        // variant can hold.  The behavior is undefined unless this variant is
-        // unset or holds a value of template parameter 'TYPE'.  Note that this
-        // method is selected only if the template parameter type 'VISITOR'
-        // does not define a 'typedef' of 'ResultType' in its public interface.
-        // Also note that this method is defined inline to work around a
-        // Windows compiler bug with SFINAE functions.
 
         if (this->d_type) {
             doApply<VISITOR&>(visitor, this->d_type);
@@ -940,22 +953,22 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         visitor(defaultValue);
     }
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value (of template parameter `TYPE`) this variant currently
+    /// holds to the `visitor` object's `operator()`.  This method does not
+    /// return a value.  If this variant is unset, the specified
+    /// `defaultValue` of template parameter `TYPE` is passed to the
+    /// `visitor`.  `TYPE` must be the same as one of the types that this
+    /// variant can hold.  The behavior is undefined unless this variant is
+    /// unset or holds a value of template parameter `TYPE`.  Note that this
+    /// method is selected only if the template parameter type `VISITOR`
+    /// does not define a `typedef` of `ResultType` in its public interface.
+    /// Also note that this method is defined inline to work around a
+    /// Windows compiler bug with SFINAE functions.
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 0,
                             void>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) {
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value (of template parameter 'TYPE') this variant currently
-        // holds to the 'visitor' object's 'operator()'.  This method does not
-        // return a value.  If this variant is unset, the specified
-        // 'defaultValue' of template parameter 'TYPE' is passed to the
-        // 'visitor'.  'TYPE' must be the same as one of the types that this
-        // variant can hold.  The behavior is undefined unless this variant is
-        // unset or holds a value of template parameter 'TYPE'.  Note that this
-        // method is selected only if the template parameter type 'VISITOR'
-        // does not define a 'typedef' of 'ResultType' in its public interface.
-        // Also note that this method is defined inline to work around a
-        // Windows compiler bug with SFINAE functions.
 
         if (this->d_type) {
             doApply<const VISITOR&>(visitor, this->d_type);
@@ -965,44 +978,44 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         visitor(defaultValue);
     }
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value (of template parameter `TYPE`) this variant currently
+    /// holds to the `visitor` object's `operator()`, and return the value
+    /// (of template parameter `RET_TYPE`) returned by the `visitor`.  If
+    /// this variant is unset, a default constructed `bslmf::Nil` is passed
+    /// to the `visitor`.
     template <class RET_TYPE, class VISITOR>
     RET_TYPE apply(VISITOR& visitor);
     template <class RET_TYPE, class VISITOR>
     RET_TYPE apply(const VISITOR& visitor);
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value (of template parameter 'TYPE') this variant currently
-        // holds to the 'visitor' object's 'operator()', and return the value
-        // (of template parameter 'RET_TYPE') returned by the 'visitor'.  If
-        // this variant is unset, a default constructed 'bslmf::Nil' is passed
-        // to the 'visitor'.
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value (of template parameter `TYPE`) this variant currently
+    /// holds to the `visitor` object's `operator()`, and return the value
+    /// (of template parameter `RET_TYPE`) returned by the `visitor`.  If
+    /// this variant is unset, the specified `defaultValue` of template
+    /// parameter `TYPE` is passed to the `visitor`.  `TYPE` must be the
+    /// same as one of the types that this variant can hold.  The behavior
+    /// is undefined unless this variant is unset or holds a value of
+    /// template parameter `TYPE`.
     template <class RET_TYPE, class VISITOR, class TYPE>
     RET_TYPE apply(VISITOR& visitor, const TYPE& defaultValue);
     template <class RET_TYPE, class VISITOR, class TYPE>
     RET_TYPE apply(const VISITOR& visitor, const TYPE& defaultValue);
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value (of template parameter 'TYPE') this variant currently
-        // holds to the 'visitor' object's 'operator()', and return the value
-        // (of template parameter 'RET_TYPE') returned by the 'visitor'.  If
-        // this variant is unset, the specified 'defaultValue' of template
-        // parameter 'TYPE' is passed to the 'visitor'.  'TYPE' must be the
-        // same as one of the types that this variant can hold.  The behavior
-        // is undefined unless this variant is unset or holds a value of
-        // template parameter 'TYPE'.
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value (of template parameter `TYPE`) this variant currently
+    /// holds to the `visitor` object's `operator()`, and return the value
+    /// returned by the `visitor`.  The behavior is undefined if this
+    /// variant is unset.  Note that this method is selected only if the
+    /// template parameter type `VISITOR` defines a `typedef` of
+    /// `ResultType` in its public interface.  Also note that this method is
+    /// defined inline to work around a Windows compiler bug with SFINAE
+    /// functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 1,
                             typename VISITOR::ResultType>::type
     applyRaw(VISITOR& visitor) {
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value (of template parameter 'TYPE') this variant currently
-        // holds to the 'visitor' object's 'operator()', and return the value
-        // returned by the 'visitor'.  The behavior is undefined if this
-        // variant is unset.  Note that this method is selected only if the
-        // template parameter type 'VISITOR' defines a 'typedef' of
-        // 'ResultType' in its public interface.  Also note that this method is
-        // defined inline to work around a Windows compiler bug with SFINAE
-        // functions.
 
         typedef Variant_RawVisitorHelper<typename VISITOR::ResultType,
                                          VISITOR> Helper;
@@ -1012,19 +1025,19 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
                                                       this->d_type);
     }
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value (of template parameter `TYPE`) this variant currently
+    /// holds to the `visitor` object's `operator()`, and return the value
+    /// returned by the `visitor`.  The behavior is undefined if this
+    /// variant is unset.  Note that this method is selected only if the
+    /// template parameter type `VISITOR` defines a `typedef` of
+    /// `ResultType` in its public interface.  Also note that this method is
+    /// defined inline to work around a Windows compiler bug with SFINAE
+    /// functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 1,
                             typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) {
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value (of template parameter 'TYPE') this variant currently
-        // holds to the 'visitor' object's 'operator()', and return the value
-        // returned by the 'visitor'.  The behavior is undefined if this
-        // variant is unset.  Note that this method is selected only if the
-        // template parameter type 'VISITOR' defines a 'typedef' of
-        // 'ResultType' in its public interface.  Also note that this method is
-        // defined inline to work around a Windows compiler bug with SFINAE
-        // functions.
 
         typedef Variant_RawVisitorHelper<typename VISITOR::ResultType,
                                          const VISITOR> Helper;
@@ -1034,59 +1047,59 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
                                                       this->d_type);
     }
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value (of template parameter `TYPE`) this variant currently
+    /// holds to the `visitor` object's `operator()`.  This method does not
+    /// return a value.  The behavior is undefined if this variant is unset.
+    /// Note that this method is selected only if the template parameter
+    /// type `VISITOR` does not define a `typedef` of `ResultType` in its
+    /// public interface.  Also note that this method is defined inline to
+    /// work around a Windows compiler bug with SFINAE functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 0,
                             void>::type
     applyRaw(VISITOR& visitor) {
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value (of template parameter 'TYPE') this variant currently
-        // holds to the 'visitor' object's 'operator()'.  This method does not
-        // return a value.  The behavior is undefined if this variant is unset.
-        // Note that this method is selected only if the template parameter
-        // type 'VISITOR' does not define a 'typedef' of 'ResultType' in its
-        // public interface.  Also note that this method is defined inline to
-        // work around a Windows compiler bug with SFINAE functions.
 
         typedef Variant_RawVisitorHelper<void, VISITOR> Helper;
 
         doApply<const Helper&>(Helper(&visitor), this->d_type);
     }
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value (of template parameter `TYPE`) this variant currently
+    /// holds to the `visitor` object's `operator()`.  This method does not
+    /// return a value.  The behavior is undefined if this variant is unset.
+    /// Note that this method is selected only if the template parameter
+    /// type `VISITOR` does not define a `typedef` of `ResultType` in its
+    /// public interface.  Also note that this method is defined inline to
+    /// work around a Windows compiler bug with SFINAE functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 0,
                             void>::type
     applyRaw(const VISITOR& visitor) {
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value (of template parameter 'TYPE') this variant currently
-        // holds to the 'visitor' object's 'operator()'.  This method does not
-        // return a value.  The behavior is undefined if this variant is unset.
-        // Note that this method is selected only if the template parameter
-        // type 'VISITOR' does not define a 'typedef' of 'ResultType' in its
-        // public interface.  Also note that this method is defined inline to
-        // work around a Windows compiler bug with SFINAE functions.
 
         typedef Variant_RawVisitorHelper<void, const VISITOR> Helper;
 
         doApply<const Helper&>(Helper(&visitor), this->d_type);
     }
 
+    /// Apply the specified `visitor` to this modifiable variant by passing
+    /// the value this variant currently holds to the `visitor` object's
+    /// `operator()`, and return the value (of template parameter
+    /// `RET_TYPE`) returned by the `visitor`.  The behavior is undefined if
+    /// this variant is unset.
     template <class RET_TYPE, class VISITOR>
     RET_TYPE applyRaw(VISITOR& visitor);
     template <class RET_TYPE, class VISITOR>
     RET_TYPE applyRaw(const VISITOR& visitor);
-        // Apply the specified 'visitor' to this modifiable variant by passing
-        // the value this variant currently holds to the 'visitor' object's
-        // 'operator()', and return the value (of template parameter
-        // 'RET_TYPE') returned by the 'visitor'.  The behavior is undefined if
-        // this variant is unset.
 
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     VariantImp& assign(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -1102,15 +1115,15 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
         // that this variant can hold.
 
+    /// Assign to this object the specified `value` of template parameter
+    /// `SOURCE_TYPE` converted to template parameter `TYPE`, and return a
+    /// reference providing modifiable access to this object.  The value
+    /// currently held by this variant (if any) is destroyed if that value's
+    /// type is not the same as `TYPE`.  `TYPE` must be the same as one of
+    /// the types that this variant can hold and `SOURCE_TYPE` must be
+    /// convertible to `TYPE`.
     template <class TYPE, class SOURCE_TYPE>
     VariantImp& assignTo(const SOURCE_TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'SOURCE_TYPE' converted to template parameter 'TYPE', and return a
-        // reference providing modifiable access to this object.  The value
-        // currently held by this variant (if any) is destroyed if that value's
-        // type is not the same as 'TYPE'.  'TYPE' must be the same as one of
-        // the types that this variant can hold and 'SOURCE_TYPE' must be
-        // convertible to 'TYPE'.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -1121,6 +1134,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 #ifndef BDLB_VARIANT_VARIADIC_LIMIT_A
 #define BDLB_VARIANT_VARIADIC_LIMIT_A BDLB_VARIANT_VARIADIC_LIMIT
 #endif
+
 #if BDLB_VARIANT_VARIADIC_LIMIT_A >= 0
     template <class TYPE>
     TYPE& createInPlace();
@@ -1395,44 +1409,46 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
+
     template <class TYPE, class... ARGS>
     TYPE& createInPlace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments);
 // }}} END GENERATED CODE
 #endif
 
+    /// Destroy the current value held by this variant (if any), and reset
+    /// this variant to the unset state.
     void reset();
-        // Destroy the current value held by this variant (if any), and reset
-        // this variant to the unset state.
 
+    /// Swap the value of this object with the value of the specified
+    /// `other` object.  This method provides the no-throw guarantee if the
+    /// `TYPE` template parameter has a no-throw `swap` and the two variant
+    /// objects being swapped have the same type; otherwise this method
+    /// provides the basic guarantee.
     void swap(VariantImp& other);
-        // Swap the value of this object with the value of the specified
-        // 'other' object.  This method provides the no-throw guarantee if the
-        // 'TYPE' template parameter has a no-throw 'swap' and the two variant
-        // objects being swapped have the same type; otherwise this method
-        // provides the basic guarantee.
 
+    /// Return a reference providing modifiable access to the value of
+    /// template parameter `TYPE` held by this variant object.  `TYPE` must
+    /// be the same as one of the types that this variant can hold.  The
+    /// behavior is undefined unless `is<TYPE>()` returns `true` and `TYPE`
+    /// is not `void`.  Note that `TYPE` must be specified explicitly, e.g.,
+    /// `myValue.the<int>()`.
     template <class TYPE>
     TYPE& the();
-        // Return a reference providing modifiable access to the value of
-        // template parameter 'TYPE' held by this variant object.  'TYPE' must
-        // be the same as one of the types that this variant can hold.  The
-        // behavior is undefined unless 'is<TYPE>()' returns 'true' and 'TYPE'
-        // is not 'void'.  Note that 'TYPE' must be specified explicitly, e.g.,
-        // 'myValue.the<int>()'.
 
     // ACCESSORS
+
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// this variant currently holds to the `visitor` object's `operator()`,
+    /// and return the value returned by the `visitor`.  If this variant is
+    /// unset, a default constructed `bslmf::Nil` is passed to the
+    /// `visitor`.  Note that this method is selected only if the template
+    /// parameter type `VISITOR` defines a `typedef` of `ResultType` in its
+    /// public interface.  Also note that this method is defined inline to
+    /// work around a Windows compiler bug with SFINAE functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 1,
                             typename VISITOR::ResultType>::type
     apply(VISITOR& visitor) const {
-        // Apply the specified 'visitor' to this variant by passing the value
-        // this variant currently holds to the 'visitor' object's 'operator()',
-        // and return the value returned by the 'visitor'.  If this variant is
-        // unset, a default constructed 'bslmf::Nil' is passed to the
-        // 'visitor'.  Note that this method is selected only if the template
-        // parameter type 'VISITOR' defines a 'typedef' of 'ResultType' in its
-        // public interface.  Also note that this method is defined inline to
-        // work around a Windows compiler bug with SFINAE functions.
 
         if (this->d_type) {
             return doApplyR<VISITOR&,
@@ -1444,18 +1460,18 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         return visitor(nil);
     }
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// this variant currently holds to the `visitor` object's `operator()`,
+    /// and return the value returned by the 'visitor.  If this variant is
+    /// unset, a default constructed `bslmf::Nil` is passed to the
+    /// `visitor`.  Note that this method is selected only if the template
+    /// parameter type `VISITOR` defines a `typedef` of `ResultType` in its
+    /// public interface.  Also note that this method is defined inline to
+    /// work around a Windows compiler bug with SFINAE functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 1,
                             typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor) const {
-        // Apply the specified 'visitor' to this variant by passing the value
-        // this variant currently holds to the 'visitor' object's 'operator()',
-        // and return the value returned by the 'visitor.  If this variant is
-        // unset, a default constructed 'bslmf::Nil' is passed to the
-        // 'visitor'.  Note that this method is selected only if the template
-        // parameter type 'VISITOR' defines a 'typedef' of 'ResultType' in its
-        // public interface.  Also note that this method is defined inline to
-        // work around a Windows compiler bug with SFINAE functions.
 
         if (this->d_type) {
             return doApplyR<const VISITOR&,
@@ -1467,22 +1483,22 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         return visitor(nil);
     }
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// (of template parameter `TYPE`) this variant currently holds to the
+    /// `visitor` object's `operator()`, and return the value returned by
+    /// the `visitor`.  If this variant is unset, the specified
+    /// `defaultValue` of template parameter `TYPE` is passed to the
+    /// `visitor`.  `TYPE` must be the same as one of the types that this
+    /// variant can hold.  The behavior is undefined unless this variant is
+    /// unset or holds a value of template parameter `TYPE`.  Note that this
+    /// method is selected only if the template parameter type `VISITOR`
+    /// defines a `typedef` of `ResultType` in its public interface.  Also
+    /// note that this method is defined inline to work around a Windows
+    /// compiler bug with SFINAE functions.
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 1,
                             typename VISITOR::ResultType>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) const {
-        // Apply the specified 'visitor' to this variant by passing the value
-        // (of template parameter 'TYPE') this variant currently holds to the
-        // 'visitor' object's 'operator()', and return the value returned by
-        // the 'visitor'.  If this variant is unset, the specified
-        // 'defaultValue' of template parameter 'TYPE' is passed to the
-        // 'visitor'.  'TYPE' must be the same as one of the types that this
-        // variant can hold.  The behavior is undefined unless this variant is
-        // unset or holds a value of template parameter 'TYPE'.  Note that this
-        // method is selected only if the template parameter type 'VISITOR'
-        // defines a 'typedef' of 'ResultType' in its public interface.  Also
-        // note that this method is defined inline to work around a Windows
-        // compiler bug with SFINAE functions.
 
         if (this->d_type) {
             return doApplyR<VISITOR&,
@@ -1493,22 +1509,22 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         return visitor(defaultValue);
     }
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// (of template parameter `TYPE`) this variant currently holds to the
+    /// `visitor` object's `operator()`, and return the value returned by
+    /// the `visitor`.  If this variant is unset, the specified
+    /// `defaultValue` of template parameter `TYPE` is passed to the
+    /// `visitor`.  `TYPE` must be the same as one of the types that this
+    /// variant can hold.  The behavior is undefined unless this variant is
+    /// unset or holds a value of template parameter `TYPE`.  Note that this
+    /// method is selected only if the template parameter type `VISITOR`
+    /// defines a `typedef` of `ResultType` in its public interface.  Also
+    /// note that this method is defined inline to work around a Windows
+    /// compiler bug with SFINAE functions.
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 1,
                             typename VISITOR::ResultType>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) const {
-        // Apply the specified 'visitor' to this variant by passing the value
-        // (of template parameter 'TYPE') this variant currently holds to the
-        // 'visitor' object's 'operator()', and return the value returned by
-        // the 'visitor'.  If this variant is unset, the specified
-        // 'defaultValue' of template parameter 'TYPE' is passed to the
-        // 'visitor'.  'TYPE' must be the same as one of the types that this
-        // variant can hold.  The behavior is undefined unless this variant is
-        // unset or holds a value of template parameter 'TYPE'.  Note that this
-        // method is selected only if the template parameter type 'VISITOR'
-        // defines a 'typedef' of 'ResultType' in its public interface.  Also
-        // note that this method is defined inline to work around a Windows
-        // compiler bug with SFINAE functions.
 
         if (this->d_type) {
             return doApplyR<const VISITOR&,
@@ -1519,18 +1535,18 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         return visitor(defaultValue);
     }
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// this variant currently holds to the `visitor` object's `operator()`.
+    /// This method does not return a value.  If this variant is unset, a
+    /// default constructed `bslmf::Nil` is passed to the `visitor`.  Note
+    /// that this method is selected only if the template parameter type
+    /// `VISITOR` does not define a `typedef` of `ResultType` in its public
+    /// interface.  Also note that this method is defined inline to work
+    /// around a Windows compiler bug with SFINAE functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 0,
                             void>::type
     apply(VISITOR& visitor) const {
-        // Apply the specified 'visitor' to this variant by passing the value
-        // this variant currently holds to the 'visitor' object's 'operator()'.
-        // This method does not return a value.  If this variant is unset, a
-        // default constructed 'bslmf::Nil' is passed to the 'visitor'.  Note
-        // that this method is selected only if the template parameter type
-        // 'VISITOR' does not define a 'typedef' of 'ResultType' in its public
-        // interface.  Also note that this method is defined inline to work
-        // around a Windows compiler bug with SFINAE functions.
 
         if (this->d_type) {
             doApply<VISITOR&>(visitor, this->d_type);
@@ -1541,18 +1557,18 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         visitor(nil);
     }
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// this variant currently holds to the `visitor` object's `operator()`.
+    /// This method does not return a value.  If this variant is unset, a
+    /// default constructed `bslmf::Nil` is passed to the `visitor`.  Note
+    /// that this method is selected only if the template parameter type
+    /// `VISITOR` does not define a `typedef` of `ResultType` in its public
+    /// interface.  Also note that this method is defined inline to work
+    /// around a Windows compiler bug with SFINAE functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 0,
                             void>::type
     apply(const VISITOR& visitor) const {
-        // Apply the specified 'visitor' to this variant by passing the value
-        // this variant currently holds to the 'visitor' object's 'operator()'.
-        // This method does not return a value.  If this variant is unset, a
-        // default constructed 'bslmf::Nil' is passed to the 'visitor'.  Note
-        // that this method is selected only if the template parameter type
-        // 'VISITOR' does not define a 'typedef' of 'ResultType' in its public
-        // interface.  Also note that this method is defined inline to work
-        // around a Windows compiler bug with SFINAE functions.
 
         if (this->d_type) {
             doApply<const VISITOR&>(visitor, this->d_type);
@@ -1563,22 +1579,22 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         visitor(nil);
     }
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// (of template parameter `TYPE`) this variant currently holds to the
+    /// `visitor` object's `operator()`.  This method does not return a
+    /// value.  If this variant is unset, the specified `defaultValue` of
+    /// template parameter `TYPE` is passed to the `visitor`.  `TYPE` must
+    /// be the same as one of the types that this variant can hold.  The
+    /// behavior is undefined unless this variant is unset or holds a value
+    /// of template parameter `TYPE`.  Note that this method is selected
+    /// only if the template parameter type `VISITOR` does not define a
+    /// `typedef` of `ResultType` in its public interface.  Also note that
+    /// this method is defined inline to work around a Windows compiler bug
+    /// with SFINAE functions.
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 0,
                             void>::type
     apply(VISITOR& visitor, const TYPE& defaultValue) const {
-        // Apply the specified 'visitor' to this variant by passing the value
-        // (of template parameter 'TYPE') this variant currently holds to the
-        // 'visitor' object's 'operator()'.  This method does not return a
-        // value.  If this variant is unset, the specified 'defaultValue' of
-        // template parameter 'TYPE' is passed to the 'visitor'.  'TYPE' must
-        // be the same as one of the types that this variant can hold.  The
-        // behavior is undefined unless this variant is unset or holds a value
-        // of template parameter 'TYPE'.  Note that this method is selected
-        // only if the template parameter type 'VISITOR' does not define a
-        // 'typedef' of 'ResultType' in its public interface.  Also note that
-        // this method is defined inline to work around a Windows compiler bug
-        // with SFINAE functions.
 
         if (this->d_type) {
             doApply<VISITOR&>(visitor, this->d_type);
@@ -1588,22 +1604,22 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         visitor(defaultValue);
     }
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// (of template parameter `TYPE`) this variant currently holds to the
+    /// `visitor` object's `operator()`.  This method does not return a
+    /// value.  If this variant is unset, the specified `defaultValue` of
+    /// template parameter `TYPE` is passed to the `visitor`.  `TYPE` must
+    /// be the same as one of the types that this variant can hold.  The
+    /// behavior is undefined unless this variant is unset or holds a value
+    /// of template parameter `TYPE`.  Note that this method is selected
+    /// only if the template parameter type `VISITOR` does not define a
+    /// `typedef` of `ResultType` in its public interface.  Also note that
+    /// this method is defined inline to work around a Windows compiler bug
+    /// with SFINAE functions.
     template <class VISITOR, class TYPE>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 0,
                             void>::type
     apply(const VISITOR& visitor, const TYPE& defaultValue) const {
-        // Apply the specified 'visitor' to this variant by passing the value
-        // (of template parameter 'TYPE') this variant currently holds to the
-        // 'visitor' object's 'operator()'.  This method does not return a
-        // value.  If this variant is unset, the specified 'defaultValue' of
-        // template parameter 'TYPE' is passed to the 'visitor'.  'TYPE' must
-        // be the same as one of the types that this variant can hold.  The
-        // behavior is undefined unless this variant is unset or holds a value
-        // of template parameter 'TYPE'.  Note that this method is selected
-        // only if the template parameter type 'VISITOR' does not define a
-        // 'typedef' of 'ResultType' in its public interface.  Also note that
-        // this method is defined inline to work around a Windows compiler bug
-        // with SFINAE functions.
 
         if (this->d_type) {
             doApply<const VISITOR&>(visitor, this->d_type);
@@ -1613,41 +1629,41 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         visitor(defaultValue);
     }
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// this variant currently holds to the `visitor` object's `operator()`,
+    /// and return the value (of template parameter `RET_TYPE`) returned by
+    /// the `visitor`.  If this variant is unset, a default constructed
+    /// `bslmf::Nil` is passed to the `visitor`.
     template <class RET_TYPE, class VISITOR>
     RET_TYPE apply(VISITOR& visitor) const;
     template <class RET_TYPE, class VISITOR>
     RET_TYPE apply(const VISITOR& visitor) const;
-        // Apply the specified 'visitor' to this variant by passing the value
-        // this variant currently holds to the 'visitor' object's 'operator()',
-        // and return the value (of template parameter 'RET_TYPE') returned by
-        // the 'visitor'.  If this variant is unset, a default constructed
-        // 'bslmf::Nil' is passed to the 'visitor'.
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// (of template parameter `TYPE`) this variant currently holds to the
+    /// `visitor` object's `operator()`, and return the value (of template
+    /// parameter `RET_TYPE`) returned by the `visitor`.  If this variant is
+    /// unset, the specified `defaultValue` of template parameter `TYPE` is
+    /// passed to the `visitor`.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.  The behavior is undefined unless
+    /// this variant is unset or holds a value of template parameter `TYPE`.
     template <class RET_TYPE, class VISITOR, class TYPE>
     RET_TYPE apply(VISITOR& visitor, const TYPE& defaultValue) const;
     template <class RET_TYPE, class VISITOR, class TYPE>
     RET_TYPE apply(const VISITOR& visitor, const TYPE& defaultValue) const;
-        // Apply the specified 'visitor' to this variant by passing the value
-        // (of template parameter 'TYPE') this variant currently holds to the
-        // 'visitor' object's 'operator()', and return the value (of template
-        // parameter 'RET_TYPE') returned by the 'visitor'.  If this variant is
-        // unset, the specified 'defaultValue' of template parameter 'TYPE' is
-        // passed to the 'visitor'.  'TYPE' must be the same as one of the
-        // types that this variant can hold.  The behavior is undefined unless
-        // this variant is unset or holds a value of template parameter 'TYPE'.
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// this variant currently holds to the `visitor` object's `operator()`,
+    /// and return the value (of template parameter `RET_TYPE`) returned by
+    /// the `visitor`.  The behavior is undefined if this variant is unset.
+    /// Note that this method is selected only if the template parameter
+    /// type `VISITOR` defines a `typedef` of `ResultType` in its public
+    /// interface.  Also note that this method is defined inline to work
+    /// around a Windows compiler bug with SFINAE functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 1,
                             typename VISITOR::ResultType>::type
     applyRaw(VISITOR& visitor) const {
-        // Apply the specified 'visitor' to this variant by passing the value
-        // this variant currently holds to the 'visitor' object's 'operator()',
-        // and return the value (of template parameter 'RET_TYPE') returned by
-        // the 'visitor'.  The behavior is undefined if this variant is unset.
-        // Note that this method is selected only if the template parameter
-        // type 'VISITOR' defines a 'typedef' of 'ResultType' in its public
-        // interface.  Also note that this method is defined inline to work
-        // around a Windows compiler bug with SFINAE functions.
 
         typedef Variant_RawVisitorHelper<typename VISITOR::ResultType,
                                          VISITOR> Helper;
@@ -1657,18 +1673,18 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
                                                       this->d_type);
     }
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// this variant currently holds to the `visitor` object's `operator()`,
+    /// and return the value returned by the `visitor`.  The behavior is
+    /// undefined if this variant is unset.  Note that this method is
+    /// selected only if the template parameter type `VISITOR` defines a
+    /// `typedef` of `ResultType` in its public interface.  Also note that
+    /// this method is defined inline to work around a Windows compiler bug
+    /// with SFINAE functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 1,
                             typename VISITOR::ResultType>::type
     applyRaw(const VISITOR& visitor) const {
-        // Apply the specified 'visitor' to this variant by passing the value
-        // this variant currently holds to the 'visitor' object's 'operator()',
-        // and return the value returned by the 'visitor'.  The behavior is
-        // undefined if this variant is unset.  Note that this method is
-        // selected only if the template parameter type 'VISITOR' defines a
-        // 'typedef' of 'ResultType' in its public interface.  Also note that
-        // this method is defined inline to work around a Windows compiler bug
-        // with SFINAE functions.
 
         typedef Variant_RawVisitorHelper<typename VISITOR::ResultType,
                                          const VISITOR> Helper;
@@ -1678,152 +1694,154 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
                                                       this->d_type);
     }
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// this variant currently holds to the `visitor` object's `operator()`.
+    /// This method does not return a value.  The behavior is undefined if
+    /// this variant is unset.  Note that this method is selected only if
+    /// the template parameter type `VISITOR` does not define a `typedef` of
+    /// `ResultType` in its public interface.  Also note that this method is
+    /// defined inline to work around a Windows compiler bug with SFINAE
+    /// functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 0,
                             void>::type
     applyRaw(VISITOR& visitor) const {
-        // Apply the specified 'visitor' to this variant by passing the value
-        // this variant currently holds to the 'visitor' object's 'operator()'.
-        // This method does not return a value.  The behavior is undefined if
-        // this variant is unset.  Note that this method is selected only if
-        // the template parameter type 'VISITOR' does not define a 'typedef' of
-        // 'ResultType' in its public interface.  Also note that this method is
-        // defined inline to work around a Windows compiler bug with SFINAE
-        // functions.
 
         typedef Variant_RawVisitorHelper<void, VISITOR> Helper;
 
         return doApply<const Helper&>(Helper(&visitor), this->d_type);
     }
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// this variant currently holds to the `visitor` object's `operator()`.
+    /// This method does not return a value.  The behavior is undefined if
+    /// this variant is unset.  Note that this method is selected only if
+    /// the template parameter type `VISITOR` does not define a `typedef` of
+    /// `ResultType` in its public interface.  Also note that this method is
+    /// defined inline to work around a Windows compiler bug with SFINAE
+    /// functions.
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 0,
                             void>::type
     applyRaw(const VISITOR& visitor) const {
-        // Apply the specified 'visitor' to this variant by passing the value
-        // this variant currently holds to the 'visitor' object's 'operator()'.
-        // This method does not return a value.  The behavior is undefined if
-        // this variant is unset.  Note that this method is selected only if
-        // the template parameter type 'VISITOR' does not define a 'typedef' of
-        // 'ResultType' in its public interface.  Also note that this method is
-        // defined inline to work around a Windows compiler bug with SFINAE
-        // functions.
 
         typedef Variant_RawVisitorHelper<void, const VISITOR> Helper;
 
         return doApply<const Helper&>(Helper(&visitor), this->d_type);
     }
 
+    /// Apply the specified `visitor` to this variant by passing the value
+    /// this variant currently holds to the `visitor` object's `operator()`,
+    /// and return the value (of template parameter `RET_TYPE`) returned by
+    /// the `visitor`.  The behavior is undefined if this variant is unset.
     template <class RET_TYPE, class VISITOR>
     RET_TYPE applyRaw(VISITOR& visitor) const;
     template <class RET_TYPE, class VISITOR>
     RET_TYPE applyRaw(const VISITOR& visitor) const;
-        // Apply the specified 'visitor' to this variant by passing the value
-        // this variant currently holds to the 'visitor' object's 'operator()',
-        // and return the value (of template parameter 'RET_TYPE') returned by
-        // the 'visitor'.  The behavior is undefined if this variant is unset.
 
+    /// Return `true` if the value held by this variant object is of
+    /// template parameter `TYPE`, and `false` otherwise.  `TYPE` must be
+    /// the same as one of the types that this variant can hold.  Note that
+    /// `TYPE` must be specified explicitly, e.g., `myValue.is<int>()`.
     template <class TYPE>
     bool is() const;
-        // Return 'true' if the value held by this variant object is of
-        // template parameter 'TYPE', and 'false' otherwise.  'TYPE' must be
-        // the same as one of the types that this variant can hold.  Note that
-        // 'TYPE' must be specified explicitly, e.g., 'myValue.is<int>()'.
 
+    /// Return `true` if this variant is currently unset, and `false`
+    /// otherwise.  An unset variant does not hold a value or type.  Note
+    /// that this method should be preferred over checking the type index of
+    /// the variant.
     bool isUnset() const;
-        // Return 'true' if this variant is currently unset, and 'false'
-        // otherwise.  An unset variant does not hold a value or type.  Note
-        // that this method should be preferred over checking the type index of
-        // the variant.
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level`, and return a
+    /// reference to `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for
+    /// this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  If `stream` is
+    /// not valid on entry, this operation has no effect.  Nothing is
+    /// printed if this variant is unset.  Each type that may be contained
+    /// by this variant shall be printable with `bdlb::PrintMethods`
+    /// (typically meaning that they either declare the
+    /// `bdlb::HasPrintMethod` trait or provide the `<<` output streaming
+    /// operator).  See {`bdlb_printmethods`}.  The compiler will emit an
+    /// error if `bdlb::PrintMethods::print` cannot be instantiated for each
+    /// type that may be contained by this variant.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level', and return a
-        // reference to 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.  Nothing is
-        // printed if this variant is unset.  Each type that may be contained
-        // by this variant shall be printable with 'bdlb::PrintMethods'
-        // (typically meaning that they either declare the
-        // 'bdlb::HasPrintMethod' trait or provide the '<<' output streaming
-        // operator).  See {'bdlb_printmethods'}.  The compiler will emit an
-        // error if 'bdlb::PrintMethods::print' cannot be instantiated for each
-        // type that may be contained by this variant.
 
+    /// Return a reference providing non-modifiable access to the value of
+    /// template parameter `TYPE` held by this variant object.  `TYPE` must
+    /// be the same as one of the types that this variant can hold.  The
+    /// behavior is undefined unless `is<TYPE>()` returns `true` and `TYPE`
+    /// is not `void`.  Note that `TYPE` must be specified explicitly, e.g.,
+    /// `myValue.the<int>()`.
     template <class TYPE>
     const TYPE& the() const;
-        // Return a reference providing non-modifiable access to the value of
-        // template parameter 'TYPE' held by this variant object.  'TYPE' must
-        // be the same as one of the types that this variant can hold.  The
-        // behavior is undefined unless 'is<TYPE>()' returns 'true' and 'TYPE'
-        // is not 'void'.  Note that 'TYPE' must be specified explicitly, e.g.,
-        // 'myValue.the<int>()'.
 
+    /// Return the index in the list of `TYPES` corresponding to the type of
+    /// the value currently held by this variant object (starting at 1), or
+    /// 0 if this object is unset.  Note that instead of switching code on
+    /// the type index, calling `apply` is the preferred method of
+    /// manipulating different types stored inside a variant.
     int typeIndex() const;
-        // Return the index in the list of 'TYPES' corresponding to the type of
-        // the value currently held by this variant object (starting at 1), or
-        // 0 if this object is unset.  Note that instead of switching code on
-        // the type index, calling 'apply' is the preferred method of
-        // manipulating different types stored inside a variant.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    /// Return `typeid(void)`.
+    ///
+    /// DEPRECATED: Do not use.
     const bsl::type_info& typeInfo() const;
-        // Return 'typeid(void)'.
-        //
-        // DEPRECATED: Do not use.
 
+    /// DEPRECATED: Do not use.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
-        // DEPRECATED: Do not use.
 
+    /// DEPRECATED: Do not use.
     int maxSupportedBdexVersion() const;
-        // DEPRECATED: Do not use.
 
+    /// DEPRECATED: Do not use.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // DEPRECATED: Do not use.
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` variant object has the same value
+/// as the specified `rhs` variant object, and `false` otherwise.  Two
+/// variant objects have the same value if they are both set and hold
+/// objects of the same type and same value, or are both unset.
 template <class TYPES>
 bool operator==(const VariantImp<TYPES>& lhs,
                 const VariantImp<TYPES>& rhs);
-    // Return 'true' if the specified 'lhs' variant object has the same value
-    // as the specified 'rhs' variant object, and 'false' otherwise.  Two
-    // variant objects have the same value if they are both set and hold
-    // objects of the same type and same value, or are both unset.
 
+/// Return `true` if the specified `lhs` variant object does not have the
+/// same value as the specified `rhs` variant object, and `false` otherwise.
+/// Two variant objects do not have the same value if one is set and the
+/// other is unset, or if they are both set but hold objects that differ in
+/// type or value.
 template <class TYPES>
 bool operator!=(const VariantImp<TYPES>& lhs,
                 const VariantImp<TYPES>& rhs);
-    // Return 'true' if the specified 'lhs' variant object does not have the
-    // same value as the specified 'rhs' variant object, and 'false' otherwise.
-    // Two variant objects do not have the same value if one is set and the
-    // other is unset, or if they are both set but hold objects that differ in
-    // type or value.
 
+/// Write the specified variant `object` to the specified output `stream` in
+/// a single-line (human-readable) format, and return a reference to
+/// `stream`.
 template <class TYPES>
 bsl::ostream& operator<<(bsl::ostream&            stream,
                          const VariantImp<TYPES>& object);
-    // Write the specified variant 'object' to the specified output 'stream' in
-    // a single-line (human-readable) format, and return a reference to
-    // 'stream'.
 
 // FREE FUNCTIONS
+
+/// Swap the values of the specified `a` and `b` objects.  This method
+/// provides the no-throw guarantee if the `TYPE` template parameter has a
+/// no-throw `swap` and the two variant objects being swapped has the same
+/// type; otherwise this method provides the basic guarantee.
 template <class TYPES>
 void swap(VariantImp<TYPES>& a, VariantImp<TYPES>& b);
-    // Swap the values of the specified 'a' and 'b' objects.  This method
-    // provides the no-throw guarantee if the 'TYPE' template parameter has a
-    // no-throw 'swap' and the two variant objects being swapped has the same
-    // type; otherwise this method provides the basic guarantee.
 
                        // ==================
                        // class Variant<...>
@@ -1861,8 +1879,8 @@ class Variant : public VariantImp<typename bslmf::TypeList<
 #if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
     typedef VariantImp<typename bslmf::TypeList<TYPES...>::ListType>  Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant<TYPES...>                                         SelfType;
-        // 'SelfType' is an alias to this class.
 #else
     typedef VariantImp<typename bslmf::TypeList<A1,  A2,  A3,  A4,  A5,  A6,
                                                 A7,  A8,  A9,  A10, A11, A12,
@@ -1891,35 +1909,36 @@ class Variant : public VariantImp<typename bslmf::TypeList<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant, HasPrintMethod);
 
     // CREATORS
-    Variant();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -1969,36 +1988,37 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant(const Variant& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant(bslmf::MovableRef<Variant> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant(bslmf::MovableRef<Variant>  original,
             bslma::Allocator           *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -2021,40 +2041,40 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant& operator=(const Variant& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant& operator=(bslmf::MovableRef<Variant> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ===================
                        // class Variant2<...>
                        // ===================
 
+/// This class is a "specialization" of `Variant` for a fixed number (2) of
+/// types.  Its 2 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2>`.
 template <class A1, class A2>
 class Variant2 : public VariantImp<typename bslmf::TypeList2<
                                                            A1, A2>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (2) of
-    // types.  Its 2 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList2<A1, A2>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant2<A1, A2>                                        SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>               Traits;
     typedef bslmf::MovableRefUtil                                   MoveUtil;
@@ -2073,35 +2093,36 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant2, HasPrintMethod);
 
     // CREATORS
-    Variant2();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant2();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant2(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant2(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -2151,36 +2172,37 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant2(const Variant2& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant2(bslmf::MovableRef<Variant2> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant2(bslmf::MovableRef<Variant2>  original,
              bslma::Allocator            *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant2& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -2203,41 +2225,41 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant2& operator=(const Variant2& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant2& operator=(bslmf::MovableRef<Variant2> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ===================
                        // class Variant3<...>
                        // ===================
 
+/// This class is a "specialization" of `Variant` for a fixed number (3) of
+/// types.  Its 3 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, A3>`.
 template <class A1, class A2, class A3>
 class Variant3 : public VariantImp<typename bslmf::TypeList3<
                                                        A1, A2, A3>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (3) of
-    // types.  Its 3 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, A3>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList3<A1, A2,
                                                  A3>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant3<A1, A2, A3>                                SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
     typedef bslmf::MovableRefUtil                               MoveUtil;
@@ -2256,35 +2278,36 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant3, HasPrintMethod);
 
     // CREATORS
-    Variant3();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant3();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant3(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant3(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -2334,36 +2357,37 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant3(const Variant3& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant3(bslmf::MovableRef<Variant3> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant3(bslmf::MovableRef<Variant3>  original,
              bslma::Allocator            *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant3& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -2386,41 +2410,41 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant3& operator=(const Variant3& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant3& operator=(bslmf::MovableRef<Variant3> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ===================
                        // class Variant4<...>
                        // ===================
 
+/// This class is a "specialization" of `Variant` for a fixed number (4) of
+/// types.  Its 4 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A4>`.
 template <class A1, class A2, class A3, class A4>
 class Variant4 : public VariantImp<typename bslmf::TypeList4<
                                                    A1, A2, A3, A4>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (4) of
-    // types.  Its 4 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A4>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList4<A1, A2, A3,
                                                  A4>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant4<A1, A2, A3, A4>                            SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
     typedef bslmf::MovableRefUtil                               MoveUtil;
@@ -2439,35 +2463,36 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant4, HasPrintMethod);
 
     // CREATORS
-    Variant4();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant4();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant4(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant4(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -2517,36 +2542,37 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant4(const Variant4& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant4(bslmf::MovableRef<Variant4> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant4(bslmf::MovableRef<Variant4>  original,
              bslma::Allocator            *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant4& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -2569,41 +2595,41 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant4& operator=(const Variant4& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant4& operator=(bslmf::MovableRef<Variant4> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ===================
                        // class Variant5<...>
                        // ===================
 
+/// This class is a "specialization" of `Variant` for a fixed number (5) of
+/// types.  Its 5 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A5>`.
 template <class A1, class A2, class A3, class A4, class A5>
 class Variant5 : public VariantImp<typename bslmf::TypeList5<
                                                A1, A2, A3, A4, A5>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (5) of
-    // types.  Its 5 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A5>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList5<A1, A2, A3, A4,
                                                  A5>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant5<A1, A2, A3, A4, A5>                        SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
     typedef bslmf::MovableRefUtil                               MoveUtil;
@@ -2622,35 +2648,36 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant5, HasPrintMethod);
 
     // CREATORS
-    Variant5();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant5();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant5(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant5(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -2700,36 +2727,37 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant5(const Variant5& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant5(bslmf::MovableRef<Variant5> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant5(bslmf::MovableRef<Variant5>  original,
              bslma::Allocator            *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant5& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -2752,41 +2780,41 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant5& operator=(const Variant5& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant5& operator=(bslmf::MovableRef<Variant5> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ===================
                        // class Variant6<...>
                        // ===================
 
+/// This class is a "specialization" of `Variant` for a fixed number (6) of
+/// types.  Its 6 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A6>`.
 template <class A1, class A2, class A3, class A4, class A5, class A6>
 class Variant6 : public VariantImp<typename bslmf::TypeList6<
                                            A1, A2, A3, A4, A5, A6>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (6) of
-    // types.  Its 6 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A6>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList6<A1, A2, A3, A4, A5,
                                                  A6>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant6<A1, A2, A3, A4, A5, A6>                    SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
     typedef bslmf::MovableRefUtil                               MoveUtil;
@@ -2805,35 +2833,36 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant6, HasPrintMethod);
 
     // CREATORS
-    Variant6();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant6();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant6(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant6(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -2883,36 +2912,37 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant6(const Variant6& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant6(bslmf::MovableRef<Variant6> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant6(bslmf::MovableRef<Variant6>  original,
              bslma::Allocator            *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant6& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -2935,42 +2965,42 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant6& operator=(const Variant6& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant6& operator=(bslmf::MovableRef<Variant6> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ===================
                        // class Variant7<...>
                        // ===================
 
+/// This class is a "specialization" of `Variant` for a fixed number (7) of
+/// types.  Its 7 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A7>`.
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7>
 class Variant7 : public VariantImp<typename bslmf::TypeList7<
                                        A1, A2, A3, A4, A5, A6, A7>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (7) of
-    // types.  Its 7 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A7>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList7<A1, A2, A3, A4, A5, A6,
                                                  A7>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant7<A1, A2, A3, A4, A5, A6, A7>                SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
     typedef bslmf::MovableRefUtil                               MoveUtil;
@@ -2989,35 +3019,36 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant7, HasPrintMethod);
 
     // CREATORS
-    Variant7();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant7();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant7(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant7(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -3067,36 +3098,37 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant7(const Variant7& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant7(bslmf::MovableRef<Variant7> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant7(bslmf::MovableRef<Variant7>  original,
              bslma::Allocator            *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant7& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3119,42 +3151,42 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant7& operator=(const Variant7& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant7& operator=(bslmf::MovableRef<Variant7> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ===================
                        // class Variant8<...>
                        // ===================
 
+/// This class is a "specialization" of `Variant` for a fixed number (8) of
+/// types.  Its 8 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A8>`.
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8>
 class Variant8 : public VariantImp<typename bslmf::TypeList8<
               A1, A2, A3, A4, A5, A6, A7, A8>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (8) of
-    // types.  Its 8 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A8>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList8<A1, A2, A3, A4, A5, A6, A7,
                                                  A8>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant8<A1, A2, A3, A4, A5, A6, A7, A8>            SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
     typedef bslmf::MovableRefUtil                               MoveUtil;
@@ -3173,35 +3205,36 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant8, HasPrintMethod);
 
     // CREATORS
-    Variant8();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant8();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant8(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant8(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -3251,36 +3284,37 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant8(const Variant8& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant8(bslmf::MovableRef<Variant8> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant8(bslmf::MovableRef<Variant8>  original,
              bslma::Allocator            *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant8& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3303,42 +3337,42 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant8& operator=(const Variant8& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant8& operator=(bslmf::MovableRef<Variant8> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ===================
                        // class Variant9<...>
                        // ===================
 
+/// This class is a "specialization" of `Variant` for a fixed number (9) of
+/// types.  Its 9 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A9>`.
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9>
 class Variant9 : public VariantImp<typename bslmf::TypeList9<
               A1, A2, A3, A4, A5, A6, A7, A8, A9>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (9) of
-    // types.  Its 9 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A9>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList9<A1, A2, A3, A4, A5, A6, A7,
                                                  A8, A9>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>            SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>               Traits;
     typedef bslmf::MovableRefUtil                                   MoveUtil;
@@ -3357,35 +3391,36 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant9, HasPrintMethod);
 
     // CREATORS
-    Variant9();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant9();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant9(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant9(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -3435,36 +3470,37 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant9(const Variant9& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant9(bslmf::MovableRef<Variant9> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant9(bslmf::MovableRef<Variant9>  original,
              bslma::Allocator            *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant9& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3487,43 +3523,43 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant9& operator=(const Variant9& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant9& operator=(bslmf::MovableRef<Variant9> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ====================
                        // class Variant10<...>
                        // ====================
 
+/// This class is a "specialization" of `Variant` for a fixed number (10) of
+/// types.  Its 10 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A10>`.
 template <class A1, class A2, class A3, class A4, class A5, class A6,
           class A7, class A8, class A9, class A10>
 class Variant10 : public VariantImp<typename bslmf::TypeList10<
                           A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (10) of
-    // types.  Its 10 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A10>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList10<A1, A2, A3, A4, A5, A6, A7,
                                                   A8, A9,
                                                   A10>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>    SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -3542,35 +3578,36 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant10, HasPrintMethod);
 
     // CREATORS
-    Variant10();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant10();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant10(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant10(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -3620,36 +3657,37 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant10(const Variant10& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant10(bslmf::MovableRef<Variant10> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant10(bslmf::MovableRef<Variant10>  original,
               bslma::Allocator             *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant10& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3672,44 +3710,44 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant10& operator=(const Variant10& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant10& operator=(bslmf::MovableRef<Variant10> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ====================
                        // class Variant11<...>
                        // ====================
 
+/// This class is a "specialization" of `Variant` for a fixed number (11) of
+/// types.  Its 11 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A11>`.
 template <class A1, class A2, class A3, class A4,  class A5, class A6,
           class A7, class A8, class A9, class A10, class A11>
 class Variant11 : public VariantImp<typename bslmf::TypeList11<
                      A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (11) of
-    // types.  Its 11 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A11>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList11<A1, A2, A3, A4, A5, A6, A7,
                                                   A8, A9, A10,
                                                   A11>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
                       A11>                                        SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -3728,35 +3766,36 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant11, HasPrintMethod);
 
     // CREATORS
-    Variant11();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant11();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant11(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant11(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -3806,36 +3845,37 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant11(const Variant11& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant11(bslmf::MovableRef<Variant11> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant11(bslmf::MovableRef<Variant11>  original,
               bslma::Allocator             *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant11& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3858,44 +3898,44 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant11& operator=(const Variant11& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant11& operator=(bslmf::MovableRef<Variant11> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ====================
                        // class Variant12<...>
                        // ====================
 
+/// This class is a "specialization" of `Variant` for a fixed number (12) of
+/// types.  Its 12 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A12>`.
 template <class A1, class A2, class A3, class A4,  class A5,  class A6,
           class A7, class A8, class A9, class A10, class A11, class A12>
 class Variant12 : public VariantImp<typename bslmf::TypeList12<
               A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (12) of
-    // types.  Its 12 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A12>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList12<A1, A2, A3, A4,  A5, A6,
                                                   A7, A8, A9, A10, A11,
                                                   A12>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant12<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10,
                       A11, A12>                                   SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -3914,35 +3954,36 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant12, HasPrintMethod);
 
     // CREATORS
-    Variant12();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant12();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant12(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant12(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -3992,36 +4033,37 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant12(const Variant12& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant12(bslmf::MovableRef<Variant12> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant12(bslmf::MovableRef<Variant12>  original,
               bslma::Allocator             *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant12& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4044,45 +4086,45 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant12& operator=(const Variant12& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant12& operator=(bslmf::MovableRef<Variant12> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ====================
                        // class Variant13<...>
                        // ====================
 
+/// This class is a "specialization" of `Variant` for a fixed number (13) of
+/// types.  Its 13 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A13>`.
 template <class A1, class A2, class A3, class A4,  class A5,  class A6,
           class A7, class A8, class A9, class A10, class A11, class A12,
           class A13>
 class Variant13 : public VariantImp<typename bslmf::TypeList13<
            A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (13) of
-    // types.  Its 13 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A13>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList13<A1, A2, A3, A4,  A5,  A6,
                                                   A7, A8, A9, A10, A11, A12,
                                                   A13>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant13<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9,
                       A10, A11, A12, A13>                         SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -4101,35 +4143,36 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant13, HasPrintMethod);
 
     // CREATORS
-    Variant13();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant13();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant13(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant13(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -4179,36 +4222,37 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant13(const Variant13& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant13(bslmf::MovableRef<Variant13> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant13(bslmf::MovableRef<Variant13>  original,
               bslma::Allocator             *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant13& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4231,27 +4275,31 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant13& operator=(const Variant13& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant13& operator=(bslmf::MovableRef<Variant13> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ====================
                        // class Variant14<...>
                        // ====================
 
+/// This class is a "specialization" of `Variant` for a fixed number (14) of
+/// types.  Its 14 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A14>`.
 template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
           class A7,  class A8, class A9, class A10, class A11, class A12,
           class A13, class A14>
@@ -4259,10 +4307,6 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
                                                A1,  A2,  A3,  A4,  A5,
                                                A6,  A7,  A8,  A9,  A10,
                                                A11, A12, A13, A14>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (14) of
-    // types.  Its 14 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A14>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList14<A1,  A2,  A3,  A4,  A5,  A6,
@@ -4270,9 +4314,9 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
                                                   A13,
                                                   A14>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant14<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9,
                       A10, A11, A12, A13, A14>                    SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -4291,35 +4335,36 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant14, HasPrintMethod);
 
     // CREATORS
-    Variant14();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant14();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant14(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant14(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -4369,36 +4414,37 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant14(const Variant14& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant14(bslmf::MovableRef<Variant14> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant14(bslmf::MovableRef<Variant14>  original,
               bslma::Allocator             *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant14& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4421,27 +4467,31 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant14& operator=(const Variant14& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant14& operator=(bslmf::MovableRef<Variant14> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ====================
                        // class Variant15<...>
                        // ====================
 
+/// This class is a "specialization" of `Variant` for a fixed number (15) of
+/// types.  Its 15 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A15>`.
 template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
           class A7,  class A8,  class A9, class A10, class A11, class A12,
           class A13, class A14, class A15>
@@ -4449,10 +4499,6 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
                                           A1,  A2,  A3,  A4,  A5,
                                           A6,  A7,  A8,  A9,  A10,
                                           A11, A12, A13, A14, A15>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (15) of
-    // types.  Its 15 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A15>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList15<A1,  A2, A3, A4,  A5,  A6,
@@ -4460,9 +4506,9 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
                                                   A13, A14,
                                                   A15>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant15<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9,
                       A10, A11, A12, A13, A14, A15>               SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -4481,35 +4527,36 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant15, HasPrintMethod);
 
     // CREATORS
-    Variant15();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant15();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant15(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant15(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -4559,36 +4606,37 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant15(const Variant15& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant15(bslmf::MovableRef<Variant15> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant15(bslmf::MovableRef<Variant15>  original,
               bslma::Allocator             *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant15& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4611,27 +4659,31 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant15& operator=(const Variant15& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant15& operator=(bslmf::MovableRef<Variant15> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ====================
                        // class Variant16<...>
                        // ====================
 
+/// This class is a "specialization" of `Variant` for a fixed number (16) of
+/// types.  Its 16 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A16>`.
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16>
@@ -4640,10 +4692,6 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
                                                        A6,  A7,  A8,  A9,  A10,
                                                        A11, A12, A13, A14, A15,
                                                        A16>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (16) of
-    // types.  Its 16 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A16>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList16<A1,  A2,  A3, A4,  A5,  A6,
@@ -4651,9 +4699,9 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
                                                   A13, A14, A15,
                                                   A16>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant16<A1,  A2,  A3,  A4,  A5,  A6,  A7, A8, A9,
                       A10, A11, A12, A13, A14, A15, A16>          SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -4672,35 +4720,36 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant16, HasPrintMethod);
 
     // CREATORS
-    Variant16();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant16();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant16(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant16(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -4750,36 +4799,37 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant16(const Variant16& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant16(bslmf::MovableRef<Variant16> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant16(bslmf::MovableRef<Variant16>  original,
               bslma::Allocator             *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant16& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4802,27 +4852,31 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant16& operator=(const Variant16& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant16& operator=(bslmf::MovableRef<Variant16> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ====================
                        // class Variant17<...>
                        // ====================
 
+/// This class is a "specialization" of `Variant` for a fixed number (17) of
+/// types.  Its 17 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A17>`.
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17>
@@ -4831,10 +4885,6 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
                                                        A6,  A7,  A8,  A9,  A10,
                                                        A11, A12, A13, A14, A15,
                                                        A16, A17>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (17) of
-    // types.  Its 17 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A17>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList17<A1,  A2,  A3,  A4,  A5,  A6,
@@ -4842,9 +4892,9 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
                                                   A13, A14, A15, A16,
                                                   A17>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant17<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9,
                       A10, A11, A12, A13, A14, A15, A16, A17>     SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -4863,35 +4913,36 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant17, HasPrintMethod);
 
     // CREATORS
-    Variant17();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant17();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant17(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant17(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -4941,36 +4992,37 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant17(const Variant17& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant17(bslmf::MovableRef<Variant17> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant17(bslmf::MovableRef<Variant17>  original,
               bslma::Allocator             *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant17& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4993,27 +5045,31 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant17& operator=(const Variant17& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant17& operator=(bslmf::MovableRef<Variant17> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ====================
                        // class Variant18<...>
                        // ====================
 
+/// This class is a "specialization" of `Variant` for a fixed number (18) of
+/// types.  Its 18 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A18>`.
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17, class A18>
@@ -5022,10 +5078,6 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
                                                     A6,  A7,  A8,  A9,  A10,
                                                     A11, A12, A13, A14, A15,
                                                     A16, A17, A18>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (18) of
-    // types.  Its 18 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A18>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList18<A1,  A2,  A3,  A4,  A5,  A6,
@@ -5033,9 +5085,9 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
                                                   A13, A14, A15, A16, A17,
                                                   A18>::ListType>  Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,
                       A10, A11, A12, A13, A14, A15, A16, A17, A18> SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>              Traits;
     typedef bslmf::MovableRefUtil                                  MoveUtil;
@@ -5054,35 +5106,36 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant18, HasPrintMethod);
 
     // CREATORS
-    Variant18();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant18();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant18(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant18(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -5132,36 +5185,37 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant18(const Variant18& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant18(bslmf::MovableRef<Variant18> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant18(bslmf::MovableRef<Variant18>  original,
               bslma::Allocator             *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant18& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -5184,27 +5238,31 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant18& operator=(const Variant18& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant18& operator=(bslmf::MovableRef<Variant18> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
                        // ====================
                        // class Variant19<...>
                        // ====================
 
+/// This class is a "specialization" of `Variant` for a fixed number (19) of
+/// types.  Its 19 template arguments *must* all be specified (none are
+/// defaulted to `bslmf::Nil`).  It provides the same functionality as
+/// `Variant<A1, A2, ..., A19>`.
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17, class A18,
@@ -5214,10 +5272,6 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
                                                A6,  A7,  A8,  A9,  A10,
                                                A11, A12, A13, A14, A15,
                                                A16, A17, A18, A19>::ListType> {
-    // This class is a "specialization" of 'Variant' for a fixed number (19) of
-    // types.  Its 19 template arguments *must* all be specified (none are
-    // defaulted to 'bslmf::Nil').  It provides the same functionality as
-    // 'Variant<A1, A2, ..., A19>'.
 
     // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList19<A1,  A2,  A3,  A4,  A5,  A6,
@@ -5225,10 +5279,10 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
                                                   A13, A14, A15, A16, A17, A18,
                                                   A19>::ListType> Imp;
 
+    /// `SelfType` is an alias to this class.
     typedef Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,
                       A10, A11, A12, A13, A14, A15, A16, A17, A18,
                       A19>                                        SelfType;
-        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -5247,35 +5301,36 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
     BSLMF_NESTED_TRAIT_DECLARATION(Variant19, HasPrintMethod);
 
     // CREATORS
-    Variant19();
-        // Create a variant object in the unset state that uses the currently
-        // installed default allocator to supply memory.
 
+    /// Create a variant object in the unset state that uses the currently
+    /// installed default allocator to supply memory.
+    Variant19();
+
+    /// Create a variant object with the specified `valueOrAllocator` that
+    /// can be either a value of a type that the variant can hold or an
+    /// allocator to supply memory.  If `valueOrAllocator` is not a
+    /// `bslma::Allocator *`, then the variant will hold the value and type
+    /// of `valueOrAllocator`, and use the currently installed default
+    /// allocator to supply memory.  Otherwise, the variant will be unset
+    /// and use `valueOrAllocator` to supply memory.  `TYPE_OR_ALLOCATOR`
+    /// must be the same as one of the types that this variant can hold or
+    /// be convertible to `bslma::Allocator *`.  Note that this
+    /// parameterized constructor is defined instead of two constructors
+    /// (one taking a `bslma::Allocator *` and the other not) because
+    /// template parameter arguments are always a better match than
+    /// derived-to-base conversion (a concrete allocator pointer converted
+    /// to `bslma::Allocator *`).
     template <class TYPE_OR_ALLOCATOR>
     explicit
     Variant19(const TYPE_OR_ALLOCATOR& valueOrAllocator);
-        // Create a variant object with the specified 'valueOrAllocator' that
-        // can be either a value of a type that the variant can hold or an
-        // allocator to supply memory.  If 'valueOrAllocator' is not a
-        // 'bslma::Allocator *', then the variant will hold the value and type
-        // of 'valueOrAllocator', and use the currently installed default
-        // allocator to supply memory.  Otherwise, the variant will be unset
-        // and use 'valueOrAllocator' to supply memory.  'TYPE_OR_ALLOCATOR'
-        // must be the same as one of the types that this variant can hold or
-        // be convertible to 'bslma::Allocator *'.  Note that this
-        // parameterized constructor is defined instead of two constructors
-        // (one taking a 'bslma::Allocator *' and the other not) because
-        // template parameter arguments are always a better match than
-        // derived-to-base conversion (a concrete allocator pointer converted
-        // to 'bslma::Allocator *').
 
+    /// Create a variant object having the specified `value` of template
+    /// parameter `TYPE` and that uses the specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  `TYPE` must be the same as one of the
+    /// types that this variant can hold.
     template <class TYPE>
     Variant19(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a variant object having the specified 'value' of template
-        // parameter 'TYPE' and that uses the specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'TYPE' must be the same as one of the
-        // types that this variant can hold.
 
     template <class TYPE>
     explicit
@@ -5325,36 +5380,37 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // participate in overload resolution if it would lead to ambiguity
         // with the move constructor that takes an allocator (below).
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` variant.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Variant19(const Variant19& original, bslma::Allocator *basicAllocator = 0);
-        // Create a variant object having the type and value of the specified
-        // 'original' variant.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object by moving the contents of `original` to the
+    /// newly-created object.  The allocator associated with `original` (if
+    /// any) is propagated for use in the newly-created object.  `original`
+    /// is left in a valid but unspecified state.
     Variant19(bslmf::MovableRef<Variant19> original);
-        // Create a variant object having the type and value of the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' (if
-        // any) is propagated for use in the newly-created object.  'original'
-        // is left in a valid but unspecified state.
 
+    /// Create a variant object having the type and value of the specified
+    /// `original` object that uses the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The contents of `original` are moved to the
+    /// newly-created object with `original` left in a valid but unspecified
+    /// state.
     Variant19(bslmf::MovableRef<Variant19>  original,
               bslma::Allocator             *basicAllocator);
-        // Create a variant object having the type and value of the specified
-        // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object with 'original' left in a valid but unspecified
-        // state.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `value` of template parameter
+    /// `TYPE`, and return a reference providing modifiable access to this
+    /// object.  The value currently held by this variant (if any) is
+    /// destroyed if that value's type is not the same as `TYPE`.  `TYPE`
+    /// must be the same as one of the types that this variant can hold.
     template <class TYPE>
     Variant19& operator=(const TYPE& value);
-        // Assign to this object the specified 'value' of template parameter
-        // 'TYPE', and return a reference providing modifiable access to this
-        // object.  The value currently held by this variant (if any) is
-        // destroyed if that value's type is not the same as 'TYPE'.  'TYPE'
-        // must be the same as one of the types that this variant can hold.
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -5377,21 +5433,21 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // does not participate in overload resolution if it would lead to
         // ambiguity with the move-assignment operator (below).
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.
     Variant19& operator=(const Variant19& rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.
 
+    /// Assign to this object the type and value currently held by the
+    /// specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.  The value currently held by this variant
+    /// (if any) is destroyed if that value's type is not the same as the
+    /// type held by the `rhs` object.  The contents of `rhs` are either
+    /// move-inserted into or move-assigned to this object with `rhs` left
+    /// in a valid but unspecified state.
     Variant19& operator=(bslmf::MovableRef<Variant19> rhs);
-        // Assign to this object the type and value currently held by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.  The value currently held by this variant
-        // (if any) is destroyed if that value's type is not the same as the
-        // type held by the 'rhs' object.  The contents of 'rhs' are either
-        // move-inserted into or move-assigned to this object with 'rhs' left
-        // in a valid but unspecified state.
 };
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
@@ -5400,11 +5456,11 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
                // struct Variant_TypeIndex<TYPES, TYPE>
                // =====================================
 
+/// Component-private meta-function.  Do not use.  This meta-function
+/// computes the index of the template parameter `TYPE` in the template
+/// parameter list of `TYPES`.
 template <class TYPES, class TYPE>
 struct Variant_TypeIndex {
-    // Component-private meta-function.  Do not use.  This meta-function
-    // computes the index of the template parameter 'TYPE' in the template
-    // parameter list of 'TYPES'.
 
     enum {
         value = bsl::is_same<
@@ -5496,10 +5552,10 @@ struct Variant_TypeIndex {
                // struct Variant_DefaultConstructVisitor
                // ======================================
 
+/// This visitor, when invoked as a non-modifiable function object on an
+/// instance of some template parameter `TYPE`, will create a default
+/// instance of `TYPE`.
 struct Variant_DefaultConstructVisitor {
-    // This visitor, when invoked as a non-modifiable function object on an
-    // instance of some template parameter 'TYPE', will create a default
-    // instance of 'TYPE'.
 
     // PUBLIC DATA
     bslma::Allocator *d_allocator_p;
@@ -5523,11 +5579,11 @@ struct Variant_DefaultConstructVisitor {
                 // struct Variant_CopyConstructVisitor
                 // ===================================
 
+/// This visitor, when invoked as a non-modifiable function object on an
+/// instance of some template parameter `TYPE`, will copy-insert that
+/// instance to create an instance of the same `TYPE` in an uninitialized
+/// buffer specified at construction of this visitor.
 struct Variant_CopyConstructVisitor {
-    // This visitor, when invoked as a non-modifiable function object on an
-    // instance of some template parameter 'TYPE', will copy-insert that
-    // instance to create an instance of the same 'TYPE' in an uninitialized
-    // buffer specified at construction of this visitor.
 
     // PUBLIC DATA
     void             *d_buffer_p;
@@ -5556,11 +5612,11 @@ struct Variant_CopyConstructVisitor {
                 // struct Variant_MoveConstructVisitor
                 // ===================================
 
+/// This visitor, when invoked as a non-modifiable function object on an
+/// instance of some template parameter `TYPE`, will move-insert that
+/// instance to create an instance of the same `TYPE` in an uninitialized
+/// buffer specified at construction of this visitor.
 struct Variant_MoveConstructVisitor {
-    // This visitor, when invoked as a non-modifiable function object on an
-    // instance of some template parameter 'TYPE', will move-insert that
-    // instance to create an instance of the same 'TYPE' in an uninitialized
-    // buffer specified at construction of this visitor.
 
     // PUBLIC DATA
     void             *d_buffer_p;
@@ -5589,9 +5645,9 @@ struct Variant_MoveConstructVisitor {
                   // struct Variant_DestructorVisitor
                   // ================================
 
+/// This visitor, when invoked as a function object on an instance of some
+/// template parameter `TYPE`, will destroy that instance.
 struct Variant_DestructorVisitor {
-    // This visitor, when invoked as a function object on an instance of some
-    // template parameter 'TYPE', will destroy that instance.
 
     // ACCESSORS
     template <class TYPE>
@@ -5605,11 +5661,11 @@ struct Variant_DestructorVisitor {
                     // struct Variant_CopyAssignVisitor
                     // ================================
 
+/// This visitor, when invoked as a non-modifiable function object on an
+/// instance of some template parameter `TYPE`, will copy-assign that
+/// instance to the instance of the same `TYPE` held in a buffer specified
+/// at construction of this visitor.
 struct Variant_CopyAssignVisitor {
-    // This visitor, when invoked as a non-modifiable function object on an
-    // instance of some template parameter 'TYPE', will copy-assign that
-    // instance to the instance of the same 'TYPE' held in a buffer specified
-    // at construction of this visitor.
 
     // PUBLIC DATA
     void *d_buffer_p;
@@ -5634,11 +5690,11 @@ struct Variant_CopyAssignVisitor {
                     // struct Variant_MoveAssignVisitor
                     // ================================
 
+/// This visitor, when invoked as a non-modifiable function object on an
+/// instance of some template parameter `TYPE`, will move-assign that
+/// instance to the instance of the same `TYPE` held in a buffer specified
+/// at construction of this visitor.
 struct Variant_MoveAssignVisitor {
-    // This visitor, when invoked as a non-modifiable function object on an
-    // instance of some template parameter 'TYPE', will move-assign that
-    // instance to the instance of the same 'TYPE' held in a buffer specified
-    // at construction of this visitor.
 
     // PUBLIC DATA
     void *d_buffer_p;
@@ -5664,11 +5720,11 @@ struct Variant_MoveAssignVisitor {
                     // struct Variant_SwapVisitor
                     // ==========================
 
+/// This visitor swaps the variant object data that it holds with another
+/// variant object data of parameterize `TYPE`.  It requires that the two
+/// variant objects being swapped contain data of the same type, and use the
+/// same allocator.
 struct Variant_SwapVisitor {
-    // This visitor swaps the variant object data that it holds with another
-    // variant object data of parameterize 'TYPE'.  It requires that the two
-    // variant objects being swapped contain data of the same type, and use the
-    // same allocator.
 
     // PUBLIC DATA
     void *d_buffer_p;
@@ -5695,13 +5751,13 @@ struct Variant_SwapVisitor {
                  // struct Variant_BdexStreamInVisitor
                  // ==================================
 
+/// This visitor, when invoked as a non-modifiable function object on an
+/// initialized instance of some parameterized `TYPE`, will stream in
+/// a value of the same `TYPE` into that instance from a stream specified at
+/// construction of this visitor,  using a version also specified at
+/// construction of this visitor.
 template <class STREAM>
 struct Variant_BdexStreamInVisitor {
-    // This visitor, when invoked as a non-modifiable function object on an
-    // initialized instance of some parameterized 'TYPE', will stream in
-    // a value of the same 'TYPE' into that instance from a stream specified at
-    // construction of this visitor,  using a version also specified at
-    // construction of this visitor.
 
     // PUBLIC DATA
     STREAM& d_stream;   // held, not owned
@@ -5733,13 +5789,13 @@ struct Variant_BdexStreamInVisitor {
                 // struct Variant_BdexStreamOutVisitor
                 // ===================================
 
+/// This visitor, when invoked as a non-modifiable function object on an
+/// initialized instance of some parameterized `TYPE`, will stream out the
+/// value of that instance into a stream specified at construction of this
+/// visitor, using a version also specified at construction of this
+/// visitor.
 template <class STREAM>
 struct Variant_BdexStreamOutVisitor {
-    // This visitor, when invoked as a non-modifiable function object on an
-    // initialized instance of some parameterized 'TYPE', will stream out the
-    // value of that instance into a stream specified at construction of this
-    // visitor, using a version also specified at construction of this
-    // visitor.
 
     // PUBLIC DATA
     STREAM& d_stream;   // held, not owned
@@ -5772,11 +5828,11 @@ struct Variant_BdexStreamOutVisitor {
                     // struct Variant_PrintVisitor
                     // ===========================
 
+/// This visitor, when invoked as a non-modifiable function object on an
+/// instance of some template parameter `TYPE`, writes the value of that
+/// instance to a stream specified at construction of this visitor, using
+/// spacing information also specified at construction.
 struct Variant_PrintVisitor {
-    // This visitor, when invoked as a non-modifiable function object on an
-    // instance of some template parameter 'TYPE', writes the value of that
-    // instance to a stream specified at construction of this visitor, using
-    // spacing information also specified at construction.
 
     // PUBLIC DATA
     bsl::ostream *d_stream_p;        // held, not owned
@@ -5811,12 +5867,12 @@ struct Variant_PrintVisitor {
                  // struct Variant_EqualityTestVisitor
                  // ==================================
 
+/// This visitor, when invoked as a non-modifiable function object on an
+/// instance of some template parameter `TYPE`, tests the equality of the
+/// value of that instance and of another instance held in a buffer
+/// specified at construction of this visitor, and stores the result into
+/// its publicly accessible `d_result` member.
 struct Variant_EqualityTestVisitor {
-    // This visitor, when invoked as a non-modifiable function object on an
-    // instance of some template parameter 'TYPE', tests the equality of the
-    // value of that instance and of another instance held in a buffer
-    // specified at construction of this visitor, and stores the result into
-    // its publicly accessible 'd_result' member.
 
     // PUBLIC DATA
     mutable bool  d_result;
@@ -7931,13 +7987,13 @@ Variant(bslmf::MovableRef<TYPE>  value,
 {
 }
 
+/// Up-cast needed since template matching has higher overloading precedence
+/// than derived-to-base matching.
 template <class ...TYPES>
 inline
 Variant<TYPES...>::Variant(const Variant&    original,
                            bslma::Allocator *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
-    // Up-cast needed since template matching has higher overloading precedence
-    // than derived-to-base matching.
 {
 }
 

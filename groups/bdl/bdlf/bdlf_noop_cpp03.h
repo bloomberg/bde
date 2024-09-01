@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Apr 24 13:40:08 2023
+// Generated on Sun Sep  1 06:01:34 2024
 // Command line: sim_cpp11_features.pl bdlf_noop.h
 
 #ifdef COMPILING_BDLF_NOOP_H
@@ -33,19 +33,20 @@ namespace bdlf {
                                  // class NoOp
                                  // ==========
 
+/// This functor class provides a function-call operator that accepts any
+/// number of arguments of any type, does nothing (leaving the arguments
+/// unmodified), and returns `void`.
 class NoOp {
-    // This functor class provides a function-call operator that accepts any
-    // number of arguments of any type, does nothing (leaving the arguments
-    // unmodified), and returns 'void'.
 
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(NoOp, bsl::is_trivially_copyable);
 
     // TYPES
+
+    /// `result_type` is an alias to `void`, which is the type returned by
+    /// the function-call operator of this class
     typedef void result_type;
-        // 'result_type' is an alias to 'void', which is the type returned by
-        // the function-call operator of this class
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -56,6 +57,7 @@ class NoOp {
 #ifndef BDLF_NOOP_VARIADIC_LIMIT_A
 #define BDLF_NOOP_VARIADIC_LIMIT_A BDLF_NOOP_VARIADIC_LIMIT
 #endif
+
 #if BDLF_NOOP_VARIADIC_LIMIT_A >= 0
     inline
     BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
@@ -235,6 +237,7 @@ class NoOp {
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
+
     template <class... t_ARGS>
     inline
     BSLS_KEYWORD_CONSTEXPR_CPP14 void operator()(
