@@ -13,38 +13,38 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: ball_recordbuffer
 //
 //@DESCRIPTION: This component provides a concrete thread-safe implementation
-// of the 'ball::RecordBuffer' protocol, 'ball::FixedSizeRecordBuffer':
-//..
-//              ( ball::FixedSizeRecordBuffer )
-//                            |              ctor
-//                            V
-//                  ( ball::RecordBuffer )
-//                                           dtor
-//                                           beginSequence
-//                                           endSequence
-//                                           popBack
-//                                           popFront
-//                                           pushBack
-//                                           pushFront
-//                                           removeAll
-//                                           length
-//                                           back
-//                                           front
-//..
-// The thread-safe class 'ball::FixedSizeRecordBuffer' manages record handles
-// (specifically, the instances of 'bsl::shared_ptr<ball::Record>') in a
+// of the `ball::RecordBuffer` protocol, `ball::FixedSizeRecordBuffer`:
+// ```
+//             ( ball::FixedSizeRecordBuffer )
+//                           |              ctor
+//                           V
+//                 ( ball::RecordBuffer )
+//                                          dtor
+//                                          beginSequence
+//                                          endSequence
+//                                          popBack
+//                                          popFront
+//                                          pushBack
+//                                          pushFront
+//                                          removeAll
+//                                          length
+//                                          back
+//                                          front
+// ```
+// The thread-safe class `ball::FixedSizeRecordBuffer` manages record handles
+// (specifically, the instances of `bsl::shared_ptr<ball::Record>`) in a
 // double-ended buffer.  At any time, the sum of sizes of all records contained
-// in a 'ball::FixedSizeRecordBuffer' object *plus* the amount of memory
-// allocated by the 'ball::FixedSizeRecordBuffer' object itself is guaranteed
+// in a `ball::FixedSizeRecordBuffer` object *plus* the amount of memory
+// allocated by the `ball::FixedSizeRecordBuffer` object itself is guaranteed
 // to be less than or equal to an upper bound specified at creation.  In order
 // to accommodate a record, existing records may be removed from the buffer
-// (see below).  The 'ball::FixedSizeRecordBuffer' class provides methods to
+// (see below).  The `ball::FixedSizeRecordBuffer` class provides methods to
 // push a record handle into either end (back or front) of the buffer
-// ('pushBack' and 'pushFront'), to obtain read-only access to the log record
-// positioned at either end ('back' and 'front') and to remove the record
-// positioned at either end ('popBack' and 'popFront').  In order to
-// accommodate a 'pushBack' request, the records from the front end of the
-// buffer may be removed.  Similarly, in order to accommodate a 'pushFront'
+// (`pushBack` and `pushFront`), to obtain read-only access to the log record
+// positioned at either end (`back` and `front`) and to remove the record
+// positioned at either end (`popBack` and `popFront`).  In order to
+// accommodate a `pushBack` request, the records from the front end of the
+// buffer may be removed.  Similarly, in order to accommodate a `pushFront`
 // request, the records from the back end of the buffer may be removed.  If a
 // record can not be accommodated in the buffer, it is silently (but otherwise
 // safely) discarded.
@@ -57,22 +57,22 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // In the following example we demonstrate creation of a limited record buffer
 // followed by concurrent access to it by multiple threads.
-//..
-//  enum {
-//      KILO_BYTE      = 1024,   // one kilo is (2^10) bytes
-//      MAX_TOTAL_SIZE = 32 * K, // 'maxTotalSize' parameter
-//      NUM_ITERATIONS = 1000,   // number of iterations
-//      NUM_THREADS    = 4       // number of threads
-//  };
-//  bslma::Allocator *basicAllocator = bslma::Default::defaultAllocator();
-//..
+// ```
+// enum {
+//     KILO_BYTE      = 1024,   // one kilo is (2^10) bytes
+//     MAX_TOTAL_SIZE = 32 * K, // 'maxTotalSize' parameter
+//     NUM_ITERATIONS = 1000,   // number of iterations
+//     NUM_THREADS    = 4       // number of threads
+// };
+// bslma::Allocator *basicAllocator = bslma::Default::defaultAllocator();
+// ```
 // First we create a record buffer.
-//..
-//  bdlma::DefaultDeleter<ball::Record> recordDeleter(basicAllocator);
-//  ball::FixedSizeRecordBuffer recordBuffer(MAX_TOTAL_SIZE, basicAllocator);
-//..
+// ```
+// bdlma::DefaultDeleter<ball::Record> recordDeleter(basicAllocator);
+// ball::FixedSizeRecordBuffer recordBuffer(MAX_TOTAL_SIZE, basicAllocator);
+// ```
 // Note that since the record buffer will contain shared pointers to the
-// records, 'recordDeleter' must be created before 'recordBuffer' to ensure
+// records, `recordDeleter` must be created before `recordBuffer` to ensure
 // that the former has the longer lifetime.
 //
 // Now we create several threads each of which repeatedly performs the
@@ -82,42 +82,42 @@ BSLS_IDENT("$Id: $")
 //  (3) create a record handle;
 //  (4) push this record handle at the back end of the record buffer
 //
-//..
-//  void *workerThread(void *arg)
-//  {
-//      int id = (int)arg; // thread id
-//      for (int i = 0; i < NUM_ITERATIONS; ++i) {
-//          ball::Record *record =
-//                        new (*basicAllocator) ball::Record(basicAllocator);
+// ```
+// void *workerThread(void *arg)
+// {
+//     int id = (int)arg; // thread id
+//     for (int i = 0; i < NUM_ITERATIONS; ++i) {
+//         ball::Record *record =
+//                       new (*basicAllocator) ball::Record(basicAllocator);
 //
-//          // build a message
-//          enum { MAX_SIZE = 100 };
-//          char msg[MAX_SIZE];
-//          sprintf(msg, "message no. %d from thread no. %d", i, id);
+//         // build a message
+//         enum { MAX_SIZE = 100 };
+//         char msg[MAX_SIZE];
+//         sprintf(msg, "message no. %d from thread no. %d", i, id);
 //
-//          record->getFixedFields().setMessage(msg);
+//         record->getFixedFields().setMessage(msg);
 //
-//          bsl::shared_ptr<ball::Record>
-//            handle(record, &recordDeleter, basicAllocator);
+//         bsl::shared_ptr<ball::Record>
+//           handle(record, &recordDeleter, basicAllocator);
 //
-//          recordBuffer.pushBack(handle);
-//      }
-//..
+//         recordBuffer.pushBack(handle);
+//     }
+// ```
 // After completing the loop each thread iterates, in LIFO order, over all of
 // the records contained in record buffer.
-//..
-//      // print messages in LIFO order
-//      recordBuffer.beginSequence();
-//      while (recordBuffer.length()) {
-//          const ball::Record &rec = recordBuffer.back();
-//          bsl::cout << rec.getFixedFields().message() << bsl::endl;
-//          recordBuffer.popBack();
-//      }
-//      recordBuffer.endSequence();
+// ```
+//     // print messages in LIFO order
+//     recordBuffer.beginSequence();
+//     while (recordBuffer.length()) {
+//         const ball::Record &rec = recordBuffer.back();
+//         bsl::cout << rec.getFixedFields().message() << bsl::endl;
+//         recordBuffer.popBack();
+//     }
+//     recordBuffer.endSequence();
 //
-//      return NULL;
-//  }
-//..
+//     return NULL;
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -145,20 +145,20 @@ namespace ball {
                           // class FixedSizeRecordBuffer
                           // ===========================
 
+/// This class provides a concrete, thread-safe implementation of the
+/// `RecordBuffer` protocol.  This class is a mechanism.  At any time, the
+/// sum of sizes of all records contained in a `FixedSizeRecordBuffer`
+/// object *plus* the amount of memory allocated by the
+/// `FixedSizeRecordBuffer` object itself is guaranteed to be less than or
+/// equal to an upper bound specified at creation.  The class is
+/// thread-safe, except that the methods `front` and `back` must be called
+/// after locking the buffer by invoking `beginSequence`.  In order to
+/// accommodate a `pushBack` request, the records from the front end of the
+/// buffer may be removed.  Similarly, in order to accommodate a `pushFront`
+/// request, the records from the back end of the buffer may be removed.  If
+/// a record can not accommodate in the buffer, it is silently (but
+/// otherwise safely) discarded.
 class FixedSizeRecordBuffer: public RecordBuffer {
-    // This class provides a concrete, thread-safe implementation of the
-    // 'RecordBuffer' protocol.  This class is a mechanism.  At any time, the
-    // sum of sizes of all records contained in a 'FixedSizeRecordBuffer'
-    // object *plus* the amount of memory allocated by the
-    // 'FixedSizeRecordBuffer' object itself is guaranteed to be less than or
-    // equal to an upper bound specified at creation.  The class is
-    // thread-safe, except that the methods 'front' and 'back' must be called
-    // after locking the buffer by invoking 'beginSequence'.  In order to
-    // accommodate a 'pushBack' request, the records from the front end of the
-    // buffer may be removed.  Similarly, in order to accommodate a 'pushFront'
-    // request, the records from the back end of the buffer may be removed.  If
-    // a record can not accommodate in the buffer, it is silently (but
-    // otherwise safely) discarded.
 
     // DATA
     mutable bslmt::RecursiveMutex d_mutex;       // synchronizes access to the
@@ -190,77 +190,80 @@ class FixedSizeRecordBuffer: public RecordBuffer {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a limited record buffer such that at any time the sum of
+    /// sizes of all records contained *plus* the amount of memory allocated
+    /// by this object is guaranteed to be less than or equal to the
+    /// specified `maxTotalSize`.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.  The behavior is undefined
+    /// unless `maxTotalSize > 0`.
     FixedSizeRecordBuffer(int               maxTotalSize,
                           bslma::Allocator *basicAllocator = 0);
-        // Create a limited record buffer such that at any time the sum of
-        // sizes of all records contained *plus* the amount of memory allocated
-        // by this object is guaranteed to be less than or equal to the
-        // specified 'maxTotalSize'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  The behavior is undefined
-        // unless 'maxTotalSize > 0'.
 
+    /// Remove all record handles from this record buffer and destroy this
+    /// record buffer.
     ~FixedSizeRecordBuffer() BSLS_KEYWORD_OVERRIDE;
-        // Remove all record handles from this record buffer and destroy this
-        // record buffer.
 
     // MANIPULATORS
+
+    /// *Lock* this record buffer so that a sequence of method invocations
+    /// on this record buffer can occur uninterrupted by other threads.  The
+    /// buffer will remain *locked* until `endSequence` is called.  It is
+    /// valid to invoke other methods on this record buffer between the
+    /// calls to `beginSequence` and `endSequence` (the implementation
+    /// guarantees this by employing a recursive mutex).
     void beginSequence() BSLS_KEYWORD_OVERRIDE;
-        // *Lock* this record buffer so that a sequence of method invocations
-        // on this record buffer can occur uninterrupted by other threads.  The
-        // buffer will remain *locked* until 'endSequence' is called.  It is
-        // valid to invoke other methods on this record buffer between the
-        // calls to 'beginSequence' and 'endSequence' (the implementation
-        // guarantees this by employing a recursive mutex).
 
+    /// *Unlock* this record buffer, thus allowing other threads to access
+    /// it.  The behavior is undefined unless the buffer is already *locked*
+    /// by `beginSequence`.
     void endSequence() BSLS_KEYWORD_OVERRIDE;
-        // *Unlock* this record buffer, thus allowing other threads to access
-        // it.  The behavior is undefined unless the buffer is already *locked*
-        // by 'beginSequence'.
 
+    /// Remove from this record buffer the record handle positioned at the
+    /// back end of the buffer.  The behavior is undefined unless
+    /// `0 < length()`.
     void popBack() BSLS_KEYWORD_OVERRIDE;
-        // Remove from this record buffer the record handle positioned at the
-        // back end of the buffer.  The behavior is undefined unless
-        // '0 < length()'.
 
+    /// Remove from this record buffer the record handle positioned at the
+    /// front end of the buffer.  The behavior is undefined unless
+    /// `0 < length()`.
     void popFront() BSLS_KEYWORD_OVERRIDE;
-        // Remove from this record buffer the record handle positioned at the
-        // front end of the buffer.  The behavior is undefined unless
-        // '0 < length()'.
 
+    /// Push the specified `handle` at the back end of this record buffer.
+    /// Return 0 on success, and a non-zero value otherwise.  In order to
+    /// accommodate a record, the records from the front end of the buffer
+    /// may be removed.  If a record can not be accommodated in the buffer,
+    /// it is silently discarded.
     int pushBack(const bsl::shared_ptr<Record>& handle) BSLS_KEYWORD_OVERRIDE;
-        // Push the specified 'handle' at the back end of this record buffer.
-        // Return 0 on success, and a non-zero value otherwise.  In order to
-        // accommodate a record, the records from the front end of the buffer
-        // may be removed.  If a record can not be accommodated in the buffer,
-        // it is silently discarded.
 
+    /// Push the specified `handle` at the front end of this record buffer.
+    /// Return 0 on success, and a non-zero value otherwise.  In order to
+    /// accommodate a record, the records from the end end of the buffer may
+    /// be removed.  If a record can not be accommodated in the buffer, it
+    /// is silently discarded.
     int pushFront(const bsl::shared_ptr<Record>& handle) BSLS_KEYWORD_OVERRIDE;
-        // Push the specified 'handle' at the front end of this record buffer.
-        // Return 0 on success, and a non-zero value otherwise.  In order to
-        // accommodate a record, the records from the end end of the buffer may
-        // be removed.  If a record can not be accommodated in the buffer, it
-        // is silently discarded.
 
+    /// Remove all record handles stored in this record buffer.  Note that
+    /// `length()` is now 0.
     void removeAll() BSLS_KEYWORD_OVERRIDE;
-        // Remove all record handles stored in this record buffer.  Note that
-        // 'length()' is now 0.
 
     // ACCESSORS
+
+    /// Return a reference of the shared pointer referring to the record
+    /// positioned at the back end of this record buffer.  The behavior is
+    /// undefined unless this record buffer has been locked by the
+    /// `beginSequence` method and unless `0 < length()`.
     const bsl::shared_ptr<Record>& back() const BSLS_KEYWORD_OVERRIDE;
-        // Return a reference of the shared pointer referring to the record
-        // positioned at the back end of this record buffer.  The behavior is
-        // undefined unless this record buffer has been locked by the
-        // 'beginSequence' method and unless '0 < length()'.
 
+    /// Return a reference of the shared pointer referring to the record
+    /// positioned at the front end of this record buffer.  The behavior is
+    /// undefined unless this record buffer has been locked by the
+    /// `beginSequence` method and unless `0 < length()`.
     const bsl::shared_ptr<Record>& front() const BSLS_KEYWORD_OVERRIDE;
-        // Return a reference of the shared pointer referring to the record
-        // positioned at the front end of this record buffer.  The behavior is
-        // undefined unless this record buffer has been locked by the
-        // 'beginSequence' method and unless '0 < length()'.
 
+    /// Return the number of record handles in this record buffer.
     int length() const BSLS_KEYWORD_OVERRIDE;
-        // Return the number of record handles in this record buffer.
 };
 
 // ============================================================================

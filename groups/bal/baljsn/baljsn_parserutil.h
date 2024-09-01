@@ -12,10 +12,10 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baljsn_decoder, baljsn_printutil
 //
-//@DESCRIPTION: This component provides a 'struct' of utility functions,
-// 'baljsn::ParserUtil', for decoding data in the JSON format into a 'bdeat'
-// Simple type.  The primary method is 'getValue', which decodes into a
-// specified object and is overloaded for all 'bdeat' Simple types.
+//@DESCRIPTION: This component provides a `struct` of utility functions,
+// `baljsn::ParserUtil`, for decoding data in the JSON format into a `bdeat`
+// Simple type.  The primary method is `getValue`, which decodes into a
+// specified object and is overloaded for all `bdeat` Simple types.
 //
 // Refer to the details of the JSON encoding format supported by this utility
 // in the package documentation file (doc/baljsn.txt).
@@ -24,45 +24,45 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Decoding into a Simple 'struct' from JSON data
+///Example 1: Decoding into a Simple `struct` from JSON data
 ///---------------------------------------------------------
 // Suppose we want to de-serialize some JSON data into an object.
 //
-// First, we define a struct, 'Employee', to contain the data:
-//..
-//  struct Employee {
-//      bsl::string d_name;
-//      bdlt::Date   d_date;
-//      int         d_age;
-//  };
-//..
-// Then, we create an 'Employee' object:
-//..
-//  Employee employee;
-//..
+// First, we define a struct, `Employee`, to contain the data:
+// ```
+// struct Employee {
+//     bsl::string d_name;
+//     bdlt::Date   d_date;
+//     int         d_age;
+// };
+// ```
+// Then, we create an `Employee` object:
+// ```
+// Employee employee;
+// ```
 // Next, we specify the string values in JSON format used to represent the
 // object data.  Note that the birth date is specified in the ISO 8601 format:
-//..
-//  const char *name = "\"John Smith\"";
-//  const char *date = "\"1985-06-24\"";
-//  const char *age  = "21";
+// ```
+// const char *name = "\"John Smith\"";
+// const char *date = "\"1985-06-24\"";
+// const char *age  = "21";
 //
-//  const bsl::string_view nameRef(name);
-//  const bsl::string_view dateRef(date);
-//  const bsl::string_view ageRef(age);
-//..
+// const bsl::string_view nameRef(name);
+// const bsl::string_view dateRef(date);
+// const bsl::string_view ageRef(age);
+// ```
 // Now, we use the created string refs to populate the employee object:
-//..
-//  assert(0 == baljsn::ParserUtil::getValue(&employee.d_name, nameRef));
-//  assert(0 == baljsn::ParserUtil::getValue(&employee.d_date, dateRef));
-//  assert(0 == baljsn::ParserUtil::getValue(&employee.d_age, ageRef));
-//..
+// ```
+// assert(0 == baljsn::ParserUtil::getValue(&employee.d_name, nameRef));
+// assert(0 == baljsn::ParserUtil::getValue(&employee.d_date, dateRef));
+// assert(0 == baljsn::ParserUtil::getValue(&employee.d_age, ageRef));
+// ```
 // Finally, we will verify that the values are as expected:
-//..
-//  assert("John Smith"            == employee.d_name);
-//  assert(bdlt::Date(1985, 06, 24) == employee.d_date);
-//  assert(21                      == employee.d_age);
-//..
+// ```
+// assert("John Smith"            == employee.d_name);
+// assert(bdlt::Date(1985, 06, 24) == employee.d_date);
+// assert(21                      == employee.d_age);
+// ```
 
 #include <balscm_version.h>
 
@@ -93,86 +93,92 @@ namespace baljsn {
                             // struct ParserUtil
                             // =================
 
+///This class provides utility functions for decoding data in the JSON
+///format into a `bdeat` Simple type.  The primary method is `getValue`,
+///which decodes into a specified object and is overloaded for all `bdeat`
+///Simple types.
 struct ParserUtil {
-    //This class provides utility functions for decoding data in the JSON
-    //format into a 'bdeat' Simple type.  The primary method is 'getValue',
-    //which decodes into a specified object and is overloaded for all 'bdeat'
-    //Simple types.
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Load into the specified `value` the date or time value represented
+    /// as a string in the ISO 8601 format in the specified `data`.  Return
+    /// 0 on success and a non-zero value otherwise.  Note that `TYPE` is
+    /// expected to be one of `bdlt::Date`, `bdlt::Time`, bdlt::Datetime',
+    /// `bdlt::DateTz`, `bdlt::TimeTz`, `bdlt::DatetimeTz`,
+    /// `bdlb::Variant2<bdlt::Date, bdlt::DateTz>`,
+    /// `bdlb::Variant2<bdlt::Time, bdlt::TimeTz>` or
+    /// `bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>`.
     template <class TYPE>
     static int getDateAndTimeValue(TYPE                    *value,
                                    const bsl::string_view&  data);
-        // Load into the specified 'value' the date or time value represented
-        // as a string in the ISO 8601 format in the specified 'data'.  Return
-        // 0 on success and a non-zero value otherwise.  Note that 'TYPE' is
-        // expected to be one of 'bdlt::Date', 'bdlt::Time', bdlt::Datetime',
-        // 'bdlt::DateTz', 'bdlt::TimeTz', 'bdlt::DatetimeTz',
-        // 'bdlb::Variant2<bdlt::Date, bdlt::DateTz>',
-        // 'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' or
-        // 'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>'.
 
+    /// Load into the specified `value` the integer value in the specified
+    /// `data`.  Note that this operation follows the more permissive syntax
+    /// specified for `bdlb::NumericParseUtil`, allowing things like leading
+    /// `0` digits which the JSON spec does not permit.  Return 0 on success
+    /// and a non-zero value otherwise.  The behavior is undefined unless
+    /// `true == is_integral<TYPE>::value && is_signed<TYPE>::value`, e.g,
+    /// `TYPE` is expected to be a *signed* integral type.  Note that
+    /// although `data` is passed by value instead of `const`-reference,
+    /// there is no effect on usage.
     template <class TYPE>
     static int getIntegralValue(TYPE *value, bsl::string_view data);
-        // Load into the specified 'value' the integer value in the specified
-        // 'data'.  Note that this operation follows the more permissive syntax
-        // specified for 'bdlb::NumericParseUtil', allowing things like leading
-        // '0' digits which the JSON spec does not permit.  Return 0 on success
-        // and a non-zero value otherwise.  The behavior is undefined unless
-        // 'true == is_integral<TYPE>::value && is_signed<TYPE>::value', e.g,
-        // 'TYPE' is expected to be a *signed* integral type.  Note that
-        // although 'data' is passed by value instead of 'const'-reference,
-        // there is no effect on usage.
 
+    /// Load into the specified `value` the unsigned integer value in the
+    /// specified `data`.  Note that this operation follows the more
+    /// permissive syntax specified for `bdlb::NumericParseUtil`, allowing
+    /// things like leading `0` digits which the JSON spec does not permit.
+    /// Return 0 on success and a non-zero value otherwise.  The behavior is
+    /// undefined unless
+    /// `true == is_integral<TYPE>::value && !is_signed<TYPE>::value`, e.g,
+    /// `TYPE` is expected to be an *unsigned* integral type.
     template <class TYPE>
     static int getUnsignedIntegralValue(TYPE                    *value,
                                         const bsl::string_view&  data);
-        // Load into the specified 'value' the unsigned integer value in the
-        // specified 'data'.  Note that this operation follows the more
-        // permissive syntax specified for 'bdlb::NumericParseUtil', allowing
-        // things like leading '0' digits which the JSON spec does not permit.
-        // Return 0 on success and a non-zero value otherwise.  The behavior is
-        // undefined unless
-        // 'true == is_integral<TYPE>::value && !is_signed<TYPE>::value', e.g,
-        // 'TYPE' is expected to be an *unsigned* integral type.
 
+    /// Load into the specified `value` the value in the specified `data`.
+    /// Note that this operation follows the more permissive syntax
+    /// specified for `bdlb::NumericParseUtil`, allowing things like leading
+    /// `0` digits which the JSON spec does not permit.  Return 0 on success
+    /// and a non-zero value otherwise.
     static int getUint64(bsls::Types::Uint64     *value,
                          const bsl::string_view&  data);
-        // Load into the specified 'value' the value in the specified 'data'.
-        // Note that this operation follows the more permissive syntax
-        // specified for 'bdlb::NumericParseUtil', allowing things like leading
-        // '0' digits which the JSON spec does not permit.  Return 0 on success
-        // and a non-zero value otherwise.
 
   public:
     // TYPES
+
+    /// `DateOrDateTz` is a convenient alias for
+    /// `bdlb::Variant2<Date, DateTz>`.
     typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz>      DateOrDateTz;
-        // 'DateOrDateTz' is a convenient alias for
-        // 'bdlb::Variant2<Date, DateTz>'.
 
+    /// `TimeOrTimeTz` is a convenient alias for
+    /// `bdlb::Variant2<Time, TimeTz>`.
     typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz>      TimeOrTimeTz;
-        // 'TimeOrTimeTz' is a convenient alias for
-        // 'bdlb::Variant2<Time, TimeTz>'.
 
+    /// `DatetimeOrDatetimeTz` is a convenient alias for
+    /// `bdlb::Variant2<Datetime, DatetimeTz>`.
     typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
                                                           DatetimeOrDatetimeTz;
-        // 'DatetimeOrDatetimeTz' is a convenient alias for
-        // 'bdlb::Variant2<Datetime, DatetimeTz>'.
 
     // CLASS METHODS
+
+    /// Load into the specified `value` the string value in the specified
+    /// `data`.  The string must be begin and end in `"` characters which
+    /// are not part of the resulting `value`.  Return 0 on success and a
+    /// non-zero value otherwise.
     static int getQuotedString(bsl::string             *value,
                                const bsl::string_view&  data);
-        // Load into the specified 'value' the string value in the specified
-        // 'data'.  The string must be begin and end in '"' characters which
-        // are not part of the resulting 'value'.  Return 0 on success and a
-        // non-zero value otherwise.
 
+    /// Load into the specified `value` the string value in the specified
+    /// `data`.  Return 0 on success and a non-zero value otherwise.
     static int getUnquotedString(bsl::string             *value,
                                const bsl::string_view&  data);
-        // Load into the specified 'value' the string value in the specified
-        // 'data'.  Return 0 on success and a non-zero value otherwise.
 
+    /// Load into the specified `value` the characters read from the
+    /// specified `data`.  Return 0 on success or a non-zero value on
+    /// failure.
     static int getValue(bool                    *value,
                         const bsl::string_view&  data);
     static int getValue(char                    *value,
@@ -219,22 +225,19 @@ struct ParserUtil {
                         const bsl::string_view&  data);
     static int getValue(bsl::vector<char>       *value,
                         const bsl::string_view&  data);
-        // Load into the specified 'value' the characters read from the
-        // specified 'data'.  Return 0 on success or a non-zero value on
-        // failure.
 
+    /// Load into the specified `value` the string value in the specified
+    /// `data`.  The string must be begin and end in `"` characters which
+    /// are not part of the resulting `value`.  Return 0 on success and a
+    /// non-zero value otherwise.
     static int getValue(bsl::string             *value,
                         const bsl::string_view&  data);
-        // Load into the specified 'value' the string value in the specified
-        // 'data'.  The string must be begin and end in '"' characters which
-        // are not part of the resulting 'value'.  Return 0 on success and a
-        // non-zero value otherwise.
 
+    /// If the specified `*str` is at least two characters long and begins
+    /// and ends with quotation marks ("), then remove the first and last
+    /// characters; otherwise, do not modify `*str`.  Return `true` if
+    /// `*str` was modified.
     static bool stripQuotes(bsl::string_view *str);
-        // If the specified '*str' is at least two characters long and begins
-        // and ends with quotation marks ("), then remove the first and last
-        // characters; otherwise, do not modify '*str'.  Return 'true' if
-        // '*str' was modified.
 };
 
 // ============================================================================

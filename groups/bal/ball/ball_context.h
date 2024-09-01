@@ -18,38 +18,38 @@ BSLS_IDENT("$Id: $")
 // messages that are not part of a sequence (i.e., PASSTHROUGH) will have the
 // index and sequence length fields set to 0 and 1, respectively.
 //
-// The context attributes held by 'ball::Context' are detailed in the following
+// The context attributes held by `ball::Context` are detailed in the following
 // table:
-//..
-//  Attribute          Type                      Description        Default
-//  -----------------  ------------------------  -----------------  -----------
-//  transmissionCause  ball::Transmission::Cause cause of output    PASSTHROUGH
-//  recordIndex        int                       index in sequence  0
-//  sequenceLength     int                       # records in seq.  1
-//..
+// ```
+// Attribute          Type                      Description        Default
+// -----------------  ------------------------  -----------------  -----------
+// transmissionCause  ball::Transmission::Cause cause of output    PASSTHROUGH
+// recordIndex        int                       index in sequence  0
+// sequenceLength     int                       # records in seq.  1
+// ```
 //
 ///Constraints
 ///-----------
 // This attribute class assumes that the following constraints on contained
 // values hold:
-//..
-//    if (ball::Transmission::e_PASSTHROUGH == transmissionCause()) {
-//        assert(0 == recordIndex());
-//        assert(1 == sequenceLength());
-//    }
-//    else {
-//        assert(
-//         ball::Transmission::e_TRIGGER            == transmissionCause()
-//      || ball::Transmission::e_TRIGGER_ALL        == transmissionCause()
-//      || ball::Transmission::e_MANUAL_PUBLISH     == transmissionCause()
-//      || ball::Transmission::e_MANUAL_PUBLISH_ALL == transmissionCause());
-//        assert(0 <= recordIndex());
-//        assert(1 <= sequenceLength());
-//        assert(recordIndex() < sequenceLength());
-//    }
-//..
-// A static 'isValid' method is provided to verify that particular
-// 'transmissionCause', 'recordIndex', and 'sequenceLength' values are valid
+// ```
+//   if (ball::Transmission::e_PASSTHROUGH == transmissionCause()) {
+//       assert(0 == recordIndex());
+//       assert(1 == sequenceLength());
+//   }
+//   else {
+//       assert(
+//        ball::Transmission::e_TRIGGER            == transmissionCause()
+//     || ball::Transmission::e_TRIGGER_ALL        == transmissionCause()
+//     || ball::Transmission::e_MANUAL_PUBLISH     == transmissionCause()
+//     || ball::Transmission::e_MANUAL_PUBLISH_ALL == transmissionCause());
+//       assert(0 <= recordIndex());
+//       assert(1 <= sequenceLength());
+//       assert(recordIndex() < sequenceLength());
+//   }
+// ```
+// A static `isValid` method is provided to verify that particular
+// `transmissionCause`, `recordIndex`, and `sequenceLength` values are valid
 // before they are used to create or (unilaterally) modify a context object.
 //
 ///Usage
@@ -58,145 +58,145 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// A 'ball::Context' object holds sufficient information to determine the
+// A `ball::Context` object holds sufficient information to determine the
 // length of a message sequence and the index of a message within that
-// sequence.  In addition, 'ball::Context' indicates the cause for the
+// sequence.  In addition, `ball::Context` indicates the cause for the
 // transmission of a message.  The following example illustrates the essentials
 // of working with these contextual attributes.
 //
-// This example illustrates the use of 'ball::Context' by a hypothetical
-// logging system.  First we define a simple logger class named 'my_Logger':
-//..
-//    // my_logger.h
+// This example illustrates the use of `ball::Context` by a hypothetical
+// logging system.  First we define a simple logger class named `my_Logger`:
+// ```
+//   // my_logger.h
 //
-//    #include <string>
-//    #include <vector>
+//   #include <string>
+//   #include <vector>
 //
-//    class my_Logger {
+//   class my_Logger {
 //
-//        bsl::vector<bsl::string> archive;  // log message archive
+//       bsl::vector<bsl::string> archive;  // log message archive
 //
-//        // NOT IMPLEMENTED
-//        my_Logger(const my_Logger&);
-//        my_Logger& operator=(const my_Logger&);
+//       // NOT IMPLEMENTED
+//       my_Logger(const my_Logger&);
+//       my_Logger& operator=(const my_Logger&);
 //
-//        // PRIVATE MANIPULATORS
-//        void publish(const bsl::string&   message,
-//                     const ball::Context& context);
+//       // PRIVATE MANIPULATORS
+//       void publish(const bsl::string&   message,
+//                    const ball::Context& context);
 //
-//      public:
-//        // TYPES
-//        enum Severity { ERROR = 0, WARN = 1, TRACE = 2 };
+//     public:
+//       // TYPES
+//       enum Severity { ERROR = 0, WARN = 1, TRACE = 2 };
 //
-//        // CREATORS
-//        my_Logger();
-//        ~my_Logger();
+//       // CREATORS
+//       my_Logger();
+//       ~my_Logger();
 //
-//        // MANIPULATORS
-//        void logMessage(const bsl::string& message, Severity severity);
-//    };
-//..
-// Clients of 'my_Logger' log messages at one of three severity levels through
-// the 'logMessage' method.  Messages logged with 'TRACE' severity are simply
-// archived by 'my_Logger'.  Messages logged with 'WARN' severity are archived
-// and also output to 'stdout' (say, to a console terminal overseen by an
-// operator) through the 'publish' method.  Messages logged with 'ERROR'
+//       // MANIPULATORS
+//       void logMessage(const bsl::string& message, Severity severity);
+//   };
+// ```
+// Clients of `my_Logger` log messages at one of three severity levels through
+// the `logMessage` method.  Messages logged with `TRACE` severity are simply
+// archived by `my_Logger`.  Messages logged with `WARN` severity are archived
+// and also output to `stdout` (say, to a console terminal overseen by an
+// operator) through the `publish` method.  Messages logged with `ERROR`
 // severity report serious conditions; these trigger a dump of the backlog of
-// messages that 'my_Logger' has archived to that point.  The 'ball::Context'
-// argument passed to 'publish' provides contextual information regarding the
+// messages that `my_Logger` has archived to that point.  The `ball::Context`
+// argument passed to `publish` provides contextual information regarding the
 // message it is being asked to publish.
 //
 // A complete implementation of this trivial logger follows:
-//..
-//    // my_Logger.cpp
+// ```
+//   // my_Logger.cpp
 //
-//    // PRIVATE MANIPULATORS
-//    void my_Logger::publish(const bsl::string&   message,
-//                            const ball::Context& context)
-//    {
-//        using namespace std;
+//   // PRIVATE MANIPULATORS
+//   void my_Logger::publish(const bsl::string&   message,
+//                           const ball::Context& context)
+//   {
+//       using namespace std;
 //
-//        switch (context.transmissionCause()) {
-//          case ball::Transmission::e_PASSTHROUGH: {
-//            cout << "Single Pass-through Message: ";
-//          } break;
-//          case ball::Transmission::e_TRIGGER_ALL: {
-//            cout << "Remotely ";               // no 'break'; concatenated
-//                                               // output
-//          } break;
-//          case ball::Transmission::e_TRIGGER: {
-//            cout << "Triggered Publication Sequence: Message "
-//                 << context.recordIndex() + 1  // Account for 0-based index.
-//                 << " of " << context.sequenceLength() << ": ";
-//          } break;
-//          case ball::Transmission::e_MANUAL_PUBLISH: {
-//            cout << "Manually triggered Message: ";
-//          } break;
-//          default: {
-//            cout << "***ERROR*** Unsupported Message Cause: ";
-//            return;
-//          } break;
-//        }
-//        cout << message << endl;
-//    }
+//       switch (context.transmissionCause()) {
+//         case ball::Transmission::e_PASSTHROUGH: {
+//           cout << "Single Pass-through Message: ";
+//         } break;
+//         case ball::Transmission::e_TRIGGER_ALL: {
+//           cout << "Remotely ";               // no 'break'; concatenated
+//                                              // output
+//         } break;
+//         case ball::Transmission::e_TRIGGER: {
+//           cout << "Triggered Publication Sequence: Message "
+//                << context.recordIndex() + 1  // Account for 0-based index.
+//                << " of " << context.sequenceLength() << ": ";
+//         } break;
+//         case ball::Transmission::e_MANUAL_PUBLISH: {
+//           cout << "Manually triggered Message: ";
+//         } break;
+//         default: {
+//           cout << "***ERROR*** Unsupported Message Cause: ";
+//           return;
+//         } break;
+//       }
+//       cout << message << endl;
+//   }
 //
-//    // CREATORS
-//    my_Logger::my_Logger() { }
-//    my_Logger::~my_Logger() { }
+//   // CREATORS
+//   my_Logger::my_Logger() { }
+//   my_Logger::~my_Logger() { }
 //
-//    // MANIPULATORS
-//    void my_Logger::logMessage(const bsl::string& message, Severity severity)
-//    {
-//        archive.append(message);
-//        switch (severity) {
-//          case TRACE: {
-//            // Do nothing beyond archiving the message.
-//          } break;
-//          case WARN: {
-//            ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
-//            publish(message, context);
-//          } break;
-//          case ERROR: {
-//            int index  = 0;
-//            int length = archive.length();
-//            ball::Context context(ball::Transmission::e_TRIGGER,
-//                                  index, length);
-//            while (length--) {
-//                publish(archive[length], context);
-//                context.setRecordIndexRaw(++index);
-//            }
-//            archive.removeAll();  // flush archive
-//          } break;
-//        }
-//    }
-//..
-// Note that 'ball::Transmission::e_TRIGGER_ALL' is not used by 'my_Logger',
+//   // MANIPULATORS
+//   void my_Logger::logMessage(const bsl::string& message, Severity severity)
+//   {
+//       archive.append(message);
+//       switch (severity) {
+//         case TRACE: {
+//           // Do nothing beyond archiving the message.
+//         } break;
+//         case WARN: {
+//           ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
+//           publish(message, context);
+//         } break;
+//         case ERROR: {
+//           int index  = 0;
+//           int length = archive.length();
+//           ball::Context context(ball::Transmission::e_TRIGGER,
+//                                 index, length);
+//           while (length--) {
+//               publish(archive[length], context);
+//               context.setRecordIndexRaw(++index);
+//           }
+//           archive.removeAll();  // flush archive
+//         } break;
+//       }
+//   }
+// ```
+// Note that `ball::Transmission::e_TRIGGER_ALL` is not used by `my_Logger`,
 // but is included in the switch statement for completeness.
 //
-// Finally, we declare a 'my_Logger' named 'logger' and simulate the logging of
+// Finally, we declare a `my_Logger` named `logger` and simulate the logging of
 // several messages of varying severity:
-//..
-//      my_Logger   logger;
-//      bsl::string message;
+// ```
+//     my_Logger   logger;
+//     bsl::string message;
 //
-//      message = "TRACE 1";  logger.logMessage(message, my_Logger::TRACE);
-//      message = "TRACE 2";  logger.logMessage(message, my_Logger::TRACE);
-//      message = "WARNING";  logger.logMessage(message, my_Logger::WARN);
-//      message = "TRACE 3";  logger.logMessage(message, my_Logger::TRACE);
-//      message = "TROUBLE!"; logger.logMessage(message, my_Logger::ERROR);
-//..
-// The following output is produced on 'stdout':
-//..
-//      Single Pass-through Message: WARNING
-//      Triggered Publication Sequence: Message 1 of 5: TROUBLE!
-//      Triggered Publication Sequence: Message 2 of 5: TRACE 3
-//      Triggered Publication Sequence: Message 3 of 5: WARNING
-//      Triggered Publication Sequence: Message 4 of 5: TRACE 2
-//      Triggered Publication Sequence: Message 5 of 5: TRACE 1
-//..
-// Note that the warning message (severity 'WARN') was emitted first since the
-// trace messages (severity 'TRACE') were simply archived.  When the error
-// message (severity 'ERROR') was logged, it triggered a dump of the complete
+//     message = "TRACE 1";  logger.logMessage(message, my_Logger::TRACE);
+//     message = "TRACE 2";  logger.logMessage(message, my_Logger::TRACE);
+//     message = "WARNING";  logger.logMessage(message, my_Logger::WARN);
+//     message = "TRACE 3";  logger.logMessage(message, my_Logger::TRACE);
+//     message = "TROUBLE!"; logger.logMessage(message, my_Logger::ERROR);
+// ```
+// The following output is produced on `stdout`:
+// ```
+//     Single Pass-through Message: WARNING
+//     Triggered Publication Sequence: Message 1 of 5: TROUBLE!
+//     Triggered Publication Sequence: Message 2 of 5: TRACE 3
+//     Triggered Publication Sequence: Message 3 of 5: WARNING
+//     Triggered Publication Sequence: Message 4 of 5: TRACE 2
+//     Triggered Publication Sequence: Message 5 of 5: TRACE 1
+// ```
+// Note that the warning message (severity `WARN`) was emitted first since the
+// trace messages (severity `TRACE`) were simply archived.  When the error
+// message (severity `ERROR`) was logged, it triggered a dump of the complete
 // message archive (in reverse order).
 
 #include <balscm_version.h>
@@ -226,29 +226,29 @@ namespace ball {
                         // class Context
                         // =============
 
+/// This class provides a container for aggregating the auxiliary
+/// information needed to transmit a log record.  For each context attribute
+/// in this class (e.g., `recordIndex`), there is an accessor for obtaining
+/// the attribute's value (`recordIndex`) and there are manipulators for
+/// changing the contained attribute values (`setAttributes` checks
+/// attribute constraints; `setAttributesRaw` and `setRecordIndexRaw` do
+/// not).  A static `isValid` method is also provided to verify that
+/// particular attribute values are consistent before they are used to
+/// create or modify a context object.  Note that it is the client's
+/// responsibility not to construct or unilaterally modify a context object
+/// to hold incompatible attribute values.
+///
+/// Additionally, this class supports a complete set of *value* *semantic*
+/// operations, including copy construction, assignment and equality
+/// comparison, and `ostream` printing.  A precise operational definition of
+/// when two instances have the same value can be found in the description
+/// of `operator==` for the class.  This class is *exception* *neutral* with
+/// no guarantee of rollback: if an exception is thrown during the
+/// invocation of a method on a pre-existing instance, the object is left in
+/// a valid state, but its value is undefined.  In no event is memory
+/// leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+/// both source and destination) is supported in all cases.
 class Context {
-    // This class provides a container for aggregating the auxiliary
-    // information needed to transmit a log record.  For each context attribute
-    // in this class (e.g., 'recordIndex'), there is an accessor for obtaining
-    // the attribute's value ('recordIndex') and there are manipulators for
-    // changing the contained attribute values ('setAttributes' checks
-    // attribute constraints; 'setAttributesRaw' and 'setRecordIndexRaw' do
-    // not).  A static 'isValid' method is also provided to verify that
-    // particular attribute values are consistent before they are used to
-    // create or modify a context object.  Note that it is the client's
-    // responsibility not to construct or unilaterally modify a context object
-    // to hold incompatible attribute values.
-    //
-    // Additionally, this class supports a complete set of *value* *semantic*
-    // operations, including copy construction, assignment and equality
-    // comparison, and 'ostream' printing.  A precise operational definition of
-    // when two instances have the same value can be found in the description
-    // of 'operator==' for the class.  This class is *exception* *neutral* with
-    // no guarantee of rollback: if an exception is thrown during the
-    // invocation of a method on a pre-existing instance, the object is left in
-    // a valid state, but its value is undefined.  In no event is memory
-    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
-    // both source and destination) is supported in all cases.
 
     // DATA
     Transmission::Cause d_transmissionCause;  // cause of transmitted record
@@ -266,113 +266,118 @@ class Context {
     BSLMF_NESTED_TRAIT_DECLARATION(Context, bslma::UsesBslmaAllocator);
 
     // CLASS METHODS
+
+    /// Return `true` if the specified `transmissionCause`, `recordIndex`,
+    /// and `sequenceLength` represent a valid context, and `false`
+    /// otherwise.  (See the CONSTRAINTS section of the component-level
+    /// documentation above for a complete specification of the constraints
+    /// on attribute values.)
     static bool isValid(Transmission::Cause transmissionCause,
                         int                 recordIndex,
                         int                 sequenceLength);
-        // Return 'true' if the specified 'transmissionCause', 'recordIndex',
-        // and 'sequenceLength' represent a valid context, and 'false'
-        // otherwise.  (See the CONSTRAINTS section of the component-level
-        // documentation above for a complete specification of the constraints
-        // on attribute values.)
 
     // CREATORS
-    Context(bslma::Allocator *basicAllocator = 0);
-        // Create a context object with all attributes having default values.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Note that 'basicAllocator' is currently ignored.
 
+    /// Create a context object with all attributes having default values.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  Note that `basicAllocator` is currently ignored.
+    Context(bslma::Allocator *basicAllocator = 0);
+
+    /// Create a context object indicating the specified
+    /// `transmissionCause`, `recordIndex`, and `sequenceLength` values.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  The behavior is undefined unless the resulting attribute
+    /// values are compatible.  Note that `basicAllocator` is currently
+    /// ignored.
     Context(Transmission::Cause  transmissionCause,
             int                  recordIndex,
             int                  sequenceLength,
             bslma::Allocator    *basicAllocator = 0);
-        // Create a context object indicating the specified
-        // 'transmissionCause', 'recordIndex', and 'sequenceLength' values.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless the resulting attribute
-        // values are compatible.  Note that 'basicAllocator' is currently
-        // ignored.
 
+    /// Create a context object having the value of the specified `original`
+    /// context object.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Note that `basicAllocator` is currently
+    /// ignored.
     Context(const Context& original, bslma::Allocator *basicAllocator = 0);
-        // Create a context object having the value of the specified 'original'
-        // context object.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Note that 'basicAllocator' is currently
-        // ignored.
 
     // ~Context();
         // Destroy this context object.  Note that this trivial destructor is
         // generated by the compiler.
 
     // MANIPULATORS
-    Context& operator=(const Context& rhs);
-        // Assign to this context object the value of the specified 'rhs'
-        // context object.
 
+    /// Assign to this context object the value of the specified `rhs`
+    /// context object.
+    Context& operator=(const Context& rhs);
+
+    /// Set the value of this context object to the specified
+    /// `transmissionCause`, `recordIndex`, and `sequenceLength` values if
+    /// `transmissionCause`, `recordIndex`, and `sequenceLength` represent a
+    /// valid context.  Return 0 on success, and a non-zero value (with no
+    /// effect on this context object) otherwise.
     int setAttributes(Transmission::Cause transmissionCause,
                       int                 recordIndex,
                       int                 sequenceLength);
-        // Set the value of this context object to the specified
-        // 'transmissionCause', 'recordIndex', and 'sequenceLength' values if
-        // 'transmissionCause', 'recordIndex', and 'sequenceLength' represent a
-        // valid context.  Return 0 on success, and a non-zero value (with no
-        // effect on this context object) otherwise.
 
+    /// Set the value of this context object to the specified
+    /// `transmissionCause`, `recordIndex`, and `sequenceLength` values.
+    /// The behavior is undefined if the resulting attribute values are
+    /// incompatible.
     void setAttributesRaw(Transmission::Cause transmissionCause,
                           int                 recordIndex,
                           int                 sequenceLength);
-        // Set the value of this context object to the specified
-        // 'transmissionCause', 'recordIndex', and 'sequenceLength' values.
-        // The behavior is undefined if the resulting attribute values are
-        // incompatible.
 
+    /// Set the record index attribute of this context object to the
+    /// specified `index`.  The behavior is undefined if the resulting
+    /// attribute values are incompatible.
     void setRecordIndexRaw(int index);
-        // Set the record index attribute of this context object to the
-        // specified 'index'.  The behavior is undefined if the resulting
-        // attribute values are incompatible.
 
     // ACCESSORS
+
+    /// Return the transmission cause attribute of this context object.
     Transmission::Cause transmissionCause() const;
-        // Return the transmission cause attribute of this context object.
 
+    /// Return the record index attribute of this context object.
     int recordIndex() const;
-        // Return the record index attribute of this context object.
 
+    /// Return the sequence length attribute of this context object.
     int sequenceLength() const;
-        // Return the sequence length attribute of this context object.
 
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` context objects have the
+/// same value, and `false` otherwise.  Two context objects have the same
+/// value if each respective pair of corresponding attributes have the same
+/// value.
 bool operator==(const Context& lhs, const Context& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' context objects have the
-    // same value, and 'false' otherwise.  Two context objects have the same
-    // value if each respective pair of corresponding attributes have the same
-    // value.
 
+/// Return `true` if the specified `lhs` and `rhs` context objects do not
+/// have the same value, and `false` otherwise.  Two context objects do not
+/// have the same value if one or more respective attributes differ in
+/// value.
 bool operator!=(const Context& lhs, const Context& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' context objects do not
-    // have the same value, and 'false' otherwise.  Two context objects do not
-    // have the same value if one or more respective attributes differ in
-    // value.
 
+/// Write the specified `rhs` context to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const Context& rhs);
-    // Write the specified 'rhs' context to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 // ============================================================================
 //                              INLINE DEFINITIONS

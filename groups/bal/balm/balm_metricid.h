@@ -13,12 +13,12 @@ BSLS_IDENT("$Id: balm_metricid.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 //@SEE_ALSO: balm_metricregistry, balm_metricdescription, balm_category
 //
 //@DESCRIPTION: This component implements an in-core value-semantic type used
-// to identify a metric.  A 'balm::MetricId' object's value is the *address* of
-// a (non-modifiable) 'balm::MetricDescription' object.  A 'balm::MetricId'
-// object also provides auxiliary methods, 'category', 'categoryName', and
-// 'metricName', that enables access to the properties of the held
-// 'balm::MetricDescription'.  Two 'balm::MetricId' objects have the same value
-// if the values of their respective 'balm::MetricDescription' object
+// to identify a metric.  A `balm::MetricId` object's value is the *address* of
+// a (non-modifiable) `balm::MetricDescription` object.  A `balm::MetricId`
+// object also provides auxiliary methods, `category`, `categoryName`, and
+// `metricName`, that enables access to the properties of the held
+// `balm::MetricDescription`.  Two `balm::MetricId` objects have the same value
+// if the values of their respective `balm::MetricDescription` object
 // *addresses* are the same.
 //
 ///Alternative Systems for Telemetry
@@ -28,9 +28,9 @@ BSLS_IDENT("$Id: balm_metricid.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 //
 ///Thread Safety
 ///-------------
-// 'balm::MetricId' is *const* *thread-safe*, meaning that accessors may be
+// `balm::MetricId` is *const* *thread-safe*, meaning that accessors may be
 // invoked concurrently from different threads, but it is not safe to access
-// or modify a 'balm::MetricId' in one thread while another thread modifies the
+// or modify a `balm::MetricId` in one thread while another thread modifies the
 // same object.
 //
 ///Usage
@@ -39,54 +39,54 @@ BSLS_IDENT("$Id: balm_metricid.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// The following example demonstrates how to create and use a 'balm::MetricId'
+// The following example demonstrates how to create and use a `balm::MetricId`
 // object.  We start by creating a category and two metric description objects:
-//..
-//  balm::Category category("MyCategory");
-//  balm::MetricDescription descriptionA(&category, "MetricA");
-//  balm::MetricDescription descriptionB(&category, "MetricB");
-//..
-// Now we create three 'balm::MetricId' objects:
-//..
-//  balm::MetricId invalidId;
-//  balm::MetricId metricIdA(&descriptionA);
-//  balm::MetricId metricIdB(&descriptionB);
-//..
-// We can access and verify the properties of the 'balm::MetricId' objects we
+// ```
+// balm::Category category("MyCategory");
+// balm::MetricDescription descriptionA(&category, "MetricA");
+// balm::MetricDescription descriptionB(&category, "MetricB");
+// ```
+// Now we create three `balm::MetricId` objects:
+// ```
+// balm::MetricId invalidId;
+// balm::MetricId metricIdA(&descriptionA);
+// balm::MetricId metricIdB(&descriptionB);
+// ```
+// We can access and verify the properties of the `balm::MetricId` objects we
 // have created:
-//..
-//  assert(false == invalidId.isValid());
-//  assert(true  == metricIdA.isValid());
-//  assert(true  == metricIdB.isValid());
+// ```
+// assert(false == invalidId.isValid());
+// assert(true  == metricIdA.isValid());
+// assert(true  == metricIdB.isValid());
 //
-//  assert(0             == invalidId.description());
-//  assert(&descriptionA == metricIdA.description());
-//  assert(&descriptionB == metricIdB.description());
+// assert(0             == invalidId.description());
+// assert(&descriptionA == metricIdA.description());
+// assert(&descriptionB == metricIdB.description());
 //
-//  assert(invalidId != metricIdA);
-//  assert(invalidId != metricIdB);
-//  assert(metricIdA != metricIdB);
-//..
+// assert(invalidId != metricIdA);
+// assert(invalidId != metricIdB);
+// assert(metricIdA != metricIdB);
+// ```
 // We now verify that copies of a metric id have the same value as the
 // original:
-//..
-//  balm::MetricId copyMetricIdA(metricIdA);
+// ```
+// balm::MetricId copyMetricIdA(metricIdA);
 //
-//  assert(metricIdA == copyMetricIdA);
-//..
-// Note that two 'balm::MetricId' objects that have different
-// 'balm::MetricDescription' object addresses are *not* equal, *even* if the
+// assert(metricIdA == copyMetricIdA);
+// ```
+// Note that two `balm::MetricId` objects that have different
+// `balm::MetricDescription` object addresses are *not* equal, *even* if the
 // descriptions have the same name and category.
-//..
-//  balm::MetricDescription newDescriptionB(&category, "MetricB");
-//  balm::MetricId          differentIdB(&newDescriptionB);
+// ```
+// balm::MetricDescription newDescriptionB(&category, "MetricB");
+// balm::MetricId          differentIdB(&newDescriptionB);
 //
-//  assert(0 == bsl::strcmp(differentIdB.metricName(),metricIdB.metricName()));
-//  assert(differentIdB.category() == metricIdB.category());
+// assert(0 == bsl::strcmp(differentIdB.metricName(),metricIdB.metricName()));
+// assert(differentIdB.category() == metricIdB.category());
 //
-//  assert(metricIdB != differentIdB);   // The 'balm::MetricDescription'
-//                                       // object addresses are not equal!
-//..
+// assert(metricIdB != differentIdB);   // The 'balm::MetricDescription'
+//                                      // object addresses are not equal!
+// ```
 
 #include <balscm_version.h>
 
@@ -105,15 +105,15 @@ namespace balm {
                                // class MetricId
                                // ==============
 
+/// This class defines an in-core value-semantic type used to identify a
+/// metric.  A `MetricId` object's value is the *address* of a
+/// non-modifiable `MetricDescription` object.  In addition, a
+/// `MetricDescription` object provides auxiliary methods, `category`,
+/// `categoryName`, and `name`, that enable access to the properties of the
+/// held `MetricDescription`.  Two `MetricId` objects have the same value if
+/// the values of their respective `MetricDescription` object *addresses*
+/// are the same.
 class MetricId {
-    // This class defines an in-core value-semantic type used to identify a
-    // metric.  A 'MetricId' object's value is the *address* of a
-    // non-modifiable 'MetricDescription' object.  In addition, a
-    // 'MetricDescription' object provides auxiliary methods, 'category',
-    // 'categoryName', and 'name', that enable access to the properties of the
-    // held 'MetricDescription'.  Two 'MetricId' objects have the same value if
-    // the values of their respective 'MetricDescription' object *addresses*
-    // are the same.
 
     // DATA
     const MetricDescription *d_description_p;  // metric description
@@ -124,14 +124,15 @@ class MetricId {
                                    bsl::is_trivially_copyable);
 
     // CREATORS
-    MetricId();
-        // Create an invalid metric id.
 
+    /// Create an invalid metric id.
+    MetricId();
+
+    /// Create a metric id whose value is the specified `metricDescription`
+    /// address.  The behavior is undefined unless `metricDescription` is
+    /// 0, or the indicated metric description object remains valid for the
+    /// lifetime of this metric id object.
     MetricId(const MetricDescription *metricDescription);
-        // Create a metric id whose value is the specified 'metricDescription'
-        // address.  The behavior is undefined unless 'metricDescription' is
-        // 0, or the indicated metric description object remains valid for the
-        // lifetime of this metric id object.
 
     // MetricId(const MetricId& original) = default;
         // Create a metric id with the value of the specified 'original'
@@ -151,43 +152,44 @@ class MetricId {
         // metric-description object remains valid for the lifetime of this
         // metric-id object.
 
+    /// Return a reference to the modifiable address of the *held*
+    /// non-modifiable `MetricDescription`, which defines the value of this
+    /// metric id.
     const MetricDescription *&description();
-        // Return a reference to the modifiable address of the *held*
-        // non-modifiable 'MetricDescription', which defines the value of this
-        // metric id.
 
      // ACCESSORS
+
+    /// Return a reference to the non-modifiable address of the *held*
+    /// non-modifiable `MetricDescription`, which defines the value of this
+    /// metric id.
     const MetricDescription * const & description() const;
-        // Return a reference to the non-modifiable address of the *held*
-        // non-modifiable 'MetricDescription', which defines the value of this
-        // metric id.
 
+    /// Return `true` if this metric id object contains the address of a
+    /// valid `MetricDescription` object, and false `otherwise`.  Note that
+    /// this method is logically equivalent to `0 != description()`.
     bool isValid() const;
-        // Return 'true' if this metric id object contains the address of a
-        // valid 'MetricDescription' object, and false 'otherwise'.  Note that
-        // this method is logically equivalent to '0 != description()'.
 
+    /// Return the address of the non-modifiable `Category` object
+    /// identifying the category with which this metric id is associated.
+    /// The behavior is undefined unless `isValid()` is `true`.  Note that
+    /// this method is logically equivalent to `description()->category()`.
     const Category *category() const;
-        // Return the address of the non-modifiable 'Category' object
-        // identifying the category with which this metric id is associated.
-        // The behavior is undefined unless 'isValid()' is 'true'.  Note that
-        // this method is logically equivalent to 'description()->category()'.
 
+    /// Return the address of the non-modifiable name for the category with
+    /// which this metric id is associated.  The behavior is undefined
+    /// unless `isValid()` is `true`.  Note that this method is logically
+    /// equivalent to `description()->category()->name()`.
     const char *categoryName() const;
-        // Return the address of the non-modifiable name for the category with
-        // which this metric id is associated.  The behavior is undefined
-        // unless 'isValid()' is 'true'.  Note that this method is logically
-        // equivalent to 'description()->category()->name()'.
 
+    /// Return the address of the non-modifiable name of this metric id.
+    /// The behavior is undefined unless `isValid()` is `true`.  Note that
+    /// this method is logically equivalent to `description()->name()`.
     const char *metricName() const;
-        // Return the address of the non-modifiable name of this metric id.
-        // The behavior is undefined unless 'isValid()' is 'true'.  Note that
-        // this method is logically equivalent to 'description()->name()'.
 
+    /// Print this metric id to the specified output `stream` in some
+    /// single-line human-readable form, and return a reference to the
+    /// modifiable `stream`.
     bsl::ostream& print(bsl::ostream& stream) const;
-        // Print this metric id to the specified output 'stream' in some
-        // single-line human-readable form, and return a reference to the
-        // modifiable 'stream'.
 };
 
 // ============================================================================
@@ -195,35 +197,36 @@ class MetricId {
 // ============================================================================
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` metric ids have the same
+/// value and `false` otherwise.  Two metric ids have the same value if they
+/// each hold the address of the same `MetricDescription` object, or both
+/// addresses are 0.
 inline
 bool operator==(const MetricId& lhs, const MetricId& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' metric ids have the same
-    // value and 'false' otherwise.  Two metric ids have the same value if they
-    // each hold the address of the same 'MetricDescription' object, or both
-    // addresses are 0.
 
+/// Return `true` if the specified `lhs` and `rhs` metric ids do not have
+/// the same value and `false` otherwise.  Two metric ids do not have same
+/// value if they refer to different `MetricDescription` object *addresses*,
+/// or exactly one address is 0.
 inline
 bool operator!=(const MetricId& lhs, const MetricId& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' metric ids do not have
-    // the same value and 'false' otherwise.  Two metric ids do not have same
-    // value if they refer to different 'MetricDescription' object *addresses*,
-    // or exactly one address is 0.
 
+/// Return `true` if the specified `lhs` metric id is less than (ordered
+/// before) the specified `rhs` metric id, and return `false` otherwise'.
+/// The `lhs` is considered less if the (unsigned) *address* of the
+/// contained `MetricDescription` object is numerically less than the `rhs`
+/// description.  Note that this function does *not* provide any form of
+/// alphabetic ordering, and is logically equivalent to the expression
+/// `lhs.description() < rhs.description()`.
 inline
 bool operator<(const MetricId& lhs, const MetricId& rhs);
-    // Return 'true' if the specified 'lhs' metric id is less than (ordered
-    // before) the specified 'rhs' metric id, and return 'false' otherwise'.
-    // The 'lhs' is considered less if the (unsigned) *address* of the
-    // contained 'MetricDescription' object is numerically less than the 'rhs'
-    // description.  Note that this function does *not* provide any form of
-    // alphabetic ordering, and is logically equivalent to the expression
-    // 'lhs.description() < rhs.description()'.
 
+/// Write a description of the specified `rhs` metric id to the specified
+/// `stream` in some human-readable format, and return a reference to the
+/// modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const MetricId& rhs);
-    // Write a description of the specified 'rhs' metric id to the specified
-    // 'stream' in some human-readable format, and return a reference to the
-    // modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS

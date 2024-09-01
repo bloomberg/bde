@@ -13,37 +13,37 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: ball_fixedsizerecordbuffer
 //
 //@DESCRIPTION: This component provides a special-purpose instrumented
-// allocator, 'ball::CountingAllocator', that implements the 'bslma::Allocator'
+// allocator, `ball::CountingAllocator`, that implements the `bslma::Allocator`
 // protocol and guarantees maximal alignment of allocated blocks, even when
 // the allocator supplied at construction guarantees only natural alignment
-// (or no alignment at all).  'ball::CountingAllocator' maintains a
+// (or no alignment at all).  `ball::CountingAllocator` maintains a
 // user-resettable running sum of the total number of bytes
 // allocated (called byte count, see below).
-//..
-//   ,-----------------------.
-//  ( ball::CountingAllocator )
-//   `-----------------------'
-//               |         ctor/dtor
-//               |         numBytesTotal
-//               |         resetNumBytesTotal
-//               V
-//       ,----------------.
-//      ( bslma::Allocator )
-//       `----------------'
-//                       allocate
-//                       deallocate
-//..
+// ```
+//  ,-----------------------.
+// ( ball::CountingAllocator )
+//  `-----------------------'
+//              |         ctor/dtor
+//              |         numBytesTotal
+//              |         resetNumBytesTotal
+//              V
+//      ,----------------.
+//     ( bslma::Allocator )
+//      `----------------'
+//                      allocate
+//                      deallocate
+// ```
 //
 ///Byte Count
 ///----------
-// The byte count maintained by 'ball::CountingAllocator' is set to 0 upon
-// construction and after each call to 'resetNumBytesTotal'.  Each call of
-// 'allocate(size)' increases the byte count by the sum of the least
-// multiple of 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT' that is greater than
-// or equal to 'size' and 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.  Each call
-// of 'deallocate' decrements the byte count by the same amount by which the
-// byte count was incremented on matching 'allocate' call.  The current
-// value of the byte count is returned by the 'numBytesTotal' accessor.
+// The byte count maintained by `ball::CountingAllocator` is set to 0 upon
+// construction and after each call to `resetNumBytesTotal`.  Each call of
+// `allocate(size)` increases the byte count by the sum of the least
+// multiple of `bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT` that is greater than
+// or equal to `size` and `bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT`.  Each call
+// of `deallocate` decrements the byte count by the same amount by which the
+// byte count was incremented on matching `allocate` call.  The current
+// value of the byte count is returned by the `numBytesTotal` accessor.
 //
 ///Usage
 ///-----
@@ -52,22 +52,22 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // In the following example we demonstrate how the counting allocator can be
-// used to know the amount of dynamic memory allocated by a 'vector<int>' after
+// used to know the amount of dynamic memory allocated by a `vector<int>` after
 // pushing one integer.  Let us assume that memory for the vector comes from a
-// 'bslma::Allocator' named 'allocator'.
-//..
-//    // First create the counting allocator using 'allocator'.
-//    BloombergLP::ball::CountingAllocator countingAllocator(allocator);
+// `bslma::Allocator` named `allocator`.
+// ```
+//   // First create the counting allocator using 'allocator'.
+//   BloombergLP::ball::CountingAllocator countingAllocator(allocator);
 //
-//    // Now create the vector using the counting allocator.
-//    bsl::vector<int> vec(&countingAllocator);
+//   // Now create the vector using the counting allocator.
+//   bsl::vector<int> vec(&countingAllocator);
 //
-//    vec.push_back(1);
-//    // The following will print the memory consumed by the
-//    // vector and the counting allocator.
-//    bsl::cout << "dynamic memory after first push back: "
-//              << countingAllocator.numBytesTotal() << bsl::endl;
-//..
+//   vec.push_back(1);
+//   // The following will print the memory consumed by the
+//   // vector and the counting allocator.
+//   bsl::cout << "dynamic memory after first push back: "
+//             << countingAllocator.numBytesTotal() << bsl::endl;
+// ```
 
 #include <balscm_version.h>
 
@@ -84,14 +84,14 @@ namespace ball {
                         // class CountingAllocator
                         // =======================
 
+/// This class maintains a count of the total number of allocated bytes.
+/// The running byte count is initialized to 0 upon construction, is
+/// increased by the `allocate` method, and may be reset to 0 by the
+/// `resetNumBytesTotal` method.  The `deallocate` method appropriately
+/// decrement the byte count.  The precise definition of byte count is
+/// described in the "Byte Count" section of the component-level
+/// documentation.
 class CountingAllocator : public bslma::Allocator {
-    // This class maintains a count of the total number of allocated bytes.
-    // The running byte count is initialized to 0 upon construction, is
-    // increased by the 'allocate' method, and may be reset to 0 by the
-    // 'resetNumBytesTotal' method.  The 'deallocate' method appropriately
-    // decrement the byte count.  The precise definition of byte count is
-    // described in the "Byte Count" section of the component-level
-    // documentation.
 
     // DATA
     size_type         d_byteCount;    // byte count
@@ -104,43 +104,46 @@ class CountingAllocator : public bslma::Allocator {
 
   public:
     // CREATORS
+
+    /// Create a counting allocator having an initial byte count of 0.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     explicit
     CountingAllocator(bslma::Allocator *basicAllocator = 0);
-        // Create a counting allocator having an initial byte count of 0.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Destroy this counting allocator.
     ~CountingAllocator() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this counting allocator.
 
     // MANIPULATORS
+
+    /// Return a newly allocated block of memory of (at least) the specified
+    /// positive `size` (bytes) and increment the byte count maintained by
+    /// this counting allocator by the sum of the least multiple of
+    /// `bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT` that is greater than or
+    /// equal to `size` and `bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT`.  The
+    /// behavior is undefined unless `0 <= size`.  Note that the alignment
+    /// of the address returned is the maximum alignment for any fundamental
+    /// type defined for the calling platform, even if the supplied
+    /// allocator guarantees only natural alignment.
     void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
-        // Return a newly allocated block of memory of (at least) the specified
-        // positive 'size' (bytes) and increment the byte count maintained by
-        // this counting allocator by the sum of the least multiple of
-        // 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT' that is greater than or
-        // equal to 'size' and 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.  The
-        // behavior is undefined unless '0 <= size'.  Note that the alignment
-        // of the address returned is the maximum alignment for any fundamental
-        // type defined for the calling platform, even if the supplied
-        // allocator guarantees only natural alignment.
 
+    /// Return the memory at the specified `address` back to this allocator
+    /// and update the byte count maintained by this counting allocator
+    /// appropriately.  If `address` is 0, this function has no effect.  The
+    /// behavior is undefined unless `address` was allocated using this
+    /// allocator and has not already been deallocated.
     void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
-        // Return the memory at the specified 'address' back to this allocator
-        // and update the byte count maintained by this counting allocator
-        // appropriately.  If 'address' is 0, this function has no effect.  The
-        // behavior is undefined unless 'address' was allocated using this
-        // allocator and has not already been deallocated.
 
+    /// Reset the byte count maintained by this counting allocator to 0.
     void resetNumBytesTotal();
-        // Reset the byte count maintained by this counting allocator to 0.
 
     // ACCESSORS
+
+    /// Return the byte count maintained by this counting allocator.  The
+    /// precise definition of byte count is described in the "Byte Count"
+    /// section of the component-level documentation.
     size_type numBytesTotal() const;
-        // Return the byte count maintained by this counting allocator.  The
-        // precise definition of byte count is described in the "Byte Count"
-        // section of the component-level documentation.
 };
 
 // ============================================================================

@@ -5,28 +5,28 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide utilities for a 'bdlt_localtimeoffset' local time callback.
+//@PURPOSE: Provide utilities for a `bdlt_localtimeoffset` local time callback.
 //
 //@CLASSES:
 //  baltzo::LocalTimeOffsetUtil: utilities managing a local time callback
 //
 //@SEE_ALSO: bdlt_localtimeoffset
 //
-//@DESCRIPTION: This component, 'baltzo::LocalTimeOffsetUtil', provides
-// 'baltzo::LocalTimeOffsetUtil::localTimeOffset', a high performance
-// 'bdlt::LocalTimeOffset' local time offset callback function, which accesses
+//@DESCRIPTION: This component, `baltzo::LocalTimeOffsetUtil`, provides
+// `baltzo::LocalTimeOffsetUtil::localTimeOffset`, a high performance
+// `bdlt::LocalTimeOffset` local time offset callback function, which accesses
 // the Zoneinfo database.  To achieve high performance, this function refers to
 // a cached copy of local time period information (which includes the local
-// time offset from UTC) that is populated by a call to one of the 'configure'
+// time offset from UTC) that is populated by a call to one of the `configure`
 // methods.  The cache *must* be configured prior to the first call of
-// 'localTimeOffset'.  That cached information is updated on receipt of a
+// `localTimeOffset`.  That cached information is updated on receipt of a
 // request with a datetime value outside of the range covered by the cached
 // information.  As there are usually are only a few timezone transitions per
 // year, the cache hit rate should be very high for typical applications.  The
 // cached information might be invalidated by updates to the Zoneinfo database;
 // however, those occur are also infrequent events.
 //
-// A successful return from one of the 'configure' methods is a prerequisite to
+// A successful return from one of the `configure` methods is a prerequisite to
 // the use of most of the other functions provided here.  Most methods are
 // thread-safe.  Refer to the function-level documentation for details.
 //
@@ -34,90 +34,90 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'localTimeOffset' as the Local Time Offset Callback
+///Example 1: Using `localTimeOffset` as the Local Time Offset Callback
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we must quickly generate time stamp values in local time (e.g., on
 // records for a high frequency logger) and the default performance of the
-// relevant methods of 'bdlt::CurrentTime' is inadequate.  Further suppose that
+// relevant methods of `bdlt::CurrentTime` is inadequate.  Further suppose that
 // we must do so arbitrary time values and time zones.  Those requirements can
-// be met by installing the 'localTimeOffset' method of
-// 'baltzo::LocalTimeOffsetUtil' as the local time callback used by
-// 'bdlt::CurrentTime'.
+// be met by installing the `localTimeOffset` method of
+// `baltzo::LocalTimeOffsetUtil` as the local time callback used by
+// `bdlt::CurrentTime`.
 //
 // First, specify the time zone to be used by the callback and a UTC date time
 // for the initial offset information in the cache.
-//..
-//  assert(0 == baltzo::LocalTimeOffsetUtil::updateCount());
+// ```
+// assert(0 == baltzo::LocalTimeOffsetUtil::updateCount());
 //
-//  int status = baltzo::LocalTimeOffsetUtil::configure("America/New_York",
-//                                                      bdlt::Datetime(2013,
-//                                                                       2,
-//                                                                      26));
-//  assert(0 == status);
-//  assert(1 == baltzo::LocalTimeOffsetUtil::updateCount());
+// int status = baltzo::LocalTimeOffsetUtil::configure("America/New_York",
+//                                                     bdlt::Datetime(2013,
+//                                                                      2,
+//                                                                     26));
+// assert(0 == status);
+// assert(1 == baltzo::LocalTimeOffsetUtil::updateCount());
 //
-//  bsl::string timezone;
+// bsl::string timezone;
 //
-//  baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
-//  assert(0 == strcmp("America/New_York", timezone.c_str()));
-//..
-// Notice that the value returned by the 'updateCount' method is increased by
+// baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
+// assert(0 == strcmp("America/New_York", timezone.c_str()));
+// ```
+// Notice that the value returned by the `updateCount` method is increased by
 // one after then time zone information has been set.
 //
-// Then, use the 'setLoadLocalTimeOffsetCallback' method to set the
-// 'localTimeOffset' of 'baltzo::LocalTimeOffsetUtil' as the local time offset
-// callback used in 'bdlt::CurrentTime'.
-//..
-//  bdlt::LocalTimeOffset::LocalTimeOffsetCallback previousCallback =
-//               baltzo::LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback();
+// Then, use the `setLoadLocalTimeOffsetCallback` method to set the
+// `localTimeOffset` of `baltzo::LocalTimeOffsetUtil` as the local time offset
+// callback used in `bdlt::CurrentTime`.
+// ```
+// bdlt::LocalTimeOffset::LocalTimeOffsetCallback previousCallback =
+//              baltzo::LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback();
 //
-//  assert(&baltzo::LocalTimeOffsetUtil::localTimeOffset
-//      == bdlt::CurrentTime::localTimeOffsetCallback());
-//..
+// assert(&baltzo::LocalTimeOffsetUtil::localTimeOffset
+//     == bdlt::CurrentTime::localTimeOffsetCallback());
+// ```
 // Notice that previously installed callback was saved so we can restore it, if
 // needed.
 //
-// Now, calls to 'bdlt::CurrentTime' methods will use the method we installed.
+// Now, calls to `bdlt::CurrentTime` methods will use the method we installed.
 // For example, we can check the time offset in New York for three dates of
 // interest:
-//..
-//  bsls::Types::Int64 offsetInSeconds =
-//      bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 2, 26))
-//                                                             .totalSeconds();
-//  assert(        0 == status);
-//  assert(-5 * 3600 == offsetInSeconds);
-//  assert(        1 == baltzo::LocalTimeOffsetUtil::updateCount());
+// ```
+// bsls::Types::Int64 offsetInSeconds =
+//     bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 2, 26))
+//                                                            .totalSeconds();
+// assert(        0 == status);
+// assert(-5 * 3600 == offsetInSeconds);
+// assert(        1 == baltzo::LocalTimeOffsetUtil::updateCount());
 //
-//  baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
-//  assert(        0 == strcmp("America/New_York", timezone.c_str()));
+// baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
+// assert(        0 == strcmp("America/New_York", timezone.c_str()));
 //
-//  offsetInSeconds =
-//      bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 7, 4))
-//                                                             .totalSeconds();
-//  assert(-4 * 3600 == offsetInSeconds);
-//  assert(        2 == baltzo::LocalTimeOffsetUtil::updateCount());
-//  baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
-//  assert(        0 == strcmp("America/New_York", timezone.c_str()));
+// offsetInSeconds =
+//     bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 7, 4))
+//                                                            .totalSeconds();
+// assert(-4 * 3600 == offsetInSeconds);
+// assert(        2 == baltzo::LocalTimeOffsetUtil::updateCount());
+// baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
+// assert(        0 == strcmp("America/New_York", timezone.c_str()));
 //
-//  offsetInSeconds =
-//      bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 12, 21))
-//                                                             .totalSeconds();
-//  assert(-5 * 3600 == offsetInSeconds);
-//  assert(        3 == baltzo::LocalTimeOffsetUtil::updateCount());
-//  baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
-//  assert(        0 == strcmp("America/New_York", timezone.c_str()));
-//..
-// Notice that the value returned by 'updateCount()' is unchanged by our first
+// offsetInSeconds =
+//     bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 12, 21))
+//                                                            .totalSeconds();
+// assert(-5 * 3600 == offsetInSeconds);
+// assert(        3 == baltzo::LocalTimeOffsetUtil::updateCount());
+// baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
+// assert(        0 == strcmp("America/New_York", timezone.c_str()));
+// ```
+// Notice that the value returned by `updateCount()` is unchanged by our first
 // request, but incremented by the second and third request, which transitions
 // into and then out of daylight saving time.  Also notice that the updates
 // change the offset information but do not change the timezone.
 //
 // Finally, we restore the original local time callback.
-//..
-//  previousCallback = bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
-//                                                           previousCallback);
-//  ASSERT(previousCallback == &baltzo::LocalTimeOffsetUtil::localTimeOffset);
-//..
+// ```
+// previousCallback = bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
+//                                                          previousCallback);
+// ASSERT(previousCallback == &baltzo::LocalTimeOffsetUtil::localTimeOffset);
+// ```
 
 #include <baltzo_localtimeperiod.h>
 #include <baltzo_timezoneutil.h>
@@ -143,34 +143,35 @@ namespace baltzo {
                          // struct LocalTimeOffsetUtil
                          // ==========================
 
+/// This `struct` provides a namespace for a `bdlt::LocalTimeOffset` local
+/// time offset callback, and functions that manage the timezone information
+/// reported by that callback.  All public methods are *thread-safe*.
 struct LocalTimeOffsetUtil {
-    // This 'struct' provides a namespace for a 'bdlt::LocalTimeOffset' local
-    // time offset callback, and functions that manage the timezone information
-    // reported by that callback.  All public methods are *thread-safe*.
 
     // CLASS DATA
   private:
     static bsls::AtomicInt s_updateCount;
 
     // PRIVATE CLASS METHODS
+
+    /// Set the local time period information used by the `localTimeOffset`
+    /// method according to the specified `timezone` at the specified
+    /// `utcDatetime`.  Return 0 on success, and a non-zero value otherwise.
+    /// This method is *not* thread-safe.
     static int configureImp(const char            *timezone,
                             const bdlt::Datetime&  utcDatetime);
-        // Set the local time period information used by the 'localTimeOffset'
-        // method according to the specified 'timezone' at the specified
-        // 'utcDatetime'.  Return 0 on success, and a non-zero value otherwise.
-        // This method is *not* thread-safe.
 
+    /// Return the address of the current local time period information.
+    /// This method is *not* thread-safe.
     static LocalTimePeriod *privateLocalTimePeriod();
-        // Return the address of the current local time period information.
-        // This method is *not* thread-safe.
 
+    /// Return the address of the lock controlling access to the local time
+    /// period information.  This method is *not* thread-safe.
     static bslmt::RWMutex *privateLock();
-        // Return the address of the lock controlling access to the local time
-        // period information.  This method is *not* thread-safe.
 
+    /// Return the address of the time period information.  This method is
+    /// *not* thread-safe.
     static bsl::string *privateTimezone();
-        // Return the address of the time period information.  This method is
-        // *not* thread-safe.
 
     // CLASS METHODS
   public:
@@ -180,67 +181,68 @@ struct LocalTimeOffsetUtil {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // pending deprecation
 
     // DEPRECATED CLASS METHODS
+
+    /// **DEPRECATED**: Use `localTimeOffset` instead.
+    ///
+    /// Efficiently load to the specified `result` the offset of the local
+    /// time from UTC for the specified `utcDatetime`.  This function is
+    /// thread-safe.  The behavior is undefined unless the local time zone
+    /// has been previously established by a call to the `configure` method.
+    /// This method *is* thread-safe.  Note that this function is no longer
+    /// used as a callback function.  It exisis for backwards compatibility
+    /// with code that called it directly, and is deprecated.
     static void loadLocalTimeOffset(int                   *result,
                                     const bdlt::Datetime&  utcDatetime);
-        // !DEPRECATED!: Use 'localTimeOffset' instead.
-        //
-        // Efficiently load to the specified 'result' the offset of the local
-        // time from UTC for the specified 'utcDatetime'.  This function is
-        // thread-safe.  The behavior is undefined unless the local time zone
-        // has been previously established by a call to the 'configure' method.
-        // This method *is* thread-safe.  Note that this function is no longer
-        // used as a callback function.  It exisis for backwards compatibility
-        // with code that called it directly, and is deprecated.
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED -- pending deprecation
 
+    /// Return the offset of the local time from UTC for the specified
+    /// `utcDatetime`.  This function is thread-safe.  The behavior is
+    /// undefined unless the local time zone has been previously established
+    /// by a call to the `configure` method.  This method *is* thread-safe.
     static bsls::TimeInterval localTimeOffset(
                                             const bdlt::Datetime& utcDatetime);
-        // Return the offset of the local time from UTC for the specified
-        // 'utcDatetime'.  This function is thread-safe.  The behavior is
-        // undefined unless the local time zone has been previously established
-        // by a call to the 'configure' method.  This method *is* thread-safe.
 
+    /// Set `localTimeOffset` as the local time offset callback of
+    /// `bdlt::CurrentTime`.  Return the previously installed callback.
+    /// This method is *not* thread-safe.
     static bdlt::LocalTimeOffset::LocalTimeOffsetCallback
                                               setLoadLocalTimeOffsetCallback();
-        // Set 'localTimeOffset' as the local time offset callback of
-        // 'bdlt::CurrentTime'.  Return the previously installed callback.
-        // This method is *not* thread-safe.
 
                         // *** configure methods ***
 
+    /// Set the local time period information used by the `localTimeOffset`
+    /// method to that for the time zone in the `TZ` environment variable at
+    /// the current UTC datetime.  Return 0 on success, and a non-zero value
+    /// otherwise.  This method is *not* thread-safe.  The behavior is
+    /// undefined if the environment changes (e.g., a call to the `putenv`
+    /// POSIX function) during the invocation of this method.
     static int configure();
-        // Set the local time period information used by the 'localTimeOffset'
-        // method to that for the time zone in the 'TZ' environment variable at
-        // the current UTC datetime.  Return 0 on success, and a non-zero value
-        // otherwise.  This method is *not* thread-safe.  The behavior is
-        // undefined if the environment changes (e.g., a call to the 'putenv'
-        // POSIX function) during the invocation of this method.
 
+    /// Set the local time period information used by the `localTimeOffset`
+    /// method to that for specified `timezone` at the current UTC datetime.
+    /// Return 0 on success, and a non-zero value otherwise.  This method is
+    /// *not* thread-safe.
     static int configure(const char *timezone);
-        // Set the local time period information used by the 'localTimeOffset'
-        // method to that for specified 'timezone' at the current UTC datetime.
-        // Return 0 on success, and a non-zero value otherwise.  This method is
-        // *not* thread-safe.
 
+    /// Set the local time period information used by the `localTimeOffset`
+    /// method to that for the specified `timezone` at the specified
+    /// `utcDatetime`.  Return 0 on success, and a non-zero value otherwise.
+    /// This method is *not* thread-safe.
     static int configure(const char            *timezone,
                          const bdlt::Datetime&  utcDatetime);
-        // Set the local time period information used by the 'localTimeOffset'
-        // method to that for the specified 'timezone' at the specified
-        // 'utcDatetime'.  Return 0 on success, and a non-zero value otherwise.
-        // This method is *not* thread-safe.
 
                         // *** accessor methods ***
 
+    /// Load to the specified `localTimePeriod` the local time period
+    /// information currently used by the `localTimeOffset` method.  That
+    /// information is updated when `localTimeOffset` is called with a
+    /// `utcDatetime` outside the range `localTimePeriod().utcStartTime()`
+    /// (inclusive) `localTimePeriod().utcEndTime()` (exclusive).  This
+    /// method is *not* thread-safe.  The behavior is undefined if this
+    /// method is invoked before the successful invocation of a `configure`
+    /// method.
     static void loadLocalTimePeriod(LocalTimePeriod *localTimePeriod);
-        // Load to the specified 'localTimePeriod' the local time period
-        // information currently used by the 'localTimeOffset' method.  That
-        // information is updated when 'localTimeOffset' is called with a
-        // 'utcDatetime' outside the range 'localTimePeriod().utcStartTime()'
-        // (inclusive) 'localTimePeriod().utcEndTime()' (exclusive).  This
-        // method is *not* thread-safe.  The behavior is undefined if this
-        // method is invoked before the successful invocation of a 'configure'
-        // method.
 
     static void loadTimezone(bsl::string      *timezone);
     static void loadTimezone(std::string      *timezone);
@@ -252,13 +254,13 @@ struct LocalTimeOffsetUtil {
         // thread-safe.  The behavior is undefined if this method is invoked
         // before the successful invocation of a 'configure' method.
 
+    /// Return the number of successful updates of the local time period
+    /// information since the start of the process.  This count is
+    /// incremented on calls to any of the `setTimeZone` methods and when
+    /// `loadLocalTimePeriod` is called with a `utcDatetime` outside the
+    /// range of the current local time period information.  This method
+    /// *is* thread-safe.
     static int updateCount();
-        // Return the number of successful updates of the local time period
-        // information since the start of the process.  This count is
-        // incremented on calls to any of the 'setTimeZone' methods and when
-        // 'loadLocalTimePeriod' is called with a 'utcDatetime' outside the
-        // range of the current local time period information.  This method
-        // *is* thread-safe.
 };
 
 // ============================================================================

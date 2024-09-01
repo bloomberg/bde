@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baljsn_encoder, baljsn_printutil, baljsn_simpleformatter
 //
-//@DESCRIPTION: This component provides a class, 'baljsn::Formatter', for
+//@DESCRIPTION: This component provides a class, `baljsn::Formatter`, for
 // formatting JSON objects, arrays, and name-value pairs in the JSON encoding
 // format to a specified output stream.
 //
@@ -20,26 +20,25 @@ BSLS_IDENT("$Id: $")
 // information) specifies a self-describing and simple syntax that is built on
 // two structures:
 //
-//: o Objects: JSON objects are represented as collections of name value
-//:   pairs.  The 'Formatter' 'class' allows encoding objects by providing the
-//:   'openObject' and 'closeObject' methods to open and close an object and
-//:   the 'openMember', 'closeMember', and 'putValue' methods to add members
-//:   and values to an object.
-//:
-//: o Arrays: JSON arrays are specified as an ordered list of values.  The
-//:   'Formatter' 'class' provides the 'openArray' and 'closeArray' method to
-//:   open and close an array.  Additionally the 'Formatter' 'class' allows of
-//:   separation of array items by a comma via the 'addArrayElementSeparator'
-//:   method.
+// * Objects: JSON objects are represented as collections of name value
+//   pairs.  The `Formatter` `class` allows encoding objects by providing the
+//   `openObject` and `closeObject` methods to open and close an object and
+//   the `openMember`, `closeMember`, and `putValue` methods to add members
+//   and values to an object.
+// * Arrays: JSON arrays are specified as an ordered list of values.  The
+//   `Formatter` `class` provides the `openArray` and `closeArray` method to
+//   open and close an array.  Additionally the `Formatter` `class` allows of
+//   separation of array items by a comma via the `addArrayElementSeparator`
+//   method.
 //
-// The 'Formatter' 'class' also provides the ability to specify formatting
+// The `Formatter` `class` also provides the ability to specify formatting
 // options at construction.  The options that can be provided include the
 // encoding style (compact or pretty), the initial indentation level and spaces
 // per level if encoding in the pretty format.
 //
 // Valid sequence of operations
 // - - - - - - - - - - - - - -
-// The 'Formatter' 'class' does only minimal checking to verify that the
+// The `Formatter` `class` does only minimal checking to verify that the
 // sequence of operations called on its object result in a valid JSON
 // document.  It is the user's responsibility to ensure that the methods
 // provided by this component are called in the right order.
@@ -53,7 +52,7 @@ BSLS_IDENT("$Id: $")
 // Let us say that we have to encode a JSON document with the following
 // information about stocks that we are interested in.  For brevity we just
 // show and encode a part of the complete document.
-//..
+// ```
 // {
 //   "Stocks" : [
 //     {
@@ -70,116 +69,116 @@ BSLS_IDENT("$Id: $")
 //     }
 //   ]
 // }
-//..
+// ```
 // First, we specify the result that we are expecting to get:
-//..
-//  const bsl::string EXPECTED =
-//      "{\n"
-//      "  \"Stocks\" : [\n"
-//      "    {\n"
-//      "      \"Name\" : \"International Business Machines Corp\",\n"
-//      "      \"Ticker\" : \"IBM US Equity\",\n"
-//      "      \"Last Price\" : 149.3,\n"
-//      "      \"Dividend Yield\" : 3.95\n"
-//      "    },\n"
-//      "    {\n"
-//      "      \"Name\" : \"Apple Inc\",\n"
-//      "      \"Ticker\" : \"AAPL US Equity\",\n"
-//      "      \"Last Price\" : 205.8,\n"
-//      "      \"Dividend Yield\" : 1.4\n"
-//      "    }\n"
-//      "  ]\n"
-//      "}";
-//..
-// Then, to encode this JSON document we create a 'baljsn::Formatter' object.
+// ```
+// const bsl::string EXPECTED =
+//     "{\n"
+//     "  \"Stocks\" : [\n"
+//     "    {\n"
+//     "      \"Name\" : \"International Business Machines Corp\",\n"
+//     "      \"Ticker\" : \"IBM US Equity\",\n"
+//     "      \"Last Price\" : 149.3,\n"
+//     "      \"Dividend Yield\" : 3.95\n"
+//     "    },\n"
+//     "    {\n"
+//     "      \"Name\" : \"Apple Inc\",\n"
+//     "      \"Ticker\" : \"AAPL US Equity\",\n"
+//     "      \"Last Price\" : 205.8,\n"
+//     "      \"Dividend Yield\" : 1.4\n"
+//     "    }\n"
+//     "  ]\n"
+//     "}";
+// ```
+// Then, to encode this JSON document we create a `baljsn::Formatter` object.
 // Since we want the document to be written in a pretty, easy to understand
-// format we will specify the 'true' for the 'usePrettyStyle' option and
+// format we will specify the `true` for the `usePrettyStyle` option and
 // provide an appropriate initial indent level and spaces per level values:
-//..
-//  bsl::ostringstream os;
-//  baljsn::Formatter formatter(os, true, 0, 2);
-//..
+// ```
+// bsl::ostringstream os;
+// baljsn::Formatter formatter(os, true, 0, 2);
+// ```
 // Next, we start calling the sequence of methods requires to produce this
 // document.  We start with the top level object and add an element named
-// 'Stocks' to it:
-//..
-//  formatter.openObject();
-//  formatter.openMember("Stocks");
-//..
-// Then, we see that 'Stocks' is an array element so we specify the start of
+// `Stocks` to it:
+// ```
+// formatter.openObject();
+// formatter.openMember("Stocks");
+// ```
+// Then, we see that `Stocks` is an array element so we specify the start of
 // the array:
-//..
-//  formatter.openArray();
-//..
-// Next, each element within 'Stocks' is an object that contains the
+// ```
+// formatter.openArray();
+// ```
+// Next, each element within `Stocks` is an object that contains the
 // information for an individual stock.  So we have to output an object here:
-//..
-//  formatter.openObject();
-//..
-// We now encode the other elements in the stock object.  The 'closeMember'
-// terminates the element by adding a ',' at the end.  For the last element in
-// an object do not call the 'closeMember' method.
-//..
-//  formatter.openMember("Name");
-//  formatter.putValue("International Business Machines Corp");
-//  formatter.closeMember();
+// ```
+// formatter.openObject();
+// ```
+// We now encode the other elements in the stock object.  The `closeMember`
+// terminates the element by adding a `,` at the end.  For the last element in
+// an object do not call the `closeMember` method.
+// ```
+// formatter.openMember("Name");
+// formatter.putValue("International Business Machines Corp");
+// formatter.closeMember();
 //
-//  formatter.openMember("Ticker");
-//  formatter.putValue("IBM US Equity");
-//  formatter.closeMember();
+// formatter.openMember("Ticker");
+// formatter.putValue("IBM US Equity");
+// formatter.closeMember();
 //
-//  formatter.openMember("Last Price");
-//  formatter.putValue(149.3);
-//  formatter.closeMember();
+// formatter.openMember("Last Price");
+// formatter.putValue(149.3);
+// formatter.closeMember();
 //
-//  formatter.openMember("Dividend Yield");
-//  formatter.putValue(3.95);
-//  // Note no call to 'closeMember' for the last element
-//..
+// formatter.openMember("Dividend Yield");
+// formatter.putValue(3.95);
+// // Note no call to 'closeMember' for the last element
+// ```
 // Then, close the first stock object and separate it from the second one using
-// the 'addArrayElementSeparator' method.
-//..
-//  formatter.closeObject();
-//  formatter.addArrayElementSeparator();
-//..
+// the `addArrayElementSeparator` method.
+// ```
+// formatter.closeObject();
+// formatter.addArrayElementSeparator();
+// ```
 // Next, we add another stock object.  But we don't need to separate it as it
 // is the last one.
-//..
-//  formatter.openObject();
+// ```
+// formatter.openObject();
 //
-//  formatter.openMember("Name");
-//  formatter.putValue("Apple Inc");
-//  formatter.closeMember();
+// formatter.openMember("Name");
+// formatter.putValue("Apple Inc");
+// formatter.closeMember();
 //
-//  formatter.openMember("Ticker");
-//  formatter.putValue("AAPL US Equity");
-//  formatter.closeMember();
+// formatter.openMember("Ticker");
+// formatter.putValue("AAPL US Equity");
+// formatter.closeMember();
 //
-//  formatter.openMember("Last Price");
-//  formatter.putValue(205.8);
-//  formatter.closeMember();
+// formatter.openMember("Last Price");
+// formatter.putValue(205.8);
+// formatter.closeMember();
 //
-//  formatter.openMember("Dividend Yield");
-//  formatter.putValue(1.4);
+// formatter.openMember("Dividend Yield");
+// formatter.putValue(1.4);
 //
-//  formatter.closeObject();
-//..
+// formatter.closeObject();
+// ```
 // Similarly, we can continue to format the rest of the document.  For the
 // purpose of this usage example we will complete this document.
-//..
-//  formatter.closeArray();
-//  formatter.closeObject();
-//..
+// ```
+// formatter.closeArray();
+// formatter.closeObject();
+// ```
 // Once the formatting is complete the written data can be viewed from the
 // stream passed to the formatter at construction.
-//..
-//  if (verbose)
-//      bsl::cout << os.str() << bsl::endl;
-//..
+// ```
+// if (verbose)
+//     bsl::cout << os.str() << bsl::endl;
+// ```
 // Finally, verify the received result:
-//..
-//  assert(EXPECTED == os.str());
-//..
+// ```
+// assert(EXPECTED == os.str());
+// ```
 
 #include <balscm_version.h>
 
@@ -206,11 +205,11 @@ class EncoderOptions;
                           // class Formatter
                           // ===============
 
+/// This class implements a formatter providing operations for rendering
+/// JSON text elements to an output stream (supplied at construction)
+/// according to a set of formatting options (also supplied at
+/// construction).
 class Formatter {
-    // This class implements a formatter providing operations for rendering
-    // JSON text elements to an output stream (supplied at construction)
-    // according to a set of formatting options (also supplied at
-    // construction).
 
     // DATA
     bsl::ostream&     d_outputStream;        // stream for output (held, not
@@ -230,111 +229,116 @@ class Formatter {
                                              // an 'openArray' call by 'true'.
 
     // PRIVATE MANIPULATORS
+
+    /// Unconditionally print onto the stream supplied at construction the
+    /// sequence of whitespace characters for the proper indentation of an
+    /// element at the current indentation level.  Note that this method
+    /// does not check that `d_usePrettyStyle` is `true` before indenting.
     void indent();
-        // Unconditionally print onto the stream supplied at construction the
-        // sequence of whitespace characters for the proper indentation of an
-        // element at the current indentation level.  Note that this method
-        // does not check that 'd_usePrettyStyle' is 'true' before indenting.
 
     // PRIVATE ACCESSORS
+
+    /// Return `true` if the value being encoded is an element of an array,
+    /// and `false` otherwise.  A value is identified as an element of an
+    /// array if `openArray` was called on this object and was not
+    /// subsequently followed by either an `openObject` or `closeArray`
+    /// call.
     bool isArrayElement() const;
-        // Return 'true' if the value being encoded is an element of an array,
-        // and 'false' otherwise.  A value is identified as an element of an
-        // array if 'openArray' was called on this object and was not
-        // subsequently followed by either an 'openObject' or 'closeArray'
-        // call.
 
   public:
     // CREATORS
+
+    /// Create a `Formatter` object using the specified `stream`.
+    /// Optionally specify `usePrettyStyle` to inform the formatter whether
+    /// the pretty encoding style should be used when writing data.  If
+    /// `usePrettyStyle` is not specified then the data is written in a
+    /// compact style.  If `usePrettyStyle` is specified, additionally
+    /// specify `initialIndentLevel` and `spacesPerLevel` to provide the
+    /// initial indentation level and spaces per level at which the data
+    /// should be formatted.  If `initialIndentLevel` or `spacesPerLevel` is
+    /// not specified then an initial value of `0` is used for both
+    /// parameters.  If `usePrettyStyle` is `false` then
+    /// `initialIndentLevel` and `spacesPerLevel` are both ignored.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     Formatter(bsl::ostream&     stream,
               bool              usePrettyStyle     = false,
               int               initialIndentLevel = 0,
               int               spacesPerLevel     = 0,
               bslma::Allocator *basicAllocator     = 0);
-        // Create a 'Formatter' object using the specified 'stream'.
-        // Optionally specify 'usePrettyStyle' to inform the formatter whether
-        // the pretty encoding style should be used when writing data.  If
-        // 'usePrettyStyle' is not specified then the data is written in a
-        // compact style.  If 'usePrettyStyle' is specified, additionally
-        // specify 'initialIndentLevel' and 'spacesPerLevel' to provide the
-        // initial indentation level and spaces per level at which the data
-        // should be formatted.  If 'initialIndentLevel' or 'spacesPerLevel' is
-        // not specified then an initial value of '0' is used for both
-        // parameters.  If 'usePrettyStyle' is 'false' then
-        // 'initialIndentLevel' and 'spacesPerLevel' are both ignored.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
     //! ~Formatter() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Print onto the stream supplied at construction the sequence of
+    /// characters designating the start of an object (referred to as an
+    /// "object" in JSON).
     void openObject();
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an object (referred to as an
-        // "object" in JSON).
 
+    /// Print onto the stream supplied at construction the sequence of
+    /// characters designating the end of an object (referred to as an
+    /// "object" in JSON).  The behavior is undefined unless this
+    /// `Formatter` is currently formatting an object.
     void closeObject();
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of an object (referred to as an
-        // "object" in JSON).  The behavior is undefined unless this
-        // 'Formatter' is currently formatting an object.
 
+    /// Print onto the stream supplied at construction the sequence of
+    /// characters designating the start of an array (referred to as an
+    /// "array" in JSON).  Optionally specify `formatAsEmptyArray` denoting
+    /// if the array being opened should be formatted as an empty array.  If
+    /// `formatAsEmptyArray` is not specified then the array being opened is
+    /// formatted as an array having elements.  Note that the formatting
+    /// (and as a consequence the `formatAsEmptyArray`) is relevant only if
+    /// this formatter encodes in the pretty style and is ignored otherwise.
     void openArray(bool formatAsEmptyArray = false);
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an array (referred to as an
-        // "array" in JSON).  Optionally specify 'formatAsEmptyArray' denoting
-        // if the array being opened should be formatted as an empty array.  If
-        // 'formatAsEmptyArray' is not specified then the array being opened is
-        // formatted as an array having elements.  Note that the formatting
-        // (and as a consequence the 'formatAsEmptyArray') is relevant only if
-        // this formatter encodes in the pretty style and is ignored otherwise.
 
+    /// Print onto the stream supplied at construction the sequence of
+    /// characters designating the end of an array (referred to as an
+    /// "array" in JSON).  Optionally specify `formatAsEmptyArray` denoting
+    /// if the array being closed should be formatted as an empty array.  If
+    /// `formatAsEmptyArray` is not specified then the array being closed is
+    /// formatted as an array having elements.  The behavior is undefined
+    /// unless this `Formatter` is currently formatting an array.  Note that
+    /// the formatting (and as a consequence the `formatAsEmptyArray`) is
+    /// relevant only if this formatter encodes in the pretty style and is
+    /// ignored otherwise.
     void closeArray(bool formatAsEmptyArray = false);
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of an array (referred to as an
-        // "array" in JSON).  Optionally specify 'formatAsEmptyArray' denoting
-        // if the array being closed should be formatted as an empty array.  If
-        // 'formatAsEmptyArray' is not specified then the array being closed is
-        // formatted as an array having elements.  The behavior is undefined
-        // unless this 'Formatter' is currently formatting an array.  Note that
-        // the formatting (and as a consequence the 'formatAsEmptyArray') is
-        // relevant only if this formatter encodes in the pretty style and is
-        // ignored otherwise.
 
+    /// Print onto the stream supplied at construction the sequence of
+    /// characters designating the start of a member (referred to as a
+    /// "name/value pair" in JSON) having the specified `name`.  Return 0 on
+    /// success and a non-zero value otherwise.
     int openMember(const bsl::string_view& name);
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of a member (referred to as a
-        // "name/value pair" in JSON) having the specified 'name'.  Return 0 on
-        // success and a non-zero value otherwise.
 
+    /// Print onto the stream supplied at construction the value
+    /// corresponding to a null element.
     void putNullValue();
-        // Print onto the stream supplied at construction the value
-        // corresponding to a null element.
 
+    /// Print onto the stream supplied at construction the specified
+    /// `value`.  Optionally specify `options` according which `value`
+    /// should be encoded.  Return 0 on success and a non-zero value
+    /// otherwise.
     template <class TYPE>
     int putValue(const TYPE& value, const EncoderOptions *options = 0);
-        // Print onto the stream supplied at construction the specified
-        // 'value'.  Optionally specify 'options' according which 'value'
-        // should be encoded.  Return 0 on success and a non-zero value
-        // otherwise.
 
+    /// Print onto the stream supplied at construction the sequence of
+    /// characters designating the end of an member (referred to as a
+    /// "name/value pair" in JSON).  The behavior is undefined unless this
+    /// `Formatter` is currently formatting a member.
     void closeMember();
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of an member (referred to as a
-        // "name/value pair" in JSON).  The behavior is undefined unless this
-        // 'Formatter' is currently formatting a member.
 
+    /// Print onto the stream supplied at construction the sequence of
+    /// characters designating an array element separator (i.e., `,`).  The
+    /// behavior is undefined unless this `Formatter` is currently
+    /// formatting a member.
     void addArrayElementSeparator();
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating an array element separator (i.e., ',').  The
-        // behavior is undefined unless this 'Formatter' is currently
-        // formatting a member.
 
     // ACCESSORS
+
+    /// Return the number of currently open nested objects or arrays.
     int nestingDepth() const;
-        // Return the number of currently open nested objects or arrays.
 };
 
 // ============================================================================

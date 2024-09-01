@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide throttling equivalents of some of the 'ball_log' macros.
+//@PURPOSE: Provide throttling equivalents of some of the `ball_log` macros.
 //
 //@MACROS:
 //  BALL_LOGTHROTTLE_TRACE(MAX_SIMULTANEOUS_MSGS, NANOSEC_PER_MESSAGE)
@@ -38,65 +38,65 @@ BSLS_IDENT("$Id: $")
 // where the number of messages logged is "throttled", meaning that the number
 // of messages that will be logged within a given time interval is limited.
 // The macros in this component are all analogous to corresponding macros in
-// 'ball_log'.  For example, the throttling version of 'BALL_LOG_INFO' is
-// 'BALL_LOGTHROTTLE_INFO', and the throttling version of 'BALL_LOGVA' is
-// 'BALL_LOGTHROTTLEVA'.
+// `ball_log`.  For example, the throttling version of `BALL_LOG_INFO` is
+// `BALL_LOGTHROTTLE_INFO`, and the throttling version of `BALL_LOGVA` is
+// `BALL_LOGTHROTTLEVA`.
 //
-// Each log message has a 'SEVERITY' associated with it (see 'ball_severity'
+// Each log message has a `SEVERITY` associated with it (see `ball_severity`
 // for the definitions of the six standard severities).  Those macros that
-// don't contain a 'SEVERITY' in their name are passed an integral severity
-// value in the range '[0 .. 255]', with suggested values defined in
-// 'ball::Severity', as their first argument.  The next two arguments,
-// 'MAX_SIMULTANEOUS_MESSAGES' and 'NANOSECONDS_PER_MESSAGE', are described
+// don't contain a `SEVERITY` in their name are passed an integral severity
+// value in the range `[0 .. 255]`, with suggested values defined in
+// `ball::Severity`, as their first argument.  The next two arguments,
+// `MAX_SIMULTANEOUS_MESSAGES` and `NANOSECONDS_PER_MESSAGE`, are described
 // immediately below.
 //
 // Each invocation of any of the macros provided by this component instantiates
-// its own 'bdlmt::Throttle' object to effect the throttling behavior.  Note
+// its own `bdlmt::Throttle` object to effect the throttling behavior.  Note
 // that each throttle object is statically declared, so it is shared by all
 // threads.
 //
 ///Throttling Parameters
 ///---------------------
 // Clients supply the throttling macros with configuration values for
-// 'MAX_SIMULTANEOUS_MESSAGESS', and 'NANOSECONDS_PER_MESSAGE'.  The macros
+// `MAX_SIMULTANEOUS_MESSAGESS`, and `NANOSECONDS_PER_MESSAGE`.  The macros
 // keep track of the number of logged messages, and over time throttles the
-// average number of messages permitted to a rate of '1 / NANOSEC_PER_MESSAGE'
+// average number of messages permitted to a rate of `1 / NANOSEC_PER_MESSAGE`
 // (messages-per-nanosecond).  So, for example, to limit the average rate of
 // messages permitted to 10 messages per second (10 actions / one billion
-// nanoseconds), the value for 'NANOSECONDS_PER_MESSAGE' would be
+// nanoseconds), the value for `NANOSECONDS_PER_MESSAGE` would be
 // 100,000,000 (which is one billion / 10).
 //
 // As client code publishes a log message from a macro, the macro accumulates a
 // time debt for each message, which dissipates over time.  The maximum value
 // for this time debt is given by
-// 'MAX_SIMULTANEOUS_MESSAGES * NANOSECONDS_PER_MESSAGE'.  The
-// 'MAX_SIMULTANEOUS_MESSAGES' configuration parameter thereby limits the
+// `MAX_SIMULTANEOUS_MESSAGES * NANOSECONDS_PER_MESSAGE`.  The
+// `MAX_SIMULTANEOUS_MESSAGES` configuration parameter thereby limits the
 // maximum number of messages that can be simultaneously published.
 //
-//: 'MAX_SIMULTANEOUS_MESSAGES': configures (an approximation of) the maximum
+//: `MAX_SIMULTANEOUS_MESSAGES`: configures (an approximation of) the maximum
 //:    number of messages that can be simultaneously logged.
 //:
-//: 'NANOSECONDS_PER_MESSAGE': configures (an approximation of) the minimum
+//: `NANOSECONDS_PER_MESSAGE`: configures (an approximation of) the minimum
 //:    period between messages (and, by extension, the maximum rate).
 //
 // So, for example:
-//..
-//  static const bsls::Types::Int64 k_NS_PER_S =
-//                           bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND;
+// ```
+// static const bsls::Types::Int64 k_NS_PER_S =
+//                          bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND;
 //
-//  // Log 1 WARN-level message every second on average:
-//  BALL_LOGTHROTTLE_WARN(1, k_NS_PER_S) << "message 1";
+// // Log 1 WARN-level message every second on average:
+// BALL_LOGTHROTTLE_WARN(1, k_NS_PER_S) << "message 1";
 //
-//  // Log 1 WARN-level message every second on average, but allow a "burst"
-//  // of up to 2 messages to be published simultaneously:
-//  BALL_LOGTHROTTLE_WARN(2, k_NS_PER_S) << "message 2";
-//..
-// Notice that 'NANOSECONDS_PER_MESSAGE' controls an approximation for the
-// average rate of messages to be published, and 'MAX_SIMULTANEOUS_MESSAGES'
+// // Log 1 WARN-level message every second on average, but allow a "burst"
+// // of up to 2 messages to be published simultaneously:
+// BALL_LOGTHROTTLE_WARN(2, k_NS_PER_S) << "message 2";
+// ```
+// Notice that `NANOSECONDS_PER_MESSAGE` controls an approximation for the
+// average rate of messages to be published, and `MAX_SIMULTANEOUS_MESSAGES`
 // controls an approximation for the size of bursts of messages to be
 // published.
 //
-// Note that this component is built on top of 'bdlmt_throttle', and mirrors
+// Note that this component is built on top of `bdlmt_throttle`, and mirrors
 // its behavior.
 //
 ///Throttling Concepts
@@ -119,108 +119,106 @@ BSLS_IDENT("$Id: $")
 // The following constraints pertain to all of the macros defined in this
 // component.
 //
-//: o 'MAX_SIMULTANEOUS_MESSAGES' and 'NANOSECONDS_PER_MESSAGE' must be
-//:   compile-time constants, and may not contain any floating-point
-//:   subexpressions.
-//:
-//: o 'MAX_SIMULTANEOUS_MESSAGES', 'NANOSECONDS_PER_MESSAGE', and 'SEVERITY'
-//:    are of types 'int', 'bsls::Types::Int64', and 'int', respectively.
-//:
-//: o The behavior is undefined unless 'SEVERITY' is in the range '[0 .. 255]',
-//:   '0 <= MAX_SIMULTANEOUS_MESSAGES', '0 <= NANOSECONDS_PER_MESSAGE',
-//:   '0 < MAX_SIMULTANEOUS_MESSAGES || 0 < NANOSECONDS_PER_MESSAGE', and
-//:   'MAX_SIMULTANEOUS_MESSAGES * NANOSECONDS_PER_MESSAGE <= LLONG_MAX'.
+// * `MAX_SIMULTANEOUS_MESSAGES` and `NANOSECONDS_PER_MESSAGE` must be
+//   compile-time constants, and may not contain any floating-point
+//   subexpressions.
+// * `MAX_SIMULTANEOUS_MESSAGES`, `NANOSECONDS_PER_MESSAGE`, and `SEVERITY`
+//    are of types `int`, `bsls::Types::Int64`, and `int`, respectively.
+// * The behavior is undefined unless `SEVERITY` is in the range `[0 .. 255]`,
+//   `0 <= MAX_SIMULTANEOUS_MESSAGES`, `0 <= NANOSECONDS_PER_MESSAGE`,
+//   `0 < MAX_SIMULTANEOUS_MESSAGES || 0 < NANOSECONDS_PER_MESSAGE`, and
+//   `MAX_SIMULTANEOUS_MESSAGES * NANOSECONDS_PER_MESSAGE <= LLONG_MAX`.
 //
-// Each 'BALL_LOGTHROTTLE_*' is analogous to the corresponding 'BALL_LOG_*'
+// Each `BALL_LOGTHROTTLE_*` is analogous to the corresponding `BALL_LOG_*`
 // macro, except that they take two additional throttle-related arguments,
-// 'MAX_SIMULTANEOUS_MESSAGES' and 'NANOSECONDS_PER_MESSAGE', described above.
+// `MAX_SIMULTANEOUS_MESSAGES` and `NANOSECONDS_PER_MESSAGE`, described above.
 //
 ///Stream-Based Throttling Macros
 /// - - - - - - - - - - - - - - -
-// The following macros mirror the corresponding 'BALL_LOG_<SEVERITY>' macros:
-//..
-//  BALL_LOGTHROTTLE_<SEVERITY>(MAX_SIMULTANEOUS_MESSAGES,
-//                              NANOSECONDS_PER_MESSAGE) << X << Y ... ;
-//      Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
-//      'NANOSECONDS_PER_MESSAGE' as described in {Throttling Parameters}, where
-//      'X, Y, ...' represents any sequence of values for which 'operator<<' is
-//      defined.  If the throttle permits a message to be logged, the resulting
-//      formatted message is logged with the severity indicated by the name of
-//      the macro (e.g., 'BALL_LOGTHROTTLE_ERROR' logs with severity
-//      'ball::Severity::e_ERROR').
+// The following macros mirror the corresponding `BALL_LOG_<SEVERITY>` macros:
+// ```
+// BALL_LOGTHROTTLE_<SEVERITY>(MAX_SIMULTANEOUS_MESSAGES,
+//                             NANOSECONDS_PER_MESSAGE) << X << Y ... ;
+//     Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
+//     'NANOSECONDS_PER_MESSAGE' as described in {Throttling Parameters}, where
+//     'X, Y, ...' represents any sequence of values for which 'operator<<' is
+//     defined.  If the throttle permits a message to be logged, the resulting
+//     formatted message is logged with the severity indicated by the name of
+//     the macro (e.g., 'BALL_LOGTHROTTLE_ERROR' logs with severity
+//     'ball::Severity::e_ERROR').
 //
-//  BALL_LOGTHROTTLE_STREAM(SEVERITY,
-//                          MAX_SIMULTANEOUS_MESSAGES,
-//                          NANOSECONDS_PER_MESSAGE) << X << Y ... ;
-//      Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
-//      'NANOSECONDS_PER_MESSAGE' as described in {Throttling Parameters}, where
-//      'X, Y, ...' represents any sequence of values for which 'operator<<' is
-//      defined.  If the throttle permits a message to be logged, the resulting
-//      formatted message is logged with the specified 'SEVERITY'.
-//..
+// BALL_LOGTHROTTLE_STREAM(SEVERITY,
+//                         MAX_SIMULTANEOUS_MESSAGES,
+//                         NANOSECONDS_PER_MESSAGE) << X << Y ... ;
+//     Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
+//     'NANOSECONDS_PER_MESSAGE' as described in {Throttling Parameters}, where
+//     'X, Y, ...' represents any sequence of values for which 'operator<<' is
+//     defined.  If the throttle permits a message to be logged, the resulting
+//     formatted message is logged with the specified 'SEVERITY'.
+// ```
 //
 ///BLOCK-Style Throttling Macros
 ///- - - - - - - - - - - - - - -
-// The following macros mirror the corresponding 'BALL_LOG_*_BLOCK' macros:
-//..
-//  BALL_LOGTHROTTLE_<SEVERITY>_BLOCK(MAX_SIMULTANEOUS_MESSAGES,
-//                                    NANOSECONDS_PER_MESSAGE) <block>
-//      Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
-//      'NANOSECONDS_PER_MESSAGE' as described in {Throttling Parameters}, where
-//      any sequence of values for which 'operator<<' is defined may be
-//      streamed to 'BALL_LOG_OUTPUT_STREAM' within the controlled '<block>'.
-//      If the throttle permits a message to be logged, the resulting formatted
-//      message is logged with the severity indicated by the name of the macro
-//      (e.g., 'BALL_LOGTHROTTLE_WARN_BLOCK' logs with severity
-//      'ball::Severity::e_WARN').
+// The following macros mirror the corresponding `BALL_LOG_*_BLOCK` macros:
+// ```
+// BALL_LOGTHROTTLE_<SEVERITY>_BLOCK(MAX_SIMULTANEOUS_MESSAGES,
+//                                   NANOSECONDS_PER_MESSAGE) <block>
+//     Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
+//     'NANOSECONDS_PER_MESSAGE' as described in {Throttling Parameters}, where
+//     any sequence of values for which 'operator<<' is defined may be
+//     streamed to 'BALL_LOG_OUTPUT_STREAM' within the controlled '<block>'.
+//     If the throttle permits a message to be logged, the resulting formatted
+//     message is logged with the severity indicated by the name of the macro
+//     (e.g., 'BALL_LOGTHROTTLE_WARN_BLOCK' logs with severity
+//     'ball::Severity::e_WARN').
 //
-//  BALL_LOGTHROTTLE_BLOCK(SEVERITY,
-//                         MAX_SIMULTANEOUS_MESSAGES,
-//                         NANOSECONDS_PER_MESSAGE) <block>
-//      Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
-//      'NANOSECONDS_PER_MESSAGE' as described in {Throttling Parameters}, where
-//      any sequence of values for which 'operator<<' is defined may be
-//      streamed to 'BALL_LOG_OUTPUT_STREAM' within the controlled '<block>'.
-//      If the throttle permits a message to be logged, the resulting formatted
-//      message is logged with the specified 'SEVERITY'.
-//..
+// BALL_LOGTHROTTLE_BLOCK(SEVERITY,
+//                        MAX_SIMULTANEOUS_MESSAGES,
+//                        NANOSECONDS_PER_MESSAGE) <block>
+//     Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
+//     'NANOSECONDS_PER_MESSAGE' as described in {Throttling Parameters}, where
+//     any sequence of values for which 'operator<<' is defined may be
+//     streamed to 'BALL_LOG_OUTPUT_STREAM' within the controlled '<block>'.
+//     If the throttle permits a message to be logged, the resulting formatted
+//     message is logged with the specified 'SEVERITY'.
+// ```
 //
-///'printf'-Style Throttling Macros
+///`printf`-Style Throttling Macros
 /// - - - - - - - - - - - - - - - -
-// The following macros mirror the corresponding 'BALL_LOGVA_*' macros:
-//..
-//  BALL_LOGTHROTTLEVA_<SEVERITY>(MAX_SIMULTANEOUS_MESSAGE,
-//                                NANOSECONDS_PER_MESSAGE,
-//                                MSG,
-//                                ...);
-//      Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
-//      'NANOSECONDS_PER_MESSAGE' as described in {Throttling Parameters}.  If
-//      the throttle permits a message to be logged, format the specified '...'
-//      optional arguments, if any, according to the 'printf'-style format
-//      specification in the specified 'MSG' (assumed to be of type convertible
-//      to 'const char *'), and log the resulting formatted message with the
-//      severity indicated by the name of the macro (e.g.,
-//      'BALL_LOGTHROTTLEVA_INFO' logs with severity 'ball::Severity::e_INFO').
-//      The behavior is undefined unless the number and types of the optional
-//      arguments are compatible with the format specification in 'MSG'.  Note
-//      that each use of these macros must be terminated by a ';'.
+// The following macros mirror the corresponding `BALL_LOGVA_*` macros:
+// ```
+// BALL_LOGTHROTTLEVA_<SEVERITY>(MAX_SIMULTANEOUS_MESSAGE,
+//                               NANOSECONDS_PER_MESSAGE,
+//                               MSG,
+//                               ...);
+//     Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
+//     'NANOSECONDS_PER_MESSAGE' as described in {Throttling Parameters}.  If
+//     the throttle permits a message to be logged, format the specified '...'
+//     optional arguments, if any, according to the 'printf'-style format
+//     specification in the specified 'MSG' (assumed to be of type convertible
+//     to 'const char *'), and log the resulting formatted message with the
+//     severity indicated by the name of the macro (e.g.,
+//     'BALL_LOGTHROTTLEVA_INFO' logs with severity 'ball::Severity::e_INFO').
+//     The behavior is undefined unless the number and types of the optional
+//     arguments are compatible with the format specification in 'MSG'.  Note
+//     that each use of these macros must be terminated by a ';'.
 //
-//  BALL_LOGTHROTTLEVA(SEVERITY,
-//                     MAX_SIMULTANEOUS_MESSAGES,
-//                     NANOSECONDS_PER_MESSAGE,
-//                     MSG,
-//                     ...);
-//      Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
-//      'NANOSECONDS_PER_MESSAGE' as described in {Throttling Parameters}.  If
-//      the throttle permits a message to be logged, format the specified '...'
-//      optional arguments, if any, according to the 'printf'-style format
-//      specification in the specified 'MSG' (assumed to be of type convertible
-//      to 'const char *'), and log the resulting formatted message with the
-//      specified 'SEVERITY'.  The behavior is undefined unless the number and
-//      types of the optional arguments are compatible with the format
-//      specification in 'MSG'.  Note that each use of this macro must be
-//      terminated by a ';'.
-//..
+// BALL_LOGTHROTTLEVA(SEVERITY,
+//                    MAX_SIMULTANEOUS_MESSAGES,
+//                    NANOSECONDS_PER_MESSAGE,
+//                    MSG,
+//                    ...);
+//     Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
+//     'NANOSECONDS_PER_MESSAGE' as described in {Throttling Parameters}.  If
+//     the throttle permits a message to be logged, format the specified '...'
+//     optional arguments, if any, according to the 'printf'-style format
+//     specification in the specified 'MSG' (assumed to be of type convertible
+//     to 'const char *'), and log the resulting formatted message with the
+//     specified 'SEVERITY'.  The behavior is undefined unless the number and
+//     types of the optional arguments are compatible with the format
+//     specification in 'MSG'.  Note that each use of this macro must be
+//     terminated by a ';'.
+// ```
 //
 ///Usage
 ///-----
@@ -228,112 +226,109 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: C++ Stream-Style Throttling Macro Usage
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose a computer is reading 'double' values from a radio receiver, ten per
+// Suppose a computer is reading `double` values from a radio receiver, ten per
 // second, which represent readings of radiation detected by a Geiger counter
 // on a spacecraft, and is transmitting them to a ground control at Jet
 // Propulsion Laboratories in California.
 //
-// The readings are returned by the 'double yield()' manipulator of a
-// 'RadiationMeterReceiver' object (the implementation of which is omitted).
-// The 'yield' method blocks until it obtains a reading to return.  If called
-// in a tight loop, 'yield' returns ten readings per second.
+// The readings are returned by the `double yield()` manipulator of a
+// `RadiationMeterReceiver` object (the implementation of which is omitted).
+// The `yield` method blocks until it obtains a reading to return.  If called
+// in a tight loop, `yield` returns ten readings per second.
 //
 // Readings range from 0 to 100.
 //
-//: o Readings above 10 but not greater than 30 are a concern, but are not very
-//:   serious.  We will report those with an 'e_TRACE' severity, and at most
-//:   one per hour (i.e., messages will be throttled).
-//:
-//: o Readings above 30 but not greater than 60 are more of a worry.  We will
-//:   report those with an 'e_DEBUG' severity, and at most five per hour.
-//:
-//: o Readings above 60 but not greater than 90 are very serious.  They will be
-//:   reported with an 'e_INFO' severity, and at most twenty per hour.
-//:
-//: o Readings above 90 are potentially catastrophic, and will be reported with
-//:   an 'e_WARN' severity, with no limit on the number of readings reported
-//:   (i.e., no throttling).
+// * Readings above 10 but not greater than 30 are a concern, but are not very
+//   serious.  We will report those with an `e_TRACE` severity, and at most
+//   one per hour (i.e., messages will be throttled).
+// * Readings above 30 but not greater than 60 are more of a worry.  We will
+//   report those with an `e_DEBUG` severity, and at most five per hour.
+// * Readings above 60 but not greater than 90 are very serious.  They will be
+//   reported with an `e_INFO` severity, and at most twenty per hour.
+// * Readings above 90 are potentially catastrophic, and will be reported with
+//   an `e_WARN` severity, with no limit on the number of readings reported
+//   (i.e., no throttling).
 //
 // We are to write a daemon process, which will loop gathering readings.  A
 // reading of an impossible value of -1.0 will indicate termination.
 //
 //  First we define a set of useful constants:
-//..
-//  enum {
-//      k_NUM_INFO  = 20,       // max # of info messages in a very short time
-//      k_NUM_DEBUG =  5,       // max # of debug messages in a very short time
-//      k_NUM_TRACE =  1        // max # of trace messages in a very short time
-//  };
+// ```
+// enum {
+//     k_NUM_INFO  = 20,       // max # of info messages in a very short time
+//     k_NUM_DEBUG =  5,       // max # of debug messages in a very short time
+//     k_NUM_TRACE =  1        // max # of trace messages in a very short time
+// };
 //
-//  const Int64 k_NS_PER_HOUR =
-//                    BloombergLP::bdlt::TimeUnitRatio::k_NANOSECONDS_PER_HOUR;
+// const Int64 k_NS_PER_HOUR =
+//                   BloombergLP::bdlt::TimeUnitRatio::k_NANOSECONDS_PER_HOUR;
 //
-//  const Int64 k_NS_PER_INFO  = k_NS_PER_HOUR / k_NUM_INFO;
-//                 // long-term minimum nanoseconds per info message permitted
-//  const Int64 k_NS_PER_DEBUG = k_NS_PER_HOUR / k_NUM_DEBUG;
-//                 // long-term minimum nanoseconds per debug message permitted
-//  const Int64 k_NS_PER_TRACE = k_NS_PER_HOUR / k_NUM_TRACE;
-//                 // long-term minimum nanoseconds per trace message permitted
-//..
+// const Int64 k_NS_PER_INFO  = k_NS_PER_HOUR / k_NUM_INFO;
+//                // long-term minimum nanoseconds per info message permitted
+// const Int64 k_NS_PER_DEBUG = k_NS_PER_HOUR / k_NUM_DEBUG;
+//                // long-term minimum nanoseconds per debug message permitted
+// const Int64 k_NS_PER_TRACE = k_NS_PER_HOUR / k_NUM_TRACE;
+//                // long-term minimum nanoseconds per trace message permitted
+// ```
 // Then we implement the radiation monitor using the log-throttle macros to
 // throttle the number of log records being published:
-//..
-//  void radiationMonitorStreamDaemon()
-//      // Daemon to run the radiation monitor.
-//  {
-//      BALL_LOG_SET_CATEGORY("RADIATION.MONITOR");
+// ```
+// void radiationMonitorStreamDaemon()
+//     // Daemon to run the radiation monitor.
+// {
+//     BALL_LOG_SET_CATEGORY("RADIATION.MONITOR");
 //
-//      RadiationMeterReceiver receiver;
+//     RadiationMeterReceiver receiver;
 //
-//      BALL_LOG_DEBUG << "Start gathering data.";
+//     BALL_LOG_DEBUG << "Start gathering data.";
 //
-//      double reading;
-//      while (-1.0 != (reading = receiver.yield())) {
+//     double reading;
+//     while (-1.0 != (reading = receiver.yield())) {
 //
-//          if (90 < reading) {
-//              BALL_LOG_WARN << "Serious Radiation reading of " << reading;
-//          }
+//         if (90 < reading) {
+//             BALL_LOG_WARN << "Serious Radiation reading of " << reading;
+//         }
 //
-//          else if (60 < reading) {
-//              BALL_LOGTHROTTLE_INFO(k_NUM_INFO, k_NS_PER_INFO) <<
-//                                          "Radiation reading of " << reading;
-//          }
+//         else if (60 < reading) {
+//             BALL_LOGTHROTTLE_INFO(k_NUM_INFO, k_NS_PER_INFO) <<
+//                                         "Radiation reading of " << reading;
+//         }
 //
-//          else if (30 < reading) {
-//              BALL_LOGTHROTTLE_DEBUG(k_NUM_DEBUG, k_NS_PER_DEBUG) <<
-//                                          "Radiation reading of " << reading;
-//          }
+//         else if (30 < reading) {
+//             BALL_LOGTHROTTLE_DEBUG(k_NUM_DEBUG, k_NS_PER_DEBUG) <<
+//                                         "Radiation reading of " << reading;
+//         }
 //
-//          else if (10 < reading) {
-//              BALL_LOGTHROTTLE_TRACE(k_NUM_TRACE, k_NS_PER_TRACE) <<
-//                                          "Radiation reading of " << reading;
-//          }
-//      }
+//         else if (10 < reading) {
+//             BALL_LOGTHROTTLE_TRACE(k_NUM_TRACE, k_NS_PER_TRACE) <<
+//                                         "Radiation reading of " << reading;
+//         }
+//     }
 //
-//      BALL_LOG_DEBUG << "Finished gathering data.";
-//  }
-//..
+//     BALL_LOG_DEBUG << "Finished gathering data.";
+// }
+// ```
 //
-// 'radiationMonitorPrintfDaemon' produces output like:
-//..
-//  24APR2018_16:36:22.791 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
-//  460 RADIATION.MONITOR Start gathering data.
+// `radiationMonitorPrintfDaemon` produces output like:
+// ```
+// 24APR2018_16:36:22.791 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
+// 460 RADIATION.MONITOR Start gathering data.
 //
-//  24APR2018_16:36:23.094 61260 139907579877152 TRACE ball_logthrottle.t.cpp
-//  488 RADIATION.MONITOR Radiation reading of 12.3
+// 24APR2018_16:36:23.094 61260 139907579877152 TRACE ball_logthrottle.t.cpp
+// 488 RADIATION.MONITOR Radiation reading of 12.3
 //
-//  24APR2018_16:36:23.396 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
-//  481 RADIATION.MONITOR Radiation reading of 33.1
+// 24APR2018_16:36:23.396 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
+// 481 RADIATION.MONITOR Radiation reading of 33.1
 //
-//  24APR2018_16:36:23.597 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
-//  481 RADIATION.MONITOR Radiation reading of 53.7
+// 24APR2018_16:36:23.597 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
+// 481 RADIATION.MONITOR Radiation reading of 53.7
 //
-//  24APR2018_16:36:23.901 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
-//  481 RADIATION.MONITOR Radiation reading of 46.1
+// 24APR2018_16:36:23.901 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
+// 481 RADIATION.MONITOR Radiation reading of 46.1
 //
-//  24APR2018_16:36:24.102 61260 139907579877152 INFO ball_logthrottle.t.cpp
-//  474 RADIATION.MONITOR Radiation reading of 67.4
-//..
+// 24APR2018_16:36:24.102 61260 139907579877152 INFO ball_logthrottle.t.cpp
+// 474 RADIATION.MONITOR Radiation reading of 67.4
+// ```
 
 #include <balscm_version.h>
 

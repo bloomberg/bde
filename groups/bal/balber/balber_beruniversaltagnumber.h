@@ -12,70 +12,70 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balber_berencoder, balber_berdecoder
 //
-//@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'balber::BerUniversalTagNumber::Value'.  'Value' enumerates the set of BER
+//@DESCRIPTION: This component provides a namespace for the `enum` type
+// `balber::BerUniversalTagNumber::Value`.  `Value` enumerates the set of BER
 // universal tag numbers used by the BER encoder and decoder.  The universal
 // tag numbers are defined in the X.680 standard, in section 8 (See
 // http://www.itu.int/ITU-T/studygroups/com17/languages/X.680-0207.pdf).
 //
-// In addition, this component supports functions that convert the 'Value'
+// In addition, this component supports functions that convert the `Value`
 // enumerations to a well-defined ASCII representation.
 //
 // This component also provides a function that returns the universal tag
 // number for an object with formatting mode, according to the following table:
-//..
-//  C++ Type                           Formatting Mode  Universal Tag Number
-//  --------                           ---------------  --------------------
-//  bool                               DEFAULT          e_BER_BOOL
-//                                     DEC              e_BER_BOOL
-//                                     TEXT             e_BER_BOOL
-//  char                               DEFAULT          e_BER_INT
-//                                     DEC              e_BER_INT
-//                                     TEXT             e_BER_UTF8_STRING
-//  unsigned char                      DEFAULT          e_BER_INT
-//                                     DEC              e_BER_INT
-//  [unsigned] short                   DEFAULT          e_BER_INT
-//                                     DEC              e_BER_INT
-//  [unsigned] int                     DEFAULT          e_BER_INT
-//                                     DEC              e_BER_INT
-//  [unsigned] long                    DEFAULT          e_BER_INT
-//                                     DEC              e_BER_INT
-//  bsls::Types::[Uint64|Int64]        DEFAULT          e_BER_INT
-//                                     DEC              e_BER_INT
-//  float                              DEFAULT          e_BER_REAL
-//  double                             DEFAULT          e_BER_REAL
-//  bdldfp::Decimal64                  DEFAULT          e_BER_OCTET_STRING
-//  bsl::string[_view]                 DEFAULT          e_BER_UTF8_STRING
-//                                     TEXT             e_BER_UTF8_STRING
-//                                     BASE64           e_BER_OCTET_STRING
-//                                     HEX              e_BER_OCTET_STRING
-//  bslstl::StringRef                  DEFAULT          e_BER_UTF8_STRING
-//                                     TEXT             e_BER_UTF8_STRING
-//                                     BASE64           e_BER_OCTET_STRING
-//                                     HEX              e_BER_OCTET_STRING
-//  bdlt::Date                         DEFAULT          e_BER_VISIBLE_STRING
-//  bdlt::DateTz                       DEFAULT          e_BER_VISIBLE_STRING
-//  bdlt::Datetime                     DEFAULT          e_BER_VISIBLE_STRING
-//  bdlt::DateTimeTz                   DEFAULT          e_BER_VISIBLE_STRING
-//  bdlt::Time                         DEFAULT          e_BER_VISIBLE_STRING
-//  bdlt::TimeTz                       DEFAULT          e_BER_VISIBLE_STRING
-//  bsl::vector<char>                  DEFAULT          e_BER_OCTET_STRING
-//                                     BASE64           e_BER_OCTET_STRING
-//                                     HEX              e_BER_OCTET_STRING
-//                                     TEXT             e_BER_UTF8_STRING
-//..
+// ```
+// C++ Type                           Formatting Mode  Universal Tag Number
+// --------                           ---------------  --------------------
+// bool                               DEFAULT          e_BER_BOOL
+//                                    DEC              e_BER_BOOL
+//                                    TEXT             e_BER_BOOL
+// char                               DEFAULT          e_BER_INT
+//                                    DEC              e_BER_INT
+//                                    TEXT             e_BER_UTF8_STRING
+// unsigned char                      DEFAULT          e_BER_INT
+//                                    DEC              e_BER_INT
+// [unsigned] short                   DEFAULT          e_BER_INT
+//                                    DEC              e_BER_INT
+// [unsigned] int                     DEFAULT          e_BER_INT
+//                                    DEC              e_BER_INT
+// [unsigned] long                    DEFAULT          e_BER_INT
+//                                    DEC              e_BER_INT
+// bsls::Types::[Uint64|Int64]        DEFAULT          e_BER_INT
+//                                    DEC              e_BER_INT
+// float                              DEFAULT          e_BER_REAL
+// double                             DEFAULT          e_BER_REAL
+// bdldfp::Decimal64                  DEFAULT          e_BER_OCTET_STRING
+// bsl::string[_view]                 DEFAULT          e_BER_UTF8_STRING
+//                                    TEXT             e_BER_UTF8_STRING
+//                                    BASE64           e_BER_OCTET_STRING
+//                                    HEX              e_BER_OCTET_STRING
+// bslstl::StringRef                  DEFAULT          e_BER_UTF8_STRING
+//                                    TEXT             e_BER_UTF8_STRING
+//                                    BASE64           e_BER_OCTET_STRING
+//                                    HEX              e_BER_OCTET_STRING
+// bdlt::Date                         DEFAULT          e_BER_VISIBLE_STRING
+// bdlt::DateTz                       DEFAULT          e_BER_VISIBLE_STRING
+// bdlt::Datetime                     DEFAULT          e_BER_VISIBLE_STRING
+// bdlt::DateTimeTz                   DEFAULT          e_BER_VISIBLE_STRING
+// bdlt::Time                         DEFAULT          e_BER_VISIBLE_STRING
+// bdlt::TimeTz                       DEFAULT          e_BER_VISIBLE_STRING
+// bsl::vector<char>                  DEFAULT          e_BER_OCTET_STRING
+//                                    BASE64           e_BER_OCTET_STRING
+//                                    HEX              e_BER_OCTET_STRING
+//                                    TEXT             e_BER_UTF8_STRING
+// ```
 // If the object is not one of these types, then the universal tag number is
 // selected based on the object's type category, as follows:
-//..
-//  Category             Universal Tag Number
-//  --------             --------------------
-//  CustomizedType       Use universal tag number of the base type.
-//  Enumeration          'e_BER_ENUMERATION' when formatting mode is either
-//                       'DEFAULT', 'DEC', or 'TEXT'.
-//  Sequence             'e_BER_SEQUENCE' when formatting mode is 'DEFAULT'.
-//  Choice               'e_BER_SEQUENCE' when formatting mode is 'DEFAULT'.
-//  Array                'e_BER_SEQUENCE' when formatting mode is 'DEFAULT'.
-//..
+// ```
+// Category             Universal Tag Number
+// --------             --------------------
+// CustomizedType       Use universal tag number of the base type.
+// Enumeration          'e_BER_ENUMERATION' when formatting mode is either
+//                      'DEFAULT', 'DEC', or 'TEXT'.
+// Sequence             'e_BER_SEQUENCE' when formatting mode is 'DEFAULT'.
+// Choice               'e_BER_SEQUENCE' when formatting mode is 'DEFAULT'.
+// Array                'e_BER_SEQUENCE' when formatting mode is 'DEFAULT'.
+// ```
 // The behavior is undefined if the object does not fall into one the above
 // categories or formatting modes.
 //
@@ -86,28 +86,28 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
-// 'balber::BerUniversalTagNumber' operation.
+// `balber::BerUniversalTagNumber` operation.
 //
-// First, create a variable 'tagNumber' of type
-// 'balber::BerUniversalTagNumber::Value' and initialize it to the value
-// 'balber::BerUniversalTagNumber::e_BER_INT':
-//..
-//  balber::BerUniversalTagNumber::Value tagNumber
-//                                  = balber::BerUniversalTagNumber::e_BER_INT;
-//..
-// Next, store its representation in a variable 'rep' of type 'const char *':
-//..
-//  const char *rep = balber::BerUniversalTagNumber::toString(tagNumber);
-//  assert(0 == strcmp(rep, "INT"));
-//..
-// Finally, print the value of 'tagNumber' to 'bsl::cout':
-//..
-//  bsl::cout << tagNumber << bsl::endl;
-//..
-// This statement produces the following output on 'bsl::cout':
-//..
-//  INT
-//..
+// First, create a variable `tagNumber` of type
+// `balber::BerUniversalTagNumber::Value` and initialize it to the value
+// `balber::BerUniversalTagNumber::e_BER_INT`:
+// ```
+// balber::BerUniversalTagNumber::Value tagNumber
+//                                 = balber::BerUniversalTagNumber::e_BER_INT;
+// ```
+// Next, store its representation in a variable `rep` of type `const char *`:
+// ```
+// const char *rep = balber::BerUniversalTagNumber::toString(tagNumber);
+// assert(0 == strcmp(rep, "INT"));
+// ```
+// Finally, print the value of `tagNumber` to `bsl::cout`:
+// ```
+// bsl::cout << tagNumber << bsl::endl;
+// ```
+// This statement produces the following output on `bsl::cout`:
+// ```
+// INT
+// ```
 
 #include <balscm_version.h>
 
@@ -146,9 +146,9 @@ namespace balber {
                         // struct BerUniversalTagNumber
                         // ============================
 
+/// This `struct` contains an enumeration of the universal tag numbers for
+/// BER encoding.
 struct BerUniversalTagNumber {
-    // This 'struct' contains an enumeration of the universal tag numbers for
-    // BER encoding.
 
     // TYPES
     enum Value {
@@ -189,86 +189,88 @@ struct BerUniversalTagNumber {
     };
 
     // CLASS METHODS
-    static const char *toString(Value value);
-        // Return the string representation exactly matching the enumerator
-        // name corresponding to the specified enumeration 'value'.
 
+    /// Return the string representation exactly matching the enumerator
+    /// name corresponding to the specified enumeration `value`.
+    static const char *toString(Value value);
+
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `string` of the specified `stringLength`.  Return 0 on
+    /// success, and a non-zero value with no effect on `result` otherwise
+    /// (i.e., `string` does not match any enumerator).
     static int fromString(Value        *result,
                           const char   *string,
                           int           stringLength);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'string' of the specified 'stringLength'.  Return 0 on
-        // success, and a non-zero value with no effect on 'result' otherwise
-        // (i.e., 'string' does not match any enumerator).
 
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `number`.  Return 0 on success, and a non-zero value with
+    /// no effect on `result` otherwise (i.e., `number` does not match any
+    /// enumerator).
     static int fromInt(Value *result, int number);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'number'.  Return 0 on success, and a non-zero value with
-        // no effect on 'result' otherwise (i.e., 'number' does not match any
-        // enumerator).
 
+    /// Write to the specified `stream` the string representation of the
+    /// specified enumeration `value`.  Return a reference to the modifiable
+    /// `stream`.
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of the
-        // specified enumeration 'value'.  Return a reference to the modifiable
-        // 'stream'.
 
+    /// Return the universal tag number for the specified `object` using the
+    /// specified `formattingMode`, and load into the specified
+    /// `alternateTag` any alternative tag numbers corresponding to
+    /// `object`.  The behavior is undefined if the type category of
+    /// `object` and the `formattingMode` does not permit a universal tag
+    /// number (see {DESCRIPTION} for allowed type categories and formatting
+    /// modes).  Note that if an alternate tag number does not exist for
+    /// `object` then `alternateTag` is not modified.
     template <typename TYPE>
     static Value select(const TYPE&  object,
                         int          formattingMode,
                         int         *alternateTag);
-        // Return the universal tag number for the specified 'object' using the
-        // specified 'formattingMode', and load into the specified
-        // 'alternateTag' any alternative tag numbers corresponding to
-        // 'object'.  The behavior is undefined if the type category of
-        // 'object' and the 'formattingMode' does not permit a universal tag
-        // number (see {DESCRIPTION} for allowed type categories and formatting
-        // modes).  Note that if an alternate tag number does not exist for
-        // 'object' then 'alternateTag' is not modified.
 
+    /// Return the universal tag number for the specified `object` with the
+    /// specified `formattingMode` using the specified `options`.  The
+    /// behavior is undefined if the type category of `object` and the
+    /// `formattingMode` do not permit a universal tag number (see
+    /// {DESCRIPTION} for allowed type categories and formatting modes).
     template <typename TYPE>
     static Value select(const TYPE&              object,
                         int                      formattingMode,
                         const BerEncoderOptions *options);
-        // Return the universal tag number for the specified 'object' with the
-        // specified 'formattingMode' using the specified 'options'.  The
-        // behavior is undefined if the type category of 'object' and the
-        // 'formattingMode' do not permit a universal tag number (see
-        // {DESCRIPTION} for allowed type categories and formatting modes).
 };
 
 // FREE OPERATORS
+
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference providing modifiable access to `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream&                stream,
                          BerUniversalTagNumber::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference providing modifiable access to 'stream'.
 
                        // ===============================
                        // class BerUniversalTagNumber_Sel
                        // ===============================
 
+/// Component-private class.  Do not use.  This class contains
+/// implementation details of this component.
+///
+/// # Implementation Note
+/// The suffix of this class, "Sel", is a contraction of "Selector", which
+/// is meant to associate with the action of selecting a particular overload
+/// from an overload set.
+///
+/// This component uses specializations of this class to guide overload
+/// resolution for functions that need to select between one of several
+/// overloads based on the specified `TYPE` and `CATEGORY` information.
+/// Note that `CATEGORY` is expected to be one of the "category" types that
+/// are members of `bdlat_TypeCategory`.
 template <class TYPE, class CATEGORY>
 class BerUniversalTagNumber_Sel {
-    // Component-private class.  Do not use.  This class contains
-    // implementation details of this component.
-    //
-    ///Implementation Note
-    ///-------------------
-    // The suffix of this class, "Sel", is a contraction of "Selector", which
-    // is meant to associate with the action of selecting a particular overload
-    // from an overload set.
-    //
-    // This component uses specializations of this class to guide overload
-    // resolution for functions that need to select between one of several
-    // overloads based on the specified 'TYPE' and 'CATEGORY' information.
-    // Note that 'CATEGORY' is expected to be one of the "category" types that
-    // are members of 'bdlat_TypeCategory'.
 
   public:
     // CREATORS
+
+    /// Create a `BerUniversalTagNumber_Sel` object.  Note that objects of
+    /// this type are stateless.
     BerUniversalTagNumber_Sel()
-        // Create a 'BerUniversalTagNumber_Sel' object.  Note that objects of
-        // this type are stateless.
     {
     }
 
@@ -290,15 +292,16 @@ class BerUniversalTagNumber_Sel {
                       // struct BerUniversalTagNumber_Imp
                       // ================================
 
+/// Component-private class.  Do not use.  This class contains
+/// implementation details for this component.
 class BerUniversalTagNumber_Imp {
-    // Component-private class.  Do not use.  This class contains
-    // implementation details for this component.
 
     // PRIVATE TYPES
     typedef bdlat_FormattingMode         FMode;
+
+    /// These type definitions are shorthand used throughout the members of
+    /// this class.
     typedef BerUniversalTagNumber::Value TagVal;
-        // These type definitions are shorthand used throughout the members of
-        // this class.
 
     typedef bdlat_TypeCategory::Array          ArrayCat;
     typedef bdlat_TypeCategory::Choice         ChoiceCat;
@@ -307,12 +310,13 @@ class BerUniversalTagNumber_Imp {
     typedef bdlat_TypeCategory::Enumeration    EnumerationCat;
     typedef bdlat_TypeCategory::NullableValue  NullableValueCat;
     typedef bdlat_TypeCategory::Sequence       SequenceCat;
+
+    /// These type definitions are shorthand aliases for `bdlat` category
+    /// types.  The "Cat" suffix stands for "Category".  The shorthand is
+    /// useful, essentially, for permitting rows in tables of function
+    /// overloads and dependent type definitions to fit on one line.  Doing
+    /// so improves the legibility of this class immensely.
     typedef bdlat_TypeCategory::Simple         SimpleCat;
-        // These type definitions are shorthand aliases for 'bdlat' category
-        // types.  The "Cat" suffix stands for "Category".  The shorthand is
-        // useful, essentially, for permitting rows in tables of function
-        // overloads and dependent type definitions to fit on one line.  Doing
-        // so improves the legibility of this class immensely.
 
     typedef bsl::string         String;
     typedef bsl::string_view    StringView;
@@ -325,15 +329,16 @@ class BerUniversalTagNumber_Imp {
     typedef bdlt::Datetime      Datetime;
     typedef bdlt::DatetimeTz    DatetimeTz;
     typedef bdlt::Time          Time;
-    typedef bdlt::TimeTz        TimeTz;
-        // Similar to the aliases for the 'bdlat' category types above, these
-        // type definitions are shorthand aliases for object types in the
-        // 'Simple' 'bdlat' type category, used to improve the legibility of
-        // this class.
 
+    /// Similar to the aliases for the `bdlat` category types above, these
+    /// type definitions are shorthand aliases for object types in the
+    /// `Simple` `bdlat` type category, used to improve the legibility of
+    /// this class.
+    typedef bdlt::TimeTz        TimeTz;
+
+    /// `CharVector` is the one such alias in the `Array` `bdlat` category,
+    /// not the `Simple` category.
     typedef bsl::vector<char>   CharVector;
-        // 'CharVector' is the one such alias in the 'Array' 'bdlat' category,
-        // not the 'Simple' category.
 
     typedef BerUniversalTagNumber_Sel<bool          , SimpleCat> BoolSel;
     typedef BerUniversalTagNumber_Sel<char          , SimpleCat> CharSel;
@@ -358,16 +363,17 @@ class BerUniversalTagNumber_Imp {
     typedef BerUniversalTagNumber_Sel<Datetime      , SimpleCat> DatetimeSel;
     typedef BerUniversalTagNumber_Sel<DatetimeTz    , SimpleCat> DatetimeTzSel;
     typedef BerUniversalTagNumber_Sel<Time          , SimpleCat> TimeSel;
-    typedef BerUniversalTagNumber_Sel<TimeTz        , SimpleCat> TimeTzSel;
-        // These type definitions are shorthand aliases for types having the
-        // 'bdlat' 'Simple' category, whose objects can be created and used as
-        // arguments to 'select' in order to select a particular overload.
-        // Note that these "tag" types denote both an underlying type and its
-        // 'bdlat' category.
 
+    /// These type definitions are shorthand aliases for types having the
+    /// `bdlat` `Simple` category, whose objects can be created and used as
+    /// arguments to `select` in order to select a particular overload.
+    /// Note that these "tag" types denote both an underlying type and its
+    /// `bdlat` category.
+    typedef BerUniversalTagNumber_Sel<TimeTz        , SimpleCat> TimeTzSel;
+
+    /// `CharVectorSel` is the one such alias that has a `CATEGORY` that
+    /// denotes the `bdlat` `Array` category, not the `Simple` category.
     typedef BerUniversalTagNumber_Sel<CharVector    , ArrayCat > CharVectorSel;
-        // 'CharVectorSel' is the one such alias that has a 'CATEGORY' that
-        // denotes the 'bdlat' 'Array' category, not the 'Simple' category.
 
     // DATA
     int                      d_formattingMode;
@@ -375,13 +381,14 @@ class BerUniversalTagNumber_Imp {
     int                      d_alternateTag;      // alternate tag
 
     // PRIVATE MANIPULATORS
-    TagVal selectForDateAndTimeTypes();
-        // Return the universal tag number for date and time types and load
-        // into the internal 'alternateTag' data member the any alternative tag
-        // numbers corresponding to those types.
 
+    /// Return the universal tag number for date and time types and load
+    /// into the internal `alternateTag` data member the any alternative tag
+    /// numbers corresponding to those types.
+    TagVal selectForDateAndTimeTypes();
+
+    /// Return the universal tag number for string-like types.
     TagVal selectForStringTypes();
-        // Return the universal tag number for string-like types.
 
   public:
     BerUniversalTagNumber_Imp(int fm, const BerEncoderOptions *options = 0)
@@ -393,6 +400,12 @@ class BerUniversalTagNumber_Imp {
 
                                //  ** By Type **
 
+    /// Return the universal tag number for an object having the `TYPE` and
+    /// `bdlat` `CATEGORY` of the type of the specified `selector`, and load
+    /// into the `alternateTag` attribute of this object any alternate tag
+    /// numbers corresponding to `TYPE` and `CATEGORY`.  Note that if an
+    /// alternate tag number for the `TYPE` and `CATEGORY` does not exist,
+    /// then the `alternateTag` attribute of this object is not modified.
     TagVal select(const BoolSel&                    selector);
     TagVal select(const CharSel&                    selector);
     TagVal select(const ScharSel&                   selector);
@@ -422,15 +435,15 @@ class BerUniversalTagNumber_Imp {
         const BerUniversalTagNumber_Sel<bdlb::Variant2<TYPE, TYPETZ>,
                                         SimpleCat>& selector);
     TagVal select(const CharVectorSel&              selector);
-        // Return the universal tag number for an object having the 'TYPE' and
-        // 'bdlat' 'CATEGORY' of the type of the specified 'selector', and load
-        // into the 'alternateTag' attribute of this object any alternate tag
-        // numbers corresponding to 'TYPE' and 'CATEGORY'.  Note that if an
-        // alternate tag number for the 'TYPE' and 'CATEGORY' does not exist,
-        // then the 'alternateTag' attribute of this object is not modified.
 
                              //  ** By Category **
 
+    /// Return the universal tag number for an object having the `TYPE` and
+    /// `bdlat` `CATEGORY` of the type of the specified `selector`, and load
+    /// into the `alternateTag` attribute of this object any alternate tag
+    /// numbers corresponding to `TYPE` and `CATEGORY`.  Note that if an
+    /// alternate tag number for the `TYPE` and `CATEGORY` does not exist,
+    /// then the `alternateTag` attribute of this object is not modified.
     template <typename TYPE>
     TagVal select(
            const BerUniversalTagNumber_Sel<TYPE, ArrayCat         >& selector);
@@ -455,12 +468,6 @@ class BerUniversalTagNumber_Imp {
     template <typename TYPE, typename ANY_CATEGORY>
     TagVal select(
            const BerUniversalTagNumber_Sel<TYPE, ANY_CATEGORY     >& selector);
-        // Return the universal tag number for an object having the 'TYPE' and
-        // 'bdlat' 'CATEGORY' of the type of the specified 'selector', and load
-        // into the 'alternateTag' attribute of this object any alternate tag
-        // numbers corresponding to 'TYPE' and 'CATEGORY'.  Note that if an
-        // alternate tag number for the 'TYPE' and 'CATEGORY' does not exist,
-        // then the 'alternateTag' attribute of this object is not modified.
 
     // FUNCTOR OPERATORS
     template <typename TYPE>
@@ -936,30 +943,29 @@ BerUniversalTagNumber_Imp::select(const CharVectorSel&)
 
                              //  ** By Category **
 
+/// # Implementation Note
+/// The BER universal tag number of the specified customized type `TYPE` is
+/// defined to be the BER universal tag number of the base type of `TYPE`.
 template <typename TYPE>
 inline
 BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(
                      const BerUniversalTagNumber_Sel<TYPE, CustomizedTypeCat>&)
-    ///Implementation Note
-    ///-------------------
-    // The BER universal tag number of the specified customized type 'TYPE' is
-    // defined to be the BER universal tag number of the base type of 'TYPE'.
 {
+    /// To compute the universal tag number of the specified `TYPE`, first
+    /// compute the `BaseType` of `TYPE`.
     typedef typename
     bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
-        // To compute the universal tag number of the specified 'TYPE', first
-        // compute the 'BaseType' of 'TYPE'.
 
+    /// Then, determine the `bdlat` type category of the `BaseType`,
+    /// `BaseTypeCategory`.
     typedef typename
     bdlat_TypeCategory::Select<BaseType>::Type          BaseTypeCategory;
-        // Then, determine the 'bdlat' type category of the 'BaseType',
-        // 'BaseTypeCategory'.
 
+    /// Next, construct a `BerUniversalTagNumber_Sel` type specialized with
+    /// the computed `BaseType` and `BaseTypeCategory`.
     typedef BerUniversalTagNumber_Sel<BaseType,
                                       BaseTypeCategory> BaseTypeSelector;
-        // Next, construct a 'BerUniversalTagNumber_Sel' type specialized with
-        // the computed 'BaseType' and 'BaseTypeCategory'.
 
     return this->select(BaseTypeSelector());
         // Finally, return the result of computing the universal tag number of
@@ -967,18 +973,17 @@ BerUniversalTagNumber_Imp::select(
         // overload of 'select' that performs said computation.
 }
 
+/// # Implementation Note
+/// Universal tag numbers are used only in the encoding of top-level
+/// objects.  Objects having the `DynamicType` `bdlat` type category
+/// at any point other than their top level do not have a well defined
+/// universal tag number.  For the purpose of this component, an object
+/// is a top-level object if it is not a member of any other object.
 template <typename TYPE>
 inline
 BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(
                         const BerUniversalTagNumber_Sel<TYPE, DynamicTypeCat>&)
-    ///Implementation Note
-    ///-------------------
-    // Universal tag numbers are used only in the encoding of top-level
-    // objects.  Objects having the 'DynamicType' 'bdlat' type category
-    // at any point other than their top level do not have a well defined
-    // universal tag number.  For the purpose of this component, an object
-    // is a top-level object if it is not a member of any other object.
 {
     BSLS_ASSERT_OPT(0 && "Sub-objects having the 'DynamicType' category are "
                          "unsupported.  Only top-level objects may have "
@@ -1043,17 +1048,16 @@ BerUniversalTagNumber_Imp::select(
     return BerUniversalTagNumber::e_BER_SEQUENCE;
 }
 
+/// # Implementation Note
+/// The BER universal tag number of the specified nullable type `TYPE` is
+/// defined to be the BER universal tag number of the value type of `TYPE`
+/// unless `TYPE` has a "nillable" formatting mode flag set, in which case
+/// the tag number is the tag number for sequences.
 template <typename TYPE>
 inline
 BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(
                       const BerUniversalTagNumber_Sel<TYPE, NullableValueCat>&)
-    ///Implementation Note
-    ///-------------------
-    // The BER universal tag number of the specified nullable type 'TYPE' is
-    // defined to be the BER universal tag number of the value type of 'TYPE'
-    // unless 'TYPE' has a "nillable" formatting mode flag set, in which case
-    // the tag number is the tag number for sequences.
 {
     if (d_formattingMode & FMode::e_NILLABLE) {
         return BerUniversalTagNumber::e_BER_SEQUENCE;
@@ -1062,20 +1066,20 @@ BerUniversalTagNumber_Imp::select(
     // If control flow gets here, then the 'TYPE' is nullable, but not
     // nillable.
 
+    /// To compute the universal tag number of the specified `TYPE`, first
+    /// compute the `ValueType` of `TYPE`.
     typedef typename
     bdlat_NullableValueFunctions::ValueType<TYPE>::Type  ValueType;
-        // To compute the universal tag number of the specified 'TYPE', first
-        // compute the 'ValueType' of 'TYPE'.
 
+    /// Then, determine the `bdlat` type category of `ValueType`,
+    /// `ValueTypeCategory`.
     typedef typename
     bdlat_TypeCategory::Select<ValueType>::Type          ValueTypeCategory;
-        // Then, determine the 'bdlat' type category of 'ValueType',
-        // 'ValueTypeCategory'.
 
+    /// Next, construct a `BerUniversalTagNumber_Sel` type specialized with
+    /// the computed `ValueType` and `ValueTypeCategory`.
     typedef BerUniversalTagNumber_Sel<ValueType,
                                       ValueTypeCategory> ValueTypeSelector;
-        // Next, construct a 'BerUniversalTagNumber_Sel' type specialized with
-        // the computed 'ValueType' and 'ValueTypeCategory'.
 
     return this->select(ValueTypeSelector());
         // Finally, return the result of computing the universal tag number of

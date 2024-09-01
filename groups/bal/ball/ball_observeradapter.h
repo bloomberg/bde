@@ -5,123 +5,123 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a helper for implementing the 'ball::Observer' protocol.
+//@PURPOSE: Provide a helper for implementing the `ball::Observer` protocol.
 //
 //@CLASSES:
-//  ball::ObserverAdapter: a helper for implementing 'ball::Observer'
+//  ball::ObserverAdapter: a helper for implementing `ball::Observer`
 //
 //@SEE_ALSO: ball_observer, ball_record, ball_context
 //
-//@DESCRIPTION: This component provides a single class 'ball::ObserverAdapter'
-// that aids in the implementation of the 'ball::Observer' protocol by allowing
+//@DESCRIPTION: This component provides a single class `ball::ObserverAdapter`
+// that aids in the implementation of the `ball::Observer` protocol by allowing
 // clients to implement that protocol by implementing a single method
-// signature: 'publish(const ball::Record&, const ball::Context&)'.  A primary
+// signature: `publish(const ball::Record&, const ball::Context&)`.  A primary
 // goal of this component is to simplify the transition for older
-// implementations of the 'ball::Observer' protocol (that accept
-// const-references to 'ball::Record' objects) to the updated protocol (that
-// accepts shared-pointers to 'ball::Record' objects).  'ball::ObserverAdapter'
-// inherits from 'ball::Observer', and implements the (newer) overload of the
-// 'publish' method in (accepting a shared-pointer to a record) by calling the
-// overload of the 'publish' method (accepting a reference to a record).
+// implementations of the `ball::Observer` protocol (that accept
+// const-references to `ball::Record` objects) to the updated protocol (that
+// accepts shared-pointers to `ball::Record` objects).  `ball::ObserverAdapter`
+// inherits from `ball::Observer`, and implements the (newer) overload of the
+// `publish` method in (accepting a shared-pointer to a record) by calling the
+// overload of the `publish` method (accepting a reference to a record).
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Concrete Observer Derived From 'ball::ObserverAdapter'
+///Example 1: Concrete Observer Derived From `ball::ObserverAdapter`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following code fragments illustrate the essentials of defining and using
-// a concrete observer inherited from 'ball::ObserverAdapter'.
+// a concrete observer inherited from `ball::ObserverAdapter`.
 //
-// First define a concrete observer 'MyOstreamObserver' derived from
-// 'ball::ObserverAdapter' that declares a single publish method accepting a
-// const-reference to a 'ball::Record' object:
-//..
-//  class MyOstreamObserver : public ball::ObserverAdapter {
-//    bsl::ostream  *d_stream;
+// First define a concrete observer `MyOstreamObserver` derived from
+// `ball::ObserverAdapter` that declares a single publish method accepting a
+// const-reference to a `ball::Record` object:
+// ```
+// class MyOstreamObserver : public ball::ObserverAdapter {
+//   bsl::ostream  *d_stream;
 //
-//  public:
-//    explicit MyOstreamObserver(bsl::ostream *stream) : d_stream(stream) { }
-//    virtual ~MyOstreamObserver();
-//    using Observer::publish;  // avoid hiding base class method
-//    virtual void publish(const ball::Record&  record,
-//                         const ball::Context& context);
-//  };
-//..
-// Then, we implement the public methods of 'MyOstreamObserver', including the
-// 'publish' method.  This implementation of 'publish' simply prints out the
+// public:
+//   explicit MyOstreamObserver(bsl::ostream *stream) : d_stream(stream) { }
+//   virtual ~MyOstreamObserver();
+//   using Observer::publish;  // avoid hiding base class method
+//   virtual void publish(const ball::Record&  record,
+//                        const ball::Context& context);
+// };
+// ```
+// Then, we implement the public methods of `MyOstreamObserver`, including the
+// `publish` method.  This implementation of `publish` simply prints out the
 // content of the record it receives to the stream supplied at construction.
-//..
-//  MyOstreamObserver::~MyOstreamObserver()
-//  {
-//  }
+// ```
+// MyOstreamObserver::~MyOstreamObserver()
+// {
+// }
 //
-//  void MyOstreamObserver::publish(const ball::Record&  record,
-//                                  const ball::Context&)
-//  {
-//      const ball::RecordAttributes& fixedFields = record.fixedFields();
+// void MyOstreamObserver::publish(const ball::Record&  record,
+//                                 const ball::Context&)
+// {
+//     const ball::RecordAttributes& fixedFields = record.fixedFields();
 //
-//      *d_stream << fixedFields.timestamp()               << ' '
-//                << fixedFields.processID()               << ' '
-//                << fixedFields.threadID()                << ' '
-//                << fixedFields.fileName()                << ' '
-//                << fixedFields.lineNumber()              << ' '
-//                << fixedFields.category()                << ' '
-//                << fixedFields.message()                 << ' ';
+//     *d_stream << fixedFields.timestamp()               << ' '
+//               << fixedFields.processID()               << ' '
+//               << fixedFields.threadID()                << ' '
+//               << fixedFields.fileName()                << ' '
+//               << fixedFields.lineNumber()              << ' '
+//               << fixedFields.category()                << ' '
+//               << fixedFields.message()                 << ' ';
 //
-//      const ball::UserFields& customFields = record.customFields();
-//      const int numCustomFields = customFields.length();
-//      for (int i = 0; i < numCustomFields; ++i) {
-//          *d_stream << customFields[i] << ' ';
-//      }
+//     const ball::UserFields& customFields = record.customFields();
+//     const int numCustomFields = customFields.length();
+//     for (int i = 0; i < numCustomFields; ++i) {
+//         *d_stream << customFields[i] << ' ';
+//     }
 //
-//      *d_stream << '\n' << bsl::flush;
-//  }
-//..
-// Now, we defined a function 'main' in which we create a 'MyOstreamObserver'
-// object and assign the address of this object to a 'ball::ObserverAdapter'
+//     *d_stream << '\n' << bsl::flush;
+// }
+// ```
+// Now, we defined a function `main` in which we create a `MyOstreamObserver`
+// object and assign the address of this object to a `ball::ObserverAdapter`
 // pointer:
-//..
-//  int main(bool verbose)
-//  {
-//      bsl::ostringstream     out;
-//      MyOstreamObserver      myObserver(&out);
-//      ball::ObserverAdapter *adapter = &myObserver;
-//..
-// Finally, publish three messages by calling 'publish' method accepting a
-// shared-pointer, provided by 'ball::ObserverAdapter', that in turn will call
-// the 'publish' method defined in 'MyOstreamObserver':
-//..
-//      bdlt::Datetime         now;
-//      ball::RecordAttributes fixedFields;
-//      ball::UserFields       customFields;
+// ```
+// int main(bool verbose)
+// {
+//     bsl::ostringstream     out;
+//     MyOstreamObserver      myObserver(&out);
+//     ball::ObserverAdapter *adapter = &myObserver;
+// ```
+// Finally, publish three messages by calling `publish` method accepting a
+// shared-pointer, provided by `ball::ObserverAdapter`, that in turn will call
+// the `publish` method defined in `MyOstreamObserver`:
+// ```
+//     bdlt::Datetime         now;
+//     ball::RecordAttributes fixedFields;
+//     ball::UserFields       customFields;
 //
-//      const int NUM_MESSAGES = 3;
-//      for (int n = 0; n < NUM_MESSAGES; ++n) {
-//          fixedFields.setTimestamp(bdlt::CurrentTime::utc());
+//     const int NUM_MESSAGES = 3;
+//     for (int n = 0; n < NUM_MESSAGES; ++n) {
+//         fixedFields.setTimestamp(bdlt::CurrentTime::utc());
 //
-//          bsl::shared_ptr<const ball::Record> handle;
-//          handle.createInplace(bslma::Default::allocator(),
-//                               fixedFields,
-//                               customFields);
-//          adapter->publish(handle,
-//                           ball::Context(ball::Transmission::e_TRIGGER,
-//                                         n,
-//                                         NUM_MESSAGES));
-//      }
-//      if (verbose) {
-//          bsl::cout << out.str() << bsl::endl;
-//      }
-//      return 0;
-//  }
-//..
-// The above code fragments print to 'stdout' like this:
-//..
-//  Publish a sequence of three messages.
-//  22FEB2012_00:12:12.000 201 31  0
-//  22FEB2012_00:12:12.000 202 32  0
-//  22FEB2012_00:12:12.000 203 33  0
-//..
+//         bsl::shared_ptr<const ball::Record> handle;
+//         handle.createInplace(bslma::Default::allocator(),
+//                              fixedFields,
+//                              customFields);
+//         adapter->publish(handle,
+//                          ball::Context(ball::Transmission::e_TRIGGER,
+//                                        n,
+//                                        NUM_MESSAGES));
+//     }
+//     if (verbose) {
+//         bsl::cout << out.str() << bsl::endl;
+//     }
+//     return 0;
+// }
+// ```
+// The above code fragments print to `stdout` like this:
+// ```
+// Publish a sequence of three messages.
+// 22FEB2012_00:12:12.000 201 31  0
+// 22FEB2012_00:12:12.000 202 32  0
+// 22FEB2012_00:12:12.000 203 33  0
+// ```
 
 #include <balscm_version.h>
 
@@ -141,21 +141,23 @@ class Context;
                         // class ObserverAdapter
                         // =====================
 
+/// This class aids in the implementation of the `Observer` protocol by
+/// allowing clients to implement that protocol by implementing a single
+/// method signature: `publish(const Record&, const Context&)`.
 class ObserverAdapter : public Observer {
-    // This class aids in the implementation of the 'Observer' protocol by
-    // allowing clients to implement that protocol by implementing a single
-    // method signature: 'publish(const Record&, const Context&)'.
 
   public:
     // CREATORS
+
+    /// Destroy this observer.
     ~ObserverAdapter() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this observer.
 
     // MANIPULATORS
+
+    /// Process the specified log `record` having the specified publishing
+    /// `context`.
     void publish(const Record&  record,
                  const Context& context) BSLS_KEYWORD_OVERRIDE = 0;
-        // Process the specified log 'record' having the specified publishing
-        // 'context'.
 
     void publish(const bsl::shared_ptr<const Record>& record,
                  const Context&                       context)
@@ -164,13 +166,13 @@ class ObserverAdapter : public Observer {
         // 'record'.  Note that classes that derive from 'ObserverAdapter'
         // should *not* implement this method.
 
+    /// Discard any shared reference to a `Record` object that was supplied
+    /// to the `publish` method and is held by this observer.  Note that
+    /// classes that derive from `ObserverAdapter` should *not* implement
+    /// this method.  Also note that this operation should be called if
+    /// resources underlying the previously provided shared-pointers must be
+    /// released.
     void releaseRecords() BSLS_KEYWORD_OVERRIDE;
-        // Discard any shared reference to a 'Record' object that was supplied
-        // to the 'publish' method and is held by this observer.  Note that
-        // classes that derive from 'ObserverAdapter' should *not* implement
-        // this method.  Also note that this operation should be called if
-        // resources underlying the previously provided shared-pointers must be
-        // released.
 };
 
 // ============================================================================

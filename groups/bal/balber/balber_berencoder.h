@@ -12,15 +12,15 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balber_berdecoder, bdem_bdemencoder, balxml_encoder
 //
-//@DESCRIPTION: This component defines a single class, 'balber::BerEncoder',
-// that contains a parameterized 'encode' function.  The 'encode' function
+//@DESCRIPTION: This component defines a single class, `balber::BerEncoder`,
+// that contains a parameterized `encode` function.  The `encode` function
 // encodes the object of the parameterized type into the specified stream.
-// The 'encode' method is overloaded for two types of output streams:
-//: o 'bsl::streambuf'
-//: o 'bsl::ostream'
+// The `encode` method is overloaded for two types of output streams:
+// * `bsl::streambuf`
+// * `bsl::ostream`
 //
 // This component encodes objects based on the X.690 BER specification.  It can
-// only be used with types supported by the 'bdlat' framework.
+// only be used with types supported by the `bdlat` framework.
 //
 ///Usage
 ///-----
@@ -29,133 +29,133 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Encoding an Employee Record
 /// - - - - - - - - - - - - - - - - - - -
 // Suppose that an "employee record" consists of a sequence of attributes --
-// 'name', 'age', and 'salary' -- that are of types 'bsl::string', 'int', and
-// 'float', respectively.  Furthermore, we have a need to BER encode employee
+// `name`, `age`, and `salary` -- that are of types `bsl::string`, `int`, and
+// `float`, respectively.  Furthermore, we have a need to BER encode employee
 // records as a sequence of values (for out-of-process consumption).
 //
-// Assume that we have defined a 'usage::EmployeeRecord' class to represent
-// employee record values, and assume that we have provided the 'bdlat'
-// specializations that allow the 'balber' codec components to represent class
+// Assume that we have defined a `usage::EmployeeRecord` class to represent
+// employee record values, and assume that we have provided the `bdlat`
+// specializations that allow the `balber` codec components to represent class
 // values as a sequence of BER primitive values.  See
-// {'bdlat_sequencefunctions'|Usage} for details of creating specializations
+// {`bdlat_sequencefunctions`|Usage} for details of creating specializations
 // for a sequence type.
 //
 // First, we create an employee record object having typical values:
-//..
-//  usage::EmployeeRecord bob("Bob", 56, 1234.00);
-//  assert("Bob"   == bob.name());
-//  assert(  56    == bob.age());
-//  assert(1234.00 == bob.salary());
-//..
-// Now, we create a 'balber::Encoder' object and use it to encode our 'bob'
+// ```
+// usage::EmployeeRecord bob("Bob", 56, 1234.00);
+// assert("Bob"   == bob.name());
+// assert(  56    == bob.age());
+// assert(1234.00 == bob.salary());
+// ```
+// Now, we create a `balber::Encoder` object and use it to encode our `bob`
 // object.  Here, to facilitate the examination of our results, the BER
-// encoding data is delivered to a 'bslsb::MemOutStreamBuf' object:
-//..
-//  bdlsb::MemOutStreamBuf osb;
-//  balber::BerEncoder     encoder;
-//  int                    rc = encoder.encode(&osb, bob);
-//  assert( 0 == rc);
-//  assert(18 == osb.length());
-//..
+// encoding data is delivered to a `bslsb::MemOutStreamBuf` object:
+// ```
+// bdlsb::MemOutStreamBuf osb;
+// balber::BerEncoder     encoder;
+// int                    rc = encoder.encode(&osb, bob);
+// assert( 0 == rc);
+// assert(18 == osb.length());
+// ```
 // Finally, we confirm that the generated BER encoding has the expected layout
-// and values.  We create an 'bdlsb::FixedMemInStreamBuf' to manage our access
-// to the data portion of the 'bdlsb::MemOutStreamBuf' where our BER encoding
+// and values.  We create an `bdlsb::FixedMemInStreamBuf` to manage our access
+// to the data portion of the `bdlsb::MemOutStreamBuf` where our BER encoding
 // resides:
-//..
-//  bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-//..
-// The 'balber_berutil' component provides functions that allow us to decode
+// ```
+// bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+// ```
+// The `balber_berutil` component provides functions that allow us to decode
 // the descriptive fields and values of the BER encoded sequence:
-//..
-//  balber::BerConstants::TagClass tagClass;
-//  balber::BerConstants::TagType  tagType;
-//  int                            tagNumber;
-//  int                            accumNumBytesConsumed = 0;
-//  int                            length;
+// ```
+// balber::BerConstants::TagClass tagClass;
+// balber::BerConstants::TagType  tagType;
+// int                            tagNumber;
+// int                            accumNumBytesConsumed = 0;
+// int                            length;
 //
-//  rc = balber::BerUtil::getIdentifierOctets(&isb,
-//                                            &tagClass,
-//                                            &tagType,
-//                                            &tagNumber,
-//                                            &accumNumBytesConsumed);
-//  assert(0                                             == rc);
-//  assert(balber::BerConstants::e_UNIVERSAL             == tagClass);
-//  assert(balber::BerConstants::e_CONSTRUCTED           == tagType);
-//  assert(balber::BerUniversalTagNumber::e_BER_SEQUENCE == tagNumber);
+// rc = balber::BerUtil::getIdentifierOctets(&isb,
+//                                           &tagClass,
+//                                           &tagType,
+//                                           &tagNumber,
+//                                           &accumNumBytesConsumed);
+// assert(0                                             == rc);
+// assert(balber::BerConstants::e_UNIVERSAL             == tagClass);
+// assert(balber::BerConstants::e_CONSTRUCTED           == tagType);
+// assert(balber::BerUniversalTagNumber::e_BER_SEQUENCE == tagNumber);
 //
-//  rc = balber::BerUtil::getLength(&isb, &length, &accumNumBytesConsumed);
-//  assert(0                                    == rc);
-//  assert(balber::BerUtil::k_INDEFINITE_LENGTH == length);
-//..
-// The 'UNIVERSAL' value in 'tagClass' indicates that the 'tagNumber' value
-// represents a type in the BER standard, a 'BER_SEQUENCE', as we requested of
-// the infrastructure (see the 'IsSequence' specialization above).  The
-// 'tagType' value of 'CONSTRUCTED' indicates that this is a non-primitive
-// type.  The 'INDEFINITE' value for length is typical for sequence encodings.
+// rc = balber::BerUtil::getLength(&isb, &length, &accumNumBytesConsumed);
+// assert(0                                    == rc);
+// assert(balber::BerUtil::k_INDEFINITE_LENGTH == length);
+// ```
+// The `UNIVERSAL` value in `tagClass` indicates that the `tagNumber` value
+// represents a type in the BER standard, a `BER_SEQUENCE`, as we requested of
+// the infrastructure (see the `IsSequence` specialization above).  The
+// `tagType` value of `CONSTRUCTED` indicates that this is a non-primitive
+// type.  The `INDEFINITE` value for length is typical for sequence encodings.
 // In these cases, the end-of-data is indicated by a sequence to two null
 // bytes.
 //
 // We now examine the tags and values corresponding to each of the data members
-// of 'usage::EmployeeRecord' class.  For each of these the 'tagClass' is
-// 'CONTEXT_SPECIFIC' (i.e., member of a larger construct) and the 'tagType' is
-// 'PRIMITIVE' ('bsl::string', 'int', and 'float' each correspond to a
-// primitive BER type.  The 'tagNumber' for each field was defined (in the
+// of `usage::EmployeeRecord` class.  For each of these the `tagClass` is
+// `CONTEXT_SPECIFIC` (i.e., member of a larger construct) and the `tagType` is
+// `PRIMITIVE` (`bsl::string`, `int`, and `float` each correspond to a
+// primitive BER type.  The `tagNumber` for each field was defined (in the
 // elided definiton) to correspond the position of the field in the
-// 'usage::EmployeeRecord' class.
-//..
-//  rc = balber::BerUtil::getIdentifierOctets(&isb,
-//                                            &tagClass,
-//                                            &tagType,
-//                                            &tagNumber,
-//                                            &accumNumBytesConsumed);
-//  assert(0                                        == rc);
-//  assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
-//  assert(balber::BerConstants::e_PRIMITIVE        == tagType);
-//  assert(1                                        == tagNumber);
+// `usage::EmployeeRecord` class.
+// ```
+// rc = balber::BerUtil::getIdentifierOctets(&isb,
+//                                           &tagClass,
+//                                           &tagType,
+//                                           &tagNumber,
+//                                           &accumNumBytesConsumed);
+// assert(0                                        == rc);
+// assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+// assert(balber::BerConstants::e_PRIMITIVE        == tagType);
+// assert(1                                        == tagNumber);
 //
-//  bsl::string name;
-//  rc = balber::BerUtil::getValue(&isb, &name, &accumNumBytesConsumed);
-//  assert(0     == rc);
-//  assert("Bob" == name);
+// bsl::string name;
+// rc = balber::BerUtil::getValue(&isb, &name, &accumNumBytesConsumed);
+// assert(0     == rc);
+// assert("Bob" == name);
 //
-//  rc = balber::BerUtil::getIdentifierOctets(&isb,
-//                                            &tagClass,
-//                                            &tagType,
-//                                            &tagNumber,
-//                                            &accumNumBytesConsumed);
-//  assert(0                                        == rc);
-//  assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
-//  assert(balber::BerConstants::e_PRIMITIVE        == tagType);
-//  assert(2                                        == tagNumber);
+// rc = balber::BerUtil::getIdentifierOctets(&isb,
+//                                           &tagClass,
+//                                           &tagType,
+//                                           &tagNumber,
+//                                           &accumNumBytesConsumed);
+// assert(0                                        == rc);
+// assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+// assert(balber::BerConstants::e_PRIMITIVE        == tagType);
+// assert(2                                        == tagNumber);
 //
-//  int age = 0;
-//  rc = balber::BerUtil::getValue(&isb, &age, &accumNumBytesConsumed);
-//  assert(0  == rc);
-//  assert(56 == age);
+// int age = 0;
+// rc = balber::BerUtil::getValue(&isb, &age, &accumNumBytesConsumed);
+// assert(0  == rc);
+// assert(56 == age);
 //
-//  rc = balber::BerUtil::getIdentifierOctets(&isb,
-//                                            &tagClass,
-//                                            &tagType,
-//                                            &tagNumber,
-//                                            &accumNumBytesConsumed);
-//  assert(0 == rc);
-//  assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
-//  assert(balber::BerConstants::e_PRIMITIVE        == tagType);
-//  assert(3                                        == tagNumber);
+// rc = balber::BerUtil::getIdentifierOctets(&isb,
+//                                           &tagClass,
+//                                           &tagType,
+//                                           &tagNumber,
+//                                           &accumNumBytesConsumed);
+// assert(0 == rc);
+// assert(balber::BerConstants::e_CONTEXT_SPECIFIC == tagClass);
+// assert(balber::BerConstants::e_PRIMITIVE        == tagType);
+// assert(3                                        == tagNumber);
 //
-//  float salary = 0.0;
-//  rc = balber::BerUtil::getValue(&isb, &salary, &accumNumBytesConsumed);
-//  assert(0       == rc);
-//  assert(1234.00 == salary);
-//..
+// float salary = 0.0;
+// rc = balber::BerUtil::getValue(&isb, &salary, &accumNumBytesConsumed);
+// assert(0       == rc);
+// assert(1234.00 == salary);
+// ```
 // Lastly, we confirm that end-of-data sequence (two null bytes) are found we
 // expect them and that we have entirely consumed the data that we generated by
 // our encoding.
-//..
-//  rc = balber::BerUtil::getEndOfContentOctets(&isb, &accumNumBytesConsumed);
-//  assert(0            == rc);
-//  assert(osb.length() == static_cast<bsl::size_t>(accumNumBytesConsumed));
-//..
+// ```
+// rc = balber::BerUtil::getEndOfContentOctets(&isb, &accumNumBytesConsumed);
+// assert(0            == rc);
+// assert(osb.length() == static_cast<bsl::size_t>(accumNumBytesConsumed));
+// ```
 
 #include <balscm_version.h>
 
@@ -201,9 +201,9 @@ class  BerEncoder_LevelGuard;
                               // class BerEncoder
                               // ================
 
+/// This class contains the parameterized `encode` functions that encode
+/// `bdlat` types to an outgoing stream in BER format.
 class BerEncoder {
-    // This class contains the parameterized 'encode' functions that encode
-    // 'bdlat' types to an outgoing stream in BER format.
 
   private:
     // FRIENDS
@@ -213,10 +213,11 @@ class BerEncoder {
     friend class  BerEncoder_LevelGuard;
 
     // PRIVATE TYPES
+
+    /// This class provides stream for logging using
+    /// `bdlsb::MemOutStreamBuf` as a streambuf.  The logging stream is
+    /// created on demand, i.e., during the first attempt to log message.
     class MemOutStream : public bsl::ostream {
-        // This class provides stream for logging using
-        // 'bdlsb::MemOutStreamBuf' as a streambuf.  The logging stream is
-        // created on demand, i.e., during the first attempt to log message.
 
         // DATA
         bdlsb::MemOutStreamBuf d_sb;
@@ -227,31 +228,34 @@ class BerEncoder {
 
       public:
         // CREATORS
-        MemOutStream(bslma::Allocator *basicAllocator = 0);
-            // Create a 'MemOutStream' object.  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
 
+        /// Create a `MemOutStream` object.  Optionally specify a
+        /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+        /// 0, the currently installed default allocator is used.
+        MemOutStream(bslma::Allocator *basicAllocator = 0);
+
+        /// Destroy this stream and release memory back to the allocator.
+        ///
+        /// Although the compiler should generate this destructor
+        /// implicitly, xlC 8 breaks when the destructor is called by name
+        /// unless it is explicitly declared.
         ~MemOutStream() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this stream and release memory back to the allocator.
-            //
-            // Although the compiler should generate this destructor
-            // implicitly, xlC 8 breaks when the destructor is called by name
-            // unless it is explicitly declared.
 
         // MANIPULATORS
+
+        /// Reset the internal streambuf to empty.
         void reset();
-            // Reset the internal streambuf to empty.
 
         // ACCESSORS
-        const char *data() const;
-            // Return the address of the memory containing the values formatted
-            // to this stream.  The data is not null-terminated unless a null
-            // character was appended onto this stream.
 
+        /// Return the address of the memory containing the values formatted
+        /// to this stream.  The data is not null-terminated unless a null
+        /// character was appended onto this stream.
+        const char *data() const;
+
+        /// Return the length of the formatted data, including null
+        /// characters appended to the stream, if any.
         int length() const;
-            // Return the length of the formatted data, including null
-            // characters appended to the stream, if any.
     };
 
   public:
@@ -271,12 +275,12 @@ class BerEncoder {
     const BerEncoderOptions          *d_options;        // held, not owned
     bslma::Allocator                 *d_allocator;      // held, not owned
 
+    // placeholder for MemOutStream
     bsls::ObjectBuffer<MemOutStream>  d_logArea;
-        // placeholder for MemOutStream
 
+    // if not zero, log stream was created at the moment of first logging
+    // and must be destroyed
     MemOutStream                     *d_logStream;
-        // if not zero, log stream was created at the moment of first logging
-        // and must be destroyed
 
     ErrorSeverity                     d_severity;       // error severity
 
@@ -288,23 +292,24 @@ class BerEncoder {
     BerEncoder& operator=(const BerEncoder&);  // = delete;
 
     // PRIVATE MANIPULATORS
+
+    /// Log the specified `msg` using the specified `tagClass`, `tagNumber`,
+    /// name, and `index`, and return `errorSeverity()`.
     ErrorSeverity logMsg(const char             *msg,
                          BerConstants::TagClass  tagClass,
                          int                     tagNumber,
                          const char             *name  =  0,
                          int                     index = -1);
-        // Log the specified 'msg' using the specified 'tagClass', 'tagNumber',
-        // name, and 'index', and return 'errorSeverity()'.
 
+    /// Log error and upgrade the severity level.  Return `errorSeverity()`.
     ErrorSeverity logError(BerConstants::TagClass  tagClass,
                            int                     tagNumber,
                            const char             *name  =  0,
                            int                     index = -1);
-        // Log error and upgrade the severity level.  Return 'errorSeverity()'.
 
+    /// Return the stream for logging.  Note the if stream has not been
+    /// created yet, it will be created during this call.
     bsl::ostream& logStream();
-        // Return the stream for logging.  Note the if stream has not been
-        // created yet, it will be created during this call.
 
     int encodeImpl(const bsl::vector<char>&  value,
                    BerConstants::TagClass    tagClass,
@@ -376,51 +381,53 @@ class BerEncoder {
 
   public:
     // CREATORS
+
+    /// Construct an encoder object.  Optionally specify encoder `options`.
+    /// If `options` is 0, `BerEncoderOptions()` is used.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     BerEncoder(const BerEncoderOptions *options        = 0,
                bslma::Allocator        *basicAllocator = 0);
-        // Construct an encoder object.  Optionally specify encoder 'options'.
-        // If 'options' is 0, 'BerEncoderOptions()' is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Destroy this object.  This destruction has no effect on objects
+    /// pointed-to by the pointers provided at construction.
     ~BerEncoder();
-        // Destroy this object.  This destruction has no effect on objects
-        // pointed-to by the pointers provided at construction.
 
+    /// Encode the specified non-modifiable `value` to the specified
+    /// `streamBuf`.  Return 0 on success, and a non-zero value otherwise.
     template <typename TYPE>
     int encode(bsl::streambuf *streamBuf, const TYPE& value);
-        // Encode the specified non-modifiable 'value' to the specified
-        // 'streamBuf'.  Return 0 on success, and a non-zero value otherwise.
 
+    /// Encode the specified non-modifiable `value` to the specified
+    /// `stream`.  Return 0 on success, and a non-zero value otherwise.  If
+    /// the encoding fails `stream` will be invalidated.
     template <typename TYPE>
     int encode(bsl::ostream& stream, const TYPE& value);
-        // Encode the specified non-modifiable 'value' to the specified
-        // 'stream'.  Return 0 on success, and a non-zero value otherwise.  If
-        // the encoding fails 'stream' will be invalidated.
 
     // ACCESSORS
+
+    /// Return address of the options.
     const BerEncoderOptions *options() const;
-        // Return address of the options.
 
+    /// Return the severity of the most severe warning or error encountered
+    /// during the last call to the `encode` method.  The severity is reset
+    /// each time `encode` is called.
     ErrorSeverity  errorSeverity() const;
-        // Return the severity of the most severe warning or error encountered
-        // during the last call to the 'encode' method.  The severity is reset
-        // each time 'encode' is called.
 
+    /// Return a string containing any error, warning, or trace messages
+    /// that were logged during the last call to the `encode` method.  The
+    /// log is reset each time `encode` is called.
     bslstl::StringRef loggedMessages() const;
-        // Return a string containing any error, warning, or trace messages
-        // that were logged during the last call to the 'encode' method.  The
-        // log is reset each time 'encode' is called.
 };
 
                     // ===================================
                     // private class BerEncoder_LevelGuard
                     // ===================================
 
+/// This class serves the purpose to automatically increment-decrement the
+/// current depth level.
 class BerEncoder_LevelGuard {
-    // This class serves the purpose to automatically increment-decrement the
-    // current depth level.
 
     // DATA
     BerEncoder *d_encoder;
@@ -439,9 +446,9 @@ class BerEncoder_LevelGuard {
                       // private class BerEncoder_Visitor
                       // ================================
 
+/// This class is used as a visitor for visiting contained objects during
+/// encoding.  Produces always BER elements with CONTEXT_SPECIFIC BER tag.
 class BerEncoder_Visitor {
-    // This class is used as a visitor for visiting contained objects during
-    // encoding.  Produces always BER elements with CONTEXT_SPECIFIC BER tag.
 
     // DATA
     BerEncoder             *d_encoder;     // encoder to write data to
@@ -465,11 +472,11 @@ class BerEncoder_Visitor {
               // private class BerEncoder_UniversalElementVisitor
               // ================================================
 
+/// This class is used as a visitor for visiting the top-level element and
+/// also array elements during encoding.  This class is required so that the
+/// universal tag number of the element can be determined when the element
+/// is visited.
 class BerEncoder_UniversalElementVisitor {
-    // This class is used as a visitor for visiting the top-level element and
-    // also array elements during encoding.  This class is required so that the
-    // universal tag number of the element can be determined when the element
-    // is visited.
 
     // PRIVATE DATA MEMBERS
     BerEncoder            *d_encoder;         // streambuf to write data to
@@ -504,9 +511,9 @@ class BerEncoder_UniversalElementVisitor {
                        // struct BerEncoder_encodeProxy
                        // =============================
 
+/// Component-private struct.  Provides accessor that keeps current context
+/// and can be used in different `bdlat` Category Functions.
 struct BerEncoder_encodeProxy {
-    // Component-private struct.  Provides accessor that keeps current context
-    // and can be used in different 'bdlat' Category Functions.
 
     // DATA MEMBERS
     BerEncoder             *d_encoder;

@@ -15,18 +15,18 @@ BSLS_IDENT("$Id: $")
 //           balst_resolverimpl_xcoff
 //
 //@DESCRIPTION: This component provides a class,
-// 'balst::Resolver<Elf>', that, given a vector of
-// 'balst::StackTraceFrame's that have only their 'address' fields set,
+// `balst::Resolver<Elf>`, that, given a vector of
+// `balst::StackTraceFrame`s that have only their `address` fields set,
 // resolves all other fields in those frames.  The Elf object file format is
 // used on Linux and Solaris platforms.  The Elf format is described by
 // documents at:
-//: o 'http://en.wikipedia.org/wiki/Executable_and_Linkable_Format'
-//: o 'ftp://ftp.openwatcom.org/pub/devel/docs/elf-64-gen.pdf'
-//: o 'http://www.sco.com/developers/gabi/latest/contents.html'
+// * `http://en.wikipedia.org/wiki/Executable_and_Linkable_Format`
+// * `ftp://ftp.openwatcom.org/pub/devel/docs/elf-64-gen.pdf`
+// * `http://www.sco.com/developers/gabi/latest/contents.html`
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'balst' and is *not* intended
+// This component is an implementation detail of `balst` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -57,14 +57,14 @@ class ResolverImpl;
                     // class ResolverImpl<ObjectFileFormat::Elf>
                     // =========================================
 
+/// This class provides a public static `resolve` method that, given a
+/// vector of `StackTraceFrame`s that have only their `address` fields set,
+/// resolves as many other fields in those frames as possible.  The Elf
+/// object file format is used on Linux and Solaris platforms.  On Linux,
+/// some Elf sections contain data in the DWARF format, which makes it
+/// possible to resolve line numbers and file names.
 template <>
 class ResolverImpl<ObjectFileFormat::Elf> {
-    // This class provides a public static 'resolve' method that, given a
-    // vector of 'StackTraceFrame's that have only their 'address' fields set,
-    // resolves as many other fields in those frames as possible.  The Elf
-    // object file format is used on Linux and Solaris platforms.  On Linux,
-    // some Elf sections contain data in the DWARF format, which makes it
-    // possible to resolve line numbers and file names.
 
     // TYPES
     typedef bsls::Types::UintPtr UintPtr;   // 32 bit unsigned on 32 bit, 64
@@ -113,87 +113,93 @@ class ResolverImpl<ObjectFileFormat::Elf> {
 
   private:
     // PRIVATE CREATORS
+
+    /// Create an stack trace reolver that can populate other fields of the
+    /// specified `*stackTrace` object given previously populated `address`
+    /// fields.  Specify `demangle`, which indicates whether demangling of
+    /// symbols is to occur.
     ResolverImpl(StackTrace *stackTrace,
                  bool        demanglingPreferredFlag);
-        // Create an stack trace reolver that can populate other fields of the
-        // specified '*stackTrace' object given previously populated 'address'
-        // fields.  Specify 'demangle', which indicates whether demangling of
-        // symbols is to occur.
 
     // ~ResolverImpl() = default;
         // Destroy this object.
 
     // PRIVATE MANIPULATORS
-    int loadSymbols(int matched);
-        // Read the symbols from the symbol table of the current segment and
-        // update the 'mangledSymbolName', 'symbolName', 'offsetFromSymbol',
-        // and sometimes the 'SourceFileName' fields of stack frames constain
-        // addresses within the code section of the current segment, where the
-        // specified 'matched' is the number of addresses in the current
-        // segment.  Return 0 on success and a non-zero value otherwise.
 
+    /// Read the symbols from the symbol table of the current segment and
+    /// update the `mangledSymbolName`, `symbolName`, `offsetFromSymbol`,
+    /// and sometimes the `SourceFileName` fields of stack frames constain
+    /// addresses within the code section of the current segment, where the
+    /// specified `matched` is the number of addresses in the current
+    /// segment.  Return 0 on success and a non-zero value otherwise.
+    int loadSymbols(int matched);
+
+    /// Identify which stack trace frames in `*d_stackTrace_p` are in the
+    /// segment pointed at by the specified `segmentPtr` of the specified
+    /// `segmentSize`, and initialize as many fields of those stack trace
+    /// frames as possible.  The segment is defined in the executable file
+    /// or shared library `libraryFileName`.  Return 0 on success and a
+    /// non-zero value otherwise.
     int resolveSegment(void       *segmentBaseAddress,
                        void       *segmentPtr,
                        UintPtr     segmentSize,
                        const char *libraryFileName);
-        // Identify which stack trace frames in '*d_stackTrace_p' are in the
-        // segment pointed at by the specified 'segmentPtr' of the specified
-        // 'segmentSize', and initialize as many fields of those stack trace
-        // frames as possible.  The segment is defined in the executable file
-        // or shared library 'libraryFileName'.  Return 0 on success and a
-        // non-zero value otherwise.
 
     // PRIVATE ACCESSORS
+
+    /// Set the `symbolName` field of the specified `frame`, which must
+    /// already have the `mangledSymbolName` field set, to the demangled
+    /// version of the `mangledSymbolName` field.  Use the specified
+    /// `buffer` of specified length `bufferLen` for temporary storage.  If
+    /// `d_demangle` is `false` or we are otherwise unable to demangle, just
+    /// set it to the same as `mangledSymbolName`.
     void setFrameSymbolName(StackTraceFrame *frame,
                             char            *buffer,
                             bsl::size_t      bufferLen) const;
-        // Set the 'symbolName' field of the specified 'frame', which must
-        // already have the 'mangledSymbolName' field set, to the demangled
-        // version of the 'mangledSymbolName' field.  Use the specified
-        // 'buffer' of specified length 'bufferLen' for temporary storage.  If
-        // 'd_demangle' is 'false' or we are otherwise unable to demangle, just
-        // set it to the same as 'mangledSymbolName'.
 
   public:
     // CLASS METHOD
+
+    /// Populate information for the specified `*stackTrace`, which contains
+    /// a sequence of randomly-accessible stack trace frames.  Specify
+    /// `demanglingPreferredFlag`, to determine whether demangling is to
+    /// occur.  The behavior is undefined unless all the `address` field in
+    /// `*stackTrace` are valid and other fields are invalid.
     static int resolve(StackTrace *stackTrace,
                        bool        demanglingPreferredFlag);
-        // Populate information for the specified '*stackTrace', which contains
-        // a sequence of randomly-accessible stack trace frames.  Specify
-        // 'demanglingPreferredFlag', to determine whether demangling is to
-        // occur.  The behavior is undefined unless all the 'address' field in
-        // '*stackTrace' are valid and other fields are invalid.
 
+    /// This function is just there to test how code deals with inline
+    /// functions in an include file.  It does not provide any otherwise
+    /// useful functionality.  Return a line number near the beginning of
+    /// the function in the low-order 14 bits of the result.  Other bits of
+    /// the result are to be considered garbage.
     static int test();
-        // This function is just there to test how code deals with inline
-        // functions in an include file.  It does not provide any otherwise
-        // useful functionality.  Return a line number near the beginning of
-        // the function in the low-order 14 bits of the result.  Other bits of
-        // the result are to be considered garbage.
 
     // MANIPULATOR
+
+    /// Process a loaded image found via the link map, either the main
+    /// program or some shared library.  The specified `fileName` is the
+    /// name of the file containing the image.  If `fileName == 0`, the file
+    /// is the main program.  The specified `programHeaders` is a pointer to
+    /// an array of elf program headers and the specified
+    /// `numProgramHeaders` is its length, it is a `void *` because the type
+    /// `ElfProgramHeader` is local to the implementation file.  Specify one
+    /// of `textSegPtr` and `baseAddress`, and the other as 0, this method
+    /// will infer the one specified as 0 from the other.  Return 0 on
+    /// success and a non-zero value otherwise.  Note that this method is
+    /// not to be called by external users of this component, it is only
+    /// public so a static routine in the implementation file can call it.
     int processLoadedImage(const char *fileName,
                            const void *programHeaders,
                            int         numProgramHeaders,
                            void       *textSegPtr,
                            void       *baseAddress);
-        // Process a loaded image found via the link map, either the main
-        // program or some shared library.  The specified 'fileName' is the
-        // name of the file containing the image.  If 'fileName == 0', the file
-        // is the main program.  The specified 'programHeaders' is a pointer to
-        // an array of elf program headers and the specified
-        // 'numProgramHeaders' is its length, it is a 'void *' because the type
-        // 'ElfProgramHeader' is local to the implementation file.  Specify one
-        // of 'textSegPtr' and 'baseAddress', and the other as 0, this method
-        // will infer the one specified as 0 from the other.  Return 0 on
-        // success and a non-zero value otherwise.  Note that this method is
-        // not to be called by external users of this component, it is only
-        // public so a static routine in the implementation file can call it.
 
     // ACCESSOR
+
+    /// Return the number of frames in the stack trace that are still
+    /// unmatched.
     int numUnmatchedFrames() const;
-        // Return the number of frames in the stack trace that are still
-        // unmatched.
 };
 
 inline

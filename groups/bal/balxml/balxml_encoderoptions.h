@@ -42,59 +42,75 @@ namespace balxml {
                             // class EncoderOptions
                             // ====================
 
+/// Options for performing XML encodings.  Encoding style is either COMPACT
+/// or PRETTY.  If encoding style is COMPACT, no whitespace will be added
+/// between elements.  If encoding style is `PRETTY`, then the
+/// `InitialIndentLevel`, `SpacesPerLevel`, and `WrapColumn` parameters are
+/// used to specify the formatting of the output.  Note that
+/// `InitialIndentLevel`, `SpacesPerLevel`, and `WrapColumn` are ignored
+/// when `EncodingStyle` is COMPACT (this is the default).
+/// The generated C++ code for this schema element is created by using
+/// bas_codegen.pl, run by balxml/code_from_xsd.pl, with no hand-editing.
 class EncoderOptions {
-    // Options for performing XML encodings.  Encoding style is either COMPACT
-    // or PRETTY.  If encoding style is COMPACT, no whitespace will be added
-    // between elements.  If encoding style is 'PRETTY', then the
-    // 'InitialIndentLevel', 'SpacesPerLevel', and 'WrapColumn' parameters are
-    // used to specify the formatting of the output.  Note that
-    // 'InitialIndentLevel', 'SpacesPerLevel', and 'WrapColumn' are ignored
-    // when 'EncodingStyle' is COMPACT (this is the default).
-    // The generated C++ code for this schema element is created by using
-    // bas_codegen.pl, run by balxml/code_from_xsd.pl, with no hand-editing.
 
     // INSTANCE DATA
+
+    // namespace where object is defined
     bsl::string               d_objectNamespace;
-        // namespace where object is defined
+
+    // location of the schema
     bsl::string               d_schemaLocation;
-        // location of the schema
+
+    // tag for top level
     bsl::string               d_tag;
-        // tag for top level
+
+    // Formatting mode
     int                       d_formattingMode;
-        // Formatting mode
+
+    // initial indentation level
     int                       d_initialIndentLevel;
-        // initial indentation level
+
+    // spaces per level of indentation
     int                       d_spacesPerLevel;
-        // spaces per level of indentation
+
+    // number of characters to wrap text
     int                       d_wrapColumn;
-        // number of characters to wrap text
+
+    // This option controls the number of decimal places used for seconds
+    // when encoding `Datetime` and `DatetimeTz`.
+    // Note that the default of this field is `6` in
+    // `balxml_encoderoptions.cpp`, but is edited to `3` in
+    // `balxml_configschema.cpp` by balxml/code_from_xsd.pl.
     int                       d_datetimeFractionalSecondPrecision;
-        // This option controls the number of decimal places used for seconds
-        // when encoding 'Datetime' and 'DatetimeTz'.
-        // Note that the default of this field is '6' in
-        // 'balxml_encoderoptions.cpp', but is edited to '3' in
-        // 'balxml_configschema.cpp' by balxml/code_from_xsd.pl.
+
+    // Maximum total digits of the decimal value that should be displayed
     bdlb::NullableValue<int>  d_maxDecimalTotalDigits;
-        // Maximum total digits of the decimal value that should be displayed
+
+    // Maximum fractional digits of the decimal value that should be
+    // displayed
     bdlb::NullableValue<int>  d_maxDecimalFractionDigits;
-        // Maximum fractional digits of the decimal value that should be
-        // displayed
+
+    // The number of significant digits that must be displayed for the
+    // double value.
     bdlb::NullableValue<int>  d_significantDoubleDigits;
-        // The number of significant digits that must be displayed for the
-        // double value.
+
+    // encoding style (see component-level doc)
     EncodingStyle::Value      d_encodingStyle;
-        // encoding style (see component-level doc)
+
+    // Allow control characters to be encoded.
     bool                      d_allowControlCharacters;
-        // Allow control characters to be encoded.
+
+    // This option controls if the baexml encoder should output the XML
+    // header.
     bool                      d_outputXMLHeader;
-        // This option controls if the baexml encoder should output the XML
-        // header.
+
+    // This option controls if the baexml encoder should output the XSI
+    // alias with the top-level element.
     bool                      d_outputXSIAlias;
-        // This option controls if the baexml encoder should output the XSI
-        // alias with the top-level element.
+
+    // This option control whether `Z` should be used for the zone
+    // designator of `DateTz` or instead of `+00:00` (specific to UTC).
     bool                      d_useZAbbreviationForUtc;
-        // This option control whether 'Z' should be used for the zone
-        // designator of 'DateTz' or instead of '+00:00' (specific to UTC).
 
   public:
     // TYPES
@@ -167,280 +183,285 @@ class EncoderOptions {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit EncoderOptions(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'EncoderOptions' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `EncoderOptions` having the default value.
+    /// Use the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit EncoderOptions(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `EncoderOptions` having the value of the
+    /// specified `original` object.  Use the optionally specified
+    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     EncoderOptions(const EncoderOptions& original,
                    bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'EncoderOptions' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `EncoderOptions` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
     EncoderOptions(EncoderOptions&& original) noexcept;
-        // Create an object of type 'EncoderOptions' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
 
+    /// Create an object of type `EncoderOptions` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
+    /// Use the optionally specified `basicAllocator` to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     EncoderOptions(EncoderOptions&& original,
                    bslma::Allocator *basicAllocator);
-        // Create an object of type 'EncoderOptions' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 #endif
 
+    /// Destroy this object.
     ~EncoderOptions();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     EncoderOptions& operator=(const EncoderOptions& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     EncoderOptions& operator=(EncoderOptions&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template <typename t_MANIPULATOR>
     int manipulateAttributes(t_MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template <typename t_MANIPULATOR>
     int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template <typename t_MANIPULATOR>
     int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Set the "ObjectNamespace" attribute of this object to the specified
+    /// `value`.
     void setObjectNamespace(const bsl::string_view& value);
-        // Set the "ObjectNamespace" attribute of this object to the specified
-        // 'value'.
 
+    /// Set the "SchemaLocation" attribute of this object to the specified
+    /// `value`.
     void setSchemaLocation(const bsl::string_view& value);
-        // Set the "SchemaLocation" attribute of this object to the specified
-        // 'value'.
 
+    /// Set the "Tag" attribute of this object to the specified `value`.
     void setTag(const bsl::string_view& value);
-        // Set the "Tag" attribute of this object to the specified 'value'.
 
+    /// Set the "FormattingMode" attribute of this object to the specified
+    /// `value`.
     void setFormattingMode(int value);
-        // Set the "FormattingMode" attribute of this object to the specified
-        // 'value'.
 
+    /// Set the "InitialIndentLevel" attribute of this object to the
+    /// specified `value`.
     void setInitialIndentLevel(int value);
-        // Set the "InitialIndentLevel" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "SpacesPerLevel" attribute of this object to the specified
+    /// `value`.
     void setSpacesPerLevel(int value);
-        // Set the "SpacesPerLevel" attribute of this object to the specified
-        // 'value'.
 
+    /// Set the "WrapColumn" attribute of this object to the specified
+    /// `value`.
     void setWrapColumn(int value);
-        // Set the "WrapColumn" attribute of this object to the specified
-        // 'value'.
 
+    /// Set the "MaxDecimalTotalDigits" attribute of this object to the
+    /// specified `value`.
     void setMaxDecimalTotalDigits(const bdlb::NullableValue<int>& value);
-        // Set the "MaxDecimalTotalDigits" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "MaxDecimalFractionDigits" attribute of this object to the
+    /// specified `value`.
     void setMaxDecimalFractionDigits(const bdlb::NullableValue<int>& value);
-        // Set the "MaxDecimalFractionDigits" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "SignificantDoubleDigits" attribute of this object to the
+    /// specified `value`.
     void setSignificantDoubleDigits(const bdlb::NullableValue<int>& value);
-        // Set the "SignificantDoubleDigits" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "EncodingStyle" attribute of this object to the specified
+    /// `value`.
     void setEncodingStyle(EncodingStyle::Value value);
-        // Set the "EncodingStyle" attribute of this object to the specified
-        // 'value'.
 
+    /// Set the "AllowControlCharacters" attribute of this object to the
+    /// specified `value`.
     void setAllowControlCharacters(bool value);
-        // Set the "AllowControlCharacters" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "OutputXMLHeader" attribute of this object to the specified
+    /// `value`.
     void setOutputXMLHeader(bool value);
-        // Set the "OutputXMLHeader" attribute of this object to the specified
-        // 'value'.
 
+    /// Set the "OutputXSIAlias" attribute of this object to the specified
+    /// `value`.
     void setOutputXSIAlias(bool value);
-        // Set the "OutputXSIAlias" attribute of this object to the specified
-        // 'value'.
 
+    /// Set the "DatetimeFractionalSecondPrecision" attribute of this object
+    /// to the specified `value`.
     void setDatetimeFractionalSecondPrecision(int value);
-        // Set the "DatetimeFractionalSecondPrecision" attribute of this object
-        // to the specified 'value'.
 
+    /// Set the "UseZAbbreviationForUtc" attribute of this object to the
+    /// specified `value`.
     void setUseZAbbreviationForUtc(bool value);
-        // Set the "UseZAbbreviationForUtc" attribute of this object to the
-        // specified 'value'.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template <typename t_ACCESSOR>
     int accessAttributes(t_ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template <typename t_ACCESSOR>
     int accessAttribute(t_ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template <typename t_ACCESSOR>
     int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference offering non-modifiable access to the
+    /// "ObjectNamespace" attribute of this object.
     const bsl::string& objectNamespace() const;
-        // Return a reference offering non-modifiable access to the
-        // "ObjectNamespace" attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the
+    /// "SchemaLocation" attribute of this object.
     const bsl::string& schemaLocation() const;
-        // Return a reference offering non-modifiable access to the
-        // "SchemaLocation" attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the "Tag"
+    /// attribute of this object.
     const bsl::string& tag() const;
-        // Return a reference offering non-modifiable access to the "Tag"
-        // attribute of this object.
 
+    /// Return the value of the "FormattingMode" attribute of this object.
     int formattingMode() const;
-        // Return the value of the "FormattingMode" attribute of this object.
 
+    /// Return the value of the "InitialIndentLevel" attribute of this
+    /// object.
     int initialIndentLevel() const;
-        // Return the value of the "InitialIndentLevel" attribute of this
-        // object.
 
+    /// Return the value of the "SpacesPerLevel" attribute of this object.
     int spacesPerLevel() const;
-        // Return the value of the "SpacesPerLevel" attribute of this object.
 
+    /// Return the value of the "WrapColumn" attribute of this object.
     int wrapColumn() const;
-        // Return the value of the "WrapColumn" attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the
+    /// "MaxDecimalTotalDigits" attribute of this object.
     const bdlb::NullableValue<int>& maxDecimalTotalDigits() const;
-        // Return a reference offering non-modifiable access to the
-        // "MaxDecimalTotalDigits" attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the
+    /// "MaxDecimalFractionDigits" attribute of this object.
     const bdlb::NullableValue<int>& maxDecimalFractionDigits() const;
-        // Return a reference offering non-modifiable access to the
-        // "MaxDecimalFractionDigits" attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the
+    /// "SignificantDoubleDigits" attribute of this object.
     const bdlb::NullableValue<int>& significantDoubleDigits() const;
-        // Return a reference offering non-modifiable access to the
-        // "SignificantDoubleDigits" attribute of this object.
 
+    /// Return the value of the "EncodingStyle" attribute of this object.
     EncodingStyle::Value encodingStyle() const;
-        // Return the value of the "EncodingStyle" attribute of this object.
 
+    /// Return the value of the "AllowControlCharacters" attribute of this
+    /// object.
     bool allowControlCharacters() const;
-        // Return the value of the "AllowControlCharacters" attribute of this
-        // object.
 
+    /// Return the value of the "OutputXMLHeader" attribute of this object.
     bool outputXMLHeader() const;
-        // Return the value of the "OutputXMLHeader" attribute of this object.
 
+    /// Return the value of the "OutputXSIAlias" attribute of this object.
     bool outputXSIAlias() const;
-        // Return the value of the "OutputXSIAlias" attribute of this object.
 
+    /// Return the value of the "DatetimeFractionalSecondPrecision"
+    /// attribute of this object.
     int datetimeFractionalSecondPrecision() const;
-        // Return the value of the "DatetimeFractionalSecondPrecision"
-        // attribute of this object.
 
+    /// Return the value of the "UseZAbbreviationForUtc" attribute of this
+    /// object.
     bool useZAbbreviationForUtc() const;
-        // Return the value of the "UseZAbbreviationForUtc" attribute of this
-        // object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const EncoderOptions& lhs, const EncoderOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const EncoderOptions& lhs, const EncoderOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const EncoderOptions& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 

@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: The 'balxml::Formatter' class provides methods to write a
+//@DESCRIPTION: The `balxml::Formatter` class provides methods to write a
 // formatted XML to an underlining output stream.  These methods generate
 // header, tags, data, attributes, comments in a human-readable, indented
 // format.
@@ -30,40 +30,40 @@ BSLS_IDENT("$Id: $")
 ///------------------
 // XML defines five special characters that must not appear text; instead
 // these characters are must be represented by multi-byte escape sequences.
-//..
-//  Special    (Hex)                 XML Escape
-//  Character  Value  Description    Sequence
-//  ---------  -----  -----------    ----------
-//  "          x22    quote          &quot;
-//  &          x26    ampersand      &amp;
-//  '          x27    apostrophe     &apos;
-//  <          x3C    less than      &lt;  
-//  >          x3E    greater than   &gt;
-//..
+// ```
+// Special    (Hex)                 XML Escape
+// Character  Value  Description    Sequence
+// ---------  -----  -----------    ----------
+// "          x22    quote          &quot;
+// &          x26    ampersand      &amp;
+// '          x27    apostrophe     &apos;
+// <          x3C    less than      &lt;  
+// >          x3E    greater than   &gt;
+// ```
 // The following methods:
-//: o 'addAttribute',
-//: o 'addData', and
-//: o 'addListData'
+// * `addAttribute`,
+// * `addData`, and
+// * `addListData`
 // implicitly convert each special character found in string input to the
 // appropriate escape sequence in the resulting XML document.
 //
 ///Valid Strings
 ///-------------
-// Strings used to set element attributes and element data (see 'addAttribute',
-// 'addData', and 'addListData') must consist of (valid) UTF-8 byte sequences
+// Strings used to set element attributes and element data (see `addAttribute`,
+// `addData`, and `addListData`) must consist of (valid) UTF-8 byte sequences
 // excepting certain control characters.
-//..
-//   Control
-//   Characters  Description                 Allowed
-//   ----------- --------------------------  -------
-//   x09         HT  '\t' (horizontal tab)   true
-//   x0A         LF  '\n' (new line)         true
-//   x0D         CR  '\r' (carriage return)  true
-//   x7F         DEL      (delete)           false
+// ```
+//  Control
+//  Characters  Description                 Allowed
+//  ----------- --------------------------  -------
+//  x09         HT  '\t' (horizontal tab)   true
+//  x0A         LF  '\n' (new line)         true
+//  x0D         CR  '\r' (carriage return)  true
+//  x7F         DEL      (delete)           false
 //
-//   x01 .. 0x1F Other than HT, LF, and CR.  false
-//..
-// Notice that range of 31 control characters between '0x01' and '0x1F'
+//  x01 .. 0x1F Other than HT, LF, and CR.  false
+// ```
+// Notice that range of 31 control characters between `0x01` and `0x1F`
 // (inclusive) consist of three that are allowed and 28 that are not.
 //
 // The detection of an invalid character in an input stream stops the transfer
@@ -77,162 +77,162 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // This example shows ten steps of how to create an XML document using this
 // component's major manipulators:
-//..
-//  // 1. Create a formatter:
-//  balxml::Formatter formatter(bsl::cout);
+// ```
+// // 1. Create a formatter:
+// balxml::Formatter formatter(bsl::cout);
 //
-//  // 2. Add a header:
-//  formatter.addHeader("UTF-8");
+// // 2. Add a header:
+// formatter.addHeader("UTF-8");
 //
-//  // 3. Open the root element,
-//  //    Add attributes if there are any:
-//  formatter.openElement("Fruits");
+// // 3. Open the root element,
+// //    Add attributes if there are any:
+// formatter.openElement("Fruits");
 //
-//  // 4. Open an element,
-//  //    Add attributes if there are any:
-//  formatter.openElement("Oranges");
-//  formatter.addAttribute("farm", "Francis' Orchard"); // ' is escaped
-//  formatter.addAttribute("size", 3.5);
+// // 4. Open an element,
+// //    Add attributes if there are any:
+// formatter.openElement("Oranges");
+// formatter.addAttribute("farm", "Francis' Orchard"); // ' is escaped
+// formatter.addAttribute("size", 3.5);
 //
-//  // 5. If there are nested elements, recursively do steps 4 - 8:
-//  // 6. Else, there are no more nested elements, add data:
-//  formatter.openElement("pickDate");               // step 4
-//  formatter.addData(bdlt::Date(2004, 8, 31));       // step 6
-//  formatter.closeElement("pickDate");              // step 7
-//  formatter.addElementAndData("Quantity", 12);     // step 8
-//            // element "Quantity" has no attributes, can use
-//            // shortcut 'addElementAndData' to complete steps
-//            // 4, 6 and 7 in one shot.
+// // 5. If there are nested elements, recursively do steps 4 - 8:
+// // 6. Else, there are no more nested elements, add data:
+// formatter.openElement("pickDate");               // step 4
+// formatter.addData(bdlt::Date(2004, 8, 31));       // step 6
+// formatter.closeElement("pickDate");              // step 7
+// formatter.addElementAndData("Quantity", 12);     // step 8
+//           // element "Quantity" has no attributes, can use
+//           // shortcut 'addElementAndData' to complete steps
+//           // 4, 6 and 7 in one shot.
 //
-//  // 7. Close the element:
-//  formatter.closeElement("Oranges");
+// // 7. Close the element:
+// formatter.closeElement("Oranges");
 //
-//  // 8. If there are more elements, repeat steps 4 - 8
-//  formatter.openElement("Apples");                 // step 4
-//  formatter.addAttribute("farm", "Fuji & Sons");   // '&' is escaped
-//  formatter.addAttribute("size", 3);
-//  formatter.closeElement("Apples");                // step 7
+// // 8. If there are more elements, repeat steps 4 - 8
+// formatter.openElement("Apples");                 // step 4
+// formatter.addAttribute("farm", "Fuji & Sons");   // '&' is escaped
+// formatter.addAttribute("size", 3);
+// formatter.closeElement("Apples");                // step 7
 //
-//  // 9. Close the root element:
-//  formatter.closeElement("Fruits");
-//..
+// // 9. Close the root element:
+// formatter.closeElement("Fruits");
+// ```
 // Indentation is correctly taken care of and the user need only concern
 // themselves with the correct ordering of the XML elements they're trying to
 // write.  The output of the above example is:
-//..
-//  +--bsl::cout--------------------------------------------------------------+
-//  |<?xml version="1.0" encoding="UTF-8" ?>                                  |
-//  |<Fruits>                                                                 |
-//  |    <Oranges farm="Francis&apos; Orchard" size="3.5">                    |
-//  |        <pickDate>2004-08-31</pickDate>                                  |
-//  |        <Quantity>12</Quantity>                                          |
-//  |    </Oranges>                                                           |
-//  |    <Apples farm="Fuji &amp; Sons" size="3"/>                            |
-//  |</Fruits>                                                                |
-//  +-------------------------------------------------------------------------+
-//..
+// ```
+// +--bsl::cout--------------------------------------------------------------+
+// |<?xml version="1.0" encoding="UTF-8" ?>                                  |
+// |<Fruits>                                                                 |
+// |    <Oranges farm="Francis&apos; Orchard" size="3.5">                    |
+// |        <pickDate>2004-08-31</pickDate>                                  |
+// |        <Quantity>12</Quantity>                                          |
+// |    </Oranges>                                                           |
+// |    <Apples farm="Fuji &amp; Sons" size="3"/>                            |
+// |</Fruits>                                                                |
+// +-------------------------------------------------------------------------+
+// ```
 // Following is a more complete usage example that uses most of the
 // manipulators provided by balxml::Formatter:
-//..
-//  balxml::Formatter formatter(bsl::cout, 0, 4, 40);
+// ```
+// balxml::Formatter formatter(bsl::cout, 0, 4, 40);
 //
-//  formatter.addHeader("UTF-8");
+// formatter.addHeader("UTF-8");
 //
-//  formatter.openElement("Fruits");
-//  formatter.openElement("Oranges");
-//  formatter.addAttribute("farm", "Francis' Orchard");
-//      // notice that the apostrophe in the string will be escaped
-//  formatter.addAttribute("size", 3.5);
+// formatter.openElement("Fruits");
+// formatter.openElement("Oranges");
+// formatter.addAttribute("farm", "Francis' Orchard");
+//     // notice that the apostrophe in the string will be escaped
+// formatter.addAttribute("size", 3.5);
 //
-//  formatter.addElementAndData("Quantity", 12);
+// formatter.addElementAndData("Quantity", 12);
 //
-//  formatter.openElement("pickDate");
-//  formatter.addData(bdlt::Date(2004, 8, 31));
-//  formatter.closeElement("pickDate");
+// formatter.openElement("pickDate");
+// formatter.addData(bdlt::Date(2004, 8, 31));
+// formatter.closeElement("pickDate");
 //
-//  formatter.openElement("Feature");
-//  formatter.addAttribute("shape", "round");
-//  formatter.closeElement("Feature");
+// formatter.openElement("Feature");
+// formatter.addAttribute("shape", "round");
+// formatter.closeElement("Feature");
 //
-//  formatter.addComment("No wrapping for long comments");
+// formatter.addComment("No wrapping for long comments");
 //
-//  formatter.closeElement("Oranges");
+// formatter.closeElement("Oranges");
 //
-//  formatter.addBlankLine();
+// formatter.addBlankLine();
 //
-//  formatter.openElement("Apples");
-//  formatter.addAttribute("farm", "Fuji & Sons");
-//  formatter.addAttribute("size", 3);
+// formatter.openElement("Apples");
+// formatter.addAttribute("farm", "Fuji & Sons");
+// formatter.addAttribute("size", 3);
 //
-//  formatter.openElement("pickDates",
-//                        balxml::Formatter::BAEXML_NEWLINE_INDENT);
-//  formatter.addListData(bdlt::Date(2005, 1, 17));
-//  formatter.addListData(bdlt::Date(2005, 2, 21));
-//  formatter.addListData(bdlt::Date(2005, 3, 25));
-//  formatter.addListData(bdlt::Date(2005, 5, 30));
-//  formatter.addListData(bdlt::Date(2005, 7, 4));
-//  formatter.addListData(bdlt::Date(2005, 9, 5));
-//  formatter.addListData(bdlt::Date(2005, 11, 24));
-//  formatter.addListData(bdlt::Date(2005, 12, 25));
+// formatter.openElement("pickDates",
+//                       balxml::Formatter::BAEXML_NEWLINE_INDENT);
+// formatter.addListData(bdlt::Date(2005, 1, 17));
+// formatter.addListData(bdlt::Date(2005, 2, 21));
+// formatter.addListData(bdlt::Date(2005, 3, 25));
+// formatter.addListData(bdlt::Date(2005, 5, 30));
+// formatter.addListData(bdlt::Date(2005, 7, 4));
+// formatter.addListData(bdlt::Date(2005, 9, 5));
+// formatter.addListData(bdlt::Date(2005, 11, 24));
+// formatter.addListData(bdlt::Date(2005, 12, 25));
 //
-//  formatter.closeElement("pickDates");
+// formatter.closeElement("pickDates");
 //
-//  formatter.openElement("Feature");
-//  formatter.addAttribute("color", "red");
-//  formatter.addAttribute("taste", "juicy");
-//  formatter.closeElement("Feature");
+// formatter.openElement("Feature");
+// formatter.addAttribute("color", "red");
+// formatter.addAttribute("taste", "juicy");
+// formatter.closeElement("Feature");
 //
-//  formatter.closeElement("Apples");
+// formatter.closeElement("Apples");
 //
-//  formatter.closeElement("Fruits");
+// formatter.closeElement("Fruits");
 //
-//  formatter.reset();
-//  // reset the formatter for a new document in the same stream
+// formatter.reset();
+// // reset the formatter for a new document in the same stream
 //
-//  formatter.addHeader();
-//  formatter.openElement("Grains");
+// formatter.addHeader();
+// formatter.openElement("Grains");
 //
-//  bsl::ostream& os = formatter.rawOutputStream();
-//  os << "<free>anything that can mess up the XML doc</free>";
-//  // Now coming back to the formatter, but can't do the following:
-//  // formatter.addAttribute("country", "USA");
-//  formatter.addData("Corn, Wheat, Oat");
-//  formatter.closeElement("Grains");
-//..
+// bsl::ostream& os = formatter.rawOutputStream();
+// os << "<free>anything that can mess up the XML doc</free>";
+// // Now coming back to the formatter, but can't do the following:
+// // formatter.addAttribute("country", "USA");
+// formatter.addData("Corn, Wheat, Oat");
+// formatter.closeElement("Grains");
+// ```
 // Following are the two resulting documents, as separated by the call to
 // reset(),
-//..
-//  +--bsl::cout-----------------------------+
-//  |<?xml version="1.0" encoding="UTF-8" ?> |
-//  |<Fruits>                                |
-//  |    <Oranges                            |
-//  |         farm="Francis&apos; Orchard"   |
-//  |         size="3.5">                    |
-//  |        <Quantity>12</Quantity>         |
-//  |        <pickDate>2004-08-31</pickDate> |
-//  |        <Feature shape="round"/>        |
-//  |        <!-- No wrapping for long comments --> |
-//  |    </Oranges>                          |
-//  |                                        |
-//  |    <Apples farm="Fuji &amp; Sons"      |
-//  |         size="3">                      |
-//  |        <pickDates>                     |
-//  |            2005-01-17 2005-02-21       |
-//  |            2005-03-25 2005-05-30       |
-//  |            2005-07-04 2005-09-05       |
-//  |            2005-11-24 2005-12-25       |
-//  |        </pickDates>                    |
-//  |        <Feature color="red"            |
-//  |             taste="juicy"/>            |
-//  |    </Apples>                           |
-//  |</Fruits>                               |
-//  +----------------------------------------+
-//  +--bsl::cout-----------------------------+
-//  |<?xml version="1.0" encoding="UTF-8" ?> |
-//  |<Grains><free>anything that can mess up the XML doc</free>
-//  |              Corn, Wheat, Oat</Grains> |
-//  +----------------------------------------+
-//..
+// ```
+// +--bsl::cout-----------------------------+
+// |<?xml version="1.0" encoding="UTF-8" ?> |
+// |<Fruits>                                |
+// |    <Oranges                            |
+// |         farm="Francis&apos; Orchard"   |
+// |         size="3.5">                    |
+// |        <Quantity>12</Quantity>         |
+// |        <pickDate>2004-08-31</pickDate> |
+// |        <Feature shape="round"/>        |
+// |        <!-- No wrapping for long comments --> |
+// |    </Oranges>                          |
+// |                                        |
+// |    <Apples farm="Fuji &amp; Sons"      |
+// |         size="3">                      |
+// |        <pickDates>                     |
+// |            2005-01-17 2005-02-21       |
+// |            2005-03-25 2005-05-30       |
+// |            2005-07-04 2005-09-05       |
+// |            2005-11-24 2005-12-25       |
+// |        </pickDates>                    |
+// |        <Feature color="red"            |
+// |             taste="juicy"/>            |
+// |    </Apples>                           |
+// |</Fruits>                               |
+// +----------------------------------------+
+// +--bsl::cout-----------------------------+
+// |<?xml version="1.0" encoding="UTF-8" ?> |
+// |<Grains><free>anything that can mess up the XML doc</free>
+// |              Corn, Wheat, Oat</Grains> |
+// +----------------------------------------+
+// ```
 
 #include <balscm_version.h>
 
@@ -267,25 +267,26 @@ class Formatter;
                         // class Formatter_StreamHolder
                         // ============================
 
+/// This component-private class provides a mechanism for holding the
+/// `bsl::ostream` used by the `Formatter` to emit XML documents.  Objects
+/// of `Formatter_StreamHolder` type can be constructed with either a
+/// `bsl::streambuf *` or a `bsl::ostream *`.  If a stream holder is
+/// constructed with a `bsl::streambuf *`, then it owns its held
+/// `bsl::ostream`, which is constructed with the supplied stream buffer.
+/// If a stream holder is constructed with a `bsl::ostream *`, its held
+/// `bsl::ostream` is the supplied stream.
 class Formatter_StreamHolder {
-    // This component-private class provides a mechanism for holding the
-    // 'bsl::ostream' used by the 'Formatter' to emit XML documents.  Objects
-    // of 'Formatter_StreamHolder' type can be constructed with either a
-    // 'bsl::streambuf *' or a 'bsl::ostream *'.  If a stream holder is
-    // constructed with a 'bsl::streambuf *', then it owns its held
-    // 'bsl::ostream', which is constructed with the supplied stream buffer.
-    // If a stream holder is constructed with a 'bsl::ostream *', its held
-    // 'bsl::ostream' is the supplied stream.
 
     // DATA
-    bsl::optional<bsl::ostream>  d_ownStream;
-        // 'bsl::ostream' if constructed with a 'bsl::streambuf *', and
-        // disengaged otherwise
 
+    // `bsl::ostream` if constructed with a `bsl::streambuf *`, and
+    // disengaged otherwise
+    bsl::optional<bsl::ostream>  d_ownStream;
+
+    // the held `bsl::ostream`, which is equal to `&d_ownStream.value()` if
+    // `d_ownStream` is engaged, and the `bsl::ostream *` supplied on
+    // construction otherwise
     bsl::ostream                *d_stream_p;
-        // the held 'bsl::ostream', which is equal to '&d_ownStream.value()' if
-        // 'd_ownStream' is engaged, and the 'bsl::ostream *' supplied on
-        // construction otherwise
 
     // NOT IMPLEMENTED
     Formatter_StreamHolder(const Formatter_StreamHolder&) BSLS_KEYWORD_DELETED;
@@ -294,31 +295,34 @@ class Formatter_StreamHolder {
 
   public:
     // CREATORS
-    explicit Formatter_StreamHolder(bsl::streambuf *streamBuffer);
-        // Create a 'Formatter_StreamHolder' object that holds a 'bsl::ostream'
-        // constructed from the specified 'streamBuffer'.
 
+    /// Create a `Formatter_StreamHolder` object that holds a `bsl::ostream`
+    /// constructed from the specified `streamBuffer`.
+    explicit Formatter_StreamHolder(bsl::streambuf *streamBuffer);
+
+    /// Create a `Formatter_StreamHolder` that holds the specified `stream`.
     explicit Formatter_StreamHolder(bsl::ostream *stream);
-        // Create a 'Formatter_StreamHolder' that holds the specified 'stream'.
 
     // MANIPULATORS
+
+    /// Return the address that provides modifiable access to this object's
+    /// held `bsl::ostream`.
     bsl::ostream *stream();
-        // Return the address that provides modifiable access to this object's
-        // held 'bsl::ostream'.
 
     // ACCESSORS
+
+    /// Return the address that provides non-modifiable access to this
+    /// object's held `bsl::ostream`.
     const bsl::ostream *stream() const;
-        // Return the address that provides non-modifiable access to this
-        // object's held 'bsl::ostream'.
 };
 
                            // =====================
                            // struct Formatter_Mode
                            // =====================
 
+/// This component-private utility `struct` provides a namespace for
+/// enumerating the set of formatting modes that the `Formatter` can take.
 struct Formatter_Mode {
-    // This component-private utility 'struct' provides a namespace for
-    // enumerating the set of formatting modes that the 'Formatter' can take.
 
     // TYPES
     enum Enum {
@@ -331,11 +335,11 @@ struct Formatter_Mode {
                            // class Formatter_State
                            // =====================
 
+/// This component-private, in-core, value-semantic class provides a variant
+/// that can be inhabited by an object of either the component-private
+/// `Formatter_CompactImplState` type or the component-private
+/// `Formatter_PrettyImplState` type.
 class Formatter_State {
-    // This component-private, in-core, value-semantic class provides a variant
-    // that can be inhabited by an object of either the component-private
-    // 'Formatter_CompactImplState' type or the component-private
-    // 'Formatter_PrettyImplState' type.
 
   public:
     // TYPES
@@ -359,45 +363,48 @@ class Formatter_State {
     allocator_type d_allocator;
 
     // PRIVATE CREATORS
+
+    /// If the specified `wrapColumn` is -1, create a `Formatter_State`
+    /// object having a `compact` selection, which is a
+    /// `Formatter_CompactImplState` constructed with the specified
+    /// `indentLevel` and `spacesPerLevel`.  Otherwise, create a
+    /// `Formatter_State` object having a `pretty` selection, which is a
+    /// `Formatter_PrettyImplState` constructed with the `indentLevel`,
+    /// `spacesPerLevel`, and `wrapColumn`.  Optionally specify an
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory; otherwise, the default allocator is used.
     Formatter_State(int                   indentLevel,
                     int                   spacesPerLevel,
                     int                   wrapColumn,
                     const allocator_type& allocator = allocator_type());
-        // If the specified 'wrapColumn' is -1, create a 'Formatter_State'
-        // object having a 'compact' selection, which is a
-        // 'Formatter_CompactImplState' constructed with the specified
-        // 'indentLevel' and 'spacesPerLevel'.  Otherwise, create a
-        // 'Formatter_State' object having a 'pretty' selection, which is a
-        // 'Formatter_PrettyImplState' constructed with the 'indentLevel',
-        // 'spacesPerLevel', and 'wrapColumn'.  Optionally specify an
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory; otherwise, the default allocator is used.
 
     // PRIVATE MANIPULATORS
-    Compact& compact();
-        // Return a reference providing modifiable access to the 'compact'
-        // selection of this object.  The behavior is undefined unless the
-        // current selection of this object is 'compact'.
 
+    /// Return a reference providing modifiable access to the `compact`
+    /// selection of this object.  The behavior is undefined unless the
+    /// current selection of this object is `compact`.
+    Compact& compact();
+
+    /// Return a reference providing modifiable access to the `pretty`
+    /// selection of this object.  The behavior is undefined unless the
+    /// current selection of this object is `pretty`.
     Pretty& pretty();
-        // Return a reference providing modifiable access to the 'pretty'
-        // selection of this object.  The behavior is undefined unless the
-        // current selection of this object is 'pretty'.
 
     // PRIVATE ACCESSORS
+
+    /// Return a reference providing non-modifiable access to the `compact`
+    /// selection of this object.  The behavior is undefined unless the
+    /// current selection of this object is `compact`.
     const Compact& compact() const;
-        // Return a reference providing non-modifiable access to the 'compact'
-        // selection of this object.  The behavior is undefined unless the
-        // current selection of this object is 'compact'.
 
+    /// Return `Mode::e_COMPACT` if the current selection of this object is
+    /// `compact`, and return `Mode::e_PRETTY` otherwise.
     Mode::Enum mode() const;
-        // Return 'Mode::e_COMPACT' if the current selection of this object is
-        // 'compact', and return 'Mode::e_PRETTY' otherwise.
 
+    /// Return a reference providing non-modifiable access to the `pretty`
+    /// selection of this object.  The behavior is undefined unless the
+    /// current selection of this object is `pretty`.
     const Pretty& pretty() const;
-        // Return a reference providing non-modifiable access to the 'pretty'
-        // selection of this object.  The behavior is undefined unless the
-        // current selection of this object is 'pretty'.
 
     // FRIENDS
     friend class balxml::Formatter;
@@ -407,54 +414,58 @@ class Formatter_State {
     BSLMF_NESTED_TRAIT_DECLARATION(Formatter_State, bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a `Formatter_State` with a `compact` selection having the
+    /// default value.  Optionally specify an `allocator` (e.g., the address
+    /// of a `bslma::Allocator` object) to supply memory; otherwise, the
+    /// default allocator is used.
     Formatter_State();
     explicit Formatter_State(const allocator_type& allocator);
-        // Create a 'Formatter_State' with a 'compact' selection having the
-        // default value.  Optionally specify an 'allocator' (e.g., the address
-        // of a 'bslma::Allocator' object) to supply memory; otherwise, the
-        // default allocator is used.
 
+    /// Create a `Formatter_State` object having the same value as the
+    /// specified `original` object.  Optionally specify an `allocator`
+    /// (e.g., the address of a `bslma::Allocator` object) to supply memory;
+    /// otherwise, the default allocator is used.
     Formatter_State(const Formatter_State& original,
                     const allocator_type&  allocator = allocator_type());
-        // Create a 'Formatter_State' object having the same value as the
-        // specified 'original' object.  Optionally specify an 'allocator'
-        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
-        // otherwise, the default allocator is used.
 
+    /// Destroy this object.
     ~Formatter_State();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` and return a
+    /// reference to this object.
     Formatter_State& operator=(const Formatter_State& rhs);
-        // Assign to this object the value of the specified 'rhs' and return a
-        // reference to this object.
 
     // ACCESSORS
+
+    /// Return the allocator associated with this object.
     allocator_type get_allocator() const;
-        // Return the allocator associated with this object.
 };
 
                               // ===============
                               // class Formatter
                               // ===============
 
+/// This class provides a set of XML-style formatting utilities that enable
+/// transparent indentation and wrapping for users attempting to format data
+/// with XML tags and attributes.  A formatter object is instantiated with a
+/// pointer to an output stream or streambuf.  Users can then use the
+/// provided utilities to write element tags, attributes, data in a valid
+/// XML sequence into the underlying stream.
+///
+/// This class has no features that would impair thread safety.  However, it
+/// does not mediate between two threads attempting to access the same
+/// stream.
 class Formatter {
-    // This class provides a set of XML-style formatting utilities that enable
-    // transparent indentation and wrapping for users attempting to format data
-    // with XML tags and attributes.  A formatter object is instantiated with a
-    // pointer to an output stream or streambuf.  Users can then use the
-    // provided utilities to write element tags, attributes, data in a valid
-    // XML sequence into the underlying stream.
-    //
-    // This class has no features that would impair thread safety.  However, it
-    // does not mediate between two threads attempting to access the same
-    // stream.
 
   public:
     // TYPES
+
+    /// `WhitespaceType` describes options available when outputting textual
+    /// data of an element between its pair of opening and closing tags.
     typedef FormatterWhitespaceType::Enum WhitespaceType;
-        // 'WhitespaceType' describes options available when outputting textual
-        // data of an element between its pair of opening and closing tags.
 
     // PUBLIC CLASS DATA
 #ifdef BDE_VERIFY
@@ -508,6 +519,19 @@ class Formatter {
 
   public:
     // CREATORS
+
+    /// Construct an object to format XML data into the specified `output`
+    /// stream or streambuf.  Optionally specify `encoderOptions`, initial
+    /// `indentLevel`, `spacesPerLevel`, and `wrapColumn` for formatting.
+    /// An `indentLevel` of 0 (the default) indicates the root element will
+    /// have no indentation.  A `wrapColumn` of 0 will cause the formatter
+    /// to behave as though the line length were infinite, but will still
+    /// insert newlines and indent when starting a new element.  A
+    /// `wrapColumn` of -1 will cause output to be formatted in "compact"
+    /// mode -- with no added newlines or indentation.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently install default allocator is used.  The behavior is
+    /// undefined if the `output` stream or streambuf is destroyed before
     Formatter(bsl::streambuf   *output,
               int               indentLevel    = 0,
               int               spacesPerLevel = 4,
@@ -530,195 +554,185 @@ class Formatter {
               int                    spacesPerLevel = 4,
               int                    wrapColumn     = 80,
               bslma::Allocator      *basicAllocator = 0);
-        // Construct an object to format XML data into the specified 'output'
-        // stream or streambuf.  Optionally specify 'encoderOptions', initial
-        // 'indentLevel', 'spacesPerLevel', and 'wrapColumn' for formatting.
-        // An 'indentLevel' of 0 (the default) indicates the root element will
-        // have no indentation.  A 'wrapColumn' of 0 will cause the formatter
-        // to behave as though the line length were infinite, but will still
-        // insert newlines and indent when starting a new element.  A
-        // 'wrapColumn' of -1 will cause output to be formatted in "compact"
-        // mode -- with no added newlines or indentation.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently install default allocator is used.  The behavior is
-        // undefined if the 'output' stream or streambuf is destroyed before
 
     // MANIPULATORS
+
+    /// Add an attribute of the specified `name` and specified `value` to
+    /// the currently open element.  `value` can be of the following types:
+    /// `char`, `short`, `int`, `bsls::Types::Int64`, `float`, `double`,
+    /// `bsl::string`, `bdlt::Datetime`, `bdlt::Date`, and `bdlt::Time`.
+    /// Precede this name="value" pair with a single space.  Wrap line
+    /// (write the attribute on next line with proper indentation), if the
+    /// length of name="value" is too long.  Optionally specify a
+    /// `formattingMode` used to control the formatting of the `value`.  If
+    /// `value` is of type `bsl::string` or convertible to
+    /// `bsl::string_view`, the presence of invalid input stops the transfer
+    /// of data to the output specified on construction (see {Valid
+    /// Strings}).  If `value` is of type `bsl::string` or convertible to
+    /// `bsl::string_view`, any special characters in `value` are escaped
+    /// (see {Special Characters}).  If `value` is of type `char`, it is
+    /// cast to a signed byte value with a range `[ -128 .. 127 ]`.  The
+    /// behavior is undefined unless the last manipulator was `openElement`
+    /// or `addAttribute`.
     template <class TYPE>
     void addAttribute(const bsl::string_view& name,
                       const TYPE&             value,
                       int                     formattingMode = 0);
-        // Add an attribute of the specified 'name' and specified 'value' to
-        // the currently open element.  'value' can be of the following types:
-        // 'char', 'short', 'int', 'bsls::Types::Int64', 'float', 'double',
-        // 'bsl::string', 'bdlt::Datetime', 'bdlt::Date', and 'bdlt::Time'.
-        // Precede this name="value" pair with a single space.  Wrap line
-        // (write the attribute on next line with proper indentation), if the
-        // length of name="value" is too long.  Optionally specify a
-        // 'formattingMode' used to control the formatting of the 'value'.  If
-        // 'value' is of type 'bsl::string' or convertible to
-        // 'bsl::string_view', the presence of invalid input stops the transfer
-        // of data to the output specified on construction (see {Valid
-        // Strings}).  If 'value' is of type 'bsl::string' or convertible to
-        // 'bsl::string_view', any special characters in 'value' are escaped
-        // (see {Special Characters}).  If 'value' is of type 'char', it is
-        // cast to a signed byte value with a range '[ -128 .. 127 ]'.  The
-        // behavior is undefined unless the last manipulator was 'openElement'
-        // or 'addAttribute'.
 
+    /// Insert one or two newline characters into the output stream such
+    /// that a blank line results.  If the last output was a newline, then
+    /// only one newline is added, otherwise two newlines are added.  If
+    /// following a call to `openElement`, or `addAttribute`, add a closing
+    /// `>` to the opened tag.
     void addBlankLine();
-        // Insert one or two newline characters into the output stream such
-        // that a blank line results.  If the last output was a newline, then
-        // only one newline is added, otherwise two newlines are added.  If
-        // following a call to 'openElement', or 'addAttribute', add a closing
-        // '>' to the opened tag.
 
+    /// [**DEPRECATED**] Use `addValidComment` instead.
+    ///
+    /// Write the specified `comment` into the stream.  The optionally
+    /// specified `forceNewline`, if true, forces to start a new line solely
+    /// for the comment if it's not on a new line already.  Otherwise,
+    /// comments continue on current line.  If an element-opening tag is not
+    /// completed with a `>`, `addComment` will add `>`.
     void addComment(const bsl::string_view& comment, bool forceNewline = true);
-        // [!DEPRECATED!] Use 'addValidComment' instead.
-        //
-        // Write the specified 'comment' into the stream.  The optionally
-        // specified 'forceNewline', if true, forces to start a new line solely
-        // for the comment if it's not on a new line already.  Otherwise,
-        // comments continue on current line.  If an element-opening tag is not
-        // completed with a '>', 'addComment' will add '>'.
 
+    /// Add the specified `value` as the data content, where `value` can be
+    /// of the following types: `char`, `short`, `int`,
+    /// `bsls::Types::Int64`, `float`, `double`, `bsl::string`,
+    /// `bdlt::Datetime`, `bdlt::Date`, and `bdlt::Time`.  Perform no
+    /// line-wrapping or indentation as if the whitespace constraint were
+    /// always `BAEXML_PRESERVE_WHITESPACE` in `openElement`, with the only
+    /// exception that an initial newline and an initial indent is added
+    /// when `openElement` specifies `BAEXML_NEWLINE_INDENT` option.  If
+    /// `value` is of type `bsl::string` or convertible to
+    /// `bsl::string_view`, the presence of invalid input stops the transfer
+    /// of data to the output specified on construction (see {Valid
+    /// Strings}).  If `value` is of type `bsl::string` or convertible to
+    /// `bsl::string_view`, characters in `value` are escaped (see {Special
+    /// Characters}).  If `value` is of type `char`, it is cast to a signed
+    /// byte value with a range of `[ -128 .. 127 ]`.  Optionally specify
+    /// the `formattingMode` to specify the format used to encode `value`.
+    /// The behavior is undefined if the call is made when there are no
+    /// opened elements.
     template <class TYPE>
     void addData(const TYPE& value, int formattingMode = 0);
-        // Add the specified 'value' as the data content, where 'value' can be
-        // of the following types: 'char', 'short', 'int',
-        // 'bsls::Types::Int64', 'float', 'double', 'bsl::string',
-        // 'bdlt::Datetime', 'bdlt::Date', and 'bdlt::Time'.  Perform no
-        // line-wrapping or indentation as if the whitespace constraint were
-        // always 'BAEXML_PRESERVE_WHITESPACE' in 'openElement', with the only
-        // exception that an initial newline and an initial indent is added
-        // when 'openElement' specifies 'BAEXML_NEWLINE_INDENT' option.  If
-        // 'value' is of type 'bsl::string' or convertible to
-        // 'bsl::string_view', the presence of invalid input stops the transfer
-        // of data to the output specified on construction (see {Valid
-        // Strings}).  If 'value' is of type 'bsl::string' or convertible to
-        // 'bsl::string_view', characters in 'value' are escaped (see {Special
-        // Characters}).  If 'value' is of type 'char', it is cast to a signed
-        // byte value with a range of '[ -128 .. 127 ]'.  Optionally specify
-        // the 'formattingMode' to specify the format used to encode 'value'.
-        // The behavior is undefined if the call is made when there are no
-        // opened elements.
 
+    /// Add element of the specified `name` and the specified `value` as the
+    /// data content.  This has the same effect as calling the following
+    /// sequence: `openElement(name); addData(value), closeElement(name);`.
+    /// Optionally specify the `formattingMode`.
     template <class TYPE>
     void addElementAndData(const bsl::string_view& name,
                            const TYPE&             value,
                            int                     formattingMode = 0);
-        // Add element of the specified 'name' and the specified 'value' as the
-        // data content.  This has the same effect as calling the following
-        // sequence: 'openElement(name); addData(value), closeElement(name);'.
-        // Optionally specify the 'formattingMode'.
 
+    /// Add XML header with optionally specified `encoding`.  Version is
+    /// always "1.0".  The behavior is undefined unless `addHeader` is the
+    /// first manipulator (with the exception of `rawOutputStream`) after
+    /// construction or `reset`.
     void addHeader(const bsl::string_view& encoding = "UTF-8");
-        // Add XML header with optionally specified 'encoding'.  Version is
-        // always "1.0".  The behavior is undefined unless 'addHeader' is the
-        // first manipulator (with the exception of 'rawOutputStream') after
-        // construction or 'reset'.
 
+    /// Add the specified `value` as the data content, where `value` can be
+    /// of the following types: `char`, `short`, `int`,
+    /// `bsls::Types::Int64`, `float`, `double`, `bsl::string`,
+    /// `bdlt::Datetime`, `bdlt::Date`, and `bdlt::Time`.  Prefix the
+    /// `value` with a space(`0x20`) unless the data being added is the
+    /// first data on a line.  When adding the data makes the line too long,
+    /// perform line-wrapping and indentation as determined by the
+    /// whitespace constraint used when the current element is opened with
+    /// `openElement`.  If `value` is of type `bsl::string` or convertible
+    /// to `bsl::string_view`, the presence of invalid input stops the
+    /// transfer of data to the output specified on construction (see {Valid
+    /// Strings}).  If `value` is of type `bsl::string` or convertible to
+    /// `bsl::string_view`, any special characters in `value` are escaped
+    /// (see {Special Characters}).  If `value` is of type `char`, it is
+    /// cast to a signed byte value with a range of `[ -128 .. 127 ]`.
+    /// Optionally specify the `formattingMode` to specify the format used
+    /// to encode `value`.  The behavior is undefined if the call is made
+    /// when there are no opened elements.
     template <class TYPE>
     void addListData(const TYPE& value, int formattingMode = 0);
-        // Add the specified 'value' as the data content, where 'value' can be
-        // of the following types: 'char', 'short', 'int',
-        // 'bsls::Types::Int64', 'float', 'double', 'bsl::string',
-        // 'bdlt::Datetime', 'bdlt::Date', and 'bdlt::Time'.  Prefix the
-        // 'value' with a space('0x20') unless the data being added is the
-        // first data on a line.  When adding the data makes the line too long,
-        // perform line-wrapping and indentation as determined by the
-        // whitespace constraint used when the current element is opened with
-        // 'openElement'.  If 'value' is of type 'bsl::string' or convertible
-        // to 'bsl::string_view', the presence of invalid input stops the
-        // transfer of data to the output specified on construction (see {Valid
-        // Strings}).  If 'value' is of type 'bsl::string' or convertible to
-        // 'bsl::string_view', any special characters in 'value' are escaped
-        // (see {Special Characters}).  If 'value' is of type 'char', it is
-        // cast to a signed byte value with a range of '[ -128 .. 127 ]'.
-        // Optionally specify the 'formattingMode' to specify the format used
-        // to encode 'value'.  The behavior is undefined if the call is made
-        // when there are no opened elements.
 
+    /// Insert a literal newline into the XML output.  If following a call
+    /// to `openElement`, or `addAttribute`, add a closing `>` to the opened
+    /// tag.
     void addNewline();
-        // Insert a literal newline into the XML output.  If following a call
-        // to 'openElement', or 'addAttribute', add a closing '>' to the opened
-        // tag.
 
+    /// Write the specified `comment` into the stream.  Optionally specify
+    /// `forceNewline` that specifies if a new line should be added before
+    /// the comment if it is not already on a new line.  If `forceNewline`
+    /// is not specified then a new line is inserted for comments not
+    /// already on a new line.  Also optionally specify an
+    /// `omitEnclosingWhitespace` that specifies if a space character should
+    /// be omitted before and after `comment`.  If `omitEnclosingWhitespace`
+    /// is not specified then a space character is inserted before and after
+    /// `comment`.  Return 0 on success, and non-zero value otherwise.  Note
+    /// that a non-zero return value is returned if either `comment`
+    /// contains `--` or if `omitEnclosingWhitespace` is `true` and
+    /// `comment` ends with `-`.  Also note that if an element-opening tag
+    /// is not completed with a `>`, `addValidComment` will add `>`.
     int addValidComment(
                       const bsl::string_view& comment,
                       bool                    forceNewline            = true,
                       bool                    omitEnclosingWhitespace = false);
-        // Write the specified 'comment' into the stream.  Optionally specify
-        // 'forceNewline' that specifies if a new line should be added before
-        // the comment if it is not already on a new line.  If 'forceNewline'
-        // is not specified then a new line is inserted for comments not
-        // already on a new line.  Also optionally specify an
-        // 'omitEnclosingWhitespace' that specifies if a space character should
-        // be omitted before and after 'comment'.  If 'omitEnclosingWhitespace'
-        // is not specified then a space character is inserted before and after
-        // 'comment'.  Return 0 on success, and non-zero value otherwise.  Note
-        // that a non-zero return value is returned if either 'comment'
-        // contains '--' or if 'omitEnclosingWhitespace' is 'true' and
-        // 'comment' ends with '-'.  Also note that if an element-opening tag
-        // is not completed with a '>', 'addValidComment' will add '>'.
 
+    /// Decrement the indent level and add the closing tag for the element
+    /// of the specified `name`.  If the element does not have content,
+    /// write `/>` and a newline into stream.  Otherwise, write `</name>`
+    /// and a newline.  If this `</name>` does not share the same line with
+    /// data, or it follows another element's closing tag, indent properly
+    /// before writing `</name>` and the newline.  If `name` is root
+    /// element, flush the output stream.  The behavior is undefined if
+    /// `name` is not the most recently opened element that's yet to be
+    /// closed.
     void closeElement(const bsl::string_view& name);
-        // Decrement the indent level and add the closing tag for the element
-        // of the specified 'name'.  If the element does not have content,
-        // write '/>' and a newline into stream.  Otherwise, write '</name>'
-        // and a newline.  If this '</name>' does not share the same line with
-        // data, or it follows another element's closing tag, indent properly
-        // before writing '</name>' and the newline.  If 'name' is root
-        // element, flush the output stream.  The behavior is undefined if
-        // 'name' is not the most recently opened element that's yet to be
-        // closed.
 
+    /// Insert the closing `>` if there is an incomplete tag, and flush the
+    /// output stream.
     void flush();
-        // Insert the closing '>' if there is an incomplete tag, and flush the
-        // output stream.
 
+    /// Open an element of the specified `name` at current indent level with
+    /// the optionally specified whitespace constraint `whitespaceMode` for
+    /// its textual data and increment indent level.  `whitespaceMode`
+    /// constrains how textual data is written with `addListData` for the
+    /// current element, but not its nested elements.  The behavior is
+    /// undefined if `openElement` is called after the root element is
+    /// closed and there is no subsequent call to `reset`.
     void openElement(
                const bsl::string_view& name,
                WhitespaceType          whitespaceMode = e_PRESERVE_WHITESPACE);
-        // Open an element of the specified 'name' at current indent level with
-        // the optionally specified whitespace constraint 'whitespaceMode' for
-        // its textual data and increment indent level.  'whitespaceMode'
-        // constrains how textual data is written with 'addListData' for the
-        // current element, but not its nested elements.  The behavior is
-        // undefined if 'openElement' is called after the root element is
-        // closed and there is no subsequent call to 'reset'.
 
+    /// Return a reference to the underlining output stream.  This method is
+    /// provided in order to enable user to temporarily jump out of the
+    /// formatter and write user's own free-lance content directly to the
+    /// stream.
     bsl::ostream& rawOutputStream();
-        // Return a reference to the underlining output stream.  This method is
-        // provided in order to enable user to temporarily jump out of the
-        // formatter and write user's own free-lance content directly to the
-        // stream.
 
+    /// Reset the formatter such that it can be used to format a new XML
+    /// document as if the formatter were just constructed
     void reset();
-        // Reset the formatter such that it can be used to format a new XML
-        // document as if the formatter were just constructed
 
     // ACCESSORS
+
+    /// Return the encoder options being used.
     const EncoderOptions& encoderOptions() const;
-        // Return the encoder options being used.
 
+    /// Return the current level of indentation.
     int indentLevel() const;
-        // Return the current level of indentation.
 
+    /// Return the current column position at a line where next output
+    /// starts.  This is unreliable if called after free-lance information
+    /// is written onto the stream returned by `rawOutputStream`
     int outputColumn() const;
-        // Return the current column position at a line where next output
-        // starts.  This is unreliable if called after free-lance information
-        // is written onto the stream returned by 'rawOutputStream'
 
+    /// Return the number of spaces per indentation level.
     int spacesPerLevel() const;
-        // Return the number of spaces per indentation level.
 
+    /// Return 0 if no errors have been detected since construction or
+    /// since the last call to `reset`, otherwise return a negative value.
     int status() const;
-        // Return 0 if no errors have been detected since construction or
-        // since the last call to 'reset', otherwise return a negative value.
 
+    /// Return the line width where line-wrapping takes place.
     int wrapColumn() const;
-        // Return the line width where line-wrapping takes place.
 };
 
 // ============================================================================

@@ -13,19 +13,19 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: ball_managedattribute
 //
 //@DESCRIPTION: This component implements an unusual in-core value-semantic
-// class, 'ball::Attribute'.  Each instance of this type represents an
+// class, `ball::Attribute`.  Each instance of this type represents an
 // attribute that consists of a (literal) name (held but not owned), and an
-// associated value (owned) that can be an 'int', 'long', 'long long',
-// 'unsigned int', unsigned long', 'unsigned long long', 'bdlb::Guid', or a
-// 'bsl::string'.
+// associated value (owned) that can be an `int`, `long`, `long long`,
+// `unsigned int`, unsigned long', `unsigned long long`, `bdlb::Guid`, or a
+// `bsl::string`.
 //
 // This component participates in the implementation of "Rule-Based Logging".
 // For more information on how to use that feature, please see the package
 // level documentation and usage examples for "Rule-Based Logging".
 //
-// IMPORTANT: The attribute name, whose type is 'const char *', must therefore
-// remain valid throughout the life time of the 'ball::Attribute' object and
-// that of any other 'ball::Attribute' objects that are copied or assigned from
+// IMPORTANT: The attribute name, whose type is `const char *`, must therefore
+// remain valid throughout the life time of the `ball::Attribute` object and
+// that of any other `ball::Attribute` objects that are copied or assigned from
 // the original object.  It is recommended that only null-terminated C-string
 // literals be used for names.
 //
@@ -35,13 +35,13 @@ BSLS_IDENT("$Id: $")
 // post-processing and analysis.  It is recommended to use the following naming
 // conventions for attribute names:
 //
-//: o An attribute name should start with an alphabetic character, no other
-//:   special characters, digits should be allowed as the first character of
-//:   the attribute name.
-//: o An attribute name should not contain whitespaces.
-//: o An attribute name should contain only alphanumeric characters,
-//:   underscores('_'), and dots('.').  Do not use any other special
-//:   characters.
+// * An attribute name should start with an alphabetic character, no other
+//   special characters, digits should be allowed as the first character of
+//   the attribute name.
+// * An attribute name should not contain whitespaces.
+// * An attribute name should contain only alphanumeric characters,
+//   underscores(`_`), and dots(`.`).  Do not use any other special
+//   characters.
 //
 // Disregarding these conventions may prevent the log output from being
 // correctly parsed by commonly used log processing software.
@@ -50,79 +50,79 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic 'Attribute' usage
+///Example 1: Basic `Attribute` usage
 /// - - - - - - - - - - - - - - - - -
 // The following code creates four attributes having the same name, but
 // different attribute value types.
-//..
-//    ball::Attribute a1("day", "Sunday");
-//    ball::Attribute a2("day", 7);
-//    ball::Attribute a3("day", 7LL);
-//    ball::Attribute a4("day", 7ULL);
-//..
-// The names of the attributes can be found by calling the 'name' method:
-//..
-//    assert(0 == bsl::strcmp("day", a1.name()));
-//    assert(0 == bsl::strcmp("day", a2.name()));
-//    assert(0 == bsl::strcmp("day", a3.name()));
-//    assert(0 == bsl::strcmp("day", a4.name()));
-//..
-// The 'value' method returns a non-modifiable reference to the
-// 'bdlb::Variant' object that manages the value of the attribute:
-//..
-//    assert(true     == a1.value().is<bsl::string>());
-//    assert("Sunday" == a1.value().the<bsl::string>());
+// ```
+//   ball::Attribute a1("day", "Sunday");
+//   ball::Attribute a2("day", 7);
+//   ball::Attribute a3("day", 7LL);
+//   ball::Attribute a4("day", 7ULL);
+// ```
+// The names of the attributes can be found by calling the `name` method:
+// ```
+//   assert(0 == bsl::strcmp("day", a1.name()));
+//   assert(0 == bsl::strcmp("day", a2.name()));
+//   assert(0 == bsl::strcmp("day", a3.name()));
+//   assert(0 == bsl::strcmp("day", a4.name()));
+// ```
+// The `value` method returns a non-modifiable reference to the
+// `bdlb::Variant` object that manages the value of the attribute:
+// ```
+//   assert(true     == a1.value().is<bsl::string>());
+//   assert("Sunday" == a1.value().the<bsl::string>());
 //
-//    assert(true     == a2.value().is<int>());
-//    assert(7        == a2.value().the<int>());
+//   assert(true     == a2.value().is<int>());
+//   assert(7        == a2.value().the<int>());
 //
-//    assert(true     == a3.value().is<long long>());
-//    assert(7        == a3.value().the<long long>());
+//   assert(true     == a3.value().is<long long>());
+//   assert(7        == a3.value().the<long long>());
 //
-//    assert(true     == a4.value().is<unsigned long long>());
-//    assert(7        == a4.value().the<unsigned long long>());
-//..
+//   assert(true     == a4.value().is<unsigned long long>());
+//   assert(7        == a4.value().the<unsigned long long>());
+// ```
 // Note that the name string that is passed to the constructor of
-// 'ball::Attribute' *must* remain valid and unchanged after the
-// 'ball::Attribute' object is created.  In the next example, we create a
+// `ball::Attribute` *must* remain valid and unchanged after the
+// `ball::Attribute` object is created.  In the next example, we create a
 // temporary buffer to store the name string, and then use the buffer to
 // create an attribute.  Note that any subsequent changes to this temporary
 // buffer will also modify the name of the attribute:
-//..
-//    char buffer[] = "Hello";
-//    ball::Attribute a4(buffer, 1);                   // BAD IDEA!!!
-//    bsl::strcpy(buffer, "World");
-//    assert(0 == bsl::strcmp("World", a4.name()));
-//..
-// The 'ball::Attribute' class also provides a constructor that takes a value
-// of type 'ball::Attribute::Value':
-//..
-//    ball::Attribute::Value value;
-//    value.assign<bsl::string>("Sunday");
-//    ball::Attribute a5("day", value);
-//    assert(a5 == a1);
-//..
+// ```
+//   char buffer[] = "Hello";
+//   ball::Attribute a4(buffer, 1);                   // BAD IDEA!!!
+//   bsl::strcpy(buffer, "World");
+//   assert(0 == bsl::strcmp("World", a4.name()));
+// ```
+// The `ball::Attribute` class also provides a constructor that takes a value
+// of type `ball::Attribute::Value`:
+// ```
+//   ball::Attribute::Value value;
+//   value.assign<bsl::string>("Sunday");
+//   ball::Attribute a5("day", value);
+//   assert(a5 == a1);
+// ```
 //
-///Example 2: Using 'Attribute' to log pointers to opaque structure
+///Example 2: Using `Attribute` to log pointers to opaque structure
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Consider we have an event scheduler that operates on events referred to by
 // event handle:
-//..
-//    struct Event {
-//        d_int d_id;
-//    };
+// ```
+//   struct Event {
+//       d_int d_id;
+//   };
 //
-//    typedef Event * EventHandle;
-//..
-// The event handler value can be logged using 'ball::Attribute' as follows:
-//..
-//    Event           event;
-//    EventHandle     handle = &event;
-//    ball::Attribute a7("event", handle);
+//   typedef Event * EventHandle;
+// ```
+// The event handler value can be logged using `ball::Attribute` as follows:
+// ```
+//   Event           event;
+//   EventHandle     handle = &event;
+//   ball::Attribute a7("event", handle);
 //
-//    assert(true   == a7.value().is<const void *>());
-//    assert(handle == a7.value().the<const void *>());
-//..
+//   assert(true   == a7.value().is<const void *>());
+//   assert(handle == a7.value().the<const void *>());
+// ```
 
 #include <balscm_version.h>
 
@@ -147,12 +147,14 @@ namespace ball {
                         // class Attribute
                         // ===============
 
+/// An `Attribute` object contains an attribute name which is not managed
+/// and an attribute value which is managed.
 class Attribute {
-    // An 'Attribute' object contains an attribute name which is not managed
-    // and an attribute value which is managed.
 
   public:
     // TYPES
+
+    /// `Value` is an alias for the attribute type variant.
     typedef bdlb::Variant<int,
                           long,
                           long long,
@@ -162,7 +164,6 @@ class Attribute {
                           bsl::string,
                           const void *,
                           bdlb::Guid> Value;
-        // 'Value' is an alias for the attribute type variant.
 
   private:
     // DATA
@@ -188,33 +189,41 @@ class Attribute {
     BSLMF_NESTED_TRAIT_DECLARATION(Attribute, bslma::UsesBslmaAllocator);
 
     // CLASS METHODS
+
+    /// Return a hash value calculated from the specified `attribute` using
+    /// the specified `size` as the number of slots.  The hash value is
+    /// guaranteed to be in the range `[0 .. size - 1]`.  The behavior is
+    /// undefined unless `0 < size`.
     static int hash(const Attribute& attribute, int size);
-        // Return a hash value calculated from the specified 'attribute' using
-        // the specified 'size' as the number of slots.  The hash value is
-        // guaranteed to be in the range '[0 .. size - 1]'.  The behavior is
-        // undefined unless '0 < size'.
 
     // CREATORS
+
+    /// Create an `Attribute` object having the specified (literal) `name`
+    /// and (character string) `value`.  Optionally specify an `allocator`
+    /// (e.g., the address of a `bslma::Allocator` object) to supply memory;
+    /// otherwise, the default allocator is used.  Note that `name` is not
+    /// managed by this object and therefore must remain valid while in use
+    /// by any `Attribute` object.
     Attribute(const char              *name,
               const bsl::string_view&  value,
               const allocator_type&    allocator = allocator_type());
-        // Create an 'Attribute' object having the specified (literal) 'name'
-        // and (character string) 'value'.  Optionally specify an 'allocator'
-        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
-        // otherwise, the default allocator is used.  Note that 'name' is not
-        // managed by this object and therefore must remain valid while in use
-        // by any 'Attribute' object.
 
+    /// Create an `Attribute` object having the specified (literal) `name`
+    /// and (character string) `value`.  Optionally specify an `allocator`
+    /// (e.g., the address of a `bslma::Allocator` object) to supply memory;
+    /// otherwise, the default allocator is used.  Note that `name` is not
+    /// managed by this object and therefore must remain valid while in use
+    /// by any `Attribute` object.
     Attribute(const char            *name,
               const char            *value,
               const allocator_type&  allocator = allocator_type());
-        // Create an 'Attribute' object having the specified (literal) 'name'
-        // and (character string) 'value'.  Optionally specify an 'allocator'
-        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
-        // otherwise, the default allocator is used.  Note that 'name' is not
-        // managed by this object and therefore must remain valid while in use
-        // by any 'Attribute' object.
 
+    /// Create an `Attribute` object having the specified (literal) `name`
+    /// and `value`.  Optionally specify an `allocator` (e.g., the address
+    /// of a `bslma::Allocator` object) to supply memory; otherwise, the
+    /// default allocator is used.  Note that `name` is not managed by this
+    /// object and therefore must remain valid while in use by any
+    /// `Attribute` object.
     Attribute(const char            *name,
               int                    value,
               const allocator_type&  allocator = allocator_type());
@@ -236,50 +245,46 @@ class Attribute {
     Attribute(const char            *name,
               bdlb::Guid             value,
               const allocator_type&  allocator = allocator_type());
-        // Create an 'Attribute' object having the specified (literal) 'name'
-        // and 'value'.  Optionally specify an 'allocator' (e.g., the address
-        // of a 'bslma::Allocator' object) to supply memory; otherwise, the
-        // default allocator is used.  Note that 'name' is not managed by this
-        // object and therefore must remain valid while in use by any
-        // 'Attribute' object.
 
+    /// Create an `Attribute` object having the specified (literal) `name`
+    /// and (const-qualified void pointer) `value`.  Optionally specify an
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory; otherwise, the default allocator is used.
     Attribute(const char            *name,
               const void            *value,
               const allocator_type&  allocator = allocator_type());
-        // Create an 'Attribute' object having the specified (literal) 'name'
-        // and (const-qualified void pointer) 'value'.  Optionally specify an
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory; otherwise, the default allocator is used.
 
+    /// Create an `Attribute` object having the specified (literal) `name`
+    /// and `value`.  Optionally specify an `allocator` (e.g., the address
+    /// of a `bslma::Allocator` object) to supply memory; otherwise, the
+    /// default allocator is used.  Note that `name` is not managed by this
+    /// object and therefore must remain valid while in use by any
+    /// `Attribute` object.
     Attribute(const char            *name,
               const Value&           value,
               const allocator_type&  allocator = allocator_type());
-        // Create an 'Attribute' object having the specified (literal) 'name'
-        // and 'value'.  Optionally specify an 'allocator' (e.g., the address
-        // of a 'bslma::Allocator' object) to supply memory; otherwise, the
-        // default allocator is used.  Note that 'name' is not managed by this
-        // object and therefore must remain valid while in use by any
-        // 'Attribute' object.
 
+    /// Create an `Attribute` object having the same (literal) name and
+    /// attribute value as the specified `original` object.  Optionally
+    /// specify an `allocator` (e.g., the address of a `bslma::Allocator`
+    /// object) to supply memory; otherwise, the default allocator is used.
     Attribute(const Attribute&      original,
               const allocator_type& allocator = allocator_type());
-        // Create an 'Attribute' object having the same (literal) name and
-        // attribute value as the specified 'original' object.  Optionally
-        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
-        // object) to supply memory; otherwise, the default allocator is used.
 
     //! ~Attribute() = default;
         // Destroy this attribute object.
 
     // MANIPULATORS
+
+    /// Assign the value of the specified `rhs` object to this object.
     Attribute& operator=(const Attribute& rhs);
-        // Assign the value of the specified 'rhs' object to this object.
 
+    /// Set the attribute name of this object to the specified (literal)
+    /// `name`.  Note that `name` is not managed by this object and
+    /// therefore must remain valid while in use by any `Attribute` object.
     void setName(const char *name);
-        // Set the attribute name of this object to the specified (literal)
-        // 'name'.  Note that 'name' is not managed by this object and
-        // therefore must remain valid while in use by any 'Attribute' object.
 
+    /// Set the attribute value of this object to the specified `value`.
     void setValue(const Value&             value);
     void setValue(int                      value);
     void setValue(long                     value);
@@ -291,54 +296,55 @@ class Attribute {
     void setValue(const bsl::string_view&  value);
     void setValue(const char              *value);
     void setValue(const void              *value);
-        // Set the attribute value of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the name of this object.
     const char *name() const;
-        // Return the name of this object.
 
+    /// Return a reference to the non-modifiable attribute value of this
+    /// object.
     const Value& value() const;
-        // Return a reference to the non-modifiable attribute value of this
-        // object.
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level` and return a
+    /// reference to `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for
+    /// this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  If `stream` is
+    /// not valid on entry, this operation has no effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level' and return a
-        // reference to 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.  Note
+    /// that if no allocator was supplied at construction the default
+    /// allocator in effect at construction is used.
     allocator_type get_allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the default
-        // allocator in effect at construction is used.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `Attribute` objects have the same
+/// value if they have the same name (but not necessarily the identical
+/// representation in memory), the same attribute value type, and the same
+/// attribute value.
 bool operator==(const Attribute& lhs, const Attribute& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'Attribute' objects have the same
-    // value if they have the same name (but not necessarily the identical
-    // representation in memory), the same attribute value type, and the same
-    // attribute value.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `Attribute` objects do not have
+/// the same value if any of their respective names (value, not address),
+/// attribute value types, or attribute values differ.
 bool operator!=(const Attribute& lhs, const Attribute& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'Attribute' objects do not have
-    // the same value if any of their respective names (value, not address),
-    // attribute value types, or attribute values differ.
 
+/// Write the value of the specified `attribute` to the specified `output`
+/// stream.  Return the specified `output` stream.
 bsl::ostream& operator<<(bsl::ostream& output, const Attribute& attribute);
-    // Write the value of the specified 'attribute' to the specified 'output'
-    // stream.  Return the specified 'output' stream.
 
 // ============================================================================
 //                              INLINE DEFINITIONS

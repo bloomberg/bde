@@ -20,16 +20,17 @@ BSLS_IDENT_PRAGMA_ONCE
 namespace BloombergLP {
 namespace balxml {
 
+/// Provide a namespace for the  service configuration schema.
 struct ConfigSchema {
-    // Provide a namespace for the  service configuration schema.
 
     static const char TEXT[];    // service configuration schema
 };
 
 // FREE OPERATORS
+
+/// Write the specified `schema` to the specified `stream`, and return
+/// a modifiable reference to `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const ConfigSchema& schema);
-    // Write the specified 'schema' to the specified 'stream', and return
-    // a modifiable reference to 'stream'.
 
 }  // close namespace balxml
 

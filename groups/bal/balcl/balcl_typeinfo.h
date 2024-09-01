@@ -9,30 +9,30 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //   balcl::TypeInfo: attribute type describing command-line option features
-//   balcl::TypeInfoUtil: utility functions for 'balcl::TypeInfo'
+//   balcl::TypeInfoUtil: utility functions for `balcl::TypeInfo`
 //
 //@SEE_ALSO: balcl_commandline, balcl_optiontype
 //
 //@DESCRIPTION: This component provides a single (value-semantic) attribute
-// class, 'balcl::TypeInfo', that is used to describe several features of a
+// class, `balcl::TypeInfo`, that is used to describe several features of a
 // command-line option.  Specifically:
-//: o The type of an option's value (see {'balcl_optiontype'}).
-//: o Optional: The address of a linked variable to hold an option's value.
-//: o Optional: The address of a function (see {'balcl_constraint'}) that
-//:   imposes a user-defined constraint on an option's value.
+// * The type of an option's value (see {`balcl_optiontype`}).
+// * Optional: The address of a linked variable to hold an option's value.
+// * Optional: The address of a function (see {`balcl_constraint`}) that
+//   imposes a user-defined constraint on an option's value.
 //
-// For further details see {'balcl_commandline'|Type-and-Constraint Field} and
-// {'balcl_commandline'|Example: Type-and-Constraint Field}.
+// For further details see {`balcl_commandline`|Type-and-Constraint Field} and
+// {`balcl_commandline`|Example: Type-and-Constraint Field}.
 //
-// This component also provides a utility 'struct', 'balcl::TypeInfoUtil', that
+// This component also provides a utility `struct`, `balcl::TypeInfoUtil`, that
 // defines a namespace for functions that extract option values from input
 // streams and for validating those values against the constraints of a
-// 'balcl::TypeInfo' object.
+// `balcl::TypeInfo` object.
 //
 ///Usage
 ///-----
 // The intended use of this component is illustrated in
-// {'balcl_commandline'|Usage}.
+// {`balcl_commandline`|Usage}.
 
 #include <balscm_version.h>
 
@@ -69,12 +69,12 @@ class TypeInfoConstraint;
                         // class TypeInfo
                         // ==============
 
+/// This `class` is a attribute class that describes the type, the variable
+/// to be linked, and the constraint on an option.  Note that the constraint
+/// type is opaque, but it is possible to apply the constraint to an element
+/// of the same type as the option and see whether it is valid (using the
+/// `satisfiesConstraint` methods of `TypeInfoUtil`).
 class TypeInfo {
-    // This 'class' is a attribute class that describes the type, the variable
-    // to be linked, and the constraint on an option.  Note that the constraint
-    // type is opaque, but it is possible to apply the constraint to an element
-    // of the same type as the option and see whether it is valid (using the
-    // 'satisfiesConstraint' methods of 'TypeInfoUtil').
 
   public:
     // PUBLIC TYPES
@@ -109,387 +109,399 @@ class TypeInfo {
     BSLMF_NESTED_TRAIT_DECLARATION(TypeInfo, bdlb::HasPrintMethod);
 
     // CREATORS
-    TypeInfo();
-        // Construct an object having 'string' type for the associated option
-        // that uses the currently installed default allocator to supply
-        // memory.  No variable is linked and no constraint is put on the
-        // value.
 
+    /// Construct an object having `string` type for the associated option
+    /// that uses the currently installed default allocator to supply
+    /// memory.  No variable is linked and no constraint is put on the
+    /// value.
+    TypeInfo();
+
+    /// Construct an object having `string` type for the associated option,
+    /// and the specified `basicAllocator` to supply memory.  No variable is
+    /// linked and no constraint is put on the value.  Note that,
+    /// atypically, 0 is disallowed for `basicAllocator`.
     explicit
     TypeInfo(bslma::Allocator *basicAllocator);
-        // Construct an object having 'string' type for the associated option,
-        // and the specified 'basicAllocator' to supply memory.  No variable is
-        // linked and no constraint is put on the value.  Note that,
-        // atypically, 0 is disallowed for 'basicAllocator'.
 
+    /// Construct a flag accepting `bool` as the type for the associated
+    /// option (i.e., for the linked variable).  If the specified `variable`
+    /// is not 0, then link it with the option.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.  No constraint
+    /// can be put on the option.
     explicit
     TypeInfo(bool             *variable,
              bslma::Allocator *basicAllocator = 0);
-        // Construct a flag accepting 'bool' as the type for the associated
-        // option (i.e., for the linked variable).  If the specified 'variable'
-        // is not 0, then link it with the option.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  No constraint
-        // can be put on the option.
 
+    /// Construct an object having `char` type for the associated option.
+    /// If the specified `variable` is not 0, then link it with the option.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  Optionally specify a `constraint` to put on the option.  If
+    /// `constraint` is not specified, the option has no constraint.
     explicit
     TypeInfo(char             *variable,
              bslma::Allocator *basicAllocator = 0);
     TypeInfo(char                              *variable,
              const Constraint::CharConstraint&  constraint,
              bslma::Allocator                  *basicAllocator = 0);
-        // Construct an object having 'char' type for the associated option.
-        // If the specified 'variable' is not 0, then link it with the option.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Optionally specify a 'constraint' to put on the option.  If
-        // 'constraint' is not specified, the option has no constraint.
 
+    /// Construct an object having `int` type for the associated option.  If
+    /// the specified `variable` is not 0, then link it with the option.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  Optionally specify a `constraint` to put on the option.  If
+    /// `constraint` is not specified, the option has no constraint.
     explicit
     TypeInfo(int              *variable,
              bslma::Allocator *basicAllocator = 0);
     TypeInfo(int                              *variable,
              const Constraint::IntConstraint&  constraint,
              bslma::Allocator                 *basicAllocator = 0);
-        // Construct an object having 'int' type for the associated option.  If
-        // the specified 'variable' is not 0, then link it with the option.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Optionally specify a 'constraint' to put on the option.  If
-        // 'constraint' is not specified, the option has no constraint.
 
+    /// Construct an object having `bsls::Types::Int64` type for the
+    /// associated option.  If the specified `variable` is not 0, then link
+    /// it with the option.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Optionally specify a `constraint` to put
+    /// on the option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsls::Types::Int64 *variable,
              bslma::Allocator   *basicAllocator = 0);
     TypeInfo(bsls::Types::Int64                 *variable,
              const Constraint::Int64Constraint&  constraint,
              bslma::Allocator                   *basicAllocator = 0);
-        // Construct an object having 'bsls::Types::Int64' type for the
-        // associated option.  If the specified 'variable' is not 0, then link
-        // it with the option.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `double` type for the associated option.
+    /// If the specified `variable` is not 0, then link it with the option.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  Optionally specify a `constraint` to put on the option.  If
+    /// `constraint` is not specified, the option has no constraint.
     explicit
     TypeInfo(double           *variable,
              bslma::Allocator *basicAllocator = 0);
     TypeInfo(double                              *variable,
              const Constraint::DoubleConstraint&  constraint,
              bslma::Allocator                    *basicAllocator = 0);
-        // Construct an object having 'double' type for the associated option.
-        // If the specified 'variable' is not 0, then link it with the option.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Optionally specify a 'constraint' to put on the option.  If
-        // 'constraint' is not specified, the option has no constraint.
 
+    /// Construct an object having `bsl::string` type for the associated
+    /// option.  If the specified `variable` is not 0, then link it with the
+    /// option.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  Optionally specify a `constraint` to put on the
+    /// option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsl::string      *variable,
              bslma::Allocator *basicAllocator = 0);
     TypeInfo(bsl::string                         *variable,
              const Constraint::StringConstraint&  constraint,
              bslma::Allocator                    *basicAllocator = 0);
-        // Construct an object having 'bsl::string' type for the associated
-        // option.  If the specified 'variable' is not 0, then link it with the
-        // option.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Optionally specify a 'constraint' to put on the
-        // option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `bdlt::Datetime` type for the associated
+    /// option.  If the specified `variable` is not 0, then link it with the
+    /// option.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  Optionally specify a `constraint` to put on the
+    /// option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bdlt::Datetime   *variable,
              bslma::Allocator *basicAllocator = 0);
     TypeInfo(bdlt::Datetime                        *variable,
              const Constraint::DatetimeConstraint&  constraint,
              bslma::Allocator                      *basicAllocator = 0);
-        // Construct an object having 'bdlt::Datetime' type for the associated
-        // option.  If the specified 'variable' is not 0, then link it with the
-        // option.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Optionally specify a 'constraint' to put on the
-        // option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `bdlt::Date` type for the associated
+    /// option.  If the specified `variable` is not 0, then link it with the
+    /// option.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  Optionally specify a `constraint` to put on the
+    /// option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bdlt::Date       *variable,
              bslma::Allocator *basicAllocator = 0);
     TypeInfo(bdlt::Date                        *variable,
              const Constraint::DateConstraint&  constraint,
              bslma::Allocator                  *basicAllocator = 0);
-        // Construct an object having 'bdlt::Date' type for the associated
-        // option.  If the specified 'variable' is not 0, then link it with the
-        // option.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Optionally specify a 'constraint' to put on the
-        // option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `bdlt::Time` type for the associated
+    /// option.  If the specified `variable` is not 0, then link it with the
+    /// option.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  Optionally specify a `constraint` to put on the
+    /// option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bdlt::Time       *variable,
              bslma::Allocator *basicAllocator = 0);
     TypeInfo(bdlt::Time                        *variable,
              const Constraint::TimeConstraint&  constraint,
              bslma::Allocator                  *basicAllocator = 0);
-        // Construct an object having 'bdlt::Time' type for the associated
-        // option.  If the specified 'variable' is not 0, then link it with the
-        // option.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Optionally specify a 'constraint' to put on the
-        // option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `bsl::vector<char>` type for the
+    /// associated option.  If the specified `variable` is not 0, then link
+    /// it with the option.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Optionally specify a `constraint` to put
+    /// on the option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsl::vector<char> *variable,
              bslma::Allocator  *basicAllocator = 0);
     TypeInfo(bsl::vector<char>                 *variable,
              const Constraint::CharConstraint&  constraint,
              bslma::Allocator                  *basicAllocator = 0);
-        // Construct an object having 'bsl::vector<char>' type for the
-        // associated option.  If the specified 'variable' is not 0, then link
-        // it with the option.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `bsl::vector<int>` type for the
+    /// associated option.  If the specified `variable` is not 0, then link
+    /// it with the option.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Optionally specify a `constraint` to put
+    /// on the option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsl::vector<int> *variable,
              bslma::Allocator *basicAllocator = 0);
     TypeInfo(bsl::vector<int>                 *variable,
              const Constraint::IntConstraint&  constraint,
              bslma::Allocator                 *basicAllocator = 0);
-        // Construct an object having 'bsl::vector<int>' type for the
-        // associated option.  If the specified 'variable' is not 0, then link
-        // it with the option.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `bsl::vector<bsls::Types::Int64>` type
+    /// for the associated option.  If the specified `variable` is not 0,
+    /// then link it with the option.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.  Optionally specify a
+    /// `constraint` to put on the option.  If `constraint` is not
+    /// specified, the option has no constraint.
     explicit
     TypeInfo(bsl::vector<bsls::Types::Int64> *variable,
              bslma::Allocator                *basicAllocator = 0);
     TypeInfo(bsl::vector<bsls::Types::Int64>    *variable,
              const Constraint::Int64Constraint&  constraint,
              bslma::Allocator                   *basicAllocator = 0);
-        // Construct an object having 'bsl::vector<bsls::Types::Int64>' type
-        // for the associated option.  If the specified 'variable' is not 0,
-        // then link it with the option.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  Optionally specify a
-        // 'constraint' to put on the option.  If 'constraint' is not
-        // specified, the option has no constraint.
 
+    /// Construct an object having `bsl::vector<double>` type for the
+    /// associated option.  If the specified `variable` is not 0, then link
+    /// it with the option.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Optionally specify a `constraint` to put
+    /// on the option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsl::vector<double> *variable,
              bslma::Allocator    *basicAllocator = 0);
     TypeInfo(bsl::vector<double>                 *variable,
              const Constraint::DoubleConstraint&  constraint,
              bslma::Allocator                    *basicAllocator = 0);
-        // Construct an object having 'bsl::vector<double>' type for the
-        // associated option.  If the specified 'variable' is not 0, then link
-        // it with the option.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `bsl::vector<bsl::string>` type for the
+    /// associated option.  If the specified `variable` is not 0, then link
+    /// it with the option.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Optionally specify a `constraint` to put
+    /// on the option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsl::vector<bsl::string> *variable,
              bslma::Allocator         *basicAllocator = 0);
     TypeInfo(bsl::vector<bsl::string>            *variable,
              const Constraint::StringConstraint&  constraint,
              bslma::Allocator                    *basicAllocator = 0);
-        // Construct an object having 'bsl::vector<bsl::string>' type for the
-        // associated option.  If the specified 'variable' is not 0, then link
-        // it with the option.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `bsl::vector<bdlt::Datetime>` type for
+    /// the associated option.  If the specified `variable` is not 0, then
+    /// link it with the option.  Optionally specify a `basicAllocator` used
+    /// to supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Optionally specify a `constraint` to put
+    /// on the option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsl::vector<bdlt::Datetime> *variable,
              bslma::Allocator            *basicAllocator = 0);
     TypeInfo(bsl::vector<bdlt::Datetime>           *variable,
              const Constraint::DatetimeConstraint&  constraint,
              bslma::Allocator                      *basicAllocator = 0);
-        // Construct an object having 'bsl::vector<bdlt::Datetime>' type for
-        // the associated option.  If the specified 'variable' is not 0, then
-        // link it with the option.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `bsl::vector<bdlt::Date>` type for the
+    /// associated option.  If the specified `variable` is not 0, then link
+    /// it with the option.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Optionally specify a `constraint` to put
+    /// on the option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsl::vector<bdlt::Date> *variable,
              bslma::Allocator        *basicAllocator = 0);
     TypeInfo(bsl::vector<bdlt::Date>           *variable,
              const Constraint::DateConstraint&  constraint,
              bslma::Allocator                  *basicAllocator = 0);
-        // Construct an object having 'bsl::vector<bdlt::Date>' type for the
-        // associated option.  If the specified 'variable' is not 0, then link
-        // it with the option.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `bsl::vector<bdlt::Time>` type for the
+    /// associated option.  If the specified `variable` is not 0, then link
+    /// it with the option.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Optionally specify a `constraint` to put
+    /// on the option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsl::vector<bdlt::Time> *variable,
              bslma::Allocator        *basicAllocator = 0);
     TypeInfo(bsl::vector<bdlt::Time>           *variable,
              const Constraint::TimeConstraint&  constraint,
              bslma::Allocator                  *basicAllocator = 0);
-        // Construct an object having 'bsl::vector<bdlt::Time>' type for the
-        // associated option.  If the specified 'variable' is not 0, then link
-        // it with the option.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `char` type for the associated option.
+    /// If the specified `variable` is not 0, then link it with the option.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  Optionally specify a `constraint` to put on the option.  If
+    /// `constraint` is not specified, the option has no constraint.
     explicit
     TypeInfo(bsl::optional<char> *variable,
              bslma::Allocator    *basicAllocator = 0);
     TypeInfo(bsl::optional<char>               *variable,
              const Constraint::CharConstraint&  constraint,
              bslma::Allocator                  *basicAllocator = 0);
-        // Construct an object having 'char' type for the associated option.
-        // If the specified 'variable' is not 0, then link it with the option.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Optionally specify a 'constraint' to put on the option.  If
-        // 'constraint' is not specified, the option has no constraint.
 
+    /// Construct an object having `int` type for the associated option.  If
+    /// the specified `variable` is not 0, then link it with the option.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  Optionally specify a `constraint` to put on the option.  If
+    /// `constraint` is not specified, the option has no constraint.
     explicit
     TypeInfo(bsl::optional<int> *variable,
              bslma::Allocator   *basicAllocator = 0);
     TypeInfo(bsl::optional<int>               *variable,
              const Constraint::IntConstraint&  constraint,
              bslma::Allocator                 *basicAllocator = 0);
-        // Construct an object having 'int' type for the associated option.  If
-        // the specified 'variable' is not 0, then link it with the option.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Optionally specify a 'constraint' to put on the option.  If
-        // 'constraint' is not specified, the option has no constraint.
 
+    /// Construct an object having `bsls::Types::Int64` type for the
+    /// associated option.  If the specified `variable` is not 0, then link
+    /// it with the option.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Optionally specify a `constraint` to put
+    /// on the option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsl::optional<bsls::Types::Int64> *variable,
              bslma::Allocator                  *basicAllocator = 0);
     TypeInfo(bsl::optional<bsls::Types::Int64>  *variable,
              const Constraint::Int64Constraint&  constraint,
              bslma::Allocator                   *basicAllocator = 0);
-        // Construct an object having 'bsls::Types::Int64' type for the
-        // associated option.  If the specified 'variable' is not 0, then link
-        // it with the option.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Optionally specify a 'constraint' to put
-        // on the option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `double` type for the associated option.
+    /// If the specified `variable` is not 0, then link it with the option.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  Optionally specify a `constraint` to put on the option.  If
+    /// `constraint` is not specified, the option has no constraint.
     explicit
     TypeInfo(bsl::optional<double> *variable,
              bslma::Allocator      *basicAllocator = 0);
     TypeInfo(bsl::optional<double>               *variable,
              const Constraint::DoubleConstraint&  constraint,
              bslma::Allocator                    *basicAllocator = 0);
-        // Construct an object having 'double' type for the associated option.
-        // If the specified 'variable' is not 0, then link it with the option.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Optionally specify a 'constraint' to put on the option.  If
-        // 'constraint' is not specified, the option has no constraint.
 
+    /// Construct an object having `bsl::string` type for the associated
+    /// option.  If the specified `variable` is not 0, then link it with the
+    /// option.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  Optionally specify a `constraint` to put on the
+    /// option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsl::optional<bsl::string> *variable,
              bslma::Allocator           *basicAllocator = 0);
     TypeInfo(bsl::optional<bsl::string>          *variable,
              const Constraint::StringConstraint&  constraint,
              bslma::Allocator                    *basicAllocator = 0);
-        // Construct an object having 'bsl::string' type for the associated
-        // option.  If the specified 'variable' is not 0, then link it with the
-        // option.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Optionally specify a 'constraint' to put on the
-        // option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `bdlt::Datetime` type for the associated
+    /// option.  If the specified `variable` is not 0, then link it with the
+    /// option.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  Optionally specify a `constraint` to put on the
+    /// option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsl::optional<bdlt::Datetime> *variable,
              bslma::Allocator              *basicAllocator = 0);
     TypeInfo(bsl::optional<bdlt::Datetime>         *variable,
              const Constraint::DatetimeConstraint&  constraint,
              bslma::Allocator                      *basicAllocator = 0);
-        // Construct an object having 'bdlt::Datetime' type for the associated
-        // option.  If the specified 'variable' is not 0, then link it with the
-        // option.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Optionally specify a 'constraint' to put on the
-        // option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `bdlt::Date` type for the associated
+    /// option.  If the specified `variable` is not 0, then link it with the
+    /// option.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  Optionally specify a `constraint` to put on the
+    /// option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsl::optional<bdlt::Date> *variable,
              bslma::Allocator          *basicAllocator = 0);
     TypeInfo(bsl::optional<bdlt::Date>         *variable,
              const Constraint::DateConstraint&  constraint,
              bslma::Allocator                  *basicAllocator = 0);
-        // Construct an object having 'bdlt::Date' type for the associated
-        // option.  If the specified 'variable' is not 0, then link it with the
-        // option.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Optionally specify a 'constraint' to put on the
-        // option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Construct an object having `bdlt::Time` type for the associated
+    /// option.  If the specified `variable` is not 0, then link it with the
+    /// option.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  Optionally specify a `constraint` to put on the
+    /// option.  If `constraint` is not specified, the option has no
+    /// constraint.
     explicit
     TypeInfo(bsl::optional<bdlt::Time> *variable,
              bslma::Allocator          *basicAllocator = 0);
     TypeInfo(bsl::optional<bdlt::Time>         *variable,
              const Constraint::TimeConstraint&  constraint,
              bslma::Allocator                  *basicAllocator = 0);
-        // Construct an object having 'bdlt::Time' type for the associated
-        // option.  If the specified 'variable' is not 0, then link it with the
-        // option.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Optionally specify a 'constraint' to put on the
-        // option.  If 'constraint' is not specified, the option has no
-        // constraint.
 
+    /// Create an object having the value of the specified `original`
+    /// object.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  Note that this object shares the same constraint
+    /// as the `original` object.
     TypeInfo(const TypeInfo&   original,
              bslma::Allocator *basicAllocator = 0);
-        // Create an object having the value of the specified 'original'
-        // object.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Note that this object shares the same constraint
-        // as the 'original' object.
 
+    /// Destroy this object.
     ~TypeInfo();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object and
+    /// return a reference providing modifiable access to this object.
     TypeInfo& operator=(const TypeInfo& rhs);
-        // Assign to this object the value of the specified 'rhs' object and
-        // return a reference providing modifiable access to this object.
 
+    /// Reset this object so that it no longer has a constraint.  This
+    /// method has no effect if the object has no constraint.  Note that
+    /// neither the type attribute nor the linked variable, if any, are
+    /// changed.
     void resetConstraint();
-        // Reset this object so that it no longer has a constraint.  This
-        // method has no effect if the object has no constraint.  Note that
-        // neither the type attribute nor the linked variable, if any, are
-        // changed.
 
+    /// Reset this object so that it has neither a linked variable nor a
+    /// constraint.  This method has no effect if the object has no linked
+    /// variable or constraint.  Note that the type attribute is not
+    /// changed.
     void resetLinkedVariableAndConstraint();
-        // Reset this object so that it has neither a linked variable nor a
-        // constraint.  This method has no effect if the object has no linked
-        // variable or constraint.  Note that the type attribute is not
-        // changed.
 
+    /// Put the specified `constraint` on the value of the described option,
+    /// replacing any constraint that had been in effect (if any).  The
+    /// behavior is undefined unless the described option is not a flag and
+    /// the `balcl::OptionValue` type of the described option corresponds to
+    /// the type of `constraint`.  Note that two distinct objects that have
+    /// the same `constraint` put on them will compare *unequal* unless the
+    /// constraint is shared among them, which can be done by:
+    /// ```
+    /// aTypeInfo.setConstraint(anotherTypeInfo.constraint());
+    /// ```
     void setConstraint(const Constraint::CharConstraint&     constraint);
     void setConstraint(const Constraint::IntConstraint&      constraint);
     void setConstraint(const Constraint::Int64Constraint&    constraint);
@@ -498,25 +510,21 @@ class TypeInfo {
     void setConstraint(const Constraint::DatetimeConstraint& constraint);
     void setConstraint(const Constraint::DateConstraint&     constraint);
     void setConstraint(const Constraint::TimeConstraint&     constraint);
-        // Put the specified 'constraint' on the value of the described option,
-        // replacing any constraint that had been in effect (if any).  The
-        // behavior is undefined unless the described option is not a flag and
-        // the 'balcl::OptionValue' type of the described option corresponds to
-        // the type of 'constraint'.  Note that two distinct objects that have
-        // the same 'constraint' put on them will compare *unequal* unless the
-        // constraint is shared among them, which can be done by:
-        //..
-        //  aTypeInfo.setConstraint(anotherTypeInfo.constraint());
-        //..
 
+    /// Set the constraint of the described option to the specified
+    /// `constraint`.  The behavior is undefined unless the option
+    /// associated with `constraint` has the same type as the option
+    /// associated with this object.  Note that the linked variable, if any,
+    /// is unchanged by this method.
     void
     setConstraint(const bsl::shared_ptr<TypeInfoConstraint>& constraint);
-        // Set the constraint of the described option to the specified
-        // 'constraint'.  The behavior is undefined unless the option
-        // associated with 'constraint' has the same type as the option
-        // associated with this object.  Note that the linked variable, if any,
-        // is unchanged by this method.
 
+    /// Set this object to have the type indicated by the specified
+    /// `variable`, and reset this object so that it no longer has a
+    /// constraint associated with it.  If `variable` is not 0, then link it
+    /// with the described option.  If `variable` is of type
+    /// `bsl::optional<Type>`, then the type of this object is set to
+    /// `Type`.
     void setLinkedVariable(bool                              *variable);
     void setLinkedVariable(char                              *variable);
     void setLinkedVariable(int                               *variable);
@@ -542,122 +550,136 @@ class TypeInfo {
     void setLinkedVariable(bsl::optional<bdlt::Datetime>     *variable);
     void setLinkedVariable(bsl::optional<bdlt::Date>         *variable);
     void setLinkedVariable(bsl::optional<bdlt::Time>         *variable);
-        // Set this object to have the type indicated by the specified
-        // 'variable', and reset this object so that it no longer has a
-        // constraint associated with it.  If 'variable' is not 0, then link it
-        // with the described option.  If 'variable' is of type
-        // 'bsl::optional<Type>', then the type of this object is set to
-        // 'Type'.
 
     // ACCESSORS
+
+    /// Return a shared pointer to the (opaque) object storing the
+    /// constraint associated with the described option.  If this object has
+    /// no constraint an empty shared pointer is returned.  The lifetime of
+    /// any shared reference to this object's constraint must not exceed
+    /// that of this object's allocator.
     bsl::shared_ptr<TypeInfoConstraint> constraint() const;
-        // Return a shared pointer to the (opaque) object storing the
-        // constraint associated with the described option.  If this object has
-        // no constraint an empty shared pointer is returned.  The lifetime of
-        // any shared reference to this object's constraint must not exceed
-        // that of this object's allocator.
 
+    /// Return the address of the modifiable variable linked to the
+    /// described option, or 0 if no variable is linked.
     void *linkedVariable() const;
-        // Return the address of the modifiable variable linked to the
-        // described option, or 0 if no variable is linked.
 
+    /// Return `true` if the described option has a linked variable and that
+    /// variable is a `bsl::optional` object, and `false` otherwise.
     bool isOptionalLinkedVariable() const;
-        // Return 'true' if the described option has a linked variable and that
-        // variable is a 'bsl::optional' object, and 'false' otherwise.
 
+    /// Return the type of the described option.  Note that the option is a
+    /// flag if it is of type `OptionType::e_BOOL`.
     OptionType::Enum type() const;
-        // Return the type of the described option.  Note that the option is a
-        // flag if it is of type 'OptionType::e_BOOL'.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.  Note
+    /// that if no allocator was supplied at construction the currently
+    /// installed default allocator at construction is used.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the currently
-        // installed default allocator at construction is used.
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level` and return a
+    /// reference to `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for
+    /// this object.  If `level` is negative, suppress indentation of the
+    /// first line.  If `stream` is not valid on entry, this operation has
+    /// no effect.  The behavior is undefined if `spacesPerLevel` is
+    /// negative.  Note that the precondition on `spacesPerLevel` is
+    /// atypical for the `print` aspect; a negative `spacesPerLevel`
+    /// typically indicates that the entire output should be formatted on
+    /// one line.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level' and return a
-        // reference to 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this object.  If 'level' is negative, suppress indentation of the
-        // first line.  If 'stream' is not valid on entry, this operation has
-        // no effect.  The behavior is undefined if 'spacesPerLevel' is
-        // negative.  Note that the precondition on 'spacesPerLevel' is
-        // atypical for the 'print' aspect; a negative 'spacesPerLevel'
-        // typically indicates that the entire output should be formatted on
-        // one line.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` have the same value, and
+/// `false` otherwise.  Two `TypeInfo` objects have the same value if their
+/// associated options have the same type, both objects do not have a linked
+/// variable or both refer to the same variable, and both do not have a
+/// constraint or both refer to the same constraint.  Note that two objects
+/// constructed from copies of the same constraint will *not* be identical.
+/// (Use `constraint`/`setConstraint` to ensure that both constraints are
+/// the same.)
 bool operator==(const TypeInfo& lhs, const TypeInfo& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
-    // 'false' otherwise.  Two 'TypeInfo' objects have the same value if their
-    // associated options have the same type, both objects do not have a linked
-    // variable or both refer to the same variable, and both do not have a
-    // constraint or both refer to the same constraint.  Note that two objects
-    // constructed from copies of the same constraint will *not* be identical.
-    // (Use 'constraint'/'setConstraint' to ensure that both constraints are
-    // the same.)
 
+/// Return `true` if the specified `lhs` command-line option info has a
+/// different value from the specified `rhs` command-line option info, and
+/// `false` otherwise.  Two `TypeInfo` objects do not have the same value if
+/// the associated options have different types, or one object has a linked
+/// variable and the other either does not or refers to a different
+/// variable, and one has a constraint and the other either does not or
+/// refers to a different constraint.  Note that two objects constructed
+/// from copies of the same constraint will *not* be identical.  (Use
+/// `constraint`/`setConstraint` to ensure that both constraints are the
+/// same.)
 bool operator!=(const TypeInfo& lhs, const TypeInfo& rhs);
-    // Return 'true' if the specified 'lhs' command-line option info has a
-    // different value from the specified 'rhs' command-line option info, and
-    // 'false' otherwise.  Two 'TypeInfo' objects do not have the same value if
-    // the associated options have different types, or one object has a linked
-    // variable and the other either does not or refers to a different
-    // variable, and one has a constraint and the other either does not or
-    // refers to a different constraint.  Note that two objects constructed
-    // from copies of the same constraint will *not* be identical.  (Use
-    // 'constraint'/'setConstraint' to ensure that both constraints are the
-    // same.)
 
+/// Write the value of the specified `rhs` object to the specified `stream`
+/// in a (multi-line) human readable format and return a reference to
+/// `stream`.  Note that the last line is *not* terminated by a newline
+/// character.
 bsl::ostream& operator<<(bsl::ostream& stream, const TypeInfo& rhs);
-    // Write the value of the specified 'rhs' object to the specified 'stream'
-    // in a (multi-line) human readable format and return a reference to
-    // 'stream'.  Note that the last line is *not* terminated by a newline
-    // character.
 
                         // ==================
                         // class TypeInfoUtil
                         // ==================
 
+/// This utility `struct` provides a namespace for functions that perform
+/// non-primitive operations using `TypeInfo` objects.
 struct TypeInfoUtil {
-    // This utility 'struct' provides a namespace for functions that perform
-    // non-primitive operations using 'TypeInfo' objects.
 
     // CLASS METHODS
+
+    /// Return `true` if the specified `element` satisfies the constraint of
+    /// the specified `typeInfo` object (if any), and `false` otherwise.
+    /// Optionally specify a `stream`; if `stream` is specified and
+    /// validation fails, a descriptive error message indicating the reason
+    /// for the failure is written to `stream`.  If `typeInfo` holds no
+    /// constraint, this method returns `true`.  The behavior is undefined
+    /// unless `element.type() == typeInfo.type()`.
     static bool satisfiesConstraint(const OptionValue& element,
                                     const TypeInfo&    typeInfo);
     static bool satisfiesConstraint(const OptionValue& element,
                                     const TypeInfo&    typeInfo,
                                     bsl::ostream&      stream);
-        // Return 'true' if the specified 'element' satisfies the constraint of
-        // the specified 'typeInfo' object (if any), and 'false' otherwise.
-        // Optionally specify a 'stream'; if 'stream' is specified and
-        // validation fails, a descriptive error message indicating the reason
-        // for the failure is written to 'stream'.  If 'typeInfo' holds no
-        // constraint, this method returns 'true'.  The behavior is undefined
-        // unless 'element.type() == typeInfo.type()'.
 
+    /// Return `true` if the value at the specified `variable` satisfies the
+    /// constraint of the specified `typeInfo` object (if any), and `false`
+    /// otherwise.  Optionally specify a `stream`; if `stream` is specified
+    /// and validation fails, a descriptive error message indicating the
+    /// reason for the failure is written to `stream`.  If `typeInfo` holds
+    /// no constraint, this method returns `true`.  The behavior is
+    /// undefined unless `variable` can be (validly) cast to
+    /// `OptionType<ENUM>::EnumToType::type *` where `ENUM` matches
+    /// `typeInfo.type()`.
     static bool satisfiesConstraint(const void      *variable,
                                     const TypeInfo&  typeInfo);
     static bool satisfiesConstraint(const void      *variable,
                                     const TypeInfo&  typeInfo,
                                     bsl::ostream&    stream);
-        // Return 'true' if the value at the specified 'variable' satisfies the
-        // constraint of the specified 'typeInfo' object (if any), and 'false'
-        // otherwise.  Optionally specify a 'stream'; if 'stream' is specified
-        // and validation fails, a descriptive error message indicating the
-        // reason for the failure is written to 'stream'.  If 'typeInfo' holds
-        // no constraint, this method returns 'true'.  The behavior is
-        // undefined unless 'variable' can be (validly) cast to
-        // 'OptionType<ENUM>::EnumToType::type *' where 'ENUM' matches
-        // 'typeInfo.type()'.
 
+    /// Load into the specified `element` the result of parsing the
+    /// specified `input` as a value of the `element->type()`.  Return
+    /// `true` if `input` is parsed without error and the value satisfies
+    /// the constraint of the specified `typeInfo` object (if any), and
+    /// `false` with no effect on `element` otherwise.  If the operation
+    /// fails, a descriptive error message indicating the reason for the
+    /// failure is written to the specified `stream.  If `typeInfo' holds no
+    /// constraint that validation is considered `true`; nevertheless, the
+    /// parse might still fail due to problems with the input format.
+    /// Optionally specify `inputSource` indicating the source of the option
+    /// text being parsed.  If `inputSource` is not provided, `input` is
+    /// treated as if it came from the command line.  `inputSource` is used
+    /// in handling boolean options.  Boolean options supplied by command
+    /// line should not have associated text, where as boolean options
+    /// supplied by the environment should have the values "0", "1", "true",
+    /// or "false".  The behavior is undefined unless
+    /// `element->type() == typeInfo.type()`.
     static bool parseAndValidate(
                                OptionValue                *element,
                                const bsl::string_view&     input,
@@ -665,32 +687,15 @@ struct TypeInfoUtil {
                                bsl::ostream&               stream,
                                TypeInfo::ParseInputSource  inputSource =
                                                      TypeInfo::e_COMMAND_LINE);
-        // Load into the specified 'element' the result of parsing the
-        // specified 'input' as a value of the 'element->type()'.  Return
-        // 'true' if 'input' is parsed without error and the value satisfies
-        // the constraint of the specified 'typeInfo' object (if any), and
-        // 'false' with no effect on 'element' otherwise.  If the operation
-        // fails, a descriptive error message indicating the reason for the
-        // failure is written to the specified 'stream.  If 'typeInfo' holds no
-        // constraint that validation is considered 'true'; nevertheless, the
-        // parse might still fail due to problems with the input format.
-        // Optionally specify 'inputSource' indicating the source of the option
-        // text being parsed.  If 'inputSource' is not provided, 'input' is
-        // treated as if it came from the command line.  'inputSource' is used
-        // in handling boolean options.  Boolean options supplied by command
-        // line should not have associated text, where as boolean options
-        // supplied by the environment should have the values "0", "1", "true",
-        // or "false".  The behavior is undefined unless
-        // 'element->type() == typeInfo.type()'.
 
+    /// Load the specified `tokens` with the specified `input` broken up
+    /// into substrings separated by ` `, except that characters following
+    /// '\' are not to be interpreted as separators.  It is an error for
+    /// `input` to contain a '\' that is not followed by another '\' or ` `.
+    /// Return 0 on success, and a negative value on failure.
     static int tokenizeArrayEnvironmentVariable(
                                               bsl::vector<bsl::string> *tokens,
                                               const bsl::string_view&   input);
-        // Load the specified 'tokens' with the specified 'input' broken up
-        // into substrings separated by ' ', except that characters following
-        // '\' are not to be interpreted as separators.  It is an error for
-        // 'input' to contain a '\' that is not followed by another '\' or ' '.
-        // Return 0 on success, and a negative value on failure.
 };
 
 // CREATORS

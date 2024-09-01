@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: ball_rule
 //
 //@DESCRIPTION: This component provides a value-semantic container,
-// 'ball::RuleSet', for storage and efficient retrieval of 'ball::Rule'
+// `ball::RuleSet`, for storage and efficient retrieval of `ball::Rule`
 // objects.
 //
 // This component participates in the implementation of "Rule-Based Logging".
@@ -22,65 +22,65 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// 'ball::RuleSet' is *not* thread-safe in that multiple threads attempting to
-// concurrently modify the same 'ball::RuleSet' object will leave the object in
+// `ball::RuleSet` is *not* thread-safe in that multiple threads attempting to
+// concurrently modify the same `ball::RuleSet` object will leave the object in
 // an undefined state.  To ensure thread-safety, concurrent accesses to a
-// 'ball::RuleSet' must be serialized by a mutex.
+// `ball::RuleSet` must be serialized by a mutex.
 //
 ///Usage
 ///-----
 // The following code fragments illustrate how to use a rule set.
 //
-// We first create a rule whose pattern is 'WEEKEND*' and whose threshold
-// levels are all 'ball::Severity::e_OFF' except the 'pass-through' level.  A
-// 'pass-through' level of 'ball::Severity::e_INFO' indicates that whenever the
-// rule is active and the severity equals or exceeds 'ball::Severity::e_INFO',
+// We first create a rule whose pattern is `WEEKEND*` and whose threshold
+// levels are all `ball::Severity::e_OFF` except the `pass-through` level.  A
+// `pass-through` level of `ball::Severity::e_INFO` indicates that whenever the
+// rule is active and the severity equals or exceeds `ball::Severity::e_INFO`,
 // log records will be passed to the observer:
-//..
-//  ball::Rule rule1("WEEKEND*",               // pattern
-//                   ball::Severity::e_OFF,    // record level
-//                   ball::Severity::e_INFO,   // pass-through level
-//                   ball::Severity::e_OFF,    // trigger level
-//                   ball::Severity::e_OFF);   // triggerAll level
-//..
+// ```
+// ball::Rule rule1("WEEKEND*",               // pattern
+//                  ball::Severity::e_OFF,    // record level
+//                  ball::Severity::e_INFO,   // pass-through level
+//                  ball::Severity::e_OFF,    // trigger level
+//                  ball::Severity::e_OFF);   // triggerAll level
+// ```
 // Next, we create another rule having a different pattern, but the same
 // threshold levels:
-//..
-//  ball::Rule rule2("WEEKDAY*",               // pattern
-//                   ball::Severity::e_OFF,    // record level
-//                   ball::Severity::e_INFO,   // pass-through level
-//                   ball::Severity::e_OFF,    // trigger level
-//                   ball::Severity::e_OFF);   // triggerAll level
-//..
-// We then create a 'ball::RuleSet' object, add the two rules, and verify that
+// ```
+// ball::Rule rule2("WEEKDAY*",               // pattern
+//                  ball::Severity::e_OFF,    // record level
+//                  ball::Severity::e_INFO,   // pass-through level
+//                  ball::Severity::e_OFF,    // trigger level
+//                  ball::Severity::e_OFF);   // triggerAll level
+// ```
+// We then create a `ball::RuleSet` object, add the two rules, and verify that
 // rules were added correctly:
-//..
-//  ball::RuleSet ruleSet;
-//  assert(0 <= ruleSet.addRule(rule1));
-//  assert(0 <= ruleSet.addRule(rule2));
-//  assert(2 == ruleSet.numRules());
-//..
+// ```
+// ball::RuleSet ruleSet;
+// assert(0 <= ruleSet.addRule(rule1));
+// assert(0 <= ruleSet.addRule(rule2));
+// assert(2 == ruleSet.numRules());
+// ```
 // Duplicate rules cannot be added:
-//..
-//  assert(-1 == ruleSet.addRule(rule1));
-//  assert(-1 == ruleSet.addRule(rule2));
-//  assert( 2 == ruleSet.numRules());
-//..
-// Rules in a rule set can be looked up by the 'ruleId' method:
-//..
-//  int i1 = ruleSet.ruleId(rule1);
-//  int i2 = ruleSet.ruleId(rule2);
-//  assert(0 <= i1); assert(i1 < ruleSet.maxNumRules());
-//  assert(0 <= i2); assert(i2 < ruleSet.maxNumRules());
-//  assert(i1 != i2);
-//..
-// The 'removeRule' method can be used to remove rules from a rule set.
-//..
-//  assert(ruleSet.removeRule(rule1));
-//  assert(1 == ruleSet.numRules());
-//  assert(ruleSet.ruleId(rule1) < 0);
-//  assert(ruleSet.ruleId(rule2) == i2);
-//..
+// ```
+// assert(-1 == ruleSet.addRule(rule1));
+// assert(-1 == ruleSet.addRule(rule2));
+// assert( 2 == ruleSet.numRules());
+// ```
+// Rules in a rule set can be looked up by the `ruleId` method:
+// ```
+// int i1 = ruleSet.ruleId(rule1);
+// int i2 = ruleSet.ruleId(rule2);
+// assert(0 <= i1); assert(i1 < ruleSet.maxNumRules());
+// assert(0 <= i2); assert(i2 < ruleSet.maxNumRules());
+// assert(i1 != i2);
+// ```
+// The `removeRule` method can be used to remove rules from a rule set.
+// ```
+// assert(ruleSet.removeRule(rule1));
+// assert(1 == ruleSet.numRules());
+// assert(ruleSet.ruleId(rule1) < 0);
+// assert(ruleSet.ruleId(rule2) == i2);
+// ```
 
 #include <balscm_version.h>
 
@@ -101,18 +101,19 @@ namespace ball {
                           // class RuleSet
                           // =============
 
+/// This class manages a set of unique rule values.  Rules may be added to
+/// or removed from the set; however, rules having duplicate values will
+/// not be added.  For the definition of two rules having the same value,
+/// please refer to the function-level documentation associated with the
+/// `Rule::operator==` function.
 class RuleSet {
-    // This class manages a set of unique rule values.  Rules may be added to
-    // or removed from the set; however, rules having duplicate values will
-    // not be added.  For the definition of two rules having the same value,
-    // please refer to the function-level documentation associated with the
-    // 'Rule::operator==' function.
 
   public:
     // PUBLIC TYPES
+
+    /// `MaskType` is an alias for the fundamental integral type used to
+    /// indicate rule subsets compactly.
     typedef unsigned int MaskType;
-        // 'MaskType' is an alias for the fundamental integral type used to
-        // indicate rule subsets compactly.
 
     enum {
         e_MAX_NUM_RULES = 8 * sizeof(MaskType)
@@ -126,8 +127,9 @@ class RuleSet {
 
   private:
     // PRIVATE TYPES
+
+    /// hash functor for `Rule`
     struct RuleHash {
-        // hash functor for 'Rule'
 
       private:
         // CLASS DATA
@@ -135,8 +137,9 @@ class RuleSet {
 
       public:
         // ACCESSORS
+
+        /// Return the hash value of the specified `rule`.
         int operator()(const Rule& rule) const
-            // Return the hash value of the specified 'rule'.
         {
             return Rule::hash(rule, s_hashtableSize);
         }
@@ -164,137 +167,142 @@ class RuleSet {
 
   public:
     // CLASS METHODS
-    static int maxNumRules();
-        // Return the maximum number of rules that can be simultaneously
-        // maintained by this object.
 
+    /// Return the maximum number of rules that can be simultaneously
+    /// maintained by this object.
+    static int maxNumRules();
+
+    /// Format the specified `mask` to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.
     static void printMask(bsl::ostream& stream,
                           MaskType      mask,
                           int           level = 0,
                           int           spacesPerLevel = 0);
-        // Format the specified 'mask' to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(RuleSet, bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit RuleSet(bslma::Allocator *basicAllocator = 0);
-        // Create an empty rule set.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator will be used.
 
+    /// Create an empty rule set.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator will be used.
+    explicit RuleSet(bslma::Allocator *basicAllocator = 0);
+
+    /// Create a `RuleSet` object having the same value as that of the
+    /// specified `original` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator will be used.
     RuleSet(const RuleSet& original, bslma::Allocator *basicAllocator = 0);
-        // Create a 'RuleSet' object having the same value as that of the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator will be used.
 
     //! ~RuleSet() = default;
         // Destroy this rule set.
 
     // MANIPULATOR
+
+    /// Create a new `Rule` object having the specified `value`.  Return the
+    /// non-negative id of this non-modifiable object on success, and a
+    /// negative value otherwise.  A return value of -1 indicates that
+    /// another rule having this value already exists.  A return value of -2
+    /// indicates that the maximum number of rules for this rule set has
+    /// been reached.
     int addRule(const Rule& value);
-        // Create a new 'Rule' object having the specified 'value'.  Return the
-        // non-negative id of this non-modifiable object on success, and a
-        // negative value otherwise.  A return value of -1 indicates that
-        // another rule having this value already exists.  A return value of -2
-        // indicates that the maximum number of rules for this rule set has
-        // been reached.
 
+    /// Add each rule in the specified `rules` to this rule set.  Return
+    /// the number of rules added.  Note that a rule in `rules` will be
+    /// ignored if there is an existing rule having the same value or if
+    /// the number of rules in the set has reached the upper limit.  Also
+    /// note that if not all valid rules will fit, the (possibly empty)
+    /// subset of unique values that will be added is implementation
+    /// dependent.
     int addRules(const RuleSet& rules);
-        // Add each rule in the specified 'rules' to this rule set.  Return
-        // the number of rules added.  Note that a rule in 'rules' will be
-        // ignored if there is an existing rule having the same value or if
-        // the number of rules in the set has reached the upper limit.  Also
-        // note that if not all valid rules will fit, the (possibly empty)
-        // subset of unique values that will be added is implementation
-        // dependent.
 
+    /// Remove from this rule set the rule having the specified `id`.
+    /// Return the number of rules removed (i.e., 1 on success and 0 if
+    /// there is no rule whose id is `id`).  The behavior is undefined
+    /// unless `0 <= id < e_MAX_NUM_RULES`.
     int removeRuleById(int id);
-        // Remove from this rule set the rule having the specified 'id'.
-        // Return the number of rules removed (i.e., 1 on success and 0 if
-        // there is no rule whose id is 'id').  The behavior is undefined
-        // unless '0 <= id < e_MAX_NUM_RULES'.
 
+    /// Remove the rule having the specified `value` from this rule set.
+    /// Return the number of rules removed (i.e., 1 on success and 0 if
+    /// there is no such a rule).
     int removeRule(const Rule& value);
-        // Remove the rule having the specified 'value' from this rule set.
-        // Return the number of rules removed (i.e., 1 on success and 0 if
-        // there is no such a rule).
 
+    /// Remove each rule in the specified `rules` from this rule set.
+    /// Return the number of rules removed.
     int removeRules(const RuleSet& rules);
-        // Remove each rule in the specified 'rules' from this rule set.
-        // Return the number of rules removed.
 
+    /// Remove every rule in the rule set maintained by this object.
     void removeAllRules();
-        // Remove every rule in the rule set maintained by this object.
 
+    /// Assign to this object the value of the specified `rhs` object.
     RuleSet& operator=(const RuleSet& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
     // ACCESSORS
+
+    /// Return the id of the rule having the specified `value` if such a
+    /// rule exists, and a negative value otherwise.  Note that if there are
+    /// multiple rules having `value`, the id of the first one found will be
+    /// returned and the order in which rules are searched is implementation
+    /// dependent.
     int ruleId(const Rule& value) const;
-        // Return the id of the rule having the specified 'value' if such a
-        // rule exists, and a negative value otherwise.  Note that if there are
-        // multiple rules having 'value', the id of the first one found will be
-        // returned and the order in which rules are searched is implementation
-        // dependent.
 
+    /// Return the address of the rule having the specified `id` if such a
+    /// rule exists, and 0 otherwise.  The behavior is undefined unless
+    /// `0 <= id < maxNumRules()`.  Note that rules may be assigned
+    /// non-sequential identifiers, and that there may be a valid rule whose
+    /// identifier is greater than `numRules()` (i.e., valid rules may
+    /// appear anywhere in the range `0 <= id < maxNumRules()`).
     const Rule *getRuleById(int id) const;
-        // Return the address of the rule having the specified 'id' if such a
-        // rule exists, and 0 otherwise.  The behavior is undefined unless
-        // '0 <= id < maxNumRules()'.  Note that rules may be assigned
-        // non-sequential identifiers, and that there may be a valid rule whose
-        // identifier is greater than 'numRules()' (i.e., valid rules may
-        // appear anywhere in the range '0 <= id < maxNumRules()').
 
+    /// Return the number of unique rules maintained in this `RuleSet`
+    /// object.  Note that this value is *not* the maximum identifier for
+    /// the rules currently in this container.
     int numRules() const;
-        // Return the number of unique rules maintained in this 'RuleSet'
-        // object.  Note that this value is *not* the maximum identifier for
-        // the rules currently in this container.
 
+    /// Return the total number of predicates in all rules maintained by
+    /// this object.
     int numPredicates() const;
-        // Return the total number of predicates in all rules maintained by
-        // this object.
 
+    /// Format this object to the specified output `stream` at the
+    /// (absolute value of) the optionally specified indentation `level`
+    /// and return a reference to `stream`.  If `level` is specified,
+    /// optionally specify `spacesPerLevel`, the number of spaces per
+    /// indentation level for this and all of its nested objects.  If
+    /// `level` is negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, format the entire output on one line,
+    /// suppressing all but the initial indentation (as governed by
+    /// `level`).  If `stream` is not valid on entry, this operation has no
+    /// effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // (absolute value of) the optionally specified indentation 'level'
-        // and return a reference to 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` rule sets have the same
+/// value, and `false` otherwise.  Two rule sets have the same value if
+/// every rule that exists in one rule set also exists in the other.
 bool operator==(const RuleSet& lhs, const RuleSet& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' rule sets have the same
-    // value, and 'false' otherwise.  Two rule sets have the same value if
-    // every rule that exists in one rule set also exists in the other.
 
+/// Return `true` if the specified `lhs` and `rhs` rule sets do not have the
+/// same value, and `false` otherwise.  Two rule sets do not have the same
+/// value if there is at least one rule that exists in one rule but does not
+/// exist in the other.
 bool operator!=(const RuleSet& lhs, const RuleSet& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' rule sets do not have the
-    // same value, and 'false' otherwise.  Two rule sets do not have the same
-    // value if there is at least one rule that exists in one rule but does not
-    // exist in the other.
 
+/// Write the value of the specified `rules` to the specified `output`
+/// stream.  Return the specified `output` stream
 bsl::ostream& operator<<(bsl::ostream& output, const RuleSet& rules);
-    // Write the value of the specified 'rules' to the specified 'output'
-    // stream.  Return the specified 'output' stream
 
 // ============================================================================
 //                              INLINE DEFINITIONS

@@ -12,39 +12,39 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: The 'balxml::HexParser' class template provided by this
+//@DESCRIPTION: The `balxml::HexParser` class template provided by this
 // component can be used to parse Hex characters into one of the supported Hex
-// types, which are 'bsl::vector<char>' and 'bsl::string'.  The 'TYPE'
+// types, which are `bsl::vector<char>` and `bsl::string`.  The `TYPE`
 // parameter can be one of these two types.
 //
 // Note that if you need a way to encode binary data into ASCII, the
-// 'bdlde_base64encoder' and 'bdlde_base64decoder' components are likely a more
+// `bdlde_base64encoder` and `bdlde_base64decoder` components are likely a more
 // efficient solution.
 //
-// This class template is a model of the 'PushParser' concept, which contains
+// This class template is a model of the `PushParser` concept, which contains
 // the following methods:
-//..
-//  int beginParse(TYPE *object);
-//      // Prepare the parser to start parsing a new value and associate the
-//      // specified 'object' with the parser.  Return 0 if successful and
-//      // non-zero otherwise.
+// ```
+// int beginParse(TYPE *object);
+//     // Prepare the parser to start parsing a new value and associate the
+//     // specified 'object' with the parser.  Return 0 if successful and
+//     // non-zero otherwise.
 //
-//  int endParse();
-//      // Ends the parse operation and store the value parsed from the pushed
-//      // characters into the associated object.  Return 0 if successful and
-//      // non-zero otherwise.  The behavior is undefined unless an object is
-//      // associated with this parser.  Upon successful completion, the parser
-//      // will be disassociated with the object.
+// int endParse();
+//     // Ends the parse operation and store the value parsed from the pushed
+//     // characters into the associated object.  Return 0 if successful and
+//     // non-zero otherwise.  The behavior is undefined unless an object is
+//     // associated with this parser.  Upon successful completion, the parser
+//     // will be disassociated with the object.
 //
-//  template <typename INPUT_ITERATOR>
-//  int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
-//      // Push the characters ranging from the specified 'begin' up to (but
-//      // not including) the specified 'end' into this parser.  Return 0 if
-//      // successful and non-zero otherwise.  The parameterized
-//      // 'INPUT_ITERATOR' must be dereferenceable to a 'char' value.  The
-//      // behavior is undefined unless an object is associated with this
-//      // parser.
-//..
+// template <typename INPUT_ITERATOR>
+// int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
+//     // Push the characters ranging from the specified 'begin' up to (but
+//     // not including) the specified 'end' into this parser.  Return 0 if
+//     // successful and non-zero otherwise.  The parameterized
+//     // 'INPUT_ITERATOR' must be dereferenceable to a 'char' value.  The
+//     // behavior is undefined unless an object is associated with this
+//     // parser.
+// ```
 //
 ///Usage
 ///-----
@@ -54,56 +54,56 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // The following snippets of code illustrate the usage of this component.
 // Suppose you had an input stream that contained Hex data.  The following
-// 'loadFromHexStream' function loads this data into an 'bsl::vector<char>'
+// `loadFromHexStream` function loads this data into an `bsl::vector<char>`
 // blob:
-//..
-//  #include <balxml_hexparser.h>
+// ```
+// #include <balxml_hexparser.h>
 //
-//  #include <bsl_istream.h>
-//  #include <bsl_iterator.h>
-//  #include <bsl_vector.h>
+// #include <bsl_istream.h>
+// #include <bsl_iterator.h>
+// #include <bsl_vector.h>
 //
-//  using namespace BloombergLP;
+// using namespace BloombergLP;
 //
-//  int loadFromHexStream(bsl::vector<char> *result, bsl::istream& stream)
-//  {
-//      enum { k_FAILURE = -1 };
+// int loadFromHexStream(bsl::vector<char> *result, bsl::istream& stream)
+// {
+//     enum { k_FAILURE = -1 };
 //
-//      balxml::HexParser<bsl::vector<char> > parser;
+//     balxml::HexParser<bsl::vector<char> > parser;
 //
-//      if (0 != parser.beginParse(result)) {
-//          return k_FAILURE;
-//      }
+//     if (0 != parser.beginParse(result)) {
+//         return k_FAILURE;
+//     }
 //
-//      if (0 != parser.pushCharacters(bsl::istreambuf_iterator<char>(stream),
-//                                     bsl::istreambuf_iterator<char>())) {
-//          return k_FAILURE;
-//      }
+//     if (0 != parser.pushCharacters(bsl::istreambuf_iterator<char>(stream),
+//                                    bsl::istreambuf_iterator<char>())) {
+//         return k_FAILURE;
+//     }
 //
-//      return parser.endParse();
-//  }
-//..
-// The following function demonstrates the 'loadFromHexStream' function:
-//..
-//  #include <sstream>
+//     return parser.endParse();
+// }
+// ```
+// The following function demonstrates the `loadFromHexStream` function:
+// ```
+// #include <sstream>
 //
-//  void usageExample()
-//  {
-//      const char INPUT[] = "0F3B296A";
+// void usageExample()
+// {
+//     const char INPUT[] = "0F3B296A";
 //
-//      bsl::vector<char>  vec;
-//      bsl::istringstream iss(INPUT);
+//     bsl::vector<char>  vec;
+//     bsl::istringstream iss(INPUT);
 //
-//      int result = loadFromHexStream(&vec, iss);
+//     int result = loadFromHexStream(&vec, iss);
 //
-//      assert(0    == result);
-//      assert(4    == vec.size());
-//      assert(0x0F == vec[0]);
-//      assert(0x3B == vec[1]);
-//      assert(0x29 == vec[2]);
-//      assert(0x6A == vec[3]);
-//  }
-//..
+//     assert(0    == result);
+//     assert(4    == vec.size());
+//     assert(0x0F == vec[0]);
+//     assert(0x3B == vec[1]);
+//     assert(0x29 == vec[2]);
+//     assert(0x6A == vec[3]);
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -121,10 +121,10 @@ namespace balxml {
                            // class HexParser<TYPE>
                            // =====================
 
+/// This is a push parser for supported Hex types (`bsl::vector<char>` or
+/// `bsl::string`).
 template <class TYPE>
 class HexParser {
-    // This is a push parser for supported Hex types ('bsl::vector<char>' or
-    // 'bsl::string').
 
     // PRIVATE DATA MEMBERS
     char  d_firstDigit;  // buffer for first digit
@@ -136,55 +136,58 @@ class HexParser {
     HexParser& operator=(const HexParser&);
 
     // PRIVATE MANIPULATORS
+
+    /// Append an octet generated from the specified `firstDigit` and the
+    /// specified `secondDigit` to the associated object.
     void appendOctet(char firstDigit, char secondDigit);
-        // Append an octet generated from the specified 'firstDigit' and the
-        // specified 'secondDigit' to the associated object.
 
   public:
     // CREATORS
+
+    /// Create a parser for parsing Hex types.
     HexParser();
-        // Create a parser for parsing Hex types.
 
     // Generated by compiler:
     //  ~HexParser();
 
     // MANIPULATORS
+
+    /// Prepare the parser to start parsing a new value and associate the
+    /// specified `object` with the parser.  Return 0 if successful and
+    /// non-zero otherwise.
     int beginParse(TYPE *object);
-        // Prepare the parser to start parsing a new value and associate the
-        // specified 'object' with the parser.  Return 0 if successful and
-        // non-zero otherwise.
 
+    /// Ends the parse operation and store the value parsed from the pushed
+    /// characters into the associated object.  Return 0 if successful and
+    /// non-zero otherwise.  The behavior is undefined unless an object is
+    /// associated with this parser.  Upon successful completion, the parser
+    /// will be disassociated with the object.
     int endParse();
-        // Ends the parse operation and store the value parsed from the pushed
-        // characters into the associated object.  Return 0 if successful and
-        // non-zero otherwise.  The behavior is undefined unless an object is
-        // associated with this parser.  Upon successful completion, the parser
-        // will be disassociated with the object.
 
+    /// Push the characters ranging from the specified `begin` up to (but
+    /// not including) the specified `end` into this parser.  Return 0 if
+    /// successful and non-zero otherwise.  The parameterized
+    /// `INPUT_ITERATOR` must be dereferenceable to a `char` value.  The
+    /// behavior is undefined unless an object is associated with this
+    /// parser.
     template <class INPUT_ITERATOR>
     int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
-        // Push the characters ranging from the specified 'begin' up to (but
-        // not including) the specified 'end' into this parser.  Return 0 if
-        // successful and non-zero otherwise.  The parameterized
-        // 'INPUT_ITERATOR' must be dereferenceable to a 'char' value.  The
-        // behavior is undefined unless an object is associated with this
-        // parser.
 };
 
                           // =======================
                           // struct HexParser_Helper
                           // =======================
 
+/// Namespace for facilities that are used in the implementation of class
+/// `HexParser<TYPE>`.  Only instances of `HexParser<TYPE>` can access the
+/// facilities in this class.
 class HexParser_Helper {
-    // Namespace for facilities that are used in the implementation of class
-    // 'HexParser<TYPE>'.  Only instances of 'HexParser<TYPE>' can access the
-    // facilities in this class.
 
     template <class TYPE>
     friend class HexParser;
 
+    // Table that maps from ASCII character value to hex value.
     static const char s_hexValueTable[128];
-        // Table that maps from ASCII character value to hex value.
 };
 
 // ============================================================================

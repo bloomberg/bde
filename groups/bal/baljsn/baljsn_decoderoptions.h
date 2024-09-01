@@ -13,46 +13,42 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: baljsn_decoder, baljsn_encoderoptions
 //
 //@DESCRIPTION: This component provides a single, simply constrained
-// (value-semantic) attribute class, 'baljsn::DecoderOptions', that is used to
+// (value-semantic) attribute class, `baljsn::DecoderOptions`, that is used to
 // specify options for decoding objects in the JSON format.
 //
 ///Attributes
 ///----------
-//..
-//  Name                             Type  Default  Simple Constraints
-//  ------------------               ----  -------  ------------------
-//  maxDepth                         int   32       >= 0
-//  skipUnknownElements              bool  true     none
-//  validateInputIsUtf8              bool  false    none
-//  allowConsecutiveSeparators       bool  true     none
-//  allowFormFeedAsWhitespace        bool  true     none
-//  allowUnescapedControlCharacters  bool  true     none
-//..
-//: o 'maxDepth': maximum depth of the decoded data
-//:
-//: o 'skipUnknownElements': flag specifying if unknown elements are skipped
-//:
-//: o 'validateInputIsUtf8': flag specifying whether UTF-8 correctness checking
-//:   is enabled.
-//:
-//: o 'allowConsecutiveSeparators': flag specifying if multiple consecutive
-//:   separators -- e.g., '"a" :: 1', '[ 1,, 2 ]' -- are accepted and treated
-//:   as if one separator had been input.
-//:
-//: o 'allowFormFeedAsWhitespace': flag specifying if the form-feed character,
-//:   '\f', is treaded as whitespace in addition to ' ', '\t', '\n', '\r', and
-//:   '\v'.
+// ```
+// Name                             Type  Default  Simple Constraints
+// ------------------               ----  -------  ------------------
+// maxDepth                         int   32       >= 0
+// skipUnknownElements              bool  true     none
+// validateInputIsUtf8              bool  false    none
+// allowConsecutiveSeparators       bool  true     none
+// allowFormFeedAsWhitespace        bool  true     none
+// allowUnescapedControlCharacters  bool  true     none
+// ```
+// * `maxDepth`: maximum depth of the decoded data
+// * `skipUnknownElements`: flag specifying if unknown elements are skipped
+// * `validateInputIsUtf8`: flag specifying whether UTF-8 correctness checking
+//   is enabled.
+// * `allowConsecutiveSeparators`: flag specifying if multiple consecutive
+//   separators -- e.g., `"a" :: 1`, `[ 1,, 2 ]` -- are accepted and treated
+//   as if one separator had been input.
+// * `allowFormFeedAsWhitespace`: flag specifying if the form-feed character,
+//   '\f', is treaded as whitespace in addition to ` `, '\t', '\n', '\r', and
+//   '\v'.
 //
-//: o 'allowUnescapedControlCharacters': flag specifying if unescaped (raw)
-//:   control characters (e.g., '\n', '\n') are allowed in JSON strings.
-//:   Otherwise, control characters are represented by multi-character
-//:   sequences (e.g., '\\t' or '\u000A').
+// * `allowUnescapedControlCharacters`: flag specifying if unescaped (raw)
+//   control characters (e.g., '\n', '\n') are allowed in JSON strings.
+//   Otherwise, control characters are represented by multi-character
+//   sequences (e.g., '\\t' or '\u000A').
 //
 ///Implementation Note
 ///- - - - - - - - - -
 // This file was generated from a script and was subsequently modified to add
 // documentation and to make other changes.  The steps to generate and update
-// this file can be found in the 'doc/generating_codec_options.txt' file.
+// this file can be found in the `doc/generating_codec_options.txt` file.
 //
 ///Usage
 ///-----
@@ -64,24 +60,24 @@ BSLS_IDENT("$Id: $")
 // for decoding objects in the JSON format.  This example shows how to create
 // and populate an options object.
 //
-// First, we default-construct a 'baljsn::DecoderOptions' object:
-//..
-//  const int  MAX_DEPTH             = 10;
-//  const bool SKIP_UNKNOWN_ELEMENTS = false;
+// First, we default-construct a `baljsn::DecoderOptions` object:
+// ```
+// const int  MAX_DEPTH             = 10;
+// const bool SKIP_UNKNOWN_ELEMENTS = false;
 //
-//  baljsn::DecoderOptions options;
-//  assert(32   == options.maxDepth());
-//  assert(true == options.skipUnknownElements());
-//..
-// Next, we populate that object to decode using a different 'maxDepth' value
-// and 'skipUnknownElements' value:
-//..
-//  options.setMaxDepth(MAX_DEPTH);
-//  assert(MAX_DEPTH == options.maxDepth());
+// baljsn::DecoderOptions options;
+// assert(32   == options.maxDepth());
+// assert(true == options.skipUnknownElements());
+// ```
+// Next, we populate that object to decode using a different `maxDepth` value
+// and `skipUnknownElements` value:
+// ```
+// options.setMaxDepth(MAX_DEPTH);
+// assert(MAX_DEPTH == options.maxDepth());
 //
-//  options.setSkipUnknownElements(SKIP_UNKNOWN_ELEMENTS);
-//  assert(SKIP_UNKNOWN_ELEMENTS == options.skipUnknownElements());
-//..
+// options.setSkipUnknownElements(SKIP_UNKNOWN_ELEMENTS);
+// assert(SKIP_UNKNOWN_ELEMENTS == options.skipUnknownElements());
+// ```
 
 #include <balscm_version.h>
 
@@ -107,27 +103,33 @@ namespace baljsn {
                             // class DecoderOptions
                             // ====================
 
+/// Options for controlling the JSON decoding process.
 class DecoderOptions {
-    // Options for controlling the JSON decoding process.
 
     // INSTANCE DATA
+
+    // maximum recursion depth
     int   d_maxDepth;
-        // maximum recursion depth
+
+    // option to skip unknown elements
     bool  d_skipUnknownElements;
-        // option to skip unknown elements
+
+    // option to check that input is valid UTF-8
     bool  d_validateInputIsUtf8;
-        // option to check that input is valid UTF-8
+
+    // Option to allow multiple consecutive colons or commas.  Set to
+    // `false` for strictly conformining JSON.
     bool  d_allowConsecutiveSeparators;
-        // Option to allow multiple consecutive colons or commas.  Set to
-        // 'false' for strictly conformining JSON.
+
+    // Option to allow '\f' (form feed) as whitespace in addition to ` `,
+    // '\n', '\t', '\r', and '\v'.  Set to `false` for strictly
+    // conformining JSON.
     bool  d_allowFormFeedAsWhitespace;
-        // Option to allow '\f' (form feed) as whitespace in addition to ' ',
-        // '\n', '\t', '\r', and '\v'.  Set to 'false' for strictly
-        // conformining JSON.
+
+    // Option to allow characters in the range `[0x00 ..  0x1F]`  (e.g.,
+    // '\0', '\t', '\n') in JSON strings.  Set to `false` for strictly
+    // conformining JSON.
     bool  d_allowUnescapedControlCharacters;
-        // Option to allow characters in the range '[0x00 ..  0x1F]'  (e.g.,
-        // '\0', '\t', '\n') in JSON strings.  Set to 'false' for strictly
-        // conformining JSON.
 
     // PRIVATE ACCESSORS
     template <typename t_HASH_ALGORITHM>
@@ -178,204 +180,209 @@ class DecoderOptions {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    DecoderOptions();
-        // Create an object of type 'DecoderOptions' having the default value.
 
+    /// Create an object of type `DecoderOptions` having the default value.
+    DecoderOptions();
+
+    /// Create an object of type `DecoderOptions` having the value of the
+    /// specified `original` object.
     DecoderOptions(const DecoderOptions& original);
-        // Create an object of type 'DecoderOptions' having the value of the
-        // specified 'original' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `DecoderOptions` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
     DecoderOptions(DecoderOptions&& original) = default;
-        // Create an object of type 'DecoderOptions' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
 #endif
 
+    /// Destroy this object.
     ~DecoderOptions();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     DecoderOptions& operator=(const DecoderOptions& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     DecoderOptions& operator=(DecoderOptions&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template <typename t_MANIPULATOR>
     int manipulateAttributes(t_MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template <typename t_MANIPULATOR>
     int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template <typename t_MANIPULATOR>
     int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Set the "MaxDepth" attribute of this object to the specified
+    /// `value`.
     void setMaxDepth(int value);
-        // Set the "MaxDepth" attribute of this object to the specified
-        // 'value'.
 
+    /// Set the "SkipUnknownElements" attribute of this object to the
+    /// specified `value`.
     void setSkipUnknownElements(bool value);
-        // Set the "SkipUnknownElements" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "ValidateInputIsUtf8" attribute of this object to the
+    /// specified `value`.
     void setValidateInputIsUtf8(bool value);
-        // Set the "ValidateInputIsUtf8" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "AllowConsecutiveSeparators" attribute of this object to the
+    /// specified `value`.
     void setAllowConsecutiveSeparators(bool value);
-        // Set the "AllowConsecutiveSeparators" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "AllowFormFeedAsWhitespace" attribute of this object to the
+    /// specified `value`.
     void setAllowFormFeedAsWhitespace(bool value);
-        // Set the "AllowFormFeedAsWhitespace" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "AllowUnescapedControlCharacters" attribute of this object
+    /// to the specified `value`.
     void setAllowUnescapedControlCharacters(bool value);
-        // Set the "AllowUnescapedControlCharacters" attribute of this object
-        // to the specified 'value'.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template <typename t_ACCESSOR>
     int accessAttributes(t_ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template <typename t_ACCESSOR>
     int accessAttribute(t_ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template <typename t_ACCESSOR>
     int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return the value of the "MaxDepth" attribute of this object.
     int maxDepth() const;
-        // Return the value of the "MaxDepth" attribute of this object.
 
+    /// Return the value of the "SkipUnknownElements" attribute of this
+    /// object.
     bool skipUnknownElements() const;
-        // Return the value of the "SkipUnknownElements" attribute of this
-        // object.
 
+    /// Return the value of the "ValidateInputIsUtf8" attribute of this
+    /// object.
     bool validateInputIsUtf8() const;
-        // Return the value of the "ValidateInputIsUtf8" attribute of this
-        // object.
 
+    /// Return the value of the "AllowConsecutiveSeparators" attribute of
+    /// this object.
     bool allowConsecutiveSeparators() const;
-        // Return the value of the "AllowConsecutiveSeparators" attribute of
-        // this object.
 
+    /// Return the value of the "AllowFormFeedAsWhitespace" attribute of
+    /// this object.
     bool allowFormFeedAsWhitespace() const;
-        // Return the value of the "AllowFormFeedAsWhitespace" attribute of
-        // this object.
 
+    /// Return the value of the "AllowUnescapedControlCharacters" attribute
+    /// of this object.
     bool allowUnescapedControlCharacters() const;
-        // Return the value of the "AllowUnescapedControlCharacters" attribute
-        // of this object.
 
     // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
     friend bool operator==(const DecoderOptions& lhs,
                            const DecoderOptions& rhs)
-        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
-        // have the same value, and 'false' otherwise.  Two attribute objects
-        // have the same value if each respective attribute has the same value.
     {
         return lhs.isEqualTo(rhs);
     }
 
+    /// Returns `!(lhs == rhs)`
     friend bool operator!=(const DecoderOptions& lhs,
                            const DecoderOptions& rhs)
-        // Returns '!(lhs == rhs)'
     {
         return !(lhs == rhs);
     }
 
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
     friend bsl::ostream& operator<<(bsl::ostream&         stream,
                                     const DecoderOptions& rhs)
-        // Format the specified 'rhs' to the specified output 'stream' and
-        // return a reference to the modifiable 'stream'.
     {
         return rhs.print(stream, 0, -1);
     }
 
+    /// Pass the specified `object` to the specified `hashAlg`.  This
+    /// function integrates with the `bslh` modular hashing system and
+    /// effectively provides a `bsl::hash` specialization for
+    /// `DecoderOptions`.
     template <typename t_HASH_ALGORITHM>
     friend void hashAppend(t_HASH_ALGORITHM&     hashAlg,
                            const DecoderOptions& object)
-        // Pass the specified 'object' to the specified 'hashAlg'.  This
-        // function integrates with the 'bslh' modular hashing system and
-        // effectively provides a 'bsl::hash' specialization for
-        // 'DecoderOptions'.
     {
         object.hashAppendImpl(hashAlg);
     }

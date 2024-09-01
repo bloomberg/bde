@@ -8,64 +8,64 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Enumerate the types supported for command-line-option values.
 //
 //@CLASSES:
-//  balcl::OptionType: command-line option types 'enum' and utilities
+//  balcl::OptionType: command-line option types `enum` and utilities
 //
 //@SEE_ALSO: balcl_optionvalue, balcl_commandline
 //
-//@DESCRIPTION: This component provides a 'struct', 'balcl::OptionType',
+//@DESCRIPTION: This component provides a `struct`, `balcl::OptionType`,
 // that is a namespace for:
-//: o A 'typedef' for each of the types allowed for command-line-option values.
-//: o An enumerator that represents each of those types.
-//: o A statically-initialized null pointer for each of those types.
-//: o Utility functions.
+// * A `typedef` for each of the types allowed for command-line-option values.
+// * An enumerator that represents each of those types.
+// * A statically-initialized null pointer for each of those types.
+// * Utility functions.
 //
 // The enumerator values are used to control type-dependent operations where
 // the type is not known until runtime.
 //
 // The names of related symbols are similar to each other.  For example, the
-// supported option-value type 'bsl::vector<bdtl::Datetime>' has:
-//..
-//  Symbol                               Description
-//  ------------------------------------ --------------------------------
-//  balcl::OptionType::DatetimeArray     alias ('typedef')
-//  balcl::OptionType::e_DATETIME_ARRAY  enumerator
-//  balcl::OptionType::k_DATETIME_ARRAY  statically-initialized null pointer
-//..
+// supported option-value type `bsl::vector<bdtl::Datetime>` has:
+// ```
+// Symbol                               Description
+// ------------------------------------ --------------------------------
+// balcl::OptionType::DatetimeArray     alias ('typedef')
+// balcl::OptionType::e_DATETIME_ARRAY  enumerator
+// balcl::OptionType::k_DATETIME_ARRAY  statically-initialized null pointer
+// ```
 // The null pointer symbols are typically used with the constructor of
-// 'balcl::TypeInfo'.  They provide a clearly named way to select the
+// `balcl::TypeInfo`.  They provide a clearly named way to select the
 // constructor to create an object having the desired type attribute.  See
-// {'balcl_typeinfo'} and {'balcl_commandline'}.
+// {`balcl_typeinfo`} and {`balcl_commandline`}.
 //
 // In addition to the conventional enumeration methods, this component also
 // provides some utility functions that categorize the represented types.  For
 // example, given an enumerator representing a scalar type, the
-// 'balcl::OptionType::toArrayType' method returns the enumerator representing
+// `balcl::OptionType::toArrayType` method returns the enumerator representing
 // an array of that scalar type.
 //
 ///Enumerators
 ///-----------
-//..
-//  Enumerator       Type Alias    Type
-//  ---------------- ------------- -------------------------------
-//  e_VOID           n/a           void
-//  e_BOOL           Bool          bool
-//  e_CHAR           Char          char
-//  e_INT            Int           int
-//  e_INT64          Int64         bsls::Types::Int64
-//  e_DOUBLE         Double        double
-//  e_STRING         String        bsl::string
-//  e_DATETIME       Datetime      bdlt::Datetime
-//  e_DATE           Date          bdlt::Date
-//  e_TIME           Time          bdlt::Time
-//  e_CHAR_ARRAY     CharArray     bsl::vector<char>
-//  e_INT_ARRAY      IntArray      bsl::vector<int>
-//  e_INT64_ARRAY    Int64Array    bsl::vector<bsls::Types::Int64>
-//  e_DOUBLE_ARRAY   DoubleArray   bsl::vector<double>
-//  e_STRING_ARRAY   StringArray   bsl::vector<bsl::string>
-//  e_DATETIME_ARRAY DatetimeArray bsl::vector<bdlt::Datetime>
-//  e_DATE_ARRAY     DateArray     bsl::vector<bdlt::Date>
-//  e_TIME_ARRAY     TimeArray     bsl::vector<bdlt::Time>
-//..
+// ```
+// Enumerator       Type Alias    Type
+// ---------------- ------------- -------------------------------
+// e_VOID           n/a           void
+// e_BOOL           Bool          bool
+// e_CHAR           Char          char
+// e_INT            Int           int
+// e_INT64          Int64         bsls::Types::Int64
+// e_DOUBLE         Double        double
+// e_STRING         String        bsl::string
+// e_DATETIME       Datetime      bdlt::Datetime
+// e_DATE           Date          bdlt::Date
+// e_TIME           Time          bdlt::Time
+// e_CHAR_ARRAY     CharArray     bsl::vector<char>
+// e_INT_ARRAY      IntArray      bsl::vector<int>
+// e_INT64_ARRAY    Int64Array    bsl::vector<bsls::Types::Int64>
+// e_DOUBLE_ARRAY   DoubleArray   bsl::vector<double>
+// e_STRING_ARRAY   StringArray   bsl::vector<bsl::string>
+// e_DATETIME_ARRAY DatetimeArray bsl::vector<bdlt::Datetime>
+// e_DATE_ARRAY     DateArray     bsl::vector<bdlt::Date>
+// e_TIME_ARRAY     TimeArray     bsl::vector<bdlt::Time>
+// ```
 //
 ///Usage
 ///-----
@@ -74,79 +74,79 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
-// 'balcl::OptionType' usage.
+// `balcl::OptionType` usage.
 //
-// First, we create a variable 'value' of type 'balcl::OptionType::Enum' and
-// initialize it to the value 'balcl::OptionType::e_STRING':
-//..
-//  balcl::OptionType::Enum value = balcl::OptionType::e_STRING;
-//..
+// First, we create a variable `value` of type `balcl::OptionType::Enum` and
+// initialize it to the value `balcl::OptionType::e_STRING`:
+// ```
+// balcl::OptionType::Enum value = balcl::OptionType::e_STRING;
+// ```
 // Next, we store a pointer to its ASCII representation in a variable
-// 'asciiValue' of type 'const char *':
-//..
-//  const char *asciiValue = balcl::OptionType::toAscii(value);
-//  assert(0 == bsl::strcmp(asciiValue, "STRING"));
-//..
-// Finally, we print the value to 'bsl::cout':
-//..
-//  bsl::cout << value << bsl::endl;
-//..
-// This statement produces the following output on 'stdout':
-//..
-//  STRING
-//..
+// `asciiValue` of type `const char *`:
+// ```
+// const char *asciiValue = balcl::OptionType::toAscii(value);
+// assert(0 == bsl::strcmp(asciiValue, "STRING"));
+// ```
+// Finally, we print the value to `bsl::cout`:
+// ```
+// bsl::cout << value << bsl::endl;
+// ```
+// This statement produces the following output on `stdout`:
+// ```
+// STRING
+// ```
 //
 ///Example 2: Utility Methods
 /// - - - - - - - - - - - - -
 // In a software system devoted to assembling option values of various types,
 // the code is often governed in terms of the enumerated values
-// ('balcl::OptionType::Enum') corresponding to the various types.  In
+// (`balcl::OptionType::Enum`) corresponding to the various types.  In
 // particular, in order to assemble an option value of one of the array types
-// (e.g., 'balcl::OptionType::e_STRING_ARRAY'), one must first construct the
+// (e.g., `balcl::OptionType::e_STRING_ARRAY`), one must first construct the
 // constitute elements.
 //
-// Suppose we have a class, 'MyMultitypeValue', that can, at runtime, be set to
-// contain a value of one of the types named by 'balcl::OptionType'.  We may
-// want to initialize a 'MyMultitypeValue' object from an input stream using a
-// utility function 'MyMultitypeValueUtil::parse':
-//..
-//  int MyMultitypeValueUtil::parse(MyMultitypeValue        *result,
-//                                  bsl::ostream&            input,
-//                                  balcl::OptionType::Enum  type)
-//  {
-//      BSLS_ASSERT(result);
+// Suppose we have a class, `MyMultitypeValue`, that can, at runtime, be set to
+// contain a value of one of the types named by `balcl::OptionType`.  We may
+// want to initialize a `MyMultitypeValue` object from an input stream using a
+// utility function `MyMultitypeValueUtil::parse`:
+// ```
+// int MyMultitypeValueUtil::parse(MyMultitypeValue        *result,
+//                                 bsl::ostream&            input,
+//                                 balcl::OptionType::Enum  type)
+// {
+//     BSLS_ASSERT(result);
 //
-//      result->setType(type);
-//..
-// If 'type' is not one of the array types, as determined by the
-// 'balcl::OptionType::isArrayType' method, one calls
-// 'MyMultitypeValueUtil::parseScalar':
-//..
-//      if (!balcl::OptionType::isArrayType(type)) {
-//          return MyMultitypeValueUtil::parseScalar(result, input, type);
-//                                                                    // RETURN
-//      } else {
-//..
-// Otherwise, we have an array type.  In this case, we must call 'parseScalar'
+//     result->setType(type);
+// ```
+// If `type` is not one of the array types, as determined by the
+// `balcl::OptionType::isArrayType` method, one calls
+// `MyMultitypeValueUtil::parseScalar`:
+// ```
+//     if (!balcl::OptionType::isArrayType(type)) {
+//         return MyMultitypeValueUtil::parseScalar(result, input, type);
+//                                                                   // RETURN
+//     } else {
+// ```
+// Otherwise, we have an array type.  In this case, we must call `parseScalar`
 // repeatedly and build a vector of those scalar values.  The scalar type can
 // be calculated from the given array type by the
-// 'balcl::OptionType::fromArrayType' method:
-//..
-//          balcl::OptionType::Enum scalarType =
-//                                      balcl::OptionType::fromArrayType(type);
+// `balcl::OptionType::fromArrayType` method:
+// ```
+//         balcl::OptionType::Enum scalarType =
+//                                     balcl::OptionType::fromArrayType(type);
 //
-//          MyMultitypeValue element(scalarType);
+//         MyMultitypeValue element(scalarType);
 //
-//          int rc;
-//          while (0 == (rc = MyMultitypeValueUtil::parseScalar(&element,
-//                                                              input,
-//                                                              scalarType))) {
-//              result->append(element);
-//          }
-//          return rc;                                                // RETURN
-//      }
-//  }
-//..
+//         int rc;
+//         while (0 == (rc = MyMultitypeValueUtil::parseScalar(&element,
+//                                                             input,
+//                                                             scalarType))) {
+//             result->append(element);
+//         }
+//         return rc;                                                // RETURN
+//     }
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -169,15 +169,15 @@ namespace balcl {
                         // struct OptionType
                         // =================
 
+/// This `struct` provides a namespace for enumerating types used for
+/// command-line option values.  See {Enumerators} for details.
+///
+/// This `struct`:
+/// * Supports a complete set of *enumeration* operations.
+/// * Provides several additional utility functions.
+///
+/// For terminology {`bsldoc_glossary`}.
 struct OptionType {
-    // This 'struct' provides a namespace for enumerating types used for
-    // command-line option values.  See {Enumerators} for details.
-    //
-    // This 'struct':
-    //: o Supports a complete set of *enumeration* operations.
-    //: o Provides several additional utility functions.
-    //
-    // For terminology {'bsldoc_glossary'}.
 
   public:
     // TYPES
@@ -197,8 +197,9 @@ struct OptionType {
     typedef bsl::vector<bsl::string>        StringArray;
     typedef bsl::vector<bdlt::Datetime>     DatetimeArray;
     typedef bsl::vector<bdlt::Date>         DateArray;
+
+    /// Aliases for each of the supported command-line-option types.
     typedef bsl::vector<bdlt::Time>         TimeArray;
-        // Aliases for each of the supported command-line-option types.
 
     enum Enum {
         // Enumerate the set of value types available for command-line options.
@@ -222,19 +223,19 @@ struct OptionType {
       , e_TIME_ARRAY
     };
 
+    /// `EnumToType<TYPE_ENUMERATOR>::type` is the (C++) type corresponding
+    /// to the (template parameter) `TYPE_ENUMERATOR` `Enum` value.  See
+    /// `TypeToEnum` for the inverse metafunction.
     template <Enum TYPE_ENUMERATOR>
     struct EnumToType {
-        // 'EnumToType<TYPE_ENUMERATOR>::type' is the (C++) type corresponding
-        // to the (template parameter) 'TYPE_ENUMERATOR' 'Enum' value.  See
-        // 'TypeToEnum' for the inverse metafunction.
     };
 
+    /// `TypeToEnum<TYPE>::value` is the `Enum` value corresponding to the
+    /// (template parameter) `TYPE` where `TYPE` matches one of the
+    /// `typedef`s defined above or `void`.  See `EnumToType` for the
+    /// inverse metafunction.
     template <class TYPE>
     struct TypeToEnum {
-        // 'TypeToEnum<TYPE>::value' is the 'Enum' value corresponding to the
-        // (template parameter) 'TYPE' where 'TYPE' matches one of the
-        // 'typedef's defined above or 'void'.  See 'EnumToType' for the
-        // inverse metafunction.
     };
 
     // PUBLIC CLASS DATA
@@ -260,80 +261,83 @@ struct OptionType {
     static StringArray   * const k_STRING_ARRAY;
     static DatetimeArray * const k_DATETIME_ARRAY;
     static DateArray     * const k_DATE_ARRAY;
+
+    /// Statically initialized null pointers, one for each supported
+    /// command-line-option type.
     static TimeArray     * const k_TIME_ARRAY;
-        // Statically initialized null pointers, one for each supported
-        // command-line-option type.
 
 // BDE_VERIFY pragma: +KS02: // Tag implicitly requires private declaration
 
 // BDE_VERIFY pragma: +MN04: // Pointer member names must end in '_p'
 
     // CLASS METHODS
+
+    /// If `isArrayType(type)` for the specified `type`, then return the
+    /// type of the elements of that array `type`; otherwise return
+    /// `e_VOID`.
     static Enum fromArrayType(Enum type);
-        // If 'isArrayType(type)' for the specified 'type', then return the
-        // type of the elements of that array 'type'; otherwise return
-        // 'e_VOID'.
 
+    /// Return `true` if the specified `type` corresponds to an array type,
+    /// and `false` otherwise.
     static bool isArrayType(Enum type);
-        // Return 'true' if the specified 'type' corresponds to an array type,
-        // and 'false' otherwise.
 
+    /// If there is an array type whose elements have the specified `type`
+    /// then return that array type; otherwise return `e_VOID`.
+    /// `e_VOID == toArrayType(e_BOOL)` because an array of boolean values
+    /// is not allowed as a command-line-option type.  Note that
+    /// `type == fromArrayType(TYPE)` when `TYPE != e_VOID` is returned.
     static Enum toArrayType(Enum type);
-        // If there is an array type whose elements have the specified 'type'
-        // then return that array type; otherwise return 'e_VOID'.
-        // 'e_VOID == toArrayType(e_BOOL)' because an array of boolean values
-        // is not allowed as a command-line-option type.  Note that
-        // 'type == fromArrayType(TYPE)' when 'TYPE != e_VOID' is returned.
 
                                   // Aspects
 
+    /// Write the string representation of the specified enumeration `value`
+    /// to the specified output `stream`, and return a reference to
+    /// `stream`.  Optionally specify an initial indentation `level`, whose
+    /// absolute value is incremented recursively for nested objects.  If
+    /// `level` is specified, optionally specify `spacesPerLevel`, whose
+    /// absolute value indicates the number of spaces per indentation level
+    /// for this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  See `toAscii` for
+    /// what constitutes the string representation of a `OptionType::Enum`
+    /// value.
     static bsl::ostream& print(bsl::ostream&    stream,
                                OptionType::Enum value,
                                int              level          = 0,
                                int              spacesPerLevel = 4);
-        // Write the string representation of the specified enumeration 'value'
-        // to the specified output 'stream', and return a reference to
-        // 'stream'.  Optionally specify an initial indentation 'level', whose
-        // absolute value is incremented recursively for nested objects.  If
-        // 'level' is specified, optionally specify 'spacesPerLevel', whose
-        // absolute value indicates the number of spaces per indentation level
-        // for this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  See 'toAscii' for
-        // what constitutes the string representation of a 'OptionType::Enum'
-        // value.
 
+    /// Return the (non-modifiable) string representation corresponding to
+    /// the specified enumeration `value`, if it exists, and a unique
+    /// (error) string otherwise.  The string representation of `value`
+    /// matches its corresponding enumerator name with the `e_` prefix
+    /// elided.  For example:
+    /// ```
+    /// bsl::cout << balcl::OptionType::toAscii(
+    ///                                   OptionType::e_STRING);
+    /// ```
+    /// will print the following on standard output:
+    /// ```
+    /// STRING
+    /// ```
+    /// Note that specifying a `value` that does not match any of the
+    /// enumerators will result in a string representation that is distinct
+    /// from any of those corresponding to the enumerators, but is otherwise
+    /// unspecified.
     static const char *toAscii(OptionType::Enum value);
-        // Return the (non-modifiable) string representation corresponding to
-        // the specified enumeration 'value', if it exists, and a unique
-        // (error) string otherwise.  The string representation of 'value'
-        // matches its corresponding enumerator name with the 'e_' prefix
-        // elided.  For example:
-        //..
-        //  bsl::cout << balcl::OptionType::toAscii(
-        //                                    OptionType::e_STRING);
-        //..
-        // will print the following on standard output:
-        //..
-        //  STRING
-        //..
-        // Note that specifying a 'value' that does not match any of the
-        // enumerators will result in a string representation that is distinct
-        // from any of those corresponding to the enumerators, but is otherwise
-        // unspecified.
 };
 
 // FREE OPERATORS
+
+/// Write the string representation of the specified enumeration `value` to
+/// the specified output `stream` in a single-line format, and return a
+/// reference to `stream`.  See `toAscii` for what constitutes the string
+/// representation of a `OptionType::Enum` value.  Note that this method has
+/// the same behavior as:
+/// ```
+/// balcl::OptionType::print(stream, value, 0, -1);
+/// ```
 bsl::ostream& operator<<(bsl::ostream& stream, OptionType::Enum value);
-    // Write the string representation of the specified enumeration 'value' to
-    // the specified output 'stream' in a single-line format, and return a
-    // reference to 'stream'.  See 'toAscii' for what constitutes the string
-    // representation of a 'OptionType::Enum' value.  Note that this method has
-    // the same behavior as:
-    //..
-    //  balcl::OptionType::print(stream, value, 0, -1);
-    //..
 
 // ============================================================================
 //                            INLINE DEFINITIONS

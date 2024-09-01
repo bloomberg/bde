@@ -15,16 +15,16 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides generic proctor to automatically
 // reserve and release units from a rate controlling object.  The rate
 // controlling object can be of any type (typically either a
-// 'balb::RateLimiter' or 'balb::LeakyBucket') that provides the following
+// `balb::RateLimiter` or `balb::LeakyBucket`) that provides the following
 // methods:
-//..
-//  void reserve(bsls::Types::Uint64 numOfUnits);
-//  void submitReserved(bsls::Types::Uint64 numOfUnits);
-//  void cancelReserved(bsls::Types::Uint64 numOfUnits);
-//..
-// Use 'balb::ReservationGuard' to ensure that reserved units will be correctly
+// ```
+// void reserve(bsls::Types::Uint64 numOfUnits);
+// void submitReserved(bsls::Types::Uint64 numOfUnits);
+// void cancelReserved(bsls::Types::Uint64 numOfUnits);
+// ```
+// Use `balb::ReservationGuard` to ensure that reserved units will be correctly
 // returned to a rate controlling object in a programming scope.  Note that
-// 'balb::ReservationGuard' does not assume ownership of the rate controlling
+// `balb::ReservationGuard` does not assume ownership of the rate controlling
 // object.
 //
 ///Usage
@@ -34,16 +34,16 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Guarding units reservation in operations with balb::LeakyBucket
 ///--------------------------------------------------------------------------
 // Suppose that we are limiting the rate of network traffic generation using a
-// 'balb::LeakyBucket' object.  We send data buffer over a network interface
-// using the 'mySendData' function:
-//..
-//  bsls::Types::Uint64 mySendData(size_t dataSize);
-//      // Send a specified 'dataSize' amount of data over the network.  Return
-//      // the amount of data actually sent.  Throw an exception if a network
-//      // failure is detected.
-//..
-// Notice that the 'mySendData' function may throw an exception; therefore, we
-// should wait until 'mySendData' returns before indicating the amount of data
+// `balb::LeakyBucket` object.  We send data buffer over a network interface
+// using the `mySendData` function:
+// ```
+// bsls::Types::Uint64 mySendData(size_t dataSize);
+//     // Send a specified 'dataSize' amount of data over the network.  Return
+//     // the amount of data actually sent.  Throw an exception if a network
+//     // failure is detected.
+// ```
+// Notice that the `mySendData` function may throw an exception; therefore, we
+// should wait until `mySendData` returns before indicating the amount of data
 // sent to the leaky bucket.
 //
 // Further suppose that multiple threads are sending network data and sharing
@@ -54,68 +54,68 @@ BSLS_IDENT("$Id: $")
 // immediately after checking whether the leaky bucket has overflown and submit
 // the reserved amount after the data has been sent.  However, this process
 // could lead to the loss of the reserved units (effectively decreasing the
-// leaky bucket's capacity) if 'mySendData' throws an exception.
-// 'balb::ReservationGuard' is designed to resolve this issue.
+// leaky bucket's capacity) if `mySendData` throws an exception.
+// `balb::ReservationGuard` is designed to resolve this issue.
 //
 // First, we define the size of each data chunk and the total size of the data
 // to send:
-//..
-//  const bsls::Types::Uint64 CHUNK_SIZE = 256;
-//  bsls::Types::Uint64       bytesSent  = 0;
-//  bsls::Types::Uint64       totalSize  = 10 * 1024; // in bytes
-//..
-// Then, we create a 'balb::LeakyBucket' object to limit the rate of data
+// ```
+// const bsls::Types::Uint64 CHUNK_SIZE = 256;
+// bsls::Types::Uint64       bytesSent  = 0;
+// bsls::Types::Uint64       totalSize  = 10 * 1024; // in bytes
+// ```
+// Then, we create a `balb::LeakyBucket` object to limit the rate of data
 // transmission:
-//..
-//  bsls::Types::Uint64 rate     = 512;
-//  bsls::Types::Uint64 capacity = 1536;
-//  bsls::TimeInterval  now      = bdlt::CurrentTime::now();
-//  balb::LeakyBucket   bucket(rate, capacity, now);
-//..
+// ```
+// bsls::Types::Uint64 rate     = 512;
+// bsls::Types::Uint64 capacity = 1536;
+// bsls::TimeInterval  now      = bdlt::CurrentTime::now();
+// balb::LeakyBucket   bucket(rate, capacity, now);
+// ```
 // Next, we send the chunks of data using a loop.  For each iteration, we check
 // whether submitting another byte would cause the leaky bucket to overflow:
-//..
-//  while (bytesSent < totalSize) {
+// ```
+// while (bytesSent < totalSize) {
 //
-//      now = bdlt::CurrentTime::now();
-//      if (!bucket.wouldOverflow(now)) {
-//..
+//     now = bdlt::CurrentTime::now();
+//     if (!bucket.wouldOverflow(now)) {
+// ```
 // Now, if the leaky bucket would not overflow, we create a
-// 'balb::ReservationGuard' object to reserve the amount of data to be sent:
-//..
-//          balb::ReservationGuard<balb::LeakyBucket> guard(&bucket,
-//                                                          CHUNK_SIZE);
-//..
-// Then, we use the 'mySendData' function to send the data chunk over the
+// `balb::ReservationGuard` object to reserve the amount of data to be sent:
+// ```
+//         balb::ReservationGuard<balb::LeakyBucket> guard(&bucket,
+//                                                         CHUNK_SIZE);
+// ```
+// Then, we use the `mySendData` function to send the data chunk over the
 // network.  After the data had been sent, we submit the amount of reserved
 // data that was actually sent:
-//..
-//          bsls::Types::Uint64 result;
-//          result = mySendData(CHUNK_SIZE);
-//          bytesSent += result;
-//          guard.submitReserved(result);
-//..
+// ```
+//         bsls::Types::Uint64 result;
+//         result = mySendData(CHUNK_SIZE);
+//         bytesSent += result;
+//         guard.submitReserved(result);
+// ```
 // Note that we do not have manually cancel any remaining units reserved by the
-// 'balb::ReservationGuard' object either because 'mySendData' threw an
+// `balb::ReservationGuard` object either because `mySendData` threw an
 // exception, or the data was only partially sent, because when the guard
 // object goes out of scope, all remaining reserved units will be automatically
 // cancelled.
-//..
-//      }
-//..
+// ```
+//     }
+// ```
 // Finally, if submitting another byte will cause the leaky bucket to overflow,
 // then we wait until the submission will be allowed by waiting for an amount
-// time returned by the 'calculateTimeToSubmit' method:
-//..
-//      else {
-//          bsls::TimeInterval  timeToSubmit = bucket.calculateTimeToSubmit(
-//                                                                        now);
-//          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
-//                                 (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
-//          bslmt::ThreadUtil::microSleep(static_cast<int>(uS));
-//      }
-//  }
-//..
+// time returned by the `calculateTimeToSubmit` method:
+// ```
+//     else {
+//         bsls::TimeInterval  timeToSubmit = bucket.calculateTimeToSubmit(
+//                                                                       now);
+//         bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
+//                                (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
+//         bslmt::ThreadUtil::microSleep(static_cast<int>(uS));
+//     }
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -130,15 +130,15 @@ namespace balb {
                            // class ReservationGuard
                            //=======================
 
+/// This class template implements a proctor for reserving and cancelling
+/// units in a rate controlling object.
+///
+/// This class:
+/// * is *exception* *neutral* (agnostic)
+/// * is *const* *thread-safe*
+/// For terminology see `bsldoc_glossary`.
 template<class TYPE>
 class ReservationGuard {
-    // This class template implements a proctor for reserving and cancelling
-    // units in a rate controlling object.
-    //
-    // This class:
-    //: o is *exception* *neutral* (agnostic)
-    //: o is *const* *thread-safe*
-    // For terminology see 'bsldoc_glossary'.
 
     // DATA
     TYPE                  *d_rateController_p;  // Pointer to the rate
@@ -156,35 +156,38 @@ class ReservationGuard {
 
   public:
     // CREATORS
-    ReservationGuard(TYPE* rateController, bsls::Types::Uint64 numUnits);
-        // Create a 'ReservationGuard' object guarding the specified
-        // 'rateController' and reserving the specified 'numUnits'.
 
+    /// Create a `ReservationGuard` object guarding the specified
+    /// `rateController` and reserving the specified `numUnits`.
+    ReservationGuard(TYPE* rateController, bsls::Types::Uint64 numUnits);
+
+    /// Destroy this object.  Invoke the `cancelReserved` method for the
+    /// remaining remaining units reserved by this proctor.
     ~ReservationGuard();
-        // Destroy this object.  Invoke the 'cancelReserved' method for the
-        // remaining remaining units reserved by this proctor.
 
     // MANIPULATORS
-    void cancelReserved(bsls::Types::Uint64 numUnits);
-        // Cancel the specified 'numUnits' from the reserve units guarded by
-        // this object.  Subtract the 'numUnits' from 'unitsReserved' and
-        // invoke the 'cancelReserved' method on the guarded object for
-        // 'numUnits'.  After this operation, the number of reserved units
-        // guarded by this object will be reduced by 'numUnits'.  The behavior
-        // is undefined unless 'numUnits <= unitsReserved()'.
 
+    /// Cancel the specified `numUnits` from the reserve units guarded by
+    /// this object.  Subtract the `numUnits` from `unitsReserved` and
+    /// invoke the `cancelReserved` method on the guarded object for
+    /// `numUnits`.  After this operation, the number of reserved units
+    /// guarded by this object will be reduced by `numUnits`.  The behavior
+    /// is undefined unless `numUnits <= unitsReserved()`.
+    void cancelReserved(bsls::Types::Uint64 numUnits);
+
+    /// Submit the specified `numUnits` from the reserve units guarded by
+    /// this object.  After this operation, the number of reserved units
+    /// guarded by this object will be reduced by `numUnits`.  The behavior
+    /// is undefined unless `numUnits <= unitsReserved()`.
     void submitReserved(bsls::Types::Uint64 numUnits);
-        // Submit the specified 'numUnits' from the reserve units guarded by
-        // this object.  After this operation, the number of reserved units
-        // guarded by this object will be reduced by 'numUnits'.  The behavior
-        // is undefined unless 'numUnits <= unitsReserved()'.
 
     // ACCESSORS
-    TYPE *ptr() const;
-        // Return a pointer to the rate controlling object used by this object.
 
+    /// Return a pointer to the rate controlling object used by this object.
+    TYPE *ptr() const;
+
+    /// Return the number of units reserved by this object.
     bsls::Types::Uint64 unitsReserved() const;
-        // Return the number of units reserved by this object.
 };
 
 // ============================================================================

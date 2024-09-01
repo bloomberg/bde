@@ -12,34 +12,34 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlat_arrayfunctions
 //
-//@DESCRIPTION: The 'balxml::ListParser' class template provided by this
+//@DESCRIPTION: The `balxml::ListParser` class template provided by this
 // component can be used to parse lists into an object that supports
-// 'bdlat_ArrayFunctions'.
+// `bdlat_ArrayFunctions`.
 //
-// This class template is a model of the 'PushParser' concept, which contains
+// This class template is a model of the `PushParser` concept, which contains
 // the following methods:
-//..
-//  int beginParse(TYPE *object);
-//      // Prepare the parser to start parsing a new value and associate the
-//      // specified 'object' with the parser.  Return 0 if successful and
-//      // non-zero otherwise.
+// ```
+// int beginParse(TYPE *object);
+//     // Prepare the parser to start parsing a new value and associate the
+//     // specified 'object' with the parser.  Return 0 if successful and
+//     // non-zero otherwise.
 //
-//  int endParse();
-//      // Ends the parse operation and store the value parsed from the pushed
-//      // characters into the associated object.  Return 0 if successful and
-//      // non-zero otherwise.  The behavior is undefined unless an object is
-//      // associated with this parser.  Upon successful completion, the parser
-//      // will be disassociated with the object.
+// int endParse();
+//     // Ends the parse operation and store the value parsed from the pushed
+//     // characters into the associated object.  Return 0 if successful and
+//     // non-zero otherwise.  The behavior is undefined unless an object is
+//     // associated with this parser.  Upon successful completion, the parser
+//     // will be disassociated with the object.
 //
-//  template <typename INPUT_ITERATOR>
-//  int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
-//      // Push the characters ranging from the specified 'begin' up to (but
-//      // not including) the specified 'end' into this parser.  Return 0 if
-//      // successful and non-zero otherwise.  The parameterized
-//      // 'INPUT_ITERATOR' must be dereferenceable to a 'char' value.  The
-//      // behavior is undefined unless an object is associated with this
-//      // parser.
-//..
+// template <typename INPUT_ITERATOR>
+// int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
+//     // Push the characters ranging from the specified 'begin' up to (but
+//     // not including) the specified 'end' into this parser.  Return 0 if
+//     // successful and non-zero otherwise.  The parameterized
+//     // 'INPUT_ITERATOR' must be dereferenceable to a 'char' value.  The
+//     // behavior is undefined unless an object is associated with this
+//     // parser.
+// ```
 //
 ///Usage
 ///-----
@@ -49,71 +49,71 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - -
 // The following snippets of code illustrate the usage of this component.
 // Suppose you had an input stream that contained a list of doubles.  The
-// following 'loadDoublesFromListStream' function loads this data into an
-// 'bsl::vector<double>':
-//..
-//  #include <balxml_listparser.h>
+// following `loadDoublesFromListStream` function loads this data into an
+// `bsl::vector<double>`:
+// ```
+// #include <balxml_listparser.h>
 //
-//  #include <bdlt_date.h>
+// #include <bdlt_date.h>
 //
-//  #include <istream>
-//  #include <iterator>
-//  #include <vector>
-//  #include <sstream>
-//  #include <string>
+// #include <istream>
+// #include <iterator>
+// #include <vector>
+// #include <sstream>
+// #include <string>
 //
-//  using namespace BloombergLP;
+// using namespace BloombergLP;
 //
-//  int parseDouble(double *result, const char *data, int dataLength);
+// int parseDouble(double *result, const char *data, int dataLength);
 //
-//  int loadDoublesFromListStream(bsl::vector<double> *result,
-//                                bsl::istream&        stream)
-//  {
-//      enum { k_FAILURE = -1 };
+// int loadDoublesFromListStream(bsl::vector<double> *result,
+//                               bsl::istream&        stream)
+// {
+//     enum { k_FAILURE = -1 };
 //
-//      balxml::ListParser<bsl::vector<double> > parser(&parseDouble);
+//     balxml::ListParser<bsl::vector<double> > parser(&parseDouble);
 //
-//      if (0 != parser.beginParse(result)) {
-//          return k_FAILURE;
-//      }
+//     if (0 != parser.beginParse(result)) {
+//         return k_FAILURE;
+//     }
 //
-//      if (0 != parser.pushCharacters(bsl::istreambuf_iterator<char>(stream),
-//                                     bsl::istreambuf_iterator<char>())) {
-//          return k_FAILURE;
-//      }
+//     if (0 != parser.pushCharacters(bsl::istreambuf_iterator<char>(stream),
+//                                    bsl::istreambuf_iterator<char>())) {
+//         return k_FAILURE;
+//     }
 //
-//      return parser.endParse();
-//  }
-//..
-// The 'parseDouble' function is implemented as follows:
-//..
-//  int parseDouble(double *result, const char *data, int dataLength)
-//  {
-//      bsl::stringstream ss(bsl::string(data, dataLength));
-//      ss >> (*result);
-//      return 0;
-//  }
-//..
-// The following function demonstrates the 'loadDoublesFromListStream'
+//     return parser.endParse();
+// }
+// ```
+// The `parseDouble` function is implemented as follows:
+// ```
+// int parseDouble(double *result, const char *data, int dataLength)
+// {
+//     bsl::stringstream ss(bsl::string(data, dataLength));
+//     ss >> (*result);
+//     return 0;
+// }
+// ```
+// The following function demonstrates the `loadDoublesFromListStream`
 // function:
-//..
-//  void usageExample()
-//  {
-//      const char INPUT[] = "1.5 2.0 3.8 1.0";
+// ```
+// void usageExample()
+// {
+//     const char INPUT[] = "1.5 2.0 3.8 1.0";
 //
-//      bsl::vector<double> vec;
-//      bsl::istringstream  iss(INPUT);
+//     bsl::vector<double> vec;
+//     bsl::istringstream  iss(INPUT);
 //
-//      int result = loadDoublesFromListStream(&vec, iss);
+//     int result = loadDoublesFromListStream(&vec, iss);
 //
-//      assert(0   == result);
-//      assert(4   == vec.size());
-//      assert(1.5 == vec[0]);
-//      assert(2.0 == vec[1]);
-//      assert(3.8 == vec[2]);
-//      assert(1.0 == vec[3]);
-//  }
-//..
+//     assert(0   == result);
+//     assert(4   == vec.size());
+//     assert(1.5 == vec[0]);
+//     assert(2.0 == vec[1]);
+//     assert(3.8 == vec[2]);
+//     assert(1.0 == vec[3]);
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -140,9 +140,9 @@ namespace balxml {
                            // class ListParser<TYPE>
                            // ======================
 
+/// This is a push parser for lists.
 template <class TYPE>
 class ListParser {
-    // This is a push parser for lists.
 
     // PRIVATE TYPES
     typedef typename
@@ -166,18 +166,20 @@ class ListParser {
     ListParser& operator=(const ListParser&);
 
     // PRIVATE MANIPULATORS
+
+    /// Append an element to the associated object having the specified
+    /// `data` of the specified `dataLength`.
     int appendElement(const char *data, int dataLength);
-        // Append an element to the associated object having the specified
-        // 'data' of the specified 'dataLength'.
 
   public:
     // CREATORS
+
+    /// Create a parser for lists using the specified `parseElementCallback`
+    /// functor to parse each element and the optionally specified
+    /// `basicAllocator` for supplying memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator will be used.
     explicit ListParser(ParseElementCallback  parseElementCallback,
                         bslma::Allocator     *basicAllocator = 0);
-        // Create a parser for lists using the specified 'parseElementCallback'
-        // functor to parse each element and the optionally specified
-        // 'basicAllocator' for supplying memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator will be used.
 
 #ifdef DOXYGEN // Generated by compiler:
 
@@ -186,26 +188,26 @@ class ListParser {
 
 #endif
 
+    /// Prepare the parser to start parsing a new value and associate the
+    /// specified `object` with the parser.  Return 0 if successful and
+    /// non-zero otherwise.
     int beginParse(TYPE *object);
-        // Prepare the parser to start parsing a new value and associate the
-        // specified 'object' with the parser.  Return 0 if successful and
-        // non-zero otherwise.
 
+    /// Ends the parse operation and store the value parsed from the pushed
+    /// characters into the associated object.  Return 0 if successful and
+    /// non-zero otherwise.  The behavior is undefined unless an object is
+    /// associated with this parser.  Upon successful completion, the parser
+    /// will be disassociated with the object.
     int endParse();
-        // Ends the parse operation and store the value parsed from the pushed
-        // characters into the associated object.  Return 0 if successful and
-        // non-zero otherwise.  The behavior is undefined unless an object is
-        // associated with this parser.  Upon successful completion, the parser
-        // will be disassociated with the object.
 
+    /// Push the characters ranging from the specified `begin` up to (but
+    /// not including) the specified `end` into this parser.  Return 0 if
+    /// successful and non-zero otherwise.  The parameterized
+    /// `INPUT_ITERATOR` must be dereferenceable to a `char` value.  The
+    /// behavior is undefined unless an object is associated with this
+    /// parser.
     template <class INPUT_ITERATOR>
     int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
-        // Push the characters ranging from the specified 'begin' up to (but
-        // not including) the specified 'end' into this parser.  Return 0 if
-        // successful and non-zero otherwise.  The parameterized
-        // 'INPUT_ITERATOR' must be dereferenceable to a 'char' value.  The
-        // behavior is undefined unless an object is associated with this
-        // parser.
 };
 
 // ============================================================================

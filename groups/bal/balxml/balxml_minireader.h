@@ -5,33 +5,33 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide light-weight implementation of 'balxml::Reader' protocol.
+//@PURPOSE: Provide light-weight implementation of `balxml::Reader` protocol.
 //
 //@CLASSES:
-//   balxml::MiniReader: light-weight 'balxml::Reader' implementation
+//   balxml::MiniReader: light-weight `balxml::Reader` implementation
 //
 //@SEE_ALSO: balxml_reader, balxml_errorinfo
 //
-//@DESCRIPTION: The 'balxml::MiniReader' class is a light-weight
-// implementation of 'balxml::Reader' interface.  The API acts as a currentNode
+//@DESCRIPTION: The `balxml::MiniReader` class is a light-weight
+// implementation of `balxml::Reader` interface.  The API acts as a currentNode
 // going forward on the document stream and stopping at each node in the way.
 // The current node refers to the node on which the reader is positioned.  The
-// user's code keeps control of the progress and simply calls a 'read'
+// user's code keeps control of the progress and simply calls a `read`
 // function repeatedly to progress to each node in sequence in document order.
 // This provides a far more standard, easy to use and powerful API than the
 // existing SAX.
 //
 // Data Validation
 // - - - - - - - -
-// The 'balxml::MiniReader' 'class' is not a validating reader
-// ('balxml::ValidatingReader').  As a result while parsing data it does not
+// The `balxml::MiniReader` `class` is not a validating reader
+// (`balxml::ValidatingReader`).  As a result while parsing data it does not
 // make an attempt to ensure the correctness of either the data or the
-// structure of the incoming XML.  The 'class' accepts characters as element
-// data that the XML standard considers invalid.  For example the '&' and '<'
+// structure of the incoming XML.  The `class` accepts characters as element
+// data that the XML standard considers invalid.  For example the `&` and `<`
 // characters in element data will parse without error.  Similarly, it does not
 // return an error if the read data does not conform to its specified schema.
 // To get stricter data validation, clients should use a concrete
-// implementation of a validating reader (such as 'a_xercesc::Reader') instead.
+// implementation of a validating reader (such as `a_xercesc::Reader`) instead.
 //
 ///Usage
 ///-----
@@ -39,237 +39,237 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// For this example, we will use 'balxml::MiniReader' to read each node in an
+// For this example, we will use `balxml::MiniReader` to read each node in an
 // XML document.  We do not care about whitespace, so we use the following
 // utility function to skip over any whitespace nodes.  This makes our example
-// more portable to other implementations of the 'balxml::Reader' protocol that
-// handle whitespace differently from 'balxml::MiniReader'.
-//..
-//  int advancePastWhiteSpace(balxml::Reader& reader) {
-//      const char *whiteSpace = "\n\r\t ";
-//      const char *value = '\0';
-//      int         type = 0;
-//      int         rc = 0;
+// more portable to other implementations of the `balxml::Reader` protocol that
+// handle whitespace differently from `balxml::MiniReader`.
+// ```
+// int advancePastWhiteSpace(balxml::Reader& reader) {
+//     const char *whiteSpace = "\n\r\t ";
+//     const char *value = '\0';
+//     int         type = 0;
+//     int         rc = 0;
 //
-//      do {
-//          rc    = reader.advanceToNextNode();
-//          value = reader.nodeValue();
-//          type  = reader.nodeType();
-//      } while(0 == rc &&
-//              type == balxml::Reader::e_NODE_TYPE_WHITESPACE ||
-//              (type == balxml::Reader::e_NODE_TYPE_TEXT &&
-//               bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
+//     do {
+//         rc    = reader.advanceToNextNode();
+//         value = reader.nodeValue();
+//         type  = reader.nodeType();
+//     } while(0 == rc &&
+//             type == balxml::Reader::e_NODE_TYPE_WHITESPACE ||
+//             (type == balxml::Reader::e_NODE_TYPE_TEXT &&
+//              bsl::strlen(value) == bsl::strspn(value, whiteSpace)));
 //
-//      assert( reader.nodeType() !=
-//                                balxml::Reader::e_NODE_TYPE_WHITESPACE);
+//     assert( reader.nodeType() !=
+//                               balxml::Reader::e_NODE_TYPE_WHITESPACE);
 //
-//      return rc;
-//  }
-//..
+//     return rc;
+// }
+// ```
 // The main program parses an XML string using the TestReader
-//..
-//  int main()
-//  {
-//..
+// ```
+// int main()
+// {
+// ```
 // The following string describes xml for a very simple user directory.  The
 // top level element contains one xml namespace attribute, with one embedded
 // entry describing a user.
-//..
-//      const char TEST_XML_STRING[] =
-//         "<?xml version='1.0' encoding='UTF-8'?>\n"
-//         "<directory-entry xmlns:dir="
-//                                "'http://bloomberg.com/schemas/directory'>\n"
-//         "    <name>John Smith</name>\n"
-//         "    <phone dir:phonetype='cell'>212-318-2000</phone>\n"
-//         "    <address/>\n"
-//         "</directory-entry>\n";
-//..
+// ```
+//     const char TEST_XML_STRING[] =
+//        "<?xml version='1.0' encoding='UTF-8'?>\n"
+//        "<directory-entry xmlns:dir="
+//                               "'http://bloomberg.com/schemas/directory'>\n"
+//        "    <name>John Smith</name>\n"
+//        "    <phone dir:phonetype='cell'>212-318-2000</phone>\n"
+//        "    <address/>\n"
+//        "</directory-entry>\n";
+// ```
 // In order to read the XML, we first need to construct a
-// 'balxml::NamespaceRegistry' object, a 'balxml::PrefixStack' object, and a
-// 'TestReader' object, where 'TestReader' is a derived implementation of
-// 'balxml_reader'.
-//..
-//      balxml::NamespaceRegistry namespaces;
-//      balxml::PrefixStack prefixStack(&namespaces);
-//      balxml::MiniReader miniReader; balxml::Reader& reader = miniReader;
+// `balxml::NamespaceRegistry` object, a `balxml::PrefixStack` object, and a
+// `TestReader` object, where `TestReader` is a derived implementation of
+// `balxml_reader`.
+// ```
+//     balxml::NamespaceRegistry namespaces;
+//     balxml::PrefixStack prefixStack(&namespaces);
+//     balxml::MiniReader miniReader; balxml::Reader& reader = miniReader;
 //
-//      assert(!reader.isOpen());
-//..
-// The reader uses a 'balxml::PrefixStack' to manage namespace prefixes so we
+//     assert(!reader.isOpen());
+// ```
+// The reader uses a `balxml::PrefixStack` to manage namespace prefixes so we
 // need to set it before we call open.
-//..
-//      reader.setPrefixStack(&prefixStack);
-//      assert(reader.prefixStack());
-//      assert(reader.prefixStack() == &prefixStack);
-//..
-// Now we call the 'open' method to setup the reader for parsing using the data
+// ```
+//     reader.setPrefixStack(&prefixStack);
+//     assert(reader.prefixStack());
+//     assert(reader.prefixStack() == &prefixStack);
+// ```
+// Now we call the `open` method to setup the reader for parsing using the data
 // contained in the in the XML string.
-//..
-//      reader.open(TEST_XML_STRING, sizeof(TEST_XML_STRING) -1, 0, "UTF-8");
-//..
-// Confirm that the 'bdem::Reader' has opened properly
-//..
-//      assert( reader.isOpen());
-//      assert(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-//      assert(!reader.nodeName());
-//      assert(!reader.nodeHasValue());
-//      assert(!reader.nodeValue());
-//      assert(!reader.nodeDepth());
-//      assert(!reader.numAttributes());
-//      assert(!reader.isEmptyElement());
-//..
+// ```
+//     reader.open(TEST_XML_STRING, sizeof(TEST_XML_STRING) -1, 0, "UTF-8");
+// ```
+// Confirm that the `bdem::Reader` has opened properly
+// ```
+//     assert( reader.isOpen());
+//     assert(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+//     assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+//     assert(!reader.nodeName());
+//     assert(!reader.nodeHasValue());
+//     assert(!reader.nodeValue());
+//     assert(!reader.nodeDepth());
+//     assert(!reader.numAttributes());
+//     assert(!reader.isEmptyElement());
+// ```
 // Advance through all the nodes and assert all information contained at each
 // node is correct.
 //
 // Assert the next node's document type is xml.
-//..
-//      int rc = advancePastWhiteSpace(reader);
-//      assert( 0 == rc);
-//      assert( reader.nodeType() ==
-//                           balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-//      assert(!bsl::strcmp(reader.nodeName(), "xml"));
-//      assert( reader.nodeHasValue());
-//      assert(!bsl::strcmp(reader.nodeValue(),
-//                          "version='1.0' encoding='UTF-8'"));
-//      assert( reader.nodeDepth() == 1);
-//      assert(!reader.numAttributes());
-//      assert(!reader.isEmptyElement());
-//      assert( 0 == rc);
-//      assert( reader.nodeDepth() == 1);
-//..
+// ```
+//     int rc = advancePastWhiteSpace(reader);
+//     assert( 0 == rc);
+//     assert( reader.nodeType() ==
+//                          balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+//     assert(!bsl::strcmp(reader.nodeName(), "xml"));
+//     assert( reader.nodeHasValue());
+//     assert(!bsl::strcmp(reader.nodeValue(),
+//                         "version='1.0' encoding='UTF-8'"));
+//     assert( reader.nodeDepth() == 1);
+//     assert(!reader.numAttributes());
+//     assert(!reader.isEmptyElement());
+//     assert( 0 == rc);
+//     assert( reader.nodeDepth() == 1);
+// ```
 // Advance to the top level element, which has one attribute, the xml
 // namespace.  Assert the namespace information has been added correctly to the
 // prefix stack.
-//..
-//      rc = advancePastWhiteSpace(reader);
-//      assert( 0 == rc);
-//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-//      assert(!bsl::strcmp(reader.nodeName(), "directory-entry"));
-//      assert(!reader.nodeHasValue());
-//      assert( reader.nodeDepth() == 1);
-//      assert( reader.numAttributes() == 1);
-//      assert(!reader.isEmptyElement());
+// ```
+//     rc = advancePastWhiteSpace(reader);
+//     assert( 0 == rc);
+//     assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+//     assert(!bsl::strcmp(reader.nodeName(), "directory-entry"));
+//     assert(!reader.nodeHasValue());
+//     assert( reader.nodeDepth() == 1);
+//     assert( reader.numAttributes() == 1);
+//     assert(!reader.isEmptyElement());
 //
-//      assert(!bsl::strcmp(prefixStack.lookupNamespacePrefix("dir"), "dir"));
-//      assert(prefixStack.lookupNamespaceId("dir") == 0);
-//      assert(!bsl::strcmp(prefixStack.lookupNamespaceUri("dir"),
-//                          "http://bloomberg.com/schemas/directory"));
-//..
+//     assert(!bsl::strcmp(prefixStack.lookupNamespacePrefix("dir"), "dir"));
+//     assert(prefixStack.lookupNamespaceId("dir") == 0);
+//     assert(!bsl::strcmp(prefixStack.lookupNamespaceUri("dir"),
+//                         "http://bloomberg.com/schemas/directory"));
+// ```
 // The XML being read contains one entry describing a user, advance the users
 // name name and assert all information can be read correctly.
-//..
-//      rc = advancePastWhiteSpace(reader);
-//      assert( 0 == rc);
-//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-//      assert(!bsl::strcmp(reader.nodeName(), "name"));
-//      assert(!reader.nodeHasValue());
-//      assert( reader.nodeDepth() == 2);
-//      assert( reader.numAttributes() == 0);
-//      assert(!reader.isEmptyElement());
+// ```
+//     rc = advancePastWhiteSpace(reader);
+//     assert( 0 == rc);
+//     assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+//     assert(!bsl::strcmp(reader.nodeName(), "name"));
+//     assert(!reader.nodeHasValue());
+//     assert( reader.nodeDepth() == 2);
+//     assert( reader.numAttributes() == 0);
+//     assert(!reader.isEmptyElement());
 //
-//      rc = reader.advanceToNextNode();
-//      assert( 0 == rc);
-//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-//      assert( reader.nodeHasValue());
-//      assert(!bsl::strcmp(reader.nodeValue(), "John Smith"));
-//      assert( reader.nodeDepth() == 3);
-//      assert( reader.numAttributes() == 0);
-//      assert(!reader.isEmptyElement());
+//     rc = reader.advanceToNextNode();
+//     assert( 0 == rc);
+//     assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
+//     assert( reader.nodeHasValue());
+//     assert(!bsl::strcmp(reader.nodeValue(), "John Smith"));
+//     assert( reader.nodeDepth() == 3);
+//     assert( reader.numAttributes() == 0);
+//     assert(!reader.isEmptyElement());
 //
-//      rc = reader.advanceToNextNode();
-//      assert( 0 == rc);
-//      assert( reader.nodeType() ==
-//                               balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-//      assert(!bsl::strcmp(reader.nodeName(), "name"));
-//      assert(!reader.nodeHasValue());
-//      assert( reader.nodeDepth() == 2);
-//      assert( reader.numAttributes() == 0);
-//      assert(!reader.isEmptyElement());
-//..
+//     rc = reader.advanceToNextNode();
+//     assert( 0 == rc);
+//     assert( reader.nodeType() ==
+//                              balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+//     assert(!bsl::strcmp(reader.nodeName(), "name"));
+//     assert(!reader.nodeHasValue());
+//     assert( reader.nodeDepth() == 2);
+//     assert( reader.numAttributes() == 0);
+//     assert(!reader.isEmptyElement());
+// ```
 // Advance to the user's phone number and assert all information can be read
 // correctly.
-//..
-//      rc = advancePastWhiteSpace(reader);
-//      assert( 0 == rc);
-//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-//      assert(!bsl::strcmp(reader.nodeName(), "phone"));
-//      assert(!reader.nodeHasValue());
-//      assert( reader.nodeDepth() == 2);
-//      assert( reader.numAttributes() == 1);
-//      assert(!reader.isEmptyElement());
-//..
+// ```
+//     rc = advancePastWhiteSpace(reader);
+//     assert( 0 == rc);
+//     assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+//     assert(!bsl::strcmp(reader.nodeName(), "phone"));
+//     assert(!reader.nodeHasValue());
+//     assert( reader.nodeDepth() == 2);
+//     assert( reader.numAttributes() == 1);
+//     assert(!reader.isEmptyElement());
+// ```
 // The phone node has one attribute, look it up and assert the
-// 'balxml::ElementAttribute' contains valid information and that the prefix
+// `balxml::ElementAttribute` contains valid information and that the prefix
 // returns the correct namespace URI from the prefix stack.
-//..
-//      balxml::ElementAttribute elemAttr;
+// ```
+//     balxml::ElementAttribute elemAttr;
 //
-//      rc = reader.lookupAttribute(&elemAttr, 0);
-//      assert( 0 == rc);
-//      assert(!elemAttr.isNull());
-//      assert(!bsl::strcmp(elemAttr.qualifiedName(), "dir:phonetype"));
-//      assert(!bsl::strcmp(elemAttr.value(), "cell"));
-//      assert(!bsl::strcmp(elemAttr.prefix(), "dir"));
-//      assert(!bsl::strcmp(elemAttr.localName(), "phonetype"));
-//      assert(!bsl::strcmp(elemAttr.namespaceUri(),
-//                          "http://bloomberg.com/schemas/directory"));
-//      assert( elemAttr.namespaceId() == 0);
+//     rc = reader.lookupAttribute(&elemAttr, 0);
+//     assert( 0 == rc);
+//     assert(!elemAttr.isNull());
+//     assert(!bsl::strcmp(elemAttr.qualifiedName(), "dir:phonetype"));
+//     assert(!bsl::strcmp(elemAttr.value(), "cell"));
+//     assert(!bsl::strcmp(elemAttr.prefix(), "dir"));
+//     assert(!bsl::strcmp(elemAttr.localName(), "phonetype"));
+//     assert(!bsl::strcmp(elemAttr.namespaceUri(),
+//                         "http://bloomberg.com/schemas/directory"));
+//     assert( elemAttr.namespaceId() == 0);
 //
-//      assert(!bsl::strcmp(prefixStack.lookupNamespaceUri(elemAttr.prefix()),
-//                          elemAttr.namespaceUri()));
+//     assert(!bsl::strcmp(prefixStack.lookupNamespaceUri(elemAttr.prefix()),
+//                         elemAttr.namespaceUri()));
 //
-//      rc = advancePastWhiteSpace(reader);
-//      assert( 0 == rc);
-//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-//      assert( reader.nodeHasValue());
-//      assert(!bsl::strcmp(reader.nodeValue(), "212-318-2000"));
-//      assert( reader.nodeDepth() == 3);
-//      assert( reader.numAttributes() == 0);
-//      assert(!reader.isEmptyElement());
+//     rc = advancePastWhiteSpace(reader);
+//     assert( 0 == rc);
+//     assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
+//     assert( reader.nodeHasValue());
+//     assert(!bsl::strcmp(reader.nodeValue(), "212-318-2000"));
+//     assert( reader.nodeDepth() == 3);
+//     assert( reader.numAttributes() == 0);
+//     assert(!reader.isEmptyElement());
 //
-//      rc = advancePastWhiteSpace(reader);
-//      assert( 0 == rc);
-//      assert( reader.nodeType() ==
-//                               balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-//      assert(!bsl::strcmp(reader.nodeName(), "phone"));
-//      assert(!reader.nodeHasValue());
-//      assert( reader.nodeDepth() == 2);
-//      assert( reader.numAttributes() == 0);
-//      assert(!reader.isEmptyElement());
-//..
+//     rc = advancePastWhiteSpace(reader);
+//     assert( 0 == rc);
+//     assert( reader.nodeType() ==
+//                              balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+//     assert(!bsl::strcmp(reader.nodeName(), "phone"));
+//     assert(!reader.nodeHasValue());
+//     assert( reader.nodeDepth() == 2);
+//     assert( reader.numAttributes() == 0);
+//     assert(!reader.isEmptyElement());
+// ```
 // Advance to the user's address and assert all information can be read
 // correctly.
-//..
-//      rc = advancePastWhiteSpace(reader);
-//      assert( 0 == rc);
-//      assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-//      assert(!bsl::strcmp(reader.nodeName(), "address"));
-//      assert(!reader.nodeHasValue());
-//      assert( reader.nodeDepth() == 2);
-//      assert( reader.numAttributes() == 0);
-//      assert( reader.isEmptyElement());
-//..
+// ```
+//     rc = advancePastWhiteSpace(reader);
+//     assert( 0 == rc);
+//     assert( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+//     assert(!bsl::strcmp(reader.nodeName(), "address"));
+//     assert(!reader.nodeHasValue());
+//     assert( reader.nodeDepth() == 2);
+//     assert( reader.numAttributes() == 0);
+//     assert( reader.isEmptyElement());
+// ```
 // Advance to the end element.
-//..
-//      rc = advancePastWhiteSpace(reader);
-//      assert( 0 == rc);
-//      assert( reader.nodeType() ==
-//                               balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-//      assert(!bsl::strcmp(reader.nodeName(), "directory-entry"));
-//      assert(!reader.nodeHasValue());
-//      assert( reader.nodeDepth() == 1);
-//      assert( reader.numAttributes() == 0);
-//      assert(!reader.isEmptyElement());
-//..
+// ```
+//     rc = advancePastWhiteSpace(reader);
+//     assert( 0 == rc);
+//     assert( reader.nodeType() ==
+//                              balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+//     assert(!bsl::strcmp(reader.nodeName(), "directory-entry"));
+//     assert(!reader.nodeHasValue());
+//     assert( reader.nodeDepth() == 1);
+//     assert( reader.numAttributes() == 0);
+//     assert(!reader.isEmptyElement());
+// ```
 // Close the reader.
-//..
-//      reader.close();
-//      assert(!reader.isOpen());
+// ```
+//     reader.close();
+//     assert(!reader.isOpen());
 //
-//      return 0;
-//  }
-//..
+//     return 0;
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -296,9 +296,9 @@ namespace balxml {
                               // class MiniReader
                               // ================
 
+/// This `class` provides a concrete and efficient implementation of the
+/// `Reader` protocol.
 class MiniReader :  public Reader {
-    // This 'class' provides a concrete and efficient implementation of the
-    // 'Reader' protocol.
 
   private:
     // PRIVATE TYPES
@@ -440,19 +440,20 @@ class MiniReader :  public Reader {
     const bsl::string& findNamespace(const bsl::string &prefix) const;
     int   checkPrefixes();
 
+    /// Push the `currentNode()`s data onto the `d_activeNodes` stack.
     void pushElementName();
-        // Push the 'currentNode()'s data onto the 'd_activeNodes' stack.
 
+    /// Scan the node at the current position.
     int   scanNode();
-        // Scan the node at the current position.
     int   updateAttributes();
     int   updateElementInfo();
 
     int   addAttribute();
 
     int   scanAttributes();
+
+    /// Scan an end element without updating the element info.
     int   scanEndElementRaw();
-        // Scan an end element without updating the element info.
 
     int   scanEndElement();
     int   scanExclaimConstruct();
@@ -461,20 +462,20 @@ class MiniReader :  public Reader {
     int   scanStartElement();
     int   scanText();
 
+    /// Scan the input for a comment, a CDATA section, the specified element
+    /// `name`, or the end tag corresponding to `name`.  Stop at the first
+    /// instance of either one of those strings and update the internal read
+    /// pointer (d_scanPtr) to point to the next character after the string
+    /// read.  Return the string type found.
     StringType searchCommentCDataOrEndElementName(const bsl::string& name);
-        // Scan the input for a comment, a CDATA section, the specified element
-        // 'name', or the end tag corresponding to 'name'.  Stop at the first
-        // instance of either one of those strings and update the internal read
-        // pointer (d_scanPtr) to point to the next character after the string
-        // read.  Return the string type found.
 
+    /// Scan the input for the specified element `name`, or the end tag
+    /// corresponding to `name`.  Stop at the first instance and update the
+    /// internal read pointer (d_scanPtr) to point to the next character
+    /// after the string read.  Return the string type found.  Notice that
+    /// this method (unlike `searchCommentCDataOrElementName`) does not
+    /// return `e_STRINGTYPE_COMMENT` or `e_STRINGTYPE_CDATA`.
     StringType searchElementName(const bsl::string& name);
-        // Scan the input for the specified element 'name', or the end tag
-        // corresponding to 'name'.  Stop at the first instance and update the
-        // internal read pointer (d_scanPtr) to point to the next character
-        // after the string read.  Return the string type found.  Notice that
-        // this method (unlike 'searchCommentCDataOrElementName') does not
-        // return 'e_STRINGTYPE_COMMENT' or 'e_STRINGTYPE_CDATA'.
 
     // LOW LEVEL PARSING PRIMITIVES
     const char *rebasePointer(const char *ptr, const char *newBase);
@@ -483,411 +484,415 @@ class MiniReader :  public Reader {
     int   readInput();
     int   doOpen(const char *url, const char *encoding);
 
+    /// Return the character at the current position, and zero if the end of
+    /// stream was reached.
     int   peekChar();
-        // Return the character at the current position, and zero if the end of
-        // stream was reached.
 
+    /// Call `readInput` until there are at least the specified `number` of
+    /// characters in the buffer.  Return zero if `number` characters cannot
+    /// be read, and return a positive value otherwise.
     int   readAtLeast(bsl::ptrdiff_t number);
-        // Call 'readInput' until there are at least the specified 'number' of
-        // characters in the buffer.  Return zero if 'number' characters cannot
-        // be read, and return a positive value otherwise.
 
+    /// Return the character at the current position and then advance the
+    /// current position.  If the end of stream is reached the return value
+    /// is zero.  The behavior is undefined if this method is called once
+    /// the end is reached.
     int   getChar();
-        // Return the character at the current position and then advance the
-        // current position.  If the end of stream is reached the return value
-        // is zero.  The behavior is undefined if this method is called once
-        // the end is reached.
 
+    /// Set the specified symbol `ch` at the current position.  Return the
+    /// original character at the current position, and advance the current
+    /// position.  If the end of stream is reached the return value is zero.
+    /// The behavior is undefined if this method is called once the end is
+    /// reached.
     int   getCharAndSet(char ch);
-        // Set the specified symbol 'ch' at the current position.  Return the
-        // original character at the current position, and advance the current
-        // position.  If the end of stream is reached the return value is zero.
-        // The behavior is undefined if this method is called once the end is
-        // reached.
 
+    /// Check if the current symbol is NL and adjust line number
+    /// information.  Return `true` if it was NL, otherwise `false`
     bool  checkForNewLine();
-        // Check if the current symbol is NL and adjust line number
-        // information.  Return 'true' if it was NL, otherwise 'false'
 
+    /// Skip spaces and set the current position to first non space
+    /// character or to end if there is no non space found symbol.  Return
+    /// the character at the new current position.
     int   skipSpaces();
-        // Skip spaces and set the current position to first non space
-        // character or to end if there is no non space found symbol.  Return
-        // the character at the new current position.
 
+    /// Scan for the specified `symbol` and set the current position to the
+    /// found symbol.  Return the character at the new current position.  If
+    /// the symbol is not found, the current position is set to end and
+    /// returned value is zero.
     int   scanForSymbol(char symbol);
-        // Scan for the specified 'symbol' and set the current position to the
-        // found symbol.  Return the character at the new current position.  If
-        // the symbol is not found, the current position is set to end and
-        // returned value is zero.
 
+    /// Scan one of the specified `symbol`, `symbol1`, or `symbol2`
+    /// characters or any space character and set the current position to
+    /// the found symbol.  Return the character at the new current position.
+    /// If there were no symbols found, the current position is set to end
+    /// and returned value is zero.
     int   scanForSymbolOrSpace(char symbol1, char symbol2);
     int   scanForSymbolOrSpace(char symbol);
-        // Scan one of the specified 'symbol', 'symbol1', or 'symbol2'
-        // characters or any space character and set the current position to
-        // the found symbol.  Return the character at the new current position.
-        // If there were no symbols found, the current position is set to end
-        // and returned value is zero.
 
+    /// Scan for the required string and set the current position to the
+    /// first character of the found string.  Return the character at the
+    /// new current position.  If there were no symbols found, the current
+    /// position is set to end and returned value is zero.
     int   scanForString(const char * str);
-        // Scan for the required string and set the current position to the
-        // first character of the found string.  Return the character at the
-        // new current position.  If there were no symbols found, the current
-        // position is set to end and returned value is zero.
 
+    /// Compare the content of the buffer, starting from the current
+    /// position, with the specified string `str`.  If matches, advance the
+    /// current position by the length of `str` and return `true`; otherwise
+    /// return `false` and the current position is unmodified.
     bool skipIfMatch(const char *str);
-        // Compare the content of the buffer, starting from the current
-        // position, with the specified string 'str'.  If matches, advance the
-        // current position by the length of 'str' and return 'true'; otherwise
-        // return 'false' and the current position is unmodified.
 
   public:
     // PUBLIC CREATORS
     ~MiniReader() BSLS_KEYWORD_OVERRIDE;
 
+    /// Construct a reader with the optionally specified `bufSize`.  The
+    /// instantiated MiniReader will utilize a memory buffer of `bufSize`
+    /// while reading the input document.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.  Note that
+    /// `bufSize` is a hint, which may be modified or ignored if it is not
+    /// within a "sane" range.
     explicit MiniReader(bslma::Allocator *basicAllocator = 0);
     explicit MiniReader(int bufSize, bslma::Allocator *basicAllocator = 0);
-        // Construct a reader with the optionally specified 'bufSize'.  The
-        // instantiated MiniReader will utilize a memory buffer of 'bufSize'
-        // while reading the input document.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Note that
-        // 'bufSize' is a hint, which may be modified or ignored if it is not
-        // within a "sane" range.
 
     //------------------------------------------------
     // INTERFACE Reader
     //------------------------------------------------
 
     // MANIPULATORS - SETUP METHODS
-    void setPrefixStack(PrefixStack *prefixes) BSLS_KEYWORD_OVERRIDE;
-        // Set the prefix stack to the stack at the specified 'prefixes'
-        // address or disable prefix stack support if 'prefixes' == 0.  This
-        // stack is used to push and pop namespace prefixes as the parse
-        // progresses, so that, at any point, the stack will reflect the set of
-        // active prefixes for the current node.  It is legitimate to pass a
-        // stack that already contains prefixes, these prefixes shall be
-        // preserved when 'close' is called, i.e., the prefix stack shall be
-        // returned to the stack depth it had when 'setPrefixStack' was called.
-        // The behavior is undefined if this method is called after calling
-        // 'open' and before calling 'close'.
 
+    /// Set the prefix stack to the stack at the specified `prefixes`
+    /// address or disable prefix stack support if `prefixes` == 0.  This
+    /// stack is used to push and pop namespace prefixes as the parse
+    /// progresses, so that, at any point, the stack will reflect the set of
+    /// active prefixes for the current node.  It is legitimate to pass a
+    /// stack that already contains prefixes, these prefixes shall be
+    /// preserved when `close` is called, i.e., the prefix stack shall be
+    /// returned to the stack depth it had when `setPrefixStack` was called.
+    /// The behavior is undefined if this method is called after calling
+    /// `open` and before calling `close`.
+    void setPrefixStack(PrefixStack *prefixes) BSLS_KEYWORD_OVERRIDE;
+
+    /// Set the external XML resource resolver to the specified `resolver`.
+    /// The XML resource resolver is used by the `balxml_reader` to find and
+    /// open an external resources (See the `XmlResolverFunctor` typedef for
+    /// more details).  The XML resource resolver remains valid; it is not
+    /// affected by a call to `close` and should be available until the
+    /// reader is destroyed.  The behavior is undefined if this method is
+    /// called after calling `open` and before calling `close`.
     void setResolver(XmlResolverFunctor resolver) BSLS_KEYWORD_OVERRIDE;
-        // Set the external XML resource resolver to the specified 'resolver'.
-        // The XML resource resolver is used by the 'balxml_reader' to find and
-        // open an external resources (See the 'XmlResolverFunctor' typedef for
-        // more details).  The XML resource resolver remains valid; it is not
-        // affected by a call to 'close' and should be available until the
-        // reader is destroyed.  The behavior is undefined if this method is
-        // called after calling 'open' and before calling 'close'.
 
     // MANIPULATORS - OPEN/CLOSE AND NAVIGATION METHODS
+
+    /// Set up the reader for parsing using the data contained in the XML
+    /// file described by the specified `filename`, and set the encoding
+    /// value to the optionally specified `encoding` ("ASCII", "UTF-8",
+    /// etc).  Returns 0 on success and non-zero otherwise.  The encoding
+    /// passed to `Reader::open` will take effect only when there is no
+    /// encoding information in the original document, i.e., the encoding
+    /// information obtained from the XML file described by the `filename`
+    /// trumps all.  If there is no encoding provided within the document
+    /// and `encoding` is null or a blank string is passed, then set the
+    /// encoding to the default "UTF-8".  It is an error to `open` a reader
+    /// that is already open.  Note that the reader will not be on a valid
+    /// node until `advanceToNextNode` is called.
     int open(const char *filename,
              const char *encoding = 0) BSLS_KEYWORD_OVERRIDE;
-        // Set up the reader for parsing using the data contained in the XML
-        // file described by the specified 'filename', and set the encoding
-        // value to the optionally specified 'encoding' ("ASCII", "UTF-8",
-        // etc).  Returns 0 on success and non-zero otherwise.  The encoding
-        // passed to 'Reader::open' will take effect only when there is no
-        // encoding information in the original document, i.e., the encoding
-        // information obtained from the XML file described by the 'filename'
-        // trumps all.  If there is no encoding provided within the document
-        // and 'encoding' is null or a blank string is passed, then set the
-        // encoding to the default "UTF-8".  It is an error to 'open' a reader
-        // that is already open.  Note that the reader will not be on a valid
-        // node until 'advanceToNextNode' is called.
 
+    /// Set up the reader for parsing using the data contained in the
+    /// specified (XML) `buffer` of the specified `size`, set the base URL
+    /// to the optionally specified `url` and set the encoding value to the
+    /// optionally specified `encoding` ("ASCII", "UTF-8", etc).  Return 0
+    /// on success and non-zero otherwise.  If `url` is null 0 or a blank
+    /// string is passed, then base URL will be empty.  The encoding passed
+    /// to `Reader::open` will take effect only when there is no encoding
+    /// information in the original document, i.e., the encoding information
+    /// obtained from the (XML) `buffer` trumps all.  If there is no
+    /// encoding provided within the document and `encoding` is null or a
+    /// blank string is passed, then set the encoding to the default
+    /// "UTF-8".  It is an error to `open` a reader that is already open.
+    /// Note that the reader will not be on a valid node until
+    /// `advanceToNextNode` is called.
     int open(const char  *buffer,
              bsl::size_t  size,
              const char  *url = 0,
              const char  *encoding = 0) BSLS_KEYWORD_OVERRIDE;
-        // Set up the reader for parsing using the data contained in the
-        // specified (XML) 'buffer' of the specified 'size', set the base URL
-        // to the optionally specified 'url' and set the encoding value to the
-        // optionally specified 'encoding' ("ASCII", "UTF-8", etc).  Return 0
-        // on success and non-zero otherwise.  If 'url' is null 0 or a blank
-        // string is passed, then base URL will be empty.  The encoding passed
-        // to 'Reader::open' will take effect only when there is no encoding
-        // information in the original document, i.e., the encoding information
-        // obtained from the (XML) 'buffer' trumps all.  If there is no
-        // encoding provided within the document and 'encoding' is null or a
-        // blank string is passed, then set the encoding to the default
-        // "UTF-8".  It is an error to 'open' a reader that is already open.
-        // Note that the reader will not be on a valid node until
-        // 'advanceToNextNode' is called.
 
+    /// Set up the reader for parsing using the data contained in the
+    /// specified (XML) `stream`, set the base URL to the optionally
+    /// specified `url` and set the encoding value to the optionally
+    /// specified `encoding` ("ASCII", "UTF-8", etc).  Return 0 on success
+    /// and non-zero otherwise.  If `url` is null or a blank string is
+    /// passed, then base URL will be empty.  The encoding passed to
+    /// `Reader::open` will take effect only when there is no encoding
+    /// information in the original document, i.e., the encoding information
+    /// obtained from the (XML) `stream` trumps all.  If there is no
+    /// encoding provided within the document and `encoding` is null or a
+    /// blank string is passed, then set the encoding to the default
+    /// "UTF-8".  It is an error to `open` a reader that is already open.
+    /// Note that the reader will not be on a valid node until
+    /// `advanceToNextNode` is called.
     int open(bsl::streambuf *stream,
              const char     *url = 0,
              const char     *encoding = 0) BSLS_KEYWORD_OVERRIDE;
-        // Set up the reader for parsing using the data contained in the
-        // specified (XML) 'stream', set the base URL to the optionally
-        // specified 'url' and set the encoding value to the optionally
-        // specified 'encoding' ("ASCII", "UTF-8", etc).  Return 0 on success
-        // and non-zero otherwise.  If 'url' is null or a blank string is
-        // passed, then base URL will be empty.  The encoding passed to
-        // 'Reader::open' will take effect only when there is no encoding
-        // information in the original document, i.e., the encoding information
-        // obtained from the (XML) 'stream' trumps all.  If there is no
-        // encoding provided within the document and 'encoding' is null or a
-        // blank string is passed, then set the encoding to the default
-        // "UTF-8".  It is an error to 'open' a reader that is already open.
-        // Note that the reader will not be on a valid node until
-        // 'advanceToNextNode' is called.
 
+    /// Close the reader.  Most, but not all state is reset.  Specifically,
+    /// the XML resource resolver and the prefix stack remain.  The prefix
+    /// stack shall be returned to the stack depth it had when
+    /// `setPrefixStack` was called.  Call the method `open` to reuse the
+    /// reader.  Note that `close` invalidates all strings and data
+    /// structures obtained via `Reader` accessors.  E.g., the pointer
+    /// returned from `nodeName` for this node will not be valid once
+    /// `close` is called.
     void close() BSLS_KEYWORD_OVERRIDE;
-        // Close the reader.  Most, but not all state is reset.  Specifically,
-        // the XML resource resolver and the prefix stack remain.  The prefix
-        // stack shall be returned to the stack depth it had when
-        // 'setPrefixStack' was called.  Call the method 'open' to reuse the
-        // reader.  Note that 'close' invalidates all strings and data
-        // structures obtained via 'Reader' accessors.  E.g., the pointer
-        // returned from 'nodeName' for this node will not be valid once
-        // 'close' is called.
 
+    /// Skip all the sub elements of the current node and position the
+    /// reader on its corresponding end node.  While skipping ensure that
+    /// the elements being skipped are well-formed and do not contain any
+    /// parsing errors.  Return 0 on successful skip, and a negative number
+    /// otherwise (error).  The behavior is undefined unless
+    /// `balxml::Reader::e_NODE_TYPE_ELEMENT == node.type()`.  Note that
+    /// each call to `advanceToEndNode` invalidates strings and data
+    /// structures returned when `Reader` accessors were called for the
+    /// "prior node".  E.g., the pointer returned from `nodeName` for this
+    /// node won't be valid once `advanceToEndNode` is called.  Note that
+    /// this method leaves the reader pointing to an end node, so calling
+    /// one of the `advanceToEndNode` immediately after will not advance the
+    /// reader further (first call `advanceToNextNode` before calling the
+    /// `advanceToEndNode` function again).
     virtual int advanceToEndNode();
-        // Skip all the sub elements of the current node and position the
-        // reader on its corresponding end node.  While skipping ensure that
-        // the elements being skipped are well-formed and do not contain any
-        // parsing errors.  Return 0 on successful skip, and a negative number
-        // otherwise (error).  The behavior is undefined unless
-        // 'balxml::Reader::e_NODE_TYPE_ELEMENT == node.type()'.  Note that
-        // each call to 'advanceToEndNode' invalidates strings and data
-        // structures returned when 'Reader' accessors were called for the
-        // "prior node".  E.g., the pointer returned from 'nodeName' for this
-        // node won't be valid once 'advanceToEndNode' is called.  Note that
-        // this method leaves the reader pointing to an end node, so calling
-        // one of the 'advanceToEndNode' immediately after will not advance the
-        // reader further (first call 'advanceToNextNode' before calling the
-        // 'advanceToEndNode' function again).
 
+    /// Skip all the sub elements of the current node and position the
+    /// reader on its corresponding end node, and (unlike
+    /// `advanceToNextNode`) perform no checks to ensure that the elements
+    /// being skipped are well-formed and that they do not contain any
+    /// parsing errors.  Return 0 on successful skip, and a negative number
+    /// otherwise (error).  The behavior is undefined unless
+    /// `balxml::Reader::e_NODE_TYPE_ELEMENT == node.type()`.  Note that
+    /// each call to `advanceToEndNodeRaw` invalidates strings and data
+    /// structures returned when `Reader` accessors were called for the
+    /// "prior node".  E.g., the pointer returned from `nodeName` for this
+    /// node will not be valid once `advanceToEndNodeRaw` is called.  Note
+    /// that this method leaves the reader pointing to an end node, so
+    /// calling one of the `advanceToEndNodeRaw` immediately after will not
+    /// advance the reader further (first call `advanceToNextNode` before
+    /// calling the `advanceToEndNodeRaw` function again).
     virtual int advanceToEndNodeRaw();
-        // Skip all the sub elements of the current node and position the
-        // reader on its corresponding end node, and (unlike
-        // 'advanceToNextNode') perform no checks to ensure that the elements
-        // being skipped are well-formed and that they do not contain any
-        // parsing errors.  Return 0 on successful skip, and a negative number
-        // otherwise (error).  The behavior is undefined unless
-        // 'balxml::Reader::e_NODE_TYPE_ELEMENT == node.type()'.  Note that
-        // each call to 'advanceToEndNodeRaw' invalidates strings and data
-        // structures returned when 'Reader' accessors were called for the
-        // "prior node".  E.g., the pointer returned from 'nodeName' for this
-        // node will not be valid once 'advanceToEndNodeRaw' is called.  Note
-        // that this method leaves the reader pointing to an end node, so
-        // calling one of the 'advanceToEndNodeRaw' immediately after will not
-        // advance the reader further (first call 'advanceToNextNode' before
-        // calling the 'advanceToEndNodeRaw' function again).
 
+    /// Skip all the sub elements of the current node and position the
+    /// reader on its corresponding end node, and (unlike
+    /// `advanceToNextNode`) perform no checks to ensure that the elements
+    /// being skipped are well-formed and that they do not contain any
+    /// parsing errors.  Unlike `advanceToEndNodeRaw` this method does not
+    /// expect (allow) comments or CDATA nodes in the input XML, in other
+    /// words it is expecting "bare" XML.  Return 0 on successful skip, and
+    /// a negative number otherwise (error).  The behavior is undefined
+    /// unless `balxml::Reader::e_NODE_TYPE_ELEMENT == node.type()`.  The
+    /// behavior is also undefined if the input XML contains comment or
+    /// CDATA nodes.  Note that each call to `advanceToEndNodeRawBare`
+    /// invalidates strings and data structures returned when `Reader`
+    /// accessors were called for the "prior node".  E.g., the pointer
+    /// returned from `nodeName` for this node will not be valid once
+    /// `advanceToEndNodeRawBare` is called.  Note that this method leaves
+    /// the reader pointing to an end node, so calling one of the
+    /// `advanceToEndNodeRawBare` immediately after will not advance the
+    /// reader further (first call `advanceToNextNode` before calling the
+    /// `advanceToEndNodeRawBare` function again).
     virtual int advanceToEndNodeRawBare();
-        // Skip all the sub elements of the current node and position the
-        // reader on its corresponding end node, and (unlike
-        // 'advanceToNextNode') perform no checks to ensure that the elements
-        // being skipped are well-formed and that they do not contain any
-        // parsing errors.  Unlike 'advanceToEndNodeRaw' this method does not
-        // expect (allow) comments or CDATA nodes in the input XML, in other
-        // words it is expecting "bare" XML.  Return 0 on successful skip, and
-        // a negative number otherwise (error).  The behavior is undefined
-        // unless 'balxml::Reader::e_NODE_TYPE_ELEMENT == node.type()'.  The
-        // behavior is also undefined if the input XML contains comment or
-        // CDATA nodes.  Note that each call to 'advanceToEndNodeRawBare'
-        // invalidates strings and data structures returned when 'Reader'
-        // accessors were called for the "prior node".  E.g., the pointer
-        // returned from 'nodeName' for this node will not be valid once
-        // 'advanceToEndNodeRawBare' is called.  Note that this method leaves
-        // the reader pointing to an end node, so calling one of the
-        // 'advanceToEndNodeRawBare' immediately after will not advance the
-        // reader further (first call 'advanceToNextNode' before calling the
-        // 'advanceToEndNodeRawBare' function again).
 
+    /// Move to the next node in the data steam created by `open` thus
+    /// allowing the node's properties to be queried via the `Reader`
+    /// accessors.  Return 0 on successful read, 1 if there are no more
+    /// nodes to read, and a negative number otherwise.  Note that each call
+    /// to `advanceToNextNode` invalidates strings and data structures
+    /// returned when `Reader` accessors were called for the "prior node".
+    /// E.g., the pointer returned from `nodeName` for this node will not be
+    /// valid once `advanceToNextNode` is called.  Note that the reader will
+    /// not be on a valid node until the first call to `advanceToNextNode`
+    /// after the reader is opened.
     int advanceToNextNode() BSLS_KEYWORD_OVERRIDE;
-        // Move to the next node in the data steam created by 'open' thus
-        // allowing the node's properties to be queried via the 'Reader'
-        // accessors.  Return 0 on successful read, 1 if there are no more
-        // nodes to read, and a negative number otherwise.  Note that each call
-        // to 'advanceToNextNode' invalidates strings and data structures
-        // returned when 'Reader' accessors were called for the "prior node".
-        // E.g., the pointer returned from 'nodeName' for this node will not be
-        // valid once 'advanceToNextNode' is called.  Note that the reader will
-        // not be on a valid node until the first call to 'advanceToNextNode'
-        // after the reader is opened.
 
+    /// Find the attribute at the specified `index` in the current node, and
+    /// fill in the specified `attribute` structure.  Return 0 on success, 1
+    /// if no attribute is found at the `index`, and an a negative value
+    /// otherwise.  The strings that were filled into the `attribute`
+    /// structure are invalid upon the next `advanceToNextNode` or `close`
+    /// is called.
     int lookupAttribute(ElementAttribute *attribute,
                         int               index) const BSLS_KEYWORD_OVERRIDE;
-        // Find the attribute at the specified 'index' in the current node, and
-        // fill in the specified 'attribute' structure.  Return 0 on success, 1
-        // if no attribute is found at the 'index', and an a negative value
-        // otherwise.  The strings that were filled into the 'attribute'
-        // structure are invalid upon the next 'advanceToNextNode' or 'close'
-        // is called.
 
+    /// Find the attribute with the specified `qname` (qualified name) in
+    /// the current node, and fill in the specified `attribute` structure.
+    /// Return 0 on success, 1 if there is no attribute found with `qname`,
+    /// and a negative value otherwise.  The strings that were filled into
+    /// the `attribute` structure are invalid upon the next
+    /// `advanceToNextNode` or `close` is called.
     int lookupAttribute(ElementAttribute *attribute,
                         const char       *qname) const BSLS_KEYWORD_OVERRIDE;
-        // Find the attribute with the specified 'qname' (qualified name) in
-        // the current node, and fill in the specified 'attribute' structure.
-        // Return 0 on success, 1 if there is no attribute found with 'qname',
-        // and a negative value otherwise.  The strings that were filled into
-        // the 'attribute' structure are invalid upon the next
-        // 'advanceToNextNode' or 'close' is called.
 
+    /// Find the attribute with the specified `localName` and specified
+    /// `namespaceUri` in the current node, and fill in the specified
+    /// `attribute` structure.  Return 0 on success, 1 if there is no
+    /// attribute found with `localName` and `namespaceUri`, and a negative
+    /// value otherwise.  If `namespaceUri` == 0 or a blank string is
+    /// passed, then the document's default namespace will be used.  The
+    /// strings that were filled into the `attribute` structure are invalid
+    /// upon the next `advanceToNextNode` or `close` is called.
     int lookupAttribute(ElementAttribute *attribute,
                         const char       *localName,
                         const char       *namespaceUri) const
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Find the attribute with the specified 'localName' and specified
-        // 'namespaceUri' in the current node, and fill in the specified
-        // 'attribute' structure.  Return 0 on success, 1 if there is no
-        // attribute found with 'localName' and 'namespaceUri', and a negative
-        // value otherwise.  If 'namespaceUri' == 0 or a blank string is
-        // passed, then the document's default namespace will be used.  The
-        // strings that were filled into the 'attribute' structure are invalid
-        // upon the next 'advanceToNextNode' or 'close' is called.
 
+    /// Find the attribute with the specified `localName` and specified
+    /// `namespaceId` in the current node, and fill in the specified
+    /// `attribute` structure.  Return 0 on success, 1 if there is no
+    /// attribute found with `localName` and `namespaceId`, and a negative
+    /// value otherwise.  If `namespaceId` == -1, then the document's
+    /// default namespace will be used.  The strings that were filled into
+    /// the `attribute` structure are invalid upon the next
+    /// `advanceToNextNode` or `close` is called.
     int lookupAttribute(ElementAttribute *attribute,
                         const char       *localName,
                         int               namespaceId) const
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Find the attribute with the specified 'localName' and specified
-        // 'namespaceId' in the current node, and fill in the specified
-        // 'attribute' structure.  Return 0 on success, 1 if there is no
-        // attribute found with 'localName' and 'namespaceId', and a negative
-        // value otherwise.  If 'namespaceId' == -1, then the document's
-        // default namespace will be used.  The strings that were filled into
-        // the 'attribute' structure are invalid upon the next
-        // 'advanceToNextNode' or 'close' is called.
 
+    /// Set the options to the flags in the specified `flags`.  The options
+    /// for the reader are persistent, i.e., the options are not reset by
+    /// `close`.  The behavior is undefined if this method is called after
+    /// calling `open` and before calling `close`.
     void setOptions(unsigned int flags) BSLS_KEYWORD_OVERRIDE;
-        // Set the options to the flags in the specified 'flags'.  The options
-        // for the reader are persistent, i.e., the options are not reset by
-        // 'close'.  The behavior is undefined if this method is called after
-        // calling 'open' and before calling 'close'.
 
     // ACCESSORS
+
+    /// Return the document encoding or NULL on error.  The returned pointer
+    /// is owned by this object and must not be modified or deallocated by
+    /// the caller.  The returned pointer becomes invalid when `close` is
+    /// called or the reader is destroyed.
     const char *documentEncoding() const BSLS_KEYWORD_OVERRIDE;
-        // Return the document encoding or NULL on error.  The returned pointer
-        // is owned by this object and must not be modified or deallocated by
-        // the caller.  The returned pointer becomes invalid when 'close' is
-        // called or the reader is destroyed.
 
+    /// Return the external XML resource resolver.
     XmlResolverFunctor resolver() const BSLS_KEYWORD_OVERRIDE;
-        // Return the external XML resource resolver.
 
+    /// Return true if `open` was called successfully and `close` has not
+    /// yet been called and false otherwise.
     bool isOpen() const BSLS_KEYWORD_OVERRIDE;
-        // Return true if 'open' was called successfully and 'close' has not
-        // yet been called and false otherwise.
 
+    /// Return a reference to the non-modifiable error information for this
+    /// reader.  The returned value becomes invalid when `close` is called
+    /// or the reader is destroyed.
     const ErrorInfo& errorInfo() const BSLS_KEYWORD_OVERRIDE;
-        // Return a reference to the non-modifiable error information for this
-        // reader.  The returned value becomes invalid when 'close' is called
-        // or the reader is destroyed.
 
+    /// Return the current line number within the input stream.  The current
+    /// line is the last line for which the reader has not yet seen a
+    /// newline.  Lines are counted starting at one from the time a stream
+    /// is provide to `open`.  Return 0 if not available.  Note that a
+    /// derived-class implementation is not required to count lines and may
+    /// just return 0.
     int getLineNumber() const BSLS_KEYWORD_OVERRIDE;
-        // Return the current line number within the input stream.  The current
-        // line is the last line for which the reader has not yet seen a
-        // newline.  Lines are counted starting at one from the time a stream
-        // is provide to 'open'.  Return 0 if not available.  Note that a
-        // derived-class implementation is not required to count lines and may
-        // just return 0.
 
+    /// Return the current column number within the input stream.  The
+    /// current column number is the number of characters since the last
+    /// newline was read by the reader plus one, i.e., the first column of
+    /// each line is column number one.  Return 0 if not available.  Note
+    /// that a derived-class implementation is not required to count
+    /// columns and may just return 0.
     int getColumnNumber() const BSLS_KEYWORD_OVERRIDE;
-        // Return the current column number within the input stream.  The
-        // current column number is the number of characters since the last
-        // newline was read by the reader plus one, i.e., the first column of
-        // each line is column number one.  Return 0 if not available.  Note
-        // that a derived-class implementation is not required to count
-        // columns and may just return 0.
 
+    /// Return a pointer to the modifiable prefix stack that is used by this
+    /// reader to manage namespace prefixes or 0 if namespace support is
+    /// disabled.  The behavior is undefined if the returned prefix stack is
+    /// augmented in any way after calling `open` and before calling
+    /// `close`.
     PrefixStack *prefixStack() const BSLS_KEYWORD_OVERRIDE;
-        // Return a pointer to the modifiable prefix stack that is used by this
-        // reader to manage namespace prefixes or 0 if namespace support is
-        // disabled.  The behavior is undefined if the returned prefix stack is
-        // augmented in any way after calling 'open' and before calling
-        // 'close'.
 
+    /// Return the node type of the current node if the reader `isOpen` and
+    /// has not encounter an error and `Reader::NONE` otherwise.
     NodeType nodeType() const BSLS_KEYWORD_OVERRIDE;
-        // Return the node type of the current node if the reader 'isOpen' and
-        // has not encounter an error and 'Reader::NONE' otherwise.
 
+    /// Return the qualified name of the current node if the current node
+    /// has a name and NULL otherwise.  The returned pointer is owned by
+    /// this object and must not be modified or deallocated by the caller.
+    /// The returned pointer becomes invalid upon the next
+    /// `advanceToNextNode`, when `close` is called or the reader is
+    /// destroyed.
     const char *nodeName() const BSLS_KEYWORD_OVERRIDE;
-        // Return the qualified name of the current node if the current node
-        // has a name and NULL otherwise.  The returned pointer is owned by
-        // this object and must not be modified or deallocated by the caller.
-        // The returned pointer becomes invalid upon the next
-        // 'advanceToNextNode', when 'close' is called or the reader is
-        // destroyed.
 
+    /// Return the local name of the current node if the current node has a
+    /// local name and NULL otherwise.  The returned pointer is owned by
+    /// this object and must not be modified or deallocated by the caller.
+    /// The returned pointer becomes invalid upon the next
+    /// `advanceToNextNode`, when `close` is called or the reader is
+    /// destroyed.
     const char *nodeLocalName() const BSLS_KEYWORD_OVERRIDE;
-        // Return the local name of the current node if the current node has a
-        // local name and NULL otherwise.  The returned pointer is owned by
-        // this object and must not be modified or deallocated by the caller.
-        // The returned pointer becomes invalid upon the next
-        // 'advanceToNextNode', when 'close' is called or the reader is
-        // destroyed.
 
+    /// Return the prefix name of the current node if the correct node has a
+    /// prefix name and NULL otherwise.  The returned pointer is owned by
+    /// this object and must not be modified or deallocated by the caller.
+    /// The returned pointer becomes invalid upon the next
+    /// `advanceToNextNode`, when `close` is called or the reader is
+    /// destroyed.
     const char *nodePrefix() const BSLS_KEYWORD_OVERRIDE;
-        // Return the prefix name of the current node if the correct node has a
-        // prefix name and NULL otherwise.  The returned pointer is owned by
-        // this object and must not be modified or deallocated by the caller.
-        // The returned pointer becomes invalid upon the next
-        // 'advanceToNextNode', when 'close' is called or the reader is
-        // destroyed.
 
+    /// Return the namespace ID of the current node if the current node has
+    /// a namespace id and a negative number otherwise.
     int nodeNamespaceId() const BSLS_KEYWORD_OVERRIDE;
-        // Return the namespace ID of the current node if the current node has
-        // a namespace id and a negative number otherwise.
 
+    /// Return the namespace URI name of the current node if the current
+    /// node has a namespace URI and NULL otherwise.  The returned pointer
+    /// is owned by this object and must not be modified or deallocated by
+    /// the caller.  The returned pointer becomes invalid upon the next
+    /// `advanceToNextNode`, when `close` is called or the reader is
+    /// destroyed.
     const char *nodeNamespaceUri() const BSLS_KEYWORD_OVERRIDE;
-        // Return the namespace URI name of the current node if the current
-        // node has a namespace URI and NULL otherwise.  The returned pointer
-        // is owned by this object and must not be modified or deallocated by
-        // the caller.  The returned pointer becomes invalid upon the next
-        // 'advanceToNextNode', when 'close' is called or the reader is
-        // destroyed.
 
+    /// Return the base URI name of the current node if the current node has
+    /// a base URI and NULL otherwise.  The returned pointer is owned by
+    /// this object and must not be modified or deallocated by the caller.
+    /// The returned pointer becomes invalid upon the next
+    /// `advanceToNextNode`, when `close` is called or the reader is
+    /// destroyed.
     const char *nodeBaseUri() const BSLS_KEYWORD_OVERRIDE;
-        // Return the base URI name of the current node if the current node has
-        // a base URI and NULL otherwise.  The returned pointer is owned by
-        // this object and must not be modified or deallocated by the caller.
-        // The returned pointer becomes invalid upon the next
-        // 'advanceToNextNode', when 'close' is called or the reader is
-        // destroyed.
 
+    /// Return true if the current node has a value and false otherwise.
     bool nodeHasValue() const BSLS_KEYWORD_OVERRIDE;
-        // Return true if the current node has a value and false otherwise.
 
+    /// Return the value of the current node if the current node has a value
+    /// and NULL otherwise.  The returned pointer is owned by this object
+    /// and must not be modified or deallocated by the caller.  The returned
+    /// pointer becomes invalid upon the next `advanceToNextNode`, when
+    /// `close` is called or the reader is destroyed.
     const char *nodeValue() const BSLS_KEYWORD_OVERRIDE;
-        // Return the value of the current node if the current node has a value
-        // and NULL otherwise.  The returned pointer is owned by this object
-        // and must not be modified or deallocated by the caller.  The returned
-        // pointer becomes invalid upon the next 'advanceToNextNode', when
-        // 'close' is called or the reader is destroyed.
 
+    /// Return the nesting depth of the current node in the XML document.
+    /// The root node has depth 0.
     int nodeDepth() const BSLS_KEYWORD_OVERRIDE;
-        // Return the nesting depth of the current node in the XML document.
-        // The root node has depth 0.
 
+    /// Return the number of attributes for the current node if that node
+    /// has attributes and 0 otherwise.
     int numAttributes() const BSLS_KEYWORD_OVERRIDE;
-        // Return the number of attributes for the current node if that node
-        // has attributes and 0 otherwise.
 
+    /// Return true if the current node is an element (i.e., node type is
+    /// `NODE_TYPE_ELEMENT`) that ends with `/>`; and false otherwise.
+    /// Note that `<a/>` will be considered empty but `<a></a>` will not.
     bool isEmptyElement() const BSLS_KEYWORD_OVERRIDE;
-        // Return true if the current node is an element (i.e., node type is
-        // 'NODE_TYPE_ELEMENT') that ends with '/>'; and false otherwise.
-        // Note that '<a/>' will be considered empty but '<a></a>' will not.
 
+    /// Return the option flags.
     unsigned int options() const BSLS_KEYWORD_OVERRIDE;
-        // Return the option flags.
 
     // ACCESSORS
     // SPECIFIC FOR MiniReader
+
+    /// Return the current scanner position as offset from the beginning of
+    /// document.
     int getCurrentPosition() const;
-        // Return the current scanner position as offset from the beginning of
-        // document.
 
+    /// Return the byte position within the document corresponding to the
+    /// first byte of the current node.
     int nodeStartPosition() const;
-        // Return the byte position within the document corresponding to the
-        // first byte of the current node.
 
+    /// Return the byte position within the document corresponding to the
+    /// byte following after the last byte of the current node.
     int nodeEndPosition() const;
-        // Return the byte position within the document corresponding to the
-        // byte following after the last byte of the current node.
 
 };
 

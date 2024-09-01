@@ -13,21 +13,21 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: ball_record, ball_loggermanager
 //
 //@DESCRIPTION: This component provides a mechanism,
-// 'ball::AttributeCollectorRegistry', that allows clients to register
-// 'ball::Attribute' collection functions, and to separately apply a visitor to
+// `ball::AttributeCollectorRegistry`, that allows clients to register
+// `ball::Attribute` collection functions, and to separately apply a visitor to
 // all the attributes collected using those collection functions.  A client can
-// register a 'ball::Attribute' collection function by calling 'addCollector'
+// register a `ball::Attribute` collection function by calling `addCollector`
 // and supplying a function matching the
-// 'AttributeCollectorRegistry::Collector' signature.  Clients can also apply a
-// visitor to collected 'ball::Attribute' objects by calling 'collect' and
+// `AttributeCollectorRegistry::Collector` signature.  Clients can also apply a
+// visitor to collected `ball::Attribute` objects by calling `collect` and
 // supplying a function matching the
-// 'ball::AttributeCollectorRegistry::Visitor' signature.  This call to
-// 'collect' will use the supplied 'Visitor' as the argument when calling each
-// of the 'Collector' functors registered with 'addCollector'.
+// `ball::AttributeCollectorRegistry::Visitor` signature.  This call to
+// `collect` will use the supplied `Visitor` as the argument when calling each
+// of the `Collector` functors registered with `addCollector`.
 //
 ///Thread Safety
 ///-------------
-// 'ball::AttributeCollectorRegistry' is fully *thread-safe*, meaning that all
+// `ball::AttributeCollectorRegistry` is fully *thread-safe*, meaning that all
 // non-creator operations on an object can be safely invoked simultaneously
 // from multiple threads.
 //
@@ -45,65 +45,65 @@ BSLS_IDENT("$Id: $")
 // First, we define a few collector functions that will collect the application
 // properties from various parts of an application and call the specified
 // visitor functor for every collected attribute:
-//..
-//  void userInfo(const bsl::function<void(const ball::Attribute &)>& visitor)
-//  {
-//      int         uuid     = 12345;    // getUuid();
-//      bsl::string userName = "proxy";  // getUserName();
+// ```
+// void userInfo(const bsl::function<void(const ball::Attribute &)>& visitor)
+// {
+//     int         uuid     = 12345;    // getUuid();
+//     bsl::string userName = "proxy";  // getUserName();
 //
-//      visitor(ball::Attribute("myLib.uuid", uuid));
-//      visitor(ball::Attribute("myLib.user", userName));
-//  }
+//     visitor(ball::Attribute("myLib.uuid", uuid));
+//     visitor(ball::Attribute("myLib.user", userName));
+// }
 //
-//  void threadInfo(
-//                 const bsl::function<void(const ball::Attribute &)>& visitor)
-//  {
-//      int threadId = 87654;            // getThreadId();
+// void threadInfo(
+//                const bsl::function<void(const ball::Attribute &)>& visitor)
+// {
+//     int threadId = 87654;            // getThreadId();
 //
-//      visitor(ball::Attribute("myLib.threadId", threadId));
-//  }
-//..
+//     visitor(ball::Attribute("myLib.threadId", threadId));
+// }
+// ```
 //  Then, we register collector functions with the attribute collector
 //  registry:
-//..
-//  ball::AttributeCollectorRegistry registry;
+// ```
+// ball::AttributeCollectorRegistry registry;
 //
-//  int rc = registry.addCollector(&userInfo, "userInfoCollector");
-//  assert(0 == rc);
-//  assert(true == registry.hasCollector("userInfoCollector"));
-//  rc = registry.addCollector(&threadInfo, "threadInfoCollector");
-//  assert(0 == rc);
-//  assert(true == registry.hasCollector("threadInfoCollector"));
-//  assert(2 == registry.numCollectors());
-//..
+// int rc = registry.addCollector(&userInfo, "userInfoCollector");
+// assert(0 == rc);
+// assert(true == registry.hasCollector("userInfoCollector"));
+// rc = registry.addCollector(&threadInfo, "threadInfoCollector");
+// assert(0 == rc);
+// assert(true == registry.hasCollector("threadInfoCollector"));
+// assert(2 == registry.numCollectors());
+// ```
 //  Next, we print every attribute gathered by all registered attribute
 //  collectors in the registry:
-//..
-//  bsl::stringstream output1;
+// ```
+// bsl::stringstream output1;
 //
-//  registry.collect([&output1](const ball::Attribute& attribute)
-//      {
-//          output1 << attribute.name() << "=" << attribute.value() << " ";
-//      });
+// registry.collect([&output1](const ball::Attribute& attribute)
+//     {
+//         output1 << attribute.name() << "=" << attribute.value() << " ";
+//     });
 //
-//  assert("myLib.uuid=12345 myLib.user=proxy myLib.threadId=87654 "
-//         == output1.str());
-//..
+// assert("myLib.uuid=12345 myLib.user=proxy myLib.threadId=87654 "
+//        == output1.str());
+// ```
 //  Finally, we remove one of the collectors and collect attributes again:
-//..
-//  int rc = registry.removeCollector("threadInfoCollector");
-//  assert(0 == rc);
-//  assert(false == registry.hasCollector("threadInfoCollectory"));
-//  assert(1 == registry.numCollectors());
+// ```
+// int rc = registry.removeCollector("threadInfoCollector");
+// assert(0 == rc);
+// assert(false == registry.hasCollector("threadInfoCollectory"));
+// assert(1 == registry.numCollectors());
 //
-//  bsl::stringstream output2;
-//  registry.collect([&output2](const ball::Attribute& attribute)
-//      {
-//          output2 << attribute.name() << "=" << attribute.value() << " ";
-//      });
+// bsl::stringstream output2;
+// registry.collect([&output2](const ball::Attribute& attribute)
+//     {
+//         output2 << attribute.name() << "=" << attribute.value() << " ";
+//     });
 //
-//  assert("myLib.uuid=12345 myLib.user=proxy " == output2.str());
-//..
+// assert("myLib.uuid=12345 myLib.user=proxy " == output2.str());
+// ```
 
 #include <balscm_version.h>
 
@@ -132,32 +132,34 @@ namespace ball {
                          // class AttributeCollectorRegistry
                          // ================================
 
+/// This component maintains a registry of named functors ("collectors")
+/// that are used to transform opaque user data into a set of
+/// `ball::Attribute` objects.
 class AttributeCollectorRegistry {
-    // This component maintains a registry of named functors ("collectors")
-    // that are used to transform opaque user data into a set of
-    // 'ball::Attribute' objects.
 
   public:
     // TYPES
+
+    /// `Visitor` is the type of a user-supplied visit functor.
     typedef bsl::function<void(const ball::Attribute&)> Visitor;
-        // 'Visitor' is the type of a user-supplied visit functor.
 
+    /// `Collector` is the type of a user-supplied attribute collector
+    /// functor.
     typedef bsl::function<void(const Visitor&)> Collector;
-        // 'Collector' is the type of a user-supplied attribute collector
-        // functor.
 
+    /// This `typedef` is an alias for the allocator used by this object.
     typedef bsl::allocator<char> allocator_type;
-        // This 'typedef' is an alias for the allocator used by this object.
 
   private:
     // PRIVATE TYPES
-    typedef bsl::pair<bsl::string, Collector>  CollectorEntry;
-        // This 'typedef' is an alias for a single named attribute collector.
 
+    /// This `typedef` is an alias for a single named attribute collector.
+    typedef bsl::pair<bsl::string, Collector>  CollectorEntry;
+
+    /// This `typedef` is an alias for the type of the registry maintained
+    /// by this object.  Note that `vector` is used to preserve the order in
+    /// which collectors are registered.
     typedef bsl::vector<CollectorEntry> Registry;
-        // This 'typedef' is an alias for the type of the registry maintained
-        // by this object.  Note that 'vector' is used to preserve the order in
-        // which collectors are registered.
 
     // DATA
     Registry                         d_collectors; // collector registry
@@ -175,53 +177,56 @@ class AttributeCollectorRegistry {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a registry having no registered collectors.  Optionally
+    /// specify an `allocator` (e.g., the address of a `bslma::Allocator`
+    /// object) to supply memory; otherwise, the default allocator is used.
     AttributeCollectorRegistry();
     explicit AttributeCollectorRegistry(const allocator_type& allocator);
-        // Create a registry having no registered collectors.  Optionally
-        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
-        // object) to supply memory; otherwise, the default allocator is used.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    /// Destroy this registry.
     ~AttributeCollectorRegistry() = default;
-        // Destroy this registry.
 #endif
 
     // MANIPULATORS
+
+    /// Add the specified `collector` with the specified `name` to this
+    /// registry.  Return 0 if `collector` was successfully registered, and
+    /// a non-zero value (with no effect) otherwise.  Note that this method
+    /// will fail if a collector having `name` is already registered.
     int addCollector(const Collector& collector, const bsl::string_view& name);
-        // Add the specified 'collector' with the specified 'name' to this
-        // registry.  Return 0 if 'collector' was successfully registered, and
-        // a non-zero value (with no effect) otherwise.  Note that this method
-        // will fail if a collector having 'name' is already registered.
 
+    /// Remove all collectors from this registry.
     void removeAll();
-        // Remove all collectors from this registry.
 
+    /// Remove the collector having the specified `name` from this registry.
+    /// Return 0 if the collector with `name` was successfully removed, and
+    /// a non-zero value (with no effect) otherwise.
     int removeCollector(const bsl::string_view& name);
-        // Remove the collector having the specified 'name' from this registry.
-        // Return 0 if the collector with 'name' was successfully removed, and
-        // a non-zero value (with no effect) otherwise.
 
     // ACCESSORS
+
+    /// Invoke all registered collectors with the specified `visitor`
+    /// functor.  Note that collectors are invoked in the order in which
+    /// collectors are registered.
     void collect(const Visitor& visitor) const;
-        // Invoke all registered collectors with the specified 'visitor'
-        // functor.  Note that collectors are invoked in the order in which
-        // collectors are registered.
 
+    /// Return the allocator used by this object to supply memory.  Note
+    /// that if no allocator was supplied at construction the default
+    /// allocator in effect at construction is used.
     allocator_type get_allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the default
-        // allocator in effect at construction is used.
 
+    /// Return `true` if a collector having the specified `name` is in the
+    /// registry maintained by this object, and `false` otherwise.  Note
+    /// that this method is provided primarily for debugging purposes (i.e.,
+    /// its return value can be invalidated from another thread).
     bool hasCollector(const bsl::string_view& name) const;
-        // Return 'true' if a collector having the specified 'name' is in the
-        // registry maintained by this object, and 'false' otherwise.  Note
-        // that this method is provided primarily for debugging purposes (i.e.,
-        // its return value can be invalidated from another thread).
 
+    /// Return the number of collectors registered with this object.  Note
+    /// that this method is provided primarily for debugging purposes (i.e.,
+    /// its return value can be invalidated from another thread).
     int numCollectors() const;
-        // Return the number of collectors registered with this object.  Note
-        // that this method is provided primarily for debugging purposes (i.e.,
-        // its return value can be invalidated from another thread).
 };
 
 // ============================================================================

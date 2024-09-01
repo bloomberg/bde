@@ -13,11 +13,11 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: ball_attributecontainer
 //
 //@DESCRIPTION: This component provides a default implementation of the
-// 'ball::AttributeContainer' protocol, 'ball::DefaultAttributeContainer'
-// providing an 'unordered_set'-based container of 'ball::Attribute' values.
+// `ball::AttributeContainer` protocol, `ball::DefaultAttributeContainer`
+// providing an `unordered_set`-based container of `ball::Attribute` values.
 // Each attribute within the default attribute container holds a
-// (case-sensitive) name and a value, which may be an 'int', a 64-bit integer,
-// or a 'bsl::string'.
+// (case-sensitive) name and a value, which may be an `int`, a 64-bit integer,
+// or a `bsl::string`.
 //
 // This component participates in the implementation of "Rule-Based Logging".
 // For more information on how to use that feature, please see the package
@@ -25,81 +25,81 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// 'ball::DefaultAttributeContainer' is *const* *thread-safe*, meaning that
+// `ball::DefaultAttributeContainer` is *const* *thread-safe*, meaning that
 // accessors may be invoked concurrently from different threads, but it is not
-// safe to access or modify a 'ball::DefaultAttributeContainer' in one thread
+// safe to access or modify a `ball::DefaultAttributeContainer` in one thread
 // while another thread modifies the same object.
 //
 ///Usage
 ///-----
 // This section illustrates the intended use of this component.
 //
-///Example 1: Basic Usage of 'ball::DefaultAttributeContainer'
+///Example 1: Basic Usage of `ball::DefaultAttributeContainer`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// A 'ball::DefaultAttributeContainer' initially has no attributes when created
+// A `ball::DefaultAttributeContainer` initially has no attributes when created
 // by the default constructor:
-//..
-//    ball::DefaultAttributeContainer attributeContainer;
-//..
+// ```
+//   ball::DefaultAttributeContainer attributeContainer;
+// ```
 // Let's now create some attributes and add them to the attribute map:
-//..
-//    ball::Attribute a1("uuid", 1111);
-//    ball::Attribute a2("sid", "111-1");
-//    assert(true == attributeContainer.addAttribute(a1));
-//    assert(true == attributeContainer.addAttribute(a2));
-//..
+// ```
+//   ball::Attribute a1("uuid", 1111);
+//   ball::Attribute a2("sid", "111-1");
+//   assert(true == attributeContainer.addAttribute(a1));
+//   assert(true == attributeContainer.addAttribute(a2));
+// ```
 // New attributes with a name that already exists in the map can be added, as
 // long as they have a different value:
-//..
-//    ball::Attribute a3("uuid", 2222);
-//    ball::Attribute a4("sid", "222-2");
-//    assert(true == attributeContainer.addAttribute(a3));
-//    assert(true == attributeContainer.addAttribute(a4));
-//..
+// ```
+//   ball::Attribute a3("uuid", 2222);
+//   ball::Attribute a4("sid", "222-2");
+//   assert(true == attributeContainer.addAttribute(a3));
+//   assert(true == attributeContainer.addAttribute(a4));
+// ```
 // But attributes having the same name and value cannot be added:
-//..
-//    ball::Attribute a5("uuid", 1111);                 // same as 'a1'
-//    assert(false == attributeContainer.addAttribute(a5));
-//..
+// ```
+//   ball::Attribute a5("uuid", 1111);                 // same as 'a1'
+//   assert(false == attributeContainer.addAttribute(a5));
+// ```
 // Note that the attribute name is case-sensitive:
-//..
-//    ball::Attribute a6("UUID", 1111);
-//    assert(true == attributeContainer.addAttribute(a6));
-//..
-// Existing attributes can be looked up by the 'hasValue' method:
-//..
-//    assert(true == attributeContainer.hasValue(a1));
-//    assert(true == attributeContainer.hasValue(a2));
-//    assert(true == attributeContainer.hasValue(a3));
-//    assert(true == attributeContainer.hasValue(a4));
-//    assert(true == attributeContainer.hasValue(a5));
-//    assert(true == attributeContainer.hasValue(a6));
-//..
-// Or removed by the 'removeAttribute' method:
-//..
-//    defaultattributecontainer.removeAttribute(a1);
-//    assert(false == attributeContainer.hasValue(a1));
-//..
-// Also, the 'ball::DefaultAttributeContainer' class provides an iterator:
-//..
-//    ball::DefaultAttributeContainer::const_iterator iter =
-//                                                  attributeContainer.begin();
-//    for ( ; iter != attributeContainer.end(); ++iter ) {
-//        bsl::cout << *iter << bsl::endl;
-//    }
-//..
+// ```
+//   ball::Attribute a6("UUID", 1111);
+//   assert(true == attributeContainer.addAttribute(a6));
+// ```
+// Existing attributes can be looked up by the `hasValue` method:
+// ```
+//   assert(true == attributeContainer.hasValue(a1));
+//   assert(true == attributeContainer.hasValue(a2));
+//   assert(true == attributeContainer.hasValue(a3));
+//   assert(true == attributeContainer.hasValue(a4));
+//   assert(true == attributeContainer.hasValue(a5));
+//   assert(true == attributeContainer.hasValue(a6));
+// ```
+// Or removed by the `removeAttribute` method:
+// ```
+//   defaultattributecontainer.removeAttribute(a1);
+//   assert(false == attributeContainer.hasValue(a1));
+// ```
+// Also, the `ball::DefaultAttributeContainer` class provides an iterator:
+// ```
+//   ball::DefaultAttributeContainer::const_iterator iter =
+//                                                 attributeContainer.begin();
+//   for ( ; iter != attributeContainer.end(); ++iter ) {
+//       bsl::cout << *iter << bsl::endl;
+//   }
+// ```
 // Finally, we can provide a visitor functor and visit all attributes in the
 // container.  Note that this usage example uses lambdas and requires C++11.
 // Lambdas can be replaced with named functions for C++03.
-//..
-//    bsl::vector<ball::Attribute> result;
-//    attributeContainer.visitAttributes(
-//        [&result](const ball::Attribute& attribute)
-//          {
-//              result.push_back(attribute);
-//          });
-//    assert(4 == result.size());
-//..
+// ```
+//   bsl::vector<ball::Attribute> result;
+//   attributeContainer.visitAttributes(
+//       [&result](const ball::Attribute& attribute)
+//         {
+//             result.push_back(attribute);
+//         });
+//   assert(4 == result.size());
+// ```
 
 #include <balscm_version.h>
 
@@ -124,13 +124,14 @@ namespace ball {
                     // class DefaultAttributeContainer
                     // ===============================
 
+/// A `DefaultAttributeContainer` object contains a collection of (unique)
+/// attributes values.
 class DefaultAttributeContainer : public AttributeContainer {
-    // A 'DefaultAttributeContainer' object contains a collection of (unique)
-    // attributes values.
 
     // PRIVATE TYPES
+
+    /// A hash functor for `Attribute`.
     struct AttributeHash {
-        // A hash functor for 'Attribute'.
 
       private:
         // CLASS DATA
@@ -138,8 +139,9 @@ class DefaultAttributeContainer : public AttributeContainer {
                                      // hash value is calculated
       public:
         // ACCESSORS
+
+        /// Return the hash value of the specified `attribute`.
         int operator()(const Attribute& attribute) const
-            // Return the hash value of the specified 'attribute'.
         {
             return Attribute::hash(attribute, s_hashtableSize);
         }
@@ -161,8 +163,9 @@ class DefaultAttributeContainer : public AttributeContainer {
                                    bslma::UsesBslmaAllocator);
 
     // TYPES
+
+    /// This `typedef` is an alias for the allocator used by this object.
     typedef bsl::allocator<char> allocator_type;
-        // This 'typedef' is an alias for the allocator used by this object.
 
     typedef bsl::unordered_set<Attribute, AttributeHash>::const_iterator
                                  const_iterator;  // type of iterator for
@@ -171,108 +174,112 @@ class DefaultAttributeContainer : public AttributeContainer {
                                                   // managed by this object
 
     // CREATORS
+
+    /// Create an empty `DefaultAttributeContainer` object.  Optionally
+    /// specify an `allocator` (e.g., the address of a `bslma::Allocator`
+    /// object) to supply memory; otherwise, the default allocator is used.
     DefaultAttributeContainer();
     explicit DefaultAttributeContainer(const allocator_type& allocator);
-        // Create an empty 'DefaultAttributeContainer' object.  Optionally
-        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
-        // object) to supply memory; otherwise, the default allocator is used.
 
+    /// Create a `DefaultAttributeContainer` object having the same value as
+    /// the specified `original` object.  Optionally specify an `allocator`
+    /// (e.g., the address of a `bslma::Allocator` object) to supply memory;
+    /// otherwise, the default allocator is used.
     DefaultAttributeContainer(
                const DefaultAttributeContainer&  original,
                const allocator_type&             allocator = allocator_type());
-        // Create a 'DefaultAttributeContainer' object having the same value as
-        // the specified 'original' object.  Optionally specify an 'allocator'
-        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
-        // otherwise, the default allocator is used.
 
+    /// Destroy this object.
     ~DefaultAttributeContainer() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a non-`const` reference to this object.
     DefaultAttributeContainer& operator=(const DefaultAttributeContainer& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a non-'const' reference to this object.
 
+    /// Add an attribute having the specified `value` to this object.
+    /// Return `true` on success and `false` if an attribute having the
+    /// same `value` already exists in this object.
     bool addAttribute(const Attribute& value);
-        // Add an attribute having the specified 'value' to this object.
-        // Return 'true' on success and 'false' if an attribute having the
-        // same 'value' already exists in this object.
 
+    /// Remove the attribute having the specified `value` from this object.
+    /// Return the `true` on success and `false` if the attribute having the
+    /// `value` does not exist in this object.
     bool removeAttribute(const Attribute& value);
-        // Remove the attribute having the specified 'value' from this object.
-        // Return the 'true' on success and 'false' if the attribute having the
-        // 'value' does not exist in this object.
 
+    /// Remove every attribute in this attribute set.
     void removeAllAttributes();
-        // Remove every attribute in this attribute set.
 
     // ACCESSORS
+
+    /// Return the number of attributes managed by this object.
     int numAttributes() const;
-        // Return the number of attributes managed by this object.
 
+    /// Return `true` if the attribute having specified `value` exists in
+    /// this object, and `false` otherwise.
     bool hasValue(const Attribute& value) const BSLS_KEYWORD_OVERRIDE;
-        // Return 'true' if the attribute having specified 'value' exists in
-        // this object, and 'false' otherwise.
 
+    /// Return an iterator pointing at the beginning of the (unordered)
+    /// sequence of attributes managed by this map, or `end()` if
+    /// `numAttributes()` is 0.
     const_iterator begin() const;
-        // Return an iterator pointing at the beginning of the (unordered)
-        // sequence of attributes managed by this map, or 'end()' if
-        // 'numAttributes()' is 0.
 
+    /// Return an iterator pointing at one past the end of the map.
     const_iterator end() const;
-        // Return an iterator pointing at one past the end of the map.
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level` and return a
+    /// reference to `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for
+    /// this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  If `stream` is
+    /// not valid on entry, this operation has no effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level' and return a
-        // reference to 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.
 
+    /// Invoke the specified `visitor` function for all attributes in this
+    /// container.
     void visitAttributes(
              const bsl::function<void(const ball::Attribute&)> &visitor) const
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Invoke the specified 'visitor' function for all attributes in this
-        // container.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.  Note
+    /// that if no allocator was supplied at construction the default
+    /// allocator in effect at construction is used.
     allocator_type get_allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the default
-        // allocator in effect at construction is used.
 
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `DefaultAttributeContainer` objects
+/// have the same value if they contain the same number of (unique)
+/// attributes, and every attribute that appears in one object also appears
+/// in the other.
 bool operator==(const DefaultAttributeContainer& lhs,
                 const DefaultAttributeContainer& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'DefaultAttributeContainer' objects
-    // have the same value if they contain the same number of (unique)
-    // attributes, and every attribute that appears in one object also appears
-    // in the other.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `DefaultAttributeContainer`
+/// objects do not have the same value if they contain differing numbers of
+/// attributes or if there is at least one attribute that appears in one
+/// object, but not in the other.
 bool operator!=(const DefaultAttributeContainer& lhs,
                 const DefaultAttributeContainer& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'DefaultAttributeContainer'
-    // objects do not have the same value if they contain differing numbers of
-    // attributes or if there is at least one attribute that appears in one
-    // object, but not in the other.
 
+/// Write the value of the specified `attributeContainer` to the specified
+/// `output` stream in some single-line, human readable format.  Return the
+/// `output` stream.
 bsl::ostream& operator<<(bsl::ostream&                    output,
                          const DefaultAttributeContainer& attributeContainer);
-    // Write the value of the specified 'attributeContainer' to the specified
-    // 'output' stream in some single-line, human readable format.  Return the
-    // 'output' stream.
 
 // ============================================================================
 //                              INLINE DEFINITIONS

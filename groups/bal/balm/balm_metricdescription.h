@@ -12,18 +12,18 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balm_metricregistry, balm_metricid, balm_category
 //
-//@DESCRIPTION: This component provides a class, 'balm::MetricDescription',
-// used to describe a metric.  A 'balm::MetricDescription' object contains the
+//@DESCRIPTION: This component provides a class, `balm::MetricDescription`,
+// used to describe a metric.  A `balm::MetricDescription` object contains the
 // address of the category to which the metric belongs and also the address of
 // the null-terminated string holding the name of the metric.  The
-// 'balm::MetricDescription' class suppresses copy construction and assignment,
+// `balm::MetricDescription` class suppresses copy construction and assignment,
 // and does not provide equality operators: Applications should use a *single*
-// 'balm::MetricDescription' object per metric (such as one provided by the
-// *'balm::MetricRegistry'* component).
+// `balm::MetricDescription` object per metric (such as one provided by the
+// *`balm::MetricRegistry`* component).
 //
-// IMPORTANT: The metric description's 'name', whose type is 'const char *',
+// IMPORTANT: The metric description's `name`, whose type is `const char *`,
 // must remain constant and valid throughout the lifetime of the
-// 'balm::MetricDescription' object.
+// `balm::MetricDescription` object.
 //
 ///Alternative Systems for Telemetry
 ///---------------------------------
@@ -32,12 +32,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// 'balm::MetricDescription' is *const* *thread-safe*, meaning that accessors
+// `balm::MetricDescription` is *const* *thread-safe*, meaning that accessors
 // may be invoked concurrently from different threads, but it is not safe to
-// access or modify a 'balm::MetricDescription' in one thread while another
-// thread modifies the same object.  However, clients of the 'balm' package
-// accessing a non-modifiable 'balm::MetricDescription' supplied by a
-// 'balm::MetricRegistry' (by way of a 'balm::MetricId') can safely access the
+// access or modify a `balm::MetricDescription` in one thread while another
+// thread modifies the same object.  However, clients of the `balm` package
+// accessing a non-modifiable `balm::MetricDescription` supplied by a
+// `balm::MetricRegistry` (by way of a `balm::MetricId`) can safely access the
 // properties of that metric description at any time.
 //
 ///Usage
@@ -47,39 +47,39 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // The following example demonstrates how to create and access a
-// 'balm::MetricDescription' object.  We start by creating a category:
-//..
-//  balm::Category myCategory("MyCategory");
-//..
+// `balm::MetricDescription` object.  We start by creating a category:
+// ```
+// balm::Category myCategory("MyCategory");
+// ```
 // Then we use that category to create three metric description objects with
 // different names:
-//..
-//  balm::MetricDescription metricA(&myCategory, "A");
-//  balm::MetricDescription metricB(&myCategory, "B");
-//  balm::MetricDescription metricC(&myCategory, "C");
-//..
-// We can use the 'category' and 'name' methods to access their values:
-//..
-//  assert(&myCategory == metricA.category());
-//  assert(&myCategory == metricB.category());
-//  assert(&myCategory == metricC.category());
+// ```
+// balm::MetricDescription metricA(&myCategory, "A");
+// balm::MetricDescription metricB(&myCategory, "B");
+// balm::MetricDescription metricC(&myCategory, "C");
+// ```
+// We can use the `category` and `name` methods to access their values:
+// ```
+// assert(&myCategory == metricA.category());
+// assert(&myCategory == metricB.category());
+// assert(&myCategory == metricC.category());
 //
-//  assert(0 == bsl::strcmp("A", metricA.name()));
-//  assert(0 == bsl::strcmp("B", metricB.name()));
-//  assert(0 == bsl::strcmp("C", metricC.name()));
-//..
+// assert(0 == bsl::strcmp("A", metricA.name()));
+// assert(0 == bsl::strcmp("B", metricB.name()));
+// assert(0 == bsl::strcmp("C", metricC.name()));
+// ```
 // Finally, we write all three metric descriptions to the console:
-//..
-//  bsl::cout << "metricA: " << metricA << bsl::endl
-//            << "metricB: " << metricB << bsl::endl
-//            << "metricC: " << metricC << bsl::endl;
-//..
+// ```
+// bsl::cout << "metricA: " << metricA << bsl::endl
+//           << "metricB: " << metricB << bsl::endl
+//           << "metricC: " << metricC << bsl::endl;
+// ```
 // With the following console output:
-//..
-//  metricA: MyCategory.A
-//  metricB: MyCategory.B
-//  metricC: MyCategory.C
-//..
+// ```
+// metricA: MyCategory.A
+// metricB: MyCategory.B
+// metricC: MyCategory.C
+// ```
 
 #include <balscm_version.h>
 
@@ -106,10 +106,10 @@ class MetricFormat;
                           // class MetricDescription
                           // =======================
 
+/// This class provides a mechanism for describing a metric.  A
+/// `MetricDescription` holds the category to which the metric belongs, and
+/// a null-terminated string containing the name of the metric.
 class MetricDescription {
-    // This class provides a mechanism for describing a metric.  A
-    // 'MetricDescription' holds the category to which the metric belongs, and
-    // a null-terminated string containing the name of the metric.
 
     // DATA
     const Category *d_category_p;  // category of metric (held, not owned)
@@ -136,111 +136,116 @@ class MetricDescription {
 
   public:
     // PUBLIC TYPES
+
+    /// A key used to refer to a data value associated with a metric.  Note
+    /// that a `UserDataKey` can be used by clients of `balm` to associate
+    /// additional information with a metric.  See `balm_metricregistry`
+    /// for information on obtaining a unique key.
     typedef int UserDataKey;
-        // A key used to refer to a data value associated with a metric.  Note
-        // that a 'UserDataKey' can be used by clients of 'balm' to associate
-        // additional information with a metric.  See 'balm_metricregistry'
-        // for information on obtaining a unique key.
 
     // CREATORS
+
+    /// Create a metric description for the specified `category` and the
+    /// specified `name`.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  The initial value for
+    /// `preferredPublicationType` is `e_UNSPECIFIED`, and the initial
+    /// value for `format` is 0.  The behavior is undefined unless `name`
+    /// and `category` remain valid, and the contents of `name` remain
+    /// unmodified, for the lifetime of this object.
     MetricDescription(const Category   *category,
                       const char       *name,
                       bslma::Allocator *basicAllocator = 0);
-        // Create a metric description for the specified 'category' and the
-        // specified 'name'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  The initial value for
-        // 'preferredPublicationType' is 'e_UNSPECIFIED', and the initial
-        // value for 'format' is 0.  The behavior is undefined unless 'name'
-        // and 'category' remain valid, and the contents of 'name' remain
-        // unmodified, for the lifetime of this object.
 
     // ~MetricDescription();
         // Destroy this metric description.  Note that this trivial destructor
         // is generated by the compiler.
 
     // MANIPULATORS
+
+    /// Set the name of this metric description to the specified `name`.
+    /// The behavior is undefined unless the contents of `name` remains
+    /// valid and unmodified for the lifetime of this object.
     void setName(const char *name);
-        // Set the name of this metric description to the specified 'name'.
-        // The behavior is undefined unless the contents of 'name' remains
-        // valid and unmodified for the lifetime of this object.
 
+    /// Set the category of this metric description to the object at the
+    /// specified `category` address.  The behavior is undefined unless
+    /// `category` remains valid for the lifetime of this object.
     void setCategory(const Category *category);
-        // Set the category of this metric description to the object at the
-        // specified 'category' address.  The behavior is undefined unless
-        // 'category' remains valid for the lifetime of this object.
 
+    /// Set the preferred publication type of this metric to the specified
+    /// `type`.  The preferred publication type of this metric indicates the
+    /// preferred aggregate to publish for this metric, or
+    /// `PublicationType::UNSPECIFIED` if there is no preference.  Note
+    /// that there is no uniform definition for how publishers will
+    /// interpret this value; an `UNSPECIFIED` value generally indicates
+    /// that all the collected aggregates (total, count, minimum, and
+    /// maximum value) should be published.
     void setPreferredPublicationType(PublicationType::Value type);
-        // Set the preferred publication type of this metric to the specified
-        // 'type'.  The preferred publication type of this metric indicates the
-        // preferred aggregate to publish for this metric, or
-        // 'PublicationType::UNSPECIFIED' if there is no preference.  Note
-        // that there is no uniform definition for how publishers will
-        // interpret this value; an 'UNSPECIFIED' value generally indicates
-        // that all the collected aggregates (total, count, minimum, and
-        // maximum value) should be published.
 
+    /// Set the format for this metric description to the specified
+    /// `format`.
     void setFormat(const bsl::shared_ptr<const MetricFormat>& format);
-        // Set the format for this metric description to the specified
-        // 'format'.
 
+    /// Associate the specified `value` with the specified data `key`.  The
+    /// behavior is undefined unless `key >= 0`.  Note that this method
+    /// allows clients of `balm` to associate (opaque) application-specific
+    /// information with a metric.
     void setUserData(UserDataKey key, const void *value);
-        // Associate the specified 'value' with the specified data 'key'.  The
-        // behavior is undefined unless 'key >= 0'.  Note that this method
-        // allows clients of 'balm' to associate (opaque) application-specific
-        // information with a metric.
 
     // ACCESSORS
+
+    /// Return the address of the non-modifiable, null-terminated string
+    /// containing the name of the described metric.
     const char *name() const;
-        // Return the address of the non-modifiable, null-terminated string
-        // containing the name of the described metric.
 
+    /// Return the address of the non-modifiable category object indicating
+    /// the category of the metric described by this object.
     const Category *category() const;
-        // Return the address of the non-modifiable category object indicating
-        // the category of the metric described by this object.
 
+    /// Return the preferred publication type of this metric.  The
+    /// preferred publication type of this metric indicates the preferred
+    /// aggregate to publish for this metric, or
+    /// `PublicationType::UNSPECIFIED` if there is no preference.  Note
+    /// that there is no uniform definition for how publishers will
+    /// interpret this value; an `UNSPECIFIED` value generally indicates
+    /// that the all the collected aggregates (total, count, minimum, and
+    /// maximum value) should be published.
     PublicationType::Value preferredPublicationType() const;
-        // Return the preferred publication type of this metric.  The
-        // preferred publication type of this metric indicates the preferred
-        // aggregate to publish for this metric, or
-        // 'PublicationType::UNSPECIFIED' if there is no preference.  Note
-        // that there is no uniform definition for how publishers will
-        // interpret this value; an 'UNSPECIFIED' value generally indicates
-        // that the all the collected aggregates (total, count, minimum, and
-        // maximum value) should be published.
 
+    /// Return a shared pointer to the non-modifiable format for this
+    /// metric description.  Note that the returned shared pointer *may*
+    /// *be* *null* if a format has not been provided for the described
+    /// metric.
     bsl::shared_ptr<const MetricFormat> format() const;
-        // Return a shared pointer to the non-modifiable format for this
-        // metric description.  Note that the returned shared pointer *may*
-        // *be* *null* if a format has not been provided for the described
-        // metric.
 
+    /// Return the non-modifiable value associated with the specified
+    /// user-data `key`.  If the data for `key` has not been set, a value of
+    /// 0 is returned, which is indistinguishable from a valid `key` with a
+    /// 0 value.  The behavior is undefined unless `key >= 0`.    Note that
+    /// this method allows clients of `balm` to access the (opaque)
+    /// application-specific information that they have previously
+    /// associated with a metric (via `setUserData`).
     const void *userData(UserDataKey key) const;
-        // Return the non-modifiable value associated with the specified
-        // user-data 'key'.  If the data for 'key' has not been set, a value of
-        // 0 is returned, which is indistinguishable from a valid 'key' with a
-        // 0 value.  The behavior is undefined unless 'key >= 0'.    Note that
-        // this method allows clients of 'balm' to access the (opaque)
-        // application-specific information that they have previously
-        // associated with a metric (via 'setUserData').
 
+    /// Print the category and name of this metric description to the
+    /// specified output `stream` in some single-line human-readable form,
+    /// and return a reference to the modifiable `stream`.
     bsl::ostream& print(bsl::ostream& stream) const;
-        // Print the category and name of this metric description to the
-        // specified output 'stream' in some single-line human-readable form,
-        // and return a reference to the modifiable 'stream'.
 
+    /// Print the properties of this metric description to the specified
+    /// output `stream` in some single-line human-readable form, and return
+    /// a reference to the modifiable `stream`.
     bsl::ostream& printDescription(bsl::ostream& stream) const;
-        // Print the properties of this metric description to the specified
-        // output 'stream' in some single-line human-readable form, and return
-        // a reference to the modifiable 'stream'.
 };
 
 // FREE OPERATORS
+
+/// Write a formatted single-line description of the specified `rhs` metric
+/// description to the specified `stream`, and return a reference to the
+/// modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream&            stream,
                          const MetricDescription& rhs);
-    // Write a formatted single-line description of the specified 'rhs' metric
-    // description to the specified 'stream', and return a reference to the
-    // modifiable 'stream'.
 
 // ============================================================================
 //                            INLINE DEFINITIONS

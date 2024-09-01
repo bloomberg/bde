@@ -12,10 +12,10 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baljsn_encoder, baljsn_parserutil
 //
-//@DESCRIPTION: This component provides a 'struct' of utility functions,
-// 'baljsn::PrintUtil', for encoding a 'bdeat' Simple type in the JSON format.
-// The primary method is 'printValue', which encodes a specified object and is
-// overloaded for all 'bdeat' Simple types.  The following table describes the
+//@DESCRIPTION: This component provides a `struct` of utility functions,
+// `baljsn::PrintUtil`, for encoding a `bdeat` Simple type in the JSON format.
+// The primary method is `printValue`, which encodes a specified object and is
+// overloaded for all `bdeat` Simple types.  The following table describes the
 // format in which various Simple types are encoded.
 //
 // Refer to the details of the JSON encoding format supported by this utility
@@ -25,57 +25,57 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Encoding a Simple 'struct' into JSON
+///Example 1: Encoding a Simple `struct` into JSON
 ///-----------------------------------------------
 // Suppose we want to serialize some data into JSON.
 //
-// First, we define a struct, 'Employee', to contain the data:
-//..
-//  struct Employee {
-//      const char *d_firstName;
-//      const char *d_lastName;
-//      int         d_age;
-//  };
-//..
-// Then, we create an 'Employee' object and populate it with data:
-//..
-//  Employee john;
-//  john.d_firstName = "John";
-//  john.d_lastName = "Doe";
-//  john.d_age = 20;
-//..
+// First, we define a struct, `Employee`, to contain the data:
+// ```
+// struct Employee {
+//     const char *d_firstName;
+//     const char *d_lastName;
+//     int         d_age;
+// };
+// ```
+// Then, we create an `Employee` object and populate it with data:
+// ```
+// Employee john;
+// john.d_firstName = "John";
+// john.d_lastName = "Doe";
+// john.d_age = 20;
+// ```
 //  Now, we create an output stream and manually construct the JSON string
-//  using 'baljsn::PrintUtil':
-//..
-//  bsl::ostringstream oss;
-//  oss << '{' << '\n';
-//  baljsn::PrintUtil::printValue(oss, "firstName");
-//  oss << ':';
-//  baljsn::PrintUtil::printValue(oss, john.d_firstName);
-//  oss << ',' << '\n';
-//  baljsn::PrintUtil::printValue(oss, "lastName");
-//  oss << ':';
-//  baljsn::PrintUtil::printValue(oss, john.d_lastName);
-//  oss << ',' << '\n';
-//  baljsn::PrintUtil::printValue(oss, "age");
-//  oss << ':';
-//  baljsn::PrintUtil::printValue(oss, john.d_age);
-//  oss << '\n' << '}';
-//..
+//  using `baljsn::PrintUtil`:
+// ```
+// bsl::ostringstream oss;
+// oss << '{' << '\n';
+// baljsn::PrintUtil::printValue(oss, "firstName");
+// oss << ':';
+// baljsn::PrintUtil::printValue(oss, john.d_firstName);
+// oss << ',' << '\n';
+// baljsn::PrintUtil::printValue(oss, "lastName");
+// oss << ':';
+// baljsn::PrintUtil::printValue(oss, john.d_lastName);
+// oss << ',' << '\n';
+// baljsn::PrintUtil::printValue(oss, "age");
+// oss << ':';
+// baljsn::PrintUtil::printValue(oss, john.d_age);
+// oss << '\n' << '}';
+// ```
 //  Finally, we print out the JSON string:
-//..
-//  if (verbose) {
-//      bsl::cout << oss.str();
-//  }
-//..
+// ```
+// if (verbose) {
+//     bsl::cout << oss.str();
+// }
+// ```
 //  The output should look like:
-//..
-//  {
-//  "firstName":"John",
-//  "lastName":"Doe",
-//  "age":20
-//  }
-//..
+// ```
+// {
+// "firstName":"John",
+// "lastName":"Doe",
+// "age":20
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -112,56 +112,62 @@ namespace baljsn {
                               // class PrintUtil
                               // ===============
 
+/// This `struct` provides functions for printing objects to output streams
+/// in JSON format.
 struct PrintUtil {
-    // This 'struct' provides functions for printing objects to output streams
-    // in JSON format.
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// If the specified `options` is 0, return 0, otherwise return either
+    /// `options->maxFloatPrecision()` if the template parameter `TYPE` is
+    /// `float`, and `options->maxDoublePrecision()` is `double`. The
+    /// supplied `TYPE` must be either `float` or `double`.
     template <class TYPE>
     static int maxStreamPrecision(const baljsn::EncoderOptions *options);
-        // If the specified 'options' is 0, return 0, otherwise return either
-        // 'options->maxFloatPrecision()' if the template parameter 'TYPE' is
-        // 'float', and 'options->maxDoublePrecision()' is 'double'. The
-        // supplied 'TYPE' must be either 'float' or 'double'.
 
   public:
     // TYPES
+
+    /// `DateOrDateTz` is a convenient alias for
+    /// `bdlb::Variant2<Date, DateTz>`.
     typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz>      DateOrDateTz;
-        // 'DateOrDateTz' is a convenient alias for
-        // 'bdlb::Variant2<Date, DateTz>'.
 
+    /// `TimeOrTimeTz` is a convenient alias for
+    /// `bdlb::Variant2<Time, TimeTz>`.
     typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz>      TimeOrTimeTz;
-        // 'TimeOrTimeTz' is a convenient alias for
-        // 'bdlb::Variant2<Time, TimeTz>'.
 
+    /// `DatetimeOrDatetimeTz` is a convenient alias for
+    /// `bdlb::Variant2<Datetime, DatetimeTz>`.
     typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
                                                           DatetimeOrDatetimeTz;
-        // 'DatetimeOrDatetimeTz' is a convenient alias for
-        // 'bdlb::Variant2<Datetime, DatetimeTz>'.
 
     // CLASS METHODS
+
+    /// Encode the specified `value` into JSON using ISO 8601 format and
+    /// output the result to the specified `stream` using the specified
+    /// `options`.
     template <class TYPE>
     static int printDateAndTime(bsl::ostream&         stream,
                                 const TYPE&           value,
                                 const EncoderOptions *options);
-        // Encode the specified 'value' into JSON using ISO 8601 format and
-        // output the result to the specified 'stream' using the specified
-        // 'options'.
 
+    /// Encode the specified floating point `value` into JSON and output the
+    /// result to the specified `stream`.  Use the optionally-specified
+    /// `options` to decide how `value` is encoded.
     template <class TYPE>
     static int printFloatingPoint(bsl::ostream&         stream,
                                   TYPE                  value,
                                   const EncoderOptions *options);
-        // Encode the specified floating point 'value' into JSON and output the
-        // result to the specified 'stream'.  Use the optionally-specified
-        // 'options' to decide how 'value' is encoded.
 
+    /// Encode the specified string `value` into JSON format and output the
+    /// result to the specified `stream`.
     static int printString(bsl::ostream&           stream,
                            const bsl::string_view& value);
-        // Encode the specified string 'value' into JSON format and output the
-        // result to the specified 'stream'.
 
+    /// Encode the specified `value` into JSON format and output the result
+    /// to the specified `stream` using the optionally specified `options`.
+    /// Return 0 on success and a non-zero value otherwise.
     static int printValue(bsl::ostream&         stream,
                           bool                  value,
                           const EncoderOptions *options = 0);
@@ -237,9 +243,6 @@ struct PrintUtil {
     static int printValue(bsl::ostream&                stream,
                           const DatetimeOrDatetimeTz&  value,
                           const EncoderOptions        *options = 0);
-        // Encode the specified 'value' into JSON format and output the result
-        // to the specified 'stream' using the optionally specified 'options'.
-        // Return 0 on success and a non-zero value otherwise.
 };
 
 // ============================================================================

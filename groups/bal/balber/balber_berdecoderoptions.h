@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balber::BerDecoderOptions: options for decoding objects in BDE format
 //
-//@DESCRIPTION: Schema of options records for 'balber' codecs
+//@DESCRIPTION: Schema of options records for `balber` codecs
 
 #include <balscm_version.h>
 
@@ -34,8 +34,8 @@ namespace balber {
                           // class BerDecoderOptions
                           // =======================
 
+/// BER decoding options
 class BerDecoderOptions {
-    // BER decoding options
 
   private:
     int   d_maxDepth;            // maximum recursion depth
@@ -56,8 +56,8 @@ class BerDecoderOptions {
     };
 
     enum {
+        /// index for "MaxDepth" attribute
         e_ATTRIBUTE_INDEX_MAX_DEPTH             = 0
-            // index for "MaxDepth" attribute
       , e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = 1
             // index for "SkipUnknownElements" attribute
       , e_ATTRIBUTE_INDEX_TRACE_LEVEL           = 2
@@ -82,8 +82,8 @@ class BerDecoderOptions {
     };
 
     enum {
+        /// id for `MaxDepth` attribute
         e_ATTRIBUTE_ID_MAX_DEPTH             = 0
-            // id for 'MaxDepth' attribute
       , e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 1
             // id for 'SkipUnknownElements' attribute
       , e_ATTRIBUTE_ID_TRACE_LEVEL           = 2
@@ -106,65 +106,68 @@ class BerDecoderOptions {
 
   public:
     // CONSTANTS
+
+    /// the name of this class (i.e., "BerDecoderOptions")
     static const char CLASS_NAME[];
-        // the name of this class (i.e., "BerDecoderOptions")
 
+    /// default value of `MaxDepth` attribute
     static const int DEFAULT_MAX_DEPTH;
-        // default value of 'MaxDepth' attribute
 
+    /// default value of `SkipUnknownElements` attribute
     static const bool DEFAULT_SKIP_UNKNOWN_ELEMENTS;
-        // default value of 'SkipUnknownElements' attribute
 
+    /// default value of `TraceLevel` attribute
     static const int DEFAULT_TRACE_LEVEL;
-        // default value of 'TraceLevel' attribute
 
+    /// default value of `MaxSequenceSize` attribute
     static const int DEFAULT_MAX_SEQUENCE_SIZE;
-        // default value of 'MaxSequenceSize' attribute
 
+    /// default value of `DefaultEmptyStrings` attribute
     static const bool DEFAULT_DEFAULT_EMPTY_STRINGS;
-        // default value of 'DefaultEmptyStrings' attribute
 
+    /// attribute information for each attribute
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
-        // attribute information for each attribute
 
   public:
     // CLASS METHODS
+
+    /// Return the maximum valid BDEX format version, as indicated by the
+    /// specified `versionSelector`, to be passed to the `bdexStreamOut`
+    /// method.  Note that it is highly recommended that `versionSelector`
+    /// be formatted as "YYYYMMDD", a date representation.  Also note that
+    /// `versionSelector` should be a *compile*-time-chosen value that
+    /// selects a format version supported by both externalizer and
+    /// unexternalizer.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     static int maxSupportedBdexVersion(int versionSelector);
-        // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
-        // method.  Note that it is highly recommended that 'versionSelector'
-        // be formatted as "YYYYMMDD", a date representation.  Also note that
-        // 'versionSelector' should be a *compile*-time-chosen value that
-        // selects a format version supported by both externalizer and
-        // unexternalizer.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
+    /// Return the most current BDEX streaming version number supported by
+    /// this class.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     static int maxSupportedBdexVersion();
-        // Return the most current BDEX streaming version number supported by
-        // this class.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
+
+    /// Create an object of type `BerDecoderOptions` having the default
+    /// value.
     BerDecoderOptions();
-        // Create an object of type 'BerDecoderOptions' having the default
-        // value.
 
     //! BerDecoderOptions(const BerDecoderOptions& original) = default;
         // Create a 'BderDecoderOptons' object having the same value as the
@@ -177,169 +180,171 @@ class BerDecoderOptions {
     //! BerDecoderOptions& operator=(const BerDecoderOptions& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object.
 
+    /// Assign to this object the value read from the specified input
+    /// `stream` using the specified `version` format, and return a
+    /// reference to `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `version` is not supported, this object
+    /// is unaltered and `stream` is invalidated, but otherwise unmodified.
+    /// If `version` is supported but `stream` becomes invalid during this
+    /// operation, this object has an undefined, but valid, state.  Note
+    /// that no version is read from `stream`.  See the `bslx` package-level
+    /// documentation for more information on BDEX streaming of
+    /// value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format, and return a
-        // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, this object
-        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
-        // If 'version' is supported but 'stream' becomes invalid during this
-        // operation, this object has an undefined, but valid, state.  Note
-        // that no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
 
+    /// Reset this object to the default value (i.e., its value upon default
+    /// construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon default
-        // construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the last
+    /// invocation of `manipulator` (i.e., the invocation that terminated
+    /// the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the last
-        // invocation of 'manipulator' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `id`, supplying
+    /// `manipulator` with the corresponding attribute information
+    /// structure.  Return the value returned from the invocation of
+    /// `manipulator` if `id` identifies an attribute of this class, and -1
+    /// otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'id', supplying
-        // 'manipulator' with the corresponding attribute information
-        // structure.  Return the value returned from the invocation of
-        // 'manipulator' if 'id' identifies an attribute of this class, and -1
-        // otherwise.
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Set the `MaxDepth` attribute of this object to the specified
+    /// `value`.
     void setMaxDepth(int value);
-        // Set the 'MaxDepth' attribute of this object to the specified
-        // 'value'.
 
+    /// Set the `SkipUnknownElements` attribute of this object to the
+    /// specified `value`.
     void setSkipUnknownElements(bool value);
-        // Set the 'SkipUnknownElements' attribute of this object to the
-        // specified 'value'.
 
+    /// Set the `TraceLevel` attribute of this object to the specified
+    /// `value`.
     void setTraceLevel(int value);
-        // Set the 'TraceLevel' attribute of this object to the specified
-        // 'value'.
 
+    /// Set the `MaxSequenceSize` attribute of this object to the specified
+    /// `value`.
     void setMaxSequenceSize(int value);
-        // Set the 'MaxSequenceSize' attribute of this object to the specified
-        // 'value'.
 
+    /// Set the `DefaultEmptyStrings` attribute of this object to the
+    /// specified `value`.
     void setDefaultEmptyStrings(bool value);
-        // Set the 'DefaultEmptyStrings' attribute of this object to the
-        // specified 'value'.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Write the value of this object, using the specified `version`
+    /// format, to the specified output `stream`, and return a reference to
+    /// `stream`.  If `stream` is initially invalid, this operation has no
+    /// effect.  If `version` is not supported, `stream` is invalidated, but
+    /// otherwise unmodified.  Note that `version` is not written to
+    /// `stream`.  See the `bslx` package-level documentation for more
+    /// information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object, using the specified 'version'
-        // format, to the specified output 'stream', and return a reference to
-        // 'stream'.  If 'stream' is initially invalid, this operation has no
-        // effect.  If 'version' is not supported, 'stream' is invalidated, but
-        // otherwise unmodified.  Note that 'version' is not written to
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor` with
+    /// the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the last
+    /// invocation of `accessor` (i.e., the invocation that terminated the
+    /// sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor' with
-        // the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the last
-        // invocation of 'accessor' (i.e., the invocation that terminated the
-        // sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute of
+    /// this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
-        // this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute of
+    /// this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
-        // this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference to the non-modifiable "MaxDepth" attribute of
+    /// this object.
     const int& maxDepth() const;
-        // Return a reference to the non-modifiable "MaxDepth" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "SkipUnknownElements"
+    /// attribute of this object.
     const bool& skipUnknownElements() const;
-        // Return a reference to the non-modifiable "SkipUnknownElements"
-        // attribute of this object.
 
+    /// Return a reference to the non-modifiable "TraceLevel" attribute of
+    /// this object.
     const int& traceLevel() const;
-        // Return a reference to the non-modifiable "TraceLevel" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "MaxSequenceSize" attribute
+    /// of this object.
     const int& maxSequenceSize() const;
-        // Return a reference to the non-modifiable "MaxSequenceSize" attribute
-        // of this object.
 
+    /// Return a reference to the non-modifiable "DefaultEmptyStrings"
+    /// attribute of this object.
     const bool& defaultEmptyStrings() const;
-        // Return a reference to the non-modifiable "DefaultEmptyStrings"
-        // attribute of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const BerDecoderOptions& lhs,
                 const BerDecoderOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const BerDecoderOptions& lhs,
                 const BerDecoderOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference providing modifiable access to `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream&            stream,
                          const BerDecoderOptions& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference providing modifiable access to 'stream'.
 
 }  // close package namespace
 

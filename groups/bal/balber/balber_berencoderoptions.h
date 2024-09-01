@@ -35,62 +35,69 @@ namespace balber {
                           // class BerEncoderOptions
                           // =======================
 
+/// BER encoding options
 class BerEncoderOptions {
-    // BER encoding options
 
     // INSTANCE DATA
+
+    // trace (verbosity) level
     int   d_traceLevel;
-        // trace (verbosity) level
+
+    // The largest BDE version that can be assumed of the corresponding
+    // decoder for the encoded message, expressed as 10000*majorVersion +
+    // 100*minorVersion + patchVersion (e.g.  1.5.0 is expressed as 10500).
+    //
+    // Ideally, the BER encoder should be permitted to generate any BER
+    // that conforms to X.690 (Basic Encoding Rules) and X.694 (mapping of
+    // XSD to ASN.1).  In practice, however, certain unimplemented features
+    // and missunderstandings of these standards have resulted in a decoder
+    // that cannot accept the full range of legal inputs.  Even when the
+    // encoder and decoder are both upgraded to a richer subset of BER, the
+    // program receiving the encoded values may not have been recompiled
+    // with the latest version and, thus restricting the encoder to emit
+    // BER that can be understood by the decoder at the other end of the
+    // wire.  If it is that the receiver has a more modern decoder, set
+    // this variable to a larger value to allow the encoder to produce BER
+    // that is richer and more standards conformant.  The default should be
+    // increased only when old copies of the decoder are completely out of
+    // circulation.
     int   d_bdeVersionConformance;
-        // The largest BDE version that can be assumed of the corresponding
-        // decoder for the encoded message, expressed as 10000*majorVersion +
-        // 100*minorVersion + patchVersion (e.g.  1.5.0 is expressed as 10500).
-        //
-        // Ideally, the BER encoder should be permitted to generate any BER
-        // that conforms to X.690 (Basic Encoding Rules) and X.694 (mapping of
-        // XSD to ASN.1).  In practice, however, certain unimplemented features
-        // and missunderstandings of these standards have resulted in a decoder
-        // that cannot accept the full range of legal inputs.  Even when the
-        // encoder and decoder are both upgraded to a richer subset of BER, the
-        // program receiving the encoded values may not have been recompiled
-        // with the latest version and, thus restricting the encoder to emit
-        // BER that can be understood by the decoder at the other end of the
-        // wire.  If it is that the receiver has a more modern decoder, set
-        // this variable to a larger value to allow the encoder to produce BER
-        // that is richer and more standards conformant.  The default should be
-        // increased only when old copies of the decoder are completely out of
-        // circulation.
+
+    // This option controls the number of decimal places used for seconds
+    // when encoding `Datetime` and `DatetimeTz`.
     int   d_datetimeFractionalSecondPrecision;
-        // This option controls the number of decimal places used for seconds
-        // when encoding 'Datetime' and 'DatetimeTz'.
+
+    // This option allows users to control if empty arrays are encoded.  By
+    // default empty arrays are encoded as not encoding empty arrays is
+    // non-compliant with the BER encoding specification.
     bool  d_encodeEmptyArrays;
-        // This option allows users to control if empty arrays are encoded.  By
-        // default empty arrays are encoded as not encoding empty arrays is
-        // non-compliant with the BER encoding specification.
+
+    // This option allows users to control if date and time types are
+    // encoded as binary integers.  By default these types are encoded as
+    // strings in the ISO 8601 format.
     bool  d_encodeDateAndTimeTypesAsBinary;
-        // This option allows users to control if date and time types are
-        // encoded as binary integers.  By default these types are encoded as
-        // strings in the ISO 8601 format.
+
+    // This encode option allows users to control if it is an error to try
+    // and encoded any element with an unselected choice.  By default the
+    // encoder allows unselected choices by eliding them from the encoding.
     bool  d_disableUnselectedChoiceEncoding;
-        // This encode option allows users to control if it is an error to try
-        // and encoded any element with an unselected choice.  By default the
-        // encoder allows unselected choices by eliding them from the encoding.
+
+    // This *backward*-*compatibility* option controls whether or not
+    // negative zero floating-point values are encoded as the BER
+    // representation of negative zero or positive zero.  If this option is
+    // `true`, negative zero floating-point values are encoded as the  BER
+    // representation of negative zero, such that they will decode back to
+    // negative zero.  If this option is `false`, negative zero
+    // floating-point values are encoded as the BER representation of
+    // positive zero, such they they will decode to positive zero.  For
+    // backward-compatibility purposes, the default value of this option is
+    // `false`.  Setting this option to `true` requires the receiving
+    // decoder to come from BDE release `3.90.x` or later, or otherwise
+    // comply to the ISO/IEC 8825-1:2015 standard.  Clients are encouraged
+    // to update their recipients to the latest version of BDE and set this
+    // option to `true`.  Note that the `false` value of this  option will
+    // eventually be deprecated, and the default value changed to `true`.
     bool  d_preserveSignOfNegativeZero;
-        // This *backward*-*compatibility* option controls whether or not
-        // negative zero floating-point values are encoded as the BER
-        // representation of negative zero or positive zero.  If this option is
-        // 'true', negative zero floating-point values are encoded as the  BER
-        // representation of negative zero, such that they will decode back to
-        // negative zero.  If this option is 'false', negative zero
-        // floating-point values are encoded as the BER representation of
-        // positive zero, such they they will decode to positive zero.  For
-        // backward-compatibility purposes, the default value of this option is
-        // 'false'.  Setting this option to 'true' requires the receiving
-        // decoder to come from BDE release '3.90.x' or later, or otherwise
-        // comply to the ISO/IEC 8825-1:2015 standard.  Clients are encouraged
-        // to update their recipients to the latest version of BDE and set this
-        // option to 'true'.  Note that the 'false' value of this  option will
-        // eventually be deprecated, and the default value changed to 'true'.
 
   public:
     // TYPES
@@ -139,227 +146,232 @@ class BerEncoderOptions {
 
   public:
     // CLASS METHODS
+
+    /// Return the most current `bdex` streaming version number supported by
+    /// this class.  See the `bslx` package-level documentation for more
+    /// information on `bdex` streaming of value-semantic types and
+    /// containers.
     static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bslx' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    BerEncoderOptions();
-        // Create an object of type 'BerEncoderOptions' having the default
-        // value.
 
+    /// Create an object of type `BerEncoderOptions` having the default
+    /// value.
+    BerEncoderOptions();
+
+    /// Create an object of type `BerEncoderOptions` having the value of the
+    /// specified `original` object.
     BerEncoderOptions(const BerEncoderOptions& original);
-        // Create an object of type 'BerEncoderOptions' having the value of the
-        // specified 'original' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `BerEncoderOptions` having the value of the
+    /// specified `original` object.  After performing this action, the
+    /// `original` object will be left in a valid, but unspecified state.
     BerEncoderOptions(BerEncoderOptions&& original) = default;
-        // Create an object of type 'BerEncoderOptions' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
 #endif
 
+    /// Destroy this object.
     ~BerEncoderOptions();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     BerEncoderOptions& operator=(const BerEncoderOptions& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     BerEncoderOptions& operator=(BerEncoderOptions&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Assign to this object the value read from the specified input
+    /// `stream` using the specified `version` format and return a reference
+    /// to the modifiable `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `stream` becomes invalid during this
+    /// operation, this object is valid, but its value is undefined.  If
+    /// `version` is not supported, `stream` is marked invalid and this
+    /// object is unaltered.  Note that no version is read from `stream`.
+    /// See the `bslx` package-level documentation for more information on
+    /// `bdex` streaming of value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bslx' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Set the "TraceLevel" attribute of this object to the specified
+    /// `value`.
     void setTraceLevel(int value);
-        // Set the "TraceLevel" attribute of this object to the specified
-        // 'value'.
 
+    /// Return a reference to the modifiable "BdeVersionConformance"
+    /// attribute of this object.
     int& bdeVersionConformance();
-        // Return a reference to the modifiable "BdeVersionConformance"
-        // attribute of this object.
 
+    /// Set the "EncodeEmptyArrays" attribute of this object to the
+    /// specified `value`.
     void setEncodeEmptyArrays(bool value);
-        // Set the "EncodeEmptyArrays" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "EncodeDateAndTimeTypesAsBinary" attribute of this object to
+    /// the specified `value`.
     void setEncodeDateAndTimeTypesAsBinary(bool value);
-        // Set the "EncodeDateAndTimeTypesAsBinary" attribute of this object to
-        // the specified 'value'.
 
+    /// Set the "DatetimeFractionalSecondPrecision" attribute of this object
+    /// to the specified `value`.
     void setDatetimeFractionalSecondPrecision(int value);
-        // Set the "DatetimeFractionalSecondPrecision" attribute of this object
-        // to the specified 'value'.
 
+    /// Set the "DisableUnselectedChoiceEncoding" attribute of this object
+    /// to the specified `value`.
     void setDisableUnselectedChoiceEncoding(bool value);
-        // Set the "DisableUnselectedChoiceEncoding" attribute of this object
-        // to the specified 'value'.
 
+    /// Set the "PreserveSignOfNegativeZero" attribute of this object to the
+    /// specified `value`.
     void setPreserveSignOfNegativeZero(bool value);
-        // Set the "PreserveSignOfNegativeZero" attribute of this object to the
-        // specified 'value'.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Write the value of this object to the specified output `stream`
+    /// using the specified `version` format and return a reference to the
+    /// modifiable `stream`.  If `version` is not supported, `stream` is
+    /// unmodified.  Note that `version` is not written to `stream`.
+    /// See the `bslx` package-level documentation for more information
+    /// on `bdex` streaming of value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bslx' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return the value of the "TraceLevel" attribute of this object.
     int traceLevel() const;
-        // Return the value of the "TraceLevel" attribute of this object.
 
+    /// Return the value of the "BdeVersionConformance" attribute of this
+    /// object.
     int bdeVersionConformance() const;
-        // Return the value of the "BdeVersionConformance" attribute of this
-        // object.
 
+    /// Return the value of the "EncodeEmptyArrays" attribute of this
+    /// object.
     bool encodeEmptyArrays() const;
-        // Return the value of the "EncodeEmptyArrays" attribute of this
-        // object.
 
+    /// Return the value of the "EncodeDateAndTimeTypesAsBinary" attribute
+    /// of this object.
     bool encodeDateAndTimeTypesAsBinary() const;
-        // Return the value of the "EncodeDateAndTimeTypesAsBinary" attribute
-        // of this object.
 
+    /// Return the value of the "DatetimeFractionalSecondPrecision"
+    /// attribute of this object.
     int datetimeFractionalSecondPrecision() const;
-        // Return the value of the "DatetimeFractionalSecondPrecision"
-        // attribute of this object.
 
+    /// Return the value of the "DisableUnselectedChoiceEncoding" attribute
+    /// of this object.
     bool disableUnselectedChoiceEncoding() const;
-        // Return the value of the "DisableUnselectedChoiceEncoding" attribute
-        // of this object.
 
+    /// Return the value of the "PreserveSignOfNegativeZero" attribute of
+    /// this object.
     bool preserveSignOfNegativeZero() const;
-        // Return the value of the "PreserveSignOfNegativeZero" attribute of
-        // this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const BerEncoderOptions& lhs, const BerEncoderOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const BerEncoderOptions& lhs, const BerEncoderOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const BerEncoderOptions& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 

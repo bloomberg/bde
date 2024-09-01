@@ -12,16 +12,16 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balber_berencoder, bdem_bdemdecoder, balxml_decoder
 //
-//@DESCRIPTION: This component defines a single class, 'balber::BerDecoder',
-// that contains a parameterized 'decode' function.  The 'decode' function
+//@DESCRIPTION: This component defines a single class, `balber::BerDecoder`,
+// that contains a parameterized `decode` function.  The `decode` function
 // decodes data read from a specified stream and loads the corresponding object
-// to an object of the parameterized type.  The 'decode' method is overloaded
+// to an object of the parameterized type.  The `decode` method is overloaded
 // for two types of input streams:
-//: o 'bsl::streambuf'
-//: o 'bsl::istream'
+// * `bsl::streambuf`
+// * `bsl::istream`
 //
 // This class decodes objects based on the X.690 BER specification and is
-// restricted to types supported by the 'bdlat' framework.
+// restricted to types supported by the `bdlat` framework.
 //
 ///Usage
 ///-----
@@ -30,54 +30,54 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Decoding an Employee Record
 /// - - - - - - - - - - - - - - - - - - -
 // Suppose that an "employee record" consists of a sequence of attributes --
-// 'name', 'age', and 'salary' -- that are of types 'bsl::string', 'int', and
-// 'float', respectively.  Furthermore, we have a need to BER encode employee
+// `name`, `age`, and `salary` -- that are of types `bsl::string`, `int`, and
+// `float`, respectively.  Furthermore, we have a need to BER encode employee
 // records as a sequence of values (for out-of-process consumption).
 //
-// Assume that we have defined a 'usage::EmployeeRecord' class to represent
-// employee record values, and assume that we have provided the 'bdlat'
-// specializations that allow the 'balber' codec components to represent class
+// Assume that we have defined a `usage::EmployeeRecord` class to represent
+// employee record values, and assume that we have provided the `bdlat`
+// specializations that allow the `balber` codec components to represent class
 // values as a sequence of BER primitive values.  See
-// {'bdlat_sequencefunctions'|Usage} for details of creating specializations
+// {`bdlat_sequencefunctions`|Usage} for details of creating specializations
 // for a sequence type.
 //
 // First, we create an employee record object having typical values:
-//..
-//  usage::EmployeeRecord bob("Bob", 56, 1234.00);
-//  assert("Bob"   == bob.name());
-//  assert(  56    == bob.age());
-//  assert(1234.00 == bob.salary());
-//..
-// Next, we create a 'balber::Encoder' object and use it to encode our 'bob'
+// ```
+// usage::EmployeeRecord bob("Bob", 56, 1234.00);
+// assert("Bob"   == bob.name());
+// assert(  56    == bob.age());
+// assert(1234.00 == bob.salary());
+// ```
+// Next, we create a `balber::Encoder` object and use it to encode our `bob`
 // object.  Here, to facilitate the examination of our results, the BER
-// encoding data is delivered to a 'bslsb::MemOutStreamBuf' object:
-//..
-//  bdlsb::MemOutStreamBuf osb;
-//  balber::BerEncoder     encoder;
-//  int                    rc = encoder.encode(&osb, bob);
-//  assert( 0 == rc);
-//  assert(18 == osb.length());
-//..
-// Now, we create a 'bdlsb::FixedMemInStreamBuf' object to manage our access
-// to the data portion of the 'bdlsb::MemOutStreamBuf' (where our BER encoding
+// encoding data is delivered to a `bslsb::MemOutStreamBuf` object:
+// ```
+// bdlsb::MemOutStreamBuf osb;
+// balber::BerEncoder     encoder;
+// int                    rc = encoder.encode(&osb, bob);
+// assert( 0 == rc);
+// assert(18 == osb.length());
+// ```
+// Now, we create a `bdlsb::FixedMemInStreamBuf` object to manage our access
+// to the data portion of the `bdlsb::MemOutStreamBuf` (where our BER encoding
 // resides), decode the values found there, and use them to set the value
-// of an 'usage::EmployeeRecord' object.
-//..
-//  balber::BerDecoderOptions  options;
-//  balber::BerDecoder         decoder(&options);
-//  bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-//  usage::EmployeeRecord      obj;
+// of an `usage::EmployeeRecord` object.
+// ```
+// balber::BerDecoderOptions  options;
+// balber::BerDecoder         decoder(&options);
+// bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+// usage::EmployeeRecord      obj;
 //
-//  rc = decoder.decode(&isb, &obj);
-//  assert(0 == rc);
-//..
+// rc = decoder.decode(&isb, &obj);
+// assert(0 == rc);
+// ```
 // Finally, we confirm that the object defined by the BER encoding has the
 // same value as the original object.
-//..
-//  assert(bob.name()   == obj.name());
-//  assert(bob.age()    == obj.age());
-//  assert(bob.salary() == obj.salary());
-//..
+// ```
+// assert(bob.name()   == obj.name());
+// assert(bob.age()    == obj.age());
+// assert(bob.salary() == obj.salary());
+// ```
 
 #include <balscm_version.h>
 
@@ -125,16 +125,17 @@ class BerDecoder_UniversalElementVisitor;
                               // class BerDecoder
                               // ================
 
+/// This class contains the parameterized `decode` functions that decode
+/// data (in BER format) from an incoming stream into `bdlat` types.
 class BerDecoder {
-    // This class contains the parameterized 'decode' functions that decode
-    // data (in BER format) from an incoming stream into 'bdlat' types.
 
   private:
     // PRIVATE TYPES
+
+    /// This class provides stream for logging using
+    /// `bdlsb::MemOutStreamBuf` as a streambuf.  The logging stream is
+    /// created on demand, i.e., during the first attempt to log message.
     class MemOutStream : public bsl::ostream {
-        // This class provides stream for logging using
-        // 'bdlsb::MemOutStreamBuf' as a streambuf.  The logging stream is
-        // created on demand, i.e., during the first attempt to log message.
 
         bdlsb::MemOutStreamBuf d_sb;
 
@@ -144,31 +145,34 @@ class BerDecoder {
 
       public:
         // CREATORS
-        MemOutStream(bslma::Allocator *basicAllocator = 0);
-            // Create a stream object.  Optionally specify a 'basicAllocator'
-            // used to supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.
 
+        /// Create a stream object.  Optionally specify a `basicAllocator`
+        /// used to supply memory.  If `basicAllocator` is 0, the currently
+        /// installed default allocator is used.
+        MemOutStream(bslma::Allocator *basicAllocator = 0);
+
+        /// Destroy this stream and release memory back to the allocator.
+        ///
+        /// Although the compiler should generate this destructor
+        /// implicitly, xlC 8 breaks when the destructor is called by name
+        /// unless it is explicitly declared.
         ~MemOutStream() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this stream and release memory back to the allocator.
-            //
-            // Although the compiler should generate this destructor
-            // implicitly, xlC 8 breaks when the destructor is called by name
-            // unless it is explicitly declared.
 
         // MANIPULATORS
+
+        /// Reset the internal streambuf to the empty state.
         void reset();
-            // Reset the internal streambuf to the empty state.
 
         // ACCESSORS
-        const char *data() const;
-            // Return a pointer to the memory containing the formatted values
-            // formatted to this stream.  The data is not null-terminated
-            // unless a null character was appended onto this stream.
 
+        /// Return a pointer to the memory containing the formatted values
+        /// formatted to this stream.  The data is not null-terminated
+        /// unless a null character was appended onto this stream.
+        const char *data() const;
+
+        /// Return the length of the formatted data, including null
+        /// characters appended to the stream, if any.
         int length() const;
-            // Return the length of the formatted data, including null
-            // characters appended to the stream, if any.
     };
 
   public:
@@ -216,75 +220,79 @@ class BerDecoder {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Log the specified `msg`, upgrade the severity level, and return
+    /// `e_BER_ERROR`.
     ErrorSeverity logError(const char *msg);
-        // Log the specified 'msg', upgrade the severity level, and return
-        // 'e_BER_ERROR'.
 
+    /// Log the specified `msg` and upgrade the severity level.
     void logErrorImp(const char *msg);
-        // Log the specified 'msg' and upgrade the severity level.
 
+    /// Log the specified `prefix` and `msg` and return `errorSeverity()`.
     ErrorSeverity logMsg(const char *prefix, const char *msg);
-        // Log the specified 'prefix' and 'msg' and return 'errorSeverity()'.
 
+    /// Return the stream used for logging.  If stream has not been created
+    /// yet, it will be created during this call.
     bsl::ostream& logStream();
-        // Return the stream used for logging.  If stream has not been created
-        // yet, it will be created during this call.
 
   public:
     // CREATORS
+
+    /// Construct a decoder object.  Optionally specify decoder `options`.
+    /// If `options` is 0, `BerDecoderOptions()` is used.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     BerDecoder(const BerDecoderOptions *options = 0,
                bslma::Allocator        *basicAllocator = 0);
-        // Construct a decoder object.  Optionally specify decoder 'options'.
-        // If 'options' is 0, 'BerDecoderOptions()' is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Destroy this object.  This destruction has no effect on objects
+    /// pointed-to by the pointers provided at construction.
     ~BerDecoder();
-        // Destroy this object.  This destruction has no effect on objects
-        // pointed-to by the pointers provided at construction.
 
     // MANIPULATORS
+
+    /// Decode an object of parameterized `TYPE` from the specified
+    /// `streamBuf` and load the result into the specified `variable`.
+    /// Return 0 on success, and a non-zero value otherwise.
     template <typename TYPE>
     int decode(bsl::streambuf *streamBuf, TYPE *variable);
-        // Decode an object of parameterized 'TYPE' from the specified
-        // 'streamBuf' and load the result into the specified 'variable'.
-        // Return 0 on success, and a non-zero value otherwise.
 
+    /// Decode an object of parameterized `TYPE` from the specified `stream`
+    /// and load the result into the specified modifiable `variable`.
+    /// Return 0 on success, and a non-zero value otherwise.  If the
+    /// decoding fails `stream` will be invalidated.
     template <typename TYPE>
     int decode(bsl::istream& stream, TYPE *variable);
-        // Decode an object of parameterized 'TYPE' from the specified 'stream'
-        // and load the result into the specified modifiable 'variable'.
-        // Return 0 on success, and a non-zero value otherwise.  If the
-        // decoding fails 'stream' will be invalidated.
 
+    /// Set the number of unknown elements skipped by the decoder during the
+    /// current decoding operation to the specified `value`.  The behavior
+    /// is undefined unless `0 <= value`.
     void setNumUnknownElementsSkipped(int value);
-        // Set the number of unknown elements skipped by the decoder during the
-        // current decoding operation to the specified 'value'.  The behavior
-        // is undefined unless '0 <= value'.
 
     // ACCESSORS
+
+    /// Return the address of the BER decoder options.
     const BerDecoderOptions *decoderOptions() const;
-        // Return the address of the BER decoder options.
 
     bool maxDepthExceeded() const;
        // Return 'true' if the maximum depth level is exceeded and 'false'
        // otherwise.
 
+    /// Return the number of unknown elements that were skipped during the
+    /// previous decoding operation.  Note that unknown elements are skipped
+    /// only if `true == options()->skipUnknownElements()`.
     int numUnknownElementsSkipped() const;
-        // Return the number of unknown elements that were skipped during the
-        // previous decoding operation.  Note that unknown elements are skipped
-        // only if 'true == options()->skipUnknownElements()'.
 
+    /// Return the severity of the most severe log or error message
+    /// encountered during the last call to the `decode` method.  The
+    /// severity is reset each time `decode` is called.
     ErrorSeverity  errorSeverity() const;
-        // Return the severity of the most severe log or error message
-        // encountered during the last call to the 'decode' method.  The
-        // severity is reset each time 'decode' is called.
 
+    /// Return a string containing any error or trace messages that were
+    /// logged during the last call to the `decode` method.  The log is
+    /// reset each time `decode` is called.
     bslstl::StringRef loggedMessages() const;
-        // Return a string containing any error or trace messages that were
-        // logged during the last call to the 'decode' method.  The log is
-        // reset each time 'decode' is called.
 };
 
 
@@ -292,13 +300,13 @@ class BerDecoder {
                        // private class BerDecoder_Node
                        // =============================
 
+/// This class provides current context for BER decoding process and
+/// represents a node for BER element.  The BER element consists of element
+/// tag, length field, body field and optional end of tag.  The class also
+/// provides various methods to read the different parts of BER element such
+/// as tag header (tag itself and length fields), body for any type of data,
+/// and optional tag trailer.
 class BerDecoder_Node {
-    // This class provides current context for BER decoding process and
-    // represents a node for BER element.  The BER element consists of element
-    // tag, length field, body field and optional end of tag.  The class also
-    // provides various methods to read the different parts of BER element such
-    // as tag header (tag itself and length fields), body for any type of data,
-    // and optional tag trailer.
 
     // DATA
     BerDecoder             *d_decoder;              // decoder,
@@ -321,6 +329,12 @@ class BerDecoder_Node {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Family of methods to decode current element into the specified
+    /// `variable` of category `bdlat_TypeCategory`.  Return zero on
+    /// success, and a non-zero value otherwise. the tag header is already
+    /// read at the moment of call and input stream is positioned at the
+    /// first byte of the body field.
     int decode(bsl::vector<char> *variable, bdlat_TypeCategory::Array);
     int decode(bsl::vector<unsigned char> *variable,
                bdlat_TypeCategory::Array);
@@ -340,21 +354,16 @@ class BerDecoder_Node {
     int decode(TYPE *variable, bdlat_TypeCategory::Simple);
     template <typename TYPE>
     int decode(TYPE *variable, bdlat_TypeCategory::DynamicType);
-        // Family of methods to decode current element into the specified
-        // 'variable' of category 'bdlat_TypeCategory'.  Return zero on
-        // success, and a non-zero value otherwise. the tag header is already
-        // read at the moment of call and input stream is positioned at the
-        // first byte of the body field.
 
+    /// Decode the current element, an array, into specified `variable`.
+    /// Return zero on success, and a non-zero value otherwise.
     template <typename TYPE>
     int decodeArray(TYPE *variable);
-        // Decode the current element, an array, into specified 'variable'.
-        // Return zero on success, and a non-zero value otherwise.
 
+    /// Decode the current element, which is a choice object, into specified
+    /// `variable`.  Return zero on success, and a non-zero value otherwise.
     template <typename TYPE>
     int decodeChoice(TYPE *variable);
-        // Decode the current element, which is a choice object, into specified
-        // 'variable'.  Return zero on success, and a non-zero value otherwise.
 
   public:
     // CREATORS
@@ -375,92 +384,93 @@ class BerDecoder_Node {
     template <typename TYPE>
     int operator()(TYPE *object);
 
+    /// Print the content of node to the specified stream `out`.  `depth` is
+    /// the value `d_decoder->currentDepth` assumed after node was created.
     void print(bsl::ostream&  out,
                int            depth,
                int            spacePerLevel = 0,
                const char    *prefixText = 0) const;
-        // Print the content of node to the specified stream 'out'.  'depth' is
-        // the value 'd_decoder->currentDepth' assumed after node was created.
 
+    /// Print the chain of nodes to the specified `out` stream, starting
+    /// from this node and iterating to the parent node, then its parent,
+    /// etc.
     void printStack(bsl::ostream& out) const;
-        // Print the chain of nodes to the specified 'out' stream, starting
-        // from this node and iterating to the parent node, then its parent,
-        // etc.
 
+    /// Set formatting mode specified by `formattingMode`.
     void setFormattingMode(int formattingMode);
-        // Set formatting mode specified by 'formattingMode'.
 
+    /// Set object field name associated with this node to the specified
+    /// `name`.
     void setFieldName(const char *name);
-        // Set object field name associated with this node to the specified
-        // 'name'.
 
+    /// Set the node severity to `e_BER_ERROR`, print the error message
+    /// specified by `msg` to the decoder's log, print the stack of nodes to
+    /// the decoder's log, and return a non-zero value.
     int logError(const char *msg);
-        // Set the node severity to 'e_BER_ERROR', print the error message
-        // specified by 'msg' to the decoder's log, print the stack of nodes to
-        // the decoder's log, and return a non-zero value.
 
+    /// Read the node tag field containing tag class, tag type and tag
+    /// number, and the node length field.  Return zero on success, and a
+    /// non-zero value otherwise.
     int readTagHeader();
-        // Read the node tag field containing tag class, tag type and tag
-        // number, and the node length field.  Return zero on success, and a
-        // non-zero value otherwise.
 
+    /// Read the node end-of-octets field, if such exists, so the stream
+    /// will be positioned at the start of next node.  Return zero on
+    /// success and a non-zero value otherwise.
     int readTagTrailer();
-        // Read the node end-of-octets field, if such exists, so the stream
-        // will be positioned at the start of next node.  Return zero on
-        // success and a non-zero value otherwise.
 
+    /// Return `true` if current node has more embedded elements and return
+    /// `false` otherwise.
     bool hasMore();
-        // Return 'true' if current node has more embedded elements and return
-        // 'false' otherwise.
 
+    /// Skip the field body.  The identifier octet and length have already
+    /// been extracted.  Return zero on success, and a non-zero value
+    /// otherwise.  Note that method must be called when input stream is
+    /// positioned at the first byte of the body field.
     int skipField();
-        // Skip the field body.  The identifier octet and length have already
-        // been extracted.  Return zero on success, and a non-zero value
-        // otherwise.  Note that method must be called when input stream is
-        // positioned at the first byte of the body field.
 
+    /// Load the node body content into the specified `variable`.  Return 0
+    /// on success, and a non-zero value otherwise.
     int readVectorChar(bsl::vector<char> *variable);
-        // Load the node body content into the specified 'variable'.  Return 0
-        // on success, and a non-zero value otherwise.
 
+    /// Load the node body content into the specified `variable`.  Return 0
+    /// on success, and a non-zero value otherwise.
     int readVectorUnsignedChar(bsl::vector<unsigned char> *variable);
-        // Load the node body content into the specified 'variable'.  Return 0
-        // on success, and a non-zero value otherwise.
 
     // ACCESSORS
+
+    /// Return the address of the parent node.
     BerDecoder_Node *parent() const;
-        // Return the address of the parent node.
 
+    /// Return the BER tag class for this node.
     BerConstants::TagClass tagClass() const;
-        // Return the BER tag class for this node.
 
+    /// Return the BER tag type for this node.
     BerConstants::TagType tagType() const;
-        // Return the BER tag type for this node.
 
+    /// Return the BER tag number for this node.
     int tagNumber() const;
-        // Return the BER tag number for this node.
 
+    /// Return formatting mode for this node.
     int formattingMode() const;
-        // Return formatting mode for this node.
 
+    /// Return field name for this node.
     const char *fieldName() const;
-        // Return field name for this node.
 
     int length() const;
        // Return expected length of the body or -1 when the length is
        // indefinite.
 
+    /// Return the position of node tag from the beginning of input stream.
     int startPos() const;
-        // Return the position of node tag from the beginning of input stream.
 };
 
                     // ====================================
                     // private class BerDecoder_NodeVisitor
                     // ====================================
 
+/// This class is used as a visitor for visiting contained objects during
+/// decoding.
 class BerDecoder_NodeVisitor {
-    // This class is used as a visitor for visiting contained objects during
-    // decoding.
 
     // DATA
     BerDecoder_Node *d_node;  // current node, held, not owned
@@ -485,11 +495,11 @@ class BerDecoder_NodeVisitor {
               // private class BerDecoder_UniversalElementVisitor
               // ================================================
 
+/// This `class` is used as a visitor for visiting the top-level element and
+/// also array elements during decoding.  This class is required so that the
+/// universal tag number of the element can be determined when the element
+/// is visited.
 class BerDecoder_UniversalElementVisitor {
-    // This 'class' is used as a visitor for visiting the top-level element and
-    // also array elements during decoding.  This class is required so that the
-    // universal tag number of the element can be determined when the element
-    // is visited.
 
     // DATA
     BerDecoder_Node d_node;  // a new node
@@ -517,9 +527,9 @@ class BerDecoder_UniversalElementVisitor {
                           // class BerDecoder_Zeroer
                           // =======================
 
+/// This class is a deleter that just zeroes out a given pointer upon
+/// destruction, for making code exception-safe.
 class BerDecoder_Zeroer {
-    // This class is a deleter that just zeroes out a given pointer upon
-    // destruction, for making code exception-safe.
 
     // DATA
     const BerDecoderOptions **d_options_p;  // address of pointer to zero

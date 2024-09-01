@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //  balst::StackTraceConfigurationUtil: global configuration of stack trace
 //
 //@DESCRIPTION: This component provides global configuration for stack traces
-// provided by the 'balst' package.
+// provided by the `balst` package.
 //
 // Resolution of symbols, line numbers, and source file names is generally very
 // expensive and involves a lot of disk access.  On Windows, such resolution
@@ -19,21 +19,21 @@ BSLS_IDENT("$Id: $")
 //
 // Note that line number and source file name information is not available on
 // all platforms.  If resolution is enabled, the stack trace will give as much
-// information as 'balst' has implemented for the platform.  All platforms
+// information as `balst` has implemented for the platform.  All platforms
 // support symbol names.
 //
 ///Configuration Options
 ///------------------------
 // Currently this component provides one configuration option:
 //
-//: o [disable|enable]Resolution: Configures whether operations in 'balst'
-//:   resolve symbols, line numbers, and source file names.  By default,
-//:   resolution is enabled.  Resolution of symbols, line numbers, and source
-//:   file names is generally expensive and involves disk access.  On Windows
-//:   platforms there are also thread-safety concerns with 'dbghlp.dll'.  This
-//:   option allows an application owner to globally prevent any resolution of
-//:   symbols, line numbers, or source file names (by 'balst) in an
-//:   application.
+// * [disable|enable]Resolution: Configures whether operations in `balst`
+//   resolve symbols, line numbers, and source file names.  By default,
+//   resolution is enabled.  Resolution of symbols, line numbers, and source
+//   file names is generally expensive and involves disk access.  On Windows
+//   platforms there are also thread-safety concerns with `dbghlp.dll`.  This
+//   option allows an application owner to globally prevent any resolution of
+//   symbols, line numbers, or source file names (by 'balst) in an
+//   application.
 //
 ///Usage
 ///-----
@@ -41,24 +41,24 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Evaluating Boolean Value
 ///- - - - - - - - - - - - - - - - - -
-// If neither 'enableResolution' nor 'disableResolution' have been called, the
-// default value of 'isResolutionDisabled' is 'false'.
-//..
-//  assert(false ==
-//                 balst::StackTraceConfigurationUtil::isResolutionDisabled());
-//..
-// After that, the value tracks whether 'disableResolution' or
-// 'enableResolution' has been called.
-//..
-//  balst::StackTraceConfigurationUtil::disableResolution();
+// If neither `enableResolution` nor `disableResolution` have been called, the
+// default value of `isResolutionDisabled` is `false`.
+// ```
+// assert(false ==
+//                balst::StackTraceConfigurationUtil::isResolutionDisabled());
+// ```
+// After that, the value tracks whether `disableResolution` or
+// `enableResolution` has been called.
+// ```
+// balst::StackTraceConfigurationUtil::disableResolution();
 //
-//  assert(true == balst::StackTraceConfigurationUtil::isResolutionDisabled());
+// assert(true == balst::StackTraceConfigurationUtil::isResolutionDisabled());
 //
-//  balst::StackTraceConfigurationUtil::enableResolution();
+// balst::StackTraceConfigurationUtil::enableResolution();
 //
-//  assert(false ==
-//                 balst::StackTraceConfigurationUtil::isResolutionDisabled());
-//..
+// assert(false ==
+//                balst::StackTraceConfigurationUtil::isResolutionDisabled());
+// ```
 
 #include <balscm_version.h>
 
@@ -69,35 +69,36 @@ namespace balst {
                     // class StackTraceConfigurationUtil
                     // =================================
 
+/// This `struct` provides a namespace for functions that configure the
+/// behavior of stack traces performed by `balst`.
 struct StackTraceConfigurationUtil {
-    // This 'struct' provides a namespace for functions that configure the
-    // behavior of stack traces performed by 'balst'.
 
     // CLASS METHODS
+
+    /// Disable symbol, source file name, and line number resolution in
+    /// stack traces performed by `balst`.  Note that such resolution is
+    /// expensive, involving disk access, and on Windows platforms has
+    /// thread-safety concerns if the application is using `dbghelp.dll`.
+    /// Disabling resolution allows an application owner to globally prevent
+    /// any resolution of symbols (by `balst`) in the process.
     static
     void disableResolution();
-        // Disable symbol, source file name, and line number resolution in
-        // stack traces performed by 'balst'.  Note that such resolution is
-        // expensive, involving disk access, and on Windows platforms has
-        // thread-safety concerns if the application is using 'dbghelp.dll'.
-        // Disabling resolution allows an application owner to globally prevent
-        // any resolution of symbols (by 'balst') in the process.
 
+    /// Enable symbol resolution and source file name & line number
+    /// resolution on platforms that support them in stack traces performed
+    /// by `balst`.  Note that such resolution is expensive, involving disk
+    /// access, and on Windows platforms has thread-safety concerns if the
+    /// application is using `dbghelp.dll`.  Enabling resolution (the
+    /// default state) results in `balst` stack traces giving as much
+    /// information as is available on the platform.
     static
     void enableResolution();
-        // Enable symbol resolution and source file name & line number
-        // resolution on platforms that support them in stack traces performed
-        // by 'balst'.  Note that such resolution is expensive, involving disk
-        // access, and on Windows platforms has thread-safety concerns if the
-        // application is using 'dbghelp.dll'.  Enabling resolution (the
-        // default state) results in 'balst' stack traces giving as much
-        // information as is available on the platform.
 
+    /// Return whether symbol and line number resolution in stack traces is
+    /// disabled.  Note that if neither `disableResolution` nor
+    /// `enableResolution` have ever been called, this defaults to `false`.
     static
     bool isResolutionDisabled();
-        // Return whether symbol and line number resolution in stack traces is
-        // disabled.  Note that if neither 'disableResolution' nor
-        // 'enableResolution' have ever been called, this defaults to 'false'.
 };
 
 }  // close package namespace

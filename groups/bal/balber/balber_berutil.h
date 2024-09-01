@@ -14,19 +14,19 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides utility functions for encoding and
 // decoding of primitive BER constructs, such as tag identifier octets, length
-// octets, fundamental C++ types.  The encoding and decoding of 'bsl::string'
-// and BDE date/time types is also implemented.  For 'bsl::string_view' and
-// 'bslstl::StringRef' types only encoding is supported.
+// octets, fundamental C++ types.  The encoding and decoding of `bsl::string`
+// and BDE date/time types is also implemented.  For `bsl::string_view` and
+// `bslstl::StringRef` types only encoding is supported.
 //
-// These utility functions operate on 'bsl::streambuf' for buffer management.
+// These utility functions operate on `bsl::streambuf` for buffer management.
 //
 // More information about BER constructs can be found in the BER specification
 // (X.690).  A copy of the specification can be found at the URL:
-//: o http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf
+// * http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf
 //
 // Note that this is a low-level component that only encodes and decodes
-// primitive constructs.  Clients should use the 'balber_berencoder' and
-// 'balber_berdecoder' components (which use this component in the
+// primitive constructs.  Clients should use the `balber_berencoder` and
+// `balber_berdecoder` components (which use this component in the
 // implementation) to encode and decode well-formed BER messages.
 //
 ///Terminology
@@ -36,10 +36,10 @@ BSLS_IDENT("$Id: $")
 //
 //: *date-and-time* *type*:
 //:   A data type provided by BDE for the representation of a date and/or time
-//:   value.  The date-and-time types are: 'bdlt::Date', 'bdlt::DateTz',
-//:   'bdlt::Datetime', 'bdlt::DatetimeTz', 'bdlt::Time', and 'bdlt::TimeTz'.
+//:   value.  The date-and-time types are: `bdlt::Date`, `bdlt::DateTz`,
+//:   `bdlt::Datetime`, `bdlt::DatetimeTz`, `bdlt::Time`, and `bdlt::TimeTz`.
 //:   Note that under this definition, the time-zone-aware types provided by
-//:   BDE, such as 'baltzo::LocalDatetime', are not date-and-time types.
+//:   BDE, such as `baltzo::LocalDatetime`, are not date-and-time types.
 //:
 //: *date-and-time* *value*:
 //:   The value associated with an object of a date-and-time type.
@@ -56,53 +56,53 @@ BSLS_IDENT("$Id: $")
 //
 // Suppose we wanted to write the identifier octets for a BER tag having the
 // following properties:
-//..
-//    Tag Class:   Context-specific
-//    Tag Type:    Primitive
-//    Tag Number:  31
-//..
+// ```
+//   Tag Class:   Context-specific
+//   Tag Type:    Primitive
+//   Tag Number:  31
+// ```
 // According to the BER specification, this should generate two octets
 // containing the values 0x9F and 0x1F.  The following function demonstrates
 // this:
-//..
-//  bdlsb::MemOutStreamBuf osb;
+// ```
+// bdlsb::MemOutStreamBuf osb;
 //
-//  balber::BerConstants::TagClass tagClass  =
-//                                    balber::BerConstants::e_CONTEXT_SPECIFIC;
-//  balber::BerConstants::TagType  tagType   =
-//                                           balber::BerConstants::e_PRIMITIVE;
-//  int                            tagNumber = 31;
+// balber::BerConstants::TagClass tagClass  =
+//                                   balber::BerConstants::e_CONTEXT_SPECIFIC;
+// balber::BerConstants::TagType  tagType   =
+//                                          balber::BerConstants::e_PRIMITIVE;
+// int                            tagNumber = 31;
 //
-//  int retCode = balber::BerUtil::putIdentifierOctets(&osb,
-//                                                     tagClass,
-//                                                     tagType,
-//                                                     tagNumber);
-//  assert(0    == retCode);
-//  assert(2    == osb.length());
-//  assert(0x9F == (unsigned char)osb.data()[0]);
-//  assert(0x1F == (unsigned char)osb.data()[1]);
-//..
+// int retCode = balber::BerUtil::putIdentifierOctets(&osb,
+//                                                    tagClass,
+//                                                    tagType,
+//                                                    tagNumber);
+// assert(0    == retCode);
+// assert(2    == osb.length());
+// assert(0x9F == (unsigned char)osb.data()[0]);
+// assert(0x1F == (unsigned char)osb.data()[1]);
+// ```
 // The next part of the function will read the identifier octets from the
 // stream and verify its contents:
-//..
-//  bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+// ```
+// bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
 //
-//  balber::BerConstants::TagClass tagClassIn;
-//  balber::BerConstants::TagType  tagTypeIn;
-//  int                            tagNumberIn;
-//  int                            numBytesConsumed = 0;
+// balber::BerConstants::TagClass tagClassIn;
+// balber::BerConstants::TagType  tagTypeIn;
+// int                            tagNumberIn;
+// int                            numBytesConsumed = 0;
 //
-//  retCode = balber::BerUtil::getIdentifierOctets(&isb,
-//                                                 &tagClassIn,
-//                                                 &tagTypeIn,
-//                                                 &tagNumberIn,
-//                                                 &numBytesConsumed);
-//  assert(0         == retCode);
-//  assert(2         == numBytesConsumed);
-//  assert(tagClass  == tagClassIn);
-//  assert(tagType   == tagTypeIn);
-//  assert(tagNumber == tagNumberIn);
-//..
+// retCode = balber::BerUtil::getIdentifierOctets(&isb,
+//                                                &tagClassIn,
+//                                                &tagTypeIn,
+//                                                &tagNumberIn,
+//                                                &numBytesConsumed);
+// assert(0         == retCode);
+// assert(2         == numBytesConsumed);
+// assert(tagClass  == tagClassIn);
+// assert(tagType   == tagTypeIn);
+// assert(tagNumber == tagNumberIn);
+// ```
 
 #include <balscm_version.h>
 
@@ -145,13 +145,13 @@ namespace balber {
                                // struct BerUtil
                                // ==============
 
+/// This utility contains functions to encode and decode primitive BER
+/// constructs and simple value semantic types.  By convention, all
+/// functions return 0 on success, and a non-zero value otherwise.  Also by
+/// convention, all the "get" functions take an `accumNumBytesConsumed`;
+/// each of the functions will add to this variable the number of bytes
+/// consumed within the scope of the function.
 struct BerUtil {
-    // This utility contains functions to encode and decode primitive BER
-    // constructs and simple value semantic types.  By convention, all
-    // functions return 0 on success, and a non-zero value otherwise.  Also by
-    // convention, all the "get" functions take an 'accumNumBytesConsumed';
-    // each of the functions will add to this variable the number of bytes
-    // consumed within the scope of the function.
 
     enum {
         k_INDEFINITE_LENGTH = -1  // used to indicate that the length is
@@ -165,97 +165,98 @@ struct BerUtil {
     };
 
     // CLASS METHODS
+
+    /// Decode the "end-of-content" octets (two consecutive zero-octets)
+    /// from the specified `streamBuf` and add the number of bytes consumed
+    /// (which is always 2) to the specified `accumNumBytesConsumed`.
+    /// Return 0 on success, and a non-zero value otherwise.
     static int getEndOfContentOctets(bsl::streambuf *streamBuf,
                                      int            *accumNumBytesConsumed);
-        // Decode the "end-of-content" octets (two consecutive zero-octets)
-        // from the specified 'streamBuf' and add the number of bytes consumed
-        // (which is always 2) to the specified 'accumNumBytesConsumed'.
-        // Return 0 on success, and a non-zero value otherwise.
 
+    /// Decode the identifier octets from the specified `streamBuf` and load
+    /// the tag class, tag type, and tag number to the specified `tagClass`,
+    /// `tagType`, and `tagNumber` respectively.  Add the number of bytes
+    /// consumed to the specified `accumNumBytesConsumed`.  Return
+    /// 0 on success, and a non-zero value otherwise.
     static int getIdentifierOctets(
                                 bsl::streambuf         *streamBuf,
                                 BerConstants::TagClass *tagClass,
                                 BerConstants::TagType  *tagType,
                                 int                    *tagNumber,
                                 int                    *accumNumBytesConsumed);
-        // Decode the identifier octets from the specified 'streamBuf' and load
-        // the tag class, tag type, and tag number to the specified 'tagClass',
-        // 'tagType', and 'tagNumber' respectively.  Add the number of bytes
-        // consumed to the specified 'accumNumBytesConsumed'.  Return
-        // 0 on success, and a non-zero value otherwise.
 
+    /// Decode the length octets from the specified `streamBuf` and load the
+    /// result to the specified `result`.  If the length is indefinite
+    /// (i.e., contents will be terminated by "end-of-content" octets) then
+    /// `result` will be set to `k_INDEFINITE_LENGTH`.  Add the number of
+    /// bytes consumed to the specified `accumNumBytesConsumed`.  Return 0
+    /// on success, and a non-zero value otherwise.
     static int getLength(bsl::streambuf *streamBuf,
                          int            *result,
                          int            *accumNumBytesConsumed);
-        // Decode the length octets from the specified 'streamBuf' and load the
-        // result to the specified 'result'.  If the length is indefinite
-        // (i.e., contents will be terminated by "end-of-content" octets) then
-        // 'result' will be set to 'k_INDEFINITE_LENGTH'.  Add the number of
-        // bytes consumed to the specified 'accumNumBytesConsumed'.  Return 0
-        // on success, and a non-zero value otherwise.
 
+    /// Decode the specified `value` from the specified `streamBuf`,
+    /// consuming exactly the specified `length` bytes.  Return 0 on
+    /// success, and a non-zero value otherwise.  Optionally specify
+    /// decoding `options` to control aspects of the decoding.  Note that
+    /// the value consists of the contents bytes only (no length prefix).
+    /// Also note that only fundamental C++ types, `bsl::string`, and BDE
+    /// date/time types are supported.
     template <typename TYPE>
     static int getValue(
                       bsl::streambuf           *streamBuf,
                       TYPE                     *value,
                       int                       length,
                       const BerDecoderOptions&  options = BerDecoderOptions());
-        // Decode the specified 'value' from the specified 'streamBuf',
-        // consuming exactly the specified 'length' bytes.  Return 0 on
-        // success, and a non-zero value otherwise.  Optionally specify
-        // decoding 'options' to control aspects of the decoding.  Note that
-        // the value consists of the contents bytes only (no length prefix).
-        // Also note that only fundamental C++ types, 'bsl::string', and BDE
-        // date/time types are supported.
 
+    /// Decode the specified `value` from the specified `streamBuf` and add
+    /// the number of bytes consumed to the specified
+    /// `accumNumBytesConsumed`.  Return 0 on success, and a non-zero value
+    /// otherwise.  Optionally specify decoding `options` to control aspects
+    /// of the decoding.  Note that the value consists of the length and
+    /// contents primitives.  Also note that only fundamental C++ types,
+    /// `bsl::string`, and BDE date/time types are supported.
     template <typename TYPE>
     static int getValue(
                       bsl::streambuf           *streamBuf,
                       TYPE                     *value,
                       int                      *accumNumBytesConsumed,
                       const BerDecoderOptions&  options = BerDecoderOptions());
-        // Decode the specified 'value' from the specified 'streamBuf' and add
-        // the number of bytes consumed to the specified
-        // 'accumNumBytesConsumed'.  Return 0 on success, and a non-zero value
-        // otherwise.  Optionally specify decoding 'options' to control aspects
-        // of the decoding.  Note that the value consists of the length and
-        // contents primitives.  Also note that only fundamental C++ types,
-        // 'bsl::string', and BDE date/time types are supported.
 
+    /// Encode the "end-of-content" octets (two consecutive zero-octets) to
+    /// the specified `streamBuf`.  The "end-of-content" octets act as the
+    /// termination bytes for objects that have indefinite length.  Return 0
+    /// on success, and a non-zero value otherwise.
     static int putEndOfContentOctets(bsl::streambuf *streamBuf);
-        // Encode the "end-of-content" octets (two consecutive zero-octets) to
-        // the specified 'streamBuf'.  The "end-of-content" octets act as the
-        // termination bytes for objects that have indefinite length.  Return 0
-        // on success, and a non-zero value otherwise.
 
+    /// Encode the identifier octets for the specified `tagClass`, `tagType`
+    /// and `tagNumber` to the specified `streamBuf`.  Return 0 on success,
+    /// and a non-zero value otherwise.
     static int putIdentifierOctets(bsl::streambuf         *streamBuf,
                                    BerConstants::TagClass  tagClass,
                                    BerConstants::TagType   tagType,
                                    int                     tagNumber);
-        // Encode the identifier octets for the specified 'tagClass', 'tagType'
-        // and 'tagNumber' to the specified 'streamBuf'.  Return 0 on success,
-        // and a non-zero value otherwise.
 
+    /// Encode the "indefinite-length" octet onto the specified `streamBuf`.
+    /// This octet signifies that the length of the contents is indefinite
+    /// (i.e., contents will be terminated by end of content octets).
+    /// Return 0 on success, and a non-zero value otherwise.
     static int putIndefiniteLengthOctet(bsl::streambuf *streamBuf);
-        // Encode the "indefinite-length" octet onto the specified 'streamBuf'.
-        // This octet signifies that the length of the contents is indefinite
-        // (i.e., contents will be terminated by end of content octets).
-        // Return 0 on success, and a non-zero value otherwise.
 
+    /// Encode the specified `length` to the specified `streamBuf`.  Return
+    /// 0 on success, and a non-zero value otherwise.  The behavior is
+    /// undefined unless `0 <= length`.
     static int putLength(bsl::streambuf *streamBuf, int length);
-        // Encode the specified 'length' to the specified 'streamBuf'.  Return
-        // 0 on success, and a non-zero value otherwise.  The behavior is
-        // undefined unless '0 <= length'.
 
+    /// Encode the specified `value` to the specified `streamBuf`.  Return 0
+    /// on success, and a non-zero value otherwise.  Note that the value
+    /// consists of the length and contents primitives.  Also note that only
+    /// fundamental C++ types, `bsl::string`, `bsl::string_view`,
+    /// `bslstl::StringRef`, and BDE date/time types are supported.
     template <typename TYPE>
     static int putValue(bsl::streambuf          *streamBuf,
                         const TYPE&              value,
                         const BerEncoderOptions *options = 0);
-        // Encode the specified 'value' to the specified 'streamBuf'.  Return 0
-        // on success, and a non-zero value otherwise.  Note that the value
-        // consists of the length and contents primitives.  Also note that only
-        // fundamental C++ types, 'bsl::string', 'bsl::string_view',
-        // 'bslstl::StringRef', and BDE date/time types are supported.
 };
 
 ///Implementation Note
@@ -273,11 +274,11 @@ struct BerUtil {
                           // struct BerUtil_Constants
                           // ========================
 
+/// This component-private utility `struct` provides a namespace for a set
+/// of constants used to calculate quantities needed by BER encoders and
+/// decoders.  For example, this struct provides a named constant for the
+/// number of bits in a byte, which is used in downstream calculations.
 struct BerUtil_Constants {
-    // This component-private utility 'struct' provides a namespace for a set
-    // of constants used to calculate quantities needed by BER encoders and
-    // decoders.  For example, this struct provides a named constant for the
-    // number of bits in a byte, which is used in downstream calculations.
 
     // TYPES
     enum { k_NUM_BITS_PER_OCTET = 8 };
@@ -287,59 +288,61 @@ struct BerUtil_Constants {
                         // struct BerUtil_StreambufUtil
                         // ============================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions used by `BerUtil` to perform input and output operations on
+/// `bsl::streambuf` objects.  Note that these functions are intended to
+/// adapt the standard stream-buffer operations to a BDE-style interface.
 struct BerUtil_StreambufUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions used by 'BerUtil' to perform input and output operations on
-    // 'bsl::streambuf' objects.  Note that these functions are intended to
-    // adapt the standard stream-buffer operations to a BDE-style interface.
 
     // CLASS METHODS
-    static int peekChar(char *value, bsl::streambuf *streamBuf);
-        // Read the next byte from the specified 'streamBuf' without advancing
-        // the read position and load that byte into the specified 'value'.
-        // Return 0 on success, and a non-zero value otherwise.  If this
-        // operation is not successful, the value of '*value' is unchanged.
-        // This operation fails if the input sequence of 'streamBuf' is at its
-        // end.
 
+    /// Read the next byte from the specified `streamBuf` without advancing
+    /// the read position and load that byte into the specified `value`.
+    /// Return 0 on success, and a non-zero value otherwise.  If this
+    /// operation is not successful, the value of `*value` is unchanged.
+    /// This operation fails if the input sequence of `streamBuf` is at its
+    /// end.
+    static int peekChar(char *value, bsl::streambuf *streamBuf);
+
+    /// Read the specified `bufferLength` number of bytes from the input
+    /// sequence of the specified `streamBuf`, as if by a call to
+    /// `streamBuf->sgetn(buffer, bufferLength)`, and load the bytes into
+    /// successive elements of the specified `buffer`, starting at the first
+    /// element.  Return 0 on success, and a non-zero value otherwise.  The
+    /// operation succeeds if `length` bytes are successfully read from the
+    /// input sequence of the `streamBuf` without the read position becoming
+    /// unavailable.  If less than `bufferLength` bytes are read, the number
+    /// of bytes loaded into `buffer` is not specified.  The behavior is
+    /// undefined unless `0 <= bufferLength` and `buffer` is the address of
+    /// a sequence of at least `bufferLength` bytes.
     static int getChars(char           *buffer,
                         bsl::streambuf *streamBuf,
                         int             bufferLength);
-        // Read the specified 'bufferLength' number of bytes from the input
-        // sequence of the specified 'streamBuf', as if by a call to
-        // 'streamBuf->sgetn(buffer, bufferLength)', and load the bytes into
-        // successive elements of the specified 'buffer', starting at the first
-        // element.  Return 0 on success, and a non-zero value otherwise.  The
-        // operation succeeds if 'length' bytes are successfully read from the
-        // input sequence of the 'streamBuf' without the read position becoming
-        // unavailable.  If less than 'bufferLength' bytes are read, the number
-        // of bytes loaded into 'buffer' is not specified.  The behavior is
-        // undefined unless '0 <= bufferLength' and 'buffer' is the address of
-        // a sequence of at least 'bufferLength' bytes.
 
+    /// Write the first specified `bufferLength` number of bytes from the
+    /// specified `buffer` to the specified `streamBuf`, as if by a call to
+    /// `streamBuf->sputn(buffer, bufferLength)`.  Return 0 on success, and
+    /// a non-zero value otherwise.
     static int putChars(bsl::streambuf *streamBuf,
                         const char     *buffer,
                         int             bufferLength);
-        // Write the first specified 'bufferLength' number of bytes from the
-        // specified 'buffer' to the specified 'streamBuf', as if by a call to
-        // 'streamBuf->sputn(buffer, bufferLength)'.  Return 0 on success, and
-        // a non-zero value otherwise.
 };
 
                       // ================================
                       // struct BerUtil_IdentifierImpUtil
                       // ================================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions used by `BerUtil` to implement BER identifier octet
+/// encoding and decoding.
 struct BerUtil_IdentifierImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions used by 'BerUtil' to implement BER identifier octet
-    // encoding and decoding.
 
     // TYPES
+
+    /// `Constants` is an alias to a namespace for a suite of
+    /// general-purpose constants that occur when encoding or decoding BER
+    /// data.
     typedef BerUtil_Constants Constants;
-        // 'Constants' is an alias to a namespace for a suite of
-        // general-purpose constants that occur when encoding or decoding BER
-        // data.
 
   private:
     // PRIVATE TYPES
@@ -384,75 +387,79 @@ struct BerUtil_IdentifierImpUtil {
 
   public:
     // CLASS METHODS
+
+    /// Decode the identifier octets from the specified `streamBuf` and load
+    /// the tag class, tag type, and tag number to the specified `tagClass`,
+    /// `tagType`, and `tagNumber`, respectively.  Add the number of bytes
+    /// consumed to the specified `accumNumBytesConsumed`.  Return 0 on
+    /// success, and a non-zero value otherwise.
     static int getIdentifierOctets(
                                  BerConstants::TagClass *tagClass,
                                  BerConstants::TagType  *tagType,
                                  int                    *tagNumber,
                                  int                    *accumNumBytesConsumed,
                                  bsl::streambuf         *streamBuf);
-        // Decode the identifier octets from the specified 'streamBuf' and load
-        // the tag class, tag type, and tag number to the specified 'tagClass',
-        // 'tagType', and 'tagNumber', respectively.  Add the number of bytes
-        // consumed to the specified 'accumNumBytesConsumed'.  Return 0 on
-        // success, and a non-zero value otherwise.
 
+    /// Encode the identifier octets for the specified `tagClass`, `tagType`
+    /// and `tagNumber`, in that order, to the specified `streamBuf`.
+    /// Return 0 on success, and a non-zero value otherwise.
     static int putIdentifierOctets(bsl::streambuf         *streamBuf,
                                    BerConstants::TagClass  tagClass,
                                    BerConstants::TagType   tagType,
                                    int                     tagNumber);
-        // Encode the identifier octets for the specified 'tagClass', 'tagType'
-        // and 'tagNumber', in that order, to the specified 'streamBuf'.
-        // Return 0 on success, and a non-zero value otherwise.
 };
 
                       // ================================
                       // struct BerUtil_RawIntegerImpUtil
                       // ================================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions used by `BerUtil` to implement BER integer encoding.  This
+/// `struct` is separate from `BerUtil_IntegerImpUtil` to break a dependency
+/// cycle between `BerUtil_IntegerImpUtil` and `BerUtil_LengthImpUtil`.
 struct BerUtil_RawIntegerImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions used by 'BerUtil' to implement BER integer encoding.  This
-    // 'struct' is separate from 'BerUtil_IntegerImpUtil' to break a dependency
-    // cycle between 'BerUtil_IntegerImpUtil' and 'BerUtil_LengthImpUtil'.
 
     // TYPES
+
+    /// `Constants` is an alias to a namespace for a suite of
+    /// general-purpose constants that occur when encoding or decoding BER
+    /// data.
     typedef BerUtil_Constants Constants;
-        // 'Constants' is an alias to a namespace for a suite of
-        // general-purpose constants that occur when encoding or decoding BER
-        // data.
 
     // CLASS METHODS
+
+    /// Encode the octets used in the BER encoding of the specified `value`
+    /// of the specified `INTEGRAL_TYPE` to the specified `streamBuf`, using
+    /// exactly the specified `length` number of octets.  Return 0 on
+    /// success, and a non-zero value otherwise.  The behavior is undefined
+    /// unless `INTEGRAL_TYPE` is fundamental integral type and exactly
+    /// `length` number of octets is used in the BER encoding of the
+    /// specified `value`.
     template <class INTEGRAL_TYPE>
     static int putIntegerGivenLength(bsl::streambuf *streamBuf,
                                      INTEGRAL_TYPE   value,
                                      int             length);
-        // Encode the octets used in the BER encoding of the specified 'value'
-        // of the specified 'INTEGRAL_TYPE' to the specified 'streamBuf', using
-        // exactly the specified 'length' number of octets.  Return 0 on
-        // success, and a non-zero value otherwise.  The behavior is undefined
-        // unless 'INTEGRAL_TYPE' is fundamental integral type and exactly
-        // 'length' number of octets is used in the BER encoding of the
-        // specified 'value'.
 };
 
                         // ============================
                         // struct BerUtil_LengthImpUtil
                         // ============================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions used by `BerUtil` to implement BER length quantity encoding
+/// and decoding.
 struct BerUtil_LengthImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions used by 'BerUtil' to implement BER length quantity encoding
-    // and decoding.
 
     // TYPES
-    typedef BerUtil_Constants Constants;
-        // 'Constants' is an alias to a namespace for a suite of
-        // general-purpose constants that occur when encoding or decoding BER
-        // data.
 
+    /// `Constants` is an alias to a namespace for a suite of
+    /// general-purpose constants that occur when encoding or decoding BER
+    /// data.
+    typedef BerUtil_Constants Constants;
+
+    /// `RawIntegerUtil` is an alias to a namespace for a suite of functions
+    /// used to implement integer encoding.
     typedef BerUtil_RawIntegerImpUtil RawIntegerUtil;
-        // 'RawIntegerUtil' is an alias to a namespace for a suite of functions
-        // used to implement integer encoding.
 
   private:
     // PRIVATE TYPES
@@ -483,337 +490,343 @@ struct BerUtil_LengthImpUtil {
 
     // Length Decoding Functions
 
+    /// Decode the length octets from the specified `streamBuf` and load the
+    /// result to the specified `result`.  If the length is indefinite
+    /// (i.e., contents will be terminated by "end-of-content" octets) then
+    /// `result` will be set to `k_INDEFINITE_LENGTH`.  Add the number of
+    /// bytes consumed to the specified `accumNumBytesConsumed`.  Return 0
+    /// on success, and a non-zero value otherwise.
     static int getLength(int            *result,
                          int            *accumNumBytesConsumed,
                          bsl::streambuf *streamBuf);
-        // Decode the length octets from the specified 'streamBuf' and load the
-        // result to the specified 'result'.  If the length is indefinite
-        // (i.e., contents will be terminated by "end-of-content" octets) then
-        // 'result' will be set to 'k_INDEFINITE_LENGTH'.  Add the number of
-        // bytes consumed to the specified 'accumNumBytesConsumed'.  Return 0
-        // on success, and a non-zero value otherwise.
 
+    /// Decode the "end-of-content" octets (two consecutive zero-octets)
+    /// from the specified `streamBuf` and add the number of bytes consumed
+    /// (which is always 2) to the specified `accumNumBytesConsumed`.
+    /// Return 0 on success, and a non-zero value otherwise.
     static int getEndOfContentOctets(int            *accumNumBytesConsumed,
                                      bsl::streambuf *streamBuf);
-        // Decode the "end-of-content" octets (two consecutive zero-octets)
-        // from the specified 'streamBuf' and add the number of bytes consumed
-        // (which is always 2) to the specified 'accumNumBytesConsumed'.
-        // Return 0 on success, and a non-zero value otherwise.
 
     // Length Encoding Functions
 
+    /// Encode the specified `length` length octets to the specified
+    /// `streamBuf`.  Return 0 on success, and a non-zero value otherwise.
+    /// The behavior is undefined unless `0 <= length`.
     static int putLength(bsl::streambuf *streamBuf, int length);
-        // Encode the specified 'length' length octets to the specified
-        // 'streamBuf'.  Return 0 on success, and a non-zero value otherwise.
-        // The behavior is undefined unless '0 <= length'.
 
+    /// Encode the "indefinite-length" octet onto the specified `streamBuf`.
+    /// This octet signifies that the length of the contents is indefinite
+    /// (i.e., contents will be terminated by end of content octets).
+    /// Return 0 on success, and a non-zero value otherwise.
     static int putIndefiniteLengthOctet(bsl::streambuf *streamBuf);
-        // Encode the "indefinite-length" octet onto the specified 'streamBuf'.
-        // This octet signifies that the length of the contents is indefinite
-        // (i.e., contents will be terminated by end of content octets).
-        // Return 0 on success, and a non-zero value otherwise.
 
+    /// Encode the identifier octets for the specified `tagClass`, `tagType`
+    /// and `tagNumber` to the specified `streamBuf`.  Return 0 on success,
+    /// and a non-zero value otherwise.
     static int putEndOfContentOctets(bsl::streambuf *streamBuf);
-        // Encode the identifier octets for the specified 'tagClass', 'tagType'
-        // and 'tagNumber' to the specified 'streamBuf'.  Return 0 on success,
-        // and a non-zero value otherwise.
 };
 
                        // =============================
                        // struct BerUtil_BooleanImpUtil
                        // =============================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions used by `BerUtil` to implement BER encoding and decoding
+/// operations for boolean values.  Within the definition of this `struct`:
+///
+///: *the* *specification*:
+///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690.
 struct BerUtil_BooleanImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions used by 'BerUtil' to implement BER encoding and decoding
-    // operations for boolean values.  Within the definition of this 'struct':
-    //
-    //: *the* *specification*:
-    //:   Refers to the August 2015 revision of the ITU-T Recommendation X.690.
 
     // TYPES
+
+    /// `LengthUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for length
+    /// quantities.
     typedef BerUtil_LengthImpUtil LengthUtil;
-        // 'LengthUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for length
-        // quantities.
 
     // CLASS METHODS
 
     // Decoding
 
+    /// Decode to the specified `value` from the specified `streamBuf`,
+    /// consuming exactly the specified `length` bytes.  Return 0 on
+    /// success, and a non-zero value otherwise.  This operations succeeds
+    /// if `length` bytes are successfully read from the `streamBuf` and
+    /// they contain a valid representation of the contents octets for a
+    /// BER-encoded boolean value according to the specification.
     static int getBoolValue(bool           *value,
                             bsl::streambuf *streamBuf,
                             int             length);
-        // Decode to the specified 'value' from the specified 'streamBuf',
-        // consuming exactly the specified 'length' bytes.  Return 0 on
-        // success, and a non-zero value otherwise.  This operations succeeds
-        // if 'length' bytes are successfully read from the 'streamBuf' and
-        // they contain a valid representation of the contents octets for a
-        // BER-encoded boolean value according to the specification.
 
     // Encoding
 
+    /// Encode the specified `value` to the specified `streamBuf`.  Return 0
+    /// on success and a non-zero value otherwise.  The `value` is encoded
+    /// as the sequence of contents octets for a BER-encoded boolean value
+    /// according to the specification.  This operation succeeds if all of
+    /// the contents octets are successfully written to the `streamBuf`.
     static int putBoolValue(bsl::streambuf *streamBuf, bool value);
-        // Encode the specified 'value' to the specified 'streamBuf'.  Return 0
-        // on success and a non-zero value otherwise.  The 'value' is encoded
-        // as the sequence of contents octets for a BER-encoded boolean value
-        // according to the specification.  This operation succeeds if all of
-        // the contents octets are successfully written to the 'streamBuf'.
 };
 
                        // =============================
                        // struct BerUtil_IntegerImpUtil
                        // =============================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions used by `BerUtil` to implement BER encoding and decoding
+/// operations for integer values.  Within the definition of this `struct`:
+///
+///: *the* *specification*:
+///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690.
 struct BerUtil_IntegerImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions used by 'BerUtil' to implement BER encoding and decoding
-    // operations for integer values.  Within the definition of this 'struct':
-    //
-    //: *the* *specification*:
-    //:   Refers to the August 2015 revision of the ITU-T Recommendation X.690.
 
     // TYPES
+
+    /// `Constants` is an alias to a namespace for a suite of
+    /// general-purpose constants that occur when encoding or decoding BER
+    /// data.
     typedef BerUtil_Constants Constants;
-        // 'Constants' is an alias to a namespace for a suite of
-        // general-purpose constants that occur when encoding or decoding BER
-        // data.
 
+    /// `LengthUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for length
+    /// quantities.
     typedef BerUtil_LengthImpUtil LengthImpUtil;
-        // 'LengthUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for length
-        // quantities.
 
+    /// `RawIntegerUtil` is an alias to a namespace for a suite of low-level
+    /// functions used to implement BER encoding operations for integer
+    /// values.
     typedef BerUtil_RawIntegerImpUtil RawIntegerUtil;
-        // 'RawIntegerUtil' is an alias to a namespace for a suite of low-level
-        // functions used to implement BER encoding operations for integer
-        // values.
 
+    /// `StreambufUtil` is an alias to a namespace for a suite of functions
+    /// used to implement input and output operations on `bsl::streambuf`
+    /// objects.
     typedef BerUtil_StreambufUtil StreambufUtil;
-        // 'StreambufUtil' is an alias to a namespace for a suite of functions
-        // used to implement input and output operations on 'bsl::streambuf'
-        // objects.
 
     // CLASS DATA
+
+    /// Number of octets used to encode a signed integer value in 40 bits.
     static const int k_40_BIT_INTEGER_LENGTH = 5;
-        // Number of octets used to encode a signed integer value in 40 bits.
 
     // CLASS METHODS
+
+    /// Return the number of octets required to provide a BER encoding of
+    /// the specified `value` according to the specification.
     static int getNumOctetsToStream(short value);
     static int getNumOctetsToStream(int value);
     static int getNumOctetsToStream(long long value);
-        // Return the number of octets required to provide a BER encoding of
-        // the specified 'value' according to the specification.
 
+    /// Return the number of octets required to provide a BER encoding of
+    /// the specified `value` according to the specification.  The program
+    /// is ill-formed unless the specified `INTEGRAL_TYPE` is a fundamental
+    /// integral type.
     template <class INTEGRAL_TYPE>
     static int getNumOctetsToStream(INTEGRAL_TYPE value);
-        // Return the number of octets required to provide a BER encoding of
-        // the specified 'value' according to the specification.  The program
-        // is ill-formed unless the specified 'INTEGRAL_TYPE' is a fundamental
-        // integral type.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// interpretation of those bytes as the contents octets of a
+    /// BER-encoded integer value according to the specification.  Return 0
+    /// if successful, and a non-zero value otherwise.
     static int getIntegerValue(long long      *value,
                                bsl::streambuf *streamBuf,
                                int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // interpretation of those bytes as the contents octets of a
-        // BER-encoded integer value according to the specification.  Return 0
-        // if successful, and a non-zero value otherwise.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// interpretation of those bytes as the contents octets of BER-encoded
+    /// integer value according to the specification.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds
+    /// if `length` bytes are successfully read from the input sequence of
+    /// the `streamBuf` without the read position becoming unavailable, and
+    /// the bytes read contain a valid representation of the contents octets
+    /// of an integer value according to the specification.  The program is
+    /// ill-formed unless the specified `INTEGRAL_TYPE` is a fundamental
+    /// integral type.
     template <class INTEGRAL_TYPE>
     static int getIntegerValue(INTEGRAL_TYPE  *value,
                                bsl::streambuf *streamBuf,
                                int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // interpretation of those bytes as the contents octets of BER-encoded
-        // integer value according to the specification.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if 'length' bytes are successfully read from the input sequence of
-        // the 'streamBuf' without the read position becoming unavailable, and
-        // the bytes read contain a valid representation of the contents octets
-        // of an integer value according to the specification.  The program is
-        // ill-formed unless the specified 'INTEGRAL_TYPE' is a fundamental
-        // integral type.
 
+    /// Read 5 bytes from the input sequence of the specified `streamBuf`
+    /// and load to the specified `value` the interpretation of those bytes
+    /// as a 40-bit, signed, 2's-complement, big-endian integer.  Return 0
+    /// if successful, and a non-zero value otherwise.  The operation
+    /// succeeds if all 5 bytes are successfully read from the input
+    /// sequence of the `streamBuf` without the read position becoming
+    /// unavailable, and the bytes read contain a valid representation of a
+    /// 40-bit, signed, 2's-complement, big-endian integer.
     static int get40BitIntegerValue(bsls::Types::Int64 *value,
                                     bsl::streambuf     *streamBuf);
-        // Read 5 bytes from the input sequence of the specified 'streamBuf'
-        // and load to the specified 'value' the interpretation of those bytes
-        // as a 40-bit, signed, 2's-complement, big-endian integer.  Return 0
-        // if successful, and a non-zero value otherwise.  The operation
-        // succeeds if all 5 bytes are successfully read from the input
-        // sequence of the 'streamBuf' without the read position becoming
-        // unavailable, and the bytes read contain a valid representation of a
-        // 40-bit, signed, 2's-complement, big-endian integer.
 
+    /// Write the length and contents octets of the BER encoding of the
+    /// specified integer `value` (as defined in the specification) to the
+    /// output sequence of the specified `streamBuf`.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds
+    /// if all bytes corresponding to the length and contents octets are
+    /// written to the `streamBuf` without the write position becoming
+    /// unavailable.  The program is ill-formed unless the specified
+    /// `INTEGRAL_TYPE` is a fundamental integral type.
     template <class INTEGRAL_TYPE>
     static int putIntegerValue(bsl::streambuf *streamBuf, INTEGRAL_TYPE value);
-        // Write the length and contents octets of the BER encoding of the
-        // specified integer 'value' (as defined in the specification) to the
-        // output sequence of the specified 'streamBuf'.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if all bytes corresponding to the length and contents octets are
-        // written to the 'streamBuf' without the write position becoming
-        // unavailable.  The program is ill-formed unless the specified
-        // 'INTEGRAL_TYPE' is a fundamental integral type.
 
+    /// Write the 5 octets that comprise the 40-bit, signed, 2's-complement,
+    /// bit-endian representation of the specified integer `value` to the
+    /// specified `streamBuf`.  Return 0 if successful, and a non-zero value
+    /// otherwise.  The operation succeeds if all bytes corresponding to the
+    /// representation of the `value` are written to the `streamBuf` without
+    /// the write position becoming unavailable.  The behavior is undefined
+    /// unless the `value` is in the half-open interval
+    /// `[-549755813888, 549755813888)`.
     static int put40BitIntegerValue(bsl::streambuf     *streamBuf,
                                     bsls::Types::Int64  value);
-        // Write the 5 octets that comprise the 40-bit, signed, 2's-complement,
-        // bit-endian representation of the specified integer 'value' to the
-        // specified 'streamBuf'.  Return 0 if successful, and a non-zero value
-        // otherwise.  The operation succeeds if all bytes corresponding to the
-        // representation of the 'value' are written to the 'streamBuf' without
-        // the write position becoming unavailable.  The behavior is undefined
-        // unless the 'value' is in the half-open interval
-        // '[-549755813888, 549755813888)'.
 
+    /// Write exactly the specified `length` number of contents octets of
+    /// the BER encoding of the specified integer `value` (as defined in the
+    /// specification) to the output sequence of the specified `streamBuf`.
+    /// Return 0 if successful, and a non-zero value otherwise.  The
+    /// operation succeeds if all bytes corresponding to the contents octets
+    /// are written to the `streamBuf` without the write position becoming
+    /// unavailable.  The behavior is undefined unless there are exactly
+    /// `length` number of contents octets used to encode the integer
+    /// `value` according to the specification.  The program is ill-formed
+    /// unless the specified `INTEGRAL_TYPE` is a fundamental integral type.
     template <class INTEGRAL_TYPE>
     static int putIntegerGivenLength(bsl::streambuf *streamBuf,
                                      INTEGRAL_TYPE   value,
                                      int             length);
-        // Write exactly the specified 'length' number of contents octets of
-        // the BER encoding of the specified integer 'value' (as defined in the
-        // specification) to the output sequence of the specified 'streamBuf'.
-        // Return 0 if successful, and a non-zero value otherwise.  The
-        // operation succeeds if all bytes corresponding to the contents octets
-        // are written to the 'streamBuf' without the write position becoming
-        // unavailable.  The behavior is undefined unless there are exactly
-        // 'length' number of contents octets used to encode the integer
-        // 'value' according to the specification.  The program is ill-formed
-        // unless the specified 'INTEGRAL_TYPE' is a fundamental integral type.
 };
 
                       // ===============================
                       // struct BerUtil_CharacterImpUtil
                       // ===============================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions used by `BerUtil` to implement BER encoding and decoding
+/// operations for byte values.  Within the definition of this `struct`:
+///
+///: *the* *specification*:
+///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690.
 struct BerUtil_CharacterImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions used by 'BerUtil' to implement BER encoding and decoding
-    // operations for byte values.  Within the definition of this 'struct':
-    //
-    //: *the* *specification*:
-    //:   Refers to the August 2015 revision of the ITU-T Recommendation X.690.
 
     // TYPES
-    typedef BerUtil_IntegerImpUtil IntegerUtil;
-        // 'IntegerUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for integer
-        // values.
 
+    /// `IntegerUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for integer
+    /// values.
+    typedef BerUtil_IntegerImpUtil IntegerUtil;
+
+    /// `LengthUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for length
+    /// quantities.
     typedef BerUtil_LengthImpUtil LengthUtil;
-        // 'LengthUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for length
-        // quantities.
 
     // CLASS METHODS
 
     // Decoding
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// interpretation of those bytes as the value of the contents octets of
+    /// a BER-encoded integer according to the specification.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds
+    /// if `length` bytes are successfully read from the input sequence of
+    /// the `streamBuf` without the read position becoming unavailable, and
+    /// the bytes read contain a valid representation of the contents octets
+    /// of an integer value according to the specification.  Note that the
+    /// signedness of the interpreted integer value is the same as the
+    /// signedness of `char` according to the current platform.
     static int getCharValue(char           *value,
                             bsl::streambuf *streamBuf,
                             int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // interpretation of those bytes as the value of the contents octets of
-        // a BER-encoded integer according to the specification.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if 'length' bytes are successfully read from the input sequence of
-        // the 'streamBuf' without the read position becoming unavailable, and
-        // the bytes read contain a valid representation of the contents octets
-        // of an integer value according to the specification.  Note that the
-        // signedness of the interpreted integer value is the same as the
-        // signedness of 'char' according to the current platform.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// interpretation of those bytes as the value of the contents octets of
+    /// a BER-encoded integer according to the specification.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds
+    /// if `length` bytes are successfully read from the input sequence of
+    /// the `streamBuf` without the read position becoming unavailable, and
+    /// the bytes read contain a valid representation of the contents octets
+    /// of an integer value according to the specification.
     static int getSignedCharValue(signed char    *value,
                                   bsl::streambuf *streamBuf,
                                   int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // interpretation of those bytes as the value of the contents octets of
-        // a BER-encoded integer according to the specification.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if 'length' bytes are successfully read from the input sequence of
-        // the 'streamBuf' without the read position becoming unavailable, and
-        // the bytes read contain a valid representation of the contents octets
-        // of an integer value according to the specification.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// interpretation of those bytes as the value of the contents octets of
+    /// a BER-encoded integer according to the specification.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds
+    /// if `length` bytes are successfully read from the input sequence of
+    /// the `streamBuf` without the read position becoming unavailable, and
+    /// the bytes read contain a valid representation of the contents octets
+    /// of an integer value according to the specification.
     static int getUnsignedCharValue(unsigned char  *value,
                                     bsl::streambuf *streamBuf,
                                     int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // interpretation of those bytes as the value of the contents octets of
-        // a BER-encoded integer according to the specification.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if 'length' bytes are successfully read from the input sequence of
-        // the 'streamBuf' without the read position becoming unavailable, and
-        // the bytes read contain a valid representation of the contents octets
-        // of an integer value according to the specification.
 
     // Encoding
 
+    /// Write the length and contents octets of the BER encoding of the
+    /// specified integer `value` (as defined in the specification) to the
+    /// output sequence of the specified `streamBuf`.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds
+    /// if all bytes corresponding to the length and contents octets are
+    /// written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putCharValue(bsl::streambuf *streamBuf, char value);
-        // Write the length and contents octets of the BER encoding of the
-        // specified integer 'value' (as defined in the specification) to the
-        // output sequence of the specified 'streamBuf'.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if all bytes corresponding to the length and contents octets are
-        // written to the 'streamBuf' without the write position becoming
-        // unavailable.
 
+    /// Write the length and contents octets of the BER encoding of the
+    /// specified integer `value` (as defined in the specification) to the
+    /// output sequence of the specified `streamBuf`.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds
+    /// if all bytes corresponding to the length and contents octets are
+    /// written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putSignedCharValue(bsl::streambuf *streamBuf,
                                   signed char     value);
-        // Write the length and contents octets of the BER encoding of the
-        // specified integer 'value' (as defined in the specification) to the
-        // output sequence of the specified 'streamBuf'.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if all bytes corresponding to the length and contents octets are
-        // written to the 'streamBuf' without the write position becoming
-        // unavailable.
 
+    /// Write the length and contents octets of the BER encoding of the
+    /// specified integer `value` (as defined in the specification) to the
+    /// output sequence of the specified `streamBuf`.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds
+    /// if all bytes corresponding to the length and contents octets are
+    /// written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putUnsignedCharValue(bsl::streambuf *streamBuf,
                                     unsigned char   value);
-        // Write the length and contents octets of the BER encoding of the
-        // specified integer 'value' (as defined in the specification) to the
-        // output sequence of the specified 'streamBuf'.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if all bytes corresponding to the length and contents octets are
-        // written to the 'streamBuf' without the write position becoming
-        // unavailable.
 };
 
                     // ===================================
                     // struct BerUtil_FloatingPointImpUtil
                     // ===================================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions used by `BerUtil` to implement BER encoding and decoding
+/// operations for floating point number values.  Within the definition of
+/// this `struct`:
+///
+///: *the* *specification*:
+///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690,
+///:   and
+///:
+///: *the* *floating* *point* *specification*:
+///:   Refers to the 2008 revision of the IEE 754 Standard for
+///:   Floating-Point Arithemtic.
 struct BerUtil_FloatingPointImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions used by 'BerUtil' to implement BER encoding and decoding
-    // operations for floating point number values.  Within the definition of
-    // this 'struct':
-    //
-    //: *the* *specification*:
-    //:   Refers to the August 2015 revision of the ITU-T Recommendation X.690,
-    //:   and
-    //:
-    //: *the* *floating* *point* *specification*:
-    //:   Refers to the 2008 revision of the IEE 754 Standard for
-    //:   Floating-Point Arithemtic.
 
     // TYPES
-    typedef BerUtil_IntegerImpUtil IntegerUtil;
-        // 'IntegerUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for integer
-        // values.
 
+    /// `IntegerUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for integer
+    /// values.
+    typedef BerUtil_IntegerImpUtil IntegerUtil;
+
+    /// `LengthUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for length
+    /// quantities.
     typedef BerUtil_LengthImpUtil LengthUtil;
-        // 'LengthUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for length
-        // quantities.
 
   private:
     // PRIVATE TYPES
@@ -861,434 +874,437 @@ struct BerUtil_FloatingPointImpUtil {
 
     // Utilities
 
+    /// Load to the specified `value` the value of the "binary64" object
+    /// having the specified `exponent` value, the bits of the specified
+    /// `mantissa` interpreted as the digits of the mantissa, and the value
+    /// of the specified `sign` interpreted as the sign bit, according to
+    /// the floating point specification.  The behavior is undefined unless
+    /// `exponent` is in the range `[-1023, 1023]`, `mantissa` is in the
+    /// range `[-9007199254740991, 9007199254740991]`, and `sign` is 0 or 1.
+    /// The program is ill-formed unless the platform uses the "binary64"
+    /// interchange format encoding defined in the floating point
+    /// specification as the object representation for `double` values.
     static void assembleDouble(double    *value,
                                long long  exponent,
                                long long  mantissa,
                                int        sign);
-        // Load to the specified 'value' the value of the "binary64" object
-        // having the specified 'exponent' value, the bits of the specified
-        // 'mantissa' interpreted as the digits of the mantissa, and the value
-        // of the specified 'sign' interpreted as the sign bit, according to
-        // the floating point specification.  The behavior is undefined unless
-        // 'exponent' is in the range '[-1023, 1023]', 'mantissa' is in the
-        // range '[-9007199254740991, 9007199254740991]', and 'sign' is 0 or 1.
-        // The program is ill-formed unless the platform uses the "binary64"
-        // interchange format encoding defined in the floating point
-        // specification as the object representation for 'double' values.
 
+    /// Normalize the specified `*mantissa` value by adjusting the implicit
+    /// decimal point to after the rightmost 1 bit in the mantissa.  If
+    /// `false == denormalized` prepend the implicit 1 in the mantissa
+    /// before adjusting the implicit decimal point.  Multiply the
+    /// `*exponent` value by 2 to the power of the number of places the
+    /// implicit decimal point moves.
     static void normalizeMantissaAndAdjustExp(long long *mantissa,
                                               int       *exponent,
                                               bool       denormalized);
-        // Normalize the specified '*mantissa' value by adjusting the implicit
-        // decimal point to after the rightmost 1 bit in the mantissa.  If
-        // 'false == denormalized' prepend the implicit 1 in the mantissa
-        // before adjusting the implicit decimal point.  Multiply the
-        // '*exponent' value by 2 to the power of the number of places the
-        // implicit decimal point moves.
 
+    /// Parse the specified `value` and populate the specified `exponent`,
+    /// `mantissa`, and `sign` values from the exponent, mantissa, and sign
+    /// of the `value`, respectively.
     static void parseDouble(int       *exponent,
                             long long *mantissa,
                             int       *sign,
                             double     value);
-        // Parse the specified 'value' and populate the specified 'exponent',
-        // 'mantissa', and 'sign' values from the exponent, mantissa, and sign
-        // of the 'value', respectively.
 
   public:
     // CLASS METHODS
 
     // Decoding
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// interpretation of those bytes as the contents octets of a
+    /// BER-encoded real value according to the specification.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds
+    /// if `length` bytes are successfully read from the input sequence of
+    /// the `streamBuf` without the read position becoming unavailable, and
+    /// the bytes read contain a valid representation of the contents octets
+    /// of a real value according to the specification.
     static int getFloatValue(float          *value,
                              bsl::streambuf *streamBuf,
                              int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // interpretation of those bytes as the contents octets of a
-        // BER-encoded real value according to the specification.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if 'length' bytes are successfully read from the input sequence of
-        // the 'streamBuf' without the read position becoming unavailable, and
-        // the bytes read contain a valid representation of the contents octets
-        // of a real value according to the specification.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// interpretation of those bytes as the contents octets of a
+    /// BER-encoded real value according to the specification.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds
+    /// if `length` bytes are successfully read from the input sequence of
+    /// the `streamBuf` without the read position becoming unavailable, and
+    /// the bytes read contain a valid representation of the contents octets
+    /// of a real value according to the specification.
     static int getDoubleValue(double         *value,
                               bsl::streambuf *streamBuf,
                               int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // interpretation of those bytes as the contents octets of a
-        // BER-encoded real value according to the specification.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if 'length' bytes are successfully read from the input sequence of
-        // the 'streamBuf' without the read position becoming unavailable, and
-        // the bytes read contain a valid representation of the contents octets
-        // of a real value according to the specification.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// interpretation of those bytes as the contents octets of an encoded
+    /// 64-bit decimal value.  Return 0 if successful, and a non-zero value
+    /// otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes read contain a
+    /// valid representation of the contents octets of an encoded 64-bit
+    /// decimal value.  See the package-level documentation of {`balber`}
+    /// for the definition of the format used to encode 64-bit decimal
+    /// values.
     static int getDecimal64Value(bdldfp::Decimal64 *value,
                                  bsl::streambuf    *streamBuf,
                                  int                length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // interpretation of those bytes as the contents octets of an encoded
-        // 64-bit decimal value.  Return 0 if successful, and a non-zero value
-        // otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes read contain a
-        // valid representation of the contents octets of an encoded 64-bit
-        // decimal value.  See the package-level documentation of {'balber'}
-        // for the definition of the format used to encode 64-bit decimal
-        // values.
 
     // Encoding
 
+    /// Write the length and contents octets of the BER encoding of the
+    /// specified real `value` (as defined in the specification) to the
+    /// output sequence of the specified `streamBuf`.  Optionally specify
+    /// `options`, which will indicate whether `-0.0f` will be preserved or
+    /// encoded as `+0.0f`.  Return 0 if successful, and a non-zero value
+    /// otherwise.  The operation succeeds if all bytes corresponding to the
+    /// length and contents octets are written to the `streamBuf` without
+    /// the write position becoming unavailable.
     static int putFloatValue(bsl::streambuf         *streamBuf,
                             float                    value,
                             const BerEncoderOptions *options = 0);
-        // Write the length and contents octets of the BER encoding of the
-        // specified real 'value' (as defined in the specification) to the
-        // output sequence of the specified 'streamBuf'.  Optionally specify
-        // 'options', which will indicate whether '-0.0f' will be preserved or
-        // encoded as '+0.0f'.  Return 0 if successful, and a non-zero value
-        // otherwise.  The operation succeeds if all bytes corresponding to the
-        // length and contents octets are written to the 'streamBuf' without
-        // the write position becoming unavailable.
 
+    /// Write the length and contents octets of the BER encoding of the
+    /// specified real `value` (as defined in the specification) to the
+    /// output sequence of the specified `streamBuf`.  Optionally specify
+    /// `options`, which will indicate whether `-0.0` will be preserved or
+    /// encoded as `+0.0`.  Return 0 if successful, and a non-zero value
+    /// otherwise.  The operation succeeds if all bytes corresponding to the
+    /// length and contents octets are written to the `streamBuf` without
+    /// the write position becoming unavailable.
     static int putDoubleValue(bsl::streambuf          *streamBuf,
                               double                   value,
                               const BerEncoderOptions *options = 0);
-        // Write the length and contents octets of the BER encoding of the
-        // specified real 'value' (as defined in the specification) to the
-        // output sequence of the specified 'streamBuf'.  Optionally specify
-        // 'options', which will indicate whether '-0.0' will be preserved or
-        // encoded as '+0.0'.  Return 0 if successful, and a non-zero value
-        // otherwise.  The operation succeeds if all bytes corresponding to the
-        // length and contents octets are written to the 'streamBuf' without
-        // the write position becoming unavailable.
 
+    /// Write the length and contents octets of the encoding of the BER
+    /// encoding of the specified `value` to the output sequence of the
+    /// specified `streamBuf`.  Return 0 if successful, and a non-zero value
+    /// otherwise.  The operation succeeds if all bytes corresponding to the
+    /// length and contents octets are written to the `streamBuf` without
+    /// the write position becoming unavailable.  See the package-level
+    /// documentation of {`balber`} for the definition of the format used to
+    /// encode 64-bit decimal values.
     static int putDecimal64Value(bsl::streambuf    *streamBuf,
                                  bdldfp::Decimal64  value);
-        // Write the length and contents octets of the encoding of the BER
-        // encoding of the specified 'value' to the output sequence of the
-        // specified 'streamBuf'.  Return 0 if successful, and a non-zero value
-        // otherwise.  The operation succeeds if all bytes corresponding to the
-        // length and contents octets are written to the 'streamBuf' without
-        // the write position becoming unavailable.  See the package-level
-        // documentation of {'balber'} for the definition of the format used to
-        // encode 64-bit decimal values.
 };
 
                         // ============================
                         // struct BerUtil_StringImpUtil
                         // ============================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions used by `BerUtil` to implement BER encoding and decoding
+/// operations for string values.  Within the definition of this `struct`:
+///
+///: *the* *specification*:
+///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690.
 struct BerUtil_StringImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions used by 'BerUtil' to implement BER encoding and decoding
-    // operations for string values.  Within the definition of this 'struct':
-    //
-    //: *the* *specification*:
-    //:   Refers to the August 2015 revision of the ITU-T Recommendation X.690.
 
     // TYPES
+
+    /// `LengthUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for length
+    /// quantities.
     typedef BerUtil_LengthImpUtil LengthUtil;
-        // 'LengthUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for length
-        // quantities.
 
   public:
     // CLASS METHODS
 
     // Utilities
 
+    /// Write the length and contents octets of the BER encoding of the
+    /// specified byte `string` having the specified `stringLength` (as
+    /// defined in the specification) to the output sequence of the
+    /// specified `streamBuf`.  Return 0 if successful, and a non-zero value
+    /// otherwise.  The operation succeeds if all bytes corresponding to the
+    /// length and contents octets are written to the `streamBuf` without
+    /// the write position becoming unavailable.
     static int putRawStringValue(bsl::streambuf *streamBuf,
                                  const char     *string,
                                  int             stringLength);
-        // Write the length and contents octets of the BER encoding of the
-        // specified byte 'string' having the specified 'stringLength' (as
-        // defined in the specification) to the output sequence of the
-        // specified 'streamBuf'.  Return 0 if successful, and a non-zero value
-        // otherwise.  The operation succeeds if all bytes corresponding to the
-        // length and contents octets are written to the 'streamBuf' without
-        // the write position becoming unavailable.
 
+    /// Write the specified `numChars` number of bytes having the specified
+    /// `value` to the output sequence of the specified `streamBuf`.  Return
+    /// 0 if successful, and a non-zero value otherwise.  The operation
+    /// succeeds if all `numChars` bytes are written to the `streamBuf`
+    /// without the write position becoming unavailable.
     static int putChars(bsl::streambuf *streamBuf, char value, int numChars);
-        // Write the specified 'numChars' number of bytes having the specified
-        // 'value' to the output sequence of the specified 'streamBuf'.  Return
-        // 0 if successful, and a non-zero value otherwise.  The operation
-        // succeeds if all 'numChars' bytes are written to the 'streamBuf'
-        // without the write position becoming unavailable.
 
     // 'bsl::string' Decoding
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// interpretation of those bytes as the value of the contents octets of
+    /// a BER-encoded character string (more specifically, an unrestricted
+    /// character string) according to the specification, unless an
+    /// alternate value is indicated by the specified `options`, in which
+    /// case, the alternate value is loaded.  If the `DefaultEmptyStrings`
+    /// attribute of the `options` is `true` and the witnessed BER-encoded
+    /// character string represents the empty string value, the alternate
+    /// value is the current `*value`, otherwise there is no alternate
+    /// value.  Return 0 if successful, and a non-zero value otherwise.  The
+    /// operation succeeds if `length` bytes are successfully read from the
+    /// input sequence of the `streamBuf` without the read position becoming
+    /// unavailable, and the bytes read contain a valid representation of
+    /// the contents octets of a character string value according to the
+    /// specification.
     static int getStringValue(bsl::string              *value,
                               bsl::streambuf           *streamBuf,
                               int                       length,
                               const BerDecoderOptions&  options);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // interpretation of those bytes as the value of the contents octets of
-        // a BER-encoded character string (more specifically, an unrestricted
-        // character string) according to the specification, unless an
-        // alternate value is indicated by the specified 'options', in which
-        // case, the alternate value is loaded.  If the 'DefaultEmptyStrings'
-        // attribute of the 'options' is 'true' and the witnessed BER-encoded
-        // character string represents the empty string value, the alternate
-        // value is the current '*value', otherwise there is no alternate
-        // value.  Return 0 if successful, and a non-zero value otherwise.  The
-        // operation succeeds if 'length' bytes are successfully read from the
-        // input sequence of the 'streamBuf' without the read position becoming
-        // unavailable, and the bytes read contain a valid representation of
-        // the contents octets of a character string value according to the
-        // specification.
 
     // 'bsl::string' Encoding
 
+    /// Write the length and contents octets of the BER encoding of the
+    /// specified character string `value` (as defined in the specification)
+    /// to the output sequence of the specified `streamBuf`.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds
+    /// if all bytes corresponding to the length and contents octets are
+    /// written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putStringValue(bsl::streambuf     *streamBuf,
                               const bsl::string&  value);
-        // Write the length and contents octets of the BER encoding of the
-        // specified character string 'value' (as defined in the specification)
-        // to the output sequence of the specified 'streamBuf'.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if all bytes corresponding to the length and contents octets are
-        // written to the 'streamBuf' without the write position becoming
-        // unavailable.
 
     // 'bsl::string_view' Encoding
 
+    /// Write the length and contents octets of the BER encoding of the
+    /// specified character string `value` (as defined in the specification)
+    /// to the output sequence of the specified `streamBuf`.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds
+    /// if all bytes corresponding to the length and contents octets are
+    /// written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putStringViewValue(bsl::streambuf          *streamBuf,
                                   const bsl::string_view&  value);
-        // Write the length and contents octets of the BER encoding of the
-        // specified character string 'value' (as defined in the specification)
-        // to the output sequence of the specified 'streamBuf'.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if all bytes corresponding to the length and contents octets are
-        // written to the 'streamBuf' without the write position becoming
-        // unavailable.
 
     // 'bslstl::StringRef' Encoding
 
+    /// Write the length and contents octets of the BER encoding of the
+    /// specified character string `value` (as defined in the specification)
+    /// to the output sequence of the specified `streamBuf`.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds
+    /// if all bytes corresponding to the length and contents octets are
+    /// written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putStringRefValue(bsl::streambuf           *streamBuf,
                                  const bslstl::StringRef&  value);
-        // Write the length and contents octets of the BER encoding of the
-        // specified character string 'value' (as defined in the specification)
-        // to the output sequence of the specified 'streamBuf'.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if all bytes corresponding to the length and contents octets are
-        // written to the 'streamBuf' without the write position becoming
-        // unavailable.
 };
 
                        // =============================
                        // struct BerUtil_Iso8601ImpUtil
                        // =============================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions used by `BerUtil` to implement BER encoding and decoding
+/// operations for date and time values in the ISO 8601 format.  See the
+/// component-level documentation of {`bdlt_iso8601util`} for a complete
+/// description of the ISO 8601 format used by the functions provided by
+/// this `struct`.
 struct BerUtil_Iso8601ImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions used by 'BerUtil' to implement BER encoding and decoding
-    // operations for date and time values in the ISO 8601 format.  See the
-    // component-level documentation of {'bdlt_iso8601util'} for a complete
-    // description of the ISO 8601 format used by the functions provided by
-    // this 'struct'.
 
     // TYPES
+
+    /// `StringUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoder and decoding operations for string
+    /// values.
     typedef BerUtil_StringImpUtil StringUtil;
-        // 'StringUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoder and decoding operations for string
-        // values.
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// value represented by the interpretation of the bytes as an ISO 8601
+    /// date/time value.  The specified `TYPE` defines the expected ISO 8601
+    /// date/time format, which is the format corresponding to the `TYPE` as
+    /// specified in {`bdlt_iso8601util`}.  The operation succeeds if
+    /// `length` bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of the expected ISO 8601
+    /// date/time format.  The program is ill-formed unless `TYPE` is one
+    /// of: `bdlt::Date`, `bdlt::DateTz`, `bdlt::Datetime`,
+    /// `bdlt::DatetimeTz`, `bdlt::Time`, or `bdlt::TimeTz`.
     template <class TYPE>
     static int getValue(TYPE *value, bsl::streambuf *streamBuf, int length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // value represented by the interpretation of the bytes as an ISO 8601
-        // date/time value.  The specified 'TYPE' defines the expected ISO 8601
-        // date/time format, which is the format corresponding to the 'TYPE' as
-        // specified in {'bdlt_iso8601util'}.  The operation succeeds if
-        // 'length' bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of the expected ISO 8601
-        // date/time format.  The program is ill-formed unless 'TYPE' is one
-        // of: 'bdlt::Date', 'bdlt::DateTz', 'bdlt::Datetime',
-        // 'bdlt::DatetimeTz', 'bdlt::Time', or 'bdlt::TimeTz'.
 
+    /// Write the ISO 8601 representation of the specified `value` to the
+    /// output sequence of the specified `streamBuf`.  If the specified
+    /// `options` is 0, use 3 decimal places of fractional second precision,
+    /// otherwise use the number of decimal places specified by the
+    /// `datetimeFractionalSecondPrecision` attribute of the `options`.
+    /// Return 0 on success and a non-zero value otherwise.  The operation
+    /// succeeds if all bytes of the ISO 8601 representation of the `value`
+    /// are written to the `streamBuf` without the write position becoming
+    /// unavailable.  The program is ill-formed unless `TYPE` is one of
+    /// `bdlt::Date`, `bdlt::DateTz`, `bdlt::Datetime`, `bdlt::DatetimeTz`,
+    /// `bdlt::Time`, or `bdlt::TimeTz`.
     template <class TYPE>
     static int putValue(bsl::streambuf          *streamBuf,
                         const TYPE&              value,
                         const BerEncoderOptions *options);
-        // Write the ISO 8601 representation of the specified 'value' to the
-        // output sequence of the specified 'streamBuf'.  If the specified
-        // 'options' is 0, use 3 decimal places of fractional second precision,
-        // otherwise use the number of decimal places specified by the
-        // 'datetimeFractionalSecondPrecision' attribute of the 'options'.
-        // Return 0 on success and a non-zero value otherwise.  The operation
-        // succeeds if all bytes of the ISO 8601 representation of the 'value'
-        // are written to the 'streamBuf' without the write position becoming
-        // unavailable.  The program is ill-formed unless 'TYPE' is one of
-        // 'bdlt::Date', 'bdlt::DateTz', 'bdlt::Datetime', 'bdlt::DatetimeTz',
-        // 'bdlt::Time', or 'bdlt::TimeTz'.
 
   public:
     // CLASS METHODS
 
     // Decoding
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date value represented by the interpretation of the read bytes as an
+    /// ISO 8601 date.  Return 0 on success, and a non-zero value otherwise.
+    /// The operation succeeds if `length` bytes are successfully read from
+    /// the input sequence of the `streamBuf` without the read position
+    /// becoming unavailable, and the bytes contain a valid representation
+    /// of an ISO 8601 date.
     static int getDateValue(bdlt::Date     *value,
                             bsl::streambuf *streamBuf,
                             int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date value represented by the interpretation of the read bytes as an
-        // ISO 8601 date.  Return 0 on success, and a non-zero value otherwise.
-        // The operation succeeds if 'length' bytes are successfully read from
-        // the input sequence of the 'streamBuf' without the read position
-        // becoming unavailable, and the bytes contain a valid representation
-        // of an ISO 8601 date.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date value represented by the interpretation of the read bytes as an
+    /// ISO 8601 date and time zone.  Return 0 on success, and a non-zero
+    /// value otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a
+    /// valid representation of an ISO 8601 date and time zone.
     static int getDateTzValue(bdlt::DateTz   *value,
                               bsl::streambuf *streamBuf,
                               int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date value represented by the interpretation of the read bytes as an
-        // ISO 8601 date and time zone.  Return 0 on success, and a non-zero
-        // value otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes contain a
-        // valid representation of an ISO 8601 date and time zone.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date value represented by the interpretation of the read bytes as an
+    /// ISO 8601 date and time.  Return 0 on success, and a non-zero value
+    /// otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a
+    /// valid representation of an ISO 8601 date and time.
     static int getDatetimeValue(bdlt::Datetime *value,
                                 bsl::streambuf *streamBuf,
                                 int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date value represented by the interpretation of the read bytes as an
-        // ISO 8601 date and time.  Return 0 on success, and a non-zero value
-        // otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes contain a
-        // valid representation of an ISO 8601 date and time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date value represented by the interpretation of the read bytes as an
+    /// ISO 8601 date, time, and time zone.  Return 0 on success, and a
+    /// non-zero value otherwise.  The operation succeeds if `length` bytes
+    /// are successfully read from the input sequence of the `streamBuf`
+    /// without the read position becoming unavailable, and the bytes
+    /// contain a valid representation of an ISO 8601 date, time, and time
+    /// zone.
     static int getDatetimeTzValue(bdlt::DatetimeTz *value,
                                   bsl::streambuf   *streamBuf,
                                   int               length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date value represented by the interpretation of the read bytes as an
-        // ISO 8601 date, time, and time zone.  Return 0 on success, and a
-        // non-zero value otherwise.  The operation succeeds if 'length' bytes
-        // are successfully read from the input sequence of the 'streamBuf'
-        // without the read position becoming unavailable, and the bytes
-        // contain a valid representation of an ISO 8601 date, time, and time
-        // zone.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date value represented by the interpretation of the read bytes as an
+    /// ISO 8601 time.  Return 0 on success, and a non-zero value otherwise.
+    /// The operation succeeds if `length` bytes are successfully read from
+    /// the input sequence of the `streamBuf` without the read position
+    /// becoming unavailable, and the bytes contain a valid representation
+    /// of an ISO 8601 time.
     static int getTimeValue(bdlt::Time     *value,
                             bsl::streambuf *streamBuf,
                             int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date value represented by the interpretation of the read bytes as an
-        // ISO 8601 time.  Return 0 on success, and a non-zero value otherwise.
-        // The operation succeeds if 'length' bytes are successfully read from
-        // the input sequence of the 'streamBuf' without the read position
-        // becoming unavailable, and the bytes contain a valid representation
-        // of an ISO 8601 time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date value represented by the interpretation of the read bytes as an
+    /// ISO 8601 time and time zone.  Return 0 on success, and a non-zero
+    /// value otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a
+    /// valid representation of an ISO 8601 time and time zone.
     static int getTimeTzValue(bdlt::TimeTz   *value,
                               bsl::streambuf *streamBuf,
                               int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date value represented by the interpretation of the read bytes as an
-        // ISO 8601 time and time zone.  Return 0 on success, and a non-zero
-        // value otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes contain a
-        // valid representation of an ISO 8601 time and time zone.
 
     // Encoding
 
+    /// Write the ISO 8601 representation of the specified `value` to the
+    /// output sequence of the specified `streamBuf`.  Return 0 on success
+    /// and a non-zero value otherwise.  The operation succeeds if all bytes
+    /// of the ISO 8601 representation of the `value` are written to the
+    /// `streamBuf` without the write position becoming unavailable.
     static int putDateValue(bsl::streambuf          *streamBuf,
                             const bdlt::Date&        value,
                             const BerEncoderOptions *options);
-        // Write the ISO 8601 representation of the specified 'value' to the
-        // output sequence of the specified 'streamBuf'.  Return 0 on success
-        // and a non-zero value otherwise.  The operation succeeds if all bytes
-        // of the ISO 8601 representation of the 'value' are written to the
-        // 'streamBuf' without the write position becoming unavailable.
 
+    /// Write the ISO 8601 representation of the specified `value` to the
+    /// output sequence of the specified `streamBuf`.  Return 0 on success
+    /// and a non-zero value otherwise.  The operation succeeds if all bytes
+    /// of the ISO 8601 representation of the `value` are written to the
+    /// `streamBuf` without the write position becoming unavailable.
     static int putDateTzValue(bsl::streambuf          *streamBuf,
                               const bdlt::DateTz&      value,
                               const BerEncoderOptions *options);
-        // Write the ISO 8601 representation of the specified 'value' to the
-        // output sequence of the specified 'streamBuf'.  Return 0 on success
-        // and a non-zero value otherwise.  The operation succeeds if all bytes
-        // of the ISO 8601 representation of the 'value' are written to the
-        // 'streamBuf' without the write position becoming unavailable.
 
+    /// Write the ISO 8601 representation of the specified `value` to the
+    /// output sequence of the specified `streamBuf`.  If the specified
+    /// `options` is 0, use 3 decimal places of fractional second precision,
+    /// otherwise use the number of decimal places specified by the
+    /// `datetimeFractionalSecondPrecision` attribute of the `options`.
+    /// Return 0 on success and a non-zero value otherwise.  The operation
+    /// succeeds if all bytes of the ISO 8601 representation of the `value`
+    /// are written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putDatetimeValue(bsl::streambuf          *streamBuf,
                                 const bdlt::Datetime&    value,
                                 const BerEncoderOptions *options);
-        // Write the ISO 8601 representation of the specified 'value' to the
-        // output sequence of the specified 'streamBuf'.  If the specified
-        // 'options' is 0, use 3 decimal places of fractional second precision,
-        // otherwise use the number of decimal places specified by the
-        // 'datetimeFractionalSecondPrecision' attribute of the 'options'.
-        // Return 0 on success and a non-zero value otherwise.  The operation
-        // succeeds if all bytes of the ISO 8601 representation of the 'value'
-        // are written to the 'streamBuf' without the write position becoming
-        // unavailable.
 
+    /// Write the ISO 8601 representation of the specified `value` to the
+    /// output sequence of the specified `streamBuf`.  If the specified
+    /// `options` is 0, use 3 decimal places of fractional second precision,
+    /// otherwise use the number of decimal places specified by the
+    /// `datetimeFractionalSecondPrecision` attribute of the `options`.
+    /// Return 0 on success and a non-zero value otherwise.  The operation
+    /// succeeds if all bytes of the ISO 8601 representation of the `value`
+    /// are written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putDatetimeTzValue(bsl::streambuf          *streamBuf,
                                   const bdlt::DatetimeTz&  value,
                                   const BerEncoderOptions *options);
-        // Write the ISO 8601 representation of the specified 'value' to the
-        // output sequence of the specified 'streamBuf'.  If the specified
-        // 'options' is 0, use 3 decimal places of fractional second precision,
-        // otherwise use the number of decimal places specified by the
-        // 'datetimeFractionalSecondPrecision' attribute of the 'options'.
-        // Return 0 on success and a non-zero value otherwise.  The operation
-        // succeeds if all bytes of the ISO 8601 representation of the 'value'
-        // are written to the 'streamBuf' without the write position becoming
-        // unavailable.
 
+    /// Write the ISO 8601 representation of the specified `value` to the
+    /// output sequence of the specified `streamBuf`.  If the specified
+    /// `options` is 0, use 3 decimal places of fractional second precision,
+    /// otherwise use the number of decimal places specified by the
+    /// `datetimeFractionalSecondPrecision` attribute of the `options`.
+    /// Return 0 on success and a non-zero value otherwise.  The operation
+    /// succeeds if all bytes of the ISO 8601 representation of the `value`
+    /// are written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putTimeValue(bsl::streambuf          *streamBuf,
                             const bdlt::Time&        value,
                             const BerEncoderOptions *options);
-        // Write the ISO 8601 representation of the specified 'value' to the
-        // output sequence of the specified 'streamBuf'.  If the specified
-        // 'options' is 0, use 3 decimal places of fractional second precision,
-        // otherwise use the number of decimal places specified by the
-        // 'datetimeFractionalSecondPrecision' attribute of the 'options'.
-        // Return 0 on success and a non-zero value otherwise.  The operation
-        // succeeds if all bytes of the ISO 8601 representation of the 'value'
-        // are written to the 'streamBuf' without the write position becoming
-        // unavailable.
 
+    /// Write the ISO 8601 representation of the specified `value` to the
+    /// output sequence of the specified `streamBuf`.  If the specified
+    /// `options` is 0, use 3 decimal places of fractional second precision,
+    /// otherwise use the number of decimal places specified by the
+    /// `datetimeFractionalSecondPrecision` attribute of the `options`.
+    /// Return 0 on success and a non-zero value otherwise.  The operation
+    /// succeeds if all bytes of the ISO 8601 representation of the `value`
+    /// are written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putTimeTzValue(bsl::streambuf          *streamBuf,
                               const bdlt::TimeTz&      value,
                               const BerEncoderOptions *options);
-        // Write the ISO 8601 representation of the specified 'value' to the
-        // output sequence of the specified 'streamBuf'.  If the specified
-        // 'options' is 0, use 3 decimal places of fractional second precision,
-        // otherwise use the number of decimal places specified by the
-        // 'datetimeFractionalSecondPrecision' attribute of the 'options'.
-        // Return 0 on success and a non-zero value otherwise.  The operation
-        // succeeds if all bytes of the ISO 8601 representation of the 'value'
-        // are written to the 'streamBuf' without the write position becoming
-        // unavailable.
 };
 
                     // ====================================
                     // struct BerUtil_TimezoneOffsetImpUtil
                     // ====================================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions and constants used by `BerUtil` to encode and decode
+/// time-zone values.
 struct BerUtil_TimezoneOffsetImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions and constants used by 'BerUtil' to encode and decode
-    // time-zone values.
 
     // TYPES
     enum {
@@ -1305,40 +1321,41 @@ struct BerUtil_TimezoneOffsetImpUtil {
     };
 
     // CLASS METHODS
-    static bool isValidTimezoneOffsetInMinutes(int value);
-        // Return 'true' if the specified 'value' is a valid time-zone offset,
-        // and return 'false' otherwise.  A time-zone offset is valid if it is
-        // greater than or equal to 'k_MIN_OFFSET' and less than or equal to
-        // 'k_MAX_OFFSET'.
 
+    /// Return `true` if the specified `value` is a valid time-zone offset,
+    /// and return `false` otherwise.  A time-zone offset is valid if it is
+    /// greater than or equal to `k_MIN_OFFSET` and less than or equal to
+    /// `k_MAX_OFFSET`.
+    static bool isValidTimezoneOffsetInMinutes(int value);
+
+    /// Read from the specified `streamBuf` and load to the specified
+    /// `value` of the time-zone offset.
     static int getTimezoneOffsetInMinutes(int            *value,
                                           bsl::streambuf *streamBuf);
-        // Read from the specified 'streamBuf' and load to the specified
-        // 'value' of the time-zone offset.
 
+    /// Read a time zone offset value from the specified `streamBuf`.  If
+    /// the offset is greater than or equal to `k_MIN_OFFSET` and less than
+    /// or equal to `k_MAX_OFFSET` then load the value of the offset to the
+    /// specified `value` and return zero, otherwise do not modify the value
+    /// addressed by `value` and return non-zero.
     static int getTimezoneOffsetInMinutesIfValid(int            *value,
                                                  bsl::streambuf *streamBuf);
-        // Read a time zone offset value from the specified 'streamBuf'.  If
-        // the offset is greater than or equal to 'k_MIN_OFFSET' and less than
-        // or equal to 'k_MAX_OFFSET' then load the value of the offset to the
-        // specified 'value' and return zero, otherwise do not modify the value
-        // addressed by 'value' and return non-zero.
 
+    /// Write to the specified `streamBuf` the value of the specified
+    /// time-zone offset `value`.  The behavior is undefined unless
+    /// `k_MIN_OFFSET <= value` and `value <= k_MAX_OFFSET`.
     static int putTimezoneOffsetInMinutes(bsl::streambuf *streamBuf,
                                           int             value);
-        // Write to the specified 'streamBuf' the value of the specified
-        // time-zone offset 'value'.  The behavior is undefined unless
-        // 'k_MIN_OFFSET <= value' and 'value <= k_MAX_OFFSET'.
 };
 
                      // ==================================
                      // struct BerUtil_DateAndTimeEncoding
                      // ==================================
 
+/// This component-private `struct` provides a namespace for enumerating the
+/// union of the sets of date and time formats used to encode and decode all
+/// date and time types supported by `BerUtil`.
 struct BerUtil_DateAndTimeEncoding {
-    // This component-private 'struct' provides a namespace for enumerating the
-    // union of the sets of date and time formats used to encode and decode all
-    // date and time types supported by 'BerUtil'.
 
     // TYPES
     enum Value {
@@ -1373,20 +1390,25 @@ struct BerUtil_DateAndTimeEncoding {
                  // struct BerUtil_ExtendedBinaryEncodingUtil
                  // =========================================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions used by `BerUtil` to determine if a particular date and/or
+/// time value should be encoded using its corresponding
+/// extended-binary-encoding format, its corresponding
+/// compact-binary-encoding format, or neither format.
 struct BerUtil_ExtendedBinaryEncodingUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions used by 'BerUtil' to determine if a particular date and/or
-    // time value should be encoded using its corresponding
-    // extended-binary-encoding format, its corresponding
-    // compact-binary-encoding format, or neither format.
 
     // TYPES
+
+    /// `Encoding` is an alias to a namespace for enumerating the union of
+    /// the sets of date and time formats used to encode and decode all date
+    /// and time types supported by `BerUtil`.
     typedef BerUtil_DateAndTimeEncoding Encoding;
-        // 'Encoding' is an alias to a namespace for enumerating the union of
-        // the sets of date and time formats used to encode and decode all date
-        // and time types supported by 'BerUtil'.
 
     // CLASS METHODS
+
+    /// Return `true` if the specified `value` must be encoded using its
+    /// corresponding extended-binary-encoding format according to the
+    /// specified `options`, and return `false` otherwise.
     static bool useExtendedBinaryEncoding(const bdlt::Time&        value,
                                           const BerEncoderOptions *options);
     static bool useExtendedBinaryEncoding(const bdlt::TimeTz&      value,
@@ -1395,29 +1417,26 @@ struct BerUtil_ExtendedBinaryEncodingUtil {
                                           const BerEncoderOptions *options);
     static bool useExtendedBinaryEncoding(const bdlt::DatetimeTz&  value,
                                           const BerEncoderOptions *options);
-        // Return 'true' if the specified 'value' must be encoded using its
-        // corresponding extended-binary-encoding format according to the
-        // specified 'options', and return 'false' otherwise.
 
+    /// Return `true` if a date and/or time value must be encoded using
+    /// either its corresponding extended-binary-encoding format or its
+    /// corresponding compact-binary-encoding format according to the
+    /// specified `options`, and return `false` otherwise.  Note that, for
+    /// any given `value` and `options`, the `value` must be encoded using
+    /// its corresponding compact-binary-encoding format if
+    /// `useExtendedBinaryEncoding(value, options)` returns `false` and
+    /// `useBinaryEncoding(options)` returns `true`.
     static bool useBinaryEncoding(const BerEncoderOptions *options);
-        // Return 'true' if a date and/or time value must be encoded using
-        // either its corresponding extended-binary-encoding format or its
-        // corresponding compact-binary-encoding format according to the
-        // specified 'options', and return 'false' otherwise.  Note that, for
-        // any given 'value' and 'options', the 'value' must be encoded using
-        // its corresponding compact-binary-encoding format if
-        // 'useExtendedBinaryEncoding(value, options)' returns 'false' and
-        // 'useBinaryEncoding(options)' returns 'true'.
 };
 
                     // ====================================
                     // struct BerUtil_DateAndTimeHeaderType
                     // ====================================
 
+/// This component-private `struct` provides a namespace for enumerating the
+/// set of "header type" values that may be encoded in the 2-byte header of
+/// an extended-binary-encoding formatted date-and-time value.
 struct BerUtil_DateAndTimeHeaderType {
-    // This component-private 'struct' provides a namespace for enumerating the
-    // set of "header type" values that may be encoded in the 2-byte header of
-    // an extended-binary-encoding formatted date-and-time value.
 
     // TYPES
     enum Value {
@@ -1442,42 +1461,45 @@ struct BerUtil_DateAndTimeHeaderType {
                       // class BerUtil_DateAndTimeHeader
                       // ===============================
 
+/// This component-private, in-core, value-semantic attribute class provides
+/// a representation of the information available in the first two bytes of
+/// any extended-binary-encoding formatted data.  All extended-binary
+/// encoding schemes for date-and-time types contain a 2-byte header in the
+/// same format, which can be unambiguously distinguished from the first 2
+/// bytes of a date-and-time type in its corresponding
+/// compact-binary-encoding format or its ISO 8601 format.
 class BerUtil_DateAndTimeHeader {
-    // This component-private, in-core, value-semantic attribute class provides
-    // a representation of the information available in the first two bytes of
-    // any extended-binary-encoding formatted data.  All extended-binary
-    // encoding schemes for date-and-time types contain a 2-byte header in the
-    // same format, which can be unambiguously distinguished from the first 2
-    // bytes of a date-and-time type in its corresponding
-    // compact-binary-encoding format or its ISO 8601 format.
 
   public:
     // TYPES
-    typedef BerUtil_DateAndTimeHeaderType Type;
-        // 'Type' is an alias to a namespace for enumerating the set of "header
-        // type" values that may be encoded in the 2-byte header of an
-        // extended-binary-encoding formatted date-and-time value.
 
+    /// `Type` is an alias to a namespace for enumerating the set of "header
+    /// type" values that may be encoded in the 2-byte header of an
+    /// extended-binary-encoding formatted date-and-time value.
+    typedef BerUtil_DateAndTimeHeaderType Type;
+
+    /// `TimezoneUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for time-zone
+    /// offset values.
     typedef BerUtil_TimezoneOffsetImpUtil TimezoneUtil;
-        // 'TimezoneUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for time-zone
-        // offset values.
 
   private:
     // DATA
-    Type::Value d_type;
-        // date-and-time header type
 
+    // date-and-time header type
+    Type::Value d_type;
+
+    // offset in minutes from UTC indicated by the date-and-time header if
+    // the header contains a time-zone offset, and 0 otherwise
     int         d_timezoneOffsetInMinutes;
-        // offset in minutes from UTC indicated by the date-and-time header if
-        // the header contains a time-zone offset, and 0 otherwise
 
   public:
     // CREATORS
+
+    /// Create a `BerUtil_DateAndTimeHeader` object having a `type`
+    /// attribute with the `Type::e_NOT_EXTENDED_BINARY` value and a
+    /// `timezoneOffsetInMinutes` attribute with the 0 value.
     BerUtil_DateAndTimeHeader();
-        // Create a 'BerUtil_DateAndTimeHeader' object having a 'type'
-        // attribute with the 'Type::e_NOT_EXTENDED_BINARY' value and a
-        // 'timezoneOffsetInMinutes' attribute with the 0 value.
 
     //! BerUtil_DateAndTimeHeader(
         //!               const BerUtil_DateAndTimeHeader& original) = default;
@@ -1493,199 +1515,204 @@ class BerUtil_DateAndTimeHeader {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a non-'const' reference to this object.
 
+    /// Set the `type` attribute of this object to the
+    /// `Type::e_NOT_EXTENDED_BINARY` value and the
+    /// `timezoneOffsetInMinutes` attribute of this object to the 0 value.
     void makeNotExtendedBinary();
-        // Set the 'type' attribute of this object to the
-        // 'Type::e_NOT_EXTENDED_BINARY' value and the
-        // 'timezoneOffsetInMinutes' attribute of this object to the 0 value.
 
+    /// Set the `type` attribute of this object to the
+    /// `Type::e_EXTENDED_BINARY_WITHOUT_TIMEZONE` value and the
+    /// `timezoneOffsetInMinutes` attribute of this object to the 0 value.
     void makeExtendedBinaryWithoutTimezone();
-        // Set the 'type' attribute of this object to the
-        // 'Type::e_EXTENDED_BINARY_WITHOUT_TIMEZONE' value and the
-        // 'timezoneOffsetInMinutes' attribute of this object to the 0 value.
 
+    /// Set the `type` attribute of this object to the
+    /// `Type::e_EXTENDED_BINARY_WITH_TIMEZONE` value and the
+    /// `timezoneOffsetInMinutes` attribute of this object to the specified
+    /// `offset`.  The behavior is undefined unless
+    /// `TimezoneUtil::k_MIN_OFFSET <= offset` and
+    /// `TimezoneUtil::k_MAX_OFFSET >= offset`.
     void makeExtendedBinaryWithTimezone(int offset);
-        // Set the 'type' attribute of this object to the
-        // 'Type::e_EXTENDED_BINARY_WITH_TIMEZONE' value and the
-        // 'timezoneOffsetInMinutes' attribute of this object to the specified
-        // 'offset'.  The behavior is undefined unless
-        // 'TimezoneUtil::k_MIN_OFFSET <= offset' and
-        // 'TimezoneUtil::k_MAX_OFFSET >= offset'.
 
     // ACCESSORS
+
+    /// Return `true` if the `type` attribute of this object is
+    /// `Type::e_EXTENDED_BINARY_WITH_TIMEZONE` or
+    /// `Type::e_EXTENDED_BINARY_WITHOUT_TIMEZONE`, and `false` otherwise.
     bool isExtendedBinary() const;
-        // Return 'true' if the 'type' attribute of this object is
-        // 'Type::e_EXTENDED_BINARY_WITH_TIMEZONE' or
-        // 'Type::e_EXTENDED_BINARY_WITHOUT_TIMEZONE', and 'false' otherwise.
 
+    /// Return `true` if the `type` attribute of this object is
+    /// `Type::e_EXTENDED_BINARY_WITHOUT_TIMEZONE`, and `false` otherwise.
     bool isExtendedBinaryWithoutTimezone() const;
-        // Return 'true' if the 'type' attribute of this object is
-        // 'Type::e_EXTENDED_BINARY_WITHOUT_TIMEZONE', and 'false' otherwise.
 
+    /// Return `true` if the `type` attribute of this object is
+    /// `Type::e_EXTENDED_BINARY_WITH_TIMEZONE`, and `false` otherwise.
     bool isExtendedBinaryWithTimezone() const;
-        // Return 'true' if the 'type' attribute of this object is
-        // 'Type::e_EXTENDED_BINARY_WITH_TIMEZONE', and 'false' otherwise.
 
+    /// Return the value of the `timezoneOffsetInMinutes` attribute of this
+    /// object.
     int timezoneOffsetInMinutes() const;
-        // Return the value of the 'timezoneOffsetInMinutes' attribute of this
-        // object.
 };
 
                   // =======================================
                   // struct BerUtil_DateAndTimeHeaderImpUtil
                   // =======================================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions used by `BerUtil` to implement encoding and decoding
+/// operations for the 2-byte header of extended-binary-encoding formatted
+/// date-and-time value.
 struct BerUtil_DateAndTimeHeaderImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions used by 'BerUtil' to implement encoding and decoding
-    // operations for the 2-byte header of extended-binary-encoding formatted
-    // date-and-time value.
 
     // TYPES
+
+    /// `Header` is an alias to an in-core, value-semantic attribute class
+    /// that represents the range of valid values of the 2-byte header of
+    /// extended-binary-encoding formatted date-and-time values.
     typedef BerUtil_DateAndTimeHeader Header;
-        // 'Header' is an alias to an in-core, value-semantic attribute class
-        // that represents the range of valid values of the 2-byte header of
-        // extended-binary-encoding formatted date-and-time values.
 
+    /// `Type` is an alias to a namespace for enumerating the set of "header
+    /// type" values that may be encoded in the 2-byte header of an
+    /// extended-binary-encoding formatted date-and-time value.
     typedef BerUtil_DateAndTimeHeaderType Type;
-        // 'Type' is an alias to a namespace for enumerating the set of "header
-        // type" values that may be encoded in the 2-byte header of an
-        // extended-binary-encoding formatted date-and-time value.
 
+    /// `StreambufUtil` is an alias to a namespace for a suite of functions
+    /// used to implement input and output operations on `bsl::streambuf`
+    /// objects.
     typedef BerUtil_StreambufUtil StreambufUtil;
-        // 'StreambufUtil' is an alias to a namespace for a suite of functions
-        // used to implement input and output operations on 'bsl::streambuf'
-        // objects.
 
+    /// `TimezoneUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for time-zone
+    /// offset values.
     typedef BerUtil_TimezoneOffsetImpUtil TimezoneUtil;
-        // 'TimezoneUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for time-zone
-        // offset values.
 
     // CLASS DATA
+
+    /// Number of octets used to encode an extended-binary-encoding header.
     static const int k_HEADER_LENGTH = 2;
-        // Number of octets used to encode an extended-binary-encoding header.
 
     // CLASS METHODS
+
+    /// Return `true` if the specified `firstByte` of an encoded
+    /// date-and-time value indicates it is in a format reserved for future
+    /// use, and return `false` otherwise.  Note that this may indicate the
+    /// value was encoded incorrectly or using a newer version of this
+    /// component.
     static bool isReserved(unsigned char firstByte);
-        // Return 'true' if the specified 'firstByte' of an encoded
-        // date-and-time value indicates it is in a format reserved for future
-        // use, and return 'false' otherwise.  Note that this may indicate the
-        // value was encoded incorrectly or using a newer version of this
-        // component.
 
+    /// Return `true` if the specified `firstByte` of an encoded
+    /// date-and-time value indicates it is in the extended-binary-encoding
+    /// format, and return `false` otherwise.
     static bool isExtendedBinary(unsigned char firstByte);
-        // Return 'true' if the specified 'firstByte' of an encoded
-        // date-and-time value indicates it is in the extended-binary-encoding
-        // format, and return 'false' otherwise.
 
+    /// Return `true` if the specified `firstByte` of an encoded
+    /// date-and-time value indicates it is in the extended-binary-encoding
+    /// format and does not carry a time-zone offset value, and return
+    /// `false` otherwise.
     static bool isExtendedBinaryWithoutTimezone(unsigned char firstByte);
-        // Return 'true' if the specified 'firstByte' of an encoded
-        // date-and-time value indicates it is in the extended-binary-encoding
-        // format and does not carry a time-zone offset value, and return
-        // 'false' otherwise.
 
+    /// Return `true` if the specified `firstByte` if an encoded
+    /// date-and-time value indicates is is in the extended-binary-encoding
+    /// format and carries a time-zone offset value, and return `false`
+    /// otherwise.
     static bool isExtendedBinaryWithTimezone(unsigned char firstByte);
-        // Return 'true' if the specified 'firstByte' if an encoded
-        // date-and-time value indicates is is in the extended-binary-encoding
-        // format and carries a time-zone offset value, and return 'false'
-        // otherwise.
 
+    /// If the specified `firstByte` of an encoded date-and-time value
+    /// indicates it is in a compact-binary-encoding format or an ISO 8601
+    /// format, load the value `Type::e_NOT_EXTENDED_BINARY` to the
+    /// specified `type` and `false` to the specified `reserved` flag.  If
+    /// it indicates it is in an extended-binary format that carries a
+    /// time-zone offset value, load the value
+    /// `Type::e_EXTENDED_BINARY_WITH_TIMEZONE` to the `type` and `false` to
+    /// `reserved`.  If it indicates it is in an extended-binary format that
+    /// does not carry a time-zone offset value, load the value
+    /// `Type::e_EXTENDED_BINARY_WITHOUT_TIMEZONE` to the `type` and `false`
+    /// to `reserved`.  Otherwise, load the value `true` to `reserved` and
+    /// leave the `type` in a valid but unspecified state.  Note that this
+    /// operation has a wide contract because all possible values of
+    /// `firstByte` can be interpreted to indicate one of the conditions
+    /// described above.
     static void detectTypeIfNotReserved(bool          *reserved,
                                         Type::Value   *type,
                                         unsigned char  firstByte);
-        // If the specified 'firstByte' of an encoded date-and-time value
-        // indicates it is in a compact-binary-encoding format or an ISO 8601
-        // format, load the value 'Type::e_NOT_EXTENDED_BINARY' to the
-        // specified 'type' and 'false' to the specified 'reserved' flag.  If
-        // it indicates it is in an extended-binary format that carries a
-        // time-zone offset value, load the value
-        // 'Type::e_EXTENDED_BINARY_WITH_TIMEZONE' to the 'type' and 'false' to
-        // 'reserved'.  If it indicates it is in an extended-binary format that
-        // does not carry a time-zone offset value, load the value
-        // 'Type::e_EXTENDED_BINARY_WITHOUT_TIMEZONE' to the 'type' and 'false'
-        // to 'reserved'.  Otherwise, load the value 'true' to 'reserved' and
-        // leave the 'type' in a valid but unspecified state.  Note that this
-        // operation has a wide contract because all possible values of
-        // 'firstByte' can be interpreted to indicate one of the conditions
-        // described above.
 
+    /// If the specified `firstByte` of an encoded date-and-time value
+    /// indicates it is in a compact-binary-encoding format or an ISO 8601
+    /// format, load the value `Type::e_NOT_EXTENDED_BINARY` to the
+    /// specified `type`.  If it indicates it is in an extended-binary
+    /// format that carries a time-zone offset value, load the value
+    /// `Type::e_EXTENDED_BINARY_WITH_TIMEZONE` to the `type`.  If it
+    /// indicates it is in an extended-binary format that does not carry a
+    /// time-zone offset value, load the value
+    /// `Type::e_EXTENDED_BINARY_WITHOUT_TIMEZONE` to the `type`.  The
+    /// behavior is undefined unless `isReserved(firstByte)` returns
+    /// `false`.
     static void detectType(Type::Value *type, unsigned char firstByte);
-        // If the specified 'firstByte' of an encoded date-and-time value
-        // indicates it is in a compact-binary-encoding format or an ISO 8601
-        // format, load the value 'Type::e_NOT_EXTENDED_BINARY' to the
-        // specified 'type'.  If it indicates it is in an extended-binary
-        // format that carries a time-zone offset value, load the value
-        // 'Type::e_EXTENDED_BINARY_WITH_TIMEZONE' to the 'type'.  If it
-        // indicates it is in an extended-binary format that does not carry a
-        // time-zone offset value, load the value
-        // 'Type::e_EXTENDED_BINARY_WITHOUT_TIMEZONE' to the 'type'.  The
-        // behavior is undefined unless 'isReserved(firstByte)' returns
-        // 'false'.
 
+    /// Read 2 bytes from the input sequence of the specified `streamBuf`
+    /// and load to the specified `value` the interpretation of those bytes
+    /// as an extended-binary header value, if that header indicates the
+    /// value is not in a format reserved for future use.  Return 0 on
+    /// success, and a non-zero value otherwise.
     static int getValueIfNotReserved(Header *value, bsl::streambuf *streamBuf);
-        // Read 2 bytes from the input sequence of the specified 'streamBuf'
-        // and load to the specified 'value' the interpretation of those bytes
-        // as an extended-binary header value, if that header indicates the
-        // value is not in a format reserved for future use.  Return 0 on
-        // success, and a non-zero value otherwise.
 
+    /// Load to the specified `value` the interpretation of the specified
+    /// `headerByte0` and `headerByte1` as the 2 bytes that comprise an
+    /// encoded extended-binary header value if that value indicates it is
+    /// not in a format reserved for future use.  Return 0 on success, and a
+    /// non-zero value otherwise.
     static int getValueIfNotReserved(Header        *value,
                                      unsigned char  headerByte0,
                                      unsigned char  headerByte1);
-        // Load to the specified 'value' the interpretation of the specified
-        // 'headerByte0' and 'headerByte1' as the 2 bytes that comprise an
-        // encoded extended-binary header value if that value indicates it is
-        // not in a format reserved for future use.  Return 0 on success, and a
-        // non-zero value otherwise.
 
+    /// Read 2 bytes from the input sequence of the specified `streamBuf`
+    /// and load to the specified `value` the interpretation of those bytes
+    /// as an extended-binary header value Return 0 on success, and a
+    /// non-zero value otherwise.  The behavior is undefined if 2 bytes are
+    /// successfully read from the `streamBuf`, but the interpretation of
+    /// those bytes as an extended-binary header indicates the value is in a
+    /// format reserved for future use.
     static int getValue(Header *value, bsl::streambuf *streamBuf);
-        // Read 2 bytes from the input sequence of the specified 'streamBuf'
-        // and load to the specified 'value' the interpretation of those bytes
-        // as an extended-binary header value Return 0 on success, and a
-        // non-zero value otherwise.  The behavior is undefined if 2 bytes are
-        // successfully read from the 'streamBuf', but the interpretation of
-        // those bytes as an extended-binary header indicates the value is in a
-        // format reserved for future use.
 
+    /// Load to the specified `value` the interpretation of the specified
+    /// `headerByte0` and `headerByte1` as the 2 bytes that comprise an
+    /// encoded extended-binary header value.  Return 0 on success, and a
+    /// non-zero value otherwise.  The behavior is undefined if the
+    /// interpretation of the 2 bytes as an extended-binary header indicates
+    /// the value is in a format reserved for future use.
     static int getValue(Header        *value,
                         unsigned char  headerByte0,
                         unsigned char  headerByte1);
-        // Load to the specified 'value' the interpretation of the specified
-        // 'headerByte0' and 'headerByte1' as the 2 bytes that comprise an
-        // encoded extended-binary header value.  Return 0 on success, and a
-        // non-zero value otherwise.  The behavior is undefined if the
-        // interpretation of the 2 bytes as an extended-binary header indicates
-        // the value is in a format reserved for future use.
 
+    /// Write a representation of an extended-binary header value that does
+    /// not carry a time-zone offset value to the specified `streamBuf`.
+    /// Return 0 on success, and a non-zero value otherwise.
     static int putExtendedBinaryWithoutTimezoneValue(
                                                     bsl::streambuf *streamBuf);
-        // Write a representation of an extended-binary header value that does
-        // not carry a time-zone offset value to the specified 'streamBuf'.
-        // Return 0 on success, and a non-zero value otherwise.
 
+    /// Write a representation of an extended-binary header value that
+    /// carries the specified `timezoneOffsetInMinutes` time-zone offset
+    /// value to the specified `streamBuf`.  Return 0 on success, and a
+    /// non-zero value otherwise.
     static int putExtendedBinaryWithTimezoneValue(
                                       bsl::streambuf *streamBuf,
                                       int             timezoneOffsetInMinutes);
-        // Write a representation of an extended-binary header value that
-        // carries the specified 'timezoneOffsetInMinutes' time-zone offset
-        // value to the specified 'streamBuf'.  Return 0 on success, and a
-        // non-zero value otherwise.
 };
 
                         // ===========================
                         // struct BerUtil_DateEncoding
                         // ===========================
 
+/// This component-private `struct` provides a namespace for enumerating the
+/// set of formats that may be used by `BerUtil` to encode and decode values
+/// of `bdlt::Date` type.
 struct BerUtil_DateEncoding {
-    // This component-private 'struct' provides a namespace for enumerating the
-    // set of formats that may be used by 'BerUtil' to encode and decode values
-    // of 'bdlt::Date' type.
 
     // TYPES
+
+    /// `Encoding` is an alias to a namespace for enumerating the union of
+    /// the sets of date and time formats used to encode and decode all date
+    /// and time types supported by `BerUtil`.
     typedef BerUtil_DateAndTimeEncoding Encoding;
-        // 'Encoding' is an alias to a namespace for enumerating the union of
-        // the sets of date and time formats used to encode and decode all date
-        // and time types supported by 'BerUtil'.
 
     enum Value {
         e_ISO8601_DATE        = Encoding::e_ISO8601_DATE,
@@ -1697,16 +1724,17 @@ struct BerUtil_DateEncoding {
                        // struct BerUtil_DateTzEncoding
                        // =============================
 
+/// This component-private `struct` provides a namespace for enumerating the
+/// set of formats that may be used by `BerUtil` to encode and decode values
+/// of `bdlt::DateTz` type.
 struct BerUtil_DateTzEncoding {
-    // This component-private 'struct' provides a namespace for enumerating the
-    // set of formats that may be used by 'BerUtil' to encode and decode values
-    // of 'bdlt::DateTz' type.
 
     // TYPES
+
+    /// `Encoding` is an alias to a namespace for enumerating the union of
+    /// the sets of date and time formats used to encode and decode all date
+    /// and time types supported by `BerUtil`.
     typedef BerUtil_DateAndTimeEncoding Encoding;
-        // 'Encoding' is an alias to a namespace for enumerating the union of
-        // the sets of date and time formats used to encode and decode all date
-        // and time types supported by 'BerUtil'.
 
     enum Value {
         e_ISO8601_DATETZ        = Encoding::e_ISO8601_DATETZ,
@@ -1719,16 +1747,17 @@ struct BerUtil_DateTzEncoding {
                     // struct BerUtil_DateOrDateTzEncoding
                     // ===================================
 
+/// This component-private `struct` provides a namespace for enumerating the
+/// set of formats that may be used by `BerUtil` to encode and decode values
+/// of `bdlb::Variant2<bdlt::Date, bdlt::DateTz>` type.
 struct BerUtil_DateOrDateTzEncoding {
-    // This component-private 'struct' provides a namespace for enumerating the
-    // set of formats that may be used by 'BerUtil' to encode and decode values
-    // of 'bdlb::Variant2<bdlt::Date, bdlt::DateTz>' type.
 
     // TYPES
+
+    /// `Encoding` is an alias to a namespace for enumerating the union of
+    /// the sets of date and time formats used to encode and decode all date
+    /// and time types supported by `BerUtil`.
     typedef BerUtil_DateAndTimeEncoding Encoding;
-        // 'Encoding' is an alias to a namespace for enumerating the union of
-        // the sets of date and time formats used to encode and decode all date
-        // and time types supported by 'BerUtil'.
 
     enum Value {
         e_ISO8601_DATE          = Encoding::e_ISO8601_DATE,
@@ -1742,78 +1771,79 @@ struct BerUtil_DateOrDateTzEncoding {
                          // struct BerUtil_DateImpUtil
                          // ==========================
 
+/// This component-private `struct` provides a namespace for a suite of
+/// functions used by `BerUtil` to implement BER encoding and decoding
+/// operations for date values.  Within the definition of this `struct`:
+///
+///: *the* *specification*:
+///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690,
+///:   and
+///:
+///: *the* *default* *set* *of* *options*:
+///:   Refers to a `balber::BerEncoderOptions` value having a
+///:   `datetimeFractionalSecondPrecision` attribute of 3 and a
+///:   `encodeDateAndTimeTypesAsBinary` attribute of `false`.
+///
+/// See the package level documentation of {`balber`} for a definition of
+/// the compact and extended binary formats for date and time values.
 struct BerUtil_DateImpUtil {
-    // This component-private 'struct' provides a namespace for a suite of
-    // functions used by 'BerUtil' to implement BER encoding and decoding
-    // operations for date values.  Within the definition of this 'struct':
-    //
-    //: *the* *specification*:
-    //:   Refers to the August 2015 revision of the ITU-T Recommendation X.690,
-    //:   and
-    //:
-    //: *the* *default* *set* *of* *options*:
-    //:   Refers to a 'balber::BerEncoderOptions' value having a
-    //:   'datetimeFractionalSecondPrecision' attribute of 3 and a
-    //:   'encodeDateAndTimeTypesAsBinary' attribute of 'false'.
-    //
-    // See the package level documentation of {'balber'} for a definition of
-    // the compact and extended binary formats for date and time values.
 
     // TYPES
+
+    /// `DateAndTimeHeaderUtil` is an alias to a namespace for a suite of
+    /// functions used to implement encoding and decoding operations for the
+    /// 2-byte header of an extended-binary-encoding formatted date-and-time
+    /// value.
     typedef BerUtil_DateAndTimeHeaderImpUtil DateAndTimeHeaderUtil;
-        // 'DateAndTimeHeaderUtil' is an alias to a namespace for a suite of
-        // functions used to implement encoding and decoding operations for the
-        // 2-byte header of an extended-binary-encoding formatted date-and-time
-        // value.
 
+    /// `DateEncoding` is an alias to a namespace for enumerating the set of
+    /// formats that may be used by `BerUtil` to encode and decode values of
+    /// `bdlt::Date` type.
     typedef BerUtil_DateEncoding DateEncoding;
-        // 'DateEncoding' is an alias to a namespace for enumerating the set of
-        // formats that may be used by 'BerUtil' to encode and decode values of
-        // 'bdlt::Date' type.
 
+    /// `DateEncoding` is an alias to a namespace for enumerating the set of
+    /// formats that may be used by `BerUtil` to encode and decode values of
+    /// `bdlt::DateTz` type.
     typedef BerUtil_DateTzEncoding DateTzEncoding;
-        // 'DateEncoding' is an alias to a namespace for enumerating the set of
-        // formats that may be used by 'BerUtil' to encode and decode values of
-        // 'bdlt::DateTz' type.
 
+    /// `DateEncoding` is an alias to a namespace for enumerating the set of
+    /// formats that may be used by `BerUtil` to decode to values of
+    /// `bdlb::Variant2<bdlt::Date, bdlt::DateTz>` type.
     typedef BerUtil_DateOrDateTzEncoding DateOrDateTzEncoding;
-        // 'DateEncoding' is an alias to a namespace for enumerating the set of
-        // formats that may be used by 'BerUtil' to decode to values of
-        // 'bdlb::Variant2<bdlt::Date, bdlt::DateTz>' type.
 
+    /// `IntegerUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for integer
+    /// values.
     typedef BerUtil_IntegerImpUtil IntegerUtil;
-        // 'IntegerUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for integer
-        // values.
 
+    /// `Iso8601Util` is an alias to a namespace for a suite of functions
+    /// used to implementing the encoding and decoding of date and time
+    /// values using the ISO 8601 format.
     typedef BerUtil_Iso8601ImpUtil Iso8601Util;
-        // 'Iso8601Util' is an alias to a namespace for a suite of functions
-        // used to implementing the encoding and decoding of date and time
-        // values using the ISO 8601 format.
 
+    /// `LengthUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for length
+    /// quantities.
     typedef BerUtil_LengthImpUtil LengthUtil;
-        // 'LengthUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for length
-        // quantities.
 
+    /// `StreambufUtil` is an alias to a namespace for a suite of functions
+    /// used to implement input and output operations on `bsl::streambuf`
+    /// objects.
     typedef BerUtil_StreambufUtil StreambufUtil;
-        // 'StreambufUtil' is an alias to a namespace for a suite of functions
-        // used to implement input and output operations on 'bsl::streambuf'
-        // objects.
 
+    /// `StringUtil` is an alias to a namespace for a suite of functions
+    /// used by `BerUtil` to implement BER encoding and decoding operations
+    /// for string values.
     typedef BerUtil_StringImpUtil StringUtil;
-        // 'StringUtil' is an alias to a namespace for a suite of functions
-        // used by 'BerUtil' to implement BER encoding and decoding operations
-        // for string values.
 
+    /// `TimezoneUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for time-zone
+    /// offset values.
     typedef BerUtil_TimezoneOffsetImpUtil TimezoneUtil;
-        // 'TimezoneUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for time-zone
-        // offset values.
 
+    /// `DateOrDateTz` is a convenient alias for
+    /// `bdlb::Variant2<bdlt::Date, bdlt::DateTz>`.
     typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz> DateOrDateTz;
-        // 'DateOrDateTz' is a convenient alias for
-        // 'bdlb::Variant2<bdlt::Date, bdlt::DateTz>'.
 
     enum {
         k_COMPACT_BINARY_DATE_EPOCH = 737425
@@ -1853,343 +1883,344 @@ struct BerUtil_DateImpUtil {
 
     // 'bdlt::Date' Decoding
 
+    /// Load to the specified `encoding` the enumerator that describes the
+    /// format used to encode a `bdlt::Date` value given the specified
+    /// `length` and `firstByte` of the encoded representation.  Return 0 on
+    /// success, -1 if the format is reserved for future use, and some other
+    /// non-zero value otherwise.
     static int detectDateEncoding(DateEncoding::Value *encoding,
                                   int                  length,
                                   unsigned char        firstByte);
-        // Load to the specified 'encoding' the enumerator that describes the
-        // format used to encode a 'bdlt::Date' value given the specified
-        // 'length' and 'firstByte' of the encoded representation.  Return 0 on
-        // success, -1 if the format is reserved for future use, and some other
-        // non-zero value otherwise.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date value represented by the interpretation of the read bytes as an
+    /// ISO 8601 date.  Return 0 on success, and a non-zero value otherwise.
+    /// The operation succeeds if `length` bytes are successfully read from
+    /// the input sequence of the `streamBuf` without the read position
+    /// becoming unavailable, and the bytes contain a valid representation
+    /// of an ISO 8601 date.
     static int getIso8601DateValue(bdlt::Date     *value,
                                    bsl::streambuf *streamBuf,
                                    int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date value represented by the interpretation of the read bytes as an
-        // ISO 8601 date.  Return 0 on success, and a non-zero value otherwise.
-        // The operation succeeds if 'length' bytes are successfully read from
-        // the input sequence of the 'streamBuf' without the read position
-        // becoming unavailable, and the bytes contain a valid representation
-        // of an ISO 8601 date.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date value represented by the interpretation of the read bytes as a
+    /// compact-binary date.  Return 0 on success, and a non-zero value
+    /// otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a
+    /// valid representation of a compact-binary date.
     static int getCompactBinaryDateValue(bdlt::Date     *value,
                                          bsl::streambuf *streamBuf,
                                          int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date value represented by the interpretation of the read bytes as a
-        // compact-binary date.  Return 0 on success, and a non-zero value
-        // otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes contain a
-        // valid representation of a compact-binary date.
 
     // 'bdlt::Date' Encoding
 
+    /// Determine the format that should be used to encode the specified
+    /// `value` given the `value` and the specified `options`.  If `options`
+    /// is 0, the default set of options is used.  Return an enumerator
+    /// identifying the selected format.
     static DateEncoding::Value selectDateEncoding(
                                              const bdlt::Date&        value,
                                              const BerEncoderOptions *options);
-        // Determine the format that should be used to encode the specified
-        // 'value' given the 'value' and the specified 'options'.  If 'options'
-        // is 0, the default set of options is used.  Return an enumerator
-        // identifying the selected format.
 
+    /// Write the ISO 8601 representation of the specified `value` to the
+    /// output sequence of the specified `streamBuf` according to the
+    /// specified `options`.  If `options` is 0, the default set of options
+    /// is used.  Return 0 on success, and a non-zero value otherwise.  The
+    /// operation succeeds if all bytes of the ISO 8601 representation of
+    /// the `value` are written to the `streamBuf` without the write
+    /// position becoming unavailable.
     static int putIso8601DateValue(bsl::streambuf          *streamBuf,
                                    const bdlt::Date&        value,
                                    const BerEncoderOptions *options);
-        // Write the ISO 8601 representation of the specified 'value' to the
-        // output sequence of the specified 'streamBuf' according to the
-        // specified 'options'.  If 'options' is 0, the default set of options
-        // is used.  Return 0 on success, and a non-zero value otherwise.  The
-        // operation succeeds if all bytes of the ISO 8601 representation of
-        // the 'value' are written to the 'streamBuf' without the write
-        // position becoming unavailable.
 
+    /// Write the compact-binary date representation of the specified
+    /// `value` to the output sequence of the specified `streamBuf`
+    /// according to the specified `options`.  If `options` is 0, the
+    /// default set of options is used.  Return 0 on success, and a non-zero
+    /// value otherwise.  The operation succeeds if all bytes of the
+    /// compact-binary date representation of the `value` are written to the
+    /// `streamBuf` without the write position becoming unavailable.
     static int putCompactBinaryDateValue(bsl::streambuf          *streamBuf,
                                          const bdlt::Date&        value,
                                          const BerEncoderOptions *options);
-        // Write the compact-binary date representation of the specified
-        // 'value' to the output sequence of the specified 'streamBuf'
-        // according to the specified 'options'.  If 'options' is 0, the
-        // default set of options is used.  Return 0 on success, and a non-zero
-        // value otherwise.  The operation succeeds if all bytes of the
-        // compact-binary date representation of the 'value' are written to the
-        // 'streamBuf' without the write position becoming unavailable.
 
     // 'bdlt::DateTz' Decoding
 
+    /// Load to the specified `encoding` the enumerator that describes the
+    /// format used to encode a `bdlt::DateTz` value given the specified
+    /// `length` and `firstByte` of the encoded representation.  Return 0 on
+    /// success, -1 if the format is reserved for future use, and some other
+    /// non-zero value otherwise.
     static int detectDateTzEncoding(DateTzEncoding::Value *encoding,
                                     int                    length,
                                     unsigned char          firstByte);
-        // Load to the specified 'encoding' the enumerator that describes the
-        // format used to encode a 'bdlt::DateTz' value given the specified
-        // 'length' and 'firstByte' of the encoded representation.  Return 0 on
-        // success, -1 if the format is reserved for future use, and some other
-        // non-zero value otherwise.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date and time zone value represented by the interpretation of the
+    /// read bytes as an ISO 8601 date and time zone.  Return 0 on success,
+    /// and a non-zero value otherwise.  The operation succeeds if `length`
+    /// bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of an ISO 8601 date and time
+    /// zone.
     static int getIso8601DateTzValue(bdlt::DateTz   *value,
                                      bsl::streambuf *streamBuf,
                                      int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date and time zone value represented by the interpretation of the
-        // read bytes as an ISO 8601 date and time zone.  Return 0 on success,
-        // and a non-zero value otherwise.  The operation succeeds if 'length'
-        // bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of an ISO 8601 date and time
-        // zone.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date and time zone value represented by the interpretation of the
+    /// read bytes as a compact-binary date.  Return 0 on success, and a
+    /// non-zero value otherwise.  The operation succeeds if `length` bytes
+    /// are successfully read from the input sequence of the `streamBuf`
+    /// without the read position becoming unavailable, and the bytes
+    /// contain a valid representation of a compact-binary date.
     static int getCompactBinaryDateValue(bdlt::DateTz   *value,
                                          bsl::streambuf *streamBuf,
                                          int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date and time zone value represented by the interpretation of the
-        // read bytes as a compact-binary date.  Return 0 on success, and a
-        // non-zero value otherwise.  The operation succeeds if 'length' bytes
-        // are successfully read from the input sequence of the 'streamBuf'
-        // without the read position becoming unavailable, and the bytes
-        // contain a valid representation of a compact-binary date.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date and time zone value represented by the interpretation of the
+    /// read bytes as a compact-binary date and time zone.  Return 0 on
+    /// success, and a non-zero value otherwise.  The operation succeeds if
+    /// `length` bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of a compact-binary date.
     static int getCompactBinaryDateTzValue(bdlt::DateTz   *value,
                                            bsl::streambuf *streamBuf,
                                            int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date and time zone value represented by the interpretation of the
-        // read bytes as a compact-binary date and time zone.  Return 0 on
-        // success, and a non-zero value otherwise.  The operation succeeds if
-        // 'length' bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of a compact-binary date.
 
     // 'bdlt::DateTz' Encoding
 
+    /// Determine the format that should be used to encode the specified
+    /// `value` given the `value` and the specified `options`.  If `options`
+    /// is 0, the default set of options is used.  Return an enumerator
+    /// identifying the selected format.
     static DateTzEncoding::Value selectDateTzEncoding(
                                              const bdlt::DateTz&      value,
                                              const BerEncoderOptions *options);
-        // Determine the format that should be used to encode the specified
-        // 'value' given the 'value' and the specified 'options'.  If 'options'
-        // is 0, the default set of options is used.  Return an enumerator
-        // identifying the selected format.
 
+    /// Write the ISO 8601 representation of the specified `value` to the
+    /// output sequence of the specified `streamBuf` according to the
+    /// specified `options`.  If `options` is 0, the default set of options
+    /// is used.  Return 0 on success, and a non-zero value otherwise.  The
+    /// operation succeeds if all bytes of the ISO 8601 representation of
+    /// the `value` are written to the `streamBuf` without the write
+    /// position becoming unavailable.
     static int putIso8601DateTzValue(bsl::streambuf          *streamBuf,
                                      const bdlt::DateTz&      value,
                                      const BerEncoderOptions *options);
-        // Write the ISO 8601 representation of the specified 'value' to the
-        // output sequence of the specified 'streamBuf' according to the
-        // specified 'options'.  If 'options' is 0, the default set of options
-        // is used.  Return 0 on success, and a non-zero value otherwise.  The
-        // operation succeeds if all bytes of the ISO 8601 representation of
-        // the 'value' are written to the 'streamBuf' without the write
-        // position becoming unavailable.
 
+    /// Write the compact-binary date representation of the specified
+    /// `value` to the output sequence of the specified `streamBuf`
+    /// according to the specified `options`.  If `options` is 0, the
+    /// default set of options is used.  Return 0 on success, and a non-zero
+    /// value otherwise.  The operation succeeds if all bytes of the
+    /// compact-binary date representation of the `value` are written to the
+    /// `streamBuf` without the write position becoming unavailable.  The
+    /// behavior is undefined unless the `offset` of the `value` is 0.
     static int putCompactBinaryDateValue(bsl::streambuf          *streamBuf,
                                          const bdlt::DateTz&      value,
                                          const BerEncoderOptions *options);
-        // Write the compact-binary date representation of the specified
-        // 'value' to the output sequence of the specified 'streamBuf'
-        // according to the specified 'options'.  If 'options' is 0, the
-        // default set of options is used.  Return 0 on success, and a non-zero
-        // value otherwise.  The operation succeeds if all bytes of the
-        // compact-binary date representation of the 'value' are written to the
-        // 'streamBuf' without the write position becoming unavailable.  The
-        // behavior is undefined unless the 'offset' of the 'value' is 0.
 
+    /// Write the compact-binary date and time zone representation of the
+    /// specified `value` to the output sequence of the specified
+    /// `streamBuf` according to the specified `options`.  If `options` is
+    /// 0, the default set of options is used.  Return 0 on success, and a
+    /// non-zero value otherwise.  The operation succeeds if all bytes of
+    /// the compact-binary date representation of the `value` are written to
+    /// the `streamBuf` without the write position becoming unavailable.
     static int putCompactBinaryDateTzValue(bsl::streambuf          *streamBuf,
                                            const bdlt::DateTz&      value,
                                            const BerEncoderOptions *options);
-        // Write the compact-binary date and time zone representation of the
-        // specified 'value' to the output sequence of the specified
-        // 'streamBuf' according to the specified 'options'.  If 'options' is
-        // 0, the default set of options is used.  Return 0 on success, and a
-        // non-zero value otherwise.  The operation succeeds if all bytes of
-        // the compact-binary date representation of the 'value' are written to
-        // the 'streamBuf' without the write position becoming unavailable.
 
     // Variant Decoding
 
+    /// Load to the specified `encoding` the enumerator that describes the
+    /// format used to encode a `bdlt::Date` or `bdlt::DateTz` value given
+    /// the specified `length` and `firstByte` of the encoded
+    /// representation.  Return 0 on success, -1 if the format is reserved
+    /// for future use, and some other non-zero value otherwise.
     static int detectDateOrDateTzEncoding(
                                  DateOrDateTzEncoding::Value *encoding,
                                  int                          length,
                                  unsigned char                firstByte);
-        // Load to the specified 'encoding' the enumerator that describes the
-        // format used to encode a 'bdlt::Date' or 'bdlt::DateTz' value given
-        // the specified 'length' and 'firstByte' of the encoded
-        // representation.  Return 0 on success, -1 if the format is reserved
-        // for future use, and some other non-zero value otherwise.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date value represented by the interpretation of the read bytes as an
+    /// ISO 8601 date.  Return 0 on success, and a non-zero value otherwise.
+    /// The operation succeeds if `length` bytes are successfully read from
+    /// the input sequence of the `streamBuf` without the read position
+    /// becoming unavailable, and the bytes contain a valid representation
+    /// of an ISO 8601 date.
     static int getIso8601DateValue(DateOrDateTz   *value,
                                    bsl::streambuf *streamBuf,
                                    int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date value represented by the interpretation of the read bytes as an
-        // ISO 8601 date.  Return 0 on success, and a non-zero value otherwise.
-        // The operation succeeds if 'length' bytes are successfully read from
-        // the input sequence of the 'streamBuf' without the read position
-        // becoming unavailable, and the bytes contain a valid representation
-        // of an ISO 8601 date.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date value represented by the interpretation of the read bytes as an
+    /// ISO 8601 date and time zone.  Return 0 on success, and a non-zero
+    /// value otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a
+    /// valid representation of an ISO 8601 date and time zone.
     static int getIso8601DateTzValue(DateOrDateTz   *value,
                                      bsl::streambuf *streamBuf,
                                      int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date value represented by the interpretation of the read bytes as an
-        // ISO 8601 date and time zone.  Return 0 on success, and a non-zero
-        // value otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes contain a
-        // valid representation of an ISO 8601 date and time zone.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date value represented by the interpretation of the read bytes as a
+    /// compact-binary date.  Return 0 on success, and a non-zero value
+    /// otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a
+    /// valid representation of a compact-binary date.
     static int getCompactBinaryDateValue(DateOrDateTz   *value,
                                          bsl::streambuf *streamBuf,
                                          int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date value represented by the interpretation of the read bytes as a
-        // compact-binary date.  Return 0 on success, and a non-zero value
-        // otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes contain a
-        // valid representation of a compact-binary date.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date and time zone value represented by the interpretation of the
+    /// read bytes as a compact-binary date and time zone.  Return 0 on
+    /// success, and a non-zero value otherwise.  The operation succeeds if
+    /// `length` bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of a compact-binary date and
+    /// time zone.
     static int getCompactBinaryDateTzValue(DateOrDateTz   *value,
                                            bsl::streambuf *streamBuf,
                                            int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date and time zone value represented by the interpretation of the
-        // read bytes as a compact-binary date and time zone.  Return 0 on
-        // success, and a non-zero value otherwise.  The operation succeeds if
-        // 'length' bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of a compact-binary date and
-        // time zone.
 
   public:
     // CLASS METHODS
 
     // Utilities
 
+    /// Load to the specified `daysSinceEpoch` the number of days between
+    /// the compact-binary date epoch and the specified `date`. The
+    /// compact-binary date epoch is the date defined by the
+    /// `k_COMPACT_BINARY_DATE_EPOCH` serial date.  Note that this quantity
+    /// may be negative if the specified `date` occurs before the
+    /// compact-binary date epoch.
     static void dateToDaysSinceEpoch(bsls::Types::Int64 *daysSinceEpoch,
                                      const bdlt::Date&   date);
-        // Load to the specified 'daysSinceEpoch' the number of days between
-        // the compact-binary date epoch and the specified 'date'. The
-        // compact-binary date epoch is the date defined by the
-        // 'k_COMPACT_BINARY_DATE_EPOCH' serial date.  Note that this quantity
-        // may be negative if the specified 'date' occurs before the
-        // compact-binary date epoch.
 
+    /// Load to the specified `date` the date represented by the serial date
+    /// indicated by adding the specified `daysSinceEpoch` to
+    /// `k_COMPACT_BINARY_DATE_EPOCH`.  Return 0 on success, and a non-zero
+    /// value otherwise.  This operation succeeds if the resulting value
+    /// represents a date in the range `[0001JAN01 .. 9999DEC31]`.  Note
+    /// that `daysSinceEpoch` may be negative to indicate a serial date that
+    /// occurs before `k_COMPACT_BINARY_DATE_EPOCH`.
     static int daysSinceEpochToDate(bdlt::Date         *date,
                                     bsls::Types::Int64  daysSinceEpoch);
-        // Load to the specified 'date' the date represented by the serial date
-        // indicated by adding the specified 'daysSinceEpoch' to
-        // 'k_COMPACT_BINARY_DATE_EPOCH'.  Return 0 on success, and a non-zero
-        // value otherwise.  This operation succeeds if the resulting value
-        // represents a date in the range '[0001JAN01 .. 9999DEC31]'.  Note
-        // that 'daysSinceEpoch' may be negative to indicate a serial date that
-        // occurs before 'k_COMPACT_BINARY_DATE_EPOCH'.
 
     // 'bdlt::Date' Decoding
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date value represented those bytes.  Return 0 on success, and a
+    /// non-zero value otherwise.  The operation succeeds if `length` bytes
+    /// are successfully read from the input sequence of the `streamBuf`
+    /// without the read position becoming unavailable, and the bytes
+    /// contain a valid representation of a date value.  See the
+    /// package-level documentation of {`balber`} for a description of the
+    /// decision procedure used to detect the encoding format for a
+    /// `bdlt::Date` value.
     static int getDateValue(bdlt::Date     *date,
                             bsl::streambuf *streamBuf,
                             int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date value represented those bytes.  Return 0 on success, and a
-        // non-zero value otherwise.  The operation succeeds if 'length' bytes
-        // are successfully read from the input sequence of the 'streamBuf'
-        // without the read position becoming unavailable, and the bytes
-        // contain a valid representation of a date value.  See the
-        // package-level documentation of {'balber'} for a description of the
-        // decision procedure used to detect the encoding format for a
-        // 'bdlt::Date' value.
 
     // 'bdlt::Date' Encoding
 
+    /// Write a representation of the specified `value` date to the output
+    /// sequence of the specified `streamBuf` according to the specified
+    /// `options`.  If `options` is 0, the default set of options is used.
+    /// Return 0 on success, and a non-zero value otherwise.  This operation
+    /// succeeds if all bytes in the representation of the `value` are
+    /// written to the output sequence of the `streamBuf` without the write
+    /// position becoming unavailable.  See the class documentation for a
+    /// description of the default options.  See the package-level
+    /// documentation of {`balber`} for a description of the decision
+    /// procedure used to select an encoding format for the `value`.
     static int putDateValue(bsl::streambuf          *streamBuf,
                             const bdlt::Date&        value,
                             const BerEncoderOptions *options);
-        // Write a representation of the specified 'value' date to the output
-        // sequence of the specified 'streamBuf' according to the specified
-        // 'options'.  If 'options' is 0, the default set of options is used.
-        // Return 0 on success, and a non-zero value otherwise.  This operation
-        // succeeds if all bytes in the representation of the 'value' are
-        // written to the output sequence of the 'streamBuf' without the write
-        // position becoming unavailable.  See the class documentation for a
-        // description of the default options.  See the package-level
-        // documentation of {'balber'} for a description of the decision
-        // procedure used to select an encoding format for the 'value'.
 
     // 'bdlt::DateTz' Decoding
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date and time zone value represented by those bytes.  Return 0 on
+    /// success, and a non-zero value otherwise.  The operation succeeds if
+    /// `length` bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of a date and time zone value.
+    /// See the package-level documentation of {`balber`} for a description
+    /// of the decision procedure used to detect the encoding format for a
+    /// `bdlt::DateTz` value.
     static int getDateTzValue(bdlt::DateTz   *value,
                               bsl::streambuf *streamBuf,
                               int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date and time zone value represented by those bytes.  Return 0 on
-        // success, and a non-zero value otherwise.  The operation succeeds if
-        // 'length' bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of a date and time zone value.
-        // See the package-level documentation of {'balber'} for a description
-        // of the decision procedure used to detect the encoding format for a
-        // 'bdlt::DateTz' value.
 
     // 'bdlt::DateTz' Encoding
 
+    /// Write a representation of the specified `value` date and time zone
+    /// to the output sequence of the specified `streamBuf` according to the
+    /// specified `options`.  If `options` is 0, the default set of options
+    /// is used.  Return 0 on success, and a non-zero value otherwise.  This
+    /// operation succeeds if all bytes in the representation of the `value`
+    /// are written to the output sequence of the `streamBuf` without the
+    /// write position becoming unavailable.  See the class documentation
+    /// for a description of the default options.  See the package-level
+    /// documentation of {`balber`} for a description of the decision
+    /// procedure used to select an encoding format for the `value`.
     static int putDateTzValue(bsl::streambuf          *streamBuf,
                               const bdlt::DateTz&      date,
                               const BerEncoderOptions *options);
-        // Write a representation of the specified 'value' date and time zone
-        // to the output sequence of the specified 'streamBuf' according to the
-        // specified 'options'.  If 'options' is 0, the default set of options
-        // is used.  Return 0 on success, and a non-zero value otherwise.  This
-        // operation succeeds if all bytes in the representation of the 'value'
-        // are written to the output sequence of the 'streamBuf' without the
-        // write position becoming unavailable.  See the class documentation
-        // for a description of the default options.  See the package-level
-        // documentation of {'balber'} for a description of the decision
-        // procedure used to select an encoding format for the 'value'.
 
     // Variant Decoding
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date and optional time zone value represented by those bytes.
+    /// Return 0 on success, and a non-zero value otherwise.  The operation
+    /// succeeds if `length` bytes are successfully read from the input
+    /// sequence of the `streamBuf` without the read position becoming
+    /// unavailable, and the bytes contain a valid representation of a date
+    /// and optional time zone value.  See the package-level documentation
+    /// of {`balber`} for a description of the decision procedure used to
+    /// detect the encoding format for a `DateOrDateTz` value.
     static int getDateOrDateTzValue(DateOrDateTz   *value,
                                     bsl::streambuf *streamBuf,
                                     int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date and optional time zone value represented by those bytes.
-        // Return 0 on success, and a non-zero value otherwise.  The operation
-        // succeeds if 'length' bytes are successfully read from the input
-        // sequence of the 'streamBuf' without the read position becoming
-        // unavailable, and the bytes contain a valid representation of a date
-        // and optional time zone value.  See the package-level documentation
-        // of {'balber'} for a description of the decision procedure used to
-        // detect the encoding format for a 'DateOrDateTz' value.
 };
 
                         // ===========================
                         // struct BerUtil_TimeEncoding
                         // ===========================
 
+/// This component-private utility `struct` provides a namespace for
+/// enumerating the set of formats that may be used by `BerUtil` to encode
+/// and decode values of `bdlt::Time` type.
 struct BerUtil_TimeEncoding {
-    // This component-private utility 'struct' provides a namespace for
-    // enumerating the set of formats that may be used by 'BerUtil' to encode
-    // and decode values of 'bdlt::Time' type.
 
     // TYPES
+
+    /// `Encoding` is an alias to a namespace for enumerating the union of
+    /// the sets of date and time formats used to encode and decode all date
+    /// and time types supported by `BerUtil`.
     typedef BerUtil_DateAndTimeEncoding Encoding;
-        // 'Encoding' is an alias to a namespace for enumerating the union of
-        // the sets of date and time formats used to encode and decode all date
-        // and time types supported by 'BerUtil'.
 
     enum Value {
         e_ISO8601_TIME         = Encoding::e_ISO8601_TIME,
@@ -2207,16 +2238,17 @@ struct BerUtil_TimeEncoding {
                        // struct BerUtil_TimeTzEncoding
                        // =============================
 
+/// This component-private utility `struct` provides a namespace for
+/// enumerating the set of formats that may be used by `BerUtil` to encode
+/// and decode values of `bdlt::TimeTz` type.
 struct BerUtil_TimeTzEncoding {
-    // This component-private utility 'struct' provides a namespace for
-    // enumerating the set of formats that may be used by 'BerUtil' to encode
-    // and decode values of 'bdlt::TimeTz' type.
 
     // TYPES
+
+    /// `Encoding` is an alias to a namespace for enumerating the union of
+    /// the sets of date and time formats used to encode and decode all date
+    /// and time types supported by `BerUtil`.
     typedef BerUtil_DateAndTimeEncoding Encoding;
-        // 'Encoding' is an alias to a namespace for enumerating the union of
-        // the sets of date and time formats used to encode and decode all date
-        // and time types supported by 'BerUtil'.
 
     enum Value {
         e_ISO8601_TIMETZ         = Encoding::e_ISO8601_TIMETZ,
@@ -2235,16 +2267,17 @@ struct BerUtil_TimeTzEncoding {
                     // struct BerUtil_TimeOrTimeTzEncoding
                     // ===================================
 
+/// This component-private utility `struct` provides a namespace for
+/// enumerating the set of formats that may be used by `BerUtil` to decode
+/// values of `bdlb::Variant2<bdlt::Time, bdlt::TimeTz>` type.
 struct BerUtil_TimeOrTimeTzEncoding {
-    // This component-private utility 'struct' provides a namespace for
-    // enumerating the set of formats that may be used by 'BerUtil' to decode
-    // values of 'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' type.
 
     // TYPES
+
+    /// `Encoding` is an alias to a namespace for enumerating the union of
+    /// the sets of date and time formats used to encode and decode all date
+    /// and time types supported by `BerUtil`.
     typedef BerUtil_DateAndTimeEncoding Encoding;
-        // 'Encoding' is an alias to a namespace for enumerating the union of
-        // the sets of date and time formats used to encode and decode all date
-        // and time types supported by 'BerUtil'.
 
     enum Value {
         e_ISO8601_TIME           = Encoding::e_ISO8601_TIME,
@@ -2260,94 +2293,95 @@ struct BerUtil_TimeOrTimeTzEncoding {
                          // struct BerUtil_TimeImpUtil
                          // ==========================
 
+/// This component-private `struct` provides a namespace for a suite of
+/// functions used by `BerUtil` to implement BER encoding and decoding
+/// operations for time values.  Within the definition of this `struct`:
+///
+///: *the* *specification*:
+///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690,
+///:   and
+///:
+///: *the* *default* *set* *of* *options*:
+///:   Refers to a `balber::BerEncoderOptions` value having a
+///:   `datetimeFractionalSecondPrecision` attribute of 3 and a
+///:   `encodeDateAndTimeTypesAsBinary` attribute of `false`.
+///
+/// See the package level documentation of {`balber`} for a definition of
+/// the compact and extended binary formats for date and time values.
 struct BerUtil_TimeImpUtil {
-    // This component-private 'struct' provides a namespace for a suite of
-    // functions used by 'BerUtil' to implement BER encoding and decoding
-    // operations for time values.  Within the definition of this 'struct':
-    //
-    //: *the* *specification*:
-    //:   Refers to the August 2015 revision of the ITU-T Recommendation X.690,
-    //:   and
-    //:
-    //: *the* *default* *set* *of* *options*:
-    //:   Refers to a 'balber::BerEncoderOptions' value having a
-    //:   'datetimeFractionalSecondPrecision' attribute of 3 and a
-    //:   'encodeDateAndTimeTypesAsBinary' attribute of 'false'.
-    //
-    // See the package level documentation of {'balber'} for a definition of
-    // the compact and extended binary formats for date and time values.
 
     // TYPES
+
+    /// `DateAndTimeHeaderUtil` is an alias to a namespace for a suite of
+    /// functions used to implement encoding and decoding operations for the
+    /// 2-byte header of an extended-binary-encoding formatted date-and-time
+    /// value.
     typedef BerUtil_ExtendedBinaryEncodingUtil ExtendedBinaryEncodingUtil;
-        // 'DateAndTimeHeaderUtil' is an alias to a namespace for a suite of
-        // functions used to implement encoding and decoding operations for the
-        // 2-byte header of an extended-binary-encoding formatted date-and-time
-        // value.
 
+    /// `Header` is an alias to an in-core, value-semantic attribute class
+    /// that represents the range of valid values of the 2-byte header of
+    /// extended-binary-encoding formatted date-and-time values.
     typedef BerUtil_DateAndTimeHeader DateAndTimeHeader;
-        // 'Header' is an alias to an in-core, value-semantic attribute class
-        // that represents the range of valid values of the 2-byte header of
-        // extended-binary-encoding formatted date-and-time values.
 
+    /// `Type` is an alias to a namespace for enumerating the set of "header
+    /// type" values that may be encoded in the 2-byte header of an
+    /// extended-binary-encoding formatted date-and-time value.
     typedef BerUtil_DateAndTimeHeaderType DateAndTimeHeaderType;
-        // 'Type' is an alias to a namespace for enumerating the set of "header
-        // type" values that may be encoded in the 2-byte header of an
-        // extended-binary-encoding formatted date-and-time value.
 
+    /// `DateAndTimeHeaderUtil` is an alias to a namespace for a suite of
+    /// functions used to implement encoding and decoding operations for the
+    /// 2-byte header of an extended-binary-encoding formatted date-and-time
+    /// value.
     typedef BerUtil_DateAndTimeHeaderImpUtil DateAndTimeHeaderUtil;
-        // 'DateAndTimeHeaderUtil' is an alias to a namespace for a suite of
-        // functions used to implement encoding and decoding operations for the
-        // 2-byte header of an extended-binary-encoding formatted date-and-time
-        // value.
 
+    /// `IntegerUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for integer
+    /// values.
     typedef BerUtil_IntegerImpUtil IntegerUtil;
-        // 'IntegerUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for integer
-        // values.
 
+    /// `Iso8601Util` is an alias to a namespace for a suite of functions
+    /// used to implementing the encoding and decoding of date and time
+    /// values using the ISO 8601 format.
     typedef BerUtil_Iso8601ImpUtil Iso8601Util;
-        // 'Iso8601Util' is an alias to a namespace for a suite of functions
-        // used to implementing the encoding and decoding of date and time
-        // values using the ISO 8601 format.
 
+    /// `LengthUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for length
+    /// quantities.
     typedef BerUtil_LengthImpUtil LengthUtil;
-        // 'LengthUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for length
-        // quantities.
 
+    /// `StringUtil` is an alias to a namespace for a suite of functions
+    /// used by `BerUtil` to implement BER encoding and decoding operations
+    /// for string values.
     typedef BerUtil_StringImpUtil StringUtil;
-        // 'StringUtil' is an alias to a namespace for a suite of functions
-        // used by 'BerUtil' to implement BER encoding and decoding operations
-        // for string values.
 
+    /// `StreambufUtil` is an alias to a namespace for a suite of functions
+    /// used to implement input and output operations on `bsl::streambuf`
+    /// objects.
     typedef BerUtil_StreambufUtil StreambufUtil;
-        // 'StreambufUtil' is an alias to a namespace for a suite of functions
-        // used to implement input and output operations on 'bsl::streambuf'
-        // objects.
 
+    /// `TimeEncoding` is an alias to a namespace for enumerating the set of
+    /// formats that may be used by `BerUtil` to encode and decode values of
+    /// `bdlt::Time` type.
     typedef BerUtil_TimeEncoding TimeEncoding;
-        // 'TimeEncoding' is an alias to a namespace for enumerating the set of
-        // formats that may be used by 'BerUtil' to encode and decode values of
-        // 'bdlt::Time' type.
 
+    /// `TimeTzEncoding` is an alias to a namespace for enumerating the set
+    /// of formats that may be used by `BerUtil` to encode and decode values
+    /// of `bdlt::TimeTz` type.
     typedef BerUtil_TimeTzEncoding TimeTzEncoding;
-        // 'TimeTzEncoding' is an alias to a namespace for enumerating the set
-        // of formats that may be used by 'BerUtil' to encode and decode values
-        // of 'bdlt::TimeTz' type.
 
+    /// `TimeOrTimeTzEncoding` is an alias to a namespace for enumerating
+    /// the set of formats that may be used by `BerUtil` to decode to values
+    /// of `bdlb::Variant2<bdlt::Time, bdlt::TimeTz>` type.
     typedef BerUtil_TimeOrTimeTzEncoding TimeOrTimeTzEncoding;
-        // 'TimeOrTimeTzEncoding' is an alias to a namespace for enumerating
-        // the set of formats that may be used by 'BerUtil' to decode to values
-        // of 'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' type.
 
+    /// `TimezoneUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for time-zone
+    /// offset values.
     typedef BerUtil_TimezoneOffsetImpUtil TimezoneUtil;
-        // 'TimezoneUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for time-zone
-        // offset values.
 
+    /// `TimeOrTimeTz` is a convenient alias for
+    /// `bdlb::Variant2<bdlt::Time, bdlt::TimeTz>`.
     typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz> TimeOrTimeTz;
-        // 'TimeOrTimeTz' is a convenient alias for
-        // 'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>'.
 
   private:
     // PRIVATE TYPES
@@ -2397,422 +2431,423 @@ struct BerUtil_TimeImpUtil {
 
     // 'bdlt::Time' Decoding
 
+    /// Load to the specified `encoding` the enumerator that describes the
+    /// format used to encode a `bdlt::Time` value given the specified
+    /// `length` and `firstByte` of the encoded representation.  Return 0 on
+    /// success, -1 if the format is reserved for future use, and some other
+    /// non-zero value otherwise.
     static int detectTimeEncoding(TimeEncoding::Value *encoding,
                                   int                  length,
                                   unsigned char        firstByte);
-        // Load to the specified 'encoding' the enumerator that describes the
-        // format used to encode a 'bdlt::Time' value given the specified
-        // 'length' and 'firstByte' of the encoded representation.  Return 0 on
-        // success, -1 if the format is reserved for future use, and some other
-        // non-zero value otherwise.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time value represented by the interpretation of the read bytes as an
+    /// ISO 8601 time.  Return 0 on success, and a non-zero value otherwise.
+    /// The operation succeeds if `length` bytes are successfully read from
+    /// the input sequence of the `streamBuf` without the read position
+    /// becoming unavailable, and the bytes contain a valid representation
+    /// of an ISO 8601 time.
     static int getIso8601TimeValue(bdlt::Time     *value,
                                    bsl::streambuf *streamBuf,
                                    int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time value represented by the interpretation of the read bytes as an
-        // ISO 8601 time.  Return 0 on success, and a non-zero value otherwise.
-        // The operation succeeds if 'length' bytes are successfully read from
-        // the input sequence of the 'streamBuf' without the read position
-        // becoming unavailable, and the bytes contain a valid representation
-        // of an ISO 8601 time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time value represented by the interpretation of the read bytes as a
+    /// compact-binary time.  Return 0 on success, and a non-zero value
+    /// otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a
+    /// valid representation of a compact-binary time.
     static int getCompactBinaryTimeValue(bdlt::Time     *value,
                                          bsl::streambuf *streamBuf,
                                          int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time value represented by the interpretation of the read bytes as a
-        // compact-binary time.  Return 0 on success, and a non-zero value
-        // otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes contain a
-        // valid representation of a compact-binary time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time value represented by the interpretation of the read bytes as an
+    /// extended-binary time.  Return 0 on success, and a non-zero value
+    /// otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a
+    /// valid representation of a extended-binary time.
     static int getExtendedBinaryTimeValue(bdlt::Time     *value,
                                           bsl::streambuf *streamBuf,
                                           int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time value represented by the interpretation of the read bytes as an
-        // extended-binary time.  Return 0 on success, and a non-zero value
-        // otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes contain a
-        // valid representation of a extended-binary time.
 
     // 'bdlt::Time' Encoding
 
+    /// Determine the format that should be used to encode the specified
+    /// `value` given the `value` and the specified `options`.  If `options`
+    /// is 0, the default set of options is used.  Return an enumerator
+    /// identifying the selected format.
     static TimeEncoding::Value selectTimeEncoding(
                                              const bdlt::Time&        value,
                                              const BerEncoderOptions *options);
-        // Determine the format that should be used to encode the specified
-        // 'value' given the 'value' and the specified 'options'.  If 'options'
-        // is 0, the default set of options is used.  Return an enumerator
-        // identifying the selected format.
 
+    /// Write the ISO 8601 representation of the specified `value` to the
+    /// output sequence of the specified `streamBuf` according to the
+    /// specified `options`.  If `options` is 0, the default set of options
+    /// is used.  Return 0 on success, and a non-zero value otherwise.  The
+    /// operation succeeds if all bytes of the ISO 8601 representation of
+    /// the `value` are written to the `streamBuf` without the write
+    /// position becoming unavailable.
     static int putIso8601TimeValue(bsl::streambuf          *streamBuf,
                                    const bdlt::Time&        value,
                                    const BerEncoderOptions *options);
-        // Write the ISO 8601 representation of the specified 'value' to the
-        // output sequence of the specified 'streamBuf' according to the
-        // specified 'options'.  If 'options' is 0, the default set of options
-        // is used.  Return 0 on success, and a non-zero value otherwise.  The
-        // operation succeeds if all bytes of the ISO 8601 representation of
-        // the 'value' are written to the 'streamBuf' without the write
-        // position becoming unavailable.
 
+    /// Write the compact-binary time representation of the specified
+    /// `value` to the output sequence of the specified `streamBuf`
+    /// according to the specified `options`.  If `options` is 0, the
+    /// default set of options is used.  Return 0 on success, and a non-zero
+    /// value otherwise.  The operation succeeds if all bytes of the
+    /// compact-binary time representation of the `value` are written to the
+    /// `streamBuf` without the write position becoming unavailable.
     static int putCompactBinaryTimeValue(bsl::streambuf          *streamBuf,
                                          const bdlt::Time&        value,
                                          const BerEncoderOptions *options);
-        // Write the compact-binary time representation of the specified
-        // 'value' to the output sequence of the specified 'streamBuf'
-        // according to the specified 'options'.  If 'options' is 0, the
-        // default set of options is used.  Return 0 on success, and a non-zero
-        // value otherwise.  The operation succeeds if all bytes of the
-        // compact-binary time representation of the 'value' are written to the
-        // 'streamBuf' without the write position becoming unavailable.
 
+    /// Write the extended-binary time representation of the specified
+    /// `value` to the output sequence of the specified `streamBuf`
+    /// according to the specified `options`.  If `options` is 0, the
+    /// default set of options is used.  Return 0 on success, and a non-zero
+    /// value otherwise.  The operation succeeds if all bytes of the
+    /// extended-binary time representation of the `value` are written to
+    /// the `streamBuf` without the write position becoming unavailable.
     static int putExtendedBinaryTimeValue(bsl::streambuf          *streamBuf,
                                           const bdlt::Time&        value,
                                           const BerEncoderOptions *options);
-        // Write the extended-binary time representation of the specified
-        // 'value' to the output sequence of the specified 'streamBuf'
-        // according to the specified 'options'.  If 'options' is 0, the
-        // default set of options is used.  Return 0 on success, and a non-zero
-        // value otherwise.  The operation succeeds if all bytes of the
-        // extended-binary time representation of the 'value' are written to
-        // the 'streamBuf' without the write position becoming unavailable.
 
     // 'bdlt::TimeTz' Decoding
 
+    /// Load to the specified `encoding` the enumerator that describes the
+    /// format used to encode a `bdlt::Time` value given the specified
+    /// `length` and `firstByte` of the encoded representation.  Return 0 on
+    /// success, -1 if the format is reserved for future use, and some other
+    /// non-zero value otherwise.
     static int detectTimeTzEncoding(TimeTzEncoding::Value *encoding,
                                     int                    length,
                                     unsigned char          firstByte);
-        // Load to the specified 'encoding' the enumerator that describes the
-        // format used to encode a 'bdlt::Time' value given the specified
-        // 'length' and 'firstByte' of the encoded representation.  Return 0 on
-        // success, -1 if the format is reserved for future use, and some other
-        // non-zero value otherwise.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time and time zone value represented by the interpretation of the
+    /// read bytes as an ISO 8601 time and time zone.  Return 0 on success,
+    /// and a non-zero value otherwise.  The operation succeeds if `length`
+    /// bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of an ISO 8601 time and time
+    /// zone.
     static int getIso8601TimeTzValue(bdlt::TimeTz   *value,
                                      bsl::streambuf *streamBuf,
                                      int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time and time zone value represented by the interpretation of the
-        // read bytes as an ISO 8601 time and time zone.  Return 0 on success,
-        // and a non-zero value otherwise.  The operation succeeds if 'length'
-        // bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of an ISO 8601 time and time
-        // zone.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time value represented by the interpretation of the read bytes as a
+    /// compact-binary time.  Return 0 on success, and a non-zero value
+    /// otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a
+    /// valid representation of a compact-binary time.
     static int getCompactBinaryTimeValue(bdlt::TimeTz   *value,
                                          bsl::streambuf *streamBuf,
                                          int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time value represented by the interpretation of the read bytes as a
-        // compact-binary time.  Return 0 on success, and a non-zero value
-        // otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes contain a
-        // valid representation of a compact-binary time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time and time zone value represented by the interpretation of the
+    /// read bytes as a compact-binary time and time zone.  Return 0 on
+    /// success, and a non-zero value otherwise.  The operation succeeds if
+    /// `length` bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of a compact-binary time and
+    /// time zone.
     static int getCompactBinaryTimeTzValue(bdlt::TimeTz   *value,
                                            bsl::streambuf *streamBuf,
                                            int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time and time zone value represented by the interpretation of the
-        // read bytes as a compact-binary time and time zone.  Return 0 on
-        // success, and a non-zero value otherwise.  The operation succeeds if
-        // 'length' bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of a compact-binary time and
-        // time zone.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time and time zone value represented by the interpretation of the
+    /// read bytes as an extended-binary time and time zone.  Return 0 on
+    /// success, and a non-zero value otherwise.  The operation succeeds if
+    /// `length` bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of an extended-binary time and
+    /// time zone.
     static int getExtendedBinaryTimeTzValue(bdlt::TimeTz   *value,
                                             bsl::streambuf *streamBuf,
                                             int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time and time zone value represented by the interpretation of the
-        // read bytes as an extended-binary time and time zone.  Return 0 on
-        // success, and a non-zero value otherwise.  The operation succeeds if
-        // 'length' bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of an extended-binary time and
-        // time zone.
 
     // 'bdlt::TimeTz' Encoding
 
+    /// Determine the format that should be used to encode the specified
+    /// `value` given the `value` and the specified `options`.  If `options`
+    /// is 0, the default set of options is used.  Return an enumerator
+    /// identifying the selected format.
     static TimeTzEncoding::Value selectTimeTzEncoding(
                                              const bdlt::TimeTz&      value,
                                              const BerEncoderOptions *options);
-        // Determine the format that should be used to encode the specified
-        // 'value' given the 'value' and the specified 'options'.  If 'options'
-        // is 0, the default set of options is used.  Return an enumerator
-        // identifying the selected format.
 
+    /// Write the ISO 8601 representation of the specified `value` to the
+    /// output sequence of the specified `streamBuf` according to the
+    /// specified `options`.  If `options` is 0, the default set of options
+    /// is used.  Return 0 on success, and a non-zero value otherwise.  The
+    /// operation succeeds if all bytes of the ISO 8601 representation of
+    /// the `value` are written to the `streamBuf` without the write
+    /// position becoming unavailable.
     static int putIso8601TimeTzValue(bsl::streambuf          *streamBuf,
                                      const bdlt::TimeTz&      value,
                                      const BerEncoderOptions *options);
-        // Write the ISO 8601 representation of the specified 'value' to the
-        // output sequence of the specified 'streamBuf' according to the
-        // specified 'options'.  If 'options' is 0, the default set of options
-        // is used.  Return 0 on success, and a non-zero value otherwise.  The
-        // operation succeeds if all bytes of the ISO 8601 representation of
-        // the 'value' are written to the 'streamBuf' without the write
-        // position becoming unavailable.
 
+    /// Write the compact-binary time representation of the specified
+    /// `value` to the output sequence of the specified `streamBuf`
+    /// according to the specified `options`.  If `options` is 0, the
+    /// default set of options is used.  Return 0 on success, and a non-zero
+    /// value otherwise.  The operation succeeds if all bytes of the
+    /// compact-binary time representation of the `value` are written to the
+    /// `streamBuf` without the write position becoming unavailable.  The
+    /// behavior is undefined unless the `offset` of the `value` is 0.
     static int putCompactBinaryTimeValue(bsl::streambuf          *streamBuf,
                                          const bdlt::TimeTz&      value,
                                          const BerEncoderOptions *options);
-        // Write the compact-binary time representation of the specified
-        // 'value' to the output sequence of the specified 'streamBuf'
-        // according to the specified 'options'.  If 'options' is 0, the
-        // default set of options is used.  Return 0 on success, and a non-zero
-        // value otherwise.  The operation succeeds if all bytes of the
-        // compact-binary time representation of the 'value' are written to the
-        // 'streamBuf' without the write position becoming unavailable.  The
-        // behavior is undefined unless the 'offset' of the 'value' is 0.
 
+    /// Write the compact-binary date and time zone representation of the
+    /// specified `value` to the output sequence of the specified
+    /// `streamBuf` according to the specified `options`.  If `options` is
+    /// 0, the default set of options is used.  Return 0 on success, and a
+    /// non-zero value otherwise.  The operation succeeds if all bytes of
+    /// the compact-binary date representation of the `value` are written to
+    /// the `streamBuf` without the write position becoming unavailable.
     static int putCompactBinaryTimeTzValue(bsl::streambuf          *streamBuf,
                                            const bdlt::TimeTz&      value,
                                            const BerEncoderOptions *options);
-        // Write the compact-binary date and time zone representation of the
-        // specified 'value' to the output sequence of the specified
-        // 'streamBuf' according to the specified 'options'.  If 'options' is
-        // 0, the default set of options is used.  Return 0 on success, and a
-        // non-zero value otherwise.  The operation succeeds if all bytes of
-        // the compact-binary date representation of the 'value' are written to
-        // the 'streamBuf' without the write position becoming unavailable.
 
+    /// Write the extended-binary date and time zone representation of the
+    /// specified `value` to the output sequence of the specified
+    /// `streamBuf` according to the specified `options`.  If `options` is
+    /// 0, the default set of options is used.  Return 0 on success, and a
+    /// non-zero value otherwise.  The operation succeeds if all bytes of
+    /// the extended-binary date representation of the `value` are written
+    /// to the `streamBuf` without the write position becoming unavailable.
     static int putExtendedBinaryTimeTzValue(bsl::streambuf          *streamBuf,
                                             const bdlt::TimeTz&      value,
                                             const BerEncoderOptions *options);
-        // Write the extended-binary date and time zone representation of the
-        // specified 'value' to the output sequence of the specified
-        // 'streamBuf' according to the specified 'options'.  If 'options' is
-        // 0, the default set of options is used.  Return 0 on success, and a
-        // non-zero value otherwise.  The operation succeeds if all bytes of
-        // the extended-binary date representation of the 'value' are written
-        // to the 'streamBuf' without the write position becoming unavailable.
 
     // Variant Decoding
 
+    /// Load to the specified `encoding` the enumerator that describes the
+    /// format used to encode a `bdlt::Time` or `bdlt::TimeTz` value given
+    /// the specified `length` and `firstByte` of the encoded
+    /// representation.  Return 0 on success, -1 if the format is reserved
+    /// for future use, and some other non-zero value otherwise.
     static int detectTimeOrTimeTzEncoding(
                                        TimeOrTimeTzEncoding::Value *encoding,
                                        int                          length,
                                        unsigned char                firstByte);
-        // Load to the specified 'encoding' the enumerator that describes the
-        // format used to encode a 'bdlt::Time' or 'bdlt::TimeTz' value given
-        // the specified 'length' and 'firstByte' of the encoded
-        // representation.  Return 0 on success, -1 if the format is reserved
-        // for future use, and some other non-zero value otherwise.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time value represented by the interpretation of the read bytes as an
+    /// ISO 8601 time.  Return 0 on success, and a non-zero value otherwise.
+    /// The operation succeeds if `length` bytes are successfully read from
+    /// the input sequence of the `streamBuf` without the read position
+    /// becoming unavailable, and the bytes contain a valid representation
+    /// of an ISO 8601 time.
     static int getIso8601TimeValue(TimeOrTimeTz   *value,
                                    bsl::streambuf *streamBuf,
                                    int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time value represented by the interpretation of the read bytes as an
-        // ISO 8601 time.  Return 0 on success, and a non-zero value otherwise.
-        // The operation succeeds if 'length' bytes are successfully read from
-        // the input sequence of the 'streamBuf' without the read position
-        // becoming unavailable, and the bytes contain a valid representation
-        // of an ISO 8601 time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time and time zone value represented by the interpretation of the
+    /// read bytes as an ISO 8601 time and time zone.  Return 0 on success,
+    /// and a non-zero value otherwise.  The operation succeeds if `length`
+    /// bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of an ISO 8601 time and time
+    /// zone.
     static int getIso8601TimeTzValue(TimeOrTimeTz   *value,
                                      bsl::streambuf *streamBuf,
                                      int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time and time zone value represented by the interpretation of the
-        // read bytes as an ISO 8601 time and time zone.  Return 0 on success,
-        // and a non-zero value otherwise.  The operation succeeds if 'length'
-        // bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of an ISO 8601 time and time
-        // zone.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time value represented by the interpretation of the read bytes as a
+    /// compact-binary time.  Return 0 on success, and a non-zero value
+    /// otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a
+    /// valid representation of a compact-binary time.
     static int getCompactBinaryTimeValue(TimeOrTimeTz   *value,
                                          bsl::streambuf *streamBuf,
                                          int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time value represented by the interpretation of the read bytes as a
-        // compact-binary time.  Return 0 on success, and a non-zero value
-        // otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes contain a
-        // valid representation of a compact-binary time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time and time zone value represented by the interpretation of the
+    /// read bytes as a compact-binary time and time zone.  Return 0 on
+    /// success, and a non-zero value otherwise.  The operation succeeds if
+    /// `length` bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of a compact-binary time and
+    /// time zone.
     static int getCompactBinaryTimeTzValue(TimeOrTimeTz   *value,
                                            bsl::streambuf *streamBuf,
                                            int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time and time zone value represented by the interpretation of the
-        // read bytes as a compact-binary time and time zone.  Return 0 on
-        // success, and a non-zero value otherwise.  The operation succeeds if
-        // 'length' bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of a compact-binary time and
-        // time zone.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time value represented by the interpretation of the read bytes as a
+    /// extended-binary time.  Return 0 on success, and a non-zero value
+    /// otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a
+    /// valid representation of an extended-binary time.
     static int getExtendedBinaryTimeValue(TimeOrTimeTz   *value,
                                           bsl::streambuf *streamBuf,
                                           int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time value represented by the interpretation of the read bytes as a
-        // extended-binary time.  Return 0 on success, and a non-zero value
-        // otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes contain a
-        // valid representation of an extended-binary time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time and time zone value represented by the interpretation of the
+    /// read bytes as an extended-binary time and time zone.  Return 0 on
+    /// success, and a non-zero value otherwise.  The operation succeeds if
+    /// `length` bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of an extended-binary time and
+    /// time zone.
     static int getExtendedBinaryTimeTzValue(TimeOrTimeTz   *value,
                                             bsl::streambuf *streamBuf,
                                             int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time and time zone value represented by the interpretation of the
-        // read bytes as an extended-binary time and time zone.  Return 0 on
-        // success, and a non-zero value otherwise.  The operation succeeds if
-        // 'length' bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of an extended-binary time and
-        // time zone.
 
   public:
     // CLASS METHODS
 
     // Utilities
 
+    /// Load to the specified `millisecondsSinceMidnight` the number of
+    /// milliseconds in the specified `time` value.
     static void timeToMillisecondsSinceMidnight(
                                   int               *millisecondsSinceMidnight,
                                   const bdlt::Time&  time);
-        // Load to the specified 'millisecondsSinceMidnight' the number of
-        // milliseconds in the specified 'time' value.
 
+    /// Load to the specified `microsecondsSinceMidnight` the number of
+    /// microseconds in the specified `time` value.
     static void timeToMicrosecondsSinceMidnight(
                                  bsls::Types::Int64 *microsecondsSinceMidnight,
                                  const bdlt::Time&   time);
-        // Load to the specified 'microsecondsSinceMidnight' the number of
-        // microseconds in the specified 'time' value.
 
+    /// Load to the specified `time` the time value represented by the
+    /// specified `millisecondsSinceMidnight`.
     static int millisecondsSinceMidnightToTime(
                                         bdlt::Time *time,
                                         int         millisecondsSinceMidnight);
-        // Load to the specified 'time' the time value represented by the
-        // specified 'millisecondsSinceMidnight'.
 
+    /// Load to the specified `time` the time value represented by the
+    /// specified `microsecondsSinceMidnight`.
     static int microsecondsSinceMidnightToTime(
                                 bdlt::Time         *time,
                                 bsls::Types::Int64  microsecondsSinceMidnight);
-        // Load to the specified 'time' the time value represented by the
-        // specified 'microsecondsSinceMidnight'.
 
     // 'bdlt::Time' Decoding
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time value represented those bytes.  Return 0 on success, and a
+    /// non-zero value otherwise.  The operation succeeds if `length` bytes
+    /// are successfully read from the input sequence of the `streamBuf`
+    /// without the read position becoming unavailable, and the bytes
+    /// contain a valid representation of a time value.  See the
+    /// package-level documentation of {`balber`} for a description of the
+    /// decision procedure used to detect the encoding format for a
+    /// `bdlt::Time` value.
     static int getTimeValue(bdlt::Time     *value,
                             bsl::streambuf *streamBuf,
                             int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time value represented those bytes.  Return 0 on success, and a
-        // non-zero value otherwise.  The operation succeeds if 'length' bytes
-        // are successfully read from the input sequence of the 'streamBuf'
-        // without the read position becoming unavailable, and the bytes
-        // contain a valid representation of a time value.  See the
-        // package-level documentation of {'balber'} for a description of the
-        // decision procedure used to detect the encoding format for a
-        // 'bdlt::Time' value.
 
     // 'bdlt::Time' Encoding
 
+    /// Write a representation of the specified time `value` to the output
+    /// sequence of the specified `streamBuf` according to the specified
+    /// `options`.  If `options` is 0, the default set of options is used.
+    /// Return 0 on success, and a non-zero value otherwise.  This operation
+    /// succeeds if all bytes in the representation of the `value` are
+    /// written to the output sequence of the `streamBuf` without the write
+    /// position becoming unavailable.  See the class documentation for a
+    /// description of the default options.  See the package-level
+    /// documentation of {`balber`} for a description of the decision
+    /// procedure used to select an encoding format for the `value`.
     static int putTimeValue(bsl::streambuf          *streamBuf,
                             const bdlt::Time&        value,
                             const BerEncoderOptions *options);
-        // Write a representation of the specified time 'value' to the output
-        // sequence of the specified 'streamBuf' according to the specified
-        // 'options'.  If 'options' is 0, the default set of options is used.
-        // Return 0 on success, and a non-zero value otherwise.  This operation
-        // succeeds if all bytes in the representation of the 'value' are
-        // written to the output sequence of the 'streamBuf' without the write
-        // position becoming unavailable.  See the class documentation for a
-        // description of the default options.  See the package-level
-        // documentation of {'balber'} for a description of the decision
-        // procedure used to select an encoding format for the 'value'.
 
     // 'bdlt::TimeTz' Decoding
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time and time zone value represented by those bytes.  Return 0 on
+    /// success, and a non-zero value otherwise.  The operation succeeds if
+    /// `length` bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of a time and time zone value.
+    /// See the package-level documentation of {`balber`} for a description
+    /// of the decision procedure used to detect the encoding format for a
+    /// `bdlt::TimeTz` value.
     static int getTimeTzValue(bdlt::TimeTz   *value,
                               bsl::streambuf *streamBuf,
                               int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time and time zone value represented by those bytes.  Return 0 on
-        // success, and a non-zero value otherwise.  The operation succeeds if
-        // 'length' bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of a time and time zone value.
-        // See the package-level documentation of {'balber'} for a description
-        // of the decision procedure used to detect the encoding format for a
-        // 'bdlt::TimeTz' value.
 
     // 'bdlt::TimeTz' Encoding
 
+    /// Write a representation of the specified time and time-zone `value`
+    /// to the output sequence of the specified `streamBuf` according to the
+    /// specified `options`.  If `options` is 0, the default set of options
+    /// is used.  Return 0 on success, and a non-zero value otherwise.  This
+    /// operation succeeds if all bytes in the representation of the `value`
+    /// are written to the output sequence of the `streamBuf` without the
+    /// write position becoming unavailable.  See the class documentation
+    /// for a description of the default options.  See the package-level
+    /// documentation of {`balber`} for a description of the decision
+    /// procedure used to select an encoding format for the `value`.
     static int putTimeTzValue(bsl::streambuf          *streamBuf,
                               const bdlt::TimeTz&      value,
                               const BerEncoderOptions *options);
-        // Write a representation of the specified time and time-zone 'value'
-        // to the output sequence of the specified 'streamBuf' according to the
-        // specified 'options'.  If 'options' is 0, the default set of options
-        // is used.  Return 0 on success, and a non-zero value otherwise.  This
-        // operation succeeds if all bytes in the representation of the 'value'
-        // are written to the output sequence of the 'streamBuf' without the
-        // write position becoming unavailable.  See the class documentation
-        // for a description of the default options.  See the package-level
-        // documentation of {'balber'} for a description of the decision
-        // procedure used to select an encoding format for the 'value'.
 
     // Variant Decoding
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time and optional time zone value represented by those bytes.
+    /// Return 0 on success, and a non-zero value otherwise.  The operation
+    /// succeeds if `length` bytes are successfully read from the input
+    /// sequence of the `streamBuf` without the read position becoming
+    /// unavailable, and the bytes contain a valid representation of a time
+    /// and optional time zone value.  See the package-level documentation
+    /// of {`balber`} for a description of the decision procedure used to
+    /// detect the encoding format for a `TimeOrTimeTz` value.
     static int getTimeOrTimeTzValue(TimeOrTimeTz   *value,
                                     bsl::streambuf *streamBuf,
                                     int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time and optional time zone value represented by those bytes.
-        // Return 0 on success, and a non-zero value otherwise.  The operation
-        // succeeds if 'length' bytes are successfully read from the input
-        // sequence of the 'streamBuf' without the read position becoming
-        // unavailable, and the bytes contain a valid representation of a time
-        // and optional time zone value.  See the package-level documentation
-        // of {'balber'} for a description of the decision procedure used to
-        // detect the encoding format for a 'TimeOrTimeTz' value.
 };
 
                       // ===============================
                       // struct BerUtil_DatetimeEncoding
                       // ===============================
 
+/// This component-private utility `struct` provides a namespace for
+/// enumerating the set of formats that may be used by `BerUtil` to encode
+/// and decode values of `bdlt::Datetime` type.
 struct BerUtil_DatetimeEncoding {
-    // This component-private utility 'struct' provides a namespace for
-    // enumerating the set of formats that may be used by 'BerUtil' to encode
-    // and decode values of 'bdlt::Datetime' type.
 
     // TYPES
+
+    /// `Encoding` is an alias to a namespace for enumerating the union of
+    /// the sets of date and time formats used to encode and decode all date
+    /// and time types supported by `BerUtil`.
     typedef BerUtil_DateAndTimeEncoding Encoding;
-        // 'Encoding' is an alias to a namespace for enumerating the union of
-        // the sets of date and time formats used to encode and decode all date
-        // and time types supported by 'BerUtil'.
 
     enum Value {
         e_ISO8601_DATETIME          = Encoding::e_ISO8601_DATETIME,
@@ -2831,16 +2866,17 @@ struct BerUtil_DatetimeEncoding {
                      // struct BerUtil_DatetimeTzEncoding
                      // =================================
 
+/// This component-private utility `struct` provides a namespace for
+/// enumerating the set of formats that may be used by `BerUtil` to encode
+/// and decode values of `bdlt::DatetimeTz` type.
 struct BerUtil_DatetimeTzEncoding {
-    // This component-private utility 'struct' provides a namespace for
-    // enumerating the set of formats that may be used by 'BerUtil' to encode
-    // and decode values of 'bdlt::DatetimeTz' type.
 
     // TYPES
+
+    /// `Encoding` is an alias to a namespace for enumerating the union of
+    /// the sets of date and time formats used to encode and decode all date
+    /// and time types supported by `BerUtil`.
     typedef BerUtil_DateAndTimeEncoding Encoding;
-        // 'Encoding' is an alias to a namespace for enumerating the union of
-        // the sets of date and time formats used to encode and decode all date
-        // and time types supported by 'BerUtil'.
 
     enum Value {
         e_ISO8601_DATETIMETZ         = Encoding::e_ISO8601_DATETIMETZ,
@@ -2859,16 +2895,17 @@ struct BerUtil_DatetimeTzEncoding {
                 // struct BerUtil_DatetimeOrDatetimeTzEncoding
                 // ===========================================
 
+/// This component-private utility `struct` provides a namespace for
+/// enumerating the set of formats that may be used by `BerUtil` to decode
+/// to values of `bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>` type.
 struct BerUtil_DatetimeOrDatetimeTzEncoding {
-    // This component-private utility 'struct' provides a namespace for
-    // enumerating the set of formats that may be used by 'BerUtil' to decode
-    // to values of 'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>' type.
 
     // TYPES
+
+    /// `Encoding` is an alias to a namespace for enumerating the union of
+    /// the sets of date and time formats used to encode and decode all date
+    /// and time types supported by `BerUtil`.
     typedef BerUtil_DateAndTimeEncoding Encoding;
-        // 'Encoding' is an alias to a namespace for enumerating the union of
-        // the sets of date and time formats used to encode and decode all date
-        // and time types supported by 'BerUtil'.
 
     enum Value {
         e_ISO8601_DATETIME           = Encoding::e_ISO8601_DATETIME,
@@ -2884,105 +2921,106 @@ struct BerUtil_DatetimeOrDatetimeTzEncoding {
                        // struct BerUtil_DatetimeImpUtil
                        // ==============================
 
+/// This component-private `struct` provides a namespace for a suite of
+/// functions used by `BerUtil` to implement BER encoding and decoding
+/// operations for date and time values.  Within the definition of this
+/// `struct`:
+///
+///: *the* *specification*:
+///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690,
+///:   and
+///:
+///: *the* *default* *set* *of* *options*:
+///:   Refers to a `balber::BerEncoderOptions` value having a
+///:   `datetimeFractionalSecondPrecision` attribute of 3 and a
+///:   `encodeDateAndTimeTypesAsBinary` attribute of `false`.
+///
+/// See the package level documentation of {`balber`} for a definition of
+/// the compact and extended binary formats for date and time values.
 struct BerUtil_DatetimeImpUtil {
-    // This component-private 'struct' provides a namespace for a suite of
-    // functions used by 'BerUtil' to implement BER encoding and decoding
-    // operations for date and time values.  Within the definition of this
-    // 'struct':
-    //
-    //: *the* *specification*:
-    //:   Refers to the August 2015 revision of the ITU-T Recommendation X.690,
-    //:   and
-    //:
-    //: *the* *default* *set* *of* *options*:
-    //:   Refers to a 'balber::BerEncoderOptions' value having a
-    //:   'datetimeFractionalSecondPrecision' attribute of 3 and a
-    //:   'encodeDateAndTimeTypesAsBinary' attribute of 'false'.
-    //
-    // See the package level documentation of {'balber'} for a definition of
-    // the compact and extended binary formats for date and time values.
 
     // TYPES
+
+    /// `Constants` is an alias to a namespace for a suite of
+    /// general-purpose constants that occur when encoding or decoding BER
+    /// data.
     typedef BerUtil_Constants Constants;
-        // 'Constants' is an alias to a namespace for a suite of
-        // general-purpose constants that occur when encoding or decoding BER
-        // data.
 
+    /// `DateAndTimeHeaderUtil` is an alias to a namespace for a suite of
+    /// functions used to implement encoding and decoding operations for the
+    /// 2-byte header of an extended-binary-encoding formatted date-and-time
+    /// value.
     typedef BerUtil_ExtendedBinaryEncodingUtil ExtendedBinaryEncodingUtil;
-        // 'DateAndTimeHeaderUtil' is an alias to a namespace for a suite of
-        // functions used to implement encoding and decoding operations for the
-        // 2-byte header of an extended-binary-encoding formatted date-and-time
-        // value.
 
+    /// `Header` is an alias to an in-core, value-semantic attribute class
+    /// that represents the range of valid values of the 2-byte header of
+    /// extended-binary-encoding formatted date-and-time values.
     typedef BerUtil_DateAndTimeHeader DateAndTimeHeader;
-        // 'Header' is an alias to an in-core, value-semantic attribute class
-        // that represents the range of valid values of the 2-byte header of
-        // extended-binary-encoding formatted date-and-time values.
 
+    /// `DateAndTimeHeaderUtil` is an alias to a namespace for a suite of
+    /// functions used to implement encoding and decoding operations for the
+    /// 2-byte header of an extended-binary-encoding formatted date-and-time
+    /// value.
     typedef BerUtil_DateAndTimeHeaderImpUtil DateAndTimeHeaderUtil;
-        // 'DateAndTimeHeaderUtil' is an alias to a namespace for a suite of
-        // functions used to implement encoding and decoding operations for the
-        // 2-byte header of an extended-binary-encoding formatted date-and-time
-        // value.
 
+    /// `DateUtil` is an alias to a namespace for a suite of functions used
+    /// to implement BER encoding and decoding operations for date values.
     typedef BerUtil_DateImpUtil DateUtil;
-        // 'DateUtil' is an alias to a namespace for a suite of functions used
-        // to implement BER encoding and decoding operations for date values.
 
+    /// `DatetimeEncoding` is an alias to a namespace for enumerating the
+    /// set of formats that may be used by `BerUtil` to encode and decode
+    /// values of `bdlt::Datetime` type.
     typedef BerUtil_DatetimeEncoding DatetimeEncoding;
-        // 'DatetimeEncoding' is an alias to a namespace for enumerating the
-        // set of formats that may be used by 'BerUtil' to encode and decode
-        // values of 'bdlt::Datetime' type.
 
+    /// `DatetimeTzEncoding` is an alias to a namespace for enumerating the
+    /// set of formats that may be used by `BerUtil` to encode and decode
+    /// values of `bdlt::DatetimeTz` type.
     typedef BerUtil_DatetimeTzEncoding DatetimeTzEncoding;
-        // 'DatetimeTzEncoding' is an alias to a namespace for enumerating the
-        // set of formats that may be used by 'BerUtil' to encode and decode
-        // values of 'bdlt::DatetimeTz' type.
 
+    /// `DatetimeOrDatetimeTzEncoding` is an alias to a namespace for
+    /// enumerating the set of formats that may be used by `BerUtil` to
+    /// decode to values of
+    /// `bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>` type.
     typedef BerUtil_DatetimeOrDatetimeTzEncoding DatetimeOrDatetimeTzEncoding;
-        // 'DatetimeOrDatetimeTzEncoding' is an alias to a namespace for
-        // enumerating the set of formats that may be used by 'BerUtil' to
-        // decode to values of
-        // 'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>' type.
 
+    /// `IntegerUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for integer
+    /// values.
     typedef BerUtil_IntegerImpUtil IntegerUtil;
-        // 'IntegerUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for integer
-        // values.
 
+    /// `Iso8601Util` is an alias to a namespace for a suite of functions
+    /// used to implementing the encoding and decoding of date and time
+    /// values using the ISO 8601 format.
     typedef BerUtil_Iso8601ImpUtil Iso8601Util;
-        // 'Iso8601Util' is an alias to a namespace for a suite of functions
-        // used to implementing the encoding and decoding of date and time
-        // values using the ISO 8601 format.
 
+    /// `LengthUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for length
+    /// quantities.
     typedef BerUtil_LengthImpUtil LengthUtil;
-        // 'LengthUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for length
-        // quantities.
 
+    /// `StreambufUtil` is an alias to a namespace for a suite of functions
+    /// used to implement input and output operations on `bsl::streambuf`
+    /// objects.
     typedef BerUtil_StreambufUtil StreambufUtil;
-        // 'StreambufUtil' is an alias to a namespace for a suite of functions
-        // used to implement input and output operations on 'bsl::streambuf'
-        // objects.
 
+    /// `StringUtil` is an alias to a namespace for a suite of functions
+    /// used by `BerUtil` to implement BER encoding and decoding operations
+    /// for string values.
     typedef BerUtil_StringImpUtil StringUtil;
-        // 'StringUtil' is an alias to a namespace for a suite of functions
-        // used by 'BerUtil' to implement BER encoding and decoding operations
-        // for string values.
 
+    /// `DateUtil` is an alias to a namespace for a suite of functions used
+    /// to implement BER encoding and decoding operations for time values.
     typedef BerUtil_TimeImpUtil TimeUtil;
-        // 'DateUtil' is an alias to a namespace for a suite of functions used
-        // to implement BER encoding and decoding operations for time values.
 
+    /// `TimezoneUtil` is an alias to a namespace for a suite of functions
+    /// used to implement BER encoding and decoding operations for time-zone
+    /// offset values.
     typedef BerUtil_TimezoneOffsetImpUtil TimezoneUtil;
-        // 'TimezoneUtil' is an alias to a namespace for a suite of functions
-        // used to implement BER encoding and decoding operations for time-zone
-        // offset values.
 
+    /// `DatetimeOrDatetimeTz` is a convenient alias for
+    /// `bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>`.
     typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
         DatetimeOrDatetimeTz;
-        // 'DatetimeOrDatetimeTz' is a convenient alias for
-        // 'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>'.
 
   private:
     // PRIVATE TYPES
@@ -3035,538 +3073,547 @@ struct BerUtil_DatetimeImpUtil {
 
     // Utilities
 
+    /// Load to the specified `millisecondsFromEpoch` the number of
+    /// milliseconds between the start of the day on the compact-binary date
+    /// epoch and the specified `value`.  The compact-binary date epoch is
+    /// the date defined by the `DateUtil::k_COMPACT_BINARY_DATE_EPOCH`
+    /// serial date.  Note that this quantity may be negative if the
+    /// specified `value` occurs before the compact-binary date epoch.
     static void datetimeToMillisecondsSinceEpoch(
                                  bsls::Types::Int64    *millisecondsSinceEpoch,
                                  const bdlt::Datetime&  value);
-        // Load to the specified 'millisecondsFromEpoch' the number of
-        // milliseconds between the start of the day on the compact-binary date
-        // epoch and the specified 'value'.  The compact-binary date epoch is
-        // the date defined by the 'DateUtil::k_COMPACT_BINARY_DATE_EPOCH'
-        // serial date.  Note that this quantity may be negative if the
-        // specified 'value' occurs before the compact-binary date epoch.
 
+    /// Load to the specified `value` the date and time represented by the
+    /// specified `millisecondsSinceEpoch` number of milliseconds from the
+    /// compact-binary date epoch.  The compact-binary date epoch is the
+    /// date defined by the `DateUtil::k_COMPACT_BINARY_DATE_EPOCH` serial
+    /// date.  Return 0 on success, and a non-zero value otherwise.  The
+    /// operation succeeds if the resulting date and time is a valid
+    /// `bdlt::Datetime` value.  Note that `millisecondsSinceEpoch` may be
+    /// negative to indicate a date and time that occurs before the
+    /// compact-binary date epoch.
     static int millisecondsSinceEpochToDatetime(
                                    bdlt::Datetime     *value,
                                    bsls::Types::Int64  millisecondsSinceEpoch);
-        // Load to the specified 'value' the date and time represented by the
-        // specified 'millisecondsSinceEpoch' number of milliseconds from the
-        // compact-binary date epoch.  The compact-binary date epoch is the
-        // date defined by the 'DateUtil::k_COMPACT_BINARY_DATE_EPOCH' serial
-        // date.  Return 0 on success, and a non-zero value otherwise.  The
-        // operation succeeds if the resulting date and time is a valid
-        // 'bdlt::Datetime' value.  Note that 'millisecondsSinceEpoch' may be
-        // negative to indicate a date and time that occurs before the
-        // compact-binary date epoch.
 
     // 'bdlt::Datetime' Decoding
 
+    /// Load to the specified `encoding` the enumerator that describes the
+    /// format used to encode a `bdlt::Datetime` value given the specified
+    /// `length` and `firstByte` of the encoded representation.  Return 0 on
+    /// success, -1 if the format is reserved for future use, and some other
+    /// non-zero value otherwise.
     static int detectDatetimeEncoding(DatetimeEncoding::Value *encoding,
                                       int                      length,
                                       unsigned char            firstByte);
-        // Load to the specified 'encoding' the enumerator that describes the
-        // format used to encode a 'bdlt::Datetime' value given the specified
-        // 'length' and 'firstByte' of the encoded representation.  Return 0 on
-        // success, -1 if the format is reserved for future use, and some other
-        // non-zero value otherwise.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date and time value represented by the interpretation of the read
+    /// bytes as an ISO 8601 date and time.  Return 0 on success, and a
+    /// non-zero value otherwise.  The operation succeeds if `length` bytes
+    /// are successfully read from the input sequence of the `streamBuf`
+    /// without the read position becoming unavailable, and the bytes
+    /// contain a valid representation of an ISO 8601 date and time.
     static int getIso8601DatetimeValue(bdlt::Datetime *value,
                                        bsl::streambuf *streamBuf,
                                        int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date and time value represented by the interpretation of the read
-        // bytes as an ISO 8601 date and time.  Return 0 on success, and a
-        // non-zero value otherwise.  The operation succeeds if 'length' bytes
-        // are successfully read from the input sequence of the 'streamBuf'
-        // without the read position becoming unavailable, and the bytes
-        // contain a valid representation of an ISO 8601 date and time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date and time value represented by the interpretation of the read
+    /// bytes as a compact-binary date and time.  Return 0 on success, and a
+    /// non-zero value otherwise.  The operation succeeds if `length` bytes
+    /// are successfully read from the input sequence of the `streamBuf`
+    /// without the read position becoming unavailable, and the bytes
+    /// contain a valid representation of a compact-binary date and time.
     static int getCompactBinaryDatetimeValue(bdlt::Datetime *value,
                                              bsl::streambuf *streamBuf,
                                              int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date and time value represented by the interpretation of the read
-        // bytes as a compact-binary date and time.  Return 0 on success, and a
-        // non-zero value otherwise.  The operation succeeds if 'length' bytes
-        // are successfully read from the input sequence of the 'streamBuf'
-        // without the read position becoming unavailable, and the bytes
-        // contain a valid representation of a compact-binary date and time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date and time value represented by the interpretation of the read
+    /// bytes as a compact-binary date, time, and time zone.  Return 0 on
+    /// success, and a non-zero value otherwise.  The operation succeeds if
+    /// `length` bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of a compact-binary date, time,
+    /// and time zone.
     static int getCompactBinaryDatetimeTzValue(bdlt::Datetime *value,
                                                bsl::streambuf *streamBuf,
                                                int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date and time value represented by the interpretation of the read
-        // bytes as a compact-binary date, time, and time zone.  Return 0 on
-        // success, and a non-zero value otherwise.  The operation succeeds if
-        // 'length' bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of a compact-binary date, time,
-        // and time zone.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date and time value represented by the interpretation of the read
+    /// bytes as an extended-binary date, time, and time zone.  Return 0 on
+    /// success, and a non-zero value otherwise.  The operation succeeds if
+    /// `length` bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of an extended-binary date,
+    /// time, and time zone.
     static int getExtendedBinaryDatetimeValue(bdlt::Datetime *value,
                                               bsl::streambuf *streamBuf,
                                               int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date and time value represented by the interpretation of the read
-        // bytes as an extended-binary date, time, and time zone.  Return 0 on
-        // success, and a non-zero value otherwise.  The operation succeeds if
-        // 'length' bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of an extended-binary date,
-        // time, and time zone.
 
     // 'bdlt::Datetime' Encoding
 
+    /// Determine the format that should be used to encode the specified
+    /// `value` given the `value` and the specified `options`.  Load to the
+    /// specified `serialDatetime` the number of milliseconds since the
+    /// start of the day on the compact-binary date epoch to the `value`,
+    /// and load to the specified `length` the number of contents octets
+    /// that would be used by the BER encoding of `serialDatetime` according
+    /// to the specification.  If `options` is 0, the default set of options
+    /// is used.  Return an enumerator identifying the selected format.
+    /// Note that the `serialDatetime` and `length` of a date and time value
+    /// are frequently used as arguments to date and time encoding
+    /// operations defined in this `struct`.
     static DatetimeEncoding::Value selectDatetimeEncoding(
                                        bsls::Types::Int64      *serialDatetime,
                                        int                     *length,
                                        const bdlt::Datetime&    value,
                                        const BerEncoderOptions *options);
-        // Determine the format that should be used to encode the specified
-        // 'value' given the 'value' and the specified 'options'.  Load to the
-        // specified 'serialDatetime' the number of milliseconds since the
-        // start of the day on the compact-binary date epoch to the 'value',
-        // and load to the specified 'length' the number of contents octets
-        // that would be used by the BER encoding of 'serialDatetime' according
-        // to the specification.  If 'options' is 0, the default set of options
-        // is used.  Return an enumerator identifying the selected format.
-        // Note that the 'serialDatetime' and 'length' of a date and time value
-        // are frequently used as arguments to date and time encoding
-        // operations defined in this 'struct'.
 
+    /// Write the ISO 8601 representation of the specified `value` to the
+    /// output sequence of the specified `streamBuf` according to the
+    /// specified `options`.  If `options` is 0, the default set of options
+    /// is used.  Return 0 on success, and a non-zero value otherwise.  The
+    /// operation succeeds if all bytes of the ISO 8601 representation of
+    /// the `value` are written to the `streamBuf` without the write
+    /// position becoming unavailable.
     static int putIso8601DatetimeValue(bsl::streambuf          *streamBuf,
                                        const bdlt::Datetime&    value,
                                        const BerEncoderOptions *options);
-        // Write the ISO 8601 representation of the specified 'value' to the
-        // output sequence of the specified 'streamBuf' according to the
-        // specified 'options'.  If 'options' is 0, the default set of options
-        // is used.  Return 0 on success, and a non-zero value otherwise.  The
-        // operation succeeds if all bytes of the ISO 8601 representation of
-        // the 'value' are written to the 'streamBuf' without the write
-        // position becoming unavailable.
 
+    /// Write the specified `length` number of octets of the compact-binary
+    /// date and time representation of the specified `serialDatetime`
+    /// number of milliseconds from the start of the day on the
+    /// compact-binary serial epoch to the output sequence of the specified
+    /// `streamBuf` according to the specified `options`.  If `options` is
+    /// 0, the default set of options is used.  Return 0 on success, and a
+    /// non-zero value otherwise.  The operation succeeds if all `length`
+    /// bytes of the representation of the `serialDatetime` are written to
+    /// the `streamBuf` without the write position becoming unavailable.
     static int putCompactBinaryDatetimeValue(
                                        bsl::streambuf          *streamBuf,
                                        bsls::Types::Int64       serialDatetime,
                                        int                      length,
                                        const BerEncoderOptions *options);
-        // Write the specified 'length' number of octets of the compact-binary
-        // date and time representation of the specified 'serialDatetime'
-        // number of milliseconds from the start of the day on the
-        // compact-binary serial epoch to the output sequence of the specified
-        // 'streamBuf' according to the specified 'options'.  If 'options' is
-        // 0, the default set of options is used.  Return 0 on success, and a
-        // non-zero value otherwise.  The operation succeeds if all 'length'
-        // bytes of the representation of the 'serialDatetime' are written to
-        // the 'streamBuf' without the write position becoming unavailable.
 
+    /// Write the compact-binary date and time representation of the
+    /// specified `value` to the output sequence of the specified
+    /// `streamBuf` according to the specified `options`.  If `options` is
+    /// 0, the default set of options is used.  Return 0 on success, and a
+    /// non-zero value otherwise.  The operation succeeds if all bytes of
+    /// the compact-binary date and time representation of the `value` are
+    /// written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putCompactBinaryDatetimeValue(
                                             bsl::streambuf          *streamBuf,
                                             const bdlt::Datetime&    value,
                                             const BerEncoderOptions *options);
-        // Write the compact-binary date and time representation of the
-        // specified 'value' to the output sequence of the specified
-        // 'streamBuf' according to the specified 'options'.  If 'options' is
-        // 0, the default set of options is used.  Return 0 on success, and a
-        // non-zero value otherwise.  The operation succeeds if all bytes of
-        // the compact-binary date and time representation of the 'value' are
-        // written to the 'streamBuf' without the write position becoming
-        // unavailable.
 
+    /// Write the specified `length` number of octets of the compact-binary
+    /// date, time, and time zone representation of the specified
+    /// `serialDatetime` number of milliseconds from the start of the day on
+    /// the compact-binary serial epoch to the output sequence of the
+    /// specified `streamBuf` according to the specified `options`.  If
+    /// `options` is 0, the default set of options is used.  Return 0 on
+    /// success, and a non-zero value otherwise.  The operation succeeds if
+    /// all `length` bytes of the representation of the `serialDatetime` are
+    /// written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putCompactBinaryDatetimeTzValue(
                                        bsl::streambuf          *streamBuf,
                                        bsls::Types::Int64       serialDatetime,
                                        int                      length,
                                        const BerEncoderOptions *options);
-        // Write the specified 'length' number of octets of the compact-binary
-        // date, time, and time zone representation of the specified
-        // 'serialDatetime' number of milliseconds from the start of the day on
-        // the compact-binary serial epoch to the output sequence of the
-        // specified 'streamBuf' according to the specified 'options'.  If
-        // 'options' is 0, the default set of options is used.  Return 0 on
-        // success, and a non-zero value otherwise.  The operation succeeds if
-        // all 'length' bytes of the representation of the 'serialDatetime' are
-        // written to the 'streamBuf' without the write position becoming
-        // unavailable.
 
+    /// Write the extended-binary date and time representation of the
+    /// specified `value` to the output sequence of the specified
+    /// `streamBuf` according to the specified `options`.  If `options` is
+    /// 0, the default set of options is used.  Return 0 on success, and a
+    /// non-zero value otherwise.  The operation succeeds if all bytes of
+    /// the extended-binary date and time representation of the `value` are
+    /// written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putExtendedBinaryDatetimeValue(
                                             bsl::streambuf          *streamBuf,
                                             const bdlt::Datetime&    value,
                                             const BerEncoderOptions *options);
-        // Write the extended-binary date and time representation of the
-        // specified 'value' to the output sequence of the specified
-        // 'streamBuf' according to the specified 'options'.  If 'options' is
-        // 0, the default set of options is used.  Return 0 on success, and a
-        // non-zero value otherwise.  The operation succeeds if all bytes of
-        // the extended-binary date and time representation of the 'value' are
-        // written to the 'streamBuf' without the write position becoming
-        // unavailable.
 
     // 'bdlt::DatetimeTz' Decoding
 
+    /// Load to the specified `encoding` the enumerator that describes the
+    /// format used to encode a `bdlt::DatetimeTz` value given the specified
+    /// `length` and `firstByte` of the encoded representation.  Return 0 on
+    /// success, -1 if the format is reserved for future use, and some other
+    /// non-zero value otherwise.
     static int detectDatetimeTzEncoding(
                                    DatetimeTzEncoding::Value *encoding,
                                    int                        length,
                                    unsigned char              firstByte);
-        // Load to the specified 'encoding' the enumerator that describes the
-        // format used to encode a 'bdlt::DatetimeTz' value given the specified
-        // 'length' and 'firstByte' of the encoded representation.  Return 0 on
-        // success, -1 if the format is reserved for future use, and some other
-        // non-zero value otherwise.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date, time, and time zone value represented by the interpretation of
+    /// the read bytes as an ISO 8601 date, time, and time zone.  Return 0
+    /// on success, and a non-zero value otherwise.  The operation succeeds
+    /// if `length` bytes are successfully read from the input sequence of
+    /// the `streamBuf` without the read position becoming unavailable, and
+    /// the bytes contain a valid representation of an ISO 8601 date, time,
+    /// and time zone .
     static int getIso8601DatetimeTzValue(bdlt::DatetimeTz *value,
                                          bsl::streambuf   *streamBuf,
                                          int               length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date, time, and time zone value represented by the interpretation of
-        // the read bytes as an ISO 8601 date, time, and time zone.  Return 0
-        // on success, and a non-zero value otherwise.  The operation succeeds
-        // if 'length' bytes are successfully read from the input sequence of
-        // the 'streamBuf' without the read position becoming unavailable, and
-        // the bytes contain a valid representation of an ISO 8601 date, time,
-        // and time zone .
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date value represented by the interpretation of the read bytes as a
+    /// compact-binary date and time.  Return 0 on success, and a non-zero
+    /// value otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a
+    /// valid representation of a compact-binary date and time.
     static int getCompactBinaryDatetimeValue(bdlt::DatetimeTz *value,
                                              bsl::streambuf   *streamBuf,
                                              int               length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date value represented by the interpretation of the read bytes as a
-        // compact-binary date and time.  Return 0 on success, and a non-zero
-        // value otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes contain a
-        // valid representation of a compact-binary date and time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date, time, and time zone value represented by the interpretation of
+    /// the read bytes as a compact-binary date, time, and time zone.
+    /// Return 0 on success, and a non-zero value otherwise.  The operation
+    /// succeeds if `length` bytes are successfully read from the input
+    /// sequence of the `streamBuf` without the read position becoming
+    /// unavailable, and the bytes contain a valid representation of a
+    /// compact-binary date, time, and time zone.
     static int getCompactBinaryDatetimeTzValue(bdlt::DatetimeTz *value,
                                                bsl::streambuf   *streamBuf,
                                                int               length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date, time, and time zone value represented by the interpretation of
-        // the read bytes as a compact-binary date, time, and time zone.
-        // Return 0 on success, and a non-zero value otherwise.  The operation
-        // succeeds if 'length' bytes are successfully read from the input
-        // sequence of the 'streamBuf' without the read position becoming
-        // unavailable, and the bytes contain a valid representation of a
-        // compact-binary date, time, and time zone.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date and time zone value represented by the interpretation of the
+    /// read bytes as an extended-binary date, time, and time zone.  Return
+    /// 0 on success, and a non-zero value otherwise.  The operation
+    /// succeeds if `length` bytes are successfully read from the input
+    /// sequence of the `streamBuf` without the read position becoming
+    /// unavailable, and the bytes contain a valid representation of an
+    /// extended-binary date, time, and time zone.
     static int getExtendedBinaryDatetimeTzValue(bdlt::DatetimeTz *value,
                                                 bsl::streambuf   *streamBuf,
                                                 int               length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date and time zone value represented by the interpretation of the
-        // read bytes as an extended-binary date, time, and time zone.  Return
-        // 0 on success, and a non-zero value otherwise.  The operation
-        // succeeds if 'length' bytes are successfully read from the input
-        // sequence of the 'streamBuf' without the read position becoming
-        // unavailable, and the bytes contain a valid representation of an
-        // extended-binary date, time, and time zone.
 
     // 'bdlt::DatetimeTz' Encoding
 
+    /// Determine the format that should be used to encode the specified
+    /// `value` given the `value` and the specified `options`.  If `options`
+    /// is 0, the default set of options is used.  Return an enumerator
+    /// identifying the selected format.
     static DatetimeTzEncoding::Value selectDatetimeTzEncoding(
                                        bsls::Types::Int64      *serialDatetime,
                                        int                     *length,
                                        const bdlt::DatetimeTz&  value,
                                        const BerEncoderOptions *options);
-        // Determine the format that should be used to encode the specified
-        // 'value' given the 'value' and the specified 'options'.  If 'options'
-        // is 0, the default set of options is used.  Return an enumerator
-        // identifying the selected format.
 
+    /// Write the ISO 8601 representation of the specified `value` to the
+    /// output sequence of the specified `streamBuf` according to the
+    /// specified `options`.  If `options` is 0, the default set of options
+    /// is used.  Return 0 on success, and a non-zero value otherwise.  The
+    /// operation succeeds if all bytes of the ISO 8601 representation of
+    /// the `value` are written to the `streamBuf` without the write
+    /// position becoming unavailable.
     static int putIso8601DatetimeTzValue(bsl::streambuf          *streamBuf,
                                          const bdlt::DatetimeTz&  value,
                                          const BerEncoderOptions *options);
-        // Write the ISO 8601 representation of the specified 'value' to the
-        // output sequence of the specified 'streamBuf' according to the
-        // specified 'options'.  If 'options' is 0, the default set of options
-        // is used.  Return 0 on success, and a non-zero value otherwise.  The
-        // operation succeeds if all bytes of the ISO 8601 representation of
-        // the 'value' are written to the 'streamBuf' without the write
-        // position becoming unavailable.
 
+    /// Write the specified `serialDatetimeLength` number of octets of the
+    /// compact-binary date, time, and time zone representation using the
+    /// specified the date and time defined by the specified
+    /// `serialDatetime` number of milliseconds from the start of the day on
+    /// the compact-binary serial epoch and the specified
+    /// `timezoneOffsetInMinutes` time zone to the output sequence of the
+    /// specified `streamBuf` according to the specified `options`.  If
+    /// `options` is 0, the default set of options is used.  Return 0 on
+    /// success, and a non-zero value otherwise.  The operation succeeds if
+    /// all `length` bytes of the compact-binary date, time, and time zone
+    /// representation of the `serialDatetime` and `timezoneOffsetInMinutes`
+    /// are written to the `streamBuf` without the write position becoming
+    /// unavailable.
     static int putCompactBinaryDatetimeTzValue(
                               bsl::streambuf          *streamBuf,
                               int                      timezoneOffsetInMinutes,
                               bsls::Types::Int64       serialDatetime,
                               int                      serialDatetimeLength,
                               const BerEncoderOptions *options);
-        // Write the specified 'serialDatetimeLength' number of octets of the
-        // compact-binary date, time, and time zone representation using the
-        // specified the date and time defined by the specified
-        // 'serialDatetime' number of milliseconds from the start of the day on
-        // the compact-binary serial epoch and the specified
-        // 'timezoneOffsetInMinutes' time zone to the output sequence of the
-        // specified 'streamBuf' according to the specified 'options'.  If
-        // 'options' is 0, the default set of options is used.  Return 0 on
-        // success, and a non-zero value otherwise.  The operation succeeds if
-        // all 'length' bytes of the compact-binary date, time, and time zone
-        // representation of the 'serialDatetime' and 'timezoneOffsetInMinutes'
-        // are written to the 'streamBuf' without the write position becoming
-        // unavailable.
 
+    /// Write the extended-binary date, time, and time zone representation
+    /// of the specified `value` to the output sequence of the specified
+    /// `streamBuf` according to the specified `options`.  If `options` is
+    /// 0, the default set of options is used.  Return 0 on success, and a
+    /// non-zero value otherwise.  The operation succeeds if all bytes of
+    /// the extended-binary date, time, and time zone representation of the
+    /// `value` are written to the `streamBuf` without the write position
+    /// becoming unavailable.
     static int putExtendedBinaryDatetimeTzValue(
                                             bsl::streambuf          *streamBuf,
                                             const bdlt::DatetimeTz&  value,
                                             const BerEncoderOptions *options);
-        // Write the extended-binary date, time, and time zone representation
-        // of the specified 'value' to the output sequence of the specified
-        // 'streamBuf' according to the specified 'options'.  If 'options' is
-        // 0, the default set of options is used.  Return 0 on success, and a
-        // non-zero value otherwise.  The operation succeeds if all bytes of
-        // the extended-binary date, time, and time zone representation of the
-        // 'value' are written to the 'streamBuf' without the write position
-        // becoming unavailable.
 
     // Variant Decoding
 
+    /// Load to the specified `encoding` the enumerator that describes the
+    /// format used to encode a `bdlt::Datetime` or `bdlt::DatetimeTz` value
+    /// given the specified `length` and `firstByte` of the encoded
+    /// representation.  Return 0 on success, -1 if the format is reserved
+    /// for future use, and some other non-zero value otherwise.
     static int detectDatetimeOrDatetimeTzEncoding(
                                DatetimeOrDatetimeTzEncoding::Value *encoding,
                                int                                  length,
                                unsigned char                        firstByte);
-        // Load to the specified 'encoding' the enumerator that describes the
-        // format used to encode a 'bdlt::Datetime' or 'bdlt::DatetimeTz' value
-        // given the specified 'length' and 'firstByte' of the encoded
-        // representation.  Return 0 on success, -1 if the format is reserved
-        // for future use, and some other non-zero value otherwise.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date, time, and optional time zone value represented by the
+    /// interpretation of the read bytes as an ISO 8601 date and time.
+    /// Return 0 on success, and a non-zero value otherwise.  The operation
+    /// succeeds if `length` bytes are successfully read from the input
+    /// sequence of the `streamBuf` without the read position becoming
+    /// unavailable, and the bytes contain a valid representation of an ISO
+    /// 8601 date and time.
     static int getIso8601DatetimeValue(DatetimeOrDatetimeTz *value,
                                        bsl::streambuf       *streamBuf,
                                        int                   length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date, time, and optional time zone value represented by the
-        // interpretation of the read bytes as an ISO 8601 date and time.
-        // Return 0 on success, and a non-zero value otherwise.  The operation
-        // succeeds if 'length' bytes are successfully read from the input
-        // sequence of the 'streamBuf' without the read position becoming
-        // unavailable, and the bytes contain a valid representation of an ISO
-        // 8601 date and time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date, time, and optional time zone value represented by the
+    /// interpretation of the read bytes as an ISO 8601 date, time, and time
+    /// zone.  Return 0 on success, and a non-zero value otherwise.  The
+    /// operation succeeds if `length` bytes are successfully read from the
+    /// input sequence of the `streamBuf` without the read position becoming
+    /// unavailable, and the bytes contain a valid representation of an ISO
+    /// 8601 date, time, and time zone.
     static int getIso8601DatetimeTzValue(DatetimeOrDatetimeTz *value,
                                          bsl::streambuf       *streamBuf,
                                          int                   length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date, time, and optional time zone value represented by the
-        // interpretation of the read bytes as an ISO 8601 date, time, and time
-        // zone.  Return 0 on success, and a non-zero value otherwise.  The
-        // operation succeeds if 'length' bytes are successfully read from the
-        // input sequence of the 'streamBuf' without the read position becoming
-        // unavailable, and the bytes contain a valid representation of an ISO
-        // 8601 date, time, and time zone.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date, time, and optional time zone value represented by the
+    /// interpretation of the read bytes as a compact-binary date and time.
+    /// Return 0 on success, and a non-zero value otherwise.  The operation
+    /// succeeds if `length` bytes are successfully read from the input
+    /// sequence of the `streamBuf` without the read position becoming
+    /// unavailable, and the bytes contain a valid representation of a
+    /// compact-binary date and time.
     static int getCompactBinaryDatetimeValue(DatetimeOrDatetimeTz *value,
                                              bsl::streambuf       *streamBuf,
                                              int                   length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date, time, and optional time zone value represented by the
-        // interpretation of the read bytes as a compact-binary date and time.
-        // Return 0 on success, and a non-zero value otherwise.  The operation
-        // succeeds if 'length' bytes are successfully read from the input
-        // sequence of the 'streamBuf' without the read position becoming
-        // unavailable, and the bytes contain a valid representation of a
-        // compact-binary date and time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date, time, and optional time zone value represented by the
+    /// interpretation of the read bytes as a compact-binary date, time, and
+    /// time zone.  Return 0 on success, and a non-zero value otherwise.
+    /// The operation succeeds if `length` bytes are successfully read from
+    /// the input sequence of the `streamBuf` without the read position
+    /// becoming unavailable, and the bytes contain a valid representation
+    /// of a compact-binary date, time, and time zone.
     static int getCompactBinaryDatetimeTzValue(DatetimeOrDatetimeTz *value,
                                                bsl::streambuf       *streamBuf,
                                                int                   length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date, time, and optional time zone value represented by the
-        // interpretation of the read bytes as a compact-binary date, time, and
-        // time zone.  Return 0 on success, and a non-zero value otherwise.
-        // The operation succeeds if 'length' bytes are successfully read from
-        // the input sequence of the 'streamBuf' without the read position
-        // becoming unavailable, and the bytes contain a valid representation
-        // of a compact-binary date, time, and time zone.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time value represented by the interpretation of the read bytes as a
+    /// extended-binary date and time.  Return 0 on success, and a non-zero
+    /// value otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a
+    /// valid representation of an extended-binary date and time.
     static int getExtendedBinaryDatetimeValue(DatetimeOrDatetimeTz *value,
                                               bsl::streambuf       *streamBuf,
                                               int                   length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time value represented by the interpretation of the read bytes as a
-        // extended-binary date and time.  Return 0 on success, and a non-zero
-        // value otherwise.  The operation succeeds if 'length' bytes are
-        // successfully read from the input sequence of the 'streamBuf' without
-        // the read position becoming unavailable, and the bytes contain a
-        // valid representation of an extended-binary date and time.
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// time value represented by the interpretation of the read bytes as a
+    /// extended-binary date, time, and time zone.  Return 0 on success, and
+    /// a non-zero value otherwise.  The operation succeeds if `length`
+    /// bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of an extended-binary date,
+    /// time, and time zone.
     static int getExtendedBinaryDatetimeTzValue(
                                                DatetimeOrDatetimeTz *value,
                                                bsl::streambuf       *streamBuf,
                                                int                   length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // time value represented by the interpretation of the read bytes as a
-        // extended-binary date, time, and time zone.  Return 0 on success, and
-        // a non-zero value otherwise.  The operation succeeds if 'length'
-        // bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of an extended-binary date,
-        // time, and time zone.
 
   public:
     // CLASS METHODS
 
     // 'bdlt::Datetime' Decoding
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date and time value represented those bytes.  Return 0 on success,
+    /// and a non-zero value otherwise.  The operation succeeds if `length`
+    /// bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes contain a valid representation of a date and time value.  See
+    /// the package-level documentation of
+    /// {`balber`} for a description of the decision procedure used to
+    /// detect the encoding format for a `bdlt::Datetime` value.
     static int getDatetimeValue(bdlt::Datetime *value,
                                 bsl::streambuf *streamBuf,
                                 int             length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date and time value represented those bytes.  Return 0 on success,
-        // and a non-zero value otherwise.  The operation succeeds if 'length'
-        // bytes are successfully read from the input sequence of the
-        // 'streamBuf' without the read position becoming unavailable, and the
-        // bytes contain a valid representation of a date and time value.  See
-        // the package-level documentation of
-        // {'balber'} for a description of the decision procedure used to
-        // detect the encoding format for a 'bdlt::Datetime' value.
 
     // 'bdlt::Datetime' Encoding
 
+    /// Write a representation of the specified `value` date and time to the
+    /// output sequence of the specified `streamBuf` according to the
+    /// specified `options`.  If `options` is 0, the default set of options
+    /// is used.  Return 0 on success, and a non-zero value otherwise.  This
+    /// operation succeeds if all bytes in the representation of the `value`
+    /// are written to the output sequence of the `streamBuf` without the
+    /// write position becoming unavailable.  See the class documentation
+    /// for a description of the default options.  See the package-level
+    /// documentation of {`balber`} for a description of the decision
+    /// procedure used to select an encoding format for the `value`.
     static int putDatetimeValue(bsl::streambuf          *streamBuf,
                                 const bdlt::Datetime&    value,
                                 const BerEncoderOptions *options);
-        // Write a representation of the specified 'value' date and time to the
-        // output sequence of the specified 'streamBuf' according to the
-        // specified 'options'.  If 'options' is 0, the default set of options
-        // is used.  Return 0 on success, and a non-zero value otherwise.  This
-        // operation succeeds if all bytes in the representation of the 'value'
-        // are written to the output sequence of the 'streamBuf' without the
-        // write position becoming unavailable.  See the class documentation
-        // for a description of the default options.  See the package-level
-        // documentation of {'balber'} for a description of the decision
-        // procedure used to select an encoding format for the 'value'.
 
     // 'bdlt::DatetimeTz' Decoding
 
+    /// Read the specified `length` number of bytes from the input sequence
+    /// of the specified `streamBuf` and load to the specified `value` the
+    /// date, time, and time zone value represented those bytes.  Return 0
+    /// on success, and a non-zero value otherwise.  The operation succeeds
+    /// if `length` bytes are successfully read from the input sequence of
+    /// the `streamBuf` without the read position becoming unavailable, and
+    /// the bytes contain a valid representation of a date, time, and time
+    /// zone value.  See the package-level documentation of {`balber`} for a
+    /// description of the decision procedure used to detect the encoding
+    /// format for a `bdlt::Datetime` value.
     static int getDatetimeTzValue(bdlt::DatetimeTz *value,
                                   bsl::streambuf   *streamBuf,
                                   int               length);
-        // Read the specified 'length' number of bytes from the input sequence
-        // of the specified 'streamBuf' and load to the specified 'value' the
-        // date, time, and time zone value represented those bytes.  Return 0
-        // on success, and a non-zero value otherwise.  The operation succeeds
-        // if 'length' bytes are successfully read from the input sequence of
-        // the 'streamBuf' without the read position becoming unavailable, and
-        // the bytes contain a valid representation of a date, time, and time
-        // zone value.  See the package-level documentation of {'balber'} for a
-        // description of the decision procedure used to detect the encoding
-        // format for a 'bdlt::Datetime' value.
 
     // 'bdlt::DatetimeTz' Encoding
 
+    /// Write a representation of the specified `value` date, time, and time
+    /// zone to the output sequence of the specified `streamBuf` according
+    /// to the specified `options`.  If `options` is 0, the default set of
+    /// options is used.  Return 0 on success, and a non-zero value
+    /// otherwise.  This operation succeeds if all bytes in the
+    /// representation of the `value` are written to the output sequence of
+    /// the `streamBuf` without the write position becoming unavailable.
+    /// See the class documentation for a description of the default
+    /// options.  See the package-level documentation of {`balber`} for a
+    /// description of the decision procedure used to select an encoding
+    /// format for the `value`.
     static int putDatetimeTzValue(bsl::streambuf          *streamBuf,
                                   const bdlt::DatetimeTz&  value,
                                   const BerEncoderOptions *options);
-        // Write a representation of the specified 'value' date, time, and time
-        // zone to the output sequence of the specified 'streamBuf' according
-        // to the specified 'options'.  If 'options' is 0, the default set of
-        // options is used.  Return 0 on success, and a non-zero value
-        // otherwise.  This operation succeeds if all bytes in the
-        // representation of the 'value' are written to the output sequence of
-        // the 'streamBuf' without the write position becoming unavailable.
-        // See the class documentation for a description of the default
-        // options.  See the package-level documentation of {'balber'} for a
-        // description of the decision procedure used to select an encoding
-        // format for the 'value'.
 
     // Variant Decoding
 
+    /// Write a representation of the specified `value` date, time, and
+    /// optional time zone to the output sequence of the specified
+    /// `streamBuf` according to the specified `options`.  If `options` is
+    /// 0, the default set of options is used.  Return 0 on success, and a
+    /// non-zero value otherwise.  This operation succeeds if all bytes in
+    /// the representation of the `value` are written to the output sequence
+    /// of the `streamBuf` without the write position becoming unavailable.
+    /// See the class documentation for a description of the default
+    /// options.  See the package-level documentation of {`balber`} for a
+    /// description of the decision procedure used to select an encoding
+    /// format for the `value`.
     static int getDatetimeOrDatetimeTzValue(DatetimeOrDatetimeTz *value,
                                             bsl::streambuf       *streamBuf,
                                             int                   length);
-        // Write a representation of the specified 'value' date, time, and
-        // optional time zone to the output sequence of the specified
-        // 'streamBuf' according to the specified 'options'.  If 'options' is
-        // 0, the default set of options is used.  Return 0 on success, and a
-        // non-zero value otherwise.  This operation succeeds if all bytes in
-        // the representation of the 'value' are written to the output sequence
-        // of the 'streamBuf' without the write position becoming unavailable.
-        // See the class documentation for a description of the default
-        // options.  See the package-level documentation of {'balber'} for a
-        // description of the decision procedure used to select an encoding
-        // format for the 'value'.
 };
 
                        // ==============================
                        // struct BerUtil_GetValueImpUtil
                        // ==============================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions that define the overload set for the implementation of
+/// `balber::BerUtil::getValue`.  The set of types used for the `value`
+/// parameters in the overload set of `getValue` in this `struct` define the
+/// set of types that `balber::BerUtil::getValue` supports.
 struct BerUtil_GetValueImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions that define the overload set for the implementation of
-    // 'balber::BerUtil::getValue'.  The set of types used for the 'value'
-    // parameters in the overload set of 'getValue' in this 'struct' define the
-    // set of types that 'balber::BerUtil::getValue' supports.
 
     // TYPES
+
+    /// `BooleanUtil` is an alias to a namespace for a suite of functions
+    /// used by `BerUtil` to implement BER encoding and decoding operations
+    /// for boolean values.
     typedef BerUtil_BooleanImpUtil BooleanUtil;
-        // 'BooleanUtil' is an alias to a namespace for a suite of functions
-        // used by 'BerUtil' to implement BER encoding and decoding operations
-        // for boolean values.
 
+    /// `CharacterUtil` is an alias to a namespace for a suite of functions
+    /// used by `BerUtil` to implement BER encoding and decoding operations
+    /// for byte values.
     typedef BerUtil_CharacterImpUtil CharacterUtil;
-        // 'CharacterUtil' is an alias to a namespace for a suite of functions
-        // used by 'BerUtil' to implement BER encoding and decoding operations
-        // for byte values.
 
+    /// `DateUtil` is an alias to a namespace for a suite of functions used
+    /// by `BerUtil` to implement BER encoding and decoding operations for
+    /// date values.
     typedef BerUtil_DateImpUtil DateUtil;
-        // 'DateUtil' is an alias to a namespace for a suite of functions used
-        // by 'BerUtil' to implement BER encoding and decoding operations for
-        // date values.
 
+    /// `DatetimeUtil` is an alias to a namespace for a suite of functions
+    /// used by `BerUtil` to implement BER encoding and decoding operations
+    /// for date and time values.
     typedef BerUtil_DatetimeImpUtil DatetimeUtil;
-        // 'DatetimeUtil' is an alias to a namespace for a suite of functions
-        // used by 'BerUtil' to implement BER encoding and decoding operations
-        // for date and time values.
 
+    /// `FloatingPointUtil` is an alias to a namespace for a suite of
+    /// functions used by `BerUtil` to implement BER encoding and decoding
+    /// operations for floating-point number values.
     typedef BerUtil_FloatingPointImpUtil FloatingPointUtil;
-        // 'FloatingPointUtil' is an alias to a namespace for a suite of
-        // functions used by 'BerUtil' to implement BER encoding and decoding
-        // operations for floating-point number values.
 
+    /// `IntegerUtil` is an alias to a namespace for a suite of functions
+    /// used by `BerUtil` to implement BER encoding and decoding operations
+    /// for integer values.
     typedef BerUtil_IntegerImpUtil IntegerUtil;
-        // 'IntegerUtil' is an alias to a namespace for a suite of functions
-        // used by 'BerUtil' to implement BER encoding and decoding operations
-        // for integer values.
 
+    /// `StringUtil` is an alias to a namespace for a suite of functions
+    /// used by `BerUtil` to implement BER encoding and decoding operations
+    /// for string values.
     typedef BerUtil_StringImpUtil StringUtil;
-        // 'StringUtil' is an alias to a namespace for a suite of functions
-        // used by 'BerUtil' to implement BER encoding and decoding operations
-        // for string values.
 
+    /// `TimeUtil` is an alias to a namespace for a suite of functions used
+    /// by `BerUtil` to implement BER encoding and decoding operations for
+    /// time values.
     typedef BerUtil_TimeImpUtil TimeUtil;
-        // 'TimeUtil' is an alias to a namespace for a suite of functions used
-        // by 'BerUtil' to implement BER encoding and decoding operations for
-        // time values.
 
+    /// `DateOrDateTz` is a convenient alias for
+    /// `bdlb::Variant2<bdlt::Date, bdlt::DateTz>`.
     typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz> DateOrDateTz;
-        // 'DateOrDateTz' is a convenient alias for
-        // 'bdlb::Variant2<bdlt::Date, bdlt::DateTz>'.
 
+    /// `DatetimeOrDatetimeTz` is a convenient alias for
+    /// `bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>`.
     typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
         DatetimeOrDatetimeTz;
-        // 'DatetimeOrDatetimeTz' is a convenient alias for
-        // 'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>'.
 
+    /// `TimeOrTimeTz` is a convenient alias for
+    /// `bdlb::Variant2<bdlt::Time, bdlt::TimeTz>`.
     typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz> TimeOrTimeTz;
-        // 'TimeOrTimeTz' is a convenient alias for
-        // 'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>'.
 
     // CLASS METHODS
+
+    /// Decode the specified `value` from the specified `streamBuf`,
+    /// consuming exactly the specified `length` bytes.  Return 0 on
+    /// success, and a non-zero value otherwise.  Optionally specify
+    /// decoding `options` to control aspects of the decoding.  Note that
+    /// the value consists of the contents of the bytes only (no length
+    /// prefix).  Also note that only fundamental C++ types, `bsl::string`,
+    /// and BDE date/time types are supported.
     template <typename TYPE>
     static int getValue(
                       TYPE                     *value,
@@ -3658,68 +3705,68 @@ struct BerUtil_GetValueImpUtil {
                       bsl::streambuf           *streamBuf,
                       int                       length,
                       const BerDecoderOptions&  options = BerDecoderOptions());
-        // Decode the specified 'value' from the specified 'streamBuf',
-        // consuming exactly the specified 'length' bytes.  Return 0 on
-        // success, and a non-zero value otherwise.  Optionally specify
-        // decoding 'options' to control aspects of the decoding.  Note that
-        // the value consists of the contents of the bytes only (no length
-        // prefix).  Also note that only fundamental C++ types, 'bsl::string',
-        // and BDE date/time types are supported.
 };
 
                        // ==============================
                        // struct BerUtil_PutValueImpUtil
                        // ==============================
 
+/// This component-private utility `struct` provides a namespace for a suite
+/// of functions that define the overload set for the implementation of
+/// `balber::BerUtil::putValue`.  The set of types used for the `value`
+/// parameters in the overload set of `putValue` in this `struct` define the
+/// set of types that `balber::BerUtil::putValue` supports.
 struct BerUtil_PutValueImpUtil {
-    // This component-private utility 'struct' provides a namespace for a suite
-    // of functions that define the overload set for the implementation of
-    // 'balber::BerUtil::putValue'.  The set of types used for the 'value'
-    // parameters in the overload set of 'putValue' in this 'struct' define the
-    // set of types that 'balber::BerUtil::putValue' supports.
 
     // TYPES
+
+    /// `BooleanUtil` is an alias to a namespace for a suite of functions
+    /// used by `BerUtil` to implement BER encoding and decoding operations
+    /// for boolean values.
     typedef BerUtil_BooleanImpUtil BooleanUtil;
-        // 'BooleanUtil' is an alias to a namespace for a suite of functions
-        // used by 'BerUtil' to implement BER encoding and decoding operations
-        // for boolean values.
 
+    /// `CharacterUtil` is an alias to a namespace for a suite of functions
+    /// used by `BerUtil` to implement BER encoding and decoding operations
+    /// for byte values.
     typedef BerUtil_CharacterImpUtil CharacterUtil;
-        // 'CharacterUtil' is an alias to a namespace for a suite of functions
-        // used by 'BerUtil' to implement BER encoding and decoding operations
-        // for byte values.
 
+    /// `DateUtil` is an alias to a namespace for a suite of functions used
+    /// by `BerUtil` to implement BER encoding and decoding operations for
+    /// date values.
     typedef BerUtil_DateImpUtil DateUtil;
-        // 'DateUtil' is an alias to a namespace for a suite of functions used
-        // by 'BerUtil' to implement BER encoding and decoding operations for
-        // date values.
 
+    /// `DatetimeUtil` is an alias to a namespace for a suite of functions
+    /// used by `BerUtil` to implement BER encoding and decoding operations
+    /// for date and time values.
     typedef BerUtil_DatetimeImpUtil DatetimeUtil;
-        // 'DatetimeUtil' is an alias to a namespace for a suite of functions
-        // used by 'BerUtil' to implement BER encoding and decoding operations
-        // for date and time values.
 
+    /// `FloatingPointUtil` is an alias to a namespace for a suite of
+    /// functions used by `BerUtil` to implement BER encoding and decoding
+    /// operations for floating-point number values.
     typedef BerUtil_FloatingPointImpUtil FloatingPointUtil;
-        // 'FloatingPointUtil' is an alias to a namespace for a suite of
-        // functions used by 'BerUtil' to implement BER encoding and decoding
-        // operations for floating-point number values.
 
+    /// `IntegerUtil` is an alias to a namespace for a suite of functions
+    /// used by `BerUtil` to implement BER encoding and decoding operations
+    /// for integer values.
     typedef BerUtil_IntegerImpUtil IntegerUtil;
-        // 'IntegerUtil' is an alias to a namespace for a suite of functions
-        // used by 'BerUtil' to implement BER encoding and decoding operations
-        // for integer values.
 
+    /// `StringUtil` is an alias to a namespace for a suite of functions
+    /// used by `BerUtil` to implement BER encoding and decoding operations
+    /// for string values.
     typedef BerUtil_StringImpUtil StringUtil;
-        // 'StringUtil' is an alias to a namespace for a suite of functions
-        // used by 'BerUtil' to implement BER encoding and decoding operations
-        // for string values.
 
+    /// `TimeUtil` is an alias to a namespace for a suite of functions used
+    /// by `BerUtil` to implement BER encoding and decoding operations for
+    /// time values.
     typedef BerUtil_TimeImpUtil TimeUtil;
-        // 'TimeUtil' is an alias to a namespace for a suite of functions used
-        // by 'BerUtil' to implement BER encoding and decoding operations for
-        // time values.
 
     // CLASS METHODS
+
+    /// Encode the specified `value` to the specified `streamBuf`.  Return 0
+    /// on success, and a non-zero value otherwise.  Note that the value
+    /// consists of the length and contents primitives.  Also note that only
+    /// fundamental C++ types, `bsl::string`, `bsl::string_view`,
+    /// `bslstl::StringRef` and BDE date/time types are supported.
     template <typename TYPE>
     static int putValue(bsl::streambuf          *streamBuf,
                         const TYPE&              value,
@@ -3772,33 +3819,29 @@ struct BerUtil_PutValueImpUtil {
     static int putValue(bsl::streambuf          *streamBuf,
                         const bdlt::TimeTz&      value,
                         const BerEncoderOptions *options);
-        // Encode the specified 'value' to the specified 'streamBuf'.  Return 0
-        // on success, and a non-zero value otherwise.  Note that the value
-        // consists of the length and contents primitives.  Also note that only
-        // fundamental C++ types, 'bsl::string', 'bsl::string_view',
-        // 'bslstl::StringRef' and BDE date/time types are supported.
 };
 
                              // ==================
                              // struct BerUtil_Imp
                              // ==================
 
+/// This component-private utility `struct` exists to provide
+/// backwards-compatability for external components that depend upon the
+/// facilities provided by this `struct`.
 struct BerUtil_Imp {
-    // This component-private utility 'struct' exists to provide
-    // backwards-compatability for external components that depend upon the
-    // facilities provided by this 'struct'.
 
     // CLASS METHODS
+
+    /// Write the length and contents octets of the BER encoding of the
+    /// specified character `string` having the specified `stringLength` (as
+    /// defined in the specification) to the output sequence of the
+    /// specified `streamBuf`.  Return 0 if successful, and a non-zero value
+    /// otherwise.  The operation succeeds if and only if all bytes
+    /// corresponding to the length and contents octets are written to the
+    /// `streamBuf` without the write position becoming unavailable.
     static int putStringValue(bsl::streambuf *streamBuf,
                               const char     *string,
                               int             stringLength);
-        // Write the length and contents octets of the BER encoding of the
-        // specified character 'string' having the specified 'stringLength' (as
-        // defined in the specification) to the output sequence of the
-        // specified 'streamBuf'.  Return 0 if successful, and a non-zero value
-        // otherwise.  The operation succeeds if and only if all bytes
-        // corresponding to the length and contents octets are written to the
-        // 'streamBuf' without the write position becoming unavailable.
 };
 
 // ============================================================================
@@ -4229,13 +4272,12 @@ int BerUtil_IntegerImpUtil::putIntegerGivenLength(bsl::streambuf *streamBuf,
     return RawIntegerUtil::putIntegerGivenLength(streamBuf, value, length);
 }
 
+/// # Implementation Note
+/// This implementation requires the platform use a 2's complement
+/// representation for signed integer values.
 inline
 int BerUtil_IntegerImpUtil::put40BitIntegerValue(bsl::streambuf     *streamBuf,
                                                  bsls::Types::Int64  value)
-    ///Implementation Note
-    ///-------------------
-    // This implementation requires the platform use a 2's complement
-    // representation for signed integer values.
 {
     BSLS_ASSERT(-549755813888ll <= value);
     BSLS_ASSERT(549755813888ll > value);

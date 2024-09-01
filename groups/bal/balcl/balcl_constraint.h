@@ -10,19 +10,19 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   balcl::Constraint: constraint function signatures for supported types
 //
-//@DESCRIPTION: This component defines a single 'struct', 'balcl::Constraint',
+//@DESCRIPTION: This component defines a single `struct`, `balcl::Constraint`,
 // that provides a namespace for function signatures used to impose
 // user-defined constraints on values entered with command-line options (if so
 // defined).  Signatures are defined for each of the supported
 // command-line-option values of scalar type.
 //
-// For further details see {'balcl_commandline'|Type-and-Constraint Field} and
-// {'balcl_commandline'|Example: Type-and-Constraint Field}.
+// For further details see {`balcl_commandline`|Type-and-Constraint Field} and
+// {`balcl_commandline`|Example: Type-and-Constraint Field}.
 //
 ///Usage
 ///-----
 // The intended use of this component is illustrated in
-// {'balcl_commandline'|Usage}.
+// {`balcl_commandline`|Usage}.
 
 #include <balscm_version.h>
 
@@ -44,11 +44,11 @@ namespace balcl {
                         // struct Constraint
                         // =================
 
+/// This `struct` provides a namespace that defines the types used to impose
+/// user-defined constraints on values associated with command-line options.
+/// One type is defined for each scalar type defined in `balcl::OptionType`
+/// except for `bool`.
 struct Constraint {
-    // This 'struct' provides a namespace that defines the types used to impose
-    // user-defined constraints on values associated with command-line options.
-    // One type is defined for each scalar type defined in 'balcl::OptionType'
-    // except for 'bool'.
 
     // TYPES
     typedef bsl::function<bool(const char               *,
@@ -65,13 +65,14 @@ struct Constraint {
                                bsl::ostream&             )> DatetimeConstraint;
     typedef bsl::function<bool(const bdlt::Date         *,
                                bsl::ostream&             )> DateConstraint;
+
+    /// These types are aliases for function objects (functors) used to
+    /// express user-defined constraints on option values.  Such objects
+    /// should return `true` if the supplied value (first argument) are
+    /// deemed valid, and `false` otherwise.  Descriptive error messages may
+    /// be written to the supplied stream (second argument).
     typedef bsl::function<bool(const bdlt::Time         *,
                                bsl::ostream&             )> TimeConstraint;
-        // These types are aliases for function objects (functors) used to
-        // express user-defined constraints on option values.  Such objects
-        // should return 'true' if the supplied value (first argument) are
-        // deemed valid, and 'false' otherwise.  Descriptive error messages may
-        // be written to the supplied stream (second argument).
 };
 
 }  // close package namespace

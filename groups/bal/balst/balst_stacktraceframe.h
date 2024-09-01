@@ -13,43 +13,37 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: balst_stacktrace
 //
 //@DESCRIPTION: This component provides a single, simply-constrained
-// (value-semantic) attribute class, 'balst::StackTraceFrame', that describes
+// (value-semantic) attribute class, `balst::StackTraceFrame`, that describes
 // a stack frame from the execution stack of a function call.  Additional
 // methods are provided to indicate whether a given attribute is considered
 // "unknown".
 //
 ///Attributes
 ///----------
-//..
-//  Name               Type          Default     Constraint
-//  -----------------  -----------   ----------  ----------
-//  address            const void *  0           none
-//  libraryFileName    bsl::string   ""          none
-//  lineNumber         int           -1          'lineNumber >= -1'
-//  mangledSymbolName  bsl::string   ""          none
-//  offsetFromSymbol   bsl::size_t   (size_t)-1  none
-//  sourceFileName     bsl::string   ""          none
-//  symbolName         bsl::string   ""          none
-//..
-//: o address: the return address in the *parent* (calling) function
-//:   on return from the *child* (called) function.
-//:
-//: o libraryFileName: the executable or shared-library file name
-//:   containing the parent function.
-//:
-//: o lineNumber: the source line number in the parent function corresponding,
-//:   corresponding to a call to the child function.
-//:
-//: o mangledSymbolName: mangled symbol name of the parent function (in C code,
-//:   the "mangled" name matches the symbol name.)
-//:
-//: o offsetFromSymbol: offset from the start of the parent function to the
-//:   call to the child function.
-//:
-//: o sourceFileName: Name of the source file of the parent function.
-//:
-//: o symbolName: unmangled symbol name of the parent function (in C, code
-//:   symbol name matches the mangled symbol name.)
+// ```
+// Name               Type          Default     Constraint
+// -----------------  -----------   ----------  ----------
+// address            const void *  0           none
+// libraryFileName    bsl::string   ""          none
+// lineNumber         int           -1          'lineNumber >= -1'
+// mangledSymbolName  bsl::string   ""          none
+// offsetFromSymbol   bsl::size_t   (size_t)-1  none
+// sourceFileName     bsl::string   ""          none
+// symbolName         bsl::string   ""          none
+// ```
+// * address: the return address in the *parent* (calling) function
+//   on return from the *child* (called) function.
+// * libraryFileName: the executable or shared-library file name
+//   containing the parent function.
+// * lineNumber: the source line number in the parent function corresponding,
+//   corresponding to a call to the child function.
+// * mangledSymbolName: mangled symbol name of the parent function (in C code,
+//   the "mangled" name matches the symbol name.)
+// * offsetFromSymbol: offset from the start of the parent function to the
+//   call to the child function.
+// * sourceFileName: Name of the source file of the parent function.
+// * symbolName: unmangled symbol name of the parent function (in C, code
+//   symbol name matches the mangled symbol name.)
 //
 ///Unknown Values
 ///--------------
@@ -59,11 +53,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Supplementary Methods
 ///---------------------
-// In addition to the usual setters and getters, the 'balst::StackTraceFrame'
-// attribute class provides also provides a suite of non-'static',
-// (boolean-valued) *predicate* methods, of the form 'is<attributeName>Known'.
-// Each of these return 'true' if the object attribute named by the method does
-// *not* contain the designated "unknown" value for that attribute, and 'false'
+// In addition to the usual setters and getters, the `balst::StackTraceFrame`
+// attribute class provides also provides a suite of non-`static`,
+// (boolean-valued) *predicate* methods, of the form `is<attributeName>Known`.
+// Each of these return `true` if the object attribute named by the method does
+// *not* contain the designated "unknown" value for that attribute, and `false`
 // otherwise.
 //
 ///Usage
@@ -72,75 +66,75 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// In this example, we create two 'balst::StackTraceFrame' objects, modify
+// In this example, we create two `balst::StackTraceFrame` objects, modify
 // their properties, and compare them.
 //
-// First, we create the objects 'a' and 'b':
-//..
-//  balst::StackTraceFrame a, b;
-//  assert(a == b);
-//..
+// First, we create the objects `a` and `b`:
+// ```
+// balst::StackTraceFrame a, b;
+// assert(a == b);
+// ```
 // Then, we verify all values are initialized by the constructor to "unknown"
 // values:
-//..
-//  assert(false == a.isAddressKnown());
-//  assert(false == a.isLibraryFileNameKnown());
-//  assert(false == a.isLineNumberKnown());
-//  assert(false == a.isMangledSymbolNameKnown());
-//  assert(false == a.isOffsetFromSymbolKnown());
-//  assert(false == a.isSourceFileNameKnown());
-//  assert(false == a.isSymbolNameKnown());
-//..
-// Next, we assign a value to the 'lineNumber' attribute of 'a' and verify:
-//..
-//  a.setLineNumber(5);
-//  assert(true == a.isLineNumberKnown());
-//  assert(5    == a.lineNumber());
-//  assert(a    != b);
-//..
-// Next, make the same change to 'b' and thereby restore it's equality to 'a':
-//..
-//  b.setLineNumber(5);
-//  assert(true == b.isLineNumberKnown());
-//  assert(5    == b.lineNumber());
-//  assert(a    == b);
-//..
-// Next, we update the 'address' attribute of 'a' and use the 'address'
-// accessor method to obtain the new value for the update of 'b':
-//..
-//  a.setAddress((char *) 0x12345678);
-//  assert(a != b);
+// ```
+// assert(false == a.isAddressKnown());
+// assert(false == a.isLibraryFileNameKnown());
+// assert(false == a.isLineNumberKnown());
+// assert(false == a.isMangledSymbolNameKnown());
+// assert(false == a.isOffsetFromSymbolKnown());
+// assert(false == a.isSourceFileNameKnown());
+// assert(false == a.isSymbolNameKnown());
+// ```
+// Next, we assign a value to the `lineNumber` attribute of `a` and verify:
+// ```
+// a.setLineNumber(5);
+// assert(true == a.isLineNumberKnown());
+// assert(5    == a.lineNumber());
+// assert(a    != b);
+// ```
+// Next, make the same change to `b` and thereby restore it's equality to `a`:
+// ```
+// b.setLineNumber(5);
+// assert(true == b.isLineNumberKnown());
+// assert(5    == b.lineNumber());
+// assert(a    == b);
+// ```
+// Next, we update the `address` attribute of `a` and use the `address`
+// accessor method to obtain the new value for the update of `b`:
+// ```
+// a.setAddress((char *) 0x12345678);
+// assert(a != b);
 //
-//  b.setAddress(a.address());
-//  assert(true                == a.isAddressKnown());
-//  assert(true                == b.isAddressKnown());
-//  assert((char *) 0x12345678 == a.address());
-//  assert((char *) 0x12345678 == b.address());
-//  assert(a.address()         == b.address());
-//  assert(a                   == b);
-//..
+// b.setAddress(a.address());
+// assert(true                == a.isAddressKnown());
+// assert(true                == b.isAddressKnown());
+// assert((char *) 0x12345678 == a.address());
+// assert((char *) 0x12345678 == b.address());
+// assert(a.address()         == b.address());
+// assert(a                   == b);
+// ```
 // Finally, we exercise this sequence of operations for two other attributes,
-// 'symbolName' and 'sourceFileName':
-//..
-//  a.setSymbolName("woof");
-//  assert(a    != b);
+// `symbolName` and `sourceFileName`:
+// ```
+// a.setSymbolName("woof");
+// assert(a    != b);
 //
-//  b.setSymbolName(a.symbolName());
-//  assert(true == a.isSymbolNameKnown());
-//  assert(true == b.isSymbolNameKnown());
-//  assert(0    == bsl::strcmp("woof", a.symbolName().c_str()));
-//  assert(0    == bsl::strcmp("woof", b.symbolName().c_str()));
-//  assert(a    == b);
+// b.setSymbolName(a.symbolName());
+// assert(true == a.isSymbolNameKnown());
+// assert(true == b.isSymbolNameKnown());
+// assert(0    == bsl::strcmp("woof", a.symbolName().c_str()));
+// assert(0    == bsl::strcmp("woof", b.symbolName().c_str()));
+// assert(a    == b);
 //
-//  a.setSourceFileName("woof.cpp");
-//  assert(a != b);
-//  b.setSourceFileName(a.sourceFileName());
-//  assert(a.isSourceFileNameKnown());
-//  assert(b.isSourceFileNameKnown());
-//  assert(0 == bsl::strcmp("woof.cpp", a.sourceFileName().c_str()));
-//  assert(0 == bsl::strcmp("woof.cpp", b.sourceFileName().c_str()));
-//  assert(a == b);
-//..
+// a.setSourceFileName("woof.cpp");
+// assert(a != b);
+// b.setSourceFileName(a.sourceFileName());
+// assert(a.isSourceFileNameKnown());
+// assert(b.isSourceFileNameKnown());
+// assert(0 == bsl::strcmp("woof.cpp", a.sourceFileName().c_str()));
+// assert(0 == bsl::strcmp("woof.cpp", b.sourceFileName().c_str()));
+// assert(a == b);
+// ```
 
 #include <balscm_version.h>
 
@@ -171,14 +165,14 @@ namespace balst {
                            // class StackTraceFrame
                            // =====================
 
+/// This simply constrained (value-semantic) attribute class describes a
+/// call frame created on the execution stack when a *parent* function calls
+/// a *child* function.  Supplementary predicate methods indicate whether a
+/// given attribute value is considered "unknown".  See the Attributes
+/// section under @DESCRIPTION in the component-level documentation.  Note
+/// that the class invariants are identically the constraints on the
+/// individual attributes.
 class StackTraceFrame {
-    // This simply constrained (value-semantic) attribute class describes a
-    // call frame created on the execution stack when a *parent* function calls
-    // a *child* function.  Supplementary predicate methods indicate whether a
-    // given attribute value is considered "unknown".  See the Attributes
-    // section under @DESCRIPTION in the component-level documentation.  Note
-    // that the class invariants are identically the constraints on the
-    // individual attributes.
 
   private:
     // DATA
@@ -218,23 +212,31 @@ class StackTraceFrame {
     BSLMF_NESTED_TRAIT_DECLARATION(StackTraceFrame, bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a `StackTraceFrame` object having the (default)
+    /// attribute values:
+    /// ```
+    /// address            == 0
+    /// libraryFileName    == ""
+    /// lineNumber         == -1
+    /// mangledSymbolName  == ""
+    /// offsetFromSymbol   == (size_t)-1
+    /// sourceFileName     == ""
+    /// symbolName         == ""
+    /// ```
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     explicit
     StackTraceFrame(bslma::Allocator *basicAllocator = 0);
-        // Create a 'StackTraceFrame' object having the (default)
-        // attribute values:
-        //..
-        //  address            == 0
-        //  libraryFileName    == ""
-        //  lineNumber         == -1
-        //  mangledSymbolName  == ""
-        //  offsetFromSymbol   == (size_t)-1
-        //  sourceFileName     == ""
-        //  symbolName         == ""
-        //..
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create a local time descriptor object having the specified
+    /// `address`, `libraryFileName`, `lineNumber`, `mangledSymbolName`,
+    /// `offsetFromSymbol`, `sourceFileName`, and `symbolName` attribute
+    /// values.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The behavior is undefined unless
+    /// `-1 <= lineNumber`.
     StackTraceFrame(const void              *address,
                     const bsl::string_view&  libraryFileName,
                     int                      lineNumber,
@@ -243,190 +245,187 @@ class StackTraceFrame {
                     const bsl::string_view&  sourceFileName,
                     const bsl::string_view&  symbolName,
                     bslma::Allocator        *basicAllocator = 0);
-        // Create a local time descriptor object having the specified
-        // 'address', 'libraryFileName', 'lineNumber', 'mangledSymbolName',
-        // 'offsetFromSymbol', 'sourceFileName', and 'symbolName' attribute
-        // values.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The behavior is undefined unless
-        // '-1 <= lineNumber'.
 
+    /// Create a `StackTraceFrame` object having the same value as the
+    /// specified `original` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     StackTraceFrame(const StackTraceFrame&  original,
                     bslma::Allocator       *basicAllocator = 0);
-        // Create a 'StackTraceFrame' object having the same value as the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Destroy this object.
     ~StackTraceFrame();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
     StackTraceFrame& operator=(const StackTraceFrame& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Set the `address` attribute of this object to the specified `value`.
+    /// Note that the value `(void *)0)` indicates that `address` is
+    /// "unknown".
     void setAddress(const void *value);
-        // Set the 'address' attribute of this object to the specified 'value'.
-        // Note that the value '(void *)0)' indicates that 'address' is
-        // "unknown".
 
+    /// Set the `libraryFileName` attribute of this object to the specified
+    /// `value`.  Note that the empty string indicates the `libraryFileName`
+    /// is "unknown".
     void setLibraryFileName(const bsl::string_view& value);
-        // Set the 'libraryFileName' attribute of this object to the specified
-        // 'value'.  Note that the empty string indicates the 'libraryFileName'
-        // is "unknown".
 
+    /// Set the `lineNumber` attribute of this object to the specified
+    /// `value`.  The behavior is undefined unless `-1 <= value`.  Note that
+    /// the value -1 indicates the `lineNumber` is "unknown".
     void setLineNumber(int value);
-        // Set the 'lineNumber' attribute of this object to the specified
-        // 'value'.  The behavior is undefined unless '-1 <= value'.  Note that
-        // the value -1 indicates the 'lineNumber' is "unknown".
 
+    /// Set the `mangledSymbolName` attribute of this object to the
+    /// specified `value`.  Note that the empty string indicates that the
+    /// `mangledSymbolName` is "unknown".
     void setMangledSymbolName(const bsl::string_view& value);
-        // Set the 'mangledSymbolName' attribute of this object to the
-        // specified 'value'.  Note that the empty string indicates that the
-        // 'mangledSymbolName' is "unknown".
 
+    /// Set the `offsetFromSymbol` attribute of this object to the specified
+    /// `value`.  Note that the value `(bsl::size_t)-1` indicates that
+    /// `offsetFromSymbol` is "unknown".
     void setOffsetFromSymbol(bsl::size_t value);
-        // Set the 'offsetFromSymbol' attribute of this object to the specified
-        // 'value'.  Note that the value '(bsl::size_t)-1' indicates that
-        // 'offsetFromSymbol' is "unknown".
 
+    /// Set the `sourceFileName` attribute of this object to the specified
+    /// `value`.  Note that the empty string indicates that `sourceFileName`
+    /// is "unknown".
     void setSourceFileName(const bsl::string_view& value);
-        // Set the 'sourceFileName' attribute of this object to the specified
-        // 'value'.  Note that the empty string indicates that 'sourceFileName'
-        // is "unknown".
 
+    /// Set the `symbolName` attribute of this object to the specified
+    /// `value`.  Note that the empty string indicates that `symbolName` is
+    /// "unknown".
     void setSymbolName(const bsl::string_view& value);
-        // Set the 'symbolName' attribute of this object to the specified
-        // 'value'.  Note that the empty string indicates that 'symbolName' is
-        // "unknown".
 
                         // Aspects
 
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.  The behavior is undefined unless this
+    /// object was created with the same allocator as `other`.
     void swap(StackTraceFrame& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless this
-        // object was created with the same allocator as 'other'.
 
     // ACCESSORS
+
+    /// Return the value of `address` attribute of this object.  Note that
+    /// `(void *)0` indicates that the `address` is "unknown".
     const void *address() const;
-        // Return the value of 'address' attribute of this object.  Note that
-        // '(void *)0' indicates that the 'address' is "unknown".
 
+    /// Return a reference providing non-modifiable access to the
+    /// `libraryFileName` attribute of this object.  Note the empty string
+    /// indicates that the `libraryFileName` is "unknown".
     const bsl::string& libraryFileName() const;
-        // Return a reference providing non-modifiable access to the
-        // 'libraryFileName' attribute of this object.  Note the empty string
-        // indicates that the 'libraryFileName' is "unknown".
 
+    /// Return the value of the `lineNumber` attribute of this object.  Note
+    /// that -1 indicates that `lineNumber` is "unknown".
     int lineNumber() const;
-        // Return the value of the 'lineNumber' attribute of this object.  Note
-        // that -1 indicates that 'lineNumber' is "unknown".
 
+    /// Return a reference providing non-modifiable access to the
+    /// `mangledSymbolName` attribute of this object.  Note that the empty
+    /// string indicates that `mangledSymbolName` is "unknown".
     const bsl::string& mangledSymbolName() const;
-        // Return a reference providing non-modifiable access to the
-        // 'mangledSymbolName' attribute of this object.  Note that the empty
-        // string indicates that 'mangledSymbolName' is "unknown".
 
+    /// Return the value of the `offsetFromSymbol` attribute of this object.
+    /// Note that `(bsl::size_t)-1` indicates that `lineNumber` is not
+    /// known.
     bsl::size_t offsetFromSymbol() const;
-        // Return the value of the 'offsetFromSymbol' attribute of this object.
-        // Note that '(bsl::size_t)-1' indicates that 'lineNumber' is not
-        // known.
 
+    /// Return a reference providing non-modifiable access to the
+    /// `sourceFileName` attribute of this object.  Note that the empty
+    /// string indicates that `sourceFileName` is "unknown".
     const bsl::string& sourceFileName() const;
-        // Return a reference providing non-modifiable access to the
-        // 'sourceFileName' attribute of this object.  Note that the empty
-        // string indicates that 'sourceFileName' is "unknown".
 
+    /// Return a reference providing non-modifiable access to the
+    /// `symbolName` attribute of this object.  Note that the empty string
+    /// indicates that `symbolName` is "unknown".
     const bsl::string& symbolName() const;
-        // Return a reference providing non-modifiable access to the
-        // 'symbolName' attribute of this object.  Note that the empty string
-        // indicates that 'symbolName' is "unknown".
 
                         // Predicates
 
+    /// Return `true` if the `setAddress` attribute of this object is not
+    /// the "unknown" value for that attribute, and `false` otherwise.
     bool isAddressKnown() const;
-        // Return 'true' if the 'setAddress' attribute of this object is not
-        // the "unknown" value for that attribute, and 'false' otherwise.
 
+    /// Return `true` if the `libraryFileName` attribute of this object is
+    /// not the "unknown" value for that attribute, and `false` otherwise.
     bool isLibraryFileNameKnown() const;
-        // Return 'true' if the 'libraryFileName' attribute of this object is
-        // not the "unknown" value for that attribute, and 'false' otherwise.
 
+    /// Return `true` if the `lineNumber` attribute of this object is not
+    /// the "unknown" value for that attribute, and `false` otherwise.
     bool isLineNumberKnown() const;
-        // Return 'true' if the 'lineNumber' attribute of this object is not
-        // the "unknown" value for that attribute, and 'false' otherwise.
 
+    /// Return `true` if the `mangledSymbolName` attribute of this object is
+    /// not the "unknown" value for that attribute, and `false` otherwise.
     bool isMangledSymbolNameKnown() const;
-        // Return 'true' if the 'mangledSymbolName' attribute of this object is
-        // not the "unknown" value for that attribute, and 'false' otherwise.
 
+    /// Return `true` if the `offsetFromSymbol` attribute of this object is
+    /// not the "unknown" value for that attribute, and `false` otherwise.
     bool isOffsetFromSymbolKnown() const;
-        // Return 'true' if the 'offsetFromSymbol' attribute of this object is
-        // not the "unknown" value for that attribute, and 'false' otherwise.
 
+    /// Return `true` if the `sourceFileName` attribute of this object is
+    /// not the "unknown" value for that attribute, and `false` otherwise.
     bool isSourceFileNameKnown() const;
-        // Return 'true' if the 'sourceFileName' attribute of this object is
-        // not the "unknown" value for that attribute, and 'false' otherwise.
 
+    /// Return `true` if the `symbolName` attribute of this object is not
+    /// the "unknown" value for that attribute, and `false` otherwise.
     bool isSymbolNameKnown() const;
-        // Return 'true' if the 'symbolName' attribute of this object is not
-        // the "unknown" value for that attribute, and 'false' otherwise.
 
                         // Aspects
 
+    /// Return the allocator used by this object to supply memory.  Note
+    /// that if no allocator was supplied at construction the currently
+    /// installed default allocator is used.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the currently
-        // installed default allocator is used.
 
+    /// Write the value of this object to the specified output `stream` in a
+    /// human-readable format, and return a reference to `stream`.
+    /// Optionally specify an initial indentation `level`, whose absolute
+    /// value is incremented recursively for nested objects.  If `level` is
+    /// specified, optionally specify `spacesPerLevel`, whose absolute value
+    /// indicates the number of spaces per indentation level for this and
+    /// all of its nested objects.  If `level` is negative, suppress
+    /// indentation of the first line.  If `spacesPerLevel` is negative,
+    /// format the entire output on one line, suppressing all but the
+    /// initial indentation (as governed by `level`).  If `stream` is not
+    /// valid on entry, this operation has no effect.  Note that the format
+    /// is not fully specified, and can change without notice.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in a
-        // human-readable format, and return a reference to 'stream'.
-        // Optionally specify an initial indentation 'level', whose absolute
-        // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute value
-        // indicates the number of spaces per indentation level for this and
-        // all of its nested objects.  If 'level' is negative, suppress
-        // indentation of the first line.  If 'spacesPerLevel' is negative,
-        // format the entire output on one line, suppressing all but the
-        // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the format
-        // is not fully specified, and can change without notice.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `StackTraceFrame` objects
+/// have the same value if the corresponding values of their `address`,
+/// `libraryFileName`, `lineNumber`, `mangledSymbolName`,
+/// `offsetFromSymbol`, `sourceFileName`, and `symbolName` attributes are
+/// the same.
 bool operator==(const StackTraceFrame& lhs, const StackTraceFrame& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'StackTraceFrame' objects
-    // have the same value if the corresponding values of their 'address',
-    // 'libraryFileName', 'lineNumber', 'mangledSymbolName',
-    // 'offsetFromSymbol', 'sourceFileName', and 'symbolName' attributes are
-    // the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `StackTraceFrame`
+/// objects do not have the same value if the corresponding values
+/// of their `address`, `libraryFileName`, `lineNumber`,
+/// `mangledSymbolName`, `offsetFromSymbol`, `sourceFileName`, or
+/// `symbolName` attributes are the not same.
 bool operator!=(const StackTraceFrame& lhs, const StackTraceFrame& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'StackTraceFrame'
-    // objects do not have the same value if the corresponding values
-    // of their 'address', 'libraryFileName', 'lineNumber',
-    // 'mangledSymbolName', 'offsetFromSymbol', 'sourceFileName', or
-    // 'symbolName' attributes are the not same.
 
+/// Write the value of the specified `object` to the specified output
+/// `stream` in a single-line format, and return a reference to `stream`.
+/// If `stream` is not valid on entry, this operation has no effect.  Note
+/// that this human-readable format is not fully specified and can change
+/// without notice.  Also note that this method has the same behavior as
+/// `object.print(stream, 0, -1)`, but with the attribute names elided.
 bsl::ostream& operator<<(bsl::ostream& stream, const StackTraceFrame& object);
-    // Write the value of the specified 'object' to the specified output
-    // 'stream' in a single-line format, and return a reference to 'stream'.
-    // If 'stream' is not valid on entry, this operation has no effect.  Note
-    // that this human-readable format is not fully specified and can change
-    // without notice.  Also note that this method has the same behavior as
-    // 'object.print(stream, 0, -1)', but with the attribute names elided.
 
 // FREE FUNCTIONS
+
+/// Exchange the values of the specified `a` and `b` objects.  This function
+/// provides the no-throw exception-safety guarantee if the two objects were
+/// created with the same allocator and the basic guarantee otherwise.
 void swap(StackTraceFrame& a, StackTraceFrame& b);
-    // Exchange the values of the specified 'a' and 'b' objects.  This function
-    // provides the no-throw exception-safety guarantee if the two objects were
-    // created with the same allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS

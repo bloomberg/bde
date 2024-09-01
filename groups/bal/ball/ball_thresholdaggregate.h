@@ -12,10 +12,10 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_severity
 //
-//@DESCRIPTION: This component implements a class, 'ball::ThresholdAggregate',
+//@DESCRIPTION: This component implements a class, `ball::ThresholdAggregate`,
 // that aggregates four threshold levels: record level, pass-through level,
 // trigger level, and trigger-all level.  Each of these levels must in the
-// range '[0 .. 255]', and represents a threshold which, if exceeded, will
+// range `[0 .. 255]`, and represents a threshold which, if exceeded, will
 // invoke a certain action.
 //
 ///Usage
@@ -25,20 +25,20 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // The following code fragment illustrates some of the basic operations on
-// threshold levels provided by 'ball::ThresholdAggregate'.
-//..
-//    ball::ThresholdAggregate levels(192, 160, 128, 96);
-//    assert(192 == levels.recordLevel());
-//    assert(160 == levels.passLevel());
-//    assert(128 == levels.triggerLevel());
-//    assert( 96 == levels.triggerAllLevel());
+// threshold levels provided by `ball::ThresholdAggregate`.
+// ```
+//   ball::ThresholdAggregate levels(192, 160, 128, 96);
+//   assert(192 == levels.recordLevel());
+//   assert(160 == levels.passLevel());
+//   assert(128 == levels.triggerLevel());
+//   assert( 96 == levels.triggerAllLevel());
 //
-//    levels.setLevels(160, 128, 96, 64);
-//    assert(160 == levels.recordLevel());
-//    assert(128 == levels.passLevel());
-//    assert( 96 == levels.triggerLevel());
-//    assert( 64 == levels.triggerAllLevel());
-//..
+//   levels.setLevels(160, 128, 96, 64);
+//   assert(160 == levels.recordLevel());
+//   assert(128 == levels.passLevel());
+//   assert( 96 == levels.triggerLevel());
+//   assert( 64 == levels.triggerAllLevel());
+// ```
 
 #include <balscm_version.h>
 
@@ -51,8 +51,8 @@ namespace ball {
                         // class ThresholdAggregate
                         // ========================
 
+/// This class implements an aggregate of the four logging threshold levels.
 class ThresholdAggregate {
-    // This class implements an aggregate of the four logging threshold levels.
 
     // DATA
     unsigned char d_recordLevel;      // record
@@ -65,129 +65,134 @@ class ThresholdAggregate {
                            const ThresholdAggregate&);
   public:
     // CLASS METHODS
-    static int hash(const ThresholdAggregate& aggregate, int size);
-        // Return a hash value calculated from the specified threshold
-        // 'aggregate' using the specified 'size' as the number of slots.  The
-        // hash value is guaranteed to be in the range '[0, size - 1]'.  The
-        // behavior is undefined unless '0 < size'.
 
+    /// Return a hash value calculated from the specified threshold
+    /// `aggregate` using the specified `size` as the number of slots.  The
+    /// hash value is guaranteed to be in the range `[0, size - 1]`.  The
+    /// behavior is undefined unless `0 < size`.
+    static int hash(const ThresholdAggregate& aggregate, int size);
+
+    /// Return `true` if each of the specified `recordLevel`, `passLevel`,
+    /// `triggerLevel`, and `triggerAllLevel` threshold values is in the
+    /// range `[0 .. 255]`, and `false` otherwise.
     static bool areValidThresholdLevels(int recordLevel,
                                         int passLevel,
                                         int triggerLevel,
                                         int triggerAllLevel);
-        // Return 'true' if each of the specified 'recordLevel', 'passLevel',
-        // 'triggerLevel', and 'triggerAllLevel' threshold values is in the
-        // range '[0 .. 255]', and 'false' otherwise.
 
+    /// Return the numerically greatest of the specified `recordLevel`,
+    /// `passLevel`, `triggerLevel`, and `triggerAllLevel` values.
     static int maxLevel(int recordLevel,
                         int passLevel,
                         int triggerLevel,
                         int triggerAllLevel);
-        // Return the numerically greatest of the specified 'recordLevel',
-        // 'passLevel', 'triggerLevel', and 'triggerAllLevel' values.
 
+    /// Return the numerically greatest of the four logging threshold levels
+    /// held by the specified threshold `aggregate`.
     static int maxLevel(const ThresholdAggregate& aggregate);
-        // Return the numerically greatest of the four logging threshold levels
-        // held by the specified threshold 'aggregate'.
 
     // CREATORS
-    ThresholdAggregate();
-        // Create a threshold aggregate whose threshold levels are all 0.
 
+    /// Create a threshold aggregate whose threshold levels are all 0.
+    ThresholdAggregate();
+
+    /// Create a threshold aggregate whose threshold levels are the
+    /// specified `recordLevel`, `passLevel`, `triggerLevel`, and
+    /// `triggerAllLevel`, respectively.  The behavior is undefined if any
+    /// threshold level is not in the range `[0 .. 255]`.
     ThresholdAggregate(int recordLevel,
                        int passLevel,
                        int triggerLevel,
                        int triggerAllLevel);
-        // Create a threshold aggregate whose threshold levels are the
-        // specified 'recordLevel', 'passLevel', 'triggerLevel', and
-        // 'triggerAllLevel', respectively.  The behavior is undefined if any
-        // threshold level is not in the range '[0 .. 255]'.
 
+    /// Create a threshold aggregate having the same value as that of the
+    /// specified `original` threshold aggregate.
     ThresholdAggregate(const ThresholdAggregate& original);
-        // Create a threshold aggregate having the same value as that of the
-        // specified 'original' threshold aggregate.
 
     // ~ThresholdAggregate();
         // Destroy this threshold aggregate.  Note that this trivial destructor
         // is generated by the compiler.
 
     // MANIPULATORS
-    ThresholdAggregate& operator=(const ThresholdAggregate& rhs);
-        // Assign the value of the specified 'rhs' threshold aggregate to this
-        // aggregate, and return a reference to this modifiable aggregate.
 
+    /// Assign the value of the specified `rhs` threshold aggregate to this
+    /// aggregate, and return a reference to this modifiable aggregate.
+    ThresholdAggregate& operator=(const ThresholdAggregate& rhs);
+
+    /// Set the threshold levels of this threshold aggregate to the
+    /// specified `recordLevel`, `passLevel`, `triggerLevel`, and
+    /// `triggerAllLevel` values, respectively, if each of the specified
+    /// values is in the range `[0 .. 255]`.  Return 0 on success, and a
+    /// non-zero value otherwise (with no effect on the threshold levels of
+    /// this aggregate).
     int setLevels(int recordLevel,
                   int passLevel,
                   int triggerLevel,
                   int triggerAllLevel);
-        // Set the threshold levels of this threshold aggregate to the
-        // specified 'recordLevel', 'passLevel', 'triggerLevel', and
-        // 'triggerAllLevel' values, respectively, if each of the specified
-        // values is in the range '[0 .. 255]'.  Return 0 on success, and a
-        // non-zero value otherwise (with no effect on the threshold levels of
-        // this aggregate).
 
+    /// Set the record level of this threshold aggregate to the specified
+    /// `recordLevel`.
     void setRecordLevel(int recordLevel);
-        // Set the record level of this threshold aggregate to the specified
-        // 'recordLevel'.
 
+    /// Set the pass level of this threshold aggregate to the specified
+    /// `passLevel`.
     void setPassLevel(int passLevel);
-        // Set the pass level of this threshold aggregate to the specified
-        // 'passLevel'.
 
+    /// Set the trigger level of this threshold aggregate to the specified
+    /// `triggerLevel`.
     void setTriggerLevel(int triggerLevel);
-        // Set the trigger level of this threshold aggregate to the specified
-        // 'triggerLevel'.
 
+    /// Set the trigger-all level of this threshold aggregate to the
+    /// specified `triggerAllLevel`.
     void setTriggerAllLevel(int triggerAllLevel);
-        // Set the trigger-all level of this threshold aggregate to the
-        // specified 'triggerAllLevel'.
 
     // ACCESSORS
+
+    /// Return the record level of this threshold aggregate.
     int recordLevel() const;
-        // Return the record level of this threshold aggregate.
 
+    /// Return the pass level of this threshold aggregate.
     int passLevel() const;
-        // Return the pass level of this threshold aggregate.
 
+    /// Return the trigger level of this threshold aggregate.
     int triggerLevel() const;
-        // Return the trigger level of this threshold aggregate.
 
+    /// Return the trigger-all level of this threshold aggregate.
     int triggerAllLevel() const;
-        // Return the trigger-all level of this threshold aggregate.
 
+    /// Format this object to the specified output `stream` at the
+    /// (absolute value of) the optionally specified indentation `level`
+    /// and return a reference to `stream`.  If `level` is specified,
+    /// optionally specify `spacesPerLevel`, the number of spaces per
+    /// indentation level for this and all of its nested objects.  If
+    /// `level` is negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, format the entire output on one line,
+    /// suppressing all but the initial indentation (as governed by
+    /// `level`).  If `stream` is not valid on entry, this operation has no
+    /// effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // (absolute value of) the optionally specified indentation 'level'
-        // and return a reference to 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` threshold aggregates have
+/// the same value, and `false` otherwise.  Two threshold aggregates have
+/// the same value if all four of their respective threshold levels are the
+/// same.
 bool operator==(const ThresholdAggregate& lhs, const ThresholdAggregate& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' threshold aggregates have
-    // the same value, and 'false' otherwise.  Two threshold aggregates have
-    // the same value if all four of their respective threshold levels are the
-    // same.
 
+/// Return `true` if the specified `lhs` and `rhs` threshold aggregates do
+/// not have the same value, and `false` otherwise.  Two threshold
+/// aggregates do not have the same value if any of their four respective
+/// threshold levels differ.
 bool operator!=(const ThresholdAggregate& lhs, const ThresholdAggregate& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' threshold aggregates do
-    // not have the same value, and 'false' otherwise.  Two threshold
-    // aggregates do not have the same value if any of their four respective
-    // threshold levels differ.
 
+/// Write the value of the specified threshold `aggregate` to the specified
+/// output `stream` and return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream&             stream,
                          const ThresholdAggregate& aggregate);
-    // Write the value of the specified threshold 'aggregate' to the specified
-    // output 'stream' and return a reference to the modifiable 'stream'.
 
 // ============================================================================
 //                              INLINE DEFINITIONS

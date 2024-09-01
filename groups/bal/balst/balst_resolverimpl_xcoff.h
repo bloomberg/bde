@@ -14,8 +14,8 @@ BSLS_IDENT("$Id: $")
 //           balst_resolverimpl_windows
 //
 //@DESCRIPTION: This component provides a class,
-// 'balst::Resolver<Xcoff>', that, given a vector of 'balst::StackTraceFrame's
-// that have only their 'address' fields set, resolves all other fields in
+// `balst::Resolver<Xcoff>`, that, given a vector of `balst::StackTraceFrame`s
+// that have only their `address` fields set, resolves all other fields in
 // those frames.  Xcoff objects are used on AIX platforms.
 //
 ///Inline Functions
@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'balst' and is *not* intended
+// This component is an implementation detail of `balst` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

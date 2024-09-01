@@ -5,36 +5,36 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide functions for resolving a stack trace using 'dladdr'.
+//@PURPOSE: Provide functions for resolving a stack trace using `dladdr`.
 //
 //@CLASSES:
-//   balst::ResolverImpl<Dladdr>: symbol resolution using 'dladdr'
+//   balst::ResolverImpl<Dladdr>: symbol resolution using `dladdr`
 //
 //@SEE_ALSO: balst_resolverimpl_elf,
 //           balst_resolverimpl_windows,
 //           balst_resolverimpl_xcoff
 //
 //@DESCRIPTION: This component provides a class,
-// 'balst::Resolver<Dladdr>', that, given a vector of
-// 'balst::StackTraceFrame' objects that have only their 'address' fields set,
+// `balst::Resolver<Dladdr>`, that, given a vector of
+// `balst::StackTraceFrame` objects that have only their `address` fields set,
 // resolves some of the other fields in those frames.  This resolver will work
-// for any platform that supports the 'dladdr' function (e.g., Darwin and
-// Linux).  Note that 'dladdr' is not a standard system function, but
-// documentation is frequently available via 'man dladdr' on supported
+// for any platform that supports the `dladdr` function (e.g., Darwin and
+// Linux).  Note that `dladdr` is not a standard system function, but
+// documentation is frequently available via `man dladdr` on supported
 // platforms such as Linux and Apple Mac OSX.
 //
 // Note that this resolving implementation is currently used for the operating
 // systems based on the Mach kernel, in particular Apple Mac OSX.
 //
-// In addition to 'dladdr', this code uses the 'abi::__cxa_demangle' function
+// In addition to `dladdr`, this code uses the `abi::__cxa_demangle` function
 // supplied by the gnu and clang compilers for demangling symbol names.
 // Documentation can be found:
-//: o /usr/include/cxxabi.h
-//: o 'http://gcc.gnu.org/onlinedocs/libstdc++/manual/ext_demangling.html'
+// * /usr/include/cxxabi.h
+// * `http://gcc.gnu.org/onlinedocs/libstdc++/manual/ext_demangling.html`
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'balst' and is *not* intended
+// This component is an implementation detail of `balst` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

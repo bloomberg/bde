@@ -10,10 +10,10 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::Severity: namespace for enumerating logging severity levels
 //
-//@DESCRIPTION: This component provides a namespace, 'ball::Severity', for the
-// 'enum' type 'ball::Severity::Level'.  'Level' enumerates a list of severity
+//@DESCRIPTION: This component provides a namespace, `ball::Severity`, for the
+// `enum` type `ball::Severity::Level`.  `Level` enumerates a list of severity
 // levels that can be attached to a logging event.  In addition, this component
-// supports functions that convert the 'Level' enumerators to a well-defined
+// supports functions that convert the `Level` enumerators to a well-defined
 // ASCII representation.
 //
 ///Usage
@@ -23,28 +23,28 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Syntax
 ///- - - - - - - - -
 // The following snippets of code provide a simple illustration of ordinary
-// 'ball::Severity' operation.  (The next example discusses a more elaborate
+// `ball::Severity` operation.  (The next example discusses a more elaborate
 // usage scenario.)
 //
-// First create a variable 'level' of type 'ball::Severity::Level' and
-// initialize it to the value 'ball::Severity::e_ERROR'.
-//..
-//      ball::Severity::Level level = ball::Severity::e_ERROR;
-//..
-// Next, store a pointer to its ASCII representation in a variable 'asciiLevel'
-// of type 'const char *'.
-//..
-//      const char *asciiLevel = ball::Severity::toAscii(level);
-//      assert(0 == strcmp(asciiLevel, "ERROR"));
-//..
-// Finally, print the value of 'level' to 'bsl::cout'.
-//..
-//      bsl::cout << level << bsl::endl;
-//..
-// This statement produces the following output on 'stdout':
-//..
-//      ERROR
-//..
+// First create a variable `level` of type `ball::Severity::Level` and
+// initialize it to the value `ball::Severity::e_ERROR`.
+// ```
+//     ball::Severity::Level level = ball::Severity::e_ERROR;
+// ```
+// Next, store a pointer to its ASCII representation in a variable `asciiLevel`
+// of type `const char *`.
+// ```
+//     const char *asciiLevel = ball::Severity::toAscii(level);
+//     assert(0 == strcmp(asciiLevel, "ERROR"));
+// ```
+// Finally, print the value of `level` to `bsl::cout`.
+// ```
+//     bsl::cout << level << bsl::endl;
+// ```
+// This statement produces the following output on `stdout`:
+// ```
+//     ERROR
+// ```
 //
 ///Example 2: Logging
 /// - - - - - - - - -
@@ -57,32 +57,32 @@ BSLS_IDENT("$Id: $")
 // general-purpose, we envision that additional levels may be useful in some
 // applications.  Hence, the numeric values supplied in this component might be
 // augmented with additional severity levels.  For example:
-//..
-//      enum {
-//          MAJOR_ERROR =  48
-//          MINOR_ERROR =  80,
-//          DEBUG2      = 162
-//      };
-//..
+// ```
+//     enum {
+//         MAJOR_ERROR =  48
+//         MINOR_ERROR =  80,
+//         DEBUG2      = 162
+//     };
+// ```
 // Given that library modules using augmented logging schemes may coexist in a
 // single program, we would choose not to have the core logging facility depend
 // on this enumeration, but instead accept integer log levels in the range
 // [0 .. 255].  Hence, those that choose to limit their logging levels to the
-// seven defined in 'ball::Severity' can do so, and still coexist on the same
+// seven defined in `ball::Severity` can do so, and still coexist on the same
 // logging facility along side routines that log with more finely-graduated
 // levels of severity.
 //
 // To facilitate administration, the following enumerated values, in addition
 // to any level values supplied to programmers, should be available to the
 // owner of the main program to control output:
-//..
-//      enum {
-//          ALL = 255,  // publish all log messages
-//          OFF =  -1   // disable logging
-//      };
-//..
-// Setting the global threshold to 'ALL' causes all messages to be published;
-// setting it to 'OFF' disables logging.
+// ```
+//     enum {
+//         ALL = 255,  // publish all log messages
+//         OFF =  -1   // disable logging
+//     };
+// ```
+// Setting the global threshold to `ALL` causes all messages to be published;
+// setting it to `OFF` disables logging.
 
 #include <balscm_version.h>
 
@@ -118,8 +118,8 @@ namespace ball {
                         // struct Severity
                         // ===============
 
+/// This struct provides a namespace for enumerating severity levels.
 struct Severity {
-    // This struct provides a namespace for enumerating severity levels.
 
   public:
     enum Level {
@@ -165,42 +165,45 @@ struct Severity {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+    /// Define `e_LENGTH` to be the number of enumerators in the `Level`
+    /// enumeration.
     enum {
         e_LENGTH = 7
     };
-        // Define 'e_LENGTH' to be the number of enumerators in the 'Level'
-        // enumeration.
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Write to the specified `stream` the string representation of the
+    /// specified enumeration `value`.
     static void print(bsl::ostream& stream, Severity::Level value);
-        // Write to the specified 'stream' the string representation of the
-        // specified enumeration 'value'.
 
   public:
     // CLASS METHODS
+
+    /// Load into the specified `level` the severity matching the specified
+    /// case-insensitive `string` of the specified `stringLength`.  Return 0
+    /// on success, and a non-zero value with no effect on `level`
+    /// otherwise (i.e., `string` does not match any `Level` enumerator).
     static int fromAscii(Severity::Level *level,
                          const char      *string,
                          int              stringLength);
-        // Load into the specified 'level' the severity matching the specified
-        // case-insensitive 'string' of the specified 'stringLength'.  Return 0
-        // on success, and a non-zero value with no effect on 'level'
-        // otherwise (i.e., 'string' does not match any 'Level' enumerator).
 
+    /// Return the string representation exactly matching the enumerator
+    /// name corresponding to the specified enumeration `value`.
     static const char *toAscii(Severity::Level value);
-        // Return the string representation exactly matching the enumerator
-        // name corresponding to the specified enumeration 'value'.
 
+    /// Format the specified `value` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
     static bsl::ostream& streamOut(bsl::ostream&   stream,
                                    Severity::Level value);
-        // Format the specified 'value' to the specified output 'stream' and
-        // return a reference to the modifiable 'stream'.
 };
 
 // FREE OPERATORS
+
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, Severity::Level rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                              INLINE DEFINITIONS

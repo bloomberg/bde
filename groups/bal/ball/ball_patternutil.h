@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::PatternUtil: utility class for string pattern matching
 //
-//@DESCRIPTION: This component defines a namespace, 'ball::PatternUtil', that
+//@DESCRIPTION: This component defines a namespace, `ball::PatternUtil`, that
 // provides utility functions for matching input strings to a given pattern
 // based on wild-card and simple escape sequences.
 //
@@ -28,42 +28,42 @@ BSLS_IDENT("$Id: $")
 // utility functions.
 //
 // A string matches a pattern if they are identical:
-//..
-//  assert(ball::PatternUtil::isMatch("EQ",           "EQ"));
-//..
-// A string matches a pattern containing an (unescaped) trailing '*' if that
-// pattern (without the trailing '*') is a prefix of the string:
-//..
-//  assert(ball::PatternUtil::isMatch("EQ.MARKET",    "EQ*"));
-//  assert(ball::PatternUtil::isMatch("EQ",           "EQ*"));
-//..
-// An escaped '*' at the end loses its wild-card semantics and matches a single
-// '*':
-//..
-//  assert(false == ball::PatternUtil::isMatch("EQ.MARKET", "EQ\\*"));
-//  assert(ball::PatternUtil::isMatch("EQ*",          "EQ\\*"));
-//..
+// ```
+// assert(ball::PatternUtil::isMatch("EQ",           "EQ"));
+// ```
+// A string matches a pattern containing an (unescaped) trailing `*` if that
+// pattern (without the trailing `*`) is a prefix of the string:
+// ```
+// assert(ball::PatternUtil::isMatch("EQ.MARKET",    "EQ*"));
+// assert(ball::PatternUtil::isMatch("EQ",           "EQ*"));
+// ```
+// An escaped `*` at the end loses its wild-card semantics and matches a single
+// `*`:
+// ```
+// assert(false == ball::PatternUtil::isMatch("EQ.MARKET", "EQ\\*"));
+// assert(ball::PatternUtil::isMatch("EQ*",          "EQ\\*"));
+// ```
 // Escape sequences include '\\' and '\*' only and they can appear anywhere in
 // the pattern:
-//..
-//  assert(ball::PatternUtil::isMatch("\\EQ",         "\\\\EQ"));
-//  assert(ball::PatternUtil::isMatch("E*Q",          "E\\*Q"));
-//..
-// A pattern is invalid if it contains a non-trailing '*', or any '\' that is
-// not followed by either '\' or '*'.  The 'isValidPattern' function can be
+// ```
+// assert(ball::PatternUtil::isMatch("\\EQ",         "\\\\EQ"));
+// assert(ball::PatternUtil::isMatch("E*Q",          "E\\*Q"));
+// ```
+// A pattern is invalid if it contains a non-trailing `*`, or any '\' that is
+// not followed by either '\' or `*`.  The `isValidPattern` function can be
 // used to determine whether or not a pattern is valid:
-//..
-//  assert(false == ball::PatternUtil::isValidPattern("E\\Q"));
-//  assert(false == ball::PatternUtil::isValidPattern("E*Q"));
-//  assert(true  == ball::PatternUtil::isValidPattern("E\\\\Q"));
-//  assert(true  == ball::PatternUtil::isValidPattern("E\\*Q"));
-//..
-// The 'isMatch' function always returns 'false' on an invalid pattern:
-//..
-//  assert(false == ball::PatternUtil::isMatch("E\\Q","E\\Q"));
-//  assert(false == ball::PatternUtil::isMatch("E*Q", "E*Q"));
-//  assert(false == ball::PatternUtil::isMatch("ETQ", "E*Q"));
-//..
+// ```
+// assert(false == ball::PatternUtil::isValidPattern("E\\Q"));
+// assert(false == ball::PatternUtil::isValidPattern("E*Q"));
+// assert(true  == ball::PatternUtil::isValidPattern("E\\\\Q"));
+// assert(true  == ball::PatternUtil::isValidPattern("E\\*Q"));
+// ```
+// The `isMatch` function always returns `false` on an invalid pattern:
+// ```
+// assert(false == ball::PatternUtil::isMatch("E\\Q","E\\Q"));
+// assert(false == ball::PatternUtil::isMatch("E*Q", "E*Q"));
+// assert(false == ball::PatternUtil::isMatch("ETQ", "E*Q"));
+// ```
 
 #include <balscm_version.h>
 
@@ -74,34 +74,35 @@ namespace ball {
                         // struct PatternUtil
                         // ==================
 
+/// This utility class provides functions relating to pattern matching for
+/// strings.
 struct PatternUtil {
-    // This utility class provides functions relating to pattern matching for
-    // strings.
 
     // CLASS METHODS
-    static bool isMatch(const char *inputString, const char *pattern);
-        // Return 'true' if the specified 'pattern' matches the specified
-        // 'inputString', and 'false' if the pattern does not match or is
-        // invalid.  There are two types of escape sequences that are allowed
-        // in 'pattern'.  (See the function-level documentation of
-        // 'PatternUtil::isValidPattern' for the definition of invalid
-        // patterns.)  A '\*' escape sequence in 'pattern' matches a single '*'
-        // in 'inputString'.  A '\\' escape sequence in 'pattern' matches a
-        // single '\' in 'inputString'.  If 'pattern' ends with an unescaped
-        // '*', then 'pattern' matches 'inputString' if the string indicated by
-        // 'pattern' (after escape sequence processing) with the final '*'
-        // removed is a prefix of 'inputString'.  Otherwise 'pattern' matches
-        // 'inputString' only if the string indicated by 'pattern' (after
-        // escape sequence processing) and 'inputString' are the same.  The
-        // behavior is undefined unless both 'inputString' and 'pattern' are
-        // null-terminated c-style strings.
 
+    /// Return `true` if the specified `pattern` matches the specified
+    /// `inputString`, and `false` if the pattern does not match or is
+    /// invalid.  There are two types of escape sequences that are allowed
+    /// in `pattern`.  (See the function-level documentation of
+    /// `PatternUtil::isValidPattern` for the definition of invalid
+    /// patterns.)  A '\*` escape sequence in `pattern' matches a single `*`
+    /// in `inputString`.  A '\\' escape sequence in `pattern` matches a
+    /// single '\' in `inputString`.  If `pattern` ends with an unescaped
+    /// `*`, then `pattern` matches `inputString` if the string indicated by
+    /// `pattern` (after escape sequence processing) with the final `*`
+    /// removed is a prefix of `inputString`.  Otherwise `pattern` matches
+    /// `inputString` only if the string indicated by `pattern` (after
+    /// escape sequence processing) and `inputString` are the same.  The
+    /// behavior is undefined unless both `inputString` and `pattern` are
+    /// null-terminated c-style strings.
+    static bool isMatch(const char *inputString, const char *pattern);
+
+    /// Return `true` if the specified `pattern` does not contain a '\' not
+    /// followed by either '\' or `*`, or an unescaped `*` at locations
+    /// other than at the end, and `false` otherwise.  Note that an
+    /// unescaped `*` not at the end may someday be considered a valid
+    /// pattern.
     static bool isValidPattern(const char *pattern);
-        // Return 'true' if the specified 'pattern' does not contain a '\' not
-        // followed by either '\' or '*', or an unescaped '*' at locations
-        // other than at the end, and 'false' otherwise.  Note that an
-        // unescaped '*' not at the end may someday be considered a valid
-        // pattern.
 };
 
 }  // close package namespace

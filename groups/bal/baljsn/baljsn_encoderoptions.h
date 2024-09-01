@@ -13,98 +13,89 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: baljsn_encoder, baljsn_decoderoptions
 //
 //@DESCRIPTION: This component provides a single, simply constrained
-// (value-semantic) attribute class, 'baljsn::EncoderOptions', that is used to
+// (value-semantic) attribute class, `baljsn::EncoderOptions`, that is used to
 // specify options for encoding objects in the JSON format.
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type           Default         Simple Constraints
-//  ------------------  -----------    -------         ------------------
-//  encodingStyle       EncodingStyle  e_COMPACT       none
-//  initialIndentLevel  int            0               >= 0
-//  spacesPerLevel      int            0               >= 0
-//  encodeEmptyArrays   bool           false           none
-//  encodeNullElements  bool           false           none
-//  encodeInfAndNaNAsStrings
-//                      bool           false           none
-//  encodeQuotedDecimal64
-//                      bool           true            none
-//  datetimeFractionalSecondPrecision
-//                      int            3               >= 0 and <= 6
-//  maxFloatPrecision   int            0               >= 1 and <= 9  or 0
-//  maxDoublePrecision  int            0               >= 1 and <= 17 or 0
-//..
-//: o 'encodingStyle': encoding style used to encode the JSON data.
-//:
-//: o 'initialIndentLevel': Initial indent level for the topmost element.
-//:
-//: o 'spacesPerLevel': spaces per additional indent level.
-//:
-//: o 'encodeEmptyArrays': option specifying if empty arrays should be encoded
-//:   (empty arrays occurring as selections of choices are always encoded).
-//:
-//: o 'encodeNullElements': option specifying if null elements should be
-//:                         encoded.
-//:
-//: o 'encodeInfAndNaNAsStrings': JSON does not provide a way to encode these
-//:                               values as they are not numbers.  This option
-//:                               provides a way to encode these values.
-//:                               Although the resulting output is a valid
-//:                               JSON document, decoders expecting floating
-//:                               point numbers to be encoded only as numbers
-//:                               will fail to decode.  Users of this option
-//:                               must therefore exercise caution and ensure
-//:                               that if this option is used then the parser
-//:                               decoding the generated JSON can handle
-//:                               doubles as strings.
-//:
-//: o 'encodeQuotedDecimal64': option specifying a way to encode 'Decimal64'
-//:                             values.  If the 'encodeQuotedDecimal64'
-//:                             attribute value is 'true' (the default), the
-//:                             'Decimal64' values will be encoded quoted,
-//:                             and otherwise they will be encoded as numbers.
-//:                             Encoding a Decimal64 as a JSON number will
-//:                             frequently result in it being later decoded as
-//:                             a binary floating point number, and in the
-//:                             process losing digits of precision that were
-//:                             the point of using the Decimal64 type in the
-//:                             first place.  Care should be taken when setting
-//:                             this option to 'false' (though it may be useful
-//:                             when communicating with endpoints that are
-//:                             known to correctly handle high precision JSON
-//:                             numbers).
-//:
-//: o 'datetimeFractionalSecondPrecision': option specifying the number of
-//:                                        decimal places used for seconds when
-//:                                        encoding 'Datetime' and
-//:                                        'DatetimeTz'.
-//:
-//: o 'maxFloatPrecision': [!DEPRECATED!] option specifying the maximum number
-//:                        of decimal places used to encode each 'float' value.
-//:                        When 0 (the default value) the encoder will use the
-//:                        minimum that is necessary to restore the binary
-//:                        value into a 'float'.  We recommend against setting
-//:                        this option: the option was provided prior to the
-//:                        current default behavior (of choosing the shortest
-//:                        presentation that can be restored to the original
-//:                        value) being available.
-//:
-//: o 'maxDoublePrecision': [!DEPRECATED!] option specifying the maximum number
-//:                         of decimal places used to encode each 'double'
-//:                         value.  When 0 (the default value) the encoder will
-//:                         use the minimum that is necessary to restore the
-//:                         binary value into a 'double'.  We recommend against
-//:                         setting this option: the option was provided prior
-//:                         to the current default behavior (of choosing the
-//:                         shortest presentation that can be restored to the
-//:                         original value) being available.
+// ```
+// Name                Type           Default         Simple Constraints
+// ------------------  -----------    -------         ------------------
+// encodingStyle       EncodingStyle  e_COMPACT       none
+// initialIndentLevel  int            0               >= 0
+// spacesPerLevel      int            0               >= 0
+// encodeEmptyArrays   bool           false           none
+// encodeNullElements  bool           false           none
+// encodeInfAndNaNAsStrings
+//                     bool           false           none
+// encodeQuotedDecimal64
+//                     bool           true            none
+// datetimeFractionalSecondPrecision
+//                     int            3               >= 0 and <= 6
+// maxFloatPrecision   int            0               >= 1 and <= 9  or 0
+// maxDoublePrecision  int            0               >= 1 and <= 17 or 0
+// ```
+// * `encodingStyle`: encoding style used to encode the JSON data.
+// * `initialIndentLevel`: Initial indent level for the topmost element.
+// * `spacesPerLevel`: spaces per additional indent level.
+// * `encodeEmptyArrays`: option specifying if empty arrays should be encoded
+//   (empty arrays occurring as selections of choices are always encoded).
+// * `encodeNullElements`: option specifying if null elements should be
+//                         encoded.
+// * `encodeInfAndNaNAsStrings`: JSON does not provide a way to encode these
+//                               values as they are not numbers.  This option
+//                               provides a way to encode these values.
+//                               Although the resulting output is a valid
+//                               JSON document, decoders expecting floating
+//                               point numbers to be encoded only as numbers
+//                               will fail to decode.  Users of this option
+//                               must therefore exercise caution and ensure
+//                               that if this option is used then the parser
+//                               decoding the generated JSON can handle
+//                               doubles as strings.
+// * `encodeQuotedDecimal64`: option specifying a way to encode `Decimal64`
+//                             values.  If the `encodeQuotedDecimal64`
+//                             attribute value is `true` (the default), the
+//                             `Decimal64` values will be encoded quoted,
+//                             and otherwise they will be encoded as numbers.
+//                             Encoding a Decimal64 as a JSON number will
+//                             frequently result in it being later decoded as
+//                             a binary floating point number, and in the
+//                             process losing digits of precision that were
+//                             the point of using the Decimal64 type in the
+//                             first place.  Care should be taken when setting
+//                             this option to `false` (though it may be useful
+//                             when communicating with endpoints that are
+//                             known to correctly handle high precision JSON
+//                             numbers).
+// * `datetimeFractionalSecondPrecision`: option specifying the number of
+//                                        decimal places used for seconds when
+//                                        encoding `Datetime` and
+//                                        `DatetimeTz`.
+// * `maxFloatPrecision`: [**DEPRECATED**] option specifying the maximum number
+//                        of decimal places used to encode each `float` value.
+//                        When 0 (the default value) the encoder will use the
+//                        minimum that is necessary to restore the binary
+//                        value into a `float`.  We recommend against setting
+//                        this option: the option was provided prior to the
+//                        current default behavior (of choosing the shortest
+//                        presentation that can be restored to the original
+//                        value) being available.
+// * `maxDoublePrecision`: [**DEPRECATED**] option specifying the maximum number
+//                         of decimal places used to encode each `double`
+//                         value.  When 0 (the default value) the encoder will
+//                         use the minimum that is necessary to restore the
+//                         binary value into a `double`.  We recommend against
+//                         setting this option: the option was provided prior
+//                         to the current default behavior (of choosing the
+//                         shortest presentation that can be restored to the
+//                         original value) being available.
 //
 ///Implementation Note
 ///- - - - - - - - - -
 // This file was generated from a script and was subsequently modified to add
 // documentation and to make other changes.  The steps to generate and update
-// this file can be found in the 'doc/generating_codec_options.txt' file.
+// this file can be found in the `doc/generating_codec_options.txt` file.
 //
 ///Usage
 ///-----
@@ -116,63 +107,63 @@ BSLS_IDENT("$Id: $")
 // for encoding objects in the JSON format.  This example shows how to create
 // and populate an options object.
 //
-// First, we default-construct a 'baljsn::EncoderOptions' object:
-//..
-//  const int  INITIAL_INDENT_LEVEL      = 1;
-//  const int  SPACES_PER_LEVEL          = 4;
-//  const bool ENCODE_EMPTY_ARRAYS       = true;
-//  const bool ENCODE_NULL_ELEMENTS      = true;
-//  const bool ENCODE_INF_NAN_AS_STRINGS = true;
-//  const int  DATETIME_PRECISION        = 6;
-//  const int  FLOAT_PRECISION           = 3;
-//  const int  DOUBLE_PRECISION          = 9;
-//  const bool ENCODE_QUOTED_DECIMAL64   = false;
+// First, we default-construct a `baljsn::EncoderOptions` object:
+// ```
+// const int  INITIAL_INDENT_LEVEL      = 1;
+// const int  SPACES_PER_LEVEL          = 4;
+// const bool ENCODE_EMPTY_ARRAYS       = true;
+// const bool ENCODE_NULL_ELEMENTS      = true;
+// const bool ENCODE_INF_NAN_AS_STRINGS = true;
+// const int  DATETIME_PRECISION        = 6;
+// const int  FLOAT_PRECISION           = 3;
+// const int  DOUBLE_PRECISION          = 9;
+// const bool ENCODE_QUOTED_DECIMAL64   = false;
 //
-//  baljsn::EncoderOptions options;
-//  assert(0     == options.initialIndentLevel());
-//  assert(0     == options.spacesPerLevel());
-//  assert(baljsn::EncoderOptions::e_COMPACT == options.encodingStyle());
-//  assert(false == options.encodeEmptyArrays());
-//  assert(false == options.encodeNullElements());
-//  assert(false == options.encodeInfAndNaNAsStrings());
-//  assert(3     == options.datetimeFractionalSecondPrecision());
-//  assert(0     == options.maxFloatPrecision());
-//  assert(0     == options.maxDoublePrecision());
-//  assert(true  == options.encodeQuotedDecimal64());
-//..
+// baljsn::EncoderOptions options;
+// assert(0     == options.initialIndentLevel());
+// assert(0     == options.spacesPerLevel());
+// assert(baljsn::EncoderOptions::e_COMPACT == options.encodingStyle());
+// assert(false == options.encodeEmptyArrays());
+// assert(false == options.encodeNullElements());
+// assert(false == options.encodeInfAndNaNAsStrings());
+// assert(3     == options.datetimeFractionalSecondPrecision());
+// assert(0     == options.maxFloatPrecision());
+// assert(0     == options.maxDoublePrecision());
+// assert(true  == options.encodeQuotedDecimal64());
+// ```
 // Next, we populate that object to encode in a prett format using a
 // pre-defined initial indent level and spaces per level:
-//..
-//  options.setEncodingStyle(baljsn::EncodingStyle::e_PRETTY);
-//  assert(baljsn::EncoderOptions::e_PRETTY == options.encodingStyle());
+// ```
+// options.setEncodingStyle(baljsn::EncodingStyle::e_PRETTY);
+// assert(baljsn::EncoderOptions::e_PRETTY == options.encodingStyle());
 //
-//  options.setInitialIndentLevel(INITIAL_INDENT_LEVEL);
-//  assert(INITIAL_INDENT_LEVEL == options.initialIndentLevel());
+// options.setInitialIndentLevel(INITIAL_INDENT_LEVEL);
+// assert(INITIAL_INDENT_LEVEL == options.initialIndentLevel());
 //
-//  options.setSpacesPerLevel(SPACES_PER_LEVEL);
-//  assert(SPACES_PER_LEVEL == options.spacesPerLevel());
+// options.setSpacesPerLevel(SPACES_PER_LEVEL);
+// assert(SPACES_PER_LEVEL == options.spacesPerLevel());
 //
-//  options.setEncodeEmptyArrays(ENCODE_EMPTY_ARRAYS);
-//  assert(ENCODE_EMPTY_ARRAYS == options.encodeEmptyArrays());
+// options.setEncodeEmptyArrays(ENCODE_EMPTY_ARRAYS);
+// assert(ENCODE_EMPTY_ARRAYS == options.encodeEmptyArrays());
 //
-//  options.setEncodeNullElements(ENCODE_NULL_ELEMENTS);
-//  assert(ENCODE_NULL_ELEMENTS == options.encodeNullElements());
+// options.setEncodeNullElements(ENCODE_NULL_ELEMENTS);
+// assert(ENCODE_NULL_ELEMENTS == options.encodeNullElements());
 //
-//  options.setEncodeInfAndNaNAsStrings(ENCODE_INF_NAN_AS_STRINGS);
-//  assert(ENCODE_INF_NAN_AS_STRINGS == options.encodeInfAndNaNAsStrings());
+// options.setEncodeInfAndNaNAsStrings(ENCODE_INF_NAN_AS_STRINGS);
+// assert(ENCODE_INF_NAN_AS_STRINGS == options.encodeInfAndNaNAsStrings());
 //
-//  options.setDatetimeFractionalSecondPrecision(DATETIME_PRECISION);
-//  assert(DATETIME_PRECISION == options.datetimeFractionalSecondPrecision());
+// options.setDatetimeFractionalSecondPrecision(DATETIME_PRECISION);
+// assert(DATETIME_PRECISION == options.datetimeFractionalSecondPrecision());
 //
-//  options.setMaxFloatPrecision(FLOAT_PRECISION);
-//  assert(FLOAT_PRECISION == options.maxFloatPrecision());
+// options.setMaxFloatPrecision(FLOAT_PRECISION);
+// assert(FLOAT_PRECISION == options.maxFloatPrecision());
 //
-//  options.setMaxDoublePrecision(DOUBLE_PRECISION);
-//  assert(DOUBLE_PRECISION == options.maxDoublePrecision());
+// options.setMaxDoublePrecision(DOUBLE_PRECISION);
+// assert(DOUBLE_PRECISION == options.maxDoublePrecision());
 //
-//  options.setEncodeQuotedDecimal64(ENCODE_QUOTED_DECIMAL64);
-//  ASSERT(ENCODE_QUOTED_DECIMAL64 == options.encodeQuotedDecimal64());
-//..
+// options.setEncodeQuotedDecimal64(ENCODE_QUOTED_DECIMAL64);
+// ASSERT(ENCODE_QUOTED_DECIMAL64 == options.encodeQuotedDecimal64());
+// ```
 
 #include <balscm_version.h>
 
@@ -200,64 +191,74 @@ namespace baljsn {
                             // class EncoderOptions
                             // ====================
 
+/// Options for performing JSON encoding.  `EncodingStyle` is either
+/// `COMPACT` or `PRETTY`.  If `EncodingStyle` is `COMPACT`, no whitespace
+/// will be added between elements.  If encoding style is `PRETTY`, then the
+/// `InitialIndentLevel` and `SpacesPerLevel` parameters are used to specify
+/// the formatting of the output.  Note that `InitialIndentLevel` and
+/// `SpacesPerLevel` are ignored when `EncodingStyle` is `COMPACT` (this is
+/// the default).  The `EncodeEmptyArrays` and `EncodeNullElements` encode
+/// empty array and null elements respectively.  By default empty array and
+/// null elements are not encoded.  The `EncodeInfAndNaNAsStrings` attribute
+/// provides users the option to encode `Infinity` and `NaN` floating point
+/// values as strings.  These values do not have a valid JSON representation
+/// and by default such value will result in an encoding error.  The
+/// `DatetimeFractionalSecondPrecision` specifies the precision of
+/// milliseconds printed with date time values.  By default a precision of
+/// `3` decimal places is used.  The `MaxFloatPrecision` and
+/// `MaxDoublePrecision` attributes allow specifying the maximum precision
+/// for `float` and `double` values.  When not specified, or 0 is specified,
+/// the precision is determined automatically to use enough digits to ensure
+/// restoring the original binary floating point value by a reader.  We
+/// recommend against setting these options: they were provided prior to the
+/// current default behavior (of choosing the shortest presentation that can
+/// be restored to the original value) being available.
 class EncoderOptions {
-    // Options for performing JSON encoding.  'EncodingStyle' is either
-    // 'COMPACT' or 'PRETTY'.  If 'EncodingStyle' is 'COMPACT', no whitespace
-    // will be added between elements.  If encoding style is 'PRETTY', then the
-    // 'InitialIndentLevel' and 'SpacesPerLevel' parameters are used to specify
-    // the formatting of the output.  Note that 'InitialIndentLevel' and
-    // 'SpacesPerLevel' are ignored when 'EncodingStyle' is 'COMPACT' (this is
-    // the default).  The 'EncodeEmptyArrays' and 'EncodeNullElements' encode
-    // empty array and null elements respectively.  By default empty array and
-    // null elements are not encoded.  The 'EncodeInfAndNaNAsStrings' attribute
-    // provides users the option to encode 'Infinity' and 'NaN' floating point
-    // values as strings.  These values do not have a valid JSON representation
-    // and by default such value will result in an encoding error.  The
-    // 'DatetimeFractionalSecondPrecision' specifies the precision of
-    // milliseconds printed with date time values.  By default a precision of
-    // '3' decimal places is used.  The 'MaxFloatPrecision' and
-    // 'MaxDoublePrecision' attributes allow specifying the maximum precision
-    // for 'float' and 'double' values.  When not specified, or 0 is specified,
-    // the precision is determined automatically to use enough digits to ensure
-    // restoring the original binary floating point value by a reader.  We
-    // recommend against setting these options: they were provided prior to the
-    // current default behavior (of choosing the shortest presentation that can
-    // be restored to the original value) being available.
 
     // INSTANCE DATA
+
+    // initial indentation level for the topmost element
     int                   d_initialIndentLevel;
-        // initial indentation level for the topmost element
+
+    // spaces per additional level of indentation
     int                   d_spacesPerLevel;
-        // spaces per additional level of indentation
+
+    // option specifying the number of decimal places used for milliseconds
+    // when encoding `Datetime` and `DatetimeTz` values
     int                   d_datetimeFractionalSecondPrecision;
-        // option specifying the number of decimal places used for milliseconds
-        // when encoding 'Datetime' and 'DatetimeTz' values
+
+    // option specifying the maximum number of decimal places used to
+    // encode each `float` value
     int                   d_maxFloatPrecision;
-        // option specifying the maximum number of decimal places used to
-        // encode each 'float' value
+
+    // option specifying the maximum number of decimal places used to
+    // encode each `double` value
     int                   d_maxDoublePrecision;
-        // option specifying the maximum number of decimal places used to
-        // encode each 'double' value
+
+    // encoding style used to encode values
     baljsn::EncodingStyle::Value  d_encodingStyle;
-        // encoding style used to encode values
+
+    // option specifying if empty arrays should be encoded (empty arrays
+    // occurring as selections of choices are always encoded)
     bool                  d_encodeEmptyArrays;
-        // option specifying if empty arrays should be encoded (empty arrays
-        // occurring as selections of choices are always encoded)
+
+    // option specifying if null elements should be encoded
     bool                  d_encodeNullElements;
-        // option specifying if null elements should be encoded
+
+    // option specifying a way to encode `Infinity` and `NaN` floating
+    // point values.  JSON does not provide a way to encode these values as
+    // they are not numbers.  Although the resulting output is a valid JSON
+    // document, decoders expecting floating point numbers to be encoded
+    // only as numbers will fail to decode.  Users of this option must
+    // therefore exercise caution and ensure that if this option is used
+    // then the parser decoding the generated JSON can handle doubles as
+    // strings.
     bool                  d_encodeInfAndNaNAsStrings;
-        // option specifying a way to encode 'Infinity' and 'NaN' floating
-        // point values.  JSON does not provide a way to encode these values as
-        // they are not numbers.  Although the resulting output is a valid JSON
-        // document, decoders expecting floating point numbers to be encoded
-        // only as numbers will fail to decode.  Users of this option must
-        // therefore exercise caution and ensure that if this option is used
-        // then the parser decoding the generated JSON can handle doubles as
-        // strings.
+
+    // option specifying a way to encode `Decimal64` values.  If the option
+    // value is `true` then the `Decimal64` value is encoded quoted
+    // { "dec": "1.2e-5" }, and unquoted { "dec": 1.2e-5 } otherwise.
     bool                   d_encodeQuotedDecimal64;
-        // option specifying a way to encode 'Decimal64' values.  If the option
-        // value is 'true' then the 'Decimal64' value is encoded quoted
-        // { "dec": "1.2e-5" }, and unquoted { "dec": 1.2e-5 } otherwise.
   public:
     // TYPES
     enum EncodingStyle {
@@ -331,211 +332,216 @@ class EncoderOptions {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
+
+    /// Create an object of type `EncoderOptions` having the default value.
     EncoderOptions();
-        // Create an object of type 'EncoderOptions' having the default value.
 
+    /// Create an object of type `EncoderOptions` having the value of the
+    /// specified `original` object.
     EncoderOptions(const EncoderOptions& original);
-        // Create an object of type 'EncoderOptions' having the value of the
-        // specified 'original' object.
 
+    /// Destroy this object.
     ~EncoderOptions();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     EncoderOptions& operator=(const EncoderOptions& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Set the "InitialIndentLevel" attribute of this object to the
+    /// specified `value`.
     void setInitialIndentLevel(int value);
-        // Set the "InitialIndentLevel" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "SpacesPerLevel" attribute of this object to the specified
+    /// `value`.
     void setSpacesPerLevel(int value);
-        // Set the "SpacesPerLevel" attribute of this object to the specified
-        // 'value'.
 
+    /// Set the "EncodingStyle" attribute of this object to the specified
+    /// `value`.
     void setEncodingStyle(baljsn::EncodingStyle::Value value);
     void setEncodingStyle(baljsn::EncoderOptions::EncodingStyle value);
-        // Set the "EncodingStyle" attribute of this object to the specified
-        // 'value'.
 
+    /// Set the "EncodeEmptyArrays" attribute of this object to the
+    /// specified `value`.
     void setEncodeEmptyArrays(bool value);
-        // Set the "EncodeEmptyArrays" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "EncodeNullElements" attribute of this object to the
+    /// specified `value`.
     void setEncodeNullElements(bool value);
-        // Set the "EncodeNullElements" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "EncodeInfAndNaNAsStrings" attribute of this object to the
+    /// specified `value`.
     void setEncodeInfAndNaNAsStrings(bool value);
-        // Set the "EncodeInfAndNaNAsStrings" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "DatetimeFractionalSecondPrecision" attribute of this object
+    /// to the specified `value`.
     void setDatetimeFractionalSecondPrecision(int value);
-        // Set the "DatetimeFractionalSecondPrecision" attribute of this object
-        // to the specified 'value'.
 
+    /// Set the "MaxFloatPrecision" attribute of this object to the
+    /// specified `value`.
     void setMaxFloatPrecision(int value);
-        // Set the "MaxFloatPrecision" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "MaxDoublePrecision" attribute of this object to the
+    /// specified `value`.
     void setMaxDoublePrecision(int value);
-        // Set the "MaxDoublePrecision" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "EncodeQuotedDecimal64" attribute of this object to the
+    /// specified `value`.
     void setEncodeQuotedDecimal64(bool value);
-        // Set the "EncodeQuotedDecimal64" attribute of this object to the
-        // specified 'value'.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference to the non-modifiable "InitialIndentLevel"
+    /// attribute of this object.
     int initialIndentLevel() const;
-        // Return a reference to the non-modifiable "InitialIndentLevel"
-        // attribute of this object.
 
+    /// Return a reference to the non-modifiable "SpacesPerLevel" attribute
+    /// of this object.
     int spacesPerLevel() const;
-        // Return a reference to the non-modifiable "SpacesPerLevel" attribute
-        // of this object.
 
+    /// Return a reference to the non-modifiable "EncodingStyle" attribute
+    /// of this object.
     baljsn::EncoderOptions::EncodingStyle encodingStyle() const;
-        // Return a reference to the non-modifiable "EncodingStyle" attribute
-        // of this object.
 
+    /// Return a reference to the non-modifiable "EncodeEmptyArrays"
+    /// attribute of this object.  Note that empty arrays occurring as
+    /// selections of choices are always encoded regardless of the setting
+    /// of this option.
     bool encodeEmptyArrays() const;
-        // Return a reference to the non-modifiable "EncodeEmptyArrays"
-        // attribute of this object.  Note that empty arrays occurring as
-        // selections of choices are always encoded regardless of the setting
-        // of this option.
 
+    /// Return a reference to the non-modifiable "EncodeNullElements"
+    /// attribute of this object.
     bool encodeNullElements() const;
-        // Return a reference to the non-modifiable "EncodeNullElements"
-        // attribute of this object.
 
+    /// Return a reference to the non-modifiable "EncodeInfAndNaNAsStrings"
+    /// attribute of this object.
     bool encodeInfAndNaNAsStrings() const;
-        // Return a reference to the non-modifiable "EncodeInfAndNaNAsStrings"
-        // attribute of this object.
 
+    /// Return a reference to the non-modifiable
+    /// "DatetimeFractionalSecondPrecision" attribute of this object.
     int datetimeFractionalSecondPrecision() const;
-        // Return a reference to the non-modifiable
-        // "DatetimeFractionalSecondPrecision" attribute of this object.
 
+    /// Return a reference to the non-modifiable "MaxFloatPrecision"
+    /// attribute of this object.
     int maxFloatPrecision() const;
-        // Return a reference to the non-modifiable "MaxFloatPrecision"
-        // attribute of this object.
 
+    /// Return a reference to the non-modifiable "MaxDoublePrecision"
+    /// attribute of this object.
     int maxDoublePrecision() const;
-        // Return a reference to the non-modifiable "MaxDoublePrecision"
-        // attribute of this object.
 
+    /// Return the value of the "EncodeQuotedDecimal64" attribute of this
+    /// object.
     bool encodeQuotedDecimal64() const;
-        // Return the value of the "EncodeQuotedDecimal64" attribute of this
-        // object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const EncoderOptions& lhs, const EncoderOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const EncoderOptions& lhs, const EncoderOptions& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const EncoderOptions& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 

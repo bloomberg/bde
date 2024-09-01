@@ -10,13 +10,13 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::Predicate: a predicate in the form of an attribute name/value pair
 //
-//@DEPRECATED: Use 'ball_managedattribute' instead.
+//@DEPRECATED: Use `ball_managedattribute` instead.
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component implements a value-semantic predicate object,
-// 'ball::Predicate', that consists of a name and a value.  The value can be an
-// 'int', a 64-bit integer, or a 'bsl::string'.  Both the name and value are
+// `ball::Predicate`, that consists of a name and a value.  The value can be an
+// `int`, a 64-bit integer, or a `bsl::string`.  Both the name and value are
 // managed by this object.
 
 #include <balscm_version.h>
@@ -26,8 +26,8 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace ball {
 
+/// **DEPRECATED**: Use `ball::ManagedAttribute` instead.
 typedef ManagedAttribute Predicate;
-    // !DEPRECATED!: Use 'ball::ManagedAttribute' instead.
 
 }  // close package namespace
 }  // close enterprise namespace

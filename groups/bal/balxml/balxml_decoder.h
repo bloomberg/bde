@@ -12,36 +12,36 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balxml_decoderoptions, balxml_encoder, balber_berdecoder
 //
-//@DESCRIPTION: This component provides a class 'balxml::Decoder' for decoding
-// value-semantic objects in XML format.  The 'decode' methods are function
+//@DESCRIPTION: This component provides a class `balxml::Decoder` for decoding
+// value-semantic objects in XML format.  The `decode` methods are function
 // templates that will decode any object that meets the requirements of a
-// sequence or choice object as defined in the 'bdlat_sequencefunctions' and
-// 'bdlat_choicefunctions' components.  These generic frameworks provide a
+// sequence or choice object as defined in the `bdlat_sequencefunctions` and
+// `bdlat_choicefunctions` components.  These generic frameworks provide a
 // common compile-time interface for manipulating struct-like and union-like
 // objects.
 //
-// There are two usage models for using 'balxml::Decoder'.  The common case,
+// There are two usage models for using `balxml::Decoder`.  The common case,
 // when the type of object being decoded is known in advance, involves calling
-// one of a set of 'decode' method templates that decode a specified
+// one of a set of `decode` method templates that decode a specified
 // value-semantic object from a specified stream or other input source.  The
-// caller may specify the input for 'decode' as a file, an 'bsl::istream', an
-// 'bsl::streambuf', or a memory buffer.
+// caller may specify the input for `decode` as a file, an `bsl::istream`, an
+// `bsl::streambuf`, or a memory buffer.
 //
-// A less common but more flexible usage model involves calling the 'open' to
-// open the XML document from the specified input, then calling 'decode' to
+// A less common but more flexible usage model involves calling the `open` to
+// open the XML document from the specified input, then calling `decode` to
 // decode to an object without specifying the input source, and finally
-// calling 'close' to close the input source.  The 'open' method positions the
+// calling `close` to close the input source.  The `open` method positions the
 // internal reader to the root element node, so the caller can examine the
 // root element, decide what type of object is contained in the input
 // stream/source, and construct an object of the needed type before calling
-// 'decode' to read from the already open input source.  Thus the input data
+// `decode` to read from the already open input source.  Thus the input data
 // is not constrained to a single root element type.
 //
 // Although the XML format is very useful for debugging and for conforming to
 // external data-interchange specifications, it is relatively expensive to
 // encode and decode and relatively bulky to transmit.  It is more efficient
 // to use a binary encoding (such as BER) if the encoding format is under your
-// control.  (See 'balber_berdecoder'.)
+// control.  (See `balber_berdecoder`.)
 //
 ///Usage
 ///-----
@@ -50,201 +50,201 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Generating Code from a Schema
 /// - - - - - - - - - - - - - - - - - - - -
 // Suppose we have the following XML schema inside a file called
-// 'employee.xsd':
-//..
-//  <?xml version='1.0' encoding='UTF-8'?>
-//  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
-//             xmlns:test='http://bloomberg.com/schemas/test'
-//             targetNamespace='http://bloomberg.com/schemas/test'
-//             elementFormDefault='unqualified'>
+// `employee.xsd`:
+// ```
+// <?xml version='1.0' encoding='UTF-8'?>
+// <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+//            xmlns:test='http://bloomberg.com/schemas/test'
+//            targetNamespace='http://bloomberg.com/schemas/test'
+//            elementFormDefault='unqualified'>
 //
-//      <xs:complexType name='Address'>
-//          <xs:sequence>
-//              <xs:element name='street' type='xs:string'/>
-//              <xs:element name='city'   type='xs:string'/>
-//              <xs:element name='state'  type='xs:string'/>
-//          </xs:sequence>
-//      </xs:complexType>
+//     <xs:complexType name='Address'>
+//         <xs:sequence>
+//             <xs:element name='street' type='xs:string'/>
+//             <xs:element name='city'   type='xs:string'/>
+//             <xs:element name='state'  type='xs:string'/>
+//         </xs:sequence>
+//     </xs:complexType>
 //
-//      <xs:complexType name='Employee'>
-//          <xs:sequence>
-//              <xs:element name='name'        type='xs:string'/>
-//              <xs:element name='homeAddress' type='test:Address'/>
-//              <xs:element name='age'         type='xs:int'/>
-//          </xs:sequence>
-//      </xs:complexType>
+//     <xs:complexType name='Employee'>
+//         <xs:sequence>
+//             <xs:element name='name'        type='xs:string'/>
+//             <xs:element name='homeAddress' type='test:Address'/>
+//             <xs:element name='age'         type='xs:int'/>
+//         </xs:sequence>
+//     </xs:complexType>
 //
-//      <xs:element name='Address' type='test:Address'/>
-//      <xs:element name='Employee' type='test:Employee'/>
+//     <xs:element name='Address' type='test:Address'/>
+//     <xs:element name='Employee' type='test:Employee'/>
 //
-//  </xs:schema>
-//..
-// Using the 'bas_codegen.pl' tool, we can generate C++ classes for this
+// </xs:schema>
+// ```
+// Using the `bas_codegen.pl` tool, we can generate C++ classes for this
 // schema:
-//..
-//  $ bas_codegen.pl -m msg -p test -E xsdfile.xsd
-//..
+// ```
+// $ bas_codegen.pl -m msg -p test -E xsdfile.xsd
+// ```
 // This tool will generate the header and implementation files for the
-// 'test_address' and 'test_employee' components in the current directory.
+// `test_address` and `test_employee` components in the current directory.
 //
-// The following function decodes an XML string into a 'test::Employee' object
+// The following function decodes an XML string into a `test::Employee` object
 // and verifies the results:
-//..
-//  #include <test_employee.h>
-//  #include <balxml_decoder.h>
-//  #include <balxml_decoderoptions.h>
-//  #include <balxml_errorinfo.h>
-//  #include <balxml_minireader.h>
-//  #include <bsl_sstream.h>
+// ```
+// #include <test_employee.h>
+// #include <balxml_decoder.h>
+// #include <balxml_decoderoptions.h>
+// #include <balxml_errorinfo.h>
+// #include <balxml_minireader.h>
+// #include <bsl_sstream.h>
 //
-//  using namespace BloombergLP;
+// using namespace BloombergLP;
 //
-//  int main()
-//  {
-//      const char INPUT[] = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-//                           "<Employee>\n"
-//                           "    <name>Bob</name>\n"
-//                           "    <homeAddress>\n"
-//                           "        <street>Some Street</street>\n"
-//                           "        <city>Some City</city>\n"
-//                           "        <state>Some State</state>\n"
-//                           "    </homeAddress>\n"
-//                           "    <age>21</age>\n"
-//                           "</Employee>\n";
+// int main()
+// {
+//     const char INPUT[] = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+//                          "<Employee>\n"
+//                          "    <name>Bob</name>\n"
+//                          "    <homeAddress>\n"
+//                          "        <street>Some Street</street>\n"
+//                          "        <city>Some City</city>\n"
+//                          "        <state>Some State</state>\n"
+//                          "    </homeAddress>\n"
+//                          "    <age>21</age>\n"
+//                          "</Employee>\n";
 //
-//      bsl::stringstream ss(INPUT);
+//     bsl::stringstream ss(INPUT);
 //
-//      test::Employee bob;
+//     test::Employee bob;
 //
-//      balxml::DecoderOptions options;
-//      balxml::MiniReader     reader;
-//      balxml::ErrorInfo      errInfo;
+//     balxml::DecoderOptions options;
+//     balxml::MiniReader     reader;
+//     balxml::ErrorInfo      errInfo;
 //
-//      balxml::Decoder decoder(&options, &reader, &errInfo);
+//     balxml::Decoder decoder(&options, &reader, &errInfo);
 //
-//      decoder.decode(ss, &bob);
+//     decoder.decode(ss, &bob);
 //
-//      assert(ss);
-//      assert("Bob"         == bob.name());
-//      assert("Some Street" == bob.homeAddress().street());
-//      assert("Some City"   == bob.homeAddress().city());
-//      assert("Some State"  == bob.homeAddress().state());
-//      assert(21            == bob.age());
+//     assert(ss);
+//     assert("Bob"         == bob.name());
+//     assert("Some Street" == bob.homeAddress().street());
+//     assert("Some City"   == bob.homeAddress().city());
+//     assert("Some State"  == bob.homeAddress().state());
+//     assert(21            == bob.age());
 //
-//      return 0;
-//  }
-//..
+//     return 0;
+// }
+// ```
 //
 ///Example 2: Error and Warning Streams
 /// - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to pass an error stream and
-// warning stream to the 'decode' function.  We will use the same
-// 'test_employee' component from the previous usage example.  Note that the
-// input XML string contains an error.  (The 'homeAddress' object has an
-// element called 'country', which does not exist in the schema.):
-//..
-//  #include <test_employee.h>
-//  #include <balxml_decoder.h>
-//  #include <balxml_decoderoptions.h>
-//  #include <balxml_errorinfo.h>
-//  #include <balxml_minireader.h>
-//  #include <bsl_sstream.h>
+// warning stream to the `decode` function.  We will use the same
+// `test_employee` component from the previous usage example.  Note that the
+// input XML string contains an error.  (The `homeAddress` object has an
+// element called `country`, which does not exist in the schema.):
+// ```
+// #include <test_employee.h>
+// #include <balxml_decoder.h>
+// #include <balxml_decoderoptions.h>
+// #include <balxml_errorinfo.h>
+// #include <balxml_minireader.h>
+// #include <bsl_sstream.h>
 //
-//  using namespace BloombergLP;
+// using namespace BloombergLP;
 //
-//  int main()
-//  {
-//      const char INPUT[] = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-//                           "<Employee>\n"
-//                           "    <name>Bob</name>\n"
-//                           "    <homeAddress>\n"
-//                           "        <street>Some Street</street>\n"
-//                           "        <city>Some City</city>\n"
-//                           "        <state>Some State</state>\n"
-//                           "        <country>Some Country</country>\n"
-//                           "    </homeAddress>\n"
-//                           "    <age>21</age>\n"
-//                           "</Employee>\n";
+// int main()
+// {
+//     const char INPUT[] = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+//                          "<Employee>\n"
+//                          "    <name>Bob</name>\n"
+//                          "    <homeAddress>\n"
+//                          "        <street>Some Street</street>\n"
+//                          "        <city>Some City</city>\n"
+//                          "        <state>Some State</state>\n"
+//                          "        <country>Some Country</country>\n"
+//                          "    </homeAddress>\n"
+//                          "    <age>21</age>\n"
+//                          "</Employee>\n";
 //
-//      bsl::stringstream ss(INPUT);
+//     bsl::stringstream ss(INPUT);
 //
-//      test::Employee bob;
+//     test::Employee bob;
 //
-//      balxml::DecoderOptions options;
-//      balxml::MiniReader     reader;
-//      balxml::ErrorInfo      errInfo;
+//     balxml::DecoderOptions options;
+//     balxml::MiniReader     reader;
+//     balxml::ErrorInfo      errInfo;
 //
-//      options.setSkipUnknownElements(false);
-//      balxml::Decoder decoder(&options, &reader, &errInfo,
-//                              &bsl::cerr, &bsl::cerr);
-//      decoder.decode(ss, &bob);
+//     options.setSkipUnknownElements(false);
+//     balxml::Decoder decoder(&options, &reader, &errInfo,
+//                             &bsl::cerr, &bsl::cerr);
+//     decoder.decode(ss, &bob);
 //
-//      assert(!ss);
+//     assert(!ss);
 //
-//      return 0;
-//  }
-//..
+//     return 0;
+// }
+// ```
 // Note that the input stream is invalidated to indicate that an error
 // occurred.  Also note that the following error message will be printed on
-// 'bsl::cerr':
-//..
-//  employee.xml:8.18: Error: Unable to decode sub-element 'country'.\n"
-//  employee.xml:8.18: Error: Unable to decode sub-element 'homeAddress'.\n";
-//..
+// `bsl::cerr`:
+// ```
+// employee.xml:8.18: Error: Unable to decode sub-element 'country'.\n"
+// employee.xml:8.18: Error: Unable to decode sub-element 'homeAddress'.\n";
+// ```
 // The following snippets of code illustrate how to open decoder and read the
-// first node before calling 'decode':
-//..
-//  int main()
-//  {
-//      const char INPUT[] =
-//          "<?xml version='1.0' encoding='UTF-8' ?>\n"
-//          "<Employee xmlns='http://www.bde.com/bdem_test'>\n"
-//          "    <name>Bob</name>\n"
-//          "    <homeAddress>\n"
-//          "        <street>Some Street</street>\n"
-//          "        <state>Some State</state>\n"
-//          "        <city>Some City</city>\n"
-//          "        <country>Some Country</country>\n"
-//          "    </homeAddress>\n"
-//          "    <age>21</age>\n"
-//          "</Employee>\n";
+// first node before calling `decode`:
+// ```
+// int main()
+// {
+//     const char INPUT[] =
+//         "<?xml version='1.0' encoding='UTF-8' ?>\n"
+//         "<Employee xmlns='http://www.bde.com/bdem_test'>\n"
+//         "    <name>Bob</name>\n"
+//         "    <homeAddress>\n"
+//         "        <street>Some Street</street>\n"
+//         "        <state>Some State</state>\n"
+//         "        <city>Some City</city>\n"
+//         "        <country>Some Country</country>\n"
+//         "    </homeAddress>\n"
+//         "    <age>21</age>\n"
+//         "</Employee>\n";
 //
-//      balxml::MiniReader     reader;
-//      balxml::ErrorInfo      errInfo;
-//      balxml::DecoderOptions options;
+//     balxml::MiniReader     reader;
+//     balxml::ErrorInfo      errInfo;
+//     balxml::DecoderOptions options;
 //
-//      balxml::Decoder decoder(&options, &reader, &errInfo,
-//                              &bsl::cerr, &bsl::cerr);
+//     balxml::Decoder decoder(&options, &reader, &errInfo,
+//                             &bsl::cerr, &bsl::cerr);
 //
-//..
+// ```
 // Now we open the document, but we don't begin decoding yet:
-//..
-//      int rc = decoder.open(INPUT, sizeof(INPUT) - 1);
-//      assert(0 == rc);
-//..
+// ```
+//     int rc = decoder.open(INPUT, sizeof(INPUT) - 1);
+//     assert(0 == rc);
+// ```
 // Depending on the value of the first node, we can now determine whether the
-// document is an 'Address' object or an 'Employee' object, and construct the
+// document is an `Address` object or an `Employee` object, and construct the
 // target object accordingly:
-//..
-//      if (0 == bsl::strcmp(reader.nodeLocalName(), "Address")) {
-//          test::Address addr;
-//          rc = decoder.decode(&addr);
-//          bsl::cout << addr;
-//      }
-//      else {
-//          test::Employee bob;
-//          rc = decoder.decode(&bob);
-//          bsl::cout << bob;
-//      }
+// ```
+//     if (0 == bsl::strcmp(reader.nodeLocalName(), "Address")) {
+//         test::Address addr;
+//         rc = decoder.decode(&addr);
+//         bsl::cout << addr;
+//     }
+//     else {
+//         test::Employee bob;
+//         rc = decoder.decode(&bob);
+//         bsl::cout << bob;
+//     }
 //
-//      assert(0 == rc);
-//..
+//     assert(0 == rc);
+// ```
 // When decoding is complete, we must close the decoder object:
-//..
-//      decoder.close();
-//      return 0;
-//  }
-//..
+// ```
+//     decoder.close();
+//     return 0;
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -308,21 +308,21 @@ class Decoder;
                         // class Decoder_ElementContext
                         // ============================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// This protocol class contain functions related to parsing XML elements.
+/// When the Decoder reads the XML document, it forwards the information
+/// about the current node as events to this protocol.  There are several
+/// implementations of this protocol, depending on the type of element.  The
+/// correct implementation for each type is selected by the
+/// `Decoder_SelectContext` meta-function.  Each of the functions take a
+/// `context` parameter, which contains members related to the context of
+/// the decoder.
 class Decoder_ElementContext {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // This protocol class contain functions related to parsing XML elements.
-    // When the Decoder reads the XML document, it forwards the information
-    // about the current node as events to this protocol.  There are several
-    // implementations of this protocol, depending on the type of element.  The
-    // correct implementation for each type is selected by the
-    // 'Decoder_SelectContext' meta-function.  Each of the functions take a
-    // 'context' parameter, which contains members related to the context of
-    // the decoder.
 
   public:
+    /// For syntactic purposes only.
     virtual ~Decoder_ElementContext();
-        // For syntactic purposes only.
 
     // CALLBACKS
     virtual int startElement(Decoder *decoder) = 0;
@@ -347,23 +347,24 @@ class Decoder_ElementContext {
                                // class Decoder
                                // =============
 
+/// Engine for decoding value-semantic objects in XML format.  The `decode`
+/// methods are function templates that will decode any object that meets
+/// the requirements of a sequence or choice object as defined in the
+/// `bdlat_sequencefunctions` and `bdlat_choicefunctions` components.
+/// These generic frameworks provide a common compile-time interface for
+/// manipulating struct-like and union-like objects.
 class Decoder {
-    // Engine for decoding value-semantic objects in XML format.  The 'decode'
-    // methods are function templates that will decode any object that meets
-    // the requirements of a sequence or choice object as defined in the
-    // 'bdlat_sequencefunctions' and 'bdlat_choicefunctions' components.
-    // These generic frameworks provide a common compile-time interface for
-    // manipulating struct-like and union-like objects.
 
     friend class  Decoder_ElementContext;
     friend struct Decoder_decodeImpProxy;
     friend class  Decoder_ErrorLogger;
 
     // PRIVATE TYPES
+
+    /// This class provides stream for logging using
+    /// `bdlsb::MemOutStreamBuf` as a streambuf.  The logging stream is
+    /// created on demand, i.e., during the first attempt to log message.
     class MemOutStream : public bsl::ostream {
-        // This class provides stream for logging using
-        // 'bdlsb::MemOutStreamBuf' as a streambuf.  The logging stream is
-        // created on demand, i.e., during the first attempt to log message.
         bdlsb::MemOutStreamBuf d_sb;
 
         // NOT IMPLEMENTED
@@ -372,26 +373,29 @@ class Decoder {
 
       public:
         // CREATORS
-        MemOutStream(bslma::Allocator *basicAllocator = 0);
-            // Create a new stream using the optionally specified
-            // 'basicAllocator'.
 
+        /// Create a new stream using the optionally specified
+        /// `basicAllocator`.
+        MemOutStream(bslma::Allocator *basicAllocator = 0);
+
+        /// Destroy this stream and release memory back to the allocator.
         ~MemOutStream() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this stream and release memory back to the allocator.
 
         // MANIPULATORS
+
+        /// Reset the internal streambuf to empty.
         void reset();
-            // Reset the internal streambuf to empty.
 
         // ACCESSORS
-        const char *data() const;
-            // Return a pointer to the memory containing the formatted values
-            // formatted to this stream.  The data is not null-terminated
-            // unless a null character was appended onto this stream.
 
+        /// Return a pointer to the memory containing the formatted values
+        /// formatted to this stream.  The data is not null-terminated
+        /// unless a null character was appended onto this stream.
+        const char *data() const;
+
+        /// Return the length of the formatted data, including null
+        /// characters appended to the stream, if any.
         int length() const;
-            // Return the length of the formatted data, including null
-            // characters appended to the stream, if any.
     };
 
     // DATA
@@ -402,12 +406,12 @@ class Decoder {
 
     bslma::Allocator                *d_allocator;      // held, not owned
 
+    // placeholder for MemOutStream
     bsls::ObjectBuffer<MemOutStream> d_logArea;
-        // placeholder for MemOutStream
 
+    // if not zero, log stream was created at the moment of first logging
+    // and must be destroyed
     MemOutStream                    *d_logStream;
-        // if not zero, log stream was created at the moment of first logging
-        // and must be destroyed
 
     bsl::ostream                    *d_errorStream;    // held, not owned
     bsl::ostream                    *d_warningStream;  // held, not owned
@@ -421,8 +425,9 @@ class Decoder {
                                                        // elements skipped
 
     bool                             d_fatalError;     // fatal error flag
+
+    // remaining number of nesting levels allowed
     int                              d_remainingDepth;
-        // remaining number of nesting levels allowed
 
     // NOT IMPLEMENTED
     Decoder(const Decoder&);
@@ -430,19 +435,20 @@ class Decoder {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Return the stream for logging.  Note the if stream has not been
+    /// created yet, it will be created during this call.
     bsl::ostream& logStream();
-        // Return the stream for logging.  Note the if stream has not been
-        // created yet, it will be created during this call.
 
     void resetErrors();
     int  checkForReaderErrors();
     int  checkForErrors(const ErrorInfo& errInfo);
 
+    /// When decoding a structure, make sure that the root tag of the XML
+    /// matches the structure of the specified `object` that we are decoding
+    /// into.  Return 0 if it does.
     template <class TYPE>
     int  validateTopElement(const TYPE *object);
-        // When decoding a structure, make sure that the root tag of the XML
-        // matches the structure of the specified 'object' that we are decoding
-        // into.  Return 0 if it does.
 
     void setDecoderError(ErrorInfo::Severity severity, bsl::string_view msg);
 
@@ -462,170 +468,172 @@ class Decoder {
             ErrorInfo            *errInfo,
             bslma::Allocator     *basicAllocator);
 
+    /// Construct a decoder object using the specified `options` and the
+    /// specified `reader` to perform the XML-level parsing.  If the
+    /// (optionally) specified `errorInfo` is non-null, it is used to store
+    /// information about most serious error encountered during parsing.
+    /// During parsing, error and warning messages will be written to the
+    /// (optionally) specified `errorStream` and `warningStream`
+    /// respectively.  The behavior is undefined unless `options` and
+    /// `reader` are both non-zero.  The behavior becomes undefined if the
+    /// objects pointed to by any of the arguments is destroyed before this
+    /// object has completed parsing.
     Decoder(const DecoderOptions *options,
             Reader               *reader,
             ErrorInfo            *errInfo = 0,
             bsl::ostream         *errorStream = 0,
             bsl::ostream         *warningStream = 0,
             bslma::Allocator     *basicAllocator = 0);
-        // Construct a decoder object using the specified 'options' and the
-        // specified 'reader' to perform the XML-level parsing.  If the
-        // (optionally) specified 'errorInfo' is non-null, it is used to store
-        // information about most serious error encountered during parsing.
-        // During parsing, error and warning messages will be written to the
-        // (optionally) specified 'errorStream' and 'warningStream'
-        // respectively.  The behavior is undefined unless 'options' and
-        // 'reader' are both non-zero.  The behavior becomes undefined if the
-        // objects pointed to by any of the arguments is destroyed before this
-        // object has completed parsing.
 
+    /// Call `close` and destroy this object.
     ~Decoder();
-        // Call 'close' and destroy this object.
 
     // MANIPULATORS
+
+    /// Put the associated `Reader` object (i.e., the `reader` specified at
+    /// construction) into a closed state.
     void close();
-        // Put the associated 'Reader' object (i.e., the 'reader' specified at
-        // construction) into a closed state.
 
+    /// Open the associated `Reader` object (see `Reader::open`) to read XML
+    /// data from the specified `stream`.  The (optionally) specified `uri`
+    /// is used for identifying the input document in error messages.
+    /// Return 0 on success and non-zero otherwise.
     int open(bsl::istream& stream, const char *uri = 0);
-        // Open the associated 'Reader' object (see 'Reader::open') to read XML
-        // data from the specified 'stream'.  The (optionally) specified 'uri'
-        // is used for identifying the input document in error messages.
-        // Return 0 on success and non-zero otherwise.
 
+    /// Open the associated `Reader` object (see `Reader::open`) to read XML
+    /// data from the specified stream `buffer`.  The (optionally) specified
+    /// `uri` is used for identifying the input document in error messages.
+    /// Return 0 on success and non-zero otherwise.
     int open(bsl::streambuf *buffer, const char *uri = 0);
-        // Open the associated 'Reader' object (see 'Reader::open') to read XML
-        // data from the specified stream 'buffer'.  The (optionally) specified
-        // 'uri' is used for identifying the input document in error messages.
-        // Return 0 on success and non-zero otherwise.
 
+    /// Open the associated `Reader` object (see `Reader::open`) to read XML
+    /// data from memory at the specified `buffer`, with the specified
+    /// `length`.  The (optionally) specified `uri` is used for identifying
+    /// the input document in error messages.  Return 0 on success and
+    /// non-zero otherwise.
     int open(const char *buffer, bsl::size_t length, const char *uri = 0);
-        // Open the associated 'Reader' object (see 'Reader::open') to read XML
-        // data from memory at the specified 'buffer', with the specified
-        // 'length'.  The (optionally) specified 'uri' is used for identifying
-        // the input document in error messages.  Return 0 on success and
-        // non-zero otherwise.
 
+    /// Open the associated `Reader` object (see `Reader::open`) to read XML
+    /// data from the file with the specified `filename`.  Return 0 on
+    /// success and non-zero otherwise.
     int open(const char *filename);
-        // Open the associated 'Reader' object (see 'Reader::open') to read XML
-        // data from the file with the specified 'filename'.  Return 0 on
-        // success and non-zero otherwise.
 
+    /// Decode the specified `object` of parameterized `TYPE` from the
+    /// specified input `stream`.  Return a reference to the modifiable
+    /// `stream`.  If a decoding error is detected, `stream.fail()` will be
+    /// `true` after this method returns.  The (optionally) specified `uri`
+    /// is used for identifying the input document in error messages.  A
+    /// compilation error will result unless `TYPE` conforms to the
+    /// requirements of a `bdlat` sequence or choice, as described in
+    /// `bdlat_sequencefunctions` and `bdlat_choicefunctions`.
     template <class TYPE>
     bsl::istream& decode(bsl::istream&  stream,
                          TYPE          *object,
                          const char    *uri = 0);
-        // Decode the specified 'object' of parameterized 'TYPE' from the
-        // specified input 'stream'.  Return a reference to the modifiable
-        // 'stream'.  If a decoding error is detected, 'stream.fail()' will be
-        // 'true' after this method returns.  The (optionally) specified 'uri'
-        // is used for identifying the input document in error messages.  A
-        // compilation error will result unless 'TYPE' conforms to the
-        // requirements of a 'bdlat' sequence or choice, as described in
-        // 'bdlat_sequencefunctions' and 'bdlat_choicefunctions'.
 
+    /// Decode the specified `object` of parameterized `TYPE` from the
+    /// specified stream `buffer`.  The (optionally) specified `uri` is
+    /// used for identifying the input document in error messages.  Return
+    /// 0 on success, and a non-zero value otherwise.  A compilation error
+    /// will result unless `TYPE` conforms to the requirements of a bdlat
+    /// sequence or choice, as described in `bdlat_sequencefunctions` and
+    /// `bdlat_choicefunctions`.
     template <class TYPE>
     int decode(bsl::streambuf *buffer, TYPE *object, const char *uri = 0);
-        // Decode the specified 'object' of parameterized 'TYPE' from the
-        // specified stream 'buffer'.  The (optionally) specified 'uri' is
-        // used for identifying the input document in error messages.  Return
-        // 0 on success, and a non-zero value otherwise.  A compilation error
-        // will result unless 'TYPE' conforms to the requirements of a bdlat
-        // sequence or choice, as described in 'bdlat_sequencefunctions' and
-        // 'bdlat_choicefunctions'.
 
+    /// Decode the specified `object` of parameterized `TYPE` from the
+    /// memory at the specified `buffer` address, having the specified
+    /// `length`.  The (optionally) specified `uri` is used for identifying
+    /// the input document in error messages.  Return 0 on success, and a
+    /// non-zero value otherwise.  A compilation error will result unless
+    /// `TYPE` conforms to the requirements of a bdlat sequence or choice,
+    /// as described in `bdlat_sequencefunctions` and
+    /// `bdlat_choicefunctions`.
     template <class TYPE>
     int decode(const char  *buffer,
                bsl::size_t  length,
                TYPE        *object,
                const char  *uri = 0);
-        // Decode the specified 'object' of parameterized 'TYPE' from the
-        // memory at the specified 'buffer' address, having the specified
-        // 'length'.  The (optionally) specified 'uri' is used for identifying
-        // the input document in error messages.  Return 0 on success, and a
-        // non-zero value otherwise.  A compilation error will result unless
-        // 'TYPE' conforms to the requirements of a bdlat sequence or choice,
-        // as described in 'bdlat_sequencefunctions' and
-        // 'bdlat_choicefunctions'.
 
+    /// Decode the specified `object` of parameterized `TYPE` from the file
+    /// with the specified `filename`.  Return 0 on success, and a non-zero
+    /// value otherwise.  A compilation error will result unless `TYPE`
+    /// conforms to the requirements of a bdlat sequence or choice, as
+    /// described in `bdlat_sequencefunctions` and `bdlat_choicefunctions`.
     template <class TYPE>
     int decode(const char *filename, TYPE *object);
-        // Decode the specified 'object' of parameterized 'TYPE' from the file
-        // with the specified 'filename'.  Return 0 on success, and a non-zero
-        // value otherwise.  A compilation error will result unless 'TYPE'
-        // conforms to the requirements of a bdlat sequence or choice, as
-        // described in 'bdlat_sequencefunctions' and 'bdlat_choicefunctions'.
 
+    /// Decode the specified `object` of parameterized `TYPE` from the
+    /// input source specified by a previous call to `open` and leave the
+    /// reader in an open state.  Return 0 on success, and a non-zero value
+    /// otherwise.  A compilation error will result unless `TYPE` conforms
+    /// to the requirements of a bdlat sequence or choice, as described in
+    /// `bdlat_sequencefunctions` and `bdlat_choicefunctions`.  The
+    /// behavior is undefined unless this call was preceded by a prior
+    /// successful call to `open`
     template <class TYPE>
     int decode(TYPE *object);
-        // Decode the specified 'object' of parameterized 'TYPE' from the
-        // input source specified by a previous call to 'open' and leave the
-        // reader in an open state.  Return 0 on success, and a non-zero value
-        // otherwise.  A compilation error will result unless 'TYPE' conforms
-        // to the requirements of a bdlat sequence or choice, as described in
-        // 'bdlat_sequencefunctions' and 'bdlat_choicefunctions'.  The
-        // behavior is undefined unless this call was preceded by a prior
-        // successful call to 'open'
 
+    /// Set the number of unknown elements skipped by the decoder during
+    /// the current decoding operation to the specified `value`.  The
+    /// behavior is undefined unless `0 <= value`.
     void setNumUnknownElementsSkipped(int value);
-        // Set the number of unknown elements skipped by the decoder during
-        // the current decoding operation to the specified 'value'.  The
-        // behavior is undefined unless '0 <= value'.
 
     //ACCESSORS
+
+    /// Return a pointer to the non-modifiable decoder options provided at
+    /// construction.
     const DecoderOptions *options() const;
-        // Return a pointer to the non-modifiable decoder options provided at
-        // construction.
 
+    /// Return the a pointer to the modifiable reader associated with this
+    /// decoder (i.e., the `reader` pointer provided at construction).
     Reader *reader() const;
-        // Return the a pointer to the modifiable reader associated with this
-        // decoder (i.e., the 'reader' pointer provided at construction).
 
+    /// Return a pointer to the modifiable error-reporting structure
+    /// associated with this decoder (i.e., the `errInfo` pointer provided
+    /// at construction).  The value stored in the error structure is reset
+    /// to indicate no error on a successful call to `open`.
     ErrorInfo *errorInfo() const;
-        // Return a pointer to the modifiable error-reporting structure
-        // associated with this decoder (i.e., the 'errInfo' pointer provided
-        // at construction).  The value stored in the error structure is reset
-        // to indicate no error on a successful call to 'open'.
 
+    /// Return pointer to the error stream.
     bsl::ostream *errorStream() const;
-        // Return pointer to the error stream.
 
+    /// Return pointer to the warning stream.
     bsl::ostream *warningStream() const;
-        // Return pointer to the warning stream.
 
+    /// Return the number of unknown elements that were skipped during the
+    /// previous decoding operation.  Note that unknown elements are skipped
+    /// only if `true == options()->skipUnknownElements()`.
     int numUnknownElementsSkipped() const;
-        // Return the number of unknown elements that were skipped during the
-        // previous decoding operation.  Note that unknown elements are skipped
-        // only if 'true == options()->skipUnknownElements()'.
 
+    /// Return the severity of the most severe warning or error encountered
+    /// during the last call to the `decode` method.  The severity is reset
+    /// each time `decode` is called.
     ErrorInfo::Severity  errorSeverity() const;
-        // Return the severity of the most severe warning or error encountered
-        // during the last call to the 'decode' method.  The severity is reset
-        // each time 'decode' is called.
 
+    /// Return a string containing any error, warning, or trace messages
+    /// that were logged during the last call to the `decode` method.  The
+    /// log is reset each time `decode` is called.
     bslstl::StringRef loggedMessages() const;
-        // Return a string containing any error, warning, or trace messages
-        // that were logged during the last call to the 'decode' method.  The
-        // log is reset each time 'decode' is called.
 
+    /// Return the number of errors that occurred during decoding.  This
+    /// number is reset to zero on a call to `open`.
     int  errorCount() const;
-        // Return the number of errors that occurred during decoding.  This
-        // number is reset to zero on a call to 'open'.
 
+    /// Return the number of warnings that occurred during decoding.  This
+    /// number is reset to zero on a call to `open`.
     int  warningCount() const;
-        // Return the number of warnings that occurred during decoding.  This
-        // number is reset to zero on a call to 'open'.
 };
 
                          // =========================
                          // class Decoder_ErrorLogger
                          // =========================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// This class is used for logging errors and warnings.  The usage of this
+/// class is simplified with macros, which are defined below.
 class Decoder_ErrorLogger {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // This class is used for logging errors and warnings.  The usage of this
-    // class is simplified with macros, which are defined below.
 
     // DATA
     Decoder::MemOutStream   d_stream;
@@ -639,17 +647,18 @@ class Decoder_ErrorLogger {
 
   public:
     // CREATORS
+
+    /// Construct a logger for the specified `decoder`.
     Decoder_ErrorLogger(ErrorInfo::Severity severity, Decoder *decoder)
-        // Construct a logger for the specified 'decoder'.
     : d_stream(decoder->d_allocator)
     , d_severity(severity)
     , d_decoder(decoder)
     {
     }
 
+    /// Set the decoder's error message to the contents of the message
+    /// stream.
     ~Decoder_ErrorLogger()
-        // Set the decoder's error message to the contents of the message
-        // stream.
     {
         d_decoder->setDecoderError(d_severity,
                                    bsl::string_view(d_stream.data(),
@@ -666,27 +675,28 @@ class Decoder_ErrorLogger {
 // ---  Anything below this line is implementation specific.  Do not use.  ----
 
 // LOGGING MACROS
+
+/// Usage: BAEXML_LOG_ERROR(myDecoder) << "Message"
+///                                    << value << BALXML_DECODER_LOG_END;
 #define BALXML_DECODER_LOG_ERROR(reporter)                     \
     do {                                                       \
         balxml::Decoder_ErrorLogger                             \
             logger(balxml::ErrorInfo::e_ERROR, reporter);  \
         logger.stream()
-    // Usage: BAEXML_LOG_ERROR(myDecoder) << "Message"
-    //                                    << value << BALXML_DECODER_LOG_END;
 
+/// Usage: BAEXML_LOG_WARNING(myDecoder) << "Message"
+///                                      << value << BALXML_DECODER_LOG_END;
 #define BALXML_DECODER_LOG_WARNING(reporter)                   \
     do {                                                       \
         balxml::Decoder_ErrorLogger                             \
            logger(balxml::ErrorInfo::e_WARNING, reporter); \
         logger.stream()
-    // Usage: BAEXML_LOG_WARNING(myDecoder) << "Message"
-    //                                      << value << BALXML_DECODER_LOG_END;
 
+/// See usage of BALXML_DECODER_LOG_ERROR and BALXML_DECODER_LOG_WARNING,
+/// above.
 #define BALXML_DECODER_LOG_END     \
         bsl::flush;                \
     } while (false)
-    // See usage of BALXML_DECODER_LOG_ERROR and BALXML_DECODER_LOG_WARNING,
-    // above.
 
 // FORWARD DECLARATIONS
 
@@ -717,15 +727,15 @@ class Decoder_StdVectorCharContext;  // proxy context
                        // class Decoder_ListParser<TYPE>
                        // ==============================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// This is a wrapper around `ListParser<TYPE>`.  The
+/// `Decoder_PushParserContext` class needs a default constructible push
+/// parser.  However, `ListParser<TYPE>` is not default constructible - it
+/// requires an `parseElementCallback`.  This wrapper provides a default
+/// constructor that passes `TypesParserUtil::parseDefault` as the callback.
 template <class TYPE>
 class Decoder_ListParser {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // This is a wrapper around 'ListParser<TYPE>'.  The
-    // 'Decoder_PushParserContext' class needs a default constructible push
-    // parser.  However, 'ListParser<TYPE>' is not default constructible - it
-    // requires an 'parseElementCallback'.  This wrapper provides a default
-    // constructor that passes 'TypesParserUtil::parseDefault' as the callback.
 
     // PRIVATE TYPES
     typedef typename
@@ -742,20 +752,21 @@ class Decoder_ListParser {
     Decoder_ListParser& operator=(const Decoder_ListParser&);
 
     // COMPILER BUG WORKAROUNDS
+
+    /// This function is provided to work around a bug in the AIX compiler.
+    /// It incorrectly complains that the following constructor initializer
+    /// list for `d_imp` is invalid:
+    /// ```
+    /// : d_imp((ParseElementFunction)&TypesParserUtil::parseDefault)
+    /// ```
+    /// The error message generated by the AIX compiler is:
+    /// ```
+    /// An object of type "BloombergLP::balxml::ListParser<TYPE>" cannot be
+    /// constructed from an rvalue of type "ParseElementFunction".
+    /// ```
+    /// To work around this, an explicit `convert` function is used to aid
+    /// the conversion.
     static ParseElementCallback convert(ParseElementFunction func)
-        // This function is provided to work around a bug in the AIX compiler.
-        // It incorrectly complains that the following constructor initializer
-        // list for 'd_imp' is invalid:
-        //..
-        // : d_imp((ParseElementFunction)&TypesParserUtil::parseDefault)
-        //..
-        // The error message generated by the AIX compiler is:
-        //..
-        // An object of type "BloombergLP::balxml::ListParser<TYPE>" cannot be
-        // constructed from an rvalue of type "ParseElementFunction".
-        //..
-        // To work around this, an explicit 'convert' function is used to aid
-        // the conversion.
     {
         ParseElementCallback temp(func);
         return temp;
@@ -796,75 +807,75 @@ class Decoder_ListParser {
 
 namespace balxml {
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// This `struct` instantiates a context for the parameterized `TYPE` that
+/// falls under the parameterized `CATEGORY`.
 template <class CATEGORY, class TYPE>
 struct Decoder_InstantiateContext;
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // This 'struct' instantiates a context for the parameterized 'TYPE' that
-    // falls under the parameterized 'CATEGORY'.
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 template <class TYPE>
 struct Decoder_InstantiateContext<bdlat_TypeCategory::Array, TYPE>
 {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     typedef Decoder_PushParserContext<TYPE, Decoder_ListParser<TYPE> > Type;
 };
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 template <>
 struct Decoder_InstantiateContext<bdlat_TypeCategory::Array,
                                       bsl::vector<char> >
 {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     typedef Decoder_StdVectorCharContext Type;
 };
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 template <class TYPE>
 struct Decoder_InstantiateContext<bdlat_TypeCategory::Choice, TYPE>
 {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     typedef Decoder_ChoiceContext<TYPE> Type;
 };
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 template <class TYPE>
 struct Decoder_InstantiateContext<bdlat_TypeCategory::Sequence, TYPE>
 {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     typedef Decoder_SequenceContext<TYPE> Type;
 };
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 template <class TYPE>
 struct Decoder_InstantiateContext<bdlat_TypeCategory::Simple, TYPE>
 {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     typedef Decoder_SimpleContext<TYPE> Type;
 };
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 template <>
 struct
 Decoder_InstantiateContext<bdlat_TypeCategory::Simple, bsl::string>
 {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     typedef Decoder_StdStringContext Type;
 };
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Note: Customized are treated as simple types (i.e., they are parsed by
+/// `TypesParserUtil`).
 template <class TYPE>
 struct
 Decoder_InstantiateContext<bdlat_TypeCategory::CustomizedType, TYPE>
 {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // Note: Customized are treated as simple types (i.e., they are parsed by
-    // 'TypesParserUtil').
     typedef Decoder_CustomizedContext<TYPE> Type;
 };
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Note: Enums are treated as simple types (i.e., they are parsed by
+/// `TypesParserUtil`).
 template <class TYPE>
 struct Decoder_InstantiateContext<bdlat_TypeCategory::Enumeration, TYPE>
 {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // Note: Enums are treated as simple types (i.e., they are parsed by
-    // 'TypesParserUtil').
 
     typedef Decoder_SimpleContext<TYPE> Type;
 };
@@ -873,12 +884,12 @@ struct Decoder_InstantiateContext<bdlat_TypeCategory::Enumeration, TYPE>
                      // struct Decoder_SelectContext<TYPE>
                      // ==================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// This meta-function is used to select a context for the parameterized
+/// `TYPE`.
 template <class TYPE>
 struct Decoder_SelectContext {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // This meta-function is used to select a context for the parameterized
-    // 'TYPE'.
 
   private:
     typedef typename
@@ -893,12 +904,12 @@ struct Decoder_SelectContext {
                      // class Decoder_ChoiceContext<TYPE>
                      // =================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// This is the context for types that fall under
+/// `bdlat_TypeCategory::Choice`.
 template <class TYPE>
 class Decoder_ChoiceContext :  public Decoder_ElementContext {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // This is the context for types that fall under
-    // 'bdlat_TypeCategory::Choice'.
 
     // DATA
     bool         d_isSelectionNameKnown;
@@ -939,13 +950,13 @@ class Decoder_ChoiceContext :  public Decoder_ElementContext {
                        // class Decoder_NillableContext
                        // =============================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Context for elements that have `bdlat_FormattingMode::e_NILLABLE`.  It
+/// acts as a proxy and forwards all callbacks to the held
+/// `d_elementContext_p`.  If `endElement` is called directly after
+/// `startElement`, then the `isNil()` accessor will return true.
 class Decoder_NillableContext : public Decoder_ElementContext {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // Context for elements that have 'bdlat_FormattingMode::e_NILLABLE'.  It
-    // acts as a proxy and forwards all callbacks to the held
-    // 'd_elementContext_p'.  If 'endElement' is called directly after
-    // 'startElement', then the 'isNil()' accessor will return true.
 
     // DATA
     Decoder_ElementContext *d_elementContext_p;
@@ -979,30 +990,32 @@ class Decoder_NillableContext : public Decoder_ElementContext {
                         Decoder    *decoder) BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS
+
+    /// Set the element context to the specified `elementContext`.  The
+    /// behavior of all methods in this class are undefined if this method
+    /// has not been called.
     void setElementContext(Decoder_ElementContext *elementContext);
-        // Set the element context to the specified 'elementContext'.  The
-        // behavior of all methods in this class are undefined if this method
-        // has not been called.
 
     // ACCESSORS
+
+    /// Return `true` if the element is nil.
     bool isNil() const;
-        // Return 'true' if the element is nil.
 };
 
              // ====================================================
              // class Decoder_PushParserContext<TYPE, PARSER>
              // ====================================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Context for types that use one of the following push parsers:
+/// ```
+///   o Base64Parser
+///   o HexParser
+///   o Decoder_ListParser
+/// ```
 template <class TYPE, class PARSER>
 class Decoder_PushParserContext : public Decoder_ElementContext {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // Context for types that use one of the following push parsers:
-    //..
-    //    o Base64Parser
-    //    o HexParser
-    //    o Decoder_ListParser
-    //..
 
     // DATA
     int     d_formattingMode;
@@ -1042,11 +1055,11 @@ class Decoder_PushParserContext : public Decoder_ElementContext {
                     // class Decoder_SequenceContext<TYPE>
                     // ===================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Context for types that fall under `bdlat_TypeCategory::Sequence`.
 template <class TYPE>
 class Decoder_SequenceContext : public Decoder_ElementContext {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // Context for types that fall under 'bdlat_TypeCategory::Sequence'.
 
     // DATA
     bdlb::NullableValue<int>  d_simpleContentId;
@@ -1085,11 +1098,11 @@ class Decoder_SequenceContext : public Decoder_ElementContext {
                      // class Decoder_SimpleContext<TYPE>
                      // =================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Context for simple types (uses TypesParserUtil).
 template <class TYPE>
 class Decoder_SimpleContext : public Decoder_ElementContext {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // Context for simple types (uses TypesParserUtil).
 
     // DATA
     //bsl::string  d_chars;
@@ -1129,12 +1142,12 @@ class Decoder_SimpleContext : public Decoder_ElementContext {
                    // class Decoder_CustomizedContext<TYPE>
                    // =====================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// This is the context for types that fall under
+/// `bdlat_TypeCategory::Customized`.
 template <class TYPE>
 class Decoder_CustomizedContext : public Decoder_ElementContext {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // This is the context for types that fall under
-    // 'bdlat_TypeCategory::Customized'.
 
     typedef typename
     bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type         BaseType;
@@ -1179,11 +1192,11 @@ class Decoder_CustomizedContext : public Decoder_ElementContext {
                     // class Decoder_UnknownElementContext
                     // ===================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Context for unknown elements.  This context is used when an unknown
+/// element is found, and the user selected.
 class Decoder_UnknownElementContext : public Decoder_ElementContext {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // Context for unknown elements.  This context is used when an unknown
-    // element is found, and the user selected.
 
   private:
     // NOT IMPLEMENTED
@@ -1220,11 +1233,11 @@ class Decoder_UnknownElementContext : public Decoder_ElementContext {
                          // class Decoder_UTF8Context
                          // =========================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Context for UTF8 strings (i.e., `bsl::string` and `bsl::vector<char>`).
 template <class TYPE>
 class Decoder_UTF8Context : public Decoder_ElementContext {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // Context for UTF8 strings (i.e., 'bsl::string' and 'bsl::vector<char>').
 
     // DATA
     TYPE *d_object_p;
@@ -1262,12 +1275,12 @@ class Decoder_UTF8Context : public Decoder_ElementContext {
                        // class Decoder_StdStringContext
                        // ==============================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Proxy context for `bsl::string`.  This is just a proxy context.  It will
+/// forward all callbacks to the appropriate context, based on the
+/// formatting mode.
 class Decoder_StdStringContext : public Decoder_ElementContext {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // Proxy context for 'bsl::string'.  This is just a proxy context.  It will
-    // forward all callbacks to the appropriate context, based on the
-    // formatting mode.
 
   public:
     // TYPES
@@ -1322,12 +1335,12 @@ class Decoder_StdStringContext : public Decoder_ElementContext {
                      // class Decoder_StdVectorCharContext
                      // ==================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Proxy context for `bsl::string`.  This is just a proxy context.  It will
+/// forward all callbacks to the appropriate context, based on the
+/// formatting mode.
 class Decoder_StdVectorCharContext : public Decoder_ElementContext {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // Proxy context for 'bsl::string'.  This is just a proxy context.  It will
-    // forward all callbacks to the appropriate context, based on the
-    // formatting mode.
 
   public:
     // TYPES
@@ -1390,13 +1403,13 @@ class Decoder_StdVectorCharContext : public Decoder_ElementContext {
                     // class Decoder_PrepareSequenceContext
                     // ====================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// This class does one thing:
+/// ```
+/// o finds an element that has the 'IS_SIMPLE_CONTENT' flag set
+/// ```
 class Decoder_PrepareSequenceContext {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // This class does one thing:
-    //..
-    //  o finds an element that has the 'IS_SIMPLE_CONTENT' flag set
-    //..
 
     // DATA
     bdlb::NullableValue<int> *d_simpleContentId_p; // held, not owned
@@ -1422,10 +1435,10 @@ class Decoder_PrepareSequenceContext {
                   // class Decoder_ParseSequenceSimpleContent
                   // ========================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Parse simple content.
 class Decoder_ParseSequenceSimpleContent {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // Parse simple content.
 
     // DATA
     //const bsl::string *d_chars_p;  // content characters
@@ -1460,10 +1473,10 @@ class Decoder_ParseSequenceSimpleContent {
                    // class Decoder_ParseSequenceSubElement
                    // =====================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// This is similar to `Decoder_ParseObject`.
 class Decoder_ParseSequenceSubElement {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // This is similar to 'Decoder_ParseObject'.
 
     // DATA
     Decoder     *d_decoder;        // held, not owned
@@ -1496,10 +1509,10 @@ class Decoder_ParseSequenceSubElement {
                         // class Decoder_ParseAttribute
                         // ============================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Parse an attribute.
 class Decoder_ParseAttribute {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // Parse an attribute.
 
     // DATA
     Decoder *d_decoder;     // error logger (held)
@@ -1553,10 +1566,10 @@ class Decoder_ParseAttribute {
                          // class Decoder_ParseObject
                          // =========================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Parse the visited object.
 class Decoder_ParseObject {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-    //
-    // Parse the visited object.
 
     // PRIVATE TYPES
     struct CanBeListOrRepetition { };
@@ -1647,8 +1660,8 @@ class Decoder_ParseObject {
                      // class Decoder_ParseNillableObject
                      // =================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 class Decoder_ParseNillableObject {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 
     // DATA
     int                      d_formattingMode;
@@ -1669,20 +1682,22 @@ class Decoder_ParseNillableObject {
     Decoder_ParseNillableObject& operator=(const Decoder_ParseNillableObject&);
 
   public:
+    /// Construct a functor to parse nillable objects.
     Decoder_ParseNillableObject(Decoder *decoder, int formattingMode);
-        // Construct a functor to parse nillable objects.
 
     // Using compiler-generated destructor:
     //  ~Decoder_ParseNillableObject();
 
     // MANIPULATORS
+
+    /// Visit the specified `object`.
     template <class TYPE>
     int operator()(TYPE *object);
-        // Visit the specified 'object'.
 
     // ACCESSORS
+
+    /// Return `true` if the value was nil, and false otherwise.
     bool isNil() const;
-        // Return 'true' if the value was nil, and false otherwise.
 };
 
 // ============================================================================
@@ -1693,8 +1708,8 @@ class Decoder_ParseNillableObject {
                        // struct Decoder_decodeImpProxy
                        // =============================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 struct Decoder_decodeImpProxy {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 
     // DATA
     Decoder *d_decoder;
@@ -1725,8 +1740,8 @@ struct Decoder_decodeImpProxy {
                  // struct Decoder_ParseAttribute_executeProxy
                  // ==========================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 struct Decoder_ParseAttribute_executeProxy {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 
     // DATA
     Decoder_ParseAttribute *d_instance_p;
@@ -1750,8 +1765,8 @@ struct Decoder_ParseAttribute_executeProxy {
                // struct Decoder_ParseAttribute_executeImpProxy
                // =============================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 struct Decoder_ParseAttribute_executeImpProxy {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 
     // DATA
     Decoder_ParseAttribute *d_instance_p;
@@ -1783,8 +1798,8 @@ struct Decoder_ParseAttribute_executeImpProxy {
                   // struct Decoder_ParseObject_executeProxy
                   // =======================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 struct Decoder_ParseObject_executeProxy {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 
     // DATA
     Decoder_ParseObject *d_instance_p;
@@ -1808,8 +1823,8 @@ struct Decoder_ParseObject_executeProxy {
                  // struct Decoder_ParseObject_executeImpProxy
                  // ==========================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 struct Decoder_ParseObject_executeImpProxy {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 
     // DATA
     Decoder_ParseObject *d_instance_p;
@@ -1841,8 +1856,8 @@ struct Decoder_ParseObject_executeImpProxy {
              // struct Decoder_ParseNillableObject_executeImpProxy
              // ==================================================
 
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 struct Decoder_ParseNillableObject_executeImpProxy {
-    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
 
     // DATA
     Decoder_ParseNillableObject *d_instance_p;
@@ -1967,14 +1982,14 @@ int Decoder::warningCount() const
     return d_warningCount;
 }
 
+/// If we're decoding a structure (aka `sequence` or `choice`), check to
+/// make sure that the root tag in the XML matches the name of the specified
+/// `TYPE` that we are decoding into.  If `TYPE` has not implemented the
+/// bdlat introspection protocol, then the class name will be NULL, and we
+/// cannot check it against the tag name.
 template <class TYPE>
 inline
 int Decoder::validateTopElement(const TYPE *object) {
-    // If we're decoding a structure (aka 'sequence' or 'choice'), check to
-    // make sure that the root tag in the XML matches the name of the specified
-    // 'TYPE' that we are decoding into.  If 'TYPE' has not implemented the
-    // bdlat introspection protocol, then the class name will be NULL, and we
-    // cannot check it against the tag name.
 
     // has the user asked us to validate the root tag?
     if (!d_options->validateRootTag()) {

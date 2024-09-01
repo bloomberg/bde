@@ -10,22 +10,22 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::UserFieldType: namespace for an enum of user supplied attribute types
 //
-//@DESCRIPTION: This component provides a namespace for the 'enum' type,
-// 'ball::UserFieldType', that enumerates the set of types a user defined log
+//@DESCRIPTION: This component provides a namespace for the `enum` type,
+// `ball::UserFieldType`, that enumerates the set of types a user defined log
 // attribute may have.
 //
 ///Enumerators
 ///-----------
-//..
-//  Name                    Description
-//  ------------            -------------------------------------------------
-//  e_VOID                  Enumerator representing an unset value
-//  e_INT64                 Enumerator representing an integral value
-//  e_DOUBLE                Enumerator representing an double value
-//  e_STRING                Enumerator representing a string value
-//  e_DATETIMETZ            Enumerator representing a DatetimeTz value
-//  e_CHAR_ARRAY            Enumerator representing a bsl::vector<char> value
-//..
+// ```
+// Name                    Description
+// ------------            -------------------------------------------------
+// e_VOID                  Enumerator representing an unset value
+// e_INT64                 Enumerator representing an integral value
+// e_DOUBLE                Enumerator representing an double value
+// e_STRING                Enumerator representing a string value
+// e_DATETIMETZ            Enumerator representing a DatetimeTz value
+// e_CHAR_ARRAY            Enumerator representing a bsl::vector<char> value
+// ```
 //
 ///Usage
 ///-----
@@ -34,27 +34,27 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
-// 'ball::UserFieldType' usage.
+// `ball::UserFieldType` usage.
 //
-// First, we create a variable 'value' of type 'ball::UserFieldType::Enum' and
-// initialize it to the value 'ball::UserFieldType::e_STRING':
-//..
-//  ball::UserFieldType::Enum value = ball::UserFieldType::e_STRING;
-//..
+// First, we create a variable `value` of type `ball::UserFieldType::Enum` and
+// initialize it to the value `ball::UserFieldType::e_STRING`:
+// ```
+// ball::UserFieldType::Enum value = ball::UserFieldType::e_STRING;
+// ```
 // Next, we store a pointer to its ASCII representation in a variable
-// 'asciiValue' of type 'const char *':
-//..
-//  const char *asciiValue = ball::UserFieldType::toAscii(value);
-//  assert(0 == bsl::strcmp(asciiValue, "STRING"));
-//..
-// Finally, we print the value to 'bsl::cout':
-//..
-//  bsl::cout << value << bsl::endl;
-//..
-// This statement produces the following output on 'stdout':
-//..
-//  STRING
-//..
+// `asciiValue` of type `const char *`:
+// ```
+// const char *asciiValue = ball::UserFieldType::toAscii(value);
+// assert(0 == bsl::strcmp(asciiValue, "STRING"));
+// ```
+// Finally, we print the value to `bsl::cout`:
+// ```
+// bsl::cout << value << bsl::endl;
+// ```
+// This statement produces the following output on `stdout`:
+// ```
+// STRING
+// ```
 
 #include <balscm_version.h>
 
@@ -67,13 +67,13 @@ namespace ball {
                         // struct UserFieldType
                         // ====================
 
+/// This `struct` provides a namespace for enumerating month-of-year
+/// values.  See `Enum` in the TYPES sub-section for details.
+///
+/// This `struct`:
+/// * supports a complete set of *enumeration* operations
+/// For terminology see `bsldoc_glossary`.
 struct UserFieldType {
-    // This 'struct' provides a namespace for enumerating month-of-year
-    // values.  See 'Enum' in the TYPES sub-section for details.
-    //
-    // This 'struct':
-    //: o supports a complete set of *enumeration* operations
-    // For terminology see 'bsldoc_glossary'.
 
   public:
     // TYPES
@@ -89,54 +89,56 @@ struct UserFieldType {
     };
 
     // CLASS METHODS
+
+    /// Write the string representation of the specified enumeration `value`
+    /// to the specified output `stream`, and return a reference to
+    /// `stream`.  Optionally specify an initial indentation `level`, whose
+    /// absolute value is incremented recursively for nested objects.  If
+    /// `level` is specified, optionally specify `spacesPerLevel`, whose
+    /// absolute value indicates the number of spaces per indentation level
+    /// for this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  See `toAscii` for
+    /// what constitutes the string representation of a
+    /// `UserFieldType::Enum` value.
     static bsl::ostream& print(bsl::ostream&       stream,
                                UserFieldType::Enum value,
                                int                 level          = 0,
                                int                 spacesPerLevel = 4);
-        // Write the string representation of the specified enumeration 'value'
-        // to the specified output 'stream', and return a reference to
-        // 'stream'.  Optionally specify an initial indentation 'level', whose
-        // absolute value is incremented recursively for nested objects.  If
-        // 'level' is specified, optionally specify 'spacesPerLevel', whose
-        // absolute value indicates the number of spaces per indentation level
-        // for this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  See 'toAscii' for
-        // what constitutes the string representation of a
-        // 'UserFieldType::Enum' value.
 
+    /// Return the non-modifiable string representation corresponding to the
+    /// specified enumeration `value`, if it exists, and a unique (error)
+    /// string otherwise.  The string representation of `value` matches the
+    /// first 3 characters of its corresponding enumerator name with the
+    /// "e_" prefix elided.  For example:
+    /// ```
+    /// bsl::cout << ball::UserFieldType::toAscii(
+    ///                                   ball::UserFieldType::e_STRING);
+    /// ```
+    /// will print the following on standard output:
+    /// ```
+    /// STRING
+    /// ```
+    /// Note that specifying a `value` that does not match any of the
+    /// enumerators will result in a string representation that is distinct
+    /// from any of those corresponding to the enumerators, but is otherwise
+    /// unspecified.
     static const char *toAscii(UserFieldType::Enum value);
-        // Return the non-modifiable string representation corresponding to the
-        // specified enumeration 'value', if it exists, and a unique (error)
-        // string otherwise.  The string representation of 'value' matches the
-        // first 3 characters of its corresponding enumerator name with the
-        // "e_" prefix elided.  For example:
-        //..
-        //  bsl::cout << ball::UserFieldType::toAscii(
-        //                                    ball::UserFieldType::e_STRING);
-        //..
-        // will print the following on standard output:
-        //..
-        //  STRING
-        //..
-        // Note that specifying a 'value' that does not match any of the
-        // enumerators will result in a string representation that is distinct
-        // from any of those corresponding to the enumerators, but is otherwise
-        // unspecified.
 
 };
 
 // FREE OPERATORS
+
+/// Write the string representation of the specified enumeration `value` to
+/// the specified output `stream` in a single-line format, and return a
+/// reference to `stream`.  See `toAscii` for what constitutes the string
+/// representation of a `ball::UserFieldType::Enum` value.  Note that this
+/// method has the same behavior as
+/// ```
+/// ball::UserFieldType::print(stream, value, 0, -1);
+/// ```
 bsl::ostream& operator<<(bsl::ostream& stream, UserFieldType::Enum value);
-    // Write the string representation of the specified enumeration 'value' to
-    // the specified output 'stream' in a single-line format, and return a
-    // reference to 'stream'.  See 'toAscii' for what constitutes the string
-    // representation of a 'ball::UserFieldType::Enum' value.  Note that this
-    // method has the same behavior as
-    //..
-    //  ball::UserFieldType::print(stream, value, 0, -1);
-    //..
 
 // ============================================================================
 //                            INLINE DEFINITIONS

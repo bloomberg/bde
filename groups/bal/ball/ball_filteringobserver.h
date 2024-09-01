@@ -13,21 +13,21 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: ball_record, ball_context, ball_loggermanager
 //
 //@DESCRIPTION: This component provides a concrete implementation of the
-// 'ball::Observer' protocol for receiving and processing log records:
-//..
-//               ,-----------------------.
-//              ( ball::FilteringObserver )
-//               `-----------------------'
-//                           |              ctor
-//                           V
-//                    ,--------------.
-//                   ( ball::Observer )
-//                    `--------------'
-//                                          publish
-//                                          dtor
-//..
-// 'ball::FilteringObserver' processes the log records it receives through its
-// 'publish' method and conditionally forwards them to the inner observer
+// `ball::Observer` protocol for receiving and processing log records:
+// ```
+//              ,-----------------------.
+//             ( ball::FilteringObserver )
+//              `-----------------------'
+//                          |              ctor
+//                          V
+//                   ,--------------.
+//                  ( ball::Observer )
+//                   `--------------'
+//                                         publish
+//                                         dtor
+// ```
+// `ball::FilteringObserver` processes the log records it receives through its
+// `publish` method and conditionally forwards them to the inner observer
 // supplied at construction.
 //
 ///Usage
@@ -42,49 +42,49 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create a filter that will match a log record's category against
 // the pattern "EQUITY.*":
-//..
-//  bool categoryFilter(const ball::Record& record, const ball::Context&)
-//  {
-//      return ball::PatternUtil::isMatch(record.fixedFields().category(),
-//                                        "EQUITY.*");
-//  }
-//..
+// ```
+// bool categoryFilter(const ball::Record& record, const ball::Context&)
+// {
+//     return ball::PatternUtil::isMatch(record.fixedFields().category(),
+//                                       "EQUITY.*");
+// }
+// ```
 // Then, we create the observer that will receive filtered log records and
 // create a filtering observer:
-//..
-//  bsl::shared_ptr<ball::TestObserver> innerObserver(
-//                                         new ball::TestObserver(&bsl::cout));
+// ```
+// bsl::shared_ptr<ball::TestObserver> innerObserver(
+//                                        new ball::TestObserver(&bsl::cout));
 //
-//  ball::FilteringObserver filteringObserver(innerObserver, categoryFilter);
-//..
+// ball::FilteringObserver filteringObserver(innerObserver, categoryFilter);
+// ```
 // Next, we issue a series of log records and verify that only records with the
 // category matching the pattern are published to the inner observer:
-//..
-//  const ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
+// ```
+// const ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
 //
-//  ball::RecordAttributes fixedFields;
+// ball::RecordAttributes fixedFields;
 //
-//  bsl::shared_ptr<ball::Record> record;
-//  record.createInplace();
+// bsl::shared_ptr<ball::Record> record;
+// record.createInplace();
 //
-//  fixedFields.setCategory("CURNCY.USDGBP");
-//  record->setFixedFields(fixedFields);
-//  filteringObserver.publish(record, context);
+// fixedFields.setCategory("CURNCY.USDGBP");
+// record->setFixedFields(fixedFields);
+// filteringObserver.publish(record, context);
 //
-//  assert(0 == innerObserver->numPublishedRecords());  // dropped
+// assert(0 == innerObserver->numPublishedRecords());  // dropped
 //
-//  fixedFields.setCategory("EQUITY.NYSE");
-//  record->setFixedFields(fixedFields);
-//  filteringObserver.publish(record, context);
+// fixedFields.setCategory("EQUITY.NYSE");
+// record->setFixedFields(fixedFields);
+// filteringObserver.publish(record, context);
 //
-//  assert(1 == innerObserver->numPublishedRecords());  // forwarded
+// assert(1 == innerObserver->numPublishedRecords());  // forwarded
 //
-//  fixedFields.setCategory("EQUIT.");
-//  record->setFixedFields(fixedFields);
-//  filteringObserver.publish(record, context);
+// fixedFields.setCategory("EQUIT.");
+// record->setFixedFields(fixedFields);
+// filteringObserver.publish(record, context);
 //
-//  assert(1 == innerObserver->numPublishedRecords());  // dropped
-//..
+// assert(1 == innerObserver->numPublishedRecords());  // dropped
+// ```
 
 #include <balscm_version.h>
 
@@ -114,18 +114,18 @@ class Record;
                            // class FilteringObserver
                            // =======================
 
+/// This class provides a concrete implementation of the `Observer` protocol
+/// that filters the `Record` and `Context` objects passed to its `publish`
+/// method based on a callback (function or functor) supplied at
+/// construction.  The callback must be convertible to:
+/// ```
+/// bsl::function<bool(const Record&, const Context&)>
+/// ```
+/// If the callback returns `true` for the `Record` and `Context`, then they
+/// are forwarded to the `publish` method of an observer also supplied at
+/// construction.  If the callback returns `false`, then the `Record` and
+/// `Context` are ignored (i.e., they are filtered out by this observer).
 class FilteringObserver : public Observer {
-    // This class provides a concrete implementation of the 'Observer' protocol
-    // that filters the 'Record' and 'Context' objects passed to its 'publish'
-    // method based on a callback (function or functor) supplied at
-    // construction.  The callback must be convertible to:
-    //..
-    //  bsl::function<bool(const Record&, const Context&)>
-    //..
-    // If the callback returns 'true' for the 'Record' and 'Context', then they
-    // are forwarded to the 'publish' method of an observer also supplied at
-    // construction.  If the callback returns 'false', then the 'Record' and
-    // 'Context' are ignored (i.e., they are filtered out by this observer).
 
   public:
     // PUBLIC TYPES
@@ -150,38 +150,39 @@ class FilteringObserver : public Observer {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a filtering observer that conditionally passes log records to
+    /// the specified `observer` based on the specified
+    /// `recordFilterCallback`.  Optionally specify a `basicAllocator` used
+    /// to supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  The behavior is undefined if `observer`
+    /// is 0 or a cycle is created among observers.
     FilteringObserver(const bsl::shared_ptr<Observer>&  observer,
                       const RecordFilterCallback&       recordFilterCallback,
                       bslma::Allocator                 *basicAllocator = 0);
-        // Create a filtering observer that conditionally passes log records to
-        // the specified 'observer' based on the specified
-        // 'recordFilterCallback'.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  The behavior is undefined if 'observer'
-        // is 0 or a cycle is created among observers.
 
+    /// Destroy this filtering observer.
     ~FilteringObserver() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this filtering observer.
 
     // MANIPULATORS
     using Observer::publish;
 
+    /// Process the specified log `record` having the specified publishing
+    /// `context`.  Forward `record` and `context` to the `publish` method
+    /// of the observer supplied at construction if the filter callback
+    /// supplied at construction returns `true` for `record` and `context`,
+    /// and ignore (filter out) `record` and `context` otherwise.  The
+    /// behavior is undefined if `record` or `context` is modified during
+    /// the execution of this method.
     void publish(const bsl::shared_ptr<const Record>& record,
                  const Context&                       context)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Process the specified log 'record' having the specified publishing
-        // 'context'.  Forward 'record' and 'context' to the 'publish' method
-        // of the observer supplied at construction if the filter callback
-        // supplied at construction returns 'true' for 'record' and 'context',
-        // and ignore (filter out) 'record' and 'context' otherwise.  The
-        // behavior is undefined if 'record' or 'context' is modified during
-        // the execution of this method.
 
+    /// Discard any shared reference to a `Record` object that was supplied
+    /// to the `publish` method, and is held by this observer.  Note that
+    /// this operation should be called if resources underlying the
+    /// previously provided shared-pointers must be released.
     void releaseRecords() BSLS_KEYWORD_OVERRIDE;
-        // Discard any shared reference to a 'Record' object that was supplied
-        // to the 'publish' method, and is held by this observer.  Note that
-        // this operation should be called if resources underlying the
-        // previously provided shared-pointers must be released.
 };
 
 // ============================================================================

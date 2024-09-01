@@ -12,90 +12,90 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balxml::Base64Parser: push parser for Base64 types
 //
-//@DESCRIPTION: The 'balxml::Base64Parser' class template provided by this
+//@DESCRIPTION: The `balxml::Base64Parser` class template provided by this
 // component can be used to parse Base64 characters into one of the supported
-// Base64 types, which are 'bsl::vector<char>' and 'bsl::string'.  The 'TYPE'
+// Base64 types, which are `bsl::vector<char>` and `bsl::string`.  The `TYPE`
 // parameter can be one of these two types.
 //
-// This class template is a model of the 'PushParser' concept, which contains
+// This class template is a model of the `PushParser` concept, which contains
 // the following methods:
-//..
-//  int beginParse(TYPE *object);
-//      // Prepare the parser to start parsing a new value and associate the
-//      // specified 'object' with the parser.  Return 0 if successful and
-//      // non-zero otherwise.
+// ```
+// int beginParse(TYPE *object);
+//     // Prepare the parser to start parsing a new value and associate the
+//     // specified 'object' with the parser.  Return 0 if successful and
+//     // non-zero otherwise.
 //
-//  int endParse();
-//      // Ends the parse operation and store the value parsed from the pushed
-//      // characters into the associated object.  Return 0 if successful and
-//      // non-zero otherwise.  The behavior is undefined unless an object is
-//      // associated with this parser.  Upon successful completion, the parser
-//      // will be disassociated with the object.
+// int endParse();
+//     // Ends the parse operation and store the value parsed from the pushed
+//     // characters into the associated object.  Return 0 if successful and
+//     // non-zero otherwise.  The behavior is undefined unless an object is
+//     // associated with this parser.  Upon successful completion, the parser
+//     // will be disassociated with the object.
 //
-//  template <typename INPUT_ITERATOR>
-//  int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
-//      // Push the characters ranging from the specified 'begin' up to (but
-//      // not including) the specified 'end' into this parser.  Return 0 if
-//      // successful and non-zero otherwise.  The parameterized
-//      // 'INPUT_ITERATOR' must be dereferenceable to a 'char' value.  The
-//      // behavior is undefined unless an object is associated with this
-//      // parser.
-//..
+// template <typename INPUT_ITERATOR>
+// int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
+//     // Push the characters ranging from the specified 'begin' up to (but
+//     // not including) the specified 'end' into this parser.  Return 0 if
+//     // successful and non-zero otherwise.  The parameterized
+//     // 'INPUT_ITERATOR' must be dereferenceable to a 'char' value.  The
+//     // behavior is undefined unless an object is associated with this
+//     // parser.
+// ```
 //
 ///Usage
 ///-----
 // The following snippets of code illustrate the usage of this component.
 // Suppose you had an input stream that contained Base64 data.  The following
-// 'loadFromBase64Stream' function loads this data into an 'bsl::vector<char>'
+// `loadFromBase64Stream` function loads this data into an `bsl::vector<char>`
 // blob:
-//..
-//  #include <balxml_base64parser.h>
+// ```
+// #include <balxml_base64parser.h>
 //
-//  #include <istream>
-//  #include <iterator>
-//  #include <vector>
+// #include <istream>
+// #include <iterator>
+// #include <vector>
 //
-//  using namespace BloombergLP;
+// using namespace BloombergLP;
 //
-//  int loadFromBase64Stream(bsl::vector<char> *result, bsl::istream& stream)
-//  {
-//      enum { FAILURE = -1 };
+// int loadFromBase64Stream(bsl::vector<char> *result, bsl::istream& stream)
+// {
+//     enum { FAILURE = -1 };
 //
-//      balxml::Base64Parser<bsl::vector<char> > parser;
+//     balxml::Base64Parser<bsl::vector<char> > parser;
 //
-//      if (0 != parser.beginParse(result)) {
-//          return FAILURE;
-//      }
+//     if (0 != parser.beginParse(result)) {
+//         return FAILURE;
+//     }
 //
-//      if (0 != parser.pushCharacters(bsl::istreambuf_iterator<char>(stream),
-//                                     bsl::istreambuf_iterator<char>())) {
-//          return FAILURE;
-//      }
+//     if (0 != parser.pushCharacters(bsl::istreambuf_iterator<char>(stream),
+//                                    bsl::istreambuf_iterator<char>())) {
+//         return FAILURE;
+//     }
 //
-//      return parser.endParse();
-//  }
-//..
-// The following function demonstrates the 'loadFromBase64Stream' function:
-//..
-//  #include <sstream>
+//     return parser.endParse();
+// }
+// ```
+// The following function demonstrates the `loadFromBase64Stream` function:
+// ```
+// #include <sstream>
 //
-//  void usageExample()
-//  {
-//      const char INPUT[] = "YWJjZA==";  // "abcd" in Base64
+// void usageExample()
+// {
+//     const char INPUT[] = "YWJjZA==";  // "abcd" in Base64
 //
-//      bsl::vector<char>  vec;
-//      bsl::istringstream iss(INPUT);
+//     bsl::vector<char>  vec;
+//     bsl::istringstream iss(INPUT);
 //
-//      int result = loadFromBase64Stream(&vec, iss);
+//     int result = loadFromBase64Stream(&vec, iss);
 //
-//      assert(0   == result);
-//      assert(4   == vec.size());
-//      assert('a' == vec[0]);
-//      assert('b' == vec[1]);
-//      assert('c' == vec[2]);
-//      assert('d' == vec[3]);
-//  }
-//..
+//     assert(0   == result);
+//     assert(4   == vec.size());
+//     assert('a' == vec[0]);
+//     assert('b' == vec[1]);
+//     assert('c' == vec[2]);
+//     assert('d' == vec[3]);
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -115,10 +115,10 @@ namespace balxml {
                           // class Base64Parser<TYPE>
                           // ========================
 
+/// This is a push parser for supported Base64 types (`bsl::vector<char>` or
+/// `bsl::string`).
 template <class TYPE>
 class Base64Parser {
-    // This is a push parser for supported Base64 types ('bsl::vector<char>' or
-    // 'bsl::string').
 
     // PRIVATE DATA MEMBERS
     bdlde::Base64Decoder  d_base64Decoder;   // decoder
@@ -131,8 +131,9 @@ class Base64Parser {
 
   public:
     // CREATORS
+
+    /// Create a parser for parsing Base64 types.
     Base64Parser();
-        // Create a parser for parsing Base64 types.
 
 #ifdef DOXYGEN    // Generated by compiler:
 
@@ -141,26 +142,27 @@ class Base64Parser {
 #endif
 
     // MANIPULATORS
+
+    /// Prepare the parser to start parsing a new value and associate the
+    /// specified `object` with the parser.  Return 0 if successful and
+    /// non-zero otherwise.
     int beginParse(TYPE *object);
-        // Prepare the parser to start parsing a new value and associate the
-        // specified 'object' with the parser.  Return 0 if successful and
-        // non-zero otherwise.
 
+    /// Ends the parse operation and store the value parsed from the pushed
+    /// characters into the associated object.  Return 0 if successful and
+    /// non-zero otherwise.  The behavior is undefined unless an object is
+    /// associated with this parser.  Upon successful completion, the parser
+    /// will be disassociated with the object.
     int endParse();
-        // Ends the parse operation and store the value parsed from the pushed
-        // characters into the associated object.  Return 0 if successful and
-        // non-zero otherwise.  The behavior is undefined unless an object is
-        // associated with this parser.  Upon successful completion, the parser
-        // will be disassociated with the object.
 
+    /// Push the characters ranging from the specified `begin` up to (but
+    /// not including) the specified `end` into this parser.  Return 0 if
+    /// successful and non-zero otherwise.  The parameterized
+    /// `INPUT_ITERATOR` must be dereferenceable to a `char` value.  The
+    /// behavior is undefined unless an object is associated with this
+    /// parser.
     template <class INPUT_ITERATOR>
     int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
-        // Push the characters ranging from the specified 'begin' up to (but
-        // not including) the specified 'end' into this parser.  Return 0 if
-        // successful and non-zero otherwise.  The parameterized
-        // 'INPUT_ITERATOR' must be dereferenceable to a 'char' value.  The
-        // behavior is undefined unless an object is associated with this
-        // parser.
 };
 
 // ============================================================================

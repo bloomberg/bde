@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Enumerate the set of whitespace options for 'balxml_formatter'.
+//@PURPOSE: Enumerate the set of whitespace options for `balxml_formatter`.
 //
 //@CLASSES:
 //  balxml::FormatterWhitespaceType: options when outputting textual data
@@ -13,10 +13,10 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: balxml_formatter
 //
 //@DESCRIPTION: This component provides a namespace,
-// 'balxml::FormatterWhitespaceType', for the 'enum' type
-// 'FormatterWhitespaceType::Enum', which enumerates the set of options
+// `balxml::FormatterWhitespaceType`, for the `enum` type
+// `FormatterWhitespaceType::Enum`, which enumerates the set of options
 // available when outputting textual data of an XML element using the XML
-// formatter provided by the 'balxml' package.
+// formatter provided by the `balxml` package.
 
 #include <balscm_version.h>
 
@@ -27,9 +27,9 @@ namespace balxml {
                        // struct FormatterWhitespaceType
                        // ==============================
 
+/// This `struct` describes options available when outputting textual data
+/// of an element between its pair of opening and closing tags.
 struct FormatterWhitespaceType {
-    // This 'struct' describes options available when outputting textual data
-    // of an element between its pair of opening and closing tags.
 
     // TYPES
     enum Enum {

@@ -14,10 +14,10 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a set of traits that identify and
 // describe a platform's object file format properties.  For example, the
-// 'balst::ObjectFileFormat::ResolverPolicy' trait is ascribed a "value" (i.e.,
-// 'Elf' or 'Xcoff') appropriate for each supported platform.  The various
+// `balst::ObjectFileFormat::ResolverPolicy` trait is ascribed a "value" (i.e.,
+// `Elf` or `Xcoff`) appropriate for each supported platform.  The various
 // stack trace traits are actually types declared in the
-// 'bdescu_ObjectFileFormat' 'struct'.  These types are intended to be used in
+// `bdescu_ObjectFileFormat` `struct`.  These types are intended to be used in
 // specializing template implementations or to enable function overloading
 // based on the prevalent system's characteristics.  #defines are also
 // provided by this component to facilitate conditional compilation depending
@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // format, but is used within other formats.  It is used within ELF on Linux,
 // but not (yet) on Solaris at Bloomberg (currently the ELF format on Solaris
 // still uses STABS).  It is used within the Mach-O format (also known as the
-// 'Dladdr' format in this file) used on Darwin.  It is also used by the Clang
+// `Dladdr` format in this file) used on Darwin.  It is also used by the Clang
 // compiler (which uses ELF).
 //
 // For all these platforms, parsing the DWARF information is necessary for the
@@ -41,8 +41,8 @@ BSLS_IDENT("$Id: $")
 ///Implementation Note
 ///- - - - - - - - - -
 // Linux g++ 7.1.0 uses DWARF version 4, while g++ 5.4.0 and before use DWARF
-// version 3.  At the moment the required system header, 'dwarf.h', is not
-// available in the Bloomberg production build 'chroot' environment, so
+// version 3.  At the moment the required system header, `dwarf.h`, is not
+// available in the Bloomberg production build `chroot` environment, so
 // support for dwarf formats is disabled.
 //
 // DWARF support on Clang is problematic and not currrently implemented, see
@@ -55,58 +55,58 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Accessing 'balst::ObjectFileFormat' Information at Run Time
+///Example 1: Accessing `balst::ObjectFileFormat` Information at Run Time
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The templated (specialized) 'typeTest' function returns a unique, non-zero
+// The templated (specialized) `typeTest` function returns a unique, non-zero
 // value when passed an object of types
-// 'balst::ObjectFileFormat::{Elf,Xcoff,Windows}', and 0 otherwise.
-//..
-//  template <typename TYPE>
-//  int typeTest(const TYPE &)
-//  {
-//      return 0;
-//  }
+// `balst::ObjectFileFormat::{Elf,Xcoff,Windows}`, and 0 otherwise.
+// ```
+// template <typename TYPE>
+// int typeTest(const TYPE &)
+// {
+//     return 0;
+// }
 //
-//  int typeTest(const balst::ObjectFileFormat::Elf &)
-//  {
-//      return 1;
-//  }
+// int typeTest(const balst::ObjectFileFormat::Elf &)
+// {
+//     return 1;
+// }
 //
-//  int typeTest(const balst::ObjectFileFormat::Xcoff &)
-//  {
-//      return 2;
-//  }
+// int typeTest(const balst::ObjectFileFormat::Xcoff &)
+// {
+//     return 2;
+// }
 //
-//  int typeTest(const balst::ObjectFileFormat::Windows &)
-//  {
-//      return 3;
-//  }
+// int typeTest(const balst::ObjectFileFormat::Windows &)
+// {
+//     return 3;
+// }
 //
-//  int main() ...
-//..
-// We define an object 'policy' of type 'balst::ObjectFileFormat::Policy',
-// which will be of type '...::Elf', '...::Xcoff', or '...::Windows'
+// int main() ...
+// ```
+// We define an object `policy` of type `balst::ObjectFileFormat::Policy`,
+// which will be of type `...::Elf`, `...::Xcoff`, or `...::Windows`
 // appropriate for the platform.
-//..
-//      balst::ObjectFileFormat::Policy policy;
-//..
-// We now test it using 'typeTest':
-//..
-//      assert(typeTest(policy) > 0);
+// ```
+//     balst::ObjectFileFormat::Policy policy;
+// ```
+// We now test it using `typeTest`:
+// ```
+//     assert(typeTest(policy) > 0);
 //
-//  #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
-//      assert(1 == typeTest(policy));
-//  #endif
+// #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
+//     assert(1 == typeTest(policy));
+// #endif
 //
-//  #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-//      assert(2 == typeTest(policy));
-//  #endif
+// #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+//     assert(2 == typeTest(policy));
+// #endif
 //
-//  #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
-//      assert(3 == typeTest(policy));
-//  #endif
-//  }
-//..
+// #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+//     assert(3 == typeTest(policy));
+// #endif
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -119,11 +119,11 @@ namespace balst {
                            // class ObjectFileFormat
                            // ======================
 
+/// This `struct` is named `ObjectFileFormat` for historical reasons, what
+/// it really determines is resolving strategy.  Linux, for example, can be
+/// resolved using either the `Elf` or `Dladdr` policies.  We choose `Elf`
+/// for linux because that mode of resolving yields more information.
 struct ObjectFileFormat {
-    // This 'struct' is named 'ObjectFileFormat' for historical reasons, what
-    // it really determines is resolving strategy.  Linux, for example, can be
-    // resolved using either the 'Elf' or 'Dladdr' policies.  We choose 'Elf'
-    // for linux because that mode of resolving yields more information.
 
     struct Elf {};        // resolve as elf object
 

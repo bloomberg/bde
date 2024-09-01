@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a 'balm::Publisher' implementation that writes to a stream.
+//@PURPOSE: Provide a `balm::Publisher` implementation that writes to a stream.
 //
 //@CLASSES:
 //  balm::StreamPublisher: publishes collected metric samples to a stream
@@ -13,17 +13,17 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: balm_publisher, balm_metricrecord, balm_metricsmanager
 //
 //@DESCRIPTION: This component defines a concrete class
-// 'balm::StreamPublisher' that implements the 'balm::Publisher' protocol for
+// `balm::StreamPublisher` that implements the `balm::Publisher` protocol for
 // publishing metric records:
-//..
-//               ( balm::StreamPublisher )
-//                           |              ctor
-//                           |
-//                           V
-//                   ( balm::Publisher )
-//                                          dtor
-//                                          publish
-//..
+// ```
+//              ( balm::StreamPublisher )
+//                          |              ctor
+//                          |
+//                          V
+//                  ( balm::Publisher )
+//                                         dtor
+//                                         publish
+// ```
 // This implementation of the publisher protocol publishes records to an output
 // stream that is supplied at construction.
 //
@@ -39,50 +39,50 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // In the following example we illustrate how to create and publish records
-// with a 'balm::StreamPublisher'.  First we define a couple of metric ids.
-// Note that we create the 'balm::MetricId' objects by hand, but in practice an
-// id should be obtained from a 'balm::MetricRegistry' object (such as the one
-// owned by a 'balm::MetricsManager').
-//..
-//  balm::Category myCategory("MyCategory");
-//  balm::MetricDescription descA(&myCategory, "MetricA");
-//  balm::MetricDescription descB(&myCategory, "MetricB");
+// with a `balm::StreamPublisher`.  First we define a couple of metric ids.
+// Note that we create the `balm::MetricId` objects by hand, but in practice an
+// id should be obtained from a `balm::MetricRegistry` object (such as the one
+// owned by a `balm::MetricsManager`).
+// ```
+// balm::Category myCategory("MyCategory");
+// balm::MetricDescription descA(&myCategory, "MetricA");
+// balm::MetricDescription descB(&myCategory, "MetricB");
 //
-//  balm::MetricId metricA(&descA);
-//  balm::MetricId metricB(&descB);
-//..
-// Now we create a 'balm::StreamPublisher' object, supplying it the 'stdout'
+// balm::MetricId metricA(&descA);
+// balm::MetricId metricB(&descB);
+// ```
+// Now we create a `balm::StreamPublisher` object, supplying it the `stdout`
 // stream:
-//..
-//  balm::StreamPublisher myPublisher(bsl::cout);
-//..
+// ```
+// balm::StreamPublisher myPublisher(bsl::cout);
+// ```
 // Next we create a metric sample containing some records and pass it to the
-// 'balm::StreamPublisher' we created.  Note that because we are not actually
+// `balm::StreamPublisher` we created.  Note that because we are not actually
 // collecting the metrics we set the elapsed time of the sample to an
 // arbitrary 5s interval.
-//..
-//  bslma::Allocator *allocator = bslma::Default::allocator(0);
-//  bsl::vector<balm::MetricRecord> records(allocator);
+// ```
+// bslma::Allocator *allocator = bslma::Default::allocator(0);
+// bsl::vector<balm::MetricRecord> records(allocator);
 //
-//  records.push_back(balm::MetricRecord(metricA, 5, 25.0, 6.0, 25.0));
-//  records.push_back(balm::MetricRecord(metricB, 2,  7.0, 3.0, 11.0));
+// records.push_back(balm::MetricRecord(metricA, 5, 25.0, 6.0, 25.0));
+// records.push_back(balm::MetricRecord(metricB, 2,  7.0, 3.0, 11.0));
 //
-//  balm::MetricSample sample(allocator);
+// balm::MetricSample sample(allocator);
 //
-//  sample.setTimeStamp(bdlt::DatetimeTz(bdlt::CurrentTime::utc(), 0));
-//  sample.appendGroup(records.data(),
-//                     static_cast<int>(records.size()),
-//                     bsls::TimeInterval(5, 0));
+// sample.setTimeStamp(bdlt::DatetimeTz(bdlt::CurrentTime::utc(), 0));
+// sample.appendGroup(records.data(),
+//                    static_cast<int>(records.size()),
+//                    bsls::TimeInterval(5, 0));
 //
-//  myPublisher.publish(sample);
-//..
+// myPublisher.publish(sample);
+// ```
 // The output of this example would look similar to:
-//..
+// ```
 // 05FEB2009_19:52:11.723+0000 2 Records
 //     Elapsed Time: 5s
 //         MyCategory.MetricA [ count = 5, total = 25, min = 6, max = 25 ]
 //         MyCategory.MetricB [ count = 2, total = 7, min = 3, max = 11 ]
-//..
+// ```
 
 #include <balscm_version.h>
 
@@ -101,10 +101,10 @@ class MetricSample;
                            // class StreamPublisher
                            // =====================
 
+/// This class provides an implementation of the `Publisher` protocol.
+/// This stream publisher publishes recorded metric values to an output
+/// stream specified at construction.
 class StreamPublisher : public Publisher {
-    // This class provides an implementation of the 'Publisher' protocol.
-    // This stream publisher publishes recorded metric values to an output
-    // stream specified at construction.
 
     // DATA
     bsl::ostream& d_stream;   // stream to which to write data
@@ -115,17 +115,19 @@ class StreamPublisher : public Publisher {
 
   public:
     // CREATORS
-    StreamPublisher(bsl::ostream& stream);
-        // Create a streampublisher and initialize it to publish metrics to
-        // the specified 'stream'.
 
+    /// Create a streampublisher and initialize it to publish metrics to
+    /// the specified `stream`.
+    StreamPublisher(bsl::ostream& stream);
+
+    /// Destroy this stream publisher.
     virtual ~StreamPublisher();
-        // Destroy this stream publisher.
 
     // MANIPULATORS
+
+    /// Publish the specified `metricValues` to the output stream specified
+    /// at construction.
     virtual void publish(const MetricSample& metricValues);
-        // Publish the specified 'metricValues' to the output stream specified
-        // at construction.
 };
 
 // ============================================================================

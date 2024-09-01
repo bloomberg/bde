@@ -10,12 +10,12 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::PredicateSet: a container for managed predicates
 //
-//@DEPRECATED: Use 'ball_managedattributeset' instead.
+//@DEPRECATED: Use `ball_managedattributeset` instead.
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This deprecated component defines 'ball::PredicateSet', a
-// compatibility type alias to 'ball::ManagedAttributeSet'.
+//@DESCRIPTION: This deprecated component defines `ball::PredicateSet`, a
+// compatibility type alias to `ball::ManagedAttributeSet`.
 
 #include <balscm_version.h>
 
@@ -24,8 +24,8 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace ball {
 
+/// **DEPRECATED**: Use `ball::ManagedAttributeSet` instead.
 typedef ManagedAttributeSet PredicateSet;
-    // !DEPRECATED!: Use 'ball::ManagedAttributeSet' instead.
 
 }  // close package namespace
 }  // close enterprise namespace

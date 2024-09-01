@@ -14,55 +14,54 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: ball_record, ball_recordattributes
 //
 //@DESCRIPTION: This component provides a function object class,
-// 'ball::RecorJsonFormatter', that formats a log record as JSON text elements
-// according to a format specification (see {'Record Format Specification'}).
-// 'ball::RecordJsonFormatter' is designed to match the function signature
-// expected by many concrete 'ball::Observer' implementations that publish log
-// records (for example, see 'ball::FileObserver2::setLogFileFunctor').
+// `ball::RecorJsonFormatter`, that formats a log record as JSON text elements
+// according to a format specification (see {`Record Format Specification`}).
+// `ball::RecordJsonFormatter` is designed to match the function signature
+// expected by many concrete `ball::Observer` implementations that publish log
+// records (for example, see `ball::FileObserver2::setLogFileFunctor`).
 //
-// NOTE: 'ball::RecorJsonFormatter' renders individual log records as JSON,
+// NOTE: `ball::RecorJsonFormatter` renders individual log records as JSON,
 // but, for example, a resulting log file would contain a sequence of JSON
 // strings, which is not itself valid JSON text.
 //
 ///Record Format Specification
 ///---------------------------
 // A format specification is, itself, a JSON array, supplied to a
-// 'RecordJsonFormatter' object by the 'setFormat' function.  If no format is
+// `RecordJsonFormatter` object by the `setFormat` function.  If no format is
 // specified, the default format is used.  Each array element specifies the
 // format of a log record field or a user-defined attribute.  Here is a simple
 // example:
-//..
-//  [{"timestamp":{"format":"iso8601"}}, "pid", "tid", "severity", "message"]
-//..
+// ```
+// [{"timestamp":{"format":"iso8601"}}, "pid", "tid", "severity", "message"]
+// ```
 // would a result in a log record like:
-//..
+// ```
 // { "timestamp": "2020-08-28T14:43:50.375Z",
 //   "pid": 2313,
 //   "tid": 12349388604,
 //   "severity": "INFO",
 //   "message": "Hello, world!"
 //  }
-//..
+// ```
 // Again, the format specification is a JSON array, each element of which can
 // be one of the following:
 //
-//: o A string containing the name of the fixed record field or the name of the
-//:   user-defined attribute, in which case the field or attribute will be
-//:   published in the default format.  For example, '[timestamp]', would
-//:   display the timestamp as: '{"timestamp": "2020-08-28T14:43:50.375Z"}'.
-//:
-//: o A JSON object having the name of the fixed field or user-defined
-//:   attribute and a set of key-values pairs used to customize the output
-//:   format.  For example,
-//:   '[{"timestamp": {"name": "My Time", "format": "bdePrint"}}]', would
-//:   display the timestamp as: '{"My Time": "28AUG2020_14:43:50.375"}'.
+// * A string containing the name of the fixed record field or the name of the
+//   user-defined attribute, in which case the field or attribute will be
+//   published in the default format.  For example, `[timestamp]`, would
+//   display the timestamp as: `{"timestamp": "2020-08-28T14:43:50.375Z"}`.
+// * A JSON object having the name of the fixed field or user-defined
+//   attribute and a set of key-values pairs used to customize the output
+//   format.  For example,
+//   `[{"timestamp": {"name": "My Time", "format": "bdePrint"}}]`, would
+//   display the timestamp as: `{"My Time": "28AUG2020_14:43:50.375"}`.
 //
 ///Field Format Specification
 /// - - - - - - - - - - - - -
 // The following table lists the predefined string values for each fixed field
 // and user-defined attributes in the log record:
-//..
-//     Tag                 Description                   Example
+// ```
+//    Tag                 Description                   Example
 // --------------    -------------------------        -------------
 // "timestamp"       creation date and time           ["timestamp"]
 // "pid"             process id of creator            ["pid"]
@@ -74,199 +73,198 @@ BSLS_IDENT("$Id: $")
 // "message"         log message text                 ["message"]
 // "attributes"      all user-defined attributes      ["attributes"]
 // <attribute name>  specific user-defined attribute  ["bas.uuid"]
-//..
+// ```
 // The output format of each field can be customized by replacing a string
 // value in the JSON array with a JSON object having the same name and a set of
 // key-value pairs (attributes).
 //
-///Verifying the Format Specification for 'setFormat'
+///Verifying the Format Specification for `setFormat`
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // The sections that follow describe the set of fields that can be provided in
-// the format specification supplied to 'setFormat'.
-// 'RecordJsonFormatter::setFormat' will ignore fields in the provided format
+// the format specification supplied to `setFormat`.
+// `RecordJsonFormatter::setFormat` will ignore fields in the provided format
 // specification that are unknown, but will report an error if a known field
 // contains a property that is not supported.  For example: a format
 // specification '["pid", { "timestamp" : {"unknown field!": "value"} }] will
-// be accepted, but '["pid", {"timestamp": {"format": "unknown format" }}]'
+// be accepted, but `["pid", {"timestamp": {"format": "unknown format" }}]`
 // will produce an error.
 //
 // Each key-value pair of a JSON object that specifies a format of an output of
 // a fixed record field or a user-defined attribute has the following
 // constrains:
 //
-//: o The key is a string of known value listed in the column "Key" in the
-//:   tables below.  Any string that does not match the listed values is
-//:   ignored.
-//:
-//: o The value is a string of known value (except for the "name" key) in the
-//:   column "Value Constraint" in the tables below.  If the value does not
-//:   match the string values specified in the tables, the format specification
-//:   is considered to be inconsistent with the expected schema, and is
-//:   rejected by the 'RecordJsonFormatter::setFormat' method.
+// * The key is a string of known value listed in the column "Key" in the
+//   tables below.  Any string that does not match the listed values is
+//   ignored.
+// * The value is a string of known value (except for the "name" key) in the
+//   column "Value Constraint" in the tables below.  If the value does not
+//   match the string values specified in the tables, the format specification
+//   is considered to be inconsistent with the expected schema, and is
+//   rejected by the `RecordJsonFormatter::setFormat` method.
 //
 ///The "timestamp" field format
 ///-  -  -  -  -  -  -  -  -  -
 // The format attributes of the "timestamp" object are given in the following
 // table:
-//..
-//                                              Value             Default
-//             Key              Description     Constraint        Value
-//  ------------------------  ----------------  -----------     ------------
-//  "name"                    name by which     JSON string     "timestamp"
-//                            "timestamp" will
-//                            be published
+// ```
+//                                             Value             Default
+//            Key              Description     Constraint        Value
+// ------------------------  ----------------  -----------     ------------
+// "name"                    name by which     JSON string     "timestamp"
+//                           "timestamp" will
+//                           be published
 //
-//  "format"                  datetime format   "iso8601",     "iso8601"
-//                                              "bdePrint"
-//                                              (*Note*)
+// "format"                  datetime format   "iso8601",     "iso8601"
+//                                             "bdePrint"
+//                                             (*Note*)
 //
-//  "fractionalSecPrecision"  second precision  "none",         "microseconds"
-//                                              "milliseconds",
-//                                              "microseconds"
+// "fractionalSecPrecision"  second precision  "none",         "microseconds"
+//                                             "milliseconds",
+//                                             "microseconds"
 //
-//  "timeZone"                time zone         "utc",          "utc"
-//                                              "local"
-//..
+// "timeZone"                time zone         "utc",          "utc"
+//                                             "local"
+// ```
 // *Note*: The default "bdePrint" format denotes the following datetime format:
-//..
-//   DDMonYYYY_HH:MM:SS.mmm
-//..
+// ```
+//  DDMonYYYY_HH:MM:SS.mmm
+// ```
 // For example, the following record format specification:
-//..
-//   [ { "timestamp": { "name": "Time",
-//                      "fractionalSecPrecision": "microseconds",
-//                      "timeZone": "local" } }
-//   ]
-//..
+// ```
+//  [ { "timestamp": { "name": "Time",
+//                     "fractionalSecPrecision": "microseconds",
+//                     "timeZone": "local" } }
+//  ]
+// ```
 // would a result in a log record like:
-//..
-//   { "Time": "28AUG2020_17:43:50.375345" }
-//..
+// ```
+//  { "Time": "28AUG2020_17:43:50.375345" }
+// ```
 //
 ///The "pid" (process Id) field format
 /// -  -  -  -  -  -  -  -  -  -  -  -
 // The format attributes of the process Id field are given in the following
 // table:
-//..
-//                                                   Value        Default
-//    Key                 Description                Constraint   Value
-//  ------    -------------------------------------  -----------  -------
-//  "name"    name by which "pid" will be published  JSON string  "pid"
-//..
+// ```
+//                                                  Value        Default
+//   Key                 Description                Constraint   Value
+// ------    -------------------------------------  -----------  -------
+// "name"    name by which "pid" will be published  JSON string  "pid"
+// ```
 // For example, the following record format specification:
-//..
-//   [ { "pid": { "name": "Process Id" } } ]
-//..
+// ```
+//  [ { "pid": { "name": "Process Id" } } ]
+// ```
 // would a result in a log record like:
-//..
-//   { "Process Id": 2313 }
-//..
+// ```
+//  { "Process Id": 2313 }
+// ```
 //
 ///The "tid" (thread Id) field format
 ///-  -  -  -  -  -  -  -  -  -  -  -
 // The format attributes of the thread Id field are given in the following
 // table:
-//..
-//                                                     Value        Default
-//    Key                   Description                Constraint   Value
-//  --------    -------------------------------------  -----------  ---------
-//  "name"      name by which "tid" will be published  JSON string  "tid"
+// ```
+//                                                    Value        Default
+//   Key                   Description                Constraint   Value
+// --------    -------------------------------------  -----------  ---------
+// "name"      name by which "tid" will be published  JSON string  "tid"
 //
-//  "format"    output format                          "decimal",   "decimal"
-//                                                     "hex"
-//..
+// "format"    output format                          "decimal",   "decimal"
+//                                                    "hex"
+// ```
 // For example, the following record format specification:
-//..
-//   [ { "tid": { "name": "Thread Id",
-//                "format": "hex" } }
-//   ]
-//..
+// ```
+//  [ { "tid": { "name": "Thread Id",
+//               "format": "hex" } }
+//  ]
+// ```
 // would a result in a log record like:
-//..
-//   { "Thread Id": 0xA7654EFF3540 }
-//..
+// ```
+//  { "Thread Id": 0xA7654EFF3540 }
+// ```
 //
 ///The "file" field format
 /// -  -  -  -  -  -  -  -  -  -  -  -
 // The format attributes of the "file" field are given in the following
 // table:
-//..
-//                                                                Default
-//    Key          Description             Value Constraint       Value
-//  ------    --------------------  ----------------------------- -------
-//  "name"    name by which "file"  JSON string                   "file"
-//            will be published
+// ```
+//                                                               Default
+//   Key          Description             Value Constraint       Value
+// ------    --------------------  ----------------------------- -------
+// "name"    name by which "file"  JSON string                   "file"
+//           will be published
 //
-//  "path"    file path             "full" (__FILE__),            "full"
-//                                  "file" (basename of __FILE__)
-//..
+// "path"    file path             "full" (__FILE__),            "full"
+//                                 "file" (basename of __FILE__)
+// ```
 // For example, the following record format specification:
-//..
-//   [ { "file": { "name": "File",
-//                 "path": "file" } }
-//   ]
-//..
+// ```
+//  [ { "file": { "name": "File",
+//                "path": "file" } }
+//  ]
+// ```
 // would a result in a log record like:
-//..
-//   { "File": "test.cpp" }
-//..
+// ```
+//  { "File": "test.cpp" }
+// ```
 //
 ///The "line" field format
 /// -  -  -  -  -  -  -  -
 // The format attributes of the "line" field are given in the following
 // table:
-//..
-//                                                    Value        Default
-//    Key                Description                  Constraint   Value
-//  ------   ---------------------------------------  -----------  -------
-//  "name"   name by which "line" will be published   JSON string  "line"
-//..
+// ```
+//                                                   Value        Default
+//   Key                Description                  Constraint   Value
+// ------   ---------------------------------------  -----------  -------
+// "name"   name by which "line" will be published   JSON string  "line"
+// ```
 // For example, the following record format specification:
-//..
-//   [ { "line": { "name": "Line" } } ]
-//..
+// ```
+//  [ { "line": { "name": "Line" } } ]
+// ```
 // would a result in a log record like:
-//..
-//   { "Line": 512 }
-//..
+// ```
+//  { "Line": 512 }
+// ```
 //
 ///The "category" field format
 ///  -  -  -  -  -  -  -  -  -
 // The format attributes of the "category" field are given in the following
 // table:
-//..
-//                                                      Value         Default
-//    Key                 Description                   Constraint    Value
-//  ------  ------------------------------------------  -----------  ----------
-//  "name"  name by which "category" will be published  JSON string  "category"
-//..
+// ```
+//                                                     Value         Default
+//   Key                 Description                   Constraint    Value
+// ------  ------------------------------------------  -----------  ----------
+// "name"  name by which "category" will be published  JSON string  "category"
+// ```
 // For example, the following record format specification:
-//..
-//   [ { "category": { "name": "Category" } } ]
-//..
+// ```
+//  [ { "category": { "name": "Category" } } ]
+// ```
 // would a result in a log record like:
-//..
-//   { "category": "Server" }
-//..
+// ```
+//  { "category": "Server" }
+// ```
 //
 ///The "severity" field format
 ///  -  -  -  -  -  -  -  -  -
 // The format attributes of the "severity" field are given in the following
 // table:
-//..
-//                                                      Value         Default
-//    Key                  Description                  Constraint    Value
-//  ------  ------------------------------------------  -----------  ----------
-//  "name"  name by which "severity" will be published  JSON string  "severity"
-//..
+// ```
+//                                                     Value         Default
+//   Key                  Description                  Constraint    Value
+// ------  ------------------------------------------  -----------  ----------
+// "name"  name by which "severity" will be published  JSON string  "severity"
+// ```
 // For example, the following record format specification:
-//..
-//   [ { "severity": { "name": "severity" } } ]
-//..
+// ```
+//  [ { "severity": { "name": "severity" } } ]
+// ```
 // would a result in a log record like:
-//..
-//   { "Severity": "ERROR" }
-//..
+// ```
+//  { "Severity": "ERROR" }
+// ```
 //
 ///The "message" field format
 ///  -  -  -  -  -  -  -  -  -
@@ -276,111 +274,111 @@ BSLS_IDENT("$Id: $")
 //
 // The format attributes of the "message" field are given in the following
 // table:
-//..
-//                                                     Value         Default
-//    Key                 Description                  Constraint    Value
-//  ------  -----------------------------------------  -----------  ---------
-//  "name"  name by which "message" will be published  JSON string  "message"
-//..
+// ```
+//                                                    Value         Default
+//   Key                 Description                  Constraint    Value
+// ------  -----------------------------------------  -----------  ---------
+// "name"  name by which "message" will be published  JSON string  "message"
+// ```
 // For example, the following record format specification:
-//..
-//   [ { "message": { "name": "msg" } } ]
-//..
+// ```
+//  [ { "message": { "name": "msg" } } ]
+// ```
 // would a result in a log record like:
-//..
-//   { "msg": "Log message" }
-//..
+// ```
+//  { "msg": "Log message" }
+// ```
 //
 ///The "attributes" format
 ///-  -  -  -  -  -  -  -  -  -  -
 // The "attributes" JSON object has no attributes. For example, the following
 // record format specification:
-//..
-//   [ "attributes" ]
-//..
+// ```
+//  [ "attributes" ]
+// ```
 // would (assuming their are two attributes "bas.requestid" and
 // "mylib.security") result in a log record like:
-//..
-//   { "bas.requestid": 12345, "mylib.security": "My Security" }
-//..
+// ```
+//  { "bas.requestid": 12345, "mylib.security": "My Security" }
+// ```
 //
 ///A user-defined attribute format
 ///-  -  -  -  -  -  -  -  -  -  -
 // Each user-defined attribute has a single "name" attribute that can be used
 // to rename the user-defined attribute:
-//..
-//                                         Value        Default
-//    Key         Description              Constraint   Value
-//  ------   ----------------------------  -----------  -------
-//  "name"   name by which a user-defined  JSON string   none
-//           attribute will be published
-//..
+// ```
+//                                        Value        Default
+//   Key         Description              Constraint   Value
+// ------   ----------------------------  -----------  -------
+// "name"   name by which a user-defined  JSON string   none
+//          attribute will be published
+// ```
 // For example, the following record format specification:
-//..
-//   [ { "bas.uuid": { "name": "BAS.UUID" } } ]
-//..
+// ```
+//  [ { "bas.uuid": { "name": "BAS.UUID" } } ]
+// ```
 // would a result in a log record like:
-//..
-//   { "BAS.UUID": 3593 }
-//..
+// ```
+//  { "BAS.UUID": 3593 }
+// ```
 //
 ///The Record Separator
 ///--------------------
 // The record separator is a string that is printed after each formatted
 // record.  The default value of the record separator is a single newline, but
 // it can be set to any string of the user's choice using the
-// 'RecordJsonFormatter::setRecordSeparator' function.
+// `RecordJsonFormatter::setRecordSeparator` function.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example: Format log records as JSON and render them to 'stdout'
+///Example: Format log records as JSON and render them to `stdout`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose an application needs to format log records as JSON and output them
-// to 'stdout'.
+// to `stdout`.
 //
 // First we instantiate a JSON record formatter:
-//..
-//   ball::RecordJsonFormatter formatter;
-//..
-// Next we set a format specification to the newly created 'formatter':
-//..
-//  int rc = formatter.setFormat("[\"tid\",\"message\"]");
-//  assert(0 == rc);  (void)rc;
-//..
+// ```
+//  ball::RecordJsonFormatter formatter;
+// ```
+// Next we set a format specification to the newly created `formatter`:
+// ```
+// int rc = formatter.setFormat("[\"tid\",\"message\"]");
+// assert(0 == rc);  (void)rc;
+// ```
 // The chosen format specification indicates that, when a record is formatted
-// using 'formatter', the thread Id attribute of the record will be output
+// using `formatter`, the thread Id attribute of the record will be output
 // followed by the message attribute of the record.
 //
-// Then we create a default 'ball::Record' and set the thread Id and message
+// Then we create a default `ball::Record` and set the thread Id and message
 // attributes of the record to dummy values:
-//..
-//  ball::Record record;
+// ```
+// ball::Record record;
 //
-//  record.fixedFields().setThreadID(6);
-//  record.fixedFields().setMessage("Hello, World!");
-//..
-// Next, invocation of the 'formatter' function object to format 'record' to
-// 'bsl::cout':
-//..
-//  formatter(bsl::cout, record);
-//..
+// record.fixedFields().setThreadID(6);
+// record.fixedFields().setMessage("Hello, World!");
+// ```
+// Next, invocation of the `formatter` function object to format `record` to
+// `bsl::cout`:
+// ```
+// formatter(bsl::cout, record);
+// ```
 // yields this output, which is terminated by a single newline:
-//..
-//  {"tid":6,"message":"Hello, World!"}
-//..
+// ```
+// {"tid":6,"message":"Hello, World!"}
+// ```
 // Finally, we change the record separator and format the same record again:
-//..
-//  formatter.setFormat("\n\n");
-//  formatter(bsl::cout, record);
-//..
+// ```
+// formatter.setFormat("\n\n");
+// formatter(bsl::cout, record);
+// ```
 // The record is printed in the same format, but now terminated by two
 // newlines:
-//..
-//  {"tid":6,"message":"Hello, World!"}
+// ```
+// {"tid":6,"message":"Hello, World!"}
 //
-//..
+// ```
 
 #include <balscm_version.h>
 
@@ -413,27 +411,29 @@ class RecordJsonFormatter_FieldFormatter;
                         // class RecordJsonFormatter
                         // =========================
 
+/// This class provides a function object that formats a log record as JSON
+/// text elements and renders them to an output stream.  The overloaded
+/// `operator()` provided by the class formats log record according to JSON
+/// message format specification supplied at construction (either by the
+/// `setFormat` manipulator or by default) and outputs the result to the
+/// stream.  This functor type is designed to match the function signature
+/// expected by many concrete `ball::Observer` implementations that publish
+/// log records (for example, see `ball::FileObserver2::setLogFileFunctor`).
 class RecordJsonFormatter {
-    // This class provides a function object that formats a log record as JSON
-    // text elements and renders them to an output stream.  The overloaded
-    // 'operator()' provided by the class formats log record according to JSON
-    // message format specification supplied at construction (either by the
-    // 'setFormat' manipulator or by default) and outputs the result to the
-    // stream.  This functor type is designed to match the function signature
-    // expected by many concrete 'ball::Observer' implementations that publish
-    // log records (for example, see 'ball::FileObserver2::setLogFileFunctor').
 
     // PRIVATE TYPES
+
+    /// `MoveUtil` is an alias for `bslmf::MovableRefUtil`.
     typedef bslmf::MovableRefUtil  MoveUtil;
-        // 'MoveUtil' is an alias for 'bslmf::MovableRefUtil'.
 
   public:
     // TYPES
+
+    /// `FieldFormatters` is an alias for a vector of the
+    /// `RecordJsonFormatter_FieldFormatter` objects, each of which is
+    /// initialized from the format specification and responsible for
+    /// rendering one field of a `ball::Record` to the output JSON stream.
     typedef bsl::vector<RecordJsonFormatter_FieldFormatter*> FieldFormatters;
-        // 'FieldFormatters' is an alias for a vector of the
-        // 'RecordJsonFormatter_FieldFormatter' objects, each of which is
-        // initialized from the format specification and responsible for
-        // rendering one field of a 'ball::Record' to the output JSON stream.
 
     typedef bsl::allocator<> allocator_type;
 
@@ -448,117 +448,122 @@ class RecordJsonFormatter {
                                         // specification
 
     // CLASS METHODS
+
+    /// Destroy the field formatters contained in the specified
+    /// `formatters`.
     static
     void releaseFieldFormatters(FieldFormatters *formatters);
-        // Destroy the field formatters contained in the specified
-        // 'formatters'.
 
   public:
     // CREATORS
+
+    /// Create a record JSON formatter having a default format specification
+    /// and record separator.  Optionally specify an `allocator` (e.g., the
+    /// address of a `bslma::Allocator` object) to supply memory; otherwise,
+    /// the allocator is used.  The default format specification is:
+    /// ```
+    /// ["timestamp", "processId", "threadId", "severity", "file", "line",
+    ///  "category",  "message", "attributes"]
+    /// ```
+    /// The default record separator is "\n".
     explicit RecordJsonFormatter(
                            const allocator_type& allocator = allocator_type());
-        // Create a record JSON formatter having a default format specification
-        // and record separator.  Optionally specify an 'allocator' (e.g., the
-        // address of a 'bslma::Allocator' object) to supply memory; otherwise,
-        // the allocator is used.  The default format specification is:
-        //..
-        //  ["timestamp", "processId", "threadId", "severity", "file", "line",
-        //   "category",  "message", "attributes"]
-        //..
-        // The default record separator is "\n".
 
+    /// Create a record JSON formatter initialized to the value of the
+    /// specified `original` record formatter.  Optionally specify an
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory; otherwise, the default allocator is used.
     RecordJsonFormatter(
                       const RecordJsonFormatter& original,
                       const allocator_type&      allocator = allocator_type());
-        // Create a record JSON formatter initialized to the value of the
-        // specified 'original' record formatter.  Optionally specify an
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory; otherwise, the default allocator is used.
 
+    /// Create a record JSON formatter having the same format specification
+    /// and record separator as in the specified `original` formatter, and
+    /// adopting all outstanding memory allocations and the allocator
+    /// associated with the `original` formatter.  `original` is left in a
+    /// valid but unspecified state.
     RecordJsonFormatter(bslmf::MovableRef<RecordJsonFormatter> original)
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Create a record JSON formatter having the same format specification
-        // and record separator as in the specified 'original' formatter, and
-        // adopting all outstanding memory allocations and the allocator
-        // associated with the 'original' formatter.  'original' is left in a
-        // valid but unspecified state.
 
+    /// Create a record JSON formatter, having the same format specification
+    /// and record separator as in the specified `original` formatter.  The
+    /// format specification of `original` is moved to the new object, and
+    /// all outstanding memory allocations and the specified `allocator` are
+    /// adopted if `allocator == original.get_allocator()`.  `original` is
+    /// left in a valid but unspecified state.
     RecordJsonFormatter(bslmf::MovableRef<RecordJsonFormatter> original,
                         const allocator_type&                  allocator);
-        // Create a record JSON formatter, having the same format specification
-        // and record separator as in the specified 'original' formatter.  The
-        // format specification of 'original' is moved to the new object, and
-        // all outstanding memory allocations and the specified 'allocator' are
-        // adopted if 'allocator == original.get_allocator()'.  'original' is
-        // left in a valid but unspecified state.
 
+    /// Destroy this object.
     ~RecordJsonFormatter();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
     RecordJsonFormatter& operator=(const RecordJsonFormatter& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Assign to this object the format specification and record separator
+    /// of the specified `rhs` object, and return a reference providing
+    /// modifiable access to this object.  The format specification and
+    /// record separator of `rhs` are moved to this object, and all
+    /// outstanding memory allocations and the allocator associated with
+    /// `rhs` are adopted if `get_allocator() == rhs.get_allocator()`.
+    /// `rhs` is left in a valid but unspecified state.
     RecordJsonFormatter& operator=(bslmf::MovableRef<RecordJsonFormatter> rhs);
-        // Assign to this object the format specification and record separator
-        // of the specified 'rhs' object, and return a reference providing
-        // modifiable access to this object.  The format specification and
-        // record separator of 'rhs' are moved to this object, and all
-        // outstanding memory allocations and the allocator associated with
-        // 'rhs' are adopted if 'get_allocator() == rhs.get_allocator()'.
-        // 'rhs' is left in a valid but unspecified state.
 
+    /// Set the message format specification (see
+    /// {`Record Format Specification`}) of this record JSON formatter to
+    /// the specified `format`.  Return 0 on success, and a non-zero value
+    /// otherwise (if `format` is not valid JSON *or* not a JSON conforming
+    /// to the expected schema).
     int setFormat(const bsl::string_view& format);
-        // Set the message format specification (see
-        // {'Record Format Specification'}) of this record JSON formatter to
-        // the specified 'format'.  Return 0 on success, and a non-zero value
-        // otherwise (if 'format' is not valid JSON *or* not a JSON conforming
-        // to the expected schema).
 
+    /// Set the record separator for this record JSON formatter to the
+    /// specified `recordSeparator`.  The `recordSeparator` will be printed
+    /// by each invocation of `operator()` after the formatted record.  The
+    /// default is a single newline character, "\n".
     void setRecordSeparator(const bsl::string_view& recordSeparator);
-        // Set the record separator for this record JSON formatter to the
-        // specified 'recordSeparator'.  The 'recordSeparator' will be printed
-        // by each invocation of 'operator()' after the formatted record.  The
-        // default is a single newline character, "\n".
 
     // ACCESSORS
+
+    /// Format the specified `record` according to the current `format` and
+    /// `recordSeparator` to the specified `stream`.
     void operator()(bsl::ostream& stream, const Record& record) const;
-        // Format the specified 'record' according to the current 'format' and
-        // 'recordSeparator' to the specified 'stream'.
 
+    /// Return the message format specification of this record JSON
+    /// formatter.  See {`Record Format Specification`}.
     const bsl::string& format() const;
-        // Return the message format specification of this record JSON
-        // formatter.  See {'Record Format Specification'}.
 
+    /// Return the record separator of this record JSON formatter.
     const bsl::string& recordSeparator() const;
-        // Return the record separator of this record JSON formatter.
 
                                   // Aspects
 
+    /// DEPRECATED: Use `get_allocator().mechanism()` instead.
     BSLS_DEPRECATE
     bslma::Allocator *allocator() const;
-        // DEPRECATED: Use 'get_allocator().mechanism()' instead.
 
+    /// Return the allocator used by this object to supply memory.
     allocator_type get_allocator() const;
-        // Return the allocator used by this object to supply memory.
 
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` record formatters have
+/// the same value, and `false` otherwise.  Two record formatters have the
+/// same value if they have the same format specification and record
+/// separator.
 bool operator==(const RecordJsonFormatter& lhs,
                 const RecordJsonFormatter& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' record formatters have
-    // the same value, and 'false' otherwise.  Two record formatters have the
-    // same value if they have the same format specification and record
-    // separator.
 
+/// Return `true` if the specified `lhs` and `rhs` record formatters do not
+/// have the same value, and `false` otherwise.  Two record formatters
+/// differ in value if their format specifications or record separators
+/// differ.
 bool operator!=(const RecordJsonFormatter& lhs,
                 const RecordJsonFormatter& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' record formatters do not
-    // have the same value, and 'false' otherwise.  Two record formatters
-    // differ in value if their format specifications or record separators
-    // differ.
 
 // ============================================================================
 //                              INLINE DEFINITIONS

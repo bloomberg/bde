@@ -13,27 +13,25 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: ball_recordattributes, ball_logger
 //
 //@DESCRIPTION: This component provides a single, unconstrained
-// (value-semantic) attribute class, 'ball::Record', that is used to describe
+// (value-semantic) attribute class, `ball::Record`, that is used to describe
 // the properties of a logged message.
 //
 ///Attributes
 ///----------
-//..
-//  Name                Type
-//  ------------------  -----------------------------------
-//  fixedFields         ball::RecordAttributes
-//  userFields          ball::UserFields
-//  attributes          bsl::vector<ball::ManagedAttribute>
-//..
-//: o 'fixedFields': mandatory log fields including timestamp, location,
-//:   severity, process id, and the log message.
-//:
-//: o 'userFields': user-managed fields associated with a log record.  Note
-//:    that use of these fields is deprecated and superseded by 'attributes'.
-//:
-//: o 'attributes': user-managed name/value pairs associated with a log record.
+// ```
+// Name                Type
+// ------------------  -----------------------------------
+// fixedFields         ball::RecordAttributes
+// userFields          ball::UserFields
+// attributes          bsl::vector<ball::ManagedAttribute>
+// ```
+// * `fixedFields`: mandatory log fields including timestamp, location,
+//   severity, process id, and the log message.
+// * `userFields`: user-managed fields associated with a log record.  Note
+//    that use of these fields is deprecated and superseded by `attributes`.
+// * `attributes`: user-managed name/value pairs associated with a log record.
 //
-// 'ball::Record' aggregates a set of fixed fields and various user-defined
+// `ball::Record` aggregates a set of fixed fields and various user-defined
 // fields and attributes into one record type, useful for transmitting a
 // customized log record as a single instance rather than passing around
 // individual attributes separately.  Note that this class is a pure attribute
@@ -44,46 +42,46 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'ball::Record'
+///Example 1: Basic Use of `ball::Record`
 /// - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates how to create and set the properties of
-// a 'ball::Record'.  Note that users of the 'ball' logging subsystem are not
+// a `ball::Record`.  Note that users of the `ball` logging subsystem are not
 // expected to create records directly.
 //
-// First we default create a 'ball::Record', 'record', and verify it has a
+// First we default create a `ball::Record`, `record`, and verify it has a
 // default set of attributes:
-//..
-//  ball::Record record;
+// ```
+// ball::Record record;
 //
-//  assert(ball::RecordAttributes() == record.fixedFields());
-//  assert(0                        == record.customFields().length());
-//..
+// assert(ball::RecordAttributes() == record.fixedFields());
+// assert(0                        == record.customFields().length());
+// ```
 // Then, we set the fixed fields of the record to contain a simple message:
-//..
-//  int                 processId = bdls::ProcessUtil::getProcessId();
-//  bsls::Types::Uint64 threadId  = bslmt::ThreadUtil::selfIdAsUint64();
+// ```
+// int                 processId = bdls::ProcessUtil::getProcessId();
+// bsls::Types::Uint64 threadId  = bslmt::ThreadUtil::selfIdAsUint64();
 //
-//  ball::RecordAttributes attributes(bdlt::CurrentTime::utc(), // time stamp
-//                                    processId,                // process id
-//                                    threadId,                 // thread id
-//                                    __FILE__,                 // filename
-//                                    __LINE__,                 // line number
-//                                    "ExampleCategory",        // category
-//                                    ball::Severity::e_WARN,   // severity
-//                                    "Simple Test Message");   // message
-//  record.setFixedFields(attributes);
+// ball::RecordAttributes attributes(bdlt::CurrentTime::utc(), // time stamp
+//                                   processId,                // process id
+//                                   threadId,                 // thread id
+//                                   __FILE__,                 // filename
+//                                   __LINE__,                 // line number
+//                                   "ExampleCategory",        // category
+//                                   ball::Severity::e_WARN,   // severity
+//                                   "Simple Test Message");   // message
+// record.setFixedFields(attributes);
 //
-//  assert(attributes == record.fixedFields());
-//..
+// assert(attributes == record.fixedFields());
+// ```
 // Next, we add an additional attribute to the log record:
-//..
-//  record.addAttribute(ball::Attribute("myLib.name", "John Smith"));
-//..
+// ```
+// record.addAttribute(ball::Attribute("myLib.name", "John Smith"));
+// ```
 // Finally, we write the record to a stream:
-//..
-//  bsl::ostringstream output;
-//  output << record << bsl::endl;
-//..
+// ```
+// bsl::ostringstream output;
+// output << record << bsl::endl;
+// ```
 
 #include <balscm_version.h>
 
@@ -115,25 +113,25 @@ namespace ball {
                            // class Record
                            // ============
 
+/// This class provides a container for a set of fields that are appropriate
+/// for a user-configurable log record.  The class contains a
+/// `RecordAttributes` object that in turn holds a fixed set of fields, a
+/// `ball::UserFields` object that holds a set of optional, user-defined
+/// fields, and a set of attributes associated with this log record.  For
+/// each of these three sub-containers there is an accessor for obtaining
+/// the container value and a manipulator for changing that value.
+///
+/// Additionally, this class supports a complete set of *value* *semantic*
+/// operations, including copy construction, assignment and equality
+/// comparison, and `ostream` printing.  A precise operational definition of
+/// when two instances have the same value can be found in the description
+/// of `operator==` for the class.  This class is *exception* *neutral* with
+/// no guarantee of rollback: If an exception is thrown during the
+/// invocation of a method on a pre-existing instance, the object is left in
+/// a valid state, but its value is undefined.  In no event is memory
+/// leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+/// both source and destination) is supported in all cases.
 class Record {
-    // This class provides a container for a set of fields that are appropriate
-    // for a user-configurable log record.  The class contains a
-    // 'RecordAttributes' object that in turn holds a fixed set of fields, a
-    // 'ball::UserFields' object that holds a set of optional, user-defined
-    // fields, and a set of attributes associated with this log record.  For
-    // each of these three sub-containers there is an accessor for obtaining
-    // the container value and a manipulator for changing that value.
-    //
-    // Additionally, this class supports a complete set of *value* *semantic*
-    // operations, including copy construction, assignment and equality
-    // comparison, and 'ostream' printing.  A precise operational definition of
-    // when two instances have the same value can be found in the description
-    // of 'operator==' for the class.  This class is *exception* *neutral* with
-    // no guarantee of rollback: If an exception is thrown during the
-    // invocation of a method on a pre-existing instance, the object is left in
-    // a valid state, but its value is undefined.  In no event is memory
-    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
-    // both source and destination) is supported in all cases.
 
   private:
     // DATA
@@ -154,119 +152,124 @@ class Record {
 
   public:
     // CLASS METHODS
+
+    /// Destroy the specified `*object` and use the allocator held by
+    /// `*object` to deallocate its memory footprint.  The behavior is
+    /// undefined unless `object` is the address of a valid log record.
     static void deleteObject(const Record *object);
-        // Destroy the specified '*object' and use the allocator held by
-        // '*object' to deallocate its memory footprint.  The behavior is
-        // undefined unless 'object' is the address of a valid log record.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Record, bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit Record(bslma::Allocator *basicAllocator = 0);
-        // Create a log record having default values for its fixed fields and
-        // its user-defined fields.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a log record having default values for its fixed fields and
+    /// its user-defined fields.  Optionally specify a `basicAllocator` used
+    /// to supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
+    explicit Record(bslma::Allocator *basicAllocator = 0);
+
+    /// Create a log record with fixed fields having the value of the
+    /// specified `fixedFields` and user-defined fields having the value of
+    /// the specified `userFields`.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     Record(const RecordAttributes&  fixedFields,
            const UserFields&        userFields,
            bslma::Allocator        *basicAllocator = 0);
-        // Create a log record with fixed fields having the value of the
-        // specified 'fixedFields' and user-defined fields having the value of
-        // the specified 'userFields'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Create a log record having the value of the specified `original` log
+    /// record.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.
     Record(const Record& original, bslma::Allocator *basicAllocator = 0);
-        // Create a log record having the value of the specified 'original' log
-        // record.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
 
     //! ~Record() = default;
         // Destroy this log record.
 
     // MANIPULATORS
+
+    /// Assign to this log record the value of the specified `rhs` log
+    /// record and return the reference to this modifiable record.
     Record& operator=(const Record& rhs);
-        // Assign to this log record the value of the specified 'rhs' log
-        // record and return the reference to this modifiable record.
 
+    /// Clear this log record by removing the user fields, attributes, and
+    /// clearing the fixed field's message buffer.  Note that this method is
+    /// tailored for efficient memory use within the `ball` logging system.
     void clear();
-        // Clear this log record by removing the user fields, attributes, and
-        // clearing the fixed field's message buffer.  Note that this method is
-        // tailored for efficient memory use within the 'ball' logging system.
 
+    /// Add a managed copy of the specified `attribute` to the container of
+    /// attributes maintained by this log record.
     void addAttribute(const ball::Attribute& attribute);
-        // Add a managed copy of the specified 'attribute' to the container of
-        // attributes maintained by this log record.
 
+    /// Return the modifiable fixed fields of this log record.
     RecordAttributes& fixedFields();
-        // Return the modifiable fixed fields of this log record.
 
+    /// Set the fixed fields of this log record to the value of the
+    /// specified `fixedFields`.
     void setFixedFields(const RecordAttributes& fixedFields);
-        // Set the fixed fields of this log record to the value of the
-        // specified 'fixedFields'.
 
+    /// **DEPRECATED**: Use log record attributes.
+    /// Set the custom user-defined fields of this log record to the value
+    /// of the specified `userFields`.
     void setCustomFields(const ball::UserFields& userFields);
-        // !DEPRECATED!: Use log record attributes.
-        // Set the custom user-defined fields of this log record to the value
-        // of the specified 'userFields'.
 
+    /// **DEPRECATED**: Use log record attributes.
+    /// Return a reference providing modifiable access to the custom
+    /// user-defined fields of this log record.
     ball::UserFields& customFields();
-        // !DEPRECATED!: Use log record attributes.
-        // Return a reference providing modifiable access to the custom
-        // user-defined fields of this log record.
 
     // ACCESSORS
+
+    /// Return the non-modifiable fixed fields of this log record.
     const RecordAttributes& fixedFields() const;
-        // Return the non-modifiable fixed fields of this log record.
 
+    /// **DEPRECATED**: Use log record attributes.
+    /// Return a reference providing non-modifiable access to the custom
+    /// user-defined fields of this log record.
     const ball::UserFields& customFields() const;
-        // !DEPRECATED!: Use log record attributes.
-        // Return a reference providing non-modifiable access to the custom
-        // user-defined fields of this log record.
 
+    /// Return a reference providing non-modifiable access to the attributes
+    /// of this log record.
     const bsl::vector<ball::ManagedAttribute>& attributes() const;
-        // Return a reference providing non-modifiable access to the attributes
-        // of this log record.
 
+    /// Return the total number of bytes of dynamic memory allocated by
+    /// this log record object.  Note that this value does not include
+    /// `sizeof *this`.
     int numAllocatedBytes() const;
-        // Return the total number of bytes of dynamic memory allocated by
-        // this log record object.  Note that this value does not include
-        // 'sizeof *this'.
 
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation
+    /// level for this and all of its nested objects.  Each line is
+    /// indented by the absolute value of `level * spacesPerLevel`.  If
+    /// `level` is negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation
-        // level for this and all of its nested objects.  Each line is
-        // indented by the absolute value of 'level * spacesPerLevel'.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` log records have the same
+/// value, and `false` otherwise.  Two log records have the same value if
+/// the respective fixed fields have the same value and the respective
+/// user-defined fields have the same value.
 bool operator==(const Record& lhs, const Record& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' log records have the same
-    // value, and 'false' otherwise.  Two log records have the same value if
-    // the respective fixed fields have the same value and the respective
-    // user-defined fields have the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` log records do not have
+/// the same value, and `false` otherwise.  Two log records do not have the
+/// same value if either the respective fixed fields or user-defined fields
+/// do not have the same value.
 bool operator!=(const Record& lhs, const Record& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' log records do not have
-    // the same value, and 'false' otherwise.  Two log records do not have the
-    // same value if either the respective fixed fields or user-defined fields
-    // do not have the same value.
 
+/// Format the members of the specified `record` to the specified output
+/// `stream` and return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const Record& record);
-    // Format the members of the specified 'record' to the specified output
-    // 'stream' and return a reference to the modifiable 'stream'.
 
 // ============================================================================
 //                              INLINE DEFINITIONS

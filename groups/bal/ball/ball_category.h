@@ -14,85 +14,83 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_categorymanager
 //
-//@DESCRIPTION: This component primarily provides a class, 'ball::Category',
-// used to describe the properties of a logging category.  A 'ball::Category'
+//@DESCRIPTION: This component primarily provides a class, `ball::Category`,
+// used to describe the properties of a logging category.  A `ball::Category`
 // provides access to the category name and the 4 logging threshold levels
-// associated with a category (see {'ball_loggermanager'} for a description of
+// associated with a category (see {`ball_loggermanager`} for a description of
 // the purpose of the various thresholds).
 //
-///'ball' "Private" Methods and Classes
+///`ball` "Private" Methods and Classes
 ///------------------------------------
 // This component provides classes that are *not* intended for use by the users
-// of the 'ball' logging sub-system: 'ball::CategoryHolder' and
-// 'ball::CategoryManagerImpUtil'.  These classes are defined in this component
-// because they are either friends of 'ball::Category' or have a circular
-// definition with 'ball::Category'.  They are used within the logging
+// of the `ball` logging sub-system: `ball::CategoryHolder` and
+// `ball::CategoryManagerImpUtil`.  These classes are defined in this component
+// because they are either friends of `ball::Category` or have a circular
+// definition with `ball::Category`.  They are used within the logging
 // sub-system to efficiently process log records.
 //
-///'ball::CategoryHolder'
+///`ball::CategoryHolder`
 /// - - - - - - - - - - -
-// A 'ball::CategoryHolder' is a statically-initializable pointer to a log
-// category.  It is designed to work with the logging macros provided by 'ball'
-// (see {'ball_log'}), and provide a static cache of the log category at the
+// A `ball::CategoryHolder` is a statically-initializable pointer to a log
+// category.  It is designed to work with the logging macros provided by `ball`
+// (see {`ball_log`}), and provide a static cache of the log category at the
 // point where a log macro is invoked.
 //
-///'ball::CategoryManagerImpUtil'
+///`ball::CategoryManagerImpUtil`
 /// - - - - - - - - - - - - - - -
-// A 'ball::CategoryManagerImpUtil' provides a suite of utility functions used
-// in creating a manager for log categories (see {'ball_categorymanager'}).  A
-// 'ball::Category' object maintains private state that is accessed and
-// manipulated via this utility.  Each 'ball::Category' contains private data
+// A `ball::CategoryManagerImpUtil` provides a suite of utility functions used
+// in creating a manager for log categories (see {`ball_categorymanager`}).  A
+// `ball::Category` object maintains private state that is accessed and
+// manipulated via this utility.  Each `ball::Category` contains private data
 // members that provide:
 //
-//: o A linked list of associated 'ball::CategoryHolder' objects that refer to
-//:   the category.
-//:
-//: o A cache of the logging rules that apply to the category.
-//:
-//: o A cache of the maximum threshold associated with any rule that applies
-//:   to the category (this is the threshold at which a more complicated
-//:   evaluation of the logging rules and current 'ball::AttributeContext' must
-//:   be performed).
+// * A linked list of associated `ball::CategoryHolder` objects that refer to
+//   the category.
+// * A cache of the logging rules that apply to the category.
+// * A cache of the maximum threshold associated with any rule that applies
+//   to the category (this is the threshold at which a more complicated
+//   evaluation of the logging rules and current `ball::AttributeContext` must
+//   be performed).
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'ball::Category'
+///Example 1: Basic Use of `ball::Category`
 /// - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates creating a category and accessing its
 // threshold information.
 //
 // Note that other components in the logging subsystem provide more user
-// focused examples of using categories (see {'ball_loggermanager'},
-// {'ball_administration'}, and {'ball_categorymanager'}).
+// focused examples of using categories (see {`ball_loggermanager`},
+// {`ball_administration`}, and {`ball_categorymanager`}).
 //
-// First we create a simple category, 'example', that has the record-level,
+// First we create a simple category, `example`, that has the record-level,
 // trigger-level, and trigger-all thresholds set to OFF and the pass-level set
 // to WARN, and verify these values:
-//..
-//  ball::Category example("example",
-//                         ball::Severity::e_OFF,
-//                         ball::Severity::e_WARN,
-//                         ball::Severity::e_OFF,
-//                         ball::Severity::e_OFF);
+// ```
+// ball::Category example("example",
+//                        ball::Severity::e_OFF,
+//                        ball::Severity::e_WARN,
+//                        ball::Severity::e_OFF,
+//                        ball::Severity::e_OFF);
 //
-//  assert(0 == bsl::strcmp("example", example.categoryName());
-//  assert(ball::Severity::e_OFF  == example.recordLevel());
-//  assert(ball::Severity::e_WARN == example.passLevel());
-//  assert(ball::Severity::e_OFF  == example.triggerLevel());
-//  assert(ball::Severity::e_OFF  == example.triggerAllLevel());
-//..
-// See {'ball_loggermanager'} for more information on the use of various
+// assert(0 == bsl::strcmp("example", example.categoryName());
+// assert(ball::Severity::e_OFF  == example.recordLevel());
+// assert(ball::Severity::e_WARN == example.passLevel());
+// assert(ball::Severity::e_OFF  == example.triggerLevel());
+// assert(ball::Severity::e_OFF  == example.triggerAllLevel());
+// ```
+// See {`ball_loggermanager`} for more information on the use of various
 // thresholds levels.
 //
 // Finally, we test if a the category is enabled for log record recorded with
-// 'e_ERROR' severity:
-//..
-//  if (example.isEnabled(ball::Severity::e_ERROR)) {
-//      // publish record
-//  }
-//..
+// `e_ERROR` severity:
+// ```
+// if (example.isEnabled(ball::Severity::e_ERROR)) {
+//     // publish record
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -125,17 +123,17 @@ class CategoryHolder;
                            // class Category
                            // ==============
 
+/// This class provides a container to hold the name and threshold levels of
+/// a category.  Instances of `Category` are created and manipulated by
+/// `CategoryManager`.  All threshold levels are integral values in the
+/// range `[0 .. 255]`.
+///
+/// Implementation Note: The `d_ruleThreshold` and `d_relevantRuleMask`
+/// serve as a cache for logging rule evaluation (see
+/// `ball_attributecontext`).  They are not meant to be modified by users
+/// of the logging system, and may be modified by `const` operations of the
+/// logging system.
 class Category {
-    // This class provides a container to hold the name and threshold levels of
-    // a category.  Instances of 'Category' are created and manipulated by
-    // 'CategoryManager'.  All threshold levels are integral values in the
-    // range '[0 .. 255]'.
-    //
-    // Implementation Note: The 'd_ruleThreshold' and 'd_relevantRuleMask'
-    // serve as a cache for logging rule evaluation (see
-    // 'ball_attributecontext').  They are not meant to be modified by users
-    // of the logging system, and may be modified by 'const' operations of the
-    // logging system.
 
     // DATA
     ThresholdAggregate    d_thresholdLevels; // record, pass, trigger, and
@@ -171,119 +169,124 @@ class Category {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Load this category and its corresponding `maxLevel()` into the
+    /// specified `categoryHolder`, and add `categoryHolder` to the linked
+    /// list of category holders managed by this category.
     void linkCategoryHolder(CategoryHolder *categoryHolder);
-        // Load this category and its corresponding 'maxLevel()' into the
-        // specified 'categoryHolder', and add 'categoryHolder' to the linked
-        // list of category holders managed by this category.
 
+    /// Reset the category holders to which this category is linked to their
+    /// default value.  See the function-level documentation of
+    /// `CategoryHolder::reset` for further information on the default value
+    /// of category holders.
     void resetCategoryHolders();
-        // Reset the category holders to which this category is linked to their
-        // default value.  See the function-level documentation of
-        // 'CategoryHolder::reset' for further information on the default value
-        // of category holders.
 
+    /// Update the threshold of all category holders that hold the address
+    /// of this object to the maximum of `d_threshold` and
+    /// `d_ruleThreshold`.  The behavior is undefined unless `d_mutex` is
+    /// locked.
     void updateThresholdForHolders();
-        // Update the threshold of all category holders that hold the address
-        // of this object to the maximum of 'd_threshold' and
-        // 'd_ruleThreshold'.  The behavior is undefined unless 'd_mutex' is
-        // locked.
 
   public:
     // CLASS METHODS
+
+    /// Return `true` if each of the specified `recordLevel`, `passLevel`,
+    /// `triggerLevel` and `triggerAllLevel` threshold values are in the
+    /// range `[0 .. 255]`, and `false` otherwise.
     static bool areValidThresholdLevels(int recordLevel,
                                         int passLevel,
                                         int triggerLevel,
                                         int triggerAllLevel);
-        // Return 'true' if each of the specified 'recordLevel', 'passLevel',
-        // 'triggerLevel' and 'triggerAllLevel' threshold values are in the
-        // range '[0 .. 255]', and 'false' otherwise.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Category, bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a category having the specified `categoryName` and the
+    /// specified `recordLevel`, `passLevel`, `triggerLevel`, and
+    /// `triggerAllLevel` threshold values, respectively.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  The behavior is undefined unless each of the specified
+    /// threshold levels is in the range `[0 .. 255]`, and `categoryName` is
+    /// null-terminated.
     Category(const char       *categoryName,
              int               recordLevel,
              int               passLevel,
              int               triggerLevel,
              int               triggerAllLevel,
              bslma::Allocator *basicAllocator = 0);
-        // Create a category having the specified 'categoryName' and the
-        // specified 'recordLevel', 'passLevel', 'triggerLevel', and
-        // 'triggerAllLevel' threshold values, respectively.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless each of the specified
-        // threshold levels is in the range '[0 .. 255]', and 'categoryName' is
-        // null-terminated.
 
     //! ~Category() = default;
         // Destroy this category.
 
     // MANIPULATORS
+
+    /// Set the threshold levels of this category to the specified
+    /// `recordLevel`, `passLevel`, `triggerLevel`, and `triggerAllLevel`
+    /// values, respectively, if each of the specified values is in the
+    /// range `[0 .. 255]`.  Return 0 on success, and a non-zero value
+    /// otherwise (with no effect on the threshold levels of this category).
     int setLevels(int recordLevel,
                   int passLevel,
                   int triggerLevel,
                   int triggerAllLevel);
-        // Set the threshold levels of this category to the specified
-        // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'
-        // values, respectively, if each of the specified values is in the
-        // range '[0 .. 255]'.  Return 0 on success, and a non-zero value
-        // otherwise (with no effect on the threshold levels of this category).
 
     // ACCESSORS
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -FABC01: Functions not in alphanumeric order
+
+    /// Return the name of this category.
     const char *categoryName() const;
-        // Return the name of this category.
 
+    /// Return `true` if logging at the specified `level` is enabled for
+    /// this category, and `false` otherwise.  Logging is enabled if `level`
+    /// is numerically less than or equal to any of the four threshold
+    /// levels of this category.
     bool isEnabled(int level) const;
-        // Return 'true' if logging at the specified 'level' is enabled for
-        // this category, and 'false' otherwise.  Logging is enabled if 'level'
-        // is numerically less than or equal to any of the four threshold
-        // levels of this category.
 
+    /// Return the numerical maximum of the four levels of this category.
     int maxLevel() const;
-        // Return the numerical maximum of the four levels of this category.
 
+    /// Return the record level of this category.
     int recordLevel() const;
-        // Return the record level of this category.
 
+    /// Return the pass level of this category.
     int passLevel() const;
-        // Return the pass level of this category.
 
+    /// Return the trigger level of this category.
     int triggerLevel() const;
-        // Return the trigger level of this category.
 
+    /// Return the trigger-all level of this category.
     int triggerAllLevel() const;
-        // Return the trigger-all level of this category.
 
+    /// Return the aggregate threshold levels of this category.
     ThresholdAggregate thresholdLevels() const;
-        // Return the aggregate threshold levels of this category.
 
+    /// Return the current maximum threshold (i.e., the lowest severity)
+    /// between the `recordLevel`, `passLevel`, `triggerLevel`, and
+    /// `triggerAllLevel`.  Note that this is the threshold at which a log
+    /// record having this severity will need to be acted upon.
     int threshold() const;
-        // Return the current maximum threshold (i.e., the lowest severity)
-        // between the 'recordLevel', 'passLevel', 'triggerLevel', and
-        // 'triggerAllLevel'.  Note that this is the threshold at which a log
-        // record having this severity will need to be acted upon.
 
+    /// Return the current maximum threshold (i.e., the lowest severity) for
+    /// any logging rule associated with this category.  Note that the rule
+    /// having this threshold may not be active given the current thread's
+    /// logging context (see `ball::AttributeContext`); this value caches
+    /// the lowest possible severity where the currently rules need to be
+    /// evaluated (log records below this threshold do not need any rule
+    /// evaluation).
     int ruleThreshold() const;
-        // Return the current maximum threshold (i.e., the lowest severity) for
-        // any logging rule associated with this category.  Note that the rule
-        // having this threshold may not be active given the current thread's
-        // logging context (see 'ball::AttributeContext'); this value caches
-        // the lowest possible severity where the currently rules need to be
-        // evaluated (log records below this threshold do not need any rule
-        // evaluation).
 
+    /// Return a reference to the non-modifiable relevant rule mask for this
+    /// category.  The returned `RuleSet::MaskType` value is a bit-mask,
+    /// where each bit is a boolean value indicating whether the rule at the
+    /// corresponding index (in the rule set of the category manager that
+    /// owns this category) applies at this category.  Note that a rule
+    /// applies to this category if the rule's pattern matches the name
+    /// returned by `categoryName`.
     RuleSet::MaskType relevantRuleMask() const;
-        // Return a reference to the non-modifiable relevant rule mask for this
-        // category.  The returned 'RuleSet::MaskType' value is a bit-mask,
-        // where each bit is a boolean value indicating whether the rule at the
-        // corresponding index (in the rule set of the category manager that
-        // owns this category) applies at this category.  Note that a rule
-        // applies to this category if the rule's pattern matches the name
-        // returned by 'categoryName'.
     // BDE_VERIFY pragma: pop
 };
 
@@ -291,21 +294,21 @@ class Category {
                         // class CategoryHolder
                         // ====================
 
+/// This class, informally referred to as a "category holder" (or simply
+/// "holder"), holds a category, a threshold level, and a pointer to a
+/// "next" holder.  Both the category and next pointer may be null.  The
+/// intended use is as follows: (1) instances of this class are (only)
+/// declared in contexts where logging occurs; (2) if the held category is
+/// non-null, then the held threshold is the numerical maximum of the four
+/// levels of that category; (3) if the next pointer is non-null, then the
+/// holder pointed to holds the same category and threshold.  Instances of
+/// this class must be *statically* initializable.  Hence, the data members
+/// are `public`, and automatically generated constructors and destructor
+/// are used.
+///
+/// This class should *not* be used directly by client code.  It is an
+/// implementation detail of the `ball` logging system.
 class CategoryHolder {
-    // This class, informally referred to as a "category holder" (or simply
-    // "holder"), holds a category, a threshold level, and a pointer to a
-    // "next" holder.  Both the category and next pointer may be null.  The
-    // intended use is as follows: (1) instances of this class are (only)
-    // declared in contexts where logging occurs; (2) if the held category is
-    // non-null, then the held threshold is the numerical maximum of the four
-    // levels of that category; (3) if the next pointer is non-null, then the
-    // holder pointed to holds the same category and threshold.  Instances of
-    // this class must be *statically* initializable.  Hence, the data members
-    // are 'public', and automatically generated constructors and destructor
-    // are used.
-    //
-    // This class should *not* be used directly by client code.  It is an
-    // implementation detail of the 'ball' logging system.
 
     // NOT IMPLEMENTED
     CategoryHolder& operator=(const CategoryHolder&) BSLS_KEYWORD_DELETED;
@@ -317,13 +320,14 @@ class CategoryHolder {
 
   public:
     // PUBLIC TYPES
+
+    /// This enumeration defines distinguished values for category holder
+    /// threshold levels.  Note that these values are intentionally outside
+    /// the range `[0 .. 255]`.
     enum {
         e_UNINITIALIZED_CATEGORY = 256, // indicates no logger manager
         e_DYNAMIC_CATEGORY       = 257  // corresponding category is dynamic
     };
-        // This enumeration defines distinguished values for category holder
-        // threshold levels.  Note that these values are intentionally outside
-        // the range '[0 .. 255]'.
 
     // PUBLIC DATA
     // BDE_VERIFY pragma: push
@@ -341,33 +345,35 @@ class CategoryHolder {
     // MANIPULATORS
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -FABC01: Functions not in alphanumeric order
+
+    /// Reset this object to its default value.  The default value is:
+    /// ```
+    /// { e_UNINITIALIZED_CATEGORY, 0, 0 }
+    /// ```
     void reset();
-        // Reset this object to its default value.  The default value is:
-        //..
-        //  { e_UNINITIALIZED_CATEGORY, 0, 0 }
-        //..
 
+    /// Set the address of the category held by this holder to the specified
+    /// `category`.
     void setCategory(const Category *category);
-        // Set the address of the category held by this holder to the specified
-        // 'category'.
 
+    /// Set the threshold level held by this holder to the specified
+    /// `threshold`.
     void setThreshold(int threshold);
-        // Set the threshold level held by this holder to the specified
-        // 'threshold'.
 
+    /// Set this holder to point to the specified `holder`.
     void setNext(CategoryHolder *holder);
-        // Set this holder to point to the specified 'holder'.
 
     // ACCESSORS
+
+    /// Return the address of the non-modifiable category held by this
+    /// holder.
     const Category *category() const;
-        // Return the address of the non-modifiable category held by this
-        // holder.
 
+    /// Return the threshold level held by this holder.
     int threshold() const;
-        // Return the threshold level held by this holder.
 
+    /// Return the address of the modifiable holder held by this holder.
     CategoryHolder *next() const;
-        // Return the address of the modifiable holder held by this holder.
     // BDE_VERIFY pragma: pop
 };
 
@@ -375,50 +381,51 @@ class CategoryHolder {
                     // class CategoryManagerImpUtil
                     // ============================
 
+/// This class provides a suite of free functions used to help implement a
+/// manager of categories and category holders.
+///
+/// This class should *not* be used directly by client code.  It is an
+/// implementation detail of the `ball` logging system.
 class CategoryManagerImpUtil {
-    // This class provides a suite of free functions used to help implement a
-    // manager of categories and category holders.
-    //
-    // This class should *not* be used directly by client code.  It is an
-    // implementation detail of the 'ball' logging system.
 
   public:
     // CLASS METHODS
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -FABC01: Functions not in alphanumeric order
+
+    /// Load the specified `category` and its corresponding `maxLevel()`
+    /// into the specified `categoryHolder`, and add `categoryHolder` to
+    /// the linked list of category holders maintained by `category`.
     static void linkCategoryHolder(Category       *category,
                                    CategoryHolder *categoryHolder);
-        // Load the specified 'category' and its corresponding 'maxLevel()'
-        // into the specified 'categoryHolder', and add 'categoryHolder' to
-        // the linked list of category holders maintained by 'category'.
 
+    /// Reset the category holders to which the specified `category` is
+    /// linked to their default value.  See the function-level documentation
+    /// of `CategoryHolder::reset` for further information on the default
+    /// value of category holders.
     static void resetCategoryHolders(Category *category);
-        // Reset the category holders to which the specified 'category' is
-        // linked to their default value.  See the function-level documentation
-        // of 'CategoryHolder::reset' for further information on the default
-        // value of category holders.
 
+    /// Update the threshold of all category holders that hold the address
+    /// of the specified `category` object to the maximum of `d_threshold`
+    /// and `d_ruleThreshold`.
     static void updateThresholdForHolders(Category *category);
-        // Update the threshold of all category holders that hold the address
-        // of the specified 'category' object to the maximum of 'd_threshold'
-        // and 'd_ruleThreshold'.
 
+    /// Set the cached rule threshold for the specified `category` to the
+    /// specified `ruleThreshold`.
     static void setRuleThreshold(Category *category, int ruleThreshold);
-        // Set the cached rule threshold for the specified 'category' to the
-        // specified 'ruleThreshold'.
 
+    /// Set the bit in the relevant rule-mask at the specified `ruleIndex`
+    /// in the specified `category` to `true`.
     static void enableRule(Category *category, int ruleIndex);
-        // Set the bit in the relevant rule-mask at the specified 'ruleIndex'
-        // in the specified 'category' to 'true'.
 
+    /// Set the bit in the rule-mask at the specified `ruleIndex` in the
+    /// specified `category` to `false`.
     static void disableRule(Category *category, int ruleIndex);
-        // Set the bit in the rule-mask at the specified 'ruleIndex' in the
-        // specified 'category' to 'false'.
 
+    /// Set the rule-mask for the specified `category` to the specified
+    /// `mask`.
     static void setRelevantRuleMask(Category          *category,
                                     RuleSet::MaskType  mask);
-        // Set the rule-mask for the specified 'category' to the specified
-        // 'mask'.
     // BDE_VERIFY pragma: pop
 };
 

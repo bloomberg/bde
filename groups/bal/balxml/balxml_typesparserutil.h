@@ -12,112 +12,112 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: http://www.w3.org/TR/xmlschema-2/
 //
-//@DESCRIPTION: The 'balxml::TypesParserUtil' struct provided by this component
+//@DESCRIPTION: The `balxml::TypesParserUtil` struct provided by this component
 // contains the following functions:
-//..
-//  o 'parse':        Parse a string using the supplied formatting mode.
-//  o 'parseBase64':  Parse a string using
-//                    'bdlat_FormattingMode::e_BASE64'.
-//  o 'parseDecimal': Parse a string using 'bdlat_FormattingMode::e_DEC'.
-//  o 'parseDefault': Parse a string using
-//                    'bdlat_FormattingMode::e_DEFAULT'.
-//  o 'parseHex':     Parse a string using 'bdlat_FormattingMode::e_HEX'.
-//  o 'parseList':    Parse a string using
-//                    'bdlat_FormattingMode::e_IS_LIST'.
-//  o 'parseText':    Parse a string using 'bdlat_FormattingMode::e_TEXT'.
-//..
+// ```
+// o 'parse':        Parse a string using the supplied formatting mode.
+// o 'parseBase64':  Parse a string using
+//                   'bdlat_FormattingMode::e_BASE64'.
+// o 'parseDecimal': Parse a string using 'bdlat_FormattingMode::e_DEC'.
+// o 'parseDefault': Parse a string using
+//                   'bdlat_FormattingMode::e_DEFAULT'.
+// o 'parseHex':     Parse a string using 'bdlat_FormattingMode::e_HEX'.
+// o 'parseList':    Parse a string using
+//                   'bdlat_FormattingMode::e_IS_LIST'.
+// o 'parseText':    Parse a string using 'bdlat_FormattingMode::e_TEXT'.
+// ```
 // The input strings are parsed according to each type's lexical representation
 // as described in the XML Schema Specification, which is available at
-// 'http://www.w3.org/TR/xmlschema-2/'.
+// `http://www.w3.org/TR/xmlschema-2/`.
 //
 // The following C++ Type / Formatting Mode combinations are supported by this
 // component:
-//..
-//      C++ Type                            Formatting Mode
-//      --------                            ---------------
-//      bool                                e_DEFAULT, e_DEC, e_TEXT
-//      char                                e_DEFAULT, e_DEC, e_TEXT
-//      unsigned char                       e_DEFAULT, e_DEC
-//      [unsigned] short                    e_DEFAULT, e_DEC
-//      [unsigned] int                      e_DEFAULT, e_DEC
-//      [unsigned] long                     e_DEFAULT, e_DEC
-//      bsls::Types::[Uint64|Int64]         e_DEFAULT, e_DEC
-//      float                               e_DEFAULT, e_DEC
-//      double                              e_DEFAULT, e_DEC
-//      bdldfp::Decimal64                   e_DEFAULT, e_DEC
-//      bsl::string                         e_DEFAULT, e_TEXT, e_BASE64, e_HEX
-//      bdlt::Date                          e_DEFAULT
-//      bdlt::DateTz                        e_DEFAULT
-//      bdlt::Datetime                      e_DEFAULT
-//      bdlt::DateTimeTz                    e_DEFAULT
-//      bdlt::Time                          e_DEFAULT
-//      bdlt::TimeTz                        e_DEFAULT
-//      bdlb::Variant2<DateTz, Date>        e_DEFAULT
-//      bdlb::Variant2<TimeTz, Time>        e_DEFAULT
-//      Variant2<DatetimeTz, Datetime>      e_DEFAULT
-//      bsl::vector<char>                   e_DEFAULT, e_BASE64, e_HEX, e_TEXT,
-//                                          e_IS_LIST
-//..
+// ```
+//     C++ Type                            Formatting Mode
+//     --------                            ---------------
+//     bool                                e_DEFAULT, e_DEC, e_TEXT
+//     char                                e_DEFAULT, e_DEC, e_TEXT
+//     unsigned char                       e_DEFAULT, e_DEC
+//     [unsigned] short                    e_DEFAULT, e_DEC
+//     [unsigned] int                      e_DEFAULT, e_DEC
+//     [unsigned] long                     e_DEFAULT, e_DEC
+//     bsls::Types::[Uint64|Int64]         e_DEFAULT, e_DEC
+//     float                               e_DEFAULT, e_DEC
+//     double                              e_DEFAULT, e_DEC
+//     bdldfp::Decimal64                   e_DEFAULT, e_DEC
+//     bsl::string                         e_DEFAULT, e_TEXT, e_BASE64, e_HEX
+//     bdlt::Date                          e_DEFAULT
+//     bdlt::DateTz                        e_DEFAULT
+//     bdlt::Datetime                      e_DEFAULT
+//     bdlt::DateTimeTz                    e_DEFAULT
+//     bdlt::Time                          e_DEFAULT
+//     bdlt::TimeTz                        e_DEFAULT
+//     bdlb::Variant2<DateTz, Date>        e_DEFAULT
+//     bdlb::Variant2<TimeTz, Time>        e_DEFAULT
+//     Variant2<DatetimeTz, Datetime>      e_DEFAULT
+//     bsl::vector<char>                   e_DEFAULT, e_BASE64, e_HEX, e_TEXT,
+//                                         e_IS_LIST
+// ```
 // In addition to the types listed above, this component also recognizes the
-// following 'bdlat' type categories:
-//..
-//      'bdlat' Type Category               Formatting Mode
-//      ---------------------               ---------------
-//      Array                               e_IS_LIST
-//      CustomizedType                      Base type's formatting modes
-//      DynamicType                         Runtime type's formatting modes
-//      Enumeration                         e_DEFAULT, e_TEXT, e_DECIMAL
-//..
-// When 'bdlat_FormattingMode::e_DEFAULT' is used, the actual formatting mode
+// following `bdlat` type categories:
+// ```
+//     'bdlat' Type Category               Formatting Mode
+//     ---------------------               ---------------
+//     Array                               e_IS_LIST
+//     CustomizedType                      Base type's formatting modes
+//     DynamicType                         Runtime type's formatting modes
+//     Enumeration                         e_DEFAULT, e_TEXT, e_DECIMAL
+// ```
+// When `bdlat_FormattingMode::e_DEFAULT` is used, the actual formatting mode
 // selected is based on the following mapping:
-//..
-//      C++ Type                            Default Formatting Mode
-//      --------                            -----------------------
-//      bool                                e_DEC or e_TEXT
-//      [unsigned] char                     e_DEC
-//      [unsigned] short                    e_DEC
-//      [unsigned] int                      e_DEC
-//      [unsigned] long                     e_DEC
-//      bsls::Types::[Uint64|Int64]         e_DEC
-//      bsl::string                         e_TEXT
-//      bsl::vector<char>                   e_BASE64
+// ```
+//     C++ Type                            Default Formatting Mode
+//     --------                            -----------------------
+//     bool                                e_DEC or e_TEXT
+//     [unsigned] char                     e_DEC
+//     [unsigned] short                    e_DEC
+//     [unsigned] int                      e_DEC
+//     [unsigned] long                     e_DEC
+//     bsls::Types::[Uint64|Int64]         e_DEC
+//     bsl::string                         e_TEXT
+//     bsl::vector<char>                   e_BASE64
 //
-//      'bdlat' Type Category               Default Formatting Mode
-//      ---------------------               -----------------------
-//      Enumeration                         e_TEXT
-//..
+//     'bdlat' Type Category               Default Formatting Mode
+//     ---------------------               -----------------------
+//     Enumeration                         e_TEXT
+// ```
 //
 ///Usage
 ///-----
 // The following snippets of code illustrate how to parse a Base64 string into
-// an 'bsl::vector<char>':
-//..
-//  #include <balxml_typesparserutil.h>
+// an `bsl::vector<char>`:
+// ```
+// #include <balxml_typesparserutil.h>
 //
-//  #include <cassert>
-//  #include <vector>
+// #include <cassert>
+// #include <vector>
 //
-//  using namespace BloombergLP;
+// using namespace BloombergLP;
 //
-//  void usageExample()
-//  {
-//      const char INPUT[]      = "YWJjZA==";  // "abcd" in Base64
-//      const int  INPUT_LENGTH = sizeof(INPUT) - 1;
+// void usageExample()
+// {
+//     const char INPUT[]      = "YWJjZA==";  // "abcd" in Base64
+//     const int  INPUT_LENGTH = sizeof(INPUT) - 1;
 //
-//      bsl::vector<char> vec;
+//     bsl::vector<char> vec;
 //
-//      int retCode = balxml::TypesParserUtil::parseBase64(&vec,
-//                                                         INPUT,
-//                                                         INPUT_LENGTH);
+//     int retCode = balxml::TypesParserUtil::parseBase64(&vec,
+//                                                        INPUT,
+//                                                        INPUT_LENGTH);
 //
-//      assert(0   == retCode);
-//      assert(4   == vec.size());
-//      assert('a' == vec[0]);
-//      assert('b' == vec[1]);
-//      assert('c' == vec[2]);
-//      assert('d' == vec[3]);
-//  }
-//..
+//     assert(0   == retCode);
+//     assert(4   == vec.size());
+//     assert('a' == vec[0]);
+//     assert('b' == vec[1]);
+//     assert('c' == vec[2]);
+//     assert('d' == vec[3]);
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -156,99 +156,101 @@ namespace balxml {
                            // struct TypesParserUtil
                            // ======================
 
+/// This `struct` contains functions for parsing input strings using various
+/// XML formatting modes.
 struct TypesParserUtil {
-    // This 'struct' contains functions for parsing input strings using various
-    // XML formatting modes.
 
     // CLASS METHODS
+
+    /// Parse the specified `input` of the specified `inputLength` using the
+    /// specified `formattingMode` and load the result into the specified
+    /// `result`.  Return 0 on success, and a non-zero value otherwise.  The
+    /// behavior is undefined unless the parameterized `TYPE` and the
+    /// `formattingMode` combination is supported (supported combinations
+    /// are listed in the component-level documentation).
     template <class TYPE>
     static int parse(TYPE       *result,
                      const char *input,
                      int         inputLength,
                      int         formattingMode);
-        // Parse the specified 'input' of the specified 'inputLength' using the
-        // specified 'formattingMode' and load the result into the specified
-        // 'result'.  Return 0 on success, and a non-zero value otherwise.  The
-        // behavior is undefined unless the parameterized 'TYPE' and the
-        // 'formattingMode' combination is supported (supported combinations
-        // are listed in the component-level documentation).
 
+    /// Parse the specified `input` of the specified `inputLength` using
+    /// `bdlat_FormattingMode::e_BASE64` and load the result into the
+    /// specified `result`.  Return 0 on success, and a non-zero value
+    /// otherwise.
     template <class TYPE>
     static int parseBase64(TYPE       *result,
                            const char *input,
                            int         inputLength);
-        // Parse the specified 'input' of the specified 'inputLength' using
-        // 'bdlat_FormattingMode::e_BASE64' and load the result into the
-        // specified 'result'.  Return 0 on success, and a non-zero value
-        // otherwise.
 
+    /// Parse the specified `input` of the specified `inputLength` using
+    /// `bdlat_FormattingMode::e_DEC` and load the result into the
+    /// specified `result`.  Return 0 on success, and a non-zero value
+    /// otherwise.
     template <class TYPE>
     static int parseDecimal(TYPE       *result,
                             const char *input,
                             int         inputLength);
-        // Parse the specified 'input' of the specified 'inputLength' using
-        // 'bdlat_FormattingMode::e_DEC' and load the result into the
-        // specified 'result'.  Return 0 on success, and a non-zero value
-        // otherwise.
 
+    /// Parse the specified `input` of the specified `inputLength` using
+    /// `bdlat_FormattingMode::e_DEFAULT` and load the result into the
+    /// specified `result`.  Return 0 on success, and a non-zero value
+    /// otherwise.
     template <class TYPE>
     static int parseDefault(TYPE       *result,
                             const char *input,
                             int         inputLength);
-        // Parse the specified 'input' of the specified 'inputLength' using
-        // 'bdlat_FormattingMode::e_DEFAULT' and load the result into the
-        // specified 'result'.  Return 0 on success, and a non-zero value
-        // otherwise.
 
+    /// Parse the specified `input` of the specified `inputLength` using
+    /// `bdlat_FormattingMode::e_HEX` and load the result into the
+    /// specified `result`.  Return 0 on success, and a non-zero value
+    /// otherwise.
     template <class TYPE>
     static int parseHex(TYPE       *result,
                         const char *input,
                         int         inputLength);
-        // Parse the specified 'input' of the specified 'inputLength' using
-        // 'bdlat_FormattingMode::e_HEX' and load the result into the
-        // specified 'result'.  Return 0 on success, and a non-zero value
-        // otherwise.
 
+    /// Parse the specified `input` of the specified `inputLength` using
+    /// `bdlat_FormattingMode::e_LIST` and load the result into the
+    /// specified `result`.  Return 0 on success, and a non-zero value
+    /// otherwise.
     template <class TYPE>
     static int parseList(TYPE       *result,
                          const char *input,
                          int         inputLength);
-        // Parse the specified 'input' of the specified 'inputLength' using
-        // 'bdlat_FormattingMode::e_LIST' and load the result into the
-        // specified 'result'.  Return 0 on success, and a non-zero value
-        // otherwise.
 
+    /// Parse the specified `input` of the specified `inputLength` using
+    /// `bdlat_FormattingMode::e_TEXT` and load the result into the
+    /// specified `result`.  Return 0 on success, and a non-zero value
+    /// otherwise.
     template <class TYPE>
     static int parseText(TYPE       *result,
                          const char *input,
                          int         inputLength);
-        // Parse the specified 'input' of the specified 'inputLength' using
-        // 'bdlat_FormattingMode::e_TEXT' and load the result into the
-        // specified 'result'.  Return 0 on success, and a non-zero value
-        // otherwise.
 };
 
                          // ==========================
                          // struct TypesParserUtil_Imp
                          // ==========================
 
+/// This `struct` contains functions that are used in the implementation of
+/// this component.
 struct TypesParserUtil_Imp {
-    // This 'struct' contains functions that are used in the implementation of
-    // this component.
 
     // TYPES
+
+    /// `DateOrDateTz` is a convenient alias for
+    /// `bdlb::Variant2<Date, DateTz>`.
     typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz>      DateOrDateTz;
-        // 'DateOrDateTz' is a convenient alias for
-        // 'bdlb::Variant2<Date, DateTz>'.
 
+    /// `TimeOrTimeTz` is a convenient alias for
+    /// `bdlb::Variant2<Time, TimeTz>`.
     typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz>      TimeOrTimeTz;
-        // 'TimeOrTimeTz' is a convenient alias for
-        // 'bdlb::Variant2<Time, TimeTz>'.
 
+    /// `DatetimeOrDatetimeTz` is a convenient alias for
+    /// `bdlb::Variant2<Datetime, DatetimeTz>`.
     typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
                                                           DatetimeOrDatetimeTz;
-        // 'DatetimeOrDatetimeTz' is a convenient alias for
-        // 'bdlb::Variant2<Datetime, DatetimeTz>'.
 
     // CLASS METHODS
 
@@ -598,8 +600,8 @@ struct TypesParserUtil_Imp {
                     // class TypesParserUtilImp_ParseBase64
                     // ====================================
 
+/// Component-private class.  Do not use.
 class TypesParserUtilImp_ParseBase64 {
-    // Component-private class.  Do not use.
 
     // DATA
     const char *d_input_p;
@@ -638,8 +640,8 @@ class TypesParserUtilImp_ParseBase64 {
                    // class TypesParserUtilImp_ParseDecimal
                    // =====================================
 
+/// Component-private class.  Do not use.
 class TypesParserUtilImp_ParseDecimal {
-    // Component-private class.  Do not use.
 
     // DATA
     const char *d_input_p;
@@ -678,8 +680,8 @@ class TypesParserUtilImp_ParseDecimal {
                    // class TypesParserUtilImp_ParseDefault
                    // =====================================
 
+/// Component-private class.  Do not use.
 class TypesParserUtilImp_ParseDefault {
-    // Component-private class.  Do not use.
 
     // DATA
     const char *d_input_p;
@@ -719,8 +721,8 @@ class TypesParserUtilImp_ParseDefault {
                      // class TypesParserUtilImp_ParseHex
                      // =================================
 
+/// Component-private class.  Do not use.
 class TypesParserUtilImp_ParseHex {
-    // Component-private class.  Do not use.
 
     // DATA
     const char *d_input_p;
@@ -759,8 +761,8 @@ class TypesParserUtilImp_ParseHex {
                      // class TypesParserUtilImp_ParseList
                      // ==================================
 
+/// Component-private class.  Do not use.
 class TypesParserUtilImp_ParseList {
-    // Component-private class.  Do not use.
 
     // DATA
     const char *d_input_p;
@@ -799,8 +801,8 @@ class TypesParserUtilImp_ParseList {
               // class TypesParserUtilImp_ParseListElementDefault
               // ================================================
 
+/// Component-private class.  Do not use.
 class TypesParserUtilImp_ParseListElementDefault {
-    // Component-private class.  Do not use.
 
     // DATA
     const char *d_input_p;
@@ -840,8 +842,8 @@ class TypesParserUtilImp_ParseListElementDefault {
                      // class TypesParserUtilImp_ParseText
                      // ==================================
 
+/// Component-private class.  Do not use.
 class TypesParserUtilImp_ParseText {
-    // Component-private class.  Do not use.
 
     // DATA
     const char *d_input_p;

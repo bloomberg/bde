@@ -13,13 +13,13 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This class provides a class this able to take a vector of
-// 'balst::StackTraceFrame's that have only their 'address' fields set, and
+// `balst::StackTraceFrame`s that have only their `address` fields set, and
 // sets as many of the other fields in the stack trace frames as possible.  Elf
 // objects are used on Solaris and Linux platforms.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'balst' and is *not* intended
+// This component is an implementation detail of `balst` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: ball_loggermanagerconfiguration
 //
 //@DESCRIPTION: This component provides a simply-constrained attribute class,
-// 'ball::LoggerManagerDefaults', that contains a set of attributes (objects
+// `ball::LoggerManagerDefaults`, that contains a set of attributes (objects
 // and parameters) of particular use to logger managers.  The constraints are
 // actively maintained by the class.  In particular, the "set" methods for
 // constrained values will fail if their arguments are not consistent with the
@@ -22,35 +22,35 @@ BSLS_IDENT("$Id: $")
 // behavior avoids "silent failures", since the constructor cannot explicitly
 // return a status value.
 //
-// The attributes contained by a 'ball::LoggerManagerDefaults' object and
+// The attributes contained by a `ball::LoggerManagerDefaults` object and
 // the attribute constraints are given, respectively, in two tables below.
 // The attributes are as follows:
-//..
-//   TYPE          NAME                DESCRIPTION
-//   -----------   ----------------    -------------------------------------
-//   int           recordBufferSize    size in bytes of *default* logger's
-//                                     record buffer
-//   int           loggerBufferSize    default size in bytes of *each*
-//                                     logger's "scratch" buffer (for macros)
-//   char          recordLevel         default record severity level
-//   char          passLevel           default pass-through severity level
-//   char          triggerLevel        default trigger severity level
-//   char          triggerAllLevel     default triggerAll severity level
-//..
+// ```
+//  TYPE          NAME                DESCRIPTION
+//  -----------   ----------------    -------------------------------------
+//  int           recordBufferSize    size in bytes of *default* logger's
+//                                    record buffer
+//  int           loggerBufferSize    default size in bytes of *each*
+//                                    logger's "scratch" buffer (for macros)
+//  char          recordLevel         default record severity level
+//  char          passLevel           default pass-through severity level
+//  char          triggerLevel        default trigger severity level
+//  char          triggerAllLevel     default triggerAll severity level
+// ```
 // The constraints are as follows:
-//..
-//    NAME                 CONSTRAINT
-//   +--------------------+---------------------------------------------+
-//   | recordBufferSize   | 1 <= recordBufferSize                       |
-//   +--------------------+---------------------------------------------+
-//   | loggerBufferSize   | 1 <= loggerBufferSize                       |
-//   +--------------------+---------------------------------------------+
-//   | recordLevel        | 0 <= recordLevel     <= 255                 |
-//   | passLevel          | 0 <= passLevel       <= 255                 |
-//   | triggerLevel       | 0 <= triggerLevel    <= 255                 |
-//   | triggerAllLevel    | 0 <= triggerAllLevel <= 255                 |
-//   +--------------------+---------------------------------------------+
-//..
+// ```
+//   NAME                 CONSTRAINT
+//  +--------------------+---------------------------------------------+
+//  | recordBufferSize   | 1 <= recordBufferSize                       |
+//  +--------------------+---------------------------------------------+
+//  | loggerBufferSize   | 1 <= loggerBufferSize                       |
+//  +--------------------+---------------------------------------------+
+//  | recordLevel        | 0 <= recordLevel     <= 255                 |
+//  | passLevel          | 0 <= passLevel       <= 255                 |
+//  | triggerLevel       | 0 <= triggerLevel    <= 255                 |
+//  | triggerAllLevel    | 0 <= triggerAllLevel <= 255                 |
+//  +--------------------+---------------------------------------------+
+// ```
 // Although the numerical constraints on the four severity levels are
 // independent of one another, they are treated as logically coupled, and must
 // be set as a group.  If any one value cannot be successfully set, then the
@@ -65,12 +65,12 @@ BSLS_IDENT("$Id: $")
 ///Design Note
 ///-----------
 // This component provides a BDE constrained-attribute type designed to be
-// *useful* to 'ball::LoggerManager'.  However, 'ball::LoggerManagerDefaults'
-// is not 'ball::LoggerManagerConfiguration', the actual configuration object
-// used by the logger manager.  'ball::LoggerManagerConfiguration' is not a
+// *useful* to `ball::LoggerManager`.  However, `ball::LoggerManagerDefaults`
+// is not `ball::LoggerManagerConfiguration`, the actual configuration object
+// used by the logger manager.  `ball::LoggerManagerConfiguration` is not a
 // value semantic type, because it holds functors.
-// 'ball::LoggerManagerDefaults', which is used by
-// 'ball::LoggerManagerConfiguration', may be regarded as a factored detail of
+// `ball::LoggerManagerDefaults`, which is used by
+// `ball::LoggerManagerConfiguration`, may be regarded as a factored detail of
 // the actual configuration object.
 //
 ///Usage
@@ -80,55 +80,55 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // The following snippets of code illustrate how to use a
-// 'ball::LoggerManagerDefaults' object.  First, create a configuration object
-// 'lmd'.  Note that it is necessarily configured to valid but unpublished
+// `ball::LoggerManagerDefaults` object.  First, create a configuration object
+// `lmd`.  Note that it is necessarily configured to valid but unpublished
 // defaults.
-//..
-//  ball::LoggerManagerDefaults lmd;
-//..
+// ```
+// ball::LoggerManagerDefaults lmd;
+// ```
 // Next, set each attribute.  Note that the four severity threshold levels must
 // be set atomically (i.e., with a single four-argument "set" method).  Note
 // also that each "set" method will fail if the argument or set of arguments is
 // not valid, and so each method returns a status value.
-//..
-//  assert(    0 == lmd.setDefaultRecordBufferSizeIfValid(32768));
-//  assert(32768 == lmd.defaultRecordBufferSize());
+// ```
+// assert(    0 == lmd.setDefaultRecordBufferSizeIfValid(32768));
+// assert(32768 == lmd.defaultRecordBufferSize());
 //
-//  assert(   0 == lmd.setDefaultLoggerBufferSizeIfValid(2048));
-//  assert(2048 == lmd.defaultLoggerBufferSize());
+// assert(   0 == lmd.setDefaultLoggerBufferSizeIfValid(2048));
+// assert(2048 == lmd.defaultLoggerBufferSize());
 //
-//  assert(  0 == lmd.setDefaultThresholdLevelsIfValid(192, 64, 48, 32));
-//  assert(192 == lmd.defaultRecordLevel());
-//  assert( 64 == lmd.defaultPassLevel());
-//  assert( 48 == lmd.defaultTriggerLevel());
-//  assert( 32 == lmd.defaultTriggerAllLevel());
-//..
+// assert(  0 == lmd.setDefaultThresholdLevelsIfValid(192, 64, 48, 32));
+// assert(192 == lmd.defaultRecordLevel());
+// assert( 64 == lmd.defaultPassLevel());
+// assert( 48 == lmd.defaultTriggerLevel());
+// assert( 32 == lmd.defaultTriggerAllLevel());
+// ```
 // The configuration object is now validly configured with our choice of
 // parameters.  If, however, we attempt to set an invalid configuration, the
 // "set" method will fail (with a non-zero return status), and the
 // configuration will be left unchanged.
-//..
-//  assert(  0 != lmd.setDefaultThresholdLevelsIfValid(256, 90, 60, 30));
-//  assert(192 == lmd.defaultRecordLevel());
-//  assert( 64 == lmd.defaultPassLevel());
-//  assert( 48 == lmd.defaultTriggerLevel());
-//  assert( 32 == lmd.defaultTriggerAllLevel());
-//..
-// Finally, we can print the configuration value to 'stdout'.
-//..
-//  bsl::cout << lmd << bsl::endl;
-//..
+// ```
+// assert(  0 != lmd.setDefaultThresholdLevelsIfValid(256, 90, 60, 30));
+// assert(192 == lmd.defaultRecordLevel());
+// assert( 64 == lmd.defaultPassLevel());
+// assert( 48 == lmd.defaultTriggerLevel());
+// assert( 32 == lmd.defaultTriggerAllLevel());
+// ```
+// Finally, we can print the configuration value to `stdout`.
+// ```
+// bsl::cout << lmd << bsl::endl;
+// ```
 // This produces the following (multi-line) output:
-//..
-//  [
-//      recordBufferSize : 32768
-//      loggerBufferSize : 2048
-//      recordLevel      : 192
-//      passLevel        : 64
-//      triggerLevel     : 48
-//      triggerAllLevel  : 32
-//  ]
-//..
+// ```
+// [
+//     recordBufferSize : 32768
+//     loggerBufferSize : 2048
+//     recordLevel      : 192
+//     passLevel        : 64
+//     triggerLevel     : 48
+//     triggerAllLevel  : 32
+// ]
+// ```
 
 #include <balscm_version.h>
 
@@ -141,21 +141,21 @@ namespace ball {
                          // class LoggerManagerDefaults
                          // ===========================
 
+/// This class provides constrained configuration parameters for a logger
+/// manager.  The constraints are maintained as class invariants; it is not
+/// possible to obtain an invalid object through this interface.
+///
+/// More generally, this class supports a complete set of *value* *semantic*
+/// operations, including copy construction, assignment, equality
+/// comparison, `ostream` printing.  (A precise operational definition of
+/// when two instances have the same value can be found in the description
+/// of `operator==` for the class.)  This class is *exception* *neutral*
+/// with no guarantee of rollback: if an exception is thrown during the
+/// invocation of a method on a pre-existing instance, the object is left in
+/// a valid state, but its value is undefined.  In no event is memory
+/// leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+/// both source and destination) is supported in all cases.
 class LoggerManagerDefaults {
-    // This class provides constrained configuration parameters for a logger
-    // manager.  The constraints are maintained as class invariants; it is not
-    // possible to obtain an invalid object through this interface.
-    //
-    // More generally, this class supports a complete set of *value* *semantic*
-    // operations, including copy construction, assignment, equality
-    // comparison, 'ostream' printing.  (A precise operational definition of
-    // when two instances have the same value can be found in the description
-    // of 'operator==' for the class.)  This class is *exception* *neutral*
-    // with no guarantee of rollback: if an exception is thrown during the
-    // invocation of a method on a pre-existing instance, the object is left in
-    // a valid state, but its value is undefined.  In no event is memory
-    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
-    // both source and destination) is supported in all cases.
 
   private:
     // DATA
@@ -165,8 +165,9 @@ class LoggerManagerDefaults {
     int d_defaultRecordLevel;
     int d_defaultPassLevel;
     int d_defaultTriggerLevel;
+
+    // constrained set of default threshold levels for logger manager
     int d_defaultTriggerAllLevel;
-        // constrained set of default threshold levels for logger manager
 
     // FRIENDS
     friend bsl::ostream& operator<<(bsl::ostream&,
@@ -176,151 +177,156 @@ class LoggerManagerDefaults {
 
   public:
     // CLASS METHODS
+
+    /// Return `true` if the specified `numBytes` is a valid default-logger
+    /// record-buffer size attribute, and `false` otherwise.  `numBytes` is
+    /// valid if 0 < numBytes.
     static bool isValidDefaultRecordBufferSize(int numBytes);
-        // Return 'true' if the specified 'numBytes' is a valid default-logger
-        // record-buffer size attribute, and 'false' otherwise.  'numBytes' is
-        // valid if 0 < numBytes.
 
+    /// Return `true` if the specified `numBytes` is a valid default
+    /// logger-message-buffer size attribute, and `false` otherwise.
+    /// `numBytes` is valid if 0 < numBytes.
     static bool isValidDefaultLoggerBufferSize(int numBytes);
-        // Return 'true' if the specified 'numBytes' is a valid default
-        // logger-message-buffer size attribute, and 'false' otherwise.
-        // 'numBytes' is valid if 0 < numBytes.
 
+    /// Return `true` if each of the specified `recordLevel`, `passLevel`,
+    /// `triggerLevel`, and `triggerAllLevel` values is a valid default
+    /// severity threshold level attributes, and `false` otherwise.  Valid
+    /// severity threshold level values are in the range `[0 .. 255]`.
     static bool areValidDefaultThresholdLevels(int recordLevel,
                                                int passLevel,
                                                int triggerLevel,
                                                int triggerAllLevel);
-        // Return 'true' if each of the specified 'recordLevel', 'passLevel',
-        // 'triggerLevel', and 'triggerAllLevel' values is a valid default
-        // severity threshold level attributes, and 'false' otherwise.  Valid
-        // severity threshold level values are in the range '[0 .. 255]'.
 
+    /// Return the implementation-defined default-logger record-buffer size
+    /// value for this class.
     static int defaultDefaultRecordBufferSize();
-        // Return the implementation-defined default-logger record-buffer size
-        // value for this class.
 
+    /// Return the implementation-defined default logger-message-buffer size
+    /// value for this class.
     static int defaultDefaultLoggerBufferSize();
-        // Return the implementation-defined default logger-message-buffer size
-        // value for this class.
 
+    /// Return the implementation-defined default record threshold level
+    /// value for this class.
     static int defaultDefaultRecordLevel();
-        // Return the implementation-defined default record threshold level
-        // value for this class.
 
+    /// Return the implementation-defined default pass threshold level value
+    /// for this class.
     static int defaultDefaultPassLevel();
-        // Return the implementation-defined default pass threshold level value
-        // for this class.
 
+    /// Return the implementation-defined default trigger threshold level
+    /// value for this class.
     static int defaultDefaultTriggerLevel();
-        // Return the implementation-defined default trigger threshold level
-        // value for this class.
 
+    /// Return the implementation-defined default trigger-all threshold
+    /// value for this class.
     static int defaultDefaultTriggerAllLevel();
-        // Return the implementation-defined default trigger-all threshold
-        // value for this class.
 
     // CREATORS
+
+    /// Create a logger manager default-values constrained-attribute object
+    /// having valid default values for all attributes.
     LoggerManagerDefaults();
-        // Create a logger manager default-values constrained-attribute object
-        // having valid default values for all attributes.
 
+    /// Create a logger manager default-values constrained-attribute object
+    /// having the value of the specified `original` object.
     LoggerManagerDefaults(const LoggerManagerDefaults& original);
-        // Create a logger manager default-values constrained-attribute object
-        // having the value of the specified 'original' object.
 
+    /// Destroy this logger manager default-values constrained-attribute
+    /// object.
     ~LoggerManagerDefaults();
-        // Destroy this logger manager default-values constrained-attribute
-        // object.
 
     // MANIPULATORS
+
+    /// Assign to this logger manager default-values constrained-attribute
+    /// object the value of the specified `rhs` object.
     LoggerManagerDefaults& operator=(const LoggerManagerDefaults& rhs);
-        // Assign to this logger manager default-values constrained-attribute
-        // object the value of the specified 'rhs' object.
 
+    /// Set the default-logger record-buffer size attribute of this object
+    /// to the specified `numBytes` if 0 < numBytes.  Return 0 on success,
+    /// and a non-zero value (with no effect on the state of this object)
+    /// otherwise.
     int setDefaultRecordBufferSizeIfValid(int numBytes);
-        // Set the default-logger record-buffer size attribute of this object
-        // to the specified 'numBytes' if 0 < numBytes.  Return 0 on success,
-        // and a non-zero value (with no effect on the state of this object)
-        // otherwise.
 
+    /// Set the default logger-message-buffer size attribute of this object
+    /// to the specified `numBytes` if 0 < numBytes.  Return 0 on success,
+    /// and a non-zero value (with no effect on the state of this object)
+    /// otherwise.
     int setDefaultLoggerBufferSizeIfValid(int numBytes);
-        // Set the default logger-message-buffer size attribute of this object
-        // to the specified 'numBytes' if 0 < numBytes.  Return 0 on success,
-        // and a non-zero value (with no effect on the state of this object)
-        // otherwise.
 
+    /// Set the pass-through severity threshold level attribute of the
+    /// `LoggerManagerDefaults` attribute of this object to the
+    /// specified `passLevel`, if it is in the range `[0 .. 255]`, and set
+    /// all the other threshold levels (recordLevel, triggerLevel,
+    /// triggerAllLevel) to 0.  Return 0 on success, and a non-zero value
+    /// otherwise with no effect on this object.
     int setDefaultThresholdLevelsIfValid(int passLevel);
-        // Set the pass-through severity threshold level attribute of the
-        // 'LoggerManagerDefaults' attribute of this object to the
-        // specified 'passLevel', if it is in the range '[0 .. 255]', and set
-        // all the other threshold levels (recordLevel, triggerLevel,
-        // triggerAllLevel) to 0.  Return 0 on success, and a non-zero value
-        // otherwise with no effect on this object.
 
+    /// Set the quadruplet of default severity threshold level attributes of
+    /// this object to the specified `recordLevel`, `passLevel`,
+    /// `triggerLevel`, and `triggerAllLevel` values if each level is in the
+    /// range `[0 .. 255]`.  Return 0 on success, and a non-zero value (with
+    /// no effect on the state of this object) otherwise.
     int setDefaultThresholdLevelsIfValid(int recordLevel,
                                          int passLevel,
                                          int triggerLevel,
                                          int triggerAllLevel);
-        // Set the quadruplet of default severity threshold level attributes of
-        // this object to the specified 'recordLevel', 'passLevel',
-        // 'triggerLevel', and 'triggerAllLevel' values if each level is in the
-        // range '[0 .. 255]'.  Return 0 on success, and a non-zero value (with
-        // no effect on the state of this object) otherwise.
 
     // ACCESSORS
+
+    /// Return the default-logger record-buffer size attribute of this
+    /// object.
     int defaultRecordBufferSize() const;
-        // Return the default-logger record-buffer size attribute of this
-        // object.
 
+    /// Return the default logger-message-buffer size attribute of this
+    /// object.
     int defaultLoggerBufferSize() const;
-        // Return the default logger-message-buffer size attribute of this
-        // object.
 
+    /// Return the default record threshold level attribute of this object.
     int defaultRecordLevel() const;
-        // Return the default record threshold level attribute of this object.
 
+    /// Return the default pass threshold level attribute of this object.
     int defaultPassLevel() const;
-        // Return the default pass threshold level attribute of this object.
 
+    /// Return the default trigger threshold level attribute of this object.
     int defaultTriggerLevel() const;
-        // Return the default trigger threshold level attribute of this object.
 
+    /// Return the default trigger-all threshold level attribute of this
+    /// object.
     int defaultTriggerAllLevel() const;
-        // Return the default trigger-all threshold level attribute of this
-        // object.
 
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level` and return a
+    /// reference to `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for
+    /// this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, suppress all indentation AND format the entire output on
+    /// one line.  If `stream` is not valid on entry, this operation has no
+    /// effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level' and return a
-        // reference to 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, suppress all indentation AND format the entire output on
-        // one line.  If 'stream' is not valid on entry, this operation has no
-        // effect.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects objects
+/// have the same value if each respective attribute has the same value.
 bool operator==(const LoggerManagerDefaults& lhs,
                 const LoggerManagerDefaults& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects objects
-    // have the same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 bool operator!=(const LoggerManagerDefaults& lhs,
                const LoggerManagerDefaults& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Write the specified `defaults` object to the specified output `stream`
+/// in a reasonable multi-line format.
 bsl::ostream& operator<<(bsl::ostream&                stream,
                          const LoggerManagerDefaults& defaults);
-    // Write the specified 'defaults' object to the specified output 'stream'
-    // in a reasonable multi-line format.
 
 }  // close package namespace
 }  // close enterprise namespace

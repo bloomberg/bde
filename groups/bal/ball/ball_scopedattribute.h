@@ -9,8 +9,8 @@
 //
 //@SEE_ALSO: ball_attribute
 //
-//@DESCRIPTION: This component defines a type, 'ball::ScopedAttribute', that
-// serves as a scoped guard for 'ball::Attribute' objects.  It defines a single
+//@DESCRIPTION: This component defines a type, `ball::ScopedAttribute`, that
+// serves as a scoped guard for `ball::Attribute` objects.  It defines a single
 // attribute for the current thread while it is in scope.
 //
 // This component is used to associate an attribute (a name-value pair) with
@@ -25,26 +25,26 @@
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Usage of 'ball::ScopedAttribute'
+///Example 1: Basic Usage of `ball::ScopedAttribute`
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that service requests for a fictional service with id '999' are
+// Suppose that service requests for a fictional service with id `999` are
 // handled asynchronously by the function below.  Creating an instance of this
 // class will set BALL attributes for any logging performed while the request
 // is being processed:
-//..
-//  void handleServiceRequest(const Request& request)
-//  {
-//     BALL_LOG_SET_CATEGORY("MY.SERVICE");
+// ```
+// void handleServiceRequest(const Request& request)
+// {
+//    BALL_LOG_SET_CATEGORY("MY.SERVICE");
 //
-//     ball::ScopedAttribute attribute("request", request.selectionName());
+//    ball::ScopedAttribute attribute("request", request.selectionName());
 //
-//     BALL_LOG_TRACE << "Handling request: " << request;
+//    BALL_LOG_TRACE << "Handling request: " << request;
 //
-//     // handle request here
-//  }
-//..
+//    // handle request here
+// }
+// ```
 // Attribute "request" will be set in the calling thread and will affect
-// publication of any BALL messages for the lifetime of 'attribute'.
+// publication of any BALL messages for the lifetime of `attribute`.
 
 #include <balscm_version.h>
 
@@ -75,9 +75,9 @@ namespace ball {
                     // class ScopedAttribute_Container
                     // ===============================
 
+/// This component-private class is a concrete implementation of the
+/// `AttributeContainer` protocol for a single attribute.
 class ScopedAttribute_Container : public AttributeContainer {
-    // This component-private class is a concrete implementation of the
-    // 'AttributeContainer' protocol for a single attribute.
 
     // DATA
     Attribute d_attribute;
@@ -95,6 +95,11 @@ class ScopedAttribute_Container : public AttributeContainer {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a BALL attribute container holding a single rule, associating
+    /// the specified `name` with the specified `value`.  Optionally specify
+    /// an `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory; otherwise, the default allocator is used.
     ScopedAttribute_Container(
                         const char              *name,
                         const bsl::string_view&  value,
@@ -135,53 +140,50 @@ class ScopedAttribute_Container : public AttributeContainer {
                         const char              *name,
                         const void              *value,
                         const allocator_type&    allocator = allocator_type());
-        // Create a BALL attribute container holding a single rule, associating
-        // the specified 'name' with the specified 'value'.  Optionally specify
-        // an 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory; otherwise, the default allocator is used.
 
+    /// Destroy this object;
     ~ScopedAttribute_Container() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object;
 
     // ACCESSORS
-    bool hasValue(const Attribute& attribute) const BSLS_KEYWORD_OVERRIDE;
-        // Return 'true' if the specified 'attribute' is the same as the value
-        // held in this container, and 'false' otherwise.
 
+    /// Return `true` if the specified `attribute` is the same as the value
+    /// held in this container, and `false` otherwise.
+    bool hasValue(const Attribute& attribute) const BSLS_KEYWORD_OVERRIDE;
+
+    /// Format this object to the specified output `stream` at the (absolute
+    /// value of) the optionally specified indentation `level` and return a
+    /// reference to `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for
+    /// this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, format the entire output on one line, suppressing all but
+    /// the initial indentation (as governed by `level`).  If `stream` is
+    /// not valid on entry, this operation has no effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4)
                                                    const BSLS_KEYWORD_OVERRIDE;
-        // Format this object to the specified output 'stream' at the (absolute
-        // value of) the optionally specified indentation 'level' and return a
-        // reference to 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.
 
+    /// Invoke the specified `visitor` function for all attributes in this
+    /// container.
     void visitAttributes(const bsl::function<void(const Attribute&)>& visitor)
                                                    const BSLS_KEYWORD_OVERRIDE;
-        // Invoke the specified 'visitor' function for all attributes in this
-        // container.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.  Note
+    /// that if no allocator was supplied at construction the default
+    /// allocator in effect at construction is used.
     allocator_type get_allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the default
-        // allocator in effect at construction is used.
 };
 
                          // =====================
                          // class ScopedAttribute
                          // =====================
 
+/// This class provides a scoped guard that sets a single BALL attribute in
+/// the current thread.
 class ScopedAttribute {
-    // This class provides a scoped guard that sets a single BALL attribute in
-    // the current thread.
 
     // DATA
     ScopedAttribute_Container        d_container;  // contains the attribute
@@ -202,6 +204,12 @@ class ScopedAttribute {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Set BALL logging attributes for the current thread for the scope of
+    /// this object, associating the specified `name` with the specified
+    /// `value`.  Optionally specify an `allocator` (e.g., the address of a
+    /// `bslma::Allocator` object) to supply memory; otherwise, the default
+    /// allocator is used.
     ScopedAttribute(const char              *name,
                     const bsl::string_view&  value,
                     const allocator_type&    allocator = allocator_type());
@@ -232,22 +240,17 @@ class ScopedAttribute {
     ScopedAttribute(const char              *name,
                     const void              *value,
                     const allocator_type&    allocator = allocator_type());
-        // Set BALL logging attributes for the current thread for the scope of
-        // this object, associating the specified 'name' with the specified
-        // 'value'.  Optionally specify an 'allocator' (e.g., the address of a
-        // 'bslma::Allocator' object) to supply memory; otherwise, the default
-        // allocator is used.
 
+    /// Remove the attributes managed by this object from the BALL system,
+    /// and destroy this object.
     ~ScopedAttribute();
-        // Remove the attributes managed by this object from the BALL system,
-        // and destroy this object.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.  Note
+    /// that if no allocator was supplied at construction the default
+    /// allocator in effect at construction is used.
     allocator_type get_allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the default
-        // allocator in effect at construction is used.
 };
 
 // ============================================================================

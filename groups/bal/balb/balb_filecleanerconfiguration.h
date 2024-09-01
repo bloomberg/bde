@@ -13,30 +13,28 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: balb_filecleanerutil
 //
 //@DESCRIPTION: This component provides a single, simply constrained
-// (value-semantic) attribute class, 'balb::FileCleanerConfiguration', that
+// (value-semantic) attribute class, `balb::FileCleanerConfiguration`, that
 // contains a set of attributes (objects and parameters) of a file cleaner.
 //
 ///Attributes
 ///----------
-//..
-//  Name            Type                Default         Simple Constraints
-//  --------------  ------------------  --------------  ------------------
-//  filePattern     bsl::string         ""              none
-//  maxFileAge      bsls::TimeInterval  TimeInterval()  none
-//  minNumFiles     int                 0               [0 .. INT_MAX]
-//..
-//: o 'filePattern': filesystem pattern used for file matching.
-//:
-//: o 'maxFileAge' : maximum file age (since last modification).
-//:
-//: o 'minNumFiles': minumum number of (newest) files, matching the pattern,
-//:   that must be kept by the file cleaner.
+// ```
+// Name            Type                Default         Simple Constraints
+// --------------  ------------------  --------------  ------------------
+// filePattern     bsl::string         ""              none
+// maxFileAge      bsls::TimeInterval  TimeInterval()  none
+// minNumFiles     int                 0               [0 .. INT_MAX]
+// ```
+// * `filePattern`: filesystem pattern used for file matching.
+// * `maxFileAge` : maximum file age (since last modification).
+// * `minNumFiles`: minumum number of (newest) files, matching the pattern,
+//   that must be kept by the file cleaner.
 //
 ///Thread Safety
 ///-------------
-// 'balb::FileCleanerConfiguration' is *const* *thread-safe*, meaning that
+// `balb::FileCleanerConfiguration` is *const* *thread-safe*, meaning that
 // accessors may be invoked concurrently from different threads, but it is not
-// safe to access or modify a 'balb::FileCleanerConfiguration' in one thread
+// safe to access or modify a `balb::FileCleanerConfiguration` in one thread
 // while another thread modifies the same object.
 //
 ///Usage
@@ -46,39 +44,39 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // The following code illustrates how to create a configuration that can be
-// later supplied to a file cleanup utility (see {'balb_filecleanerutil'} for
+// later supplied to a file cleanup utility (see {`balb_filecleanerutil`} for
 // an example of how to use the created configuration to perform file
 // cleaning).
 //
-// First, we create a 'balb::FileCleanerConfiguration' object having the
+// First, we create a `balb::FileCleanerConfiguration` object having the
 // default value:
-//..
-//  balb::FileCleanerConfiguration config;
-//..
+// ```
+// balb::FileCleanerConfiguration config;
+// ```
 // Next, we populate the attributes of our configuration object:
-//..
-//  config.setFilePattern("/var/log/myApp/log*");
-//  config.setMaxFileAge(bsls::TimeInterval(60*60*24));
-//  config.setMinFilesNumber(4);
-//..
+// ```
+// config.setFilePattern("/var/log/myApp/log*");
+// config.setMaxFileAge(bsls::TimeInterval(60*60*24));
+// config.setMinFilesNumber(4);
+// ```
 // Now, we verify the options are configured correctly:
-//..
-//  assert("/var/log/myApp/log*" == config.filePattern());
-//  assert(bsls::TimeInterval(60*60*24) == config.maxFileAge());
-//  assert(4 == config.minNumFiles());
-//..
-// Finally, we print the configuration value to 'cout' and return:
-//..
-//  bsl::cout << config << bsl::endl;
-//..
+// ```
+// assert("/var/log/myApp/log*" == config.filePattern());
+// assert(bsls::TimeInterval(60*60*24) == config.maxFileAge());
+// assert(4 == config.minNumFiles());
+// ```
+// Finally, we print the configuration value to `cout` and return:
+// ```
+// bsl::cout << config << bsl::endl;
+// ```
 // This produces the following (multi-line) output:
-//..
-//  [
-//      FilePattern = /var/log/myApp/log*
-//      MaxFileAge = (86400, 0)
-//      MinNumFiles = 4
-//  ]
-//..
+// ```
+// [
+//     FilePattern = /var/log/myApp/log*
+//     MaxFileAge = (86400, 0)
+//     MinNumFiles = 4
+// ]
+// ```
 
 #include <balscm_version.h>
 
@@ -101,20 +99,20 @@ namespace balb {
                     // class FileCleanerConfiguration
                     // ==============================
 
+/// This simply constrained (value-semantic) attribute class characterizes
+/// configuration parameters for a file cleaner.  See the {Attributes}
+/// section under @DESCRIPTION in the component-level documentation for
+/// information on the class attributes.  Note that the class invariants are
+/// identically the constraints on the individual attributes.
+///
+/// This class:
+/// * supports a complete set of *value-semantic* operations
+///   - except for `bdex` serialization
+/// * is *exception-neutral* (agnostic)
+/// * is *alias-safe*
+/// * is `const` *thread-safe*
+/// For terminology see `bsldoc_glossary`.
 class FileCleanerConfiguration {
-    // This simply constrained (value-semantic) attribute class characterizes
-    // configuration parameters for a file cleaner.  See the {Attributes}
-    // section under @DESCRIPTION in the component-level documentation for
-    // information on the class attributes.  Note that the class invariants are
-    // identically the constraints on the individual attributes.
-    //
-    // This class:
-    //: o supports a complete set of *value-semantic* operations
-    //:   o except for 'bdex' serialization
-    //: o is *exception-neutral* (agnostic)
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology see 'bsldoc_glossary'.
 
   private:
     // DATA
@@ -135,96 +133,100 @@ class FileCleanerConfiguration {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit FileCleanerConfiguration(bslma::Allocator *basicAllocator = 0);
-        // Create a file cleaner configuration object having default values for
-        // all attributes.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a file cleaner configuration object having default values for
+    /// all attributes.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
+    explicit FileCleanerConfiguration(bslma::Allocator *basicAllocator = 0);
+
+    /// Create a file cleaner configuration object having the specified
+    /// `filePattern`, `maxAge`, and `minNumber` attribute values.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     FileCleanerConfiguration(const bsl::string_view&    filePattern,
                              const bsls::TimeInterval&  maxAge,
                              int                        minNumber,
                              bslma::Allocator          *basicAllocator = 0);
-        // Create a file cleaner configuration object having the specified
-        // 'filePattern', 'maxAge', and 'minNumber' attribute values.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create a file cleaner configuration object having the in-core value
+    /// of the specified `original` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     FileCleanerConfiguration(
                           const FileCleanerConfiguration&  original,
                           bslma::Allocator                *basicAllocator = 0);
-        // Create a file cleaner configuration object having the in-core value
-        // of the specified 'original' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
     //! ~FileCleanerConfiguration() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this file cleaner configuration object the in-core value
+    /// of the specified `rhs` object, and return a reference providing
+    /// modifiable access to this object.
     FileCleanerConfiguration& operator=(const FileCleanerConfiguration& rhs);
-        // Assign to this file cleaner configuration object the in-core value
-        // of the specified 'rhs' object, and return a reference providing
-        // modifiable access to this object.
 
+    /// Set the file pattern attribute of this object to the specified
+    /// `filePattern`.
     void setFilePattern(const bsl::string_view& filePattern);
-        // Set the file pattern attribute of this object to the specified
-        // 'filePattern'.
 
+    /// Set the maximum file age attribute of this object to the specified
+    /// `maxAge`.
     void setMaxFileAge(const bsls::TimeInterval& maxAge);
-        // Set the maximum file age attribute of this object to the specified
-        // 'maxAge'.
 
+    /// Set the minimum number of files to keep attribute of this object to
+    /// the specified `minNumber`.
     void setMinNumFiles(int minNumber);
-        // Set the minimum number of files to keep attribute of this object to
-        // the specified 'minNumber'.
 
     // ACCESSORS
+
+    /// Return a `const` reference to the file pattern attribute of this
+    /// object.
     const bsl::string& filePattern() const;
-        // Return a 'const' reference to the file pattern attribute of this
-        // object.
 
+    /// Return the maximum file age attribute of this object.
     bsls::TimeInterval maxFileAge() const;
-        // Return the maximum file age attribute of this object.
 
+    /// Return the minimum number of files to keep attribute of this object.
     int minNumFiles() const;
-        // Return the minimum number of files to keep attribute of this object.
 
+    /// Format a reasonable representation of this object to the specified
+    /// output `stream` at the (absolute value of) the optionally specified
+    /// indentation `level` and return a reference to `stream`.  If `level`
+    /// is specified, optionally specify `spacesPerLevel`, the number of
+    /// spaces per indentation level for this and all of its nested objects.
+    /// If `level` is negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress all indentation AND format
+    /// the entire output on one line.  If `stream` is not valid on entry,
+    /// this operation has no effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
-        // Format a reasonable representation of this object to the specified
-        // output 'stream' at the (absolute value of) the optionally specified
-        // indentation 'level' and return a reference to 'stream'.  If 'level'
-        // is specified, optionally specify 'spacesPerLevel', the number of
-        // spaces per indentation level for this and all of its nested objects.
-        // If 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress all indentation AND format
-        // the entire output on one line.  If 'stream' is not valid on entry,
-        // this operation has no effect.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same (in-core) value, and `false` otherwise.  Two attribute objects
+/// have the same in-core value if each respective attribute has the same
+/// in-core value.
 bool operator==(const FileCleanerConfiguration& lhs,
                 const FileCleanerConfiguration& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same (in-core) value, and 'false' otherwise.  Two attribute objects
-    // have the same in-core value if each respective attribute has the same
-    // in-core value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same (in-core) value, and `false` otherwise.  Two attribute
+/// objects do not have the same in-core value if one or more respective
+/// attributes differ in in-core values.
 bool operator!=(const FileCleanerConfiguration& lhs,
                 const FileCleanerConfiguration& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same (in-core) value, and 'false' otherwise.  Two attribute
-    // objects do not have the same in-core value if one or more respective
-    // attributes differ in in-core values.
 
+/// Write a reasonable representation of the specified `configuration`
+/// object to the specified output `stream`, and return a reference to
+/// `stream`.
 bsl::ostream& operator<<(bsl::ostream&                   stream,
                          const FileCleanerConfiguration& configuration);
-    // Write a reasonable representation of the specified 'configuration'
-    // object to the specified output 'stream', and return a reference to
-    // 'stream'.
 
 // ============================================================================
 //                            INLINE DEFINITIONS

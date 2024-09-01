@@ -12,168 +12,168 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: http://www.w3.org/TR/xmlschema-2/
 //
-//@DESCRIPTION: The 'balxml::TypesPrintUtil' 'struct' provided by this
+//@DESCRIPTION: The `balxml::TypesPrintUtil` `struct` provided by this
 // component contains the following functions:
 //
-//: 'print':
+//: `print`:
 //:   Print an object using the supplied formatting mode.
 //:
-//: 'printBase64':
-//:   Print an object using 'bdlat_FormattingMode::e_BASE64'.
+//: `printBase64`:
+//:   Print an object using `bdlat_FormattingMode::e_BASE64`.
 //:
-//: 'printDecimal':
-//:   Print an object using 'bdlat_FormattingMode::e_DEC'.
+//: `printDecimal`:
+//:   Print an object using `bdlat_FormattingMode::e_DEC`.
 //:
-//: 'printDefault':
-//:   Print an object using 'bdlat_FormattingMode::e_DEFAULT'.
+//: `printDefault`:
+//:   Print an object using `bdlat_FormattingMode::e_DEFAULT`.
 //:
-//: 'printHex':
-//:   Print an object using 'bdlat_FormattingMode::e_HEX'.
+//: `printHex`:
+//:   Print an object using `bdlat_FormattingMode::e_HEX`.
 //:
-//: 'printList':
-//:   Print an object using 'bdlat_FormattingMode::e_IS_LIST'.
+//: `printList`:
+//:   Print an object using `bdlat_FormattingMode::e_IS_LIST`.
 //:
-//: 'printText':
-//:   Print an object using 'bdlat_FormattingMode::e_TEXT'.
+//: `printText`:
+//:   Print an object using `bdlat_FormattingMode::e_TEXT`.
 //
 // The output is generated according to each type's lexical representation as
 // described in the XML Schema Specification, which is available at
-// 'http://www.w3.org/TR/xmlschema-2/'.  The text input is parsed and output
+// `http://www.w3.org/TR/xmlschema-2/`.  The text input is parsed and output
 // according to the XML-1.0 with UTF-8 encoding, which prevents control
 // characters (accepted by UTF-8) but otherwise accepts valid characters as
 // described in the Unicode Standard 4.0, which is available at
-// 'http://www.unicode.org/versions/Unicode4.0.0/' (well-formed UTF-8 byte
+// `http://www.unicode.org/versions/Unicode4.0.0/` (well-formed UTF-8 byte
 // sequences are described in Chapter 3, Section 3.9 and Table 3.5).
 //
 // The following C++ Type / Formatting Mode combinations are supported by this
 // component:
-//..
-//      C++ Type                            Formatting Mode
-//      --------                            ---------------
-//      bool                                e_DEFAULT, e_DEC, e_TEXT
-//      char                                e_DEFAULT, e_DEC, e_TEXT
-//      unsigned char                       e_DEFAULT, e_DEC
-//      [unsigned] short                    e_DEFAULT, e_DEC
-//      [unsigned] int                      e_DEFAULT, e_DEC
-//      [unsigned] long                     e_DEFAULT, e_DEC
-//      bsls::Types::[Uint64|Int64]         e_DEFAULT, e_DEC
-//      float                               e_DEFAULT, e_DEC
-//      double                              e_DEFAULT, e_DEC
-//      bdldfp::Decimal64                   e_DEFAULT, e_DEC
-//      bsl::string                         e_DEFAULT, e_TEXT, e_BASE64, e_HEX
-//      bdlt::Date                          e_DEFAULT
-//      bdlt::DateTz                        e_DEFAULT
-//      bdlt::Datetime                      e_DEFAULT
-//      bdlt::DateTimeTz                    e_DEFAULT
-//      bdlt::Time                          e_DEFAULT
-//      bdlt::TimeTz                        e_DEFAULT
-//      bdlb::Variant2<DateTz, Date>        e_DEFAULT
-//      bdlb::Variant2<TimeTz, Time>        e_DEFAULT
-//      Variant2<DatetimeTz, Datetime>      e_DEFAULT
-//      bsl::vector<char>                   e_DEFAULT, e_BASE64, e_HEX, e_TEXT,
-//                                          e_IS_LIST
-//..
+// ```
+//     C++ Type                            Formatting Mode
+//     --------                            ---------------
+//     bool                                e_DEFAULT, e_DEC, e_TEXT
+//     char                                e_DEFAULT, e_DEC, e_TEXT
+//     unsigned char                       e_DEFAULT, e_DEC
+//     [unsigned] short                    e_DEFAULT, e_DEC
+//     [unsigned] int                      e_DEFAULT, e_DEC
+//     [unsigned] long                     e_DEFAULT, e_DEC
+//     bsls::Types::[Uint64|Int64]         e_DEFAULT, e_DEC
+//     float                               e_DEFAULT, e_DEC
+//     double                              e_DEFAULT, e_DEC
+//     bdldfp::Decimal64                   e_DEFAULT, e_DEC
+//     bsl::string                         e_DEFAULT, e_TEXT, e_BASE64, e_HEX
+//     bdlt::Date                          e_DEFAULT
+//     bdlt::DateTz                        e_DEFAULT
+//     bdlt::Datetime                      e_DEFAULT
+//     bdlt::DateTimeTz                    e_DEFAULT
+//     bdlt::Time                          e_DEFAULT
+//     bdlt::TimeTz                        e_DEFAULT
+//     bdlb::Variant2<DateTz, Date>        e_DEFAULT
+//     bdlb::Variant2<TimeTz, Time>        e_DEFAULT
+//     Variant2<DatetimeTz, Datetime>      e_DEFAULT
+//     bsl::vector<char>                   e_DEFAULT, e_BASE64, e_HEX, e_TEXT,
+//                                         e_IS_LIST
+// ```
 // In addition to the types listed above, this component also recognizes the
-// following 'bdlat' type categories:
-//..
-//      'bdlat' Type Category               Formatting Mode
-//      ---------------------               ---------------
-//      Enumeration                         e_DEFAULT, e_TEXT, e_DECIMAL
-//      CustomizedType                      Base type's formatting modes
-//      Array                               e_IS_LIST
-//..
-// When 'bdlat_FormattingMode::e_DEFAULT' is used, the actual formatting mode
+// following `bdlat` type categories:
+// ```
+//     'bdlat' Type Category               Formatting Mode
+//     ---------------------               ---------------
+//     Enumeration                         e_DEFAULT, e_TEXT, e_DECIMAL
+//     CustomizedType                      Base type's formatting modes
+//     Array                               e_IS_LIST
+// ```
+// When `bdlat_FormattingMode::e_DEFAULT` is used, the actual formatting mode
 // selected is based on the following mapping:
-//..
-//      C++ Type                            Default Formatting Mode
-//      --------                            -----------------------
-//      bool                                e_DEC or e_TEXT
-//      [unsigned] char                     e_DEC
-//      [unsigned] short                    e_DEC
-//      [unsigned] int                      e_DEC
-//      [unsigned] long                     e_DEC
-//      bsls::Types::[Uint64|Int64]         e_DEC
-//      bsl::string                         e_TEXT
-//      bsl::vector<char>                   e_BASE64
+// ```
+//     C++ Type                            Default Formatting Mode
+//     --------                            -----------------------
+//     bool                                e_DEC or e_TEXT
+//     [unsigned] char                     e_DEC
+//     [unsigned] short                    e_DEC
+//     [unsigned] int                      e_DEC
+//     [unsigned] long                     e_DEC
+//     bsls::Types::[Uint64|Int64]         e_DEC
+//     bsl::string                         e_TEXT
+//     bsl::vector<char>                   e_BASE64
 //
-//      'bdlat' Type Category               Default Formatting Mode
-//      ---------------------               -----------------------
-//      Enumeration                         e_TEXT
-//..
+//     'bdlat' Type Category               Default Formatting Mode
+//     ---------------------               -----------------------
+//     Enumeration                         e_TEXT
+// ```
 //
-///Behavior of 'printText' on Non-Valid Strings
+///Behavior of `printText` on Non-Valid Strings
 ///--------------------------------------------
-// The output of 'printText' will always be valid XML 1.0 with UTF-8 encoding.
+// The output of `printText` will always be valid XML 1.0 with UTF-8 encoding.
 // When attempting to print text data that contains non-valid UTF-8 characters
-// or non-printable control characters using 'printText', this component prints
+// or non-printable control characters using `printText`, this component prints
 // the valid characters up to and excluding the first invalid character.  See
-// the second example in the 'Usage' section for an illustration.
+// the second example in the `Usage` section for an illustration.
 //
 ///Usage
 ///-----
 // The following snippets of code illustrates how to print an
-// 'bsl::vector<char>' object in Base64 format:
-//..
-//  #include <balxml_typesprintutil.h>
+// `bsl::vector<char>` object in Base64 format:
+// ```
+// #include <balxml_typesprintutil.h>
 //
-//  #include <cassert>
-//  #include <sstream>
-//  #include <vector>
+// #include <cassert>
+// #include <sstream>
+// #include <vector>
 //
-//  using namespace BloombergLP;
+// using namespace BloombergLP;
 //
-//  void usageExample1()
-//  {
-//      bsl::ostringstream ss;
+// void usageExample1()
+// {
+//     bsl::ostringstream ss;
 //
-//      bsl::vector<char> vec;
-//      vec.push_back('a');
-//      vec.push_back('b');
-//      vec.push_back('c');
-//      vec.push_back('d');
+//     bsl::vector<char> vec;
+//     vec.push_back('a');
+//     vec.push_back('b');
+//     vec.push_back('c');
+//     vec.push_back('d');
 //
-//      const char EXPECTED_RESULT[] = "YWJjZA==";
+//     const char EXPECTED_RESULT[] = "YWJjZA==";
 //
-//      balxml::TypesPrintUtil::printBase64(ss, vec);
-//      assert(EXPECTED_RESULT == ss.str());
-//  }
-//..
+//     balxml::TypesPrintUtil::printBase64(ss, vec);
+//     assert(EXPECTED_RESULT == ss.str());
+// }
+// ```
 // The following snippet of shows what can be expected when printing valid or
-// invalid data via 'printText':
-//..
-//  void usageExample2()
-//  {
-//      bsl::ostringstream ss;
+// invalid data via `printText`:
+// ```
+// void usageExample2()
+// {
+//     bsl::ostringstream ss;
 //
-//      const char VALID_STR[] = "Hello \t 'World'";
-//..
-// Note that all characters in the range '0x01' to '0x7F' are valid first bytes
-// (including printable ASCII, TAB '0x09', or LF '0x0a', but excluding control
-// characters other than TAB and LF) and that ampersand ('&' or '0x26'),
-// less-than ('<' or '0x3c'), greater-than ('>' or '0x3e'), apostrophe
-// ('0x27'), and quote ('"') will be printed as '&amp;', '&lt;', '&gt',
-// '&apos;' and '&quot;' respectively.  Hence the expected output for the above
-// string 'VALID_STR' is:
-//..
-//      const char EXPECTED_RESULT[] = "Hello \t &apos;World&apos;";
-//..
-// We can test that 'printText' will successfully print the string:
-//..
-//      balxml::TypesPrintUtil::printText(ss, VALID_STR);
-//      assert(ss.good());
-//      assert(EXPECTED_RESULT == ss.str());
-//..
+//     const char VALID_STR[] = "Hello \t 'World'";
+// ```
+// Note that all characters in the range `0x01` to `0x7F` are valid first bytes
+// (including printable ASCII, TAB `0x09`, or LF `0x0a`, but excluding control
+// characters other than TAB and LF) and that ampersand (`&` or `0x26`),
+// less-than (`<` or `0x3c`), greater-than (`>` or `0x3e`), apostrophe
+// (`0x27`), and quote (`"`) will be printed as `&amp;`, `&lt;`, `&gt`,
+// `&apos;` and `&quot;` respectively.  Hence the expected output for the above
+// string `VALID_STR` is:
+// ```
+//     const char EXPECTED_RESULT[] = "Hello \t &apos;World&apos;";
+// ```
+// We can test that `printText` will successfully print the string:
+// ```
+//     balxml::TypesPrintUtil::printText(ss, VALID_STR);
+//     assert(ss.good());
+//     assert(EXPECTED_RESULT == ss.str());
+// ```
 // In addition, when invalid data is printed, the stream is set to a bad state
 // which is the proper means for the user to detect an error, as shown in the
 // following code snippet:
-//..
-//      ss.str("");
-//      const char INVALID_STR[]  = "Hello \300\t 'World'";
-//      balxml::TypesPrintUtil::printText(ss, INVALID_STR);
-//      assert(ss.fail());
-//      assert("Hello " == ss.str());
-//  }
-//..
+// ```
+//     ss.str("");
+//     const char INVALID_STR[]  = "Hello \300\t 'World'";
+//     balxml::TypesPrintUtil::printText(ss, INVALID_STR);
+//     assert(ss.fail());
+//     assert("Hello " == ss.str());
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -220,119 +220,122 @@ namespace balxml {
                            // struct TypesPrintUtil
                            // =====================
 
+/// This `struct` contains functions for printing objects to output streams
+/// using various formatting modes.
 struct TypesPrintUtil {
-    // This 'struct' contains functions for printing objects to output streams
-    // using various formatting modes.
 
     // CLASS METHODS
+
+    /// Format the specified `object` to the specified output `stream` using
+    /// the specified `formattingMode` and the optionally specified
+    /// `encoderOptions` and return a reference to `stream`.  The behavior
+    /// is undefined unless the parameterized `TYPE` and the
+    /// `formattingMode` combination is supported (supported combinations
+    /// are listed in the component-level documentation).
     template <class TYPE>
     static bsl::ostream& print(bsl::ostream&         stream,
                                const TYPE&           object,
                                int                   formattingMode,
                                const EncoderOptions *encoderOptions = 0);
-        // Format the specified 'object' to the specified output 'stream' using
-        // the specified 'formattingMode' and the optionally specified
-        // 'encoderOptions' and return a reference to 'stream'.  The behavior
-        // is undefined unless the parameterized 'TYPE' and the
-        // 'formattingMode' combination is supported (supported combinations
-        // are listed in the component-level documentation).
 
+    /// Format the specified `object` to the specified output `stream` using
+    /// the `bdlat_FormattingMode::e_BASE64` formatting mode and the
+    /// optionally specified `encoderOptions`.  Return a reference to
+    /// `stream`.
     template <class TYPE>
     static bsl::ostream& printBase64(bsl::ostream&         stream,
                                      const TYPE&           object,
                                      const EncoderOptions *encoderOptions = 0);
-        // Format the specified 'object' to the specified output 'stream' using
-        // the 'bdlat_FormattingMode::e_BASE64' formatting mode and the
-        // optionally specified 'encoderOptions'.  Return a reference to
-        // 'stream'.
 
+    /// Format the specified `object` to the specified output `stream` using
+    /// the `bdlat_FormattingMode::e_DEC` formatting mode and the
+    /// optionally specified `encoderOptions`.  Return a reference to
+    /// `stream`.
     template <class TYPE>
     static bsl::ostream& printDecimal(
                                      bsl::ostream&         stream,
                                      const TYPE&           object,
                                      const EncoderOptions *encoderOptions = 0);
-        // Format the specified 'object' to the specified output 'stream' using
-        // the 'bdlat_FormattingMode::e_DEC' formatting mode and the
-        // optionally specified 'encoderOptions'.  Return a reference to
-        // 'stream'.
 
+    /// Format the specified `object` to the specified output `stream` using
+    /// the `bdlat_FormattingMode::e_DEFAULT` formatting mode and the
+    /// optionally specified `encoderOptions`.  Return a reference to
+    /// `stream`.
     template <class TYPE>
     static bsl::ostream& printDefault(
                                      bsl::ostream&         stream,
                                      const TYPE&           object,
                                      const EncoderOptions *encoderOptions = 0);
-        // Format the specified 'object' to the specified output 'stream' using
-        // the 'bdlat_FormattingMode::e_DEFAULT' formatting mode and the
-        // optionally specified 'encoderOptions'.  Return a reference to
-        // 'stream'.
 
+    /// Format the specified `object` to the specified output `stream` using
+    /// the `bdlat_FormattingMode::e_HEX` formatting mode and the
+    /// optionally specified `encoderOptions`.  Return a reference to
+    /// `stream`.
     template <class TYPE>
     static bsl::ostream& printHex(bsl::ostream&         stream,
                                   const TYPE&           object,
                                   const EncoderOptions *encoderOptions = 0);
-        // Format the specified 'object' to the specified output 'stream' using
-        // the 'bdlat_FormattingMode::e_HEX' formatting mode and the
-        // optionally specified 'encoderOptions'.  Return a reference to
-        // 'stream'.
 
+    /// Format the specified `object` to the specified output `stream` using
+    /// the `bdlat_FormattingMode::e_LIST` formatting mode and the
+    /// optionally specified `encoderOptions`.  Return a reference to
+    /// `stream`.
     template <class TYPE>
     static bsl::ostream& printList(bsl::ostream&         stream,
                                    const TYPE&           object,
                                    const EncoderOptions *encoderOptions = 0);
-        // Format the specified 'object' to the specified output 'stream' using
-        // the 'bdlat_FormattingMode::e_LIST' formatting mode and the
-        // optionally specified 'encoderOptions'.  Return a reference to
-        // 'stream'.
 
+    /// Format the specified `object` to the specified output `stream` using
+    /// the `bdlat_FormattingMode::e_TEXT` formatting mode and the
+    /// optionally specified `encoderOptions`.  Return a reference to
+    /// `stream`.  The string representation of `object` must be a valid
+    /// UTF-8 string and may not contain any control characters other than
+    /// TAB, NL, and CR (i.e., no binary data) unless
+    /// `encoderOptions->allowControlCharacters()` is `true`, in which
+    /// control characters will be encoded as is.  Upon detecting an invalid
+    /// byte, the output stops and the `failbit` is be set on the output
+    /// `stream`.  In the case of an invalid byte in a multi-byte
+    /// character, the output stops after the previous character and no
+    /// byte in this character is output.
     template <class TYPE>
     static bsl::ostream& printText(bsl::ostream&         stream,
                                    const TYPE&           object,
                                    const EncoderOptions *encoderOptions = 0);
-        // Format the specified 'object' to the specified output 'stream' using
-        // the 'bdlat_FormattingMode::e_TEXT' formatting mode and the
-        // optionally specified 'encoderOptions'.  Return a reference to
-        // 'stream'.  The string representation of 'object' must be a valid
-        // UTF-8 string and may not contain any control characters other than
-        // TAB, NL, and CR (i.e., no binary data) unless
-        // 'encoderOptions->allowControlCharacters()' is 'true', in which
-        // control characters will be encoded as is.  Upon detecting an invalid
-        // byte, the output stops and the 'failbit' is be set on the output
-        // 'stream'.  In the case of an invalid byte in a multi-byte
-        // character, the output stops after the previous character and no
-        // byte in this character is output.
 };
 
                          // =========================
                          // struct TypesPrintUtil_Imp
                          // =========================
 
+/// This `struct` contains functions that are used in the implementation of
+/// this component.
 struct TypesPrintUtil_Imp {
-    // This 'struct' contains functions that are used in the implementation of
-    // this component.
 
     // TYPES
+
+    /// `DateOrDateTz` is a convenient alias for
+    /// `bdlb::Variant2<Date, DateTz>`.
     typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz>      DateOrDateTz;
-        // 'DateOrDateTz' is a convenient alias for
-        // 'bdlb::Variant2<Date, DateTz>'.
 
+    /// `TimeOrTimeTz` is a convenient alias for
+    /// `bdlb::Variant2<Time, TimeTz>`.
     typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz>      TimeOrTimeTz;
-        // 'TimeOrTimeTz' is a convenient alias for
-        // 'bdlb::Variant2<Time, TimeTz>'.
 
+    /// `DatetimeOrDatetimeTz` is a convenient alias for
+    /// `bdlb::Variant2<Datetime, DatetimeTz>`.
     typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
                                                           DatetimeOrDatetimeTz;
-        // 'DatetimeOrDatetimeTz' is a convenient alias for
-        // 'bdlb::Variant2<Datetime, DatetimeTz>'.
 
     // CLASS METHODS
+
+    /// Encode the specified `value` into XML using ISO 8601 format and
+    /// output the result to the specified `stream` using the specified
+    /// `encoderOptions`.
     template <class TYPE>
     static bsl::ostream& printDateAndTime(
                                          bsl::ostream&         stream,
                                          const TYPE&           value,
                                          const EncoderOptions *encoderOptions);
-        // Encode the specified 'value' into XML using ISO 8601 format and
-        // output the result to the specified 'stream' using the specified
-        // 'encoderOptions'.
 
                             // BASE64 FUNCTIONS
 
@@ -790,8 +793,8 @@ struct TypesPrintUtil_Imp {
                     // class TypesPrintUtilImp_PrintBase64
                     // ===================================
 
+/// Component-private struct.  Do not use.
 class TypesPrintUtilImp_PrintBase64 {
-    // Component-private struct.  Do not use.
 
     // DATA
     bsl::ostream         *d_stream_p;
@@ -830,8 +833,8 @@ class TypesPrintUtilImp_PrintBase64 {
                     // class TypesPrintUtilImp_PrintDecimal
                     // ====================================
 
+/// Component-private class.  Do not use.
 class TypesPrintUtilImp_PrintDecimal {
-    // Component-private class.  Do not use.
 
     // DATA
     bsl::ostream         *d_stream_p;
@@ -870,8 +873,8 @@ class TypesPrintUtilImp_PrintDecimal {
                     // class TypesPrintUtilImp_PrintDefault
                     // ====================================
 
+/// Component-private class.  Do not use.
 class TypesPrintUtilImp_PrintDefault {
-    // Component-private class.  Do not use.
 
     // DATA
     bsl::ostream         *d_stream_p;
@@ -910,8 +913,8 @@ class TypesPrintUtilImp_PrintDefault {
                       // class TypesPrintUtilImp_PrintHex
                       // ================================
 
+/// Component-private class.  Do not use.
 class TypesPrintUtilImp_PrintHex {
-    // Component-private class.  Do not use.
 
     // DATA
     bsl::ostream         *d_stream_p;
@@ -950,8 +953,8 @@ class TypesPrintUtilImp_PrintHex {
                      // class TypesPrintUtilImp_PrintList
                      // =================================
 
+/// Component-private class.  Do not use.
 class TypesPrintUtilImp_PrintList {
-    // Component-private class.  Do not use.
 
     // DATA
     bsl::ostream         *d_stream_p;
@@ -990,8 +993,8 @@ class TypesPrintUtilImp_PrintList {
               // class TypesPrintUtilImp_PrintListElementDefault
               // ===============================================
 
+/// Component-private class.  Do not use.
 class TypesPrintUtilImp_PrintListElementDefault {
-    // Component-private class.  Do not use.
 
     // DATA
     bool                  d_doesNextElemNeedDelimiter;
@@ -1056,8 +1059,8 @@ class TypesPrintUtilImp_PrintListElementDefault {
                      // class TypesPrintUtilImp_PrintText
                      // =================================
 
+/// Component-private class.  Do not use.
 class TypesPrintUtilImp_PrintText {
-    // Component-private class.  Do not use.
 
     // DATA
     bsl::ostream         *d_stream_p;

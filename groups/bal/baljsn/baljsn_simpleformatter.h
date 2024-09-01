@@ -12,99 +12,99 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baljsn_encoder, baljsn_formatter, baljsn_printutil
 //
-//@DESCRIPTION: This component provides a class, 'baljsn::SimpleFormatter', for
+//@DESCRIPTION: This component provides a class, `baljsn::SimpleFormatter`, for
 // rendering JSON conforming text for objects, arrays, and various scalar
 // types.
 //
 // This component provides an interface that is easier to use, and renders more
-// readable "pretty" JSON, than 'baljsn::Formatter'.  Clients are encouraged to
-// use 'baljsn::SimpleFormatter' instead of 'baljsn::Formatter' (see
-// {Comparison to 'baljsn::Formatter'}).
+// readable "pretty" JSON, than `baljsn::Formatter`.  Clients are encouraged to
+// use `baljsn::SimpleFormatter` instead of `baljsn::Formatter` (see
+// {Comparison to `baljsn::Formatter`}).
 //
-// The 'SimpleFormatter' 'class' also provides the ability to specify
+// The `SimpleFormatter` `class` also provides the ability to specify
 // formatting options at construction.  The options that can be provided
 // include the encoding style (compact or pretty), the initial indentation
 // level and spaces per level if encoding in the pretty format.
 //
-///Comparison to 'baljsn::Formatter'
+///Comparison to `baljsn::Formatter`
 ///---------------------------------
 //
 ///API Comparison
 /// - - - - - - -
 // Here is the side-by-side sequence of calls to create the following JSON
-// using both components, assuming an existing stream 'os':
-//..
-//  {
-//    "Object" : {
-//      "Field 1" : 1,
-//      "Field 2" : null
-//    },
-//    "Array" : [
-//      1,
-//      "string",
-//      [],
-//      [
-//        [
-//          {
-//          }
-//        ]
-//      ]
-//    ],
-//    "True" : true
-//  }
-//..
+// using both components, assuming an existing stream `os`:
+// ```
+// {
+//   "Object" : {
+//     "Field 1" : 1,
+//     "Field 2" : null
+//   },
+//   "Array" : [
+//     1,
+//     "string",
+//     [],
+//     [
+//       [
+//         {
+//         }
+//       ]
+//     ]
+//   ],
+//   "True" : true
+// }
+// ```
 // Some extra indentation has been added in these examples to show the various
-// 'open'/'close' call nesting levels.
-//..
-//           Formatter                |             SimpleFormatter
+// `open`/`close` call nesting levels.
+// ```
+//          Formatter                |             SimpleFormatter
 // -----------------------------------+----------------------------------------
 // baljsn::Formatter f(os);           | baljsn::SimpleFormatter sf(os);
-//                                    |
+//                                   |
 // f.openObject();                    | sf.openObject();
-//                                    |
-//  f.openMember("Object");           |  sf.openObject("Object");
-//   f.openObject();                  |   sf.addValue("Field 1", 1);
-//    f.openMember("Field 1");        |   sf.addNullValue("Field 2");
-//     f.putValue(1);                 |  sf.closeObject();
-//    f.closeMember();                |
-//    f.openMember("Field 2");        |  sf.openArray("Array");
-//     f.putNullValue();              |   sf.addValue(1);        // No name
-//    // Must remember NOT to call    |   sf.addValue("string"); // No name
-//    // closeMember here!            |   sf.openArray(e_EMPTY_ARRAY_FORMAT);
-//   f.closeObject();                 |   sf.closeArray(e_EMPTY_ARRAY_FORMAT);
-//  f.closeMember();                  |   sf.openArray();
-//                                    |    sf.openArray();
-//  f.openMember("Array");            |     sf.openObject();
-//   f.openArray();                   |     sf.closeObject();
-//    f.putValue(1);                  |    sf.closeArray();
-//    f.addArrayElementSeparator();   |   sf.closeArray();
-//    f.putValue("string");           |  sf.closeArray();
-//    f.addArrayElementSeparator();   |
-//    f.openArray(true);              |  sf.addValue("True", true);
-//    f.closeArray(true);             | sf.closeObject();
-//    f.addArrayElementSeparator();   |
-//    f.openArray();                  |
-//     f.openArray();                 |
-//      f.openObject();               |
-//      f.closeObject();              |
-//     f.closeArray();                |
-//    f.closeArray();                 |
-//                                    |
-//    // Must remember NOT to call    |
-//    // addArrayElementSeparator     |
-//    // here!                        |
-//   f.closeArray();                  |
-//  f.closeMember();                  |
-//                                    |
-//  f.openMember("True");             |
-//   f.putValue(true);                |
-//  // Must remember NOT to call      |
-//  // closeMember here!              |
-//                                    |
+//                                   |
+// f.openMember("Object");           |  sf.openObject("Object");
+//  f.openObject();                  |   sf.addValue("Field 1", 1);
+//   f.openMember("Field 1");        |   sf.addNullValue("Field 2");
+//    f.putValue(1);                 |  sf.closeObject();
+//   f.closeMember();                |
+//   f.openMember("Field 2");        |  sf.openArray("Array");
+//    f.putNullValue();              |   sf.addValue(1);        // No name
+//   // Must remember NOT to call    |   sf.addValue("string"); // No name
+//   // closeMember here!            |   sf.openArray(e_EMPTY_ARRAY_FORMAT);
+//  f.closeObject();                 |   sf.closeArray(e_EMPTY_ARRAY_FORMAT);
+// f.closeMember();                  |   sf.openArray();
+//                                   |    sf.openArray();
+// f.openMember("Array");            |     sf.openObject();
+//  f.openArray();                   |     sf.closeObject();
+//   f.putValue(1);                  |    sf.closeArray();
+//   f.addArrayElementSeparator();   |   sf.closeArray();
+//   f.putValue("string");           |  sf.closeArray();
+//   f.addArrayElementSeparator();   |
+//   f.openArray(true);              |  sf.addValue("True", true);
+//   f.closeArray(true);             | sf.closeObject();
+//   f.addArrayElementSeparator();   |
+//   f.openArray();                  |
+//    f.openArray();                 |
+//     f.openObject();               |
+//     f.closeObject();              |
+//    f.closeArray();                |
+//   f.closeArray();                 |
+//                                   |
+//   // Must remember NOT to call    |
+//   // addArrayElementSeparator     |
+//   // here!                        |
+//  f.closeArray();                  |
+// f.closeMember();                  |
+//                                   |
+// f.openMember("True");             |
+//  f.putValue(true);                |
+// // Must remember NOT to call      |
+// // closeMember here!              |
+//                                   |
 // f.closeObject();                   |
 // -----------------------------------+----------------------------------------
 //
-//..
+// ```
 //
 ///JSON Format
 ///-----------
@@ -112,22 +112,21 @@ BSLS_IDENT("$Id: $")
 // information) specifies a self-describing and simple syntax that is built on
 // two structures:
 //
-//: o Objects: JSON objects are represented as collections of name value
-//:   pairs.  The 'SimpleFormatter' 'class' allows encoding objects by
-//:   providing the 'openObject' and 'closeObject' methods to open and close an
-//:   object and overloads for 'openObject', 'openArray', 'addValue' and
-//:   'addNullValue' which take a 'name' to specify the named fields in the
-//:   object, or the use of the 'addMemberName' manipulator followed by the
-//:   overloads of 'openObject', 'openArray', 'addValue', and 'addNullValue'
-//:   which do not take a name.
-//:
-//: o Arrays: JSON arrays are specified as an ordered list of values.  The
-//:   'SimpleFormatter' 'class' provides the 'openArray' and 'closeArray'
-//:   method to open and close an array, as well as overloads for 'openObject',
-//:   'openArray', 'addValue' and 'addNullValue' which do not take a 'name' for
-//:   array elements.
+// * Objects: JSON objects are represented as collections of name value
+//   pairs.  The `SimpleFormatter` `class` allows encoding objects by
+//   providing the `openObject` and `closeObject` methods to open and close an
+//   object and overloads for `openObject`, `openArray`, `addValue` and
+//   `addNullValue` which take a `name` to specify the named fields in the
+//   object, or the use of the `addMemberName` manipulator followed by the
+//   overloads of `openObject`, `openArray`, `addValue`, and `addNullValue`
+//   which do not take a name.
+// * Arrays: JSON arrays are specified as an ordered list of values.  The
+//   `SimpleFormatter` `class` provides the `openArray` and `closeArray`
+//   method to open and close an array, as well as overloads for `openObject`,
+//   `openArray`, `addValue` and `addNullValue` which do not take a `name` for
+//   array elements.
 //
-// The 'SimpleFormatter' 'class' provides the ability to specify formatting
+// The `SimpleFormatter` `class` provides the ability to specify formatting
 // options at construction.  The options that can be provided include the
 // encoding style (compact or pretty), the initial indentation level and spaces
 // per level if encoding in the pretty format.
@@ -144,143 +143,143 @@ BSLS_IDENT("$Id: $")
 // the encoding process):
 //
 // First, we specify the result that we are expecting to get:
-//..
-//{
-//  const bsl::string EXPECTED =
-//      "{\n"
-//      "  \"Stocks\" : [\n"
-//      "    {\n"
-//      "      \"Name\" : \"International Business Machines Corp\",\n"
-//      "      \"Ticker\" : \"IBM US Equity\",\n"
-//      "      \"Last Price\" : 149.3,\n"
-//      "      \"Dividend Yield\" : 3.95\n"
-//      "    },\n"
-//      "    {\n"
-//      "      \"Name\" : \"Apple Inc\",\n"
-//      "      \"Ticker\" : \"AAPL US Equity\",\n"
-//      "      \"Last Price\" : 205.8,\n"
-//      "      \"Dividend Yield\" : 1.4\n"
-//      "    }\n"
-//      "  ]\n"
-//      "}";
-//..
-// Then, to encode this JSON document we create a 'baljsn::SimpleFormatter'
+// ```
+// {
+//   const bsl::string EXPECTED =
+//       "{\n"
+//       "  \"Stocks\" : [\n"
+//       "    {\n"
+//       "      \"Name\" : \"International Business Machines Corp\",\n"
+//       "      \"Ticker\" : \"IBM US Equity\",\n"
+//       "      \"Last Price\" : 149.3,\n"
+//       "      \"Dividend Yield\" : 3.95\n"
+//       "    },\n"
+//       "    {\n"
+//       "      \"Name\" : \"Apple Inc\",\n"
+//       "      \"Ticker\" : \"AAPL US Equity\",\n"
+//       "      \"Last Price\" : 205.8,\n"
+//       "      \"Dividend Yield\" : 1.4\n"
+//       "    }\n"
+//       "  ]\n"
+//       "}";
+// ```
+// Then, to encode this JSON document we create a `baljsn::SimpleFormatter`
 // object.  Since we want the document to be written in a pretty, easy to
-// understand format we will specify 'true' for the 'usePrettyStyle' option and
+// understand format we will specify `true` for the `usePrettyStyle` option and
 // provide an appropriate initial indent level and spaces per level values:
-//..
-//  bsl::ostringstream      os;
-//  baljsn::EncoderOptions  encoderOptions;
+// ```
+// bsl::ostringstream      os;
+// baljsn::EncoderOptions  encoderOptions;
 //
-//  encoderOptions.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
-//  encoderOptions.setSpacesPerLevel(2);
+// encoderOptions.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
+// encoderOptions.setSpacesPerLevel(2);
 //
-//  baljsn::SimpleFormatter formatter(os, encoderOptions);
-//..
+// baljsn::SimpleFormatter formatter(os, encoderOptions);
+// ```
 // Next, we encode the start of the top level object, and open the first member
 // "Stocks" (which holds an array of stock information):
-//..
-//  formatter.openObject();
-//  formatter.openArray("Stocks");
-//..
+// ```
+// formatter.openObject();
+// formatter.openArray("Stocks");
+// ```
 // Next, we render each element within the array of "Stocks" as an object that
 // contains information for an individual stock:
-//..
-//  formatter.openObject();
-//..
+// ```
+// formatter.openObject();
+// ```
 // We now encode the other elements in the stock object.
-//..
-//  formatter.addValue("Name", "International Business Machines Corp");
-//  formatter.addValue("Ticker", "IBM US Equity");
-//  formatter.addValue("Last Price", 149.3);
-//  formatter.addValue("Dividend Yield", 3.95);
-//..
+// ```
+// formatter.addValue("Name", "International Business Machines Corp");
+// formatter.addValue("Ticker", "IBM US Equity");
+// formatter.addValue("Last Price", 149.3);
+// formatter.addValue("Dividend Yield", 3.95);
+// ```
 // Then, close the first stock object.
-//..
-//  formatter.closeObject();
-//..
+// ```
+// formatter.closeObject();
+// ```
 // Next, we add another stock object.
-//..
-//  formatter.openObject();
+// ```
+// formatter.openObject();
 //
-//  formatter.addValue("Name", "Apple Inc");
-//  formatter.addValue("Ticker", "AAPL US Equity");
-//  formatter.addValue("Last Price", 205.8);
-//  formatter.addValue("Dividend Yield", 1.4);
+// formatter.addValue("Name", "Apple Inc");
+// formatter.addValue("Ticker", "AAPL US Equity");
+// formatter.addValue("Last Price", 205.8);
+// formatter.addValue("Dividend Yield", 1.4);
 //
-//  formatter.closeObject();
-//..
+// formatter.closeObject();
+// ```
 // Similarly, we can continue to format the rest of the document.  For the
 // purpose of this usage example we will complete this document.
-//..
-//  formatter.closeArray();
-//  formatter.closeObject();
-//..
+// ```
+// formatter.closeArray();
+// formatter.closeObject();
+// ```
 // Once the formatting is complete the written data can be viewed from the
 // stream passed to the formatter at construction.
-//..
-//  if (verbose)
-//      bsl::cout << os.str() << bsl::endl;
-//..
+// ```
+// if (verbose)
+//     bsl::cout << os.str() << bsl::endl;
+// ```
 // Finally, verify the received result:
-//..
-//  assert(EXPECTED == os.str());
-//}
-//..
+// ```
+// assert(EXPECTED == os.str());
+// }
+// ```
 //
 ///Example 2: Encoding an array
 ///- - - - - - - - - - - - - - -
 // Let us say we want to encode an array of various values.
 //
-// First, we create our 'formatter' as we did above:
-//..
-//{
-//  bsl::ostringstream      os;
-//  baljsn::EncoderOptions  encoderOptions;
+// First, we create our `formatter` as we did above:
+// ```
+// {
+//   bsl::ostringstream      os;
+//   baljsn::EncoderOptions  encoderOptions;
 //
-//  encoderOptions.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
-//  encoderOptions.setSpacesPerLevel(2);
+//   encoderOptions.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
+//   encoderOptions.setSpacesPerLevel(2);
 //
-//  baljsn::SimpleFormatter formatter(os, encoderOptions);
-//..
+//   baljsn::SimpleFormatter formatter(os, encoderOptions);
+// ```
 // Then we open our array.
-//..
-//  formatter.openArray();
-//..
+// ```
+// formatter.openArray();
+// ```
 // Next, we populate the array with a series of unnamed values.  Named values
 // are only used in objects, not arrays.
-//..
-//  formatter.addValue("First value");
-//  formatter.addValue(2);
-//  formatter.addValue(3);
-//..
+// ```
+// formatter.addValue("First value");
+// formatter.addValue(2);
+// formatter.addValue(3);
+// ```
 // Then, we demonstrate that arrays can be nested, opening another level of
 // array, populating it, and closing it:
-//..
-//  formatter.openArray();
-//  formatter.addValue("First value of inner array");
-//  formatter.addValue(3.14159);
-//  formatter.closeArray();
-//..
+// ```
+// formatter.openArray();
+// formatter.addValue("First value of inner array");
+// formatter.addValue(3.14159);
+// formatter.closeArray();
+// ```
 // Arrays can also contain (unnamed) objects:
-//..
-//  formatter.openObject();
-//..
+// ```
+// formatter.openObject();
+// ```
 // Next, we add (named) values to our object:
-//..
-//  formatter.addValue("Greeting", "Hello from the first inner object");
-//  formatter.addValue("PI approximation", 3.14);
-//  // We could, similarly, add nested named objects and/or named arrays
-//..
+// ```
+// formatter.addValue("Greeting", "Hello from the first inner object");
+// formatter.addValue("PI approximation", 3.14);
+// // We could, similarly, add nested named objects and/or named arrays
+// ```
 // Then we close the nested object:
-//..
-//  formatter.closeObject();
-//..
+// ```
+// formatter.closeObject();
+// ```
 // Finally, we close the outer array:
-//..
-//  formatter.closeArray();
-//}
-//..
+// ```
+// formatter.closeArray();
+// }
+// ```
 
 #include <balscm_version.h>
 
@@ -312,15 +311,15 @@ class EncoderOptions;
                            // class SimpleFormatter
                            // =====================
 
+/// This class implements a formatter providing operations for rendering
+/// JSON text elements to an output stream (supplied at construction)
+/// according to a set of formatting options (also supplied at
+/// construction).
+///
+/// This class has an interface that's easier to use than that of
+/// `baljsn::Formatter`, and generates more correctly-formatted `pretty`
+/// output.
 class SimpleFormatter {
-    // This class implements a formatter providing operations for rendering
-    // JSON text elements to an output stream (supplied at construction)
-    // according to a set of formatting options (also supplied at
-    // construction).
-    //
-    // This class has an interface that's easier to use than that of
-    // 'baljsn::Formatter', and generates more correctly-formatted 'pretty'
-    // output.
 
   public:
     // TYPES
@@ -358,34 +357,36 @@ class SimpleFormatter {
     int               d_indentLevel;         // current indent level
 
     // PRIVATE MANIPULATORS
+
+    /// Unconditionally print onto the stream supplied at construction the
+    /// sequence of whitespace characters for the proper indentation of an
+    /// element at the current indentation level.  Note that this method
+    /// does not check that `usePrettyStyle()` is `true` before indenting.
     void indent();
-        // Unconditionally print onto the stream supplied at construction the
-        // sequence of whitespace characters for the proper indentation of an
-        // element at the current indentation level.  Note that this method
-        // does not check that 'usePrettyStyle()' is 'true' before indenting.
 
+    /// If `d_useComma` is `true`, print a comma.  If `usePrettyStyle()` is
+    /// also `true`, also print a newline.  This also sets
+    /// `d_memberNameSupplied` to `false`.
     void printComma();
-        // If 'd_useComma' is 'true', print a comma.  If 'usePrettyStyle()' is
-        // also 'true', also print a newline.  This also sets
-        // 'd_memberNameSupplied' to 'false'.
 
+    /// Set `d_useComma` to the value of the specified `flag`, indicating
+    /// whether the next `printComma()` call should actually print a comma.
     void followWithComma(bool flag);
-        // Set 'd_useComma' to the value of the specified 'flag', indicating
-        // whether the next 'printComma()' call should actually print a comma.
 
+    /// Print onto the stream supplied at construction the specified `name`,
+    /// followed by a `:`. The `:` is surrounded by a space on each side if
+    /// `usePrettyStyle()` is `true`.  It is the caller's responsibility to
+    /// call `printComma()` - this routine does not handle commas, but does
+    /// call `indent()` if necessary.
     void printName(const bsl::string_view& name);
-        // Print onto the stream supplied at construction the specified 'name',
-        // followed by a ':'. The ':' is surrounded by a space on each side if
-        // 'usePrettyStyle()' is 'true'.  It is the caller's responsibility to
-        // call 'printComma()' - this routine does not handle commas, but does
-        // call 'indent()' if necessary.
 
     // PRIVATE ACCESSORS
-    bool usePrettyStyle() const;
-        // Return 'true' if 'e_PRETTY == d_encoderOptions.encodingStyle()'.
 
+    /// Return `true` if `e_PRETTY == d_encoderOptions.encodingStyle()`.
+    bool usePrettyStyle() const;
+
+    /// Return `d_encoderOptions.spacesPerLevel()`.
     int spacesPerLevel() const;
-        // Return 'd_encoderOptions.spacesPerLevel()'.
 
   public:
     // TRAITS
@@ -393,173 +394,176 @@ class SimpleFormatter {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a `SimpleFormatter` object using the specified `stream`.
+    /// Optionally specify `encoderOptions` to configure the output options
+    /// - if `encoderOptions` is not supplied, a default-constructed
+    /// `EncoderOptions` object will be used.  Note that the
+    /// `encodeEmptyArrays` attribute in the `encoderOptions` is ignored.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     explicit SimpleFormatter(bsl::ostream&          stream,
                              bslma::Allocator      *basicAllocator = 0);
     explicit SimpleFormatter(bsl::ostream&          stream,
                              const EncoderOptions&  encoderOptions,
                              bslma::Allocator      *basicAllocator = 0);
-        // Create a 'SimpleFormatter' object using the specified 'stream'.
-        // Optionally specify 'encoderOptions' to configure the output options
-        // - if 'encoderOptions' is not supplied, a default-constructed
-        // 'EncoderOptions' object will be used.  Note that the
-        // 'encodeEmptyArrays' attribute in the 'encoderOptions' is ignored.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create a `SimpleFormatter` object having the same value as the
+    /// specified `original` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     SimpleFormatter(const SimpleFormatter&  original,
                     bslma::Allocator       *basicAllocator);
-        // Create a 'SimpleFormatter' object having the same value as the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Destroy this object.  Note that correct JSON has been generated if
+    /// the `isCompleteJSON()` call returns `true`.
     ~SimpleFormatter();
-        // Destroy this object.  Note that correct JSON has been generated if
-        // the 'isCompleteJSON()' call returns 'true'.
 
     // MANIPULATORS
+
+    /// Print onto the stream supplied at construction the sequence of
+    /// characters designating the start of an object (referred to as an
+    /// "object" in JSON), preceded, if necessary, by a comma.  The behavior
+    /// is undefined unless `isNameNeeded()` is `false`.
     void openObject();
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an object (referred to as an
-        // "object" in JSON), preceded, if necessary, by a comma.  The behavior
-        // is undefined unless 'isNameNeeded()' is 'false'.
 
+    /// Print onto the stream supplied at construction the sequence of
+    /// characters designating the start of an object (referred to as an
+    /// "object" in JSON) with the specified `name` , preceded, if
+    /// necessary, by a comma.  The behavior is undefined unless
+    /// `isNameNeeded()` is `true`.
     void openObject(const bsl::string_view& name);
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an object (referred to as an
-        // "object" in JSON) with the specified 'name' , preceded, if
-        // necessary, by a comma.  The behavior is undefined unless
-        // 'isNameNeeded()' is 'true'.
 
+    /// Print onto the stream supplied at construction the specified `name`
+    /// in double-quotes, preceded, if necessary, by a comma, and followed
+    /// by a `:`.  The behavior is undefined unless `isNameNeeded()` is
+    /// `true`.  After this operation, `isNameNeeded()` will be `false`, and
+    /// an immediately subsequent attempt to add a value (or open an object
+    /// or array) should not provide a name.
     void addMemberName(const bsl::string_view& name);
-        // Print onto the stream supplied at construction the specified 'name'
-        // in double-quotes, preceded, if necessary, by a comma, and followed
-        // by a ':'.  The behavior is undefined unless 'isNameNeeded()' is
-        // 'true'.  After this operation, 'isNameNeeded()' will be 'false', and
-        // an immediately subsequent attempt to add a value (or open an object
-        // or array) should not provide a name.
 
+    /// Print onto the stream supplied at construction the sequence of
+    /// characters designating the end of an object (referred to as an
+    /// "object" in JSON).  The behavior is undefined unless
+    /// `isNameNeeded()` is `true`.
     void closeObject();
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of an object (referred to as an
-        // "object" in JSON).  The behavior is undefined unless
-        // 'isNameNeeded()' is 'true'.
 
+    /// Print onto the stream supplied at construction the sequence of
+    /// characters designating the start of an array (referred to as an
+    /// "array" in JSON), preceded, if necessary, by a comma.  Optionally
+    /// specify `formattingStyle` denoting if the array being opened should
+    /// be formatted as an empty array.  If `formattingStyle` is not
+    /// specified then the array being opened is formatted as a regular
+    /// array having elements.    The behavior is undefined unless
+    /// `isNameNeeded()` is `false`.  Note that the formatting (and as a
+    /// consequence the `formattingStyle`) is relevant only if this
+    /// formatter encodes in the pretty style and is ignored otherwise.
     void openArray(
                 ArrayFormattingStyle formattingStyle = e_REGULAR_ARRAY_FORMAT);
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an array (referred to as an
-        // "array" in JSON), preceded, if necessary, by a comma.  Optionally
-        // specify 'formattingStyle' denoting if the array being opened should
-        // be formatted as an empty array.  If 'formattingStyle' is not
-        // specified then the array being opened is formatted as a regular
-        // array having elements.    The behavior is undefined unless
-        // 'isNameNeeded()' is 'false'.  Note that the formatting (and as a
-        // consequence the 'formattingStyle') is relevant only if this
-        // formatter encodes in the pretty style and is ignored otherwise.
 
+    /// Print onto the stream supplied at construction the sequence of
+    /// characters designating the start of an array (referred to as an
+    /// "array" in JSON) with the specified `name`, preceded, if necessary,
+    /// by a comma.  Optionally specify `formattingStyle` denoting if the
+    /// array being opened should be formatted as an empty array.  If
+    /// `formattingStyle` is not specified then the array being opened is
+    /// formatted as a regular array having elements.  The behavior is
+    /// undefined unless `isNameNeeded()` is `true`.  Note that the
+    /// formatting (and as a consequence the `formattingStyle`) is relevant
+    /// only if this formatter encodes in the pretty style and is ignored
+    /// otherwise.
     void openArray(
             const bsl::string_view& name,
             ArrayFormattingStyle    formattingStyle = e_REGULAR_ARRAY_FORMAT);
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an array (referred to as an
-        // "array" in JSON) with the specified 'name', preceded, if necessary,
-        // by a comma.  Optionally specify 'formattingStyle' denoting if the
-        // array being opened should be formatted as an empty array.  If
-        // 'formattingStyle' is not specified then the array being opened is
-        // formatted as a regular array having elements.  The behavior is
-        // undefined unless 'isNameNeeded()' is 'true'.  Note that the
-        // formatting (and as a consequence the 'formattingStyle') is relevant
-        // only if this formatter encodes in the pretty style and is ignored
-        // otherwise.
 
+    /// Print onto the stream supplied at construction the sequence of
+    /// characters designating the end of an array (referred to as an
+    /// "array" in JSON).  Optionally specify `formattingStyle` denoting if
+    /// the array being closed should be formatted as an empty array.  If
+    /// `formattingStyle` is not specified then the array being closed is
+    /// formatted as a regular array having elements.  The behavior is
+    /// undefined if `isFormattingArray()` is `false`.  Note that the
+    /// formatting (and as a consequence the `formattingStyle`) is relevant
+    /// only if this formatter encodes in the pretty style and is ignored
+    /// otherwise.
     void closeArray(
                 ArrayFormattingStyle formattingStyle = e_REGULAR_ARRAY_FORMAT);
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of an array (referred to as an
-        // "array" in JSON).  Optionally specify 'formattingStyle' denoting if
-        // the array being closed should be formatted as an empty array.  If
-        // 'formattingStyle' is not specified then the array being closed is
-        // formatted as a regular array having elements.  The behavior is
-        // undefined if 'isFormattingArray()' is 'false'.  Note that the
-        // formatting (and as a consequence the 'formattingStyle') is relevant
-        // only if this formatter encodes in the pretty style and is ignored
-        // otherwise.
 
+    /// Print onto the stream supplied at construction the value
+    /// corresponding to a null element, preceded, if necessary, by a comma.
+    /// The behavior is undefined unless `isNameNeeded()` is `false`.
     void addNullValue();
-        // Print onto the stream supplied at construction the value
-        // corresponding to a null element, preceded, if necessary, by a comma.
-        // The behavior is undefined unless 'isNameNeeded()' is 'false'.
 
+    /// Print onto the stream supplied at construction the value
+    /// corresponding to a null element with the specified `name`, preceded,
+    /// if necessary, by a comma.  The behavior is undefined unless
+    /// `isNameNeeded()` is `true`.
     void addNullValue(const bsl::string_view& name);
-        // Print onto the stream supplied at construction the value
-        // corresponding to a null element with the specified 'name', preceded,
-        // if necessary, by a comma.  The behavior is undefined unless
-        // 'isNameNeeded()' is 'true'.
 
+    /// Print onto the stream supplied at construction the specified
+    /// `value`, preceded, if necessary, by a comma, passing the optionally
+    /// specified `options` through to the rendering routines.  Return 0 on
+    /// success and a non-zero value otherwise.  The behavior is undefined
+    /// unless `isNameNeeded()` is `false`.
     template <class TYPE>
     int addValue(const TYPE& value);
-        // Print onto the stream supplied at construction the specified
-        // 'value', preceded, if necessary, by a comma, passing the optionally
-        // specified 'options' through to the rendering routines.  Return 0 on
-        // success and a non-zero value otherwise.  The behavior is undefined
-        // unless 'isNameNeeded()' is 'false'.
 
+    /// Print onto the stream supplied at construction the specified `name`
+    /// and the specified `value`, preceded, if necessary, by a comma,
+    /// passing the optionally specified `options` through to the rendering
+    /// routines.  Return 0 on success and a non-zero value otherwise.  The
+    /// behavior is undefined unless `isNameNeeded()` is `true`.
     template <class TYPE>
     int addValue(const bsl::string_view& name, const TYPE& value);
-        // Print onto the stream supplied at construction the specified 'name'
-        // and the specified 'value', preceded, if necessary, by a comma,
-        // passing the optionally specified 'options' through to the rendering
-        // routines.  Return 0 on success and a non-zero value otherwise.  The
-        // behavior is undefined unless 'isNameNeeded()' is 'true'.
 
     // ACCESSORS
+
+    /// Return `true` if this `SimpleFormatter` has formatted a complete
+    /// JSON object, where all `open*` calls have been balanced by their
+    /// corresponding `close*` calls.  Note that a default-constructed
+    /// `SimpleFormatter` will return `false` - an empty string is not valid
+    /// JSON.
     bool isCompleteJSON() const;
-        // Return 'true' if this 'SimpleFormatter' has formatted a complete
-        // JSON object, where all 'open*' calls have been balanced by their
-        // corresponding 'close*' calls.  Note that a default-constructed
-        // 'SimpleFormatter' will return 'false' - an empty string is not valid
-        // JSON.
 
+    /// Return `true` if this `SimpleFormatter` is currently formatting an
+    /// array and `false` otherwise.  It is formatting an array if the last
+    /// `open*` method overload (`openArray` or `openObject`) called on this
+    /// `SimpleFormatter` for which the corresponding `close*` method
+    /// (respectively, `closeArray` or `closeObject`) was `openArray`.  If
+    /// `isFormattingArray()` is `true`, then `isFormattingObject()` is
+    /// `false`.  Note that both can be `false`, at the `top-level` initial
+    /// scope before anything is added/opened or after the first `open*`
+    /// call has been closed'
     bool isFormattingArray() const;
-        // Return 'true' if this 'SimpleFormatter' is currently formatting an
-        // array and 'false' otherwise.  It is formatting an array if the last
-        // 'open*' method overload ('openArray' or 'openObject') called on this
-        // 'SimpleFormatter' for which the corresponding 'close*' method
-        // (respectively, 'closeArray' or 'closeObject') was 'openArray'.  If
-        // 'isFormattingArray()' is 'true', then 'isFormattingObject()' is
-        // 'false'.  Note that both can be 'false', at the 'top-level' initial
-        // scope before anything is added/opened or after the first 'open*'
-        // call has been closed'
 
+    /// Return `true` if this `SimpleFormatter` is currently formatting an
+    /// object scope  and `false` otherwise.  It is formatting an object
+    /// scope if the last `open*` method overload (`openArray` or
+    /// `openObject`) called on this `SimpleFormatter` for which the
+    /// corresponding `close*` method (respectively, `closeArray` or
+    /// `closeObject`) was `openObject`.  If `isFormattingObject()` is
+    /// `true`, then `isFormattingArray()` is `false`.  Note that both can
+    /// be `false`, at the `top-level` initial scope before anything is
+    /// added/opened or after the first `open*` call has been closed'
+    /// JSON.
     bool isFormattingObject() const;
-        // Return 'true' if this 'SimpleFormatter' is currently formatting an
-        // object scope  and 'false' otherwise.  It is formatting an object
-        // scope if the last 'open*' method overload ('openArray' or
-        // 'openObject') called on this 'SimpleFormatter' for which the
-        // corresponding 'close*' method (respectively, 'closeArray' or
-        // 'closeObject') was 'openObject'.  If 'isFormattingObject()' is
-        // 'true', then 'isFormattingArray()' is 'false'.  Note that both can
-        // be 'false', at the 'top-level' initial scope before anything is
-        // added/opened or after the first 'open*' call has been closed'
-        // JSON.
 
+    /// Return `true` if a subsequent attempt to add a value must supply a
+    /// `name`, and `false` otherwise.  This will be `true` if
+    /// `isFormattingObject()` is `true`, and `addMemberName()` was not the
+    /// most recently called manipulator.  That is, a name is needed if this
+    /// formatter is currently in the context of formatting the members of a
+    /// JSON object, and `addMemberName` has not been called to explicitly
+    /// provide a name for the next member.
     bool isNameNeeded() const;
-        // Return 'true' if a subsequent attempt to add a value must supply a
-        // 'name', and 'false' otherwise.  This will be 'true' if
-        // 'isFormattingObject()' is 'true', and 'addMemberName()' was not the
-        // most recently called manipulator.  That is, a name is needed if this
-        // formatter is currently in the context of formatting the members of a
-        // JSON object, and 'addMemberName' has not been called to explicitly
-        // provide a name for the next member.
 
     // Aspects
 
+    /// Return the allocator used by this object to supply memory.  Note
+    /// that if no allocator was supplied at construction the currently
+    /// installed default allocator is used.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the currently
-        // installed default allocator is used.
 };
 
 // ============================================================================

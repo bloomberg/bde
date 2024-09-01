@@ -14,14 +14,14 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides an application developer the means to
 // collect and report performance statistics for an arbitrary number of
-// processes running on the local machine.  The 'balb::PerformanceMonitor'
+// processes running on the local machine.  The `balb::PerformanceMonitor`
 // provides the mechanism for doing so, the
-// 'balb::PerformanceMonitor::Statistics' class holds the data and the
-// 'balb::PerformanceMonitor::ConstIterator' class is used to iterate over the
+// `balb::PerformanceMonitor::Statistics` class holds the data and the
+// `balb::PerformanceMonitor::ConstIterator` class is used to iterate over the
 // data.  The following table describes the measures collecting by this
 // component.  Note that all the collected measures are specific to the
 // monitored process and do not refer to any system-wide measurement.
-//..
+// ```
 // Measure           Identifier           Description
 // -------           ----------           -----------
 // User CPU Time     e_CPU_TIME_USER      Total amount of time spent executing
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 // Page Faults       e_NUM_PAGEFAULTS     Total number of page faults incurred
 //                                        throughout the lifetime of the
 //                                        process.
-//..
+// ```
 //
 ///OS-Specific Permissions
 ///-----------------------
@@ -65,12 +65,12 @@ BSLS_IDENT("$Id: $")
 // other than the current process.  For example, on Darwin, users other than
 // root can only inspect processes running under the user with which the
 // current process is running.  This error condition will be indicated by a
-// non-zero return value from 'registerPid'.
+// non-zero return value from `registerPid`.
 //
 ///Unsupported Platform/Compiler mode - Solaris/g++/32-bits
 ///--------------------------------------------------------
 // Note that this component is not supported when building in 32-bit mode
-// with the g++ compiler on Solaris, due to Solaris's 'procfs.h' header not
+// with the g++ compiler on Solaris, due to Solaris's `procfs.h` header not
 // supporting that compiler in 32-bit mode. (DRQS 170291732)
 //
 ///Iterator Invalidation
@@ -78,24 +78,24 @@ BSLS_IDENT("$Id: $")
 // Registration of new pids does not invalidate existing iterators.
 // Unregistration of a pid invalidates only iterators pointing to the
 // statistics for the pid being unregistered.  Additionally, unregistering a
-// pid with a 'balb::PerformanceMonitor' object invalidates all references to
-// 'Statistics' objects retrieved from those iterators.  All other iterators
+// pid with a `balb::PerformanceMonitor` object invalidates all references to
+// `Statistics` objects retrieved from those iterators.  All other iterators
 // remain valid.
 //
 ///Thread Safety
 ///-------------
-// The classes 'balb::PerformanceMonitor' and
-// 'balb::PerformanceMonitor::Statistics', provided by this component, are
-// both independently fully *thread-safe* (see 'bsldoc_glossary').  However,
-// 'balb::PerformanceMonitor::ConstIterator' is only *const* *thread-safe*,
-// meaning it is not safe to access or modify a 'ConstIterator' in one thread
+// The classes `balb::PerformanceMonitor` and
+// `balb::PerformanceMonitor::Statistics`, provided by this component, are
+// both independently fully *thread-safe* (see `bsldoc_glossary`).  However,
+// `balb::PerformanceMonitor::ConstIterator` is only *const* *thread-safe*,
+// meaning it is not safe to access or modify a `ConstIterator` in one thread
 // while another thread modifies the same object.  As unregistering a pid with
-// a 'balb::PerformanceMonitor' object invalidates iterators (see {Iterator
-// Invalidation}), external synchronization is needed if 'unregisterPid' is
+// a `balb::PerformanceMonitor` object invalidates iterators (see {Iterator
+// Invalidation}), external synchronization is needed if `unregisterPid` is
 // called concurrently to iterating over statistics.  Also, in a multi-threaded
-// context, a 'Statistics' object accessed via a reference (or pointer) from
-// a 'ConstIterator' object may have its statistics updated at any time by a
-// call to 'collect' or 'resetStatistics' in another thread.   If consistent
+// context, a `Statistics` object accessed via a reference (or pointer) from
+// a `ConstIterator` object may have its statistics updated at any time by a
+// call to `collect` or `resetStatistics` in another thread.   If consistent
 // access is needed to multiple items in a set of statistics, then the user
 // should copy the statistics object, and then inspect the copy at their
 // leisure.
@@ -107,7 +107,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'balb::PerformanceMonitor'
+///Example 1: Basic Use of `balb::PerformanceMonitor`
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example shows how to monitor the currently executing process
 // and produce a formatted report of the collected measures after a certain
@@ -115,51 +115,51 @@ BSLS_IDENT("$Id: $")
 //
 // First, we instantiate a scheduler used by the performance monitor to
 // schedule collection events.
-//..
-//  bdlmt::TimerEventScheduler scheduler;
-//  scheduler.start();
-//..
+// ```
+// bdlmt::TimerEventScheduler scheduler;
+// scheduler.start();
+// ```
 // Then, we create the performance monitor, monitoring the current process and
 // auto-collecting statistics every second.
-//..
-//  balb::PerformanceMonitor perfmon(&scheduler, 1.0);
-//  int                      rc  = perfmon.registerPid(0, "perfmon");
-//  const int                pid = bdls::ProcessUtil::getProcessId();
+// ```
+// balb::PerformanceMonitor perfmon(&scheduler, 1.0);
+// int                      rc  = perfmon.registerPid(0, "perfmon");
+// const int                pid = bdls::ProcessUtil::getProcessId();
 //
-//  assert(0 == rc);
-//  assert(1 == perfmon.numRegisteredPids());
-//..
+// assert(0 == rc);
+// assert(1 == perfmon.numRegisteredPids());
+// ```
 // Next, we print a formatted report of the performance statistics collected
-// for each pid every 5 seconds for half a minute.  Note, that 'Statistics'
+// for each pid every 5 seconds for half a minute.  Note, that `Statistics`
 // object can be simultaneously modified by scheduler callback and accessed via
-// a 'ConstIterator'.  To ensure that the call to 'Statistics::print' outputs
+// a `ConstIterator`.  To ensure that the call to `Statistics::print` outputs
 // consistent data from a single update of the statistics for this process, we
 // create a local copy (copy construction is guaranteed to be thread-safe).
-//..
-//  for (int i = 0; i < 6; ++i) {
-//      bslmt::ThreadUtil::microSleep(0, 5);
+// ```
+// for (int i = 0; i < 6; ++i) {
+//     bslmt::ThreadUtil::microSleep(0, 5);
 //
-//      balb::PerformanceMonitor::ConstIterator    it    = perfmon.begin();
-//      const balb::PerformanceMonitor::Statistics stats = *it;
+//     balb::PerformanceMonitor::ConstIterator    it    = perfmon.begin();
+//     const balb::PerformanceMonitor::Statistics stats = *it;
 //
-//      assert(pid == stats.pid());
+//     assert(pid == stats.pid());
 //
-//      bsl::cout << "PID = " << stats.pid() << ":\n";
-//      stats.print(bsl::cout);
-//  }
-//..
+//     bsl::cout << "PID = " << stats.pid() << ":\n";
+//     stats.print(bsl::cout);
+// }
+// ```
 // Finally, we unregister the process and stop the scheduler to cease
-// collecting statistics for this process.  It is safe to call 'unregisterPid'
-// here, because we don't have any 'ConstIterators' objects or references to
-// 'Statistics' objects.
-//..
-//  rc  = perfmon.unregisterPid(pid);
+// collecting statistics for this process.  It is safe to call `unregisterPid`
+// here, because we don't have any `ConstIterators` objects or references to
+// `Statistics` objects.
+// ```
+// rc  = perfmon.unregisterPid(pid);
 //
-//  assert(0 == rc);
-//  assert(0 == perfmon.numRegisteredPids());
+// assert(0 == rc);
+// assert(0 == perfmon.numRegisteredPids());
 //
-//  scheduler.stop();
-//..
+// scheduler.stop();
+// ```
 
 #include <balscm_version.h>
 
@@ -196,9 +196,9 @@ namespace balb {
                           // class PerformanceMonitor
                           // ========================
 
+/// Provides a mechanism to collect performance statistics for an arbitrary
+/// number of processes running on the local machine.
 class PerformanceMonitor {
-    // Provides a mechanism to collect performance statistics for an arbitrary
-    // number of processes running on the local machine.
 
   public:
     // FRIENDS
@@ -229,31 +229,31 @@ class PerformanceMonitor {
     typedef bsls::Platform::OsWindows OsType;
 #endif
 
+    /// Forward declares a class template for a performance measure
+    /// collector for a parameterized `PLATFORM`.  This class template is
+    /// never defined.  Instead, we define explicit specializations for
+    /// supported platforms.  Any attempt to compile this component on
+    /// unsupported platforms will result in a compile-time error.
     template <class PLATFORM>
     class Collector;
-        // Forward declares a class template for a performance measure
-        // collector for a parameterized 'PLATFORM'.  This class template is
-        // never defined.  Instead, we define explicit specializations for
-        // supported platforms.  Any attempt to compile this component on
-        // unsupported platforms will result in a compile-time error.
 
+    /// Defines a type alias for the type that defines the private platform-
+    /// specific mechanism used to collect the performance measures for a
+    /// pid.
     typedef Collector<OsType> CollectorType;
-        // Defines a type alias for the type that defines the private platform-
-        // specific mechanism used to collect the performance measures for a
-        // pid.
 
+    /// Defines a type alias for the shared pointer to the platform-specific
+    /// mechanism used to collect the performance measures for a pid.
     typedef bsl::shared_ptr<CollectorType> CollectorPtr;
-        // Defines a type alias for the shared pointer to the platform-specific
-        // mechanism used to collect the performance measures for a pid.
 
+    /// Defines a type alias for the shared pointer to the platform-specific
+    /// mechanism used to collect the performance measures for a pid.
     typedef bsl::shared_ptr<Statistics> StatisticsPtr;
-        // Defines a type alias for the shared pointer to the platform-specific
-        // mechanism used to collect the performance measures for a pid.
 
+    /// Defines a type alias for the map of pids to their collected
+    /// statistics and associated platform-specific collector
+    /// implementation.
     typedef bsl::map<int, bsl::pair<StatisticsPtr, CollectorPtr> > PidMap;
-        // Defines a type alias for the map of pids to their collected
-        // statistics and associated platform-specific collector
-        // implementation.
 
     // DATA
     PidMap                              d_pidMap;       // map of pid stats
@@ -321,11 +321,11 @@ class PerformanceMonitor {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+    /// Defines the performance statistics collected for a monitored
+    /// process.  Note that this class is not fully value-semantic.  It is
+    /// intended to provide a read-only view of a set of collected
+    /// performance statistics.
     class Statistics {
-        // Defines the performance statistics collected for a monitored
-        // process.  Note that this class is not fully value-semantic.  It is
-        // intended to provide a read-only view of a set of collected
-        // performance statistics.
 
         // FRIENDS
         friend class Collector<OsType>;
@@ -377,68 +377,71 @@ class PerformanceMonitor {
                                        bslma::UsesBslmaAllocator);
 
         // CREATORS
-        explicit Statistics(bslma::Allocator *basicAllocator = 0);
-            // Create an instance of this class.  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
 
+        /// Create an instance of this class.  Optionally specify a
+        /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+        /// 0, the currently installed default allocator is used.
+        explicit Statistics(bslma::Allocator *basicAllocator = 0);
+
+        /// Create a `Statistics` object aggregating the same statistics
+        /// values as the specified `original` object.  Optionally specify a
+        /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+        /// 0, the currently installed default allocator is used.
         Statistics(const Statistics&  original,
                    bslma::Allocator  *basicAllocator = 0);
-            // Create a 'Statistics' object aggregating the same statistics
-            // values as the specified 'original' object.  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
 
         // MANIPULATORS
+
+        /// Reset the min, max, and average values collected for each
+        /// measure.
         void reset();
-            // Reset the min, max, and average values collected for each
-            // measure.
 
         // ACCESSORS
+
+        /// Return the latest collected value for the specified `measure`.
         double latestValue(Measure measure) const;
-            // Return the latest collected value for the specified 'measure'.
 
+        /// Return the minimum collected value for the specified `measure`.
         double minValue(Measure measure) const;
-            // Return the minimum collected value for the specified 'measure'.
 
+        /// Return the maximum collected value for the specified `measure`.
         double maxValue(Measure measure) const;
-            // Return the maximum collected value for the specified 'measure'.
 
+        /// Return the average of the collected values for the specified
+        /// `metric`.
         double avgValue(Measure measure) const;
-            // Return the average of the collected values for the specified
-            // 'metric'.
 
+        /// Return the pid for which these statistics were collected.
         int pid() const;
-            // Return the pid for which these statistics were collected.
 
+        /// Return the user-supplied description of the process identified
+        /// by the result of the `pid()` function.
         const bsl::string& description() const;
-            // Return the user-supplied description of the process identified
-            // by the result of the 'pid()' function.
 
+        /// Return the number of seconds (in wall time) that have elapsed
+        /// since the startup the process identified by the result of the
+        /// `pid()` function.
         double elapsedTime() const;
-            // Return the number of seconds (in wall time) that have elapsed
-            // since the startup the process identified by the result of the
-            // 'pid()' function.
 
+        /// Return the startup time in Coordinated Universal Time.
         const bdlt::Datetime& startupTime() const;
-            // Return the startup time in Coordinated Universal Time.
 
+        /// Print all collected statistics to the specified `os` stream.
         void print(bsl::ostream& os) const;
-            // Print all collected statistics to the specified 'os' stream.
 
+        /// Print the specified `measure` to the specified `os` stream.
         void print(bsl::ostream& os, Measure measure) const;
-            // Print the specified 'measure' to the specified 'os' stream.
 
+        /// Print the specified `measureIdentifier` to the specified `os`
+        /// stream.  The value of `measureIdentifier` should be a string
+        /// literal corresponding to the desired measure enumerator, e.g.,
+        /// `e_CPU_TIME`.
         void print(bsl::ostream& os, const char *measureIdentifier) const;
-            // Print the specified 'measureIdentifier' to the specified 'os'
-            // stream.  The value of 'measureIdentifier' should be a string
-            // literal corresponding to the desired measure enumerator, e.g.,
-            // 'e_CPU_TIME'.
     };
 
+    /// Provide a mechanism that models the "Forward Iterator" concept over
+    /// a collection of non-modifiable performance statistics.
     class ConstIterator {
-        // Provide a mechanism that models the "Forward Iterator" concept over
-        // a collection of non-modifiable performance statistics.
 
         // FRIENDS
         friend class PerformanceMonitor;  // grant access to the private
@@ -449,76 +452,81 @@ class PerformanceMonitor {
         bslmt::RWMutex         *d_mapGuard_p;  // serialize access to the map
 
         // PRIVATE CREATORS
+
+        /// Create an instance of this class that wraps the specified `it`
+        /// iterator protected by the specified `mapGuard`.
         explicit ConstIterator(PidMap::const_iterator  it,
                                bslmt::RWMutex         *mapGuard);
-            // Create an instance of this class that wraps the specified 'it'
-            // iterator protected by the specified 'mapGuard'.
 
       public:
         // TYPES
+
+        /// Defines a type alias for the tag type that represents the
+        /// iterator concept this class models.
         typedef bsl::forward_iterator_tag iterator_category;
-            // Defines a type alias for the tag type that represents the
-            // iterator concept this class models.
 
+        /// Defines a type alias for the type of the result of dereferencing
+        /// this iterator.
         typedef Statistics value_type;
-            // Defines a type alias for the type of the result of dereferencing
-            // this iterator.
 
+        /// Defines a type alias for the type of the result of the
+        /// difference between the addresses of two value types.
         typedef bsl::ptrdiff_t difference_type;
-            // Defines a type alias for the type of the result of the
-            // difference between the addresses of two value types.
 
+        /// Defines a type alias for a pointer to this iterator's value
+        /// type.
         typedef const Statistics* pointer;
-            // Defines a type alias for a pointer to this iterator's value
-            // type.
 
+        /// Defines a type alias for a reference to this iterator's value
+        /// type.
         typedef const Statistics& reference;
-            // Defines a type alias for a reference to this iterator's value
-            // type.
 
         // CREATORS
+
+        /// Create an instance of this class having an invalid value.
         ConstIterator();
-            // Create an instance of this class having an invalid value.
 
         // MANIPULATORS
-        ConstIterator& operator++();
-            // Advance this iterator to refer to the next collection of
-            // statistics for a monitored pid and return a reference to the
-            // modifiable value type of this iterator.  If there is no next
-            // collection of statistics, this iterator will be set equal to
-            // 'end()'.  The behavior of this function is undefined unless this
-            // iterator is dereferenceable.
 
+        /// Advance this iterator to refer to the next collection of
+        /// statistics for a monitored pid and return a reference to the
+        /// modifiable value type of this iterator.  If there is no next
+        /// collection of statistics, this iterator will be set equal to
+        /// `end()`.  The behavior of this function is undefined unless this
+        /// iterator is dereferenceable.
+        ConstIterator& operator++();
+
+        /// Advance this iterator to refer to the next collection of
+        /// statistics for a monitored pid and return the iterator pointing
+        /// to the previous modifiable value type.  If there is no next
+        /// collection of statistics, this iterator will be set equal to
+        /// `end()`.  The behavior of this function is undefined unless this
+        /// iterator is dereferenceable.
         ConstIterator operator++(int);
-            // Advance this iterator to refer to the next collection of
-            // statistics for a monitored pid and return the iterator pointing
-            // to the previous modifiable value type.  If there is no next
-            // collection of statistics, this iterator will be set equal to
-            // 'end()'.  The behavior of this function is undefined unless this
-            // iterator is dereferenceable.
 
         // ACCESSORS
+
+        /// Return a reference to the non-modifiable value type of this
+        /// iterator.
         reference operator*() const;
-            // Return a reference to the non-modifiable value type of this
-            // iterator.
 
+        /// Return a reference to the non-modifiable value type of this
+        /// iterator.
         pointer operator->() const;
-            // Return a reference to the non-modifiable value type of this
-            // iterator.
 
+        /// Return `true` if the specified `rhs` iterator points to the
+        /// same instance of the iterator's value type as "this" iterator,
+        /// and `false` otherwise.  The behavior of this function is
+        /// undefined unless the `rhs` iterator and "this" iterator both
+        /// iterate over the same collection of Statistics.
         bool operator==(const ConstIterator& rhs) const;
-            // Return 'true' if the specified 'rhs' iterator points to the
-            // same instance of the iterator's value type as "this" iterator,
-            // and 'false' otherwise.  The behavior of this function is
-            // undefined unless the 'rhs' iterator and "this" iterator both
-            // iterate over the same collection of Statistics.
 
+        /// Return `true` if the specified `rhs` iterator does not point to
+        /// the same instance of the iterator's value type as "this"
+        /// iterator, and `false` otherwise.  The behavior of this function
+        /// is undefined unless the `rhs` iterator and "this" iterator both
+        /// iterate over the same collection of Statistics.
         bool operator!=(const ConstIterator& rhs) const;
-            // Return 'true' if the specified 'rhs' iterator does not point to
-            // the same instance of the iterator's value type as "this"
-            // iterator, and 'false' otherwise.  The behavior of this function
-            // is undefined unless the 'rhs' iterator and "this" iterator both
-            // iterate over the same collection of Statistics.
     };
 
     // TRAITS
@@ -526,93 +534,96 @@ class PerformanceMonitor {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create an instance of this class to collect performance statistics
+    /// on demand (via the `collect` method).  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     explicit
     PerformanceMonitor(bslma::Allocator *basicAllocator = 0);
-        // Create an instance of this class to collect performance statistics
-        // on demand (via the 'collect' method).  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Create an instance of this class that uses the specified `scheduler`
+    /// to automatically collect performance statistics every specified
+    /// `interval` (specified in seconds).  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.  Note that a
+    /// non-positive `interval` value indicates that performance statistics
+    /// should *not* be automatically collected--in this case the user is
+    /// responsible for manually calling the `collect` function.
     PerformanceMonitor(bdlmt::TimerEventScheduler *scheduler,
                        double                      interval,
                        bslma::Allocator           *basicAllocator = 0);
-        // Create an instance of this class that uses the specified 'scheduler'
-        // to automatically collect performance statistics every specified
-        // 'interval' (specified in seconds).  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Note that a
-        // non-positive 'interval' value indicates that performance statistics
-        // should *not* be automatically collected--in this case the user is
-        // responsible for manually calling the 'collect' function.
 
+    /// Destroy this object.
     ~PerformanceMonitor();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Register the specified process `pid` having the specified
+    /// user-defined `description` with this performance monitor.  After
+    /// registration, performance statistics will be collected for the
+    /// `pid` upon invocation of the `collect` function.  Note that a `pid`
+    /// value of zero is interpreted as the `pid` of the current process.
+    /// Return 0 on success or a non-zero value otherwise.
     int registerPid(int pid, const bsl::string& description);
-        // Register the specified process 'pid' having the specified
-        // user-defined 'description' with this performance monitor.  After
-        // registration, performance statistics will be collected for the
-        // 'pid' upon invocation of the 'collect' function.  Note that a 'pid'
-        // value of zero is interpreted as the 'pid' of the current process.
-        // Return 0 on success or a non-zero value otherwise.
 
+    /// Unregister the specified process `pid` from the performance monitor.
+    /// After unregistration, to statistics for the `pid` will be no longer
+    /// be available unless the `pid` is re-registered with the performance
+    /// monitor through calling `registerPid`.  Note that a `pid` value of
+    /// zero is interpreted as the `pid` of the current process.  Return
+    /// 0 on success or a non-zero value otherwise.
     int unregisterPid(int pid);
-        // Unregister the specified process 'pid' from the performance monitor.
-        // After unregistration, to statistics for the 'pid' will be no longer
-        // be available unless the 'pid' is re-registered with the performance
-        // monitor through calling 'registerPid'.  Note that a 'pid' value of
-        // zero is interpreted as the 'pid' of the current process.  Return
-        // 0 on success or a non-zero value otherwise.
 
+    /// Set the specified time `interval`, in seconds, after which
+    /// statistics for each registered pid are automatically collected.  The
+    /// behavior is undefined unless a scheduler was supplied at the
+    /// construction of this performance monitor.  Note that a non-positive
+    /// `interval` value indicates that performance statistics should not be
+    /// automatically collected--in this case the user is responsible for
+    /// manually calling the `collect` function.
     void setCollectionInterval(double interval);
-        // Set the specified time 'interval', in seconds, after which
-        // statistics for each registered pid are automatically collected.  The
-        // behavior is undefined unless a scheduler was supplied at the
-        // construction of this performance monitor.  Note that a non-positive
-        // 'interval' value indicates that performance statistics should not be
-        // automatically collected--in this case the user is responsible for
-        // manually calling the 'collect' function.
 
+    /// Collect performance statistics for each registered pid.
     void collect();
-        // Collect performance statistics for each registered pid.
 
+    /// Reset the collected min, max, and average values collected for each
+    /// measure for each monitored process.
     void resetStatistics();
-        // Reset the collected min, max, and average values collected for each
-        // measure for each monitored process.
 
     // ACCESSORS
+
+    /// Return an iterator positioned at the first set of collected
+    /// performance statistics.
     ConstIterator begin() const;
-        // Return an iterator positioned at the first set of collected
-        // performance statistics.
 
+    /// Return an iterator that represents the end of the sequence of sets
+    /// of collected performance statistics.
     ConstIterator end() const;
-        // Return an iterator that represents the end of the sequence of sets
-        // of collected performance statistics.
 
+    /// Return the iterator pointing to the set of collected performance
+    /// statistics for the specified `pid` if `pid` has been registered with
+    /// this performance monitor through the `registerPid` function,
+    /// otherwise return `end()`.
     ConstIterator find(int pid) const;
-        // Return the iterator pointing to the set of collected performance
-        // statistics for the specified 'pid' if 'pid' has been registered with
-        // this performance monitor through the 'registerPid' function,
-        // otherwise return 'end()'.
 
+    /// Return the number of processes registered for statistics collection.
     int numRegisteredPids() const;
-        // Return the number of processes registered for statistics collection.
 };
 
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
+/// Describes the fields present in /proc/<pid>/stat.  For a complete
+/// description of each field, see `man proc`.
+///
+/// Note that sizes of the data fields are defined in terms of scanf(3)
+/// format specifiers, such as %d, %lu or %c.  There is no good way to know
+/// if %lu is 32-bit wide or 64-bit, because the code can be built in the
+/// -m32 mode making sizeof(unsigned long)==4 and executed on a 64bit
+/// platform where the kernel thinks that %lu can represent 64-bit wide
+/// integers.  Therefore we use `Uint64` regardless of the build
+/// configuration.
 struct PerformanceMonitor_LinuxProcStatistics {
-    // Describes the fields present in /proc/<pid>/stat.  For a complete
-    // description of each field, see 'man proc'.
-    //
-    // Note that sizes of the data fields are defined in terms of scanf(3)
-    // format specifiers, such as %d, %lu or %c.  There is no good way to know
-    // if %lu is 32-bit wide or 64-bit, because the code can be built in the
-    // -m32 mode making sizeof(unsigned long)==4 and executed on a 64bit
-    // platform where the kernel thinks that %lu can represent 64-bit wide
-    // integers.  Therefore we use 'Uint64' regardless of the build
-    // configuration.
 
     // PUBLIC TYPES
     typedef bsls::Types::Int64  LdType;
@@ -649,18 +660,20 @@ struct PerformanceMonitor_LinuxProcStatistics {
     // required for any collected measures.
 
     // CLASS METHOD
+
+    /// For the specified process id `pid`, load the contents of the file
+    /// `/proc/<pid>/stat` into the specified `buffer`.  Return 0 on success
+    /// and a non-zero value otherwise.
     static int readProcStatString(bsl::string *buffer, int pid);
-        // For the specified process id 'pid', load the contents of the file
-        // '/proc/<pid>/stat' into the specified 'buffer'.  Return 0 on success
-        // and a non-zero value otherwise.
 
   private:
     // NOT IMPLEMENTED
 
   public:
     // CREATORS
+
+    /// Default construct all fields in this object.
     PerformanceMonitor_LinuxProcStatistics();
-        // Default construct all fields in this object.
 
     // PerformanceMonitor_LinuxProcStatistics(
     //                const PerformanceMonitor_LinuxProcStatistics&) = default;
@@ -671,11 +684,11 @@ struct PerformanceMonitor_LinuxProcStatistics {
         // Copy all fields of the specified 'rhs' to this object, and return a
         // reference to it.
 
+    /// Parse the specified `procStatString` and populate all the fields in
+    /// this `struct`.  Check that the specified `pid` matches the `pid`
+    /// field in the string.  Return 0 on success and a non-zero value
+    /// otherwise.
     int parseProcStatString(const bsl::string& procStatString, int pid);
-        // Parse the specified 'procStatString' and populate all the fields in
-        // this 'struct'.  Check that the specified 'pid' matches the 'pid'
-        // field in the string.  Return 0 on success and a non-zero value
-        // otherwise.
 };
 
 #endif

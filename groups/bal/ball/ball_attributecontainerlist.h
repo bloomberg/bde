@@ -13,20 +13,20 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_attribute, ball_attributecontainer
 //
-//@DESCRIPTION: This component defines a class 'ball::AttributeContainerList'
-// that provides a linked list of 'ball::AttributeContainer' object
+//@DESCRIPTION: This component defines a class `ball::AttributeContainerList`
+// that provides a linked list of `ball::AttributeContainer` object
 // *addresses*.  Addresses can be prepended (to the front of the list) using
-// the 'pushFront()' method.  The 'pushFront()' method returns an iterator that
+// the `pushFront()` method.  The `pushFront()` method returns an iterator that
 // can be used later to efficiently remove the added element.  The
-// 'ball::AttributeContainerList' also provides a 'hasValue()' operation, that
-// returns 'true' if any of the attribute containers in the list contain the
-// supplied attribute, and 'false' otherwise.  The
-// 'ball::AttributeContainerList' maintains a store of free list-nodes to
+// `ball::AttributeContainerList` also provides a `hasValue()` operation, that
+// returns `true` if any of the attribute containers in the list contain the
+// supplied attribute, and `false` otherwise.  The
+// `ball::AttributeContainerList` maintains a store of free list-nodes to
 // minimize the amount of memory allocation required if addresses are
 // frequently added and removed from the container.  This component also
-// defines a class 'ball::AttributeContainerListIterator' (as well as the alias
-// 'ball::AttributeContainerList::iterator)' that provides an STL-style
-// iterator over the addresses in a 'ball::AttributeContainer'.
+// defines a class `ball::AttributeContainerListIterator` (as well as the alias
+// `ball::AttributeContainerList::iterator)` that provides an STL-style
+// iterator over the addresses in a `ball::AttributeContainer`.
 //
 // This component participates in the implementation of "Rule-Based Logging".
 // For more information on how to use that feature, please see the package
@@ -34,65 +34,65 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// 'ball::AttributeContainerList' is *const* *thread-safe*, meaning that
+// `ball::AttributeContainerList` is *const* *thread-safe*, meaning that
 // accessors may be invoked concurrently from different threads, but it is not
-// safe to access or modify a 'ball::AttributeContainerList' in one thread
+// safe to access or modify a `ball::AttributeContainerList` in one thread
 // while another thread modifies the same object.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Usage of 'ball::AttributeContainerList'
+///Example 1: Basic Usage of `ball::AttributeContainerList`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we demonstrate how to create a
-// 'ball::AttributeContainerList' object, how to add and remove elements from
+// `ball::AttributeContainerList` object, how to add and remove elements from
 // the list, and how to walk the list of attribute container addresses.
 //
 // We start by creating three attribute sets that we will use to populate our
-// attribute container list.  Note that this example uses the 'AttributeSet'
-// implementation of the 'ball::AttributeContainer' protocol defined in the
-// 'ball_attributecontainer' component documentation.
-//..
-//  AttributeSet s1, s2, s3;
-//  s1.insert(ball::AttributeValue("Set1", 1));
-//  s2.insert(ball::AttributeValue("Set2", 2));
-//  s3.insert(ball::AttributeValue("Set3", 3));
-//..
-// We now create a 'ball::AttributeContainerList' and add the three attribute
+// attribute container list.  Note that this example uses the `AttributeSet`
+// implementation of the `ball::AttributeContainer` protocol defined in the
+// `ball_attributecontainer` component documentation.
+// ```
+// AttributeSet s1, s2, s3;
+// s1.insert(ball::AttributeValue("Set1", 1));
+// s2.insert(ball::AttributeValue("Set2", 2));
+// s3.insert(ball::AttributeValue("Set3", 3));
+// ```
+// We now create a `ball::AttributeContainerList` and add the three attribute
 // container addresses to the list:
-//..
-//  ball::AttributeContainerList exampleList;
-//  ball::AttributeContainerList::iterator s1Iter = exampleList.pushFront(&s1);
-//  ball::AttributeContainerList::iterator s2Iter = exampleList.pushFront(&s2);
-//  ball::AttributeContainerList::iterator s3Iter = exampleList.pushFront(&s3);
-//..
-// We can use the 'hasValue()' operation to test which attribute value are
+// ```
+// ball::AttributeContainerList exampleList;
+// ball::AttributeContainerList::iterator s1Iter = exampleList.pushFront(&s1);
+// ball::AttributeContainerList::iterator s2Iter = exampleList.pushFront(&s2);
+// ball::AttributeContainerList::iterator s3Iter = exampleList.pushFront(&s3);
+// ```
+// We can use the `hasValue()` operation to test which attribute value are
 // contained within the list of containers:
-//..
-//  assert(true == exampleList.hasValue("Set1", 1));
-//  assert(true == exampleList.hasValue("Set2", 2));
-//  assert(true == exampleList.hasValue("Set3", 3));
+// ```
+// assert(true == exampleList.hasValue("Set1", 1));
+// assert(true == exampleList.hasValue("Set2", 2));
+// assert(true == exampleList.hasValue("Set3", 3));
 //
-//  assert(false == exampleList.hasValue("Set1", 2));
-//  assert(false == exampleList.hasValue("Set2", 1));
-//  assert(false == exampleList.hasValue("Set4", 1));
-//..
+// assert(false == exampleList.hasValue("Set1", 2));
+// assert(false == exampleList.hasValue("Set2", 1));
+// assert(false == exampleList.hasValue("Set4", 1));
+// ```
 // We can use the iterators to efficiently remove elements from the list:
-//..
-//  exampleList.remove(s3Iter);
-//..
-// Finally, we can use either the stream operator or the 'print()' method to
+// ```
+// exampleList.remove(s3Iter);
+// ```
+// Finally, we can use either the stream operator or the `print()` method to
 // print the attributes within an attribute container list:
-//..
-//  bsl::cout << exampleList << bsl::endl;
-//..
+// ```
+// bsl::cout << exampleList << bsl::endl;
+// ```
 // The resulting output will be the following:
-//..
+// ```
 // [  [  [ Set2 = 2 ]  ]  [  [ Set1 = 1 ]  ] ]
-//..
-// Note that the output shows the values in 's2' (i.e., '("Set2", 2)') and
-// then the values in 's1' (i.e., '("Set1", 1)').
+// ```
+// Note that the output shows the values in `s2` (i.e., `("Set2", 2)`) and
+// then the values in `s1` (i.e., `("Set1", 1)`).
 
 #include <balscm_version.h>
 
@@ -115,13 +115,13 @@ struct AttributeContainerList_Node;
               // class AttributeContainerListIterator
               // ====================================
 
+/// This class provides an STL-style iterator over a sequence of
+/// `AttributeContainer` object addresses.  The behavior of the `operator*`
+/// method is undefined unless the iterator is at a valid position in the
+/// sequence of `AttributeContainer` object addresses (i.e., not the "end")
+/// and the referenced element has not been removed since the iterator was
+/// constructed.
 class AttributeContainerListIterator {
-    // This class provides an STL-style iterator over a sequence of
-    // 'AttributeContainer' object addresses.  The behavior of the 'operator*'
-    // method is undefined unless the iterator is at a valid position in the
-    // sequence of 'AttributeContainer' object addresses (i.e., not the "end")
-    // and the referenced element has not been removed since the iterator was
-    // constructed.
 
     // PRIVATE TYPES
     typedef AttributeContainerList_Node Node;
@@ -136,86 +136,90 @@ class AttributeContainerListIterator {
 
   public:
     // CREATORS
-    AttributeContainerListIterator();
-        // Create an uninitialized iterator.
 
+    /// Create an uninitialized iterator.
+    AttributeContainerListIterator();
+
+    /// Create an iterator having the same value as the specified
+    /// `original` one.
     AttributeContainerListIterator(
                                const AttributeContainerListIterator& original);
-        // Create an iterator having the same value as the specified
-        // 'original' one.
 
+    /// Create an iterator at the specified `position`.
     AttributeContainerListIterator(AttributeContainerList_Node *position);
-        // Create an iterator at the specified 'position'.
 
     // ~AttributeContainerListIterator();
         // Destroy this iterator.  Note that this trivial destructor is
         // generated by the compiler.
 
     // MANIPULATORS
+
+    /// Assign this iterator the value of the specified `rhs` and return a
+    /// modifiable reference to this iterator.
     AttributeContainerListIterator& operator=(
                                     const AttributeContainerListIterator& rhs);
-        // Assign this iterator the value of the specified 'rhs' and return a
-        // modifiable reference to this iterator.
 
+    /// Advance this iterator to the next attribute container in the list
+    /// and return the value of this iterator.  The behavior is undefined
+    /// unless the iterator is at a valid position in the list.
     AttributeContainerListIterator operator++(int);
-        // Advance this iterator to the next attribute container in the list
-        // and return the value of this iterator.  The behavior is undefined
-        // unless the iterator is at a valid position in the list.
 
+    /// Advance this iterator to the next attribute container in the list
+    /// and return the value of the iterator prior to this method call.
+    /// The behavior is undefined unless the iterator is at a valid
+    /// position in the list.
     AttributeContainerListIterator operator++();
-        // Advance this iterator to the next attribute container in the list
-        // and return the value of the iterator prior to this method call.
-        // The behavior is undefined unless the iterator is at a valid
-        // position in the list.
 
     // ACCESSORS
-    const AttributeContainer *operator*() const;
-        // Return the address of the non-modifiable attribute container at
-        // which this iterator is positioned.  The behavior is undefined unless
-        // this iterator is at a valid position in the list.
 
+    /// Return the address of the non-modifiable attribute container at
+    /// which this iterator is positioned.  The behavior is undefined unless
+    /// this iterator is at a valid position in the list.
+    const AttributeContainer *operator*() const;
+
+    /// Return `true` if this iterator is at a valid position in the
+    /// sequence of `AttributeContainer` addresses and `false` otherwise.
     bool valid() const;
-        // Return 'true' if this iterator is at a valid position in the
-        // sequence of 'AttributeContainer' addresses and 'false' otherwise.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and the specified `rhs` iterators
+/// have the same value and `false` otherwise.  Two iterators have the same
+/// value if they refer to the same position in the same list, or if both
+/// iterators are at an invalid position in the list (i.e., the "end" of the
+/// list, or the default constructed value).
 bool operator==(const AttributeContainerListIterator& lhs,
                 const AttributeContainerListIterator& rhs);
-    // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
-    // have the same value and 'false' otherwise.  Two iterators have the same
-    // value if they refer to the same position in the same list, or if both
-    // iterators are at an invalid position in the list (i.e., the "end" of the
-    // list, or the default constructed value).
 
+/// Return `true` if the specified `lhs` and the specified `rhs` iterators
+/// do not have the same value and `false` otherwise.  Two iterators do not
+/// have the same value if they differ in either the list to which they
+/// refer or the position in the list object.
 bool operator!=(const AttributeContainerListIterator& lhs,
                 const AttributeContainerListIterator& rhs);
-    // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
-    // do not have the same value and 'false' otherwise.  Two iterators do not
-    // have the same value if they differ in either the list to which they
-    // refer or the position in the list object.
 
                     // ============================
                     // class AttributeContainerList
                     // ============================
 
+/// This class provides an in-core value-semantic list of
+/// `AttributeContainer` object addresses.  Attribute container addresses
+/// are added to this list using `pushFront()`, which returns an iterator
+/// located at the new element.  A `AttributeContainerList::iterator` object
+/// remains valid until the element referred to by the iterator is removed.
+/// Attribute container addresses can be removed using either `remove()`,
+/// `removeAll()`, or `removeAllAndRelease()`.  This list object attempts to
+/// minimize the number of memory allocations it requires by placing the
+/// memory for elements that have been released in a free memory store, and
+/// re-using the memory when new elements are added.  The `removeAll()`
+/// removes all the elements from the list, but does not release any
+/// allocated memory (placing it in the free store).  The
+/// `removeAllAndRelease()` operation removes all elements and releases all
+/// allocated memory.  Note that maintaining a free store is important for
+/// this component because the expectation is that elements will be both
+/// added and removed frequently.
 class AttributeContainerList {
-    // This class provides an in-core value-semantic list of
-    // 'AttributeContainer' object addresses.  Attribute container addresses
-    // are added to this list using 'pushFront()', which returns an iterator
-    // located at the new element.  A 'AttributeContainerList::iterator' object
-    // remains valid until the element referred to by the iterator is removed.
-    // Attribute container addresses can be removed using either 'remove()',
-    // 'removeAll()', or 'removeAllAndRelease()'.  This list object attempts to
-    // minimize the number of memory allocations it requires by placing the
-    // memory for elements that have been released in a free memory store, and
-    // re-using the memory when new elements are added.  The 'removeAll()'
-    // removes all the elements from the list, but does not release any
-    // allocated memory (placing it in the free store).  The
-    // 'removeAllAndRelease()' operation removes all elements and releases all
-    // allocated memory.  Note that maintaining a free store is important for
-    // this component because the expectation is that elements will be both
-    // added and removed frequently.
   public:
     // TYPES
     typedef bsl::allocator<char> allocator_type;
@@ -236,124 +240,129 @@ class AttributeContainerList {
                                    bslma::UsesBslmaAllocator);
 
     // PUBLIC TYPES
+
+    /// An iterator over this list.
     typedef AttributeContainerListIterator iterator;
-        // An iterator over this list.
 
     // CREATORS
+
+    /// Create an empty container list.  Optionally specify an `allocator`
+    /// (e.g., the address of a `bslma::Allocator` object) to supply memory;
+    /// otherwise, the default allocator is used.
     AttributeContainerList();
     explicit AttributeContainerList(const allocator_type& allocator);
-        // Create an empty container list.  Optionally specify an 'allocator'
-        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
-        // otherwise, the default allocator is used.
 
+    /// Create a container list having the same value as the specified
+    /// `original`.  Optionally specify an `allocator` (e.g., the address of
+    /// a `bslma::Allocator` object) to supply memory; otherwise, the
+    /// default allocator is used.
     AttributeContainerList(
                    const AttributeContainerList& original,
                    const allocator_type&         allocator = allocator_type());
-        // Create a container list having the same value as the specified
-        // 'original'.  Optionally specify an 'allocator' (e.g., the address of
-        // a 'bslma::Allocator' object) to supply memory; otherwise, the
-        // default allocator is used.
 
+    /// Destroy this object.
     ~AttributeContainerList();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign this container list the value of the specified `rhs` one, and
+    /// return a reference to this list.
     AttributeContainerList& operator=(const AttributeContainerList& rhs);
-        // Assign this container list the value of the specified 'rhs' one, and
-        // return a reference to this list.
 
+    /// Prepend the address of the specified `container` to this list of
+    /// attribute container addresses, and return an iterator located at
+    /// the newly added list element.
     iterator pushFront(const AttributeContainer *container);
-        // Prepend the address of the specified 'container' to this list of
-        // attribute container addresses, and return an iterator located at
-        // the newly added list element.
 
+    /// Remove the specified `element` from this list.  The behavior is
+    /// undefined unless `element` is a valid iterator on this list and the
+    /// referenced address has not previously been removed (by either
+    /// `remove()`, `removeAll()`, or `removeAllAndRelease()`.
     void remove(const iterator& element);
-        // Remove the specified 'element' from this list.  The behavior is
-        // undefined unless 'element' is a valid iterator on this list and the
-        // referenced address has not previously been removed (by either
-        // 'remove()', 'removeAll()', or 'removeAllAndRelease()'.
 
+    /// Remove all the elements from this list.  After this operation
+    /// returns, `numContainers()` will be 0.  This operation adds all the
+    /// allocated memory to an internal free store, and does not deallocate
+    /// any memory.
     void removeAll();
-        // Remove all the elements from this list.  After this operation
-        // returns, 'numContainers()' will be 0.  This operation adds all the
-        // allocated memory to an internal free store, and does not deallocate
-        // any memory.
 
+    /// Remove all the elements from this list and deallocate any allocated
+    /// memory.
     void removeAllAndRelease();
-        // Remove all the elements from this list and deallocate any allocated
-        // memory.
 
     // ACCESSORS
+
+    /// Return an iterator positioned at the beginning of the list of
+    /// `AttributeContainer` object addresses represented by this object.
     iterator begin() const;
-        // Return an iterator positioned at the beginning of the list of
-        // 'AttributeContainer' object addresses represented by this object.
 
+    /// Return an iterator positioned one past the final
+    /// `AttributeContainer` object address in the list of addresses
+    /// represented by this object.
     iterator end() const;
-        // Return an iterator positioned one past the final
-        // 'AttributeContainer' object address in the list of addresses
-        // represented by this object.
 
+    /// Return the number of attribute container addresses currently in
+    /// this list.
     int numContainers() const;
-        // Return the number of attribute container addresses currently in
-        // this list.
 
+    /// Return `true` if the attribute having specified `value` exists in
+    /// any of the attribute containers referred to by this object, and
+    /// `false` otherwise.
     bool hasValue(const Attribute& value) const;
-        // Return 'true' if the attribute having specified 'value' exists in
-        // any of the attribute containers referred to by this object, and
-        // 'false' otherwise.
 
+    /// Format this object to the specified output `stream` at the
+    /// (absolute value of) the optionally specified indentation `level`
+    /// and return a reference to `stream`.  If `level` is specified,
+    /// optionally specify `spacesPerLevel`, the number of spaces per
+    /// indentation level for this and all of its nested objects.  If
+    /// `level` is negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, format the entire output on one line,
+    /// suppressing all but the initial indentation (as governed by
+    /// `level`).  If `stream` is not valid on entry, this operation has no
+    /// effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // (absolute value of) the optionally specified indentation 'level'
-        // and return a reference to 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.  Note
+    /// that if no allocator was supplied at construction the default
+    /// allocator in effect at construction is used.
     allocator_type get_allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the default
-        // allocator in effect at construction is used.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` lists have the same
+/// value, and `false` otherwise.  Two lists have the same value if they
+/// have the same number of attribute container addresses, and the address
+/// at each index position have the same value.
 bool operator==(const AttributeContainerList& lhs,
                 const AttributeContainerList& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' lists have the same
-    // value, and 'false' otherwise.  Two lists have the same value if they
-    // have the same number of attribute container addresses, and the address
-    // at each index position have the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` lists do not have the
+/// same value, and `false` otherwise.  Two lists do not have the same
+/// value if have differing numbers of attribute container addresses or any
+/// of the addresses at corresponding indices have different values.
 inline
 bool operator!=(const AttributeContainerList& lhs,
                 const AttributeContainerList& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' lists do not have the
-    // same value, and 'false' otherwise.  Two lists do not have the same
-    // value if have differing numbers of attribute container addresses or any
-    // of the addresses at corresponding indices have different values.
 
+/// Write a formatted description of the specified `rhs` to the specified
+/// `stream` and return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream&                 output,
                          const AttributeContainerList& rhs);
-    // Write a formatted description of the specified 'rhs' to the specified
-    // 'stream' and return a reference to the modifiable 'stream'.
 
                  // =================================
                  // class AttributeContainerList_Node
                  // =================================
 
+/// This is an implementation type of `AttributeContainerList` and should
+/// not be used by clients of this package.  A `AttributeContainerList_Node`
+/// represents a node in a `AttributeContainerList` object.
 struct AttributeContainerList_Node {
-    // This is an implementation type of 'AttributeContainerList' and should
-    // not be used by clients of this package.  A 'AttributeContainerList_Node'
-    // represents a node in a 'AttributeContainerList' object.
 
     const AttributeContainer     *d_value_p;      // address value of this
                                                   // element

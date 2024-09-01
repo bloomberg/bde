@@ -12,18 +12,18 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balb_filecleanerconfiguration
 //
-//@DESCRIPTION: This component defines a 'struct', 'balb::FileCleanerUtil',
+//@DESCRIPTION: This component defines a `struct`, `balb::FileCleanerUtil`,
 // that provides a utility function for removing files based on a
 // configuration.
 //
 ///General Features and Behavior
 ///-----------------------------
-// The 'removeFiles' function implements generic filename pattern matching and
+// The `removeFiles` function implements generic filename pattern matching and
 // removal logic.  The user is responsible for calling this function with
 // parameters that do not cause any interference with the application logic.
 // Specifically, the user must pay attention to the supplied pattern to avoid
 // removal of important application data files.  See
-// 'balb_filecleanerconfiguration' for further information.
+// `balb_filecleanerconfiguration` for further information.
 //
 ///Usage
 ///-----
@@ -32,26 +32,26 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // The following snippets of code illustrate the basic usage of
-// 'balb::FileCleanerUtil'.
+// `balb::FileCleanerUtil`.
 //
 // Let's assume that the application was set up to log to files having the
 // following pattern:
-//..
-//  const char *appLogFilePattern = "/var/log/myApp/log*";
-//..
+// ```
+// const char *appLogFilePattern = "/var/log/myApp/log*";
+// ```
 // We want to clean up all the files older then a week, but leave at least 4
 // latest log files.  First, we create a cleanup configuration object that will
 // capture our parameters:
-//..
-//  balb::FileCleanerConfiguration config(
-//              appLogFilePattern,
-//              bsls::TimeInterval(bdlt::TimeUnitRatio::k_SECONDS_PER_DAY * 7),
-//              4);
-//..
+// ```
+// balb::FileCleanerConfiguration config(
+//             appLogFilePattern,
+//             bsls::TimeInterval(bdlt::TimeUnitRatio::k_SECONDS_PER_DAY * 7),
+//             4);
+// ```
 // Then, we use this configuration to do a file cleanup:
-//..
-//  balb::FileCleanerUtil::removeFiles(config);
-//..
+// ```
+// balb::FileCleanerUtil::removeFiles(config);
+// ```
 
 #include <balscm_version.h>
 
@@ -64,16 +64,17 @@ namespace balb {
                            // struct FileCleanerUtil
                            // ======================
 
+/// This utility class provides functions relating to file clean up.
 struct FileCleanerUtil {
-    // This utility class provides functions relating to file clean up.
   public:
     // CLASS METHODS
+
+    /// Remove files based on the criteria given by the specified `config`.
+    /// Only those files for which `bdls::FilesystemUtil::isRegularFile`
+    /// returns `true` are considered for removal (symbolic links are not
+    /// followed).
     static
     void removeFiles(const FileCleanerConfiguration& config);
-        // Remove files based on the criteria given by the specified 'config'.
-        // Only those files for which 'bdls::FilesystemUtil::isRegularFile'
-        // returns 'true' are considered for removal (symbolic links are not
-        // followed).
 };
 
 }  // close package namespace
