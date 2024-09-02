@@ -379,10 +379,11 @@ struct SpinLock {
 #ifdef BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
   public:
     // PUBLIC DATA
+
+    /// 0 when unlocked.  'd_state is public to allow aggregate
+    /// initialization where constexpr constructors are not available.  It
+    /// is semantically private, and should not be used directly.
     AtomicOperations::AtomicTypes::Int d_state;
-        // 0 when unlocked.  'd_state is public to allow aggregate
-        // initialization where constexpr constructors are not available.  It
-        // is semantically private, and should not be used directly.
 #else
   private:
     // DATA

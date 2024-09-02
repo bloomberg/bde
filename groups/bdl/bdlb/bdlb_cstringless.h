@@ -111,22 +111,24 @@ struct CStringLess {
                                    bsl::is_trivially_default_constructible);
 
     // CREATORS
+
+    /// Create a `CStringLess` object.
     //! CStringLess() = default;
-        // Create a 'CStringLess' object.
 
+    /// Create a `CStringLess` object.  Note that as `CStringLess` is an
+    /// empty (stateless) type, this operation has no observable effect.
     //! CStringLess(const CStringLess& original) = default;
-        // Create a 'CStringLess' object.  Note that as 'CStringLess' is an
-        // empty (stateless) type, this operation has no observable effect.
 
+    /// Destroy this object.
     //! ~CStringLess() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    /// Note that as `CStringLess` is an empty (stateless) type, this
+    /// operation has no observable effect.
     //! CStringLess& operator=(const CStringLess& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
-        // Note that as 'CStringLess' is an empty (stateless) type, this
-        // operation has no observable effect.
 
     // ACCESSORS
 

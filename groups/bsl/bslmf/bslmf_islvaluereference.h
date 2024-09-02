@@ -86,20 +86,20 @@ struct is_lvalue_reference : bsl::integral_constant<
 
 #else
 
+/// This `struct` template provides a meta-function to determine whether the
+/// (template parameter) `t_TYPE` is a (possibly cv-qualified) lvalue
+/// reference type.  This generic default template derives from
+/// `bsl::false_type`.  A template specialization is provided (below) that
+/// derives from `bsl::true_type`.
 template <class t_TYPE>
 struct is_lvalue_reference : false_type {
-    // This 'struct' template provides a meta-function to determine whether the
-    // (template parameter) 't_TYPE' is a (possibly cv-qualified) lvalue
-    // reference type.  This generic default template derives from
-    // 'bsl::false_type'.  A template specialization is provided (below) that
-    // derives from 'bsl::true_type'.
 };
 
+/// This partial specialization of `is_lvalue_reference` derives from
+/// `bsl::true_type` for when the (template parameter) `t_TYPE` is an lvalue
+/// reference type.
 template <class t_TYPE>
 struct is_lvalue_reference<t_TYPE&> : true_type {
-    // This partial specialization of 'is_lvalue_reference' derives from
-    // 'bsl::true_type' for when the (template parameter) 't_TYPE' is an lvalue
-    // reference type.
 };
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 

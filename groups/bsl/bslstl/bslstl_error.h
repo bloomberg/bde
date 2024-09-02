@@ -108,8 +108,8 @@ class error_condition;
                             // class error_category
                             // ====================
 
-// This `class` acts as a base for types that represent the source and
-// encoding of error categories.
+/// This `class` acts as a base for types that represent the source and
+/// encoding of error categories.
 class error_category {
 
   private:
@@ -164,7 +164,7 @@ class error_category {
                               // class error_code
                               // ================
 
-// This `class` represents a system-specific error value.
+/// This `class` represents a system-specific error value.
 class error_code {
 
   private:
@@ -627,7 +627,6 @@ error_condition::operator BoolType() const
 // FREE FUNCTIONS
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlgorithm, const error_condition& object)
-    // Hash the specified 'object' using the specified 'hashAlgorithm'.
 {
     using ::BloombergLP::bslh::hashAppend;
     hashAppend(hashAlgorithm, static_cast<const void *>(&object.category()));

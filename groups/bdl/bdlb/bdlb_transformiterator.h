@@ -226,12 +226,12 @@ struct TransformIterator_Traits {
     // PUBLIC TYPES
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    /// Define the result type returned by the functor.  This is not
+    /// necessarily the same type as the dereference of the iterator.  In
+    /// C++03, the functor must have a `result_type` type member.  The
+    /// specializations below transform function pointers to `bsl::function`
+    /// so this works for those types as well.
     typedef typename bslmf::ResultType<FUNCTOR>::type ResultType;
-        // Define the result type returned by the functor.  This is not
-        // necessarily the same type as the dereference of the iterator.  In
-        // C++03, the functor must have a 'result_type' type member.  The
-        // specializations below transform function pointers to 'bsl::function'
-        // so this works for those types as well.
 #else
     /// Define the result type returned by the functor.  This is not
     /// necessarily the same type as the dereference of the iterator.  In

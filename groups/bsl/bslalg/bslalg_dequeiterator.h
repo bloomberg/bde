@@ -149,26 +149,26 @@ class DequeIterator {
                            : result;
     }
 #else
+    /// Return `true` if the specified `lhs` iterator points to a different
+    /// element in the same block as the specified `rhs` iterator, or points
+    /// to an element in a different block to the `rhs` iterator, and
+    /// `false` otherwise.  The behavior is undefined unless `lhs` and `rhs`
+    /// are iterators over the same deque.  Note that this friend is a
+    /// regular functon, not a function template, so there is no way to
+    /// declare it outside the class in order to provide the definition.
     friend bool operator!=(const DequeIterator& lhs, const DequeIterator& rhs)
-        // Return 'true' if the specified 'lhs' iterator points to a different
-        // element in the same block as the specified 'rhs' iterator, or points
-        // to an element in a different block to the 'rhs' iterator, and
-        // 'false' otherwise.  The behavior is undefined unless 'lhs' and 'rhs'
-        // are iterators over the same deque.  Note that this friend is a
-        // regular functon, not a function template, so there is no way to
-        // declare it outside the class in order to provide the definition.
     {
         return lhs.d_value_p != rhs.d_value_p;
     }
 
+    /// Return `true` if the specified `lhs` iterator points to an element
+    /// in a previous block or in a previous position in the same block as
+    /// the specified `rhs` iterator, and `false` otherwise.  The behavior
+    /// is undefined unless `lhs` and `rhs` are iterators over the same
+    /// deque.  Note that this friend is a regular functon, not a function
+    /// template, so there is no way to declare it outside the class in
+    /// order to provide the definition.
     friend bool operator<(const DequeIterator& lhs, const DequeIterator& rhs)
-        // Return 'true' if the specified 'lhs' iterator points to an element
-        // in a previous block or in a previous position in the same block as
-        // the specified 'rhs' iterator, and 'false' otherwise.  The behavior
-        // is undefined unless 'lhs' and 'rhs' are iterators over the same
-        // deque.  Note that this friend is a regular functon, not a function
-        // template, so there is no way to declare it outside the class in
-        // order to provide the definition.
     {
         if (lhs.d_blockPtr_p == rhs.d_blockPtr_p) {
             return lhs.d_value_p < rhs.d_value_p;                     // RETURN

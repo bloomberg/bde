@@ -1431,9 +1431,9 @@ BSLS_IDENT("$Id: $")
 #define BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR                               1
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L
+    /// These APIs should be removed in C++20.  Undefined conditionally
+    /// later in this file for implementations that still have it.
     #define BSLS_LIBRARYFEATURES_HAS_CPP98_BINDERS_API                        1
-        // These APIs should be removed in C++20.  Undefined conditionally
-        // later in this file for implementations that still have it.
 #endif
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L

@@ -311,13 +311,13 @@ bool operator==(const TreeIterator<VALUE1, NODEPTR, DIFF>& lhs,
                 const TreeIterator<VALUE2, NODEPTR, DIFF>& rhs);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+/// Return `true` if the specified `lhs` and the specified `rhs` iterators
+/// do not have the same value and `false` otherwise.  Two iterators do not
+/// have the same value if they differ in either the tree to which they
+/// refer or the position in that tree.
 template <class VALUE1, class VALUE2, class NODEPTR, class DIFF>
 bool operator!=(const TreeIterator<VALUE1, NODEPTR, DIFF>& lhs,
                 const TreeIterator<VALUE2, NODEPTR, DIFF>& rhs);
-    // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
-    // do not have the same value and 'false' otherwise.  Two iterators do not
-    // have the same value if they differ in either the tree to which they
-    // refer or the position in that tree.
 #endif
 
 /// Move the specified `iter` to the next element in the tree and return the

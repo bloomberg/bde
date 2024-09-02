@@ -168,13 +168,13 @@ namespace bdlb {
 struct Float {
 
     // TYPES
-    enum Classification {
-        // Basic classifications for floating-point numbers.  Every
-        // floating-point number belongs to exactly one of these
-        // classifications.  However, the enumerated values have disjoint
-        // bit-patterns to make it easy to create a "set" of classifications
-        // using bit-wise OR.
 
+    /// Basic classifications for floating-point numbers.  Every
+    /// floating-point number belongs to exactly one of these
+    /// classifications.  However, the enumerated values have disjoint
+    /// bit-patterns to make it easy to create a "set" of classifications
+    /// using bit-wise OR.
+    enum Classification {
         k_ZERO      = 0x01, // positive or negative zero
         k_NORMAL    = 0x02, // full-precision, non-zero, normal number
         k_SUBNORMAL = 0x04, // reduced-precision numb with a small abs value
@@ -189,12 +189,11 @@ struct Float {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+    /// Fine-grained classifications for floating-point numbers that
+    /// distinguish positive numbers from negative numbers and quiet NaNs
+    /// from signaling NaNs.  Every floating-point number belongs to exactly
+    /// one of these classifications.
     enum FineClassification {
-        // Fine-grained classifications for floating-point numbers that
-        // distinguish positive numbers from negative numbers and quiet NaNs
-        // from signaling NaNs.  Every floating-point number belongs to exactly
-        // one of these classifications.
-
         k_NEGATIVE           = 0x8000,  // Bit for negative floats
         k_SIGNALING          = 0x4000,  // Bit for signaling NaNs
 

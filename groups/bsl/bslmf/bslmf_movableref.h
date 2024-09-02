@@ -690,39 +690,41 @@ using MovableRef = typename MovableRef_Helper<t_TYPE>::type;
 
 #else // if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
+/// The class template `MovableRef<t_TYPE>` provides a reference to a
+/// movable object of type `t_TYPE`.  Put differently, a function receiving
+/// an object this class template can transfer (move) the representation to
+/// a different object and leave the referenced object in an unspecified,
+/// although valid (i.e., it obeys all class invariants), state.  With C++11
+/// an r-value reference (`t_TYPE&&`) is used to represent the same
+/// semantics.
 template <class t_TYPE>
 class MovableRef {
-    // The class template 'MovableRef<t_TYPE>' provides a reference to a
-    // movable object of type 't_TYPE'.  Put differently, a function receiving
-    // an object this class template can transfer (move) the representation to
-    // a different object and leave the referenced object in an unspecified,
-    // although valid (i.e., it obeys all class invariants), state.  With C++11
-    // an r-value reference ('t_TYPE&&') is used to represent the same
-    // semantics.
 
     // DATA
     t_TYPE *d_pointer;
 
     // PRIVATE CREATORS
+
+    /// Create an `MovableRef<t_TYPE>` object referencing the object pointed
+    /// to by the specified `pointer`.  The behavior is undefined if
+    /// `pointer` does not point to an object.  This constructor is private
+    /// because a C++11 r-value reference cannot be created like this.  For
+    /// information on how to create objects of type `MovableRef<t_TYPE>`
+    /// see `MovableRefUtil::move()`.
     explicit MovableRef(t_TYPE *pointer);
-        // Create an 'MovableRef<t_TYPE>' object referencing the object pointed
-        // to by the specified 'pointer'.  The behavior is undefined if
-        // 'pointer' does not point to an object.  This constructor is private
-        // because a C++11 r-value reference cannot be created like this.  For
-        // information on how to create objects of type 'MovableRef<t_TYPE>'
-        // see 'MovableRefUtil::move()'.
 
     // FRIENDS
     friend struct MovableRefUtil;
 
   public:
     // ACCESSORS
+
+    /// Return a reference to the referenced object.  In contexts where a
+    /// reference to an object of type `t_TYPE` is needed, a
+    /// `MovableRef<t_TYPE>` behaves like such a reference.  For information
+    /// on how to access the reference in contexts where no conversion can
+    /// be used see `MovableRefUtil::access()`.
     operator t_TYPE&() const;
-        // Return a reference to the referenced object.  In contexts where a
-        // reference to an object of type 't_TYPE' is needed, a
-        // 'MovableRef<t_TYPE>' behaves like such a reference.  For information
-        // on how to access the reference in contexts where no conversion can
-        // be used see 'MovableRefUtil::access()'.
 };
 
 #endif // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -1039,31 +1041,31 @@ struct MovableRefUtil_PropertyTraits {
 
 #else // if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
+/// Component-private class: do not use.  Define Boolean-valued
+/// movable-reference traits for rvalues of the specified `t_TYPE`.
 template <class t_TYPE>
 struct MovableRefUtil_PropertyTraits {
-    // Component-private class: do not use.  Define Boolean-valued
-    // movable-reference traits for rvalues of the specified 't_TYPE'.
 
     typedef bsl::false_type IsLvalueReference;
     typedef bsl::false_type IsMovableReference;
     typedef bsl::false_type IsReference;
 };
 
+/// Component-private class: do not use.  Define Boolean-valued
+/// movable-reference traits for lvalues of the specified `t_TYPE`.
 template <class t_TYPE>
 struct MovableRefUtil_PropertyTraits<t_TYPE&> {
-    // Component-private class: do not use.  Define Boolean-valued
-    // movable-reference traits for lvalues of the specified 't_TYPE'.
 
     typedef bsl::true_type  IsLvalueReference;
     typedef bsl::false_type IsMovableReference;
     typedef bsl::true_type  IsReference;
 };
 
+/// Component-private class: do not use.  Define Boolean-valued
+/// movable-reference traits for movable references to the specified
+/// `t_TYPE`.
 template <class t_TYPE>
 struct MovableRefUtil_PropertyTraits<MovableRef<t_TYPE> > {
-    // Component-private class: do not use.  Define Boolean-valued
-    // movable-reference traits for movable references to the specified
-    // 't_TYPE'.
 
     typedef bsl::false_type IsLvalueReference;
     typedef bsl::true_type  IsMovableReference;

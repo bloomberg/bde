@@ -89,25 +89,27 @@ struct CaselessStringViewEqualTo {
                                        bsl::is_trivially_default_constructible)
 
     // CREATORS
+
+    /// Create a `CaselessStringViewEqualTo` object.
     //! CaselessStringViewEqualTo() = default;
-        // Create a 'CaselessStringViewEqualTo' object.
 
+    /// Create a `CaselessStringViewEqualTo` object.  Note that as
+    /// `CaselessStringViewEqualTo` is an empty (stateless) type, this
+    /// operation has no observable effect.
     //! CaselessStringViewEqualTo(const CaselessStringViewEqualTo& original) =
-    //                                                                 default;
-        // Create a 'CaselessStringViewEqualTo' object.  Note that as
-        // 'CaselessStringViewEqualTo' is an empty (stateless) type, this
-        // operation has no observable effect.
+    //!                                                                default;
 
+    /// Destroy this object.
     //! ~CaselessStringViewEqualTo() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.  Note
+    /// that as `CaselessStringViewEqualTo` is an empty (stateless) type,
+    /// this operation has no observable effect.
     //! CaselessStringViewEqualTo& operator=(const CaselessStringViewEqualTo&)
-    //                                                               = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that as 'CaselessStringViewEqualTo' is an empty (stateless) type,
-        // this operation has no observable effect.
+    //!                                                              = default;
 
     // ACCESSORS
 

@@ -255,25 +255,25 @@ using void_t = void;
 namespace BloombergLP {
 namespace bslmf {
 
+/// Metafunction that always yields `type` `void` for any well-formed type
+/// parameter.  This metafunction is useful when using SFINAE to probe for
+/// well-formed types.  Note that this metafunction is not intended for
+/// direct user consumption, but rather as an implementation detail for the
+/// `BSLMF_VOIDTYPE` macro.
 template <class T1>
 struct VoidType_1 {
-    // Metafunction that always yields 'type' 'void' for any well-formed type
-    // parameter.  This metafunction is useful when using SFINAE to probe for
-    // well-formed types.  Note that this metafunction is not intended for
-    // direct user consumption, but rather as an implementation detail for the
-    // 'BSLMF_VOIDTYPE' macro.
 
     // PUBLIC TYPES
     typedef void type;
 };
 
+/// Metafunction that always yields `type` `void` for any well-formed list
+/// of type parameters.  This metafunction is useful when using SFINAE to
+/// probe for well-formed types.  Note that this metafunction is not
+/// intended for direct user consumption, but rather as an implementation
+/// detail for the `BSLMF_VOIDTYPE2` macro.
 template <class T1, class T2>
 struct VoidType_2 {
-    // Metafunction that always yields 'type' 'void' for any well-formed list
-    // of type parameters.  This metafunction is useful when using SFINAE to
-    // probe for well-formed types.  Note that this metafunction is not
-    // intended for direct user consumption, but rather as an implementation
-    // detail for the 'BSLMF_VOIDTYPE2' macro.
 
     // PUBLIC TYPES
     typedef void type;

@@ -157,6 +157,9 @@ namespace bslmf {
                        // struct IsCopyConstructible_Imp
                        // ==============================
 
+/// This `struct` template implements a meta-function to determine whether
+/// the (non-cv-qualified) (template parameter) `t_TYPE` has a copy
+/// constructor.
 template <class t_TYPE>
 struct IsCopyConstructible_Imp
 : bsl::integral_constant<bool,
@@ -164,29 +167,26 @@ struct IsCopyConstructible_Imp
                              bsl::is_reference<t_TYPE>::value ||
                              !(bsl::is_volatile<t_TYPE>::value ||
                                bsl::is_function<t_TYPE>::value)> {
-    // This 'struct' template implements a meta-function to determine whether
-    // the (non-cv-qualified) (template parameter) 't_TYPE' has a copy
-    // constructor.
 };
 
+/// This explicit specialization reports that `void` does not have a copy
+/// constructor, despite being a fundamental type.
 template <>
 struct IsCopyConstructible_Imp<void> : bsl::false_type
 {
-    // This explicit specialization reports that 'void' does not have a copy
-    // constructor, despite being a fundamental type.
 };
 
+/// This explicit specialization reports that `volatile void` does not have
+/// a copy constructor, despite being a fundamental type.
 template <>
 struct IsCopyConstructible_Imp<volatile void> : bsl::false_type
 {
-    // This explicit specialization reports that 'volatile void' does not have
-    // a copy constructor, despite being a fundamental type.
 };
 
+/// This explicit specialization reports that volatile pointer objects have
+/// a copy constructor, just like a fundamental type.
 template <class t_TYPE>
 struct IsCopyConstructible_Imp<t_TYPE *volatile> : bsl::true_type {
-    // This explicit specialization reports that volatile pointer objects have
-    // a copy constructor, just like a fundamental type.
 };
 
 }  // close package namespace
@@ -198,71 +198,71 @@ namespace bsl {
                         // struct is_copy_constructible (C++03)
                         // ====================================
 
+/// The primary template for this traits handles only non-`const`-qualified
+/// types; partial specializations will handle some interesting cases,
+/// including the remaining `const`-qualified types.
 template <class t_TYPE>
 struct is_copy_constructible
 : BloombergLP::bslmf::IsCopyConstructible_Imp<t_TYPE>::type {
-    // The primary template for this traits handles only non-'const'-qualified
-    // types; partial specializations will handle some interesting cases,
-    // including the remaining 'const'-qualified types.
 };
 
+/// This partial specialization ensures that const-qualified types have the
+/// same result as their element type.
 template <class t_TYPE>
 struct is_copy_constructible<const t_TYPE>
 : is_copy_constructible<t_TYPE>::type {
-    // This partial specialization ensures that const-qualified types have the
-    // same result as their element type.
 };
 
+/// This partial specialization ensures that array types have the result
+/// `false`.
 template <class t_TYPE, size_t t_LEN>
 struct is_copy_constructible<t_TYPE[t_LEN]> : false_type {
-    // This partial specialization ensures that array types have the result
-    // 'false'.
 };
 
+/// This partial specialization ensures that const-qualified array types
+/// have result `false`.
 template <class t_TYPE, size_t t_LEN>
 struct is_copy_constructible<const t_TYPE[t_LEN]> : false_type {
-    // This partial specialization ensures that const-qualified array types
-    // have result 'false'.
 };
 
+/// This partial specialization ensures that volatile-qualified array types
+/// have the result `false`.
 template <class t_TYPE, size_t t_LEN>
 struct is_copy_constructible<volatile t_TYPE[t_LEN]> : false_type {
-    // This partial specialization ensures that volatile-qualified array types
-    // have the result 'false'.
 };
 
+/// This partial specialization ensures that const-volatile-qualified array
+/// types have the result false.
 template <class t_TYPE, size_t t_LEN>
 struct is_copy_constructible<const volatile t_TYPE[t_LEN]> : false_type {
-    // This partial specialization ensures that const-volatile-qualified array
-    // types have the result false.
 };
 
 #if !defined(BSLS_PLATFORM_CMP_IBM)
 // Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
 // correctly handling arrays of unknown bound as template parameters.
 
+/// This partial specialization ensures that array-of-unknown-bound types
+/// have the result `false`.
 template <class t_TYPE>
 struct is_copy_constructible<t_TYPE[]> : false_type {
-    // This partial specialization ensures that array-of-unknown-bound types
-    // have the result 'false'.
 };
 
+/// This partial specialization ensures that const-qualified
+/// array-of-unknown-bound types have the result `false`.
 template <class t_TYPE>
 struct is_copy_constructible<const t_TYPE[]> : false_type {
-    // This partial specialization ensures that const-qualified
-    // array-of-unknown-bound types have the result 'false'.
 };
 
+/// This partial specialization ensures that volatile-qualified
+/// array-of-unknown-bound types have the result `false`.
 template <class t_TYPE>
 struct is_copy_constructible<volatile t_TYPE[]> : false_type {
-    // This partial specialization ensures that volatile-qualified
-    // array-of-unknown-bound types have the result 'false'.
 };
 
+/// This partial specialization ensures that const-volatile-qualified
+/// array-of-unknown-bound types have the result `false`.
 template <class t_TYPE>
 struct is_copy_constructible<const volatile t_TYPE[]> : false_type {
-    // This partial specialization ensures that const-volatile-qualified
-    // array-of-unknown-bound types have the result 'false'.
 };
 
 #endif  // defined(BSLS_PLATFORM_CMP_IBM)

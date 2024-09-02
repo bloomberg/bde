@@ -1069,14 +1069,15 @@ using std::to_array;
 namespace bsl {
 
 // FREE FUNCTIONS
+
+/// Creates an `array` from the specified `src` one-dimensional built-in
+/// array by copying the corresponding elements.  The template parameter
+/// `TYPE` shall not itself be a built-in array.  Note that `TYPE` must
+/// be `CopyConstructible` and, in C++ versions prior to C++14, must also
+/// be `DefaultConstructible`.
 template< class TYPE, std::size_t SIZE >
 BSLS_KEYWORD_CONSTEXPR_CPP14
 array<typename remove_cv<TYPE>::type, SIZE> to_array( TYPE (&src)[SIZE] );
-    // Creates an 'array' from the specified 'src' one-dimensional built-in
-    // array by copying the corresponding elements.  The template parameter
-    // 'TYPE' shall not itself be a built-in array.  Note that 'TYPE' must
-    // be 'CopyConstructible' and, in C++ versions prior to C++14, must also
-    // be 'DefaultConstructible'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template< class TYPE, std::size_t SIZE >

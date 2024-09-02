@@ -76,10 +76,10 @@ BSLS_IDENT("$Id: $")
 // ```
 // Here is the constructor definition that registers the collection callback:
 // ```
+// /// Construct a `bdlm::MetricsDescriptor` object to be used when
+// /// registering the callback function:
 // LowLevelFacility::LowLevelFacility(bdlm::MetricsRegistry& metricsRegistry)
 // {
-//     // Construct a 'bdlm::MetricsDescriptor' object to be used when
-//     // registering the callback function:
 //     bdlm::MetricDescriptor descriptor("bdlm",
 //                                       "example",
 //                                       1,

@@ -164,9 +164,9 @@ using std::type_identity;
                     // class template type_identity
                     // ============================
 
+/// Metafunction returning `t_TYPE` unchanged.
 template <class t_TYPE>
 struct type_identity {
-    // Metafunction returning 't_TYPE' unchanged.
 
     // TYPES
     typedef t_TYPE type;

@@ -7,12 +7,12 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
-//@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
+//@DESCRIPTION: Provide types, in the `bsl` namespace, equivalent to those
 // defined in the corresponding C++ standard header.  Include the native
 // compiler-provided standard header, and also directly include Bloomberg's
 // implementation of the C++ standard type (if one exists).  Provide
-// 'bsl::hash' and 'bslh::hashAppend' support.  Finally, place the included
-// symbols from the 'std' namespace (if any) into the 'bsl' namespace.
+// `bsl::hash` and `bslh::hashAppend` support.  Finally, place the included
+// symbols from the `std` namespace (if any) into the `bsl` namespace.
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>

@@ -41,10 +41,10 @@ namespace bsl {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     using std::as_const;
 #else
+/// return a reference offering non-modifiable access to the specified `t`.
 template <class TYPE>
 inline BSLS_KEYWORD_CONSTEXPR
 typename bsl::add_const<TYPE>::type& as_const(TYPE& t) BSLS_KEYWORD_NOEXCEPT
-    // return a reference offering non-modifiable access to the specified 't'.
 {
     return t;
 }

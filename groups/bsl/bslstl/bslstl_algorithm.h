@@ -434,10 +434,10 @@ namespace ranges {
     // Visual Studio (the versions we support) provides 'copy_if'.
     using std::copy_if;
 # else
+/// C++03 standard libraries do not provide `std::copy_if` (as it was not
+/// part of the C++03 standard), but it is actually implementable in C++03,
+/// so we inject it here.
 # define BSLSTL_ALGORITHMWORKAROUND_IMPLEMENTS_COPY_IF                        1
-    // C++03 standard libraries do not provide 'std::copy_if' (as it was not
-    // part of the C++03 standard), but it is actually implementable in C++03,
-    // so we inject it here.
 
     /// Copy all elements in the half-open range of the specified `first`,
     /// and `last` (`[first, last)`) input iterators for which the specified

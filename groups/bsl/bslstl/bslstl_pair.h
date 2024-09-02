@@ -1221,19 +1221,19 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     pair(pair&& original, BloombergLP::bslma::Allocator *basicAllocator);
 #else
     BSLS_KEYWORD_CONSTEXPR
+    /// Construct a pair having the same value as that of the specified
+    /// `original` before the call to the move constructor.  Optionally
+    /// specify a `basicAllocator`, used to supply memory for each of
+    /// `first` and `second` when its type (template parameter `T1` or `T2`,
+    /// respectively) uses `bslma`-style allocators.  Note that `original`
+    /// is left in a valid but unspecified state.  Also note that this
+    /// method requires that `T1` and `T2` be move-constructible.  Note that
+    /// the move constructor is implicitly declared (if `T1` and `T2` are
+    /// both move-constructible) by compilers that do not support defaulted
+    /// declarations, but do support rvalue references.
     pair(BloombergLP::bslmf::MovableRef<pair>  original);
     pair(BloombergLP::bslmf::MovableRef<pair>  original,
          BloombergLP::bslma::Allocator        *basicAllocator);
-        // Construct a pair having the same value as that of the specified
-        // 'original' before the call to the move constructor.  Optionally
-        // specify a 'basicAllocator', used to supply memory for each of
-        // 'first' and 'second' when its type (template parameter 'T1' or 'T2',
-        // respectively) uses 'bslma'-style allocators.  Note that 'original'
-        // is left in a valid but unspecified state.  Also note that this
-        // method requires that 'T1' and 'T2' be move-constructible.  Note that
-        // the move constructor is implicitly declared (if 'T1' and 'T2' are
-        // both move-constructible) by compilers that do not support defaulted
-        // declarations, but do support rvalue references.
 #endif
 
     /// Construct a `pair` with the `first` member initialized to the
@@ -1474,6 +1474,13 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // is used.
     }
 
+    /// Construct a `pair` from the specified `other` pair, holding `first`
+    /// and `second` values of (template parameter) type `PARAM_1` and
+    /// `PARAM_2` respectively.  Optionally specify a `basicAllocator`, used
+    /// to supply memory for each of `first` and `second` when its type
+    /// (template parameter `T1` or `T2`, respectively) uses `bslma`-style
+    /// allocators.  This method requires that `T1` and `T2` be convertible
+    /// from `PARAM_1` and `PARAM_2`, respectively.
     template <class PARAM_1, class PARAM_2>
     pair(
       BloombergLP::bslmf::MovableRef<pair<PARAM_1, PARAM_2> >  other,
@@ -1481,13 +1488,6 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     template <class PARAM_1, class PARAM_2>
     pair(BloombergLP::bslmf::MovableRef<std::pair<PARAM_1, PARAM_2> > other,
          BloombergLP::bslma::Allocator *basicAllocator);
-        // Construct a 'pair' from the specified 'other' pair, holding 'first'
-        // and 'second' values of (template parameter) type 'PARAM_1' and
-        // 'PARAM_2' respectively.  Optionally specify a 'basicAllocator', used
-        // to supply memory for each of 'first' and 'second' when its type
-        // (template parameter 'T1' or 'T2', respectively) uses 'bslma'-style
-        // allocators.  This method requires that 'T1' and 'T2' be convertible
-        // from 'PARAM_1' and 'PARAM_2', respectively.
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
@@ -1557,14 +1557,14 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // valid but unspecified state.  This method requires that (template
         // parameter) types 'T1' and 'T2' be move-assignable.
 
+    /// Assign to this `pair` the value of the specified `rhs` pair, holding
+    /// `first` and `second` values of (template parameter) types `PARAM_1`
+    /// and `PARAM_2` respectively, and return a reference providing
+    /// modifiable access to this object.  This method requires that `T1` be
+    /// assignable from `PARAM_1` and `T2` be assignable from `PARAM_2`.
     template <class PARAM_1, class PARAM_2>
     pair& operator=(
                   BloombergLP::bslmf::MovableRef<pair<PARAM_1, PARAM_2> > rhs);
-        // Assign to this 'pair' the value of the specified 'rhs' pair, holding
-        // 'first' and 'second' values of (template parameter) types 'PARAM_1'
-        // and 'PARAM_2' respectively, and return a reference providing
-        // modifiable access to this object.  This method requires that 'T1' be
-        // assignable from 'PARAM_1' and 'T2' be assignable from 'PARAM_2'.
 #endif
 
     /// Assign to this `pair` from the specified `rhs` pair, where the type
@@ -1708,14 +1708,14 @@ BSLS_KEYWORD_CONSTEXPR
 bool operator==(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+/// Return true if the specified `lhs` and `rhs` pair objects do not have
+/// the same value and false otherwise.  `lhs` does not have the same value
+/// as `rhs` if `lhs == rhs` would return false.  A call to this operator
+/// will not compile unless a call to `lhs == rhs` would compile.
 template <class T1, class T2>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool operator!=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
-    // Return true if the specified 'lhs' and 'rhs' pair objects do not have
-    // the same value and false otherwise.  'lhs' does not have the same value
-    // as 'rhs' if 'lhs == rhs' would return false.  A call to this operator
-    // will not compile unless a call to 'lhs == rhs' would compile.
 #endif
 
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
@@ -1732,44 +1732,44 @@ std::common_comparison_category_t<
 
 #else
 
+/// Return true if the specified `lhs` has a value less than the specified
+/// `rhs` and false otherwise.  Whether or not `lhs` is less than `rhs` is
+/// determined by a lexicographical comparison of the `first` and `second`
+/// data members of `lhs` and `rhs`.  In other words: return true if
+/// `lhs.first < rhs.first` and false if `rhs.first < lhs.first`, otherwise
+/// return `lhs.second < rhs.second`.  A call to this operator will not
+/// compile unless both `T1` and `T2` supply `operator<`.
 template <class T1, class T2>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool operator<(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
-    // Return true if the specified 'lhs' has a value less than the specified
-    // 'rhs' and false otherwise.  Whether or not 'lhs' is less than 'rhs' is
-    // determined by a lexicographical comparison of the 'first' and 'second'
-    // data members of 'lhs' and 'rhs'.  In other words: return true if
-    // 'lhs.first < rhs.first' and false if 'rhs.first < lhs.first', otherwise
-    // return 'lhs.second < rhs.second'.  A call to this operator will not
-    // compile unless both 'T1' and 'T2' supply 'operator<'.
 
+/// Return true if the specified `lhs` has a value greater than the
+/// specified `rhs` and false otherwise.  `lhs` has a value greater than
+/// `rhs` if `rhs` < `lhs` would return true.  A call to this operator will
+/// not compile unless a call to `lhs < rhs` would compile.
 template <class T1, class T2>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool operator>(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
-    // Return true if the specified 'lhs' has a value greater than the
-    // specified 'rhs' and false otherwise.  'lhs' has a value greater than
-    // 'rhs' if 'rhs' < 'lhs' would return true.  A call to this operator will
-    // not compile unless a call to 'lhs < rhs' would compile.
 
+/// Return true if the specified `lhs` has a value less than or equal to the
+/// specified `rhs` and false otherwise.  `lhs` has a value less than or
+/// equal to `rhs` if `rhs` < `lhs` would return false.  A call to this
+/// operator will not compile unless a call to `lhs < rhs` would compile.
 template <class T1, class T2>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool operator<=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
-    // Return true if the specified 'lhs' has a value less than or equal to the
-    // specified 'rhs' and false otherwise.  'lhs' has a value less than or
-    // equal to 'rhs' if 'rhs' < 'lhs' would return false.  A call to this
-    // operator will not compile unless a call to 'lhs < rhs' would compile.
 
+/// Return true if the specified `lhs` has a value greater than or equal to
+/// the specified `rhs` and false otherwise.  `lhs` has a value greater than
+/// or equal to `rhs` if `lhs` < `rhs` would return false.  A call to this
+/// operator will not compile unless a call to `lhs < rhs` would compile.
 template <class T1, class T2>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
-    // Return true if the specified 'lhs' has a value greater than or equal to
-    // the specified 'rhs' and false otherwise.  'lhs' has a value greater than
-    // or equal to 'rhs' if 'lhs' < 'rhs' would return false.  A call to this
-    // operator will not compile unless a call to 'lhs < rhs' would compile.
 
 #endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 

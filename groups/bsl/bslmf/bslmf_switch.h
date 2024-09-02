@@ -479,6 +479,12 @@ using Switch9 = Switch<t_SWITCH_SELECTOR,
                                // struct Switch
                                // =============
 
+/// This meta-function, parameterized by an integral `t_SWITCH_SELECTOR` and
+/// types `t_T0` up to `t_T9`, provides a single type alias, `Type`, which
+/// resolves, through specialization for a particular value `N` of
+/// `t_SWITCH_SELECTOR`, to the type `TN`, or to `Nil` if
+/// `t_SWITCH_SELECTOR` is negative or larger than the number of template
+/// arguments provided for the types.
 template <size_t t_SWITCH_SELECTOR,
           class  t_T0,
           class  t_T1 = Nil,
@@ -491,20 +497,17 @@ template <size_t t_SWITCH_SELECTOR,
           class  t_T8 = Nil,
           class  t_T9 = Nil>
 struct Switch {
-    // This meta-function, parameterized by an integral 't_SWITCH_SELECTOR' and
-    // types 't_T0' up to 't_T9', provides a single type alias, 'Type', which
-    // resolves, through specialization for a particular value 'N' of
-    // 't_SWITCH_SELECTOR', to the type 'TN', or to 'Nil' if
-    // 't_SWITCH_SELECTOR' is negative or larger than the number of template
-    // arguments provided for the types.
 
+    /// This `Type` is an alias to the parameterized `TN`, where `N` is the
+    /// integral value of the parameterized `t_SWITCH_SELECTOR`.  Note that
+    /// the first type in the list corresponds to `t_T0`, not `t_T1`.
     typedef Nil Type;
-        // This 'Type' is an alias to the parameterized 'TN', where 'N' is the
-        // integral value of the parameterized 't_SWITCH_SELECTOR'.  Note that
-        // the first type in the list corresponds to 't_T0', not 't_T1'.
 };
 
 // SPECIALIZATIONS
+
+/// This specialization of `Switch` for a value of 0 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T0` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -516,12 +519,12 @@ template <class t_T0,
           class t_T8,
           class t_T9>
 struct Switch<0, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8, t_T9> {
-    // This specialization of 'Switch' for a value of 0 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T0' as 'Type'.
 
     typedef t_T0 Type;
 };
 
+/// This specialization of `Switch` for a value of 1 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T1` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -533,12 +536,12 @@ template <class t_T0,
           class t_T8,
           class t_T9>
 struct Switch<1, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8, t_T9> {
-    // This specialization of 'Switch' for a value of 1 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T1' as 'Type'.
 
     typedef t_T1 Type;
 };
 
+/// This specialization of `Switch` for a value of 2 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T2` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -550,12 +553,12 @@ template <class t_T0,
           class t_T8,
           class t_T9>
 struct Switch<2, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8, t_T9> {
-    // This specialization of 'Switch' for a value of 2 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T2' as 'Type'.
 
     typedef t_T2 Type;
 };
 
+/// This specialization of `Switch` for a value of 3 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T3` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -567,12 +570,12 @@ template <class t_T0,
           class t_T8,
           class t_T9>
 struct Switch<3, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8, t_T9> {
-    // This specialization of 'Switch' for a value of 3 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T3' as 'Type'.
 
     typedef t_T3 Type;
 };
 
+/// This specialization of `Switch` for a value of 4 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T4` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -584,12 +587,12 @@ template <class t_T0,
           class t_T8,
           class t_T9>
 struct Switch<4, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8, t_T9> {
-    // This specialization of 'Switch' for a value of 4 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T4' as 'Type'.
 
     typedef t_T4 Type;
 };
 
+/// This specialization of `Switch` for a value of 5 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T5` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -601,12 +604,12 @@ template <class t_T0,
           class t_T8,
           class t_T9>
 struct Switch<5, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8, t_T9> {
-    // This specialization of 'Switch' for a value of 5 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T5' as 'Type'.
 
     typedef t_T5 Type;
 };
 
+/// This specialization of `Switch` for a value of 6 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T6` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -618,12 +621,12 @@ template <class t_T0,
           class t_T8,
           class t_T9>
 struct Switch<6, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8, t_T9> {
-    // This specialization of 'Switch' for a value of 6 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T6' as 'Type'.
 
     typedef t_T6 Type;
 };
 
+/// This specialization of `Switch` for a value of 7 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T7` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -635,12 +638,12 @@ template <class t_T0,
           class t_T8,
           class t_T9>
 struct Switch<7, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8, t_T9> {
-    // This specialization of 'Switch' for a value of 7 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T7' as 'Type'.
 
     typedef t_T7 Type;
 };
 
+/// This specialization of `Switch` for a value of 8 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T8` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -652,12 +655,12 @@ template <class t_T0,
           class t_T8,
           class t_T9>
 struct Switch<8, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8, t_T9> {
-    // This specialization of 'Switch' for a value of 8 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T8' as 'Type'.
 
     typedef t_T8 Type;
 };
 
+/// This specialization of `Switch` for a value of 9 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T9` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -669,8 +672,6 @@ template <class t_T0,
           class t_T8,
           class t_T9>
 struct Switch<9, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8, t_T9> {
-    // This specialization of 'Switch' for a value of 9 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T9' as 'Type'.
 
     typedef t_T9 Type;
 };
@@ -679,28 +680,29 @@ struct Switch<9, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8, t_T9> {
                         // struct Switch2
                         // ==============
 
+/// This meta-function, parameterized by an integral `t_SWITCH_SELECTOR` and
+/// exactly two types `t_T0` and `t_T1`, offers functionality identical to
+/// `Switch<t_SWITCH_SELECTOR, t_T0, t_T1>`.
 template <size_t t_SWITCH_SELECTOR, class t_T0, class t_T1>
 struct Switch2 {
-    // This meta-function, parameterized by an integral 't_SWITCH_SELECTOR' and
-    // exactly two types 't_T0' and 't_T1', offers functionality identical to
-    // 'Switch<t_SWITCH_SELECTOR, t_T0, t_T1>'.
 
     typedef Nil Type;
 };
 
 // SPECIALIZATIONS
+
+/// This specialization of `Switch2` for a value of 0 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T0` as `Type`.
 template <class t_T0, class t_T1>
 struct Switch2<0, t_T0, t_T1> {
-    // This specialization of 'Switch2' for a value of 0 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T0' as 'Type'.
 
     typedef t_T0 Type;
 };
 
+/// This specialization of `Switch2` for a value of 1 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T1` as `Type`.
 template <class t_T0, class t_T1>
 struct Switch2<1, t_T0, t_T1> {
-    // This specialization of 'Switch2' for a value of 1 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T1' as 'Type'.
 
     typedef t_T1 Type;
 };
@@ -709,36 +711,37 @@ struct Switch2<1, t_T0, t_T1> {
                         // struct Switch3
                         // ==============
 
+/// This meta-function, parameterized by an integral `t_SWITCH_SELECTOR` and
+/// exactly three types `t_T0` up to `t_T2`, offers functionality identical
+/// to `Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2>`.
 template <size_t t_SWITCH_SELECTOR, class t_T0, class t_T1, class t_T2>
 struct Switch3 {
-    // This meta-function, parameterized by an integral 't_SWITCH_SELECTOR' and
-    // exactly three types 't_T0' up to 't_T2', offers functionality identical
-    // to 'Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2>'.
 
     typedef Nil Type;
 };
 
 // SPECIALIZATIONS
+
+/// This specialization of `Switch3` for a value of 0 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T0` as `Type`.
 template <class t_T0, class t_T1, class t_T2>
 struct Switch3<0, t_T0, t_T1, t_T2> {
-    // This specialization of 'Switch3' for a value of 0 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T0' as 'Type'.
 
     typedef t_T0 Type;
 };
 
+/// This specialization of `Switch3` for a value of 1 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T1` as `Type`.
 template <class t_T0, class t_T1, class t_T2>
 struct Switch3<1, t_T0, t_T1, t_T2> {
-    // This specialization of 'Switch3' for a value of 1 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T1' as 'Type'.
 
     typedef t_T1 Type;
 };
 
+/// This specialization of `Switch3` for a value of 2 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T2` as `Type`.
 template <class t_T0, class t_T1, class t_T2>
 struct Switch3<2, t_T0, t_T1, t_T2> {
-    // This specialization of 'Switch3' for a value of 2 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T2' as 'Type'.
 
     typedef t_T2 Type;
 };
@@ -747,48 +750,49 @@ struct Switch3<2, t_T0, t_T1, t_T2> {
                                // struct Switch4
                                // ==============
 
+/// This meta-function, parameterized by an integral `t_SWITCH_SELECTOR` and
+/// exactly four types `t_T0` up to `t_T3`, offers functionality identical
+/// to `Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2, t_T3>`.
 template <size_t t_SWITCH_SELECTOR,
           class  t_T0,
           class  t_T1,
           class  t_T2,
           class  t_T3>
 struct Switch4 {
-    // This meta-function, parameterized by an integral 't_SWITCH_SELECTOR' and
-    // exactly four types 't_T0' up to 't_T3', offers functionality identical
-    // to 'Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2, t_T3>'.
 
     typedef Nil Type;
 };
 
 // SPECIALIZATIONS
+
+/// This specialization of `Switch4` for a value of 0 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T0` as `Type`.
 template <class t_T0, class t_T1, class t_T2, class t_T3>
 struct Switch4<0, t_T0, t_T1, t_T2, t_T3> {
-    // This specialization of 'Switch4' for a value of 0 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T0' as 'Type'.
 
     typedef t_T0 Type;
 };
 
+/// This specialization of `Switch4` for a value of 1 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T1` as `Type`.
 template <class t_T0, class t_T1, class t_T2, class t_T3>
 struct Switch4<1, t_T0, t_T1, t_T2, t_T3> {
-    // This specialization of 'Switch4' for a value of 1 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T1' as 'Type'.
 
     typedef t_T1 Type;
 };
 
+/// This specialization of `Switch4` for a value of 2 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T2` as `Type`.
 template <class t_T0, class t_T1, class t_T2, class t_T3>
 struct Switch4<2, t_T0, t_T1, t_T2, t_T3> {
-    // This specialization of 'Switch4' for a value of 2 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T2' as 'Type'.
 
     typedef t_T2 Type;
 };
 
+/// This specialization of `Switch4` for a value of 3 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T3` as `Type`.
 template <class t_T0, class t_T1, class t_T2, class t_T3>
 struct Switch4<3, t_T0, t_T1, t_T2, t_T3> {
-    // This specialization of 'Switch4' for a value of 3 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T3' as 'Type'.
 
     typedef t_T3 Type;
 };
@@ -797,6 +801,9 @@ struct Switch4<3, t_T0, t_T1, t_T2, t_T3> {
                                // struct Switch5
                                // ==============
 
+/// This meta-function, parameterized by an integral `t_SWITCH_SELECTOR` and
+/// exactly five types `t_T0` up to `t_T4`, offers functionality identical
+/// to `Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2, t_T3, t_T4>`.
 template <size_t t_SWITCH_SELECTOR,
           class  t_T0,
           class  t_T1,
@@ -804,50 +811,48 @@ template <size_t t_SWITCH_SELECTOR,
           class  t_T3,
           class  t_T4>
 struct Switch5 {
-    // This meta-function, parameterized by an integral 't_SWITCH_SELECTOR' and
-    // exactly five types 't_T0' up to 't_T4', offers functionality identical
-    // to 'Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2, t_T3, t_T4>'.
 
     typedef Nil Type;
 };
 
 // SPECIALIZATIONS
+
+/// This specialization of `Switch5` for a value of 0 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T0` as `Type`.
 template <class t_T0, class t_T1, class t_T2, class t_T3, class t_T4>
 struct Switch5<0, t_T0, t_T1, t_T2, t_T3, t_T4> {
-    // This specialization of 'Switch5' for a value of 0 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T0' as 'Type'.
 
     typedef t_T0 Type;
 };
 
+/// This specialization of `Switch5` for a value of 1 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T1` as `Type`.
 template <class t_T0, class t_T1, class t_T2, class t_T3, class t_T4>
 struct Switch5<1, t_T0, t_T1, t_T2, t_T3, t_T4> {
-    // This specialization of 'Switch5' for a value of 1 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T1' as 'Type'.
 
     typedef t_T1 Type;
 };
 
+/// This specialization of `Switch5` for a value of 2 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T2` as `Type`.
 template <class t_T0, class t_T1, class t_T2, class t_T3, class t_T4>
 struct Switch5<2, t_T0, t_T1, t_T2, t_T3, t_T4> {
-    // This specialization of 'Switch5' for a value of 2 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T2' as 'Type'.
 
     typedef t_T2 Type;
 };
 
+/// This specialization of `Switch5` for a value of 3 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T3` as `Type`.
 template <class t_T0, class t_T1, class t_T2, class t_T3, class t_T4>
 struct Switch5<3, t_T0, t_T1, t_T2, t_T3, t_T4> {
-    // This specialization of 'Switch5' for a value of 3 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T3' as 'Type'.
 
     typedef t_T3 Type;
 };
 
+/// This specialization of `Switch5` for a value of 4 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T4` as `Type`.
 template <class t_T0, class t_T1, class t_T2, class t_T3, class t_T4>
 struct Switch5<4, t_T0, t_T1, t_T2, t_T3, t_T4> {
-    // This specialization of 'Switch5' for a value of 4 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T4' as 'Type'.
 
     typedef t_T4 Type;
 };
@@ -856,6 +861,9 @@ struct Switch5<4, t_T0, t_T1, t_T2, t_T3, t_T4> {
                                // struct Switch6
                                // ==============
 
+/// This meta-function, parameterized by an integral `t_SWITCH_SELECTOR` and
+/// exactly six types `t_T0` up to `t_T5`, offers functionality identical to
+/// `Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5>`.
 template <size_t t_SWITCH_SELECTOR,
           class  t_T0,
           class  t_T1,
@@ -864,14 +872,14 @@ template <size_t t_SWITCH_SELECTOR,
           class  t_T4,
           class  t_T5>
 struct Switch6 {
-    // This meta-function, parameterized by an integral 't_SWITCH_SELECTOR' and
-    // exactly six types 't_T0' up to 't_T5', offers functionality identical to
-    // 'Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5>'.
 
     typedef Nil Type;
 };
 
 // SPECIALIZATIONS
+
+/// This specialization of `Switch6` for a value of 0 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T0` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -879,12 +887,12 @@ template <class t_T0,
           class t_T4,
           class t_T5>
 struct Switch6<0, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5> {
-    // This specialization of 'Switch6' for a value of 0 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T0' as 'Type'.
 
     typedef t_T0 Type;
 };
 
+/// This specialization of `Switch6` for a value of 1 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T1` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -892,12 +900,12 @@ template <class t_T0,
           class t_T4,
           class t_T5>
 struct Switch6<1, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5> {
-    // This specialization of 'Switch6' for a value of 1 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T1' as 'Type'.
 
     typedef t_T1 Type;
 };
 
+/// This specialization of `Switch6` for a value of 2 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T2` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -905,12 +913,12 @@ template <class t_T0,
           class t_T4,
           class t_T5>
 struct Switch6<2, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5> {
-    // This specialization of 'Switch6' for a value of 2 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T2' as 'Type'.
 
     typedef t_T2 Type;
 };
 
+/// This specialization of `Switch6` for a value of 3 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T3` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -918,12 +926,12 @@ template <class t_T0,
           class t_T4,
           class t_T5>
 struct Switch6<3, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5> {
-    // This specialization of 'Switch6' for a value of 3 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T3' as 'Type'.
 
     typedef t_T3 Type;
 };
 
+/// This specialization of `Switch6` for a value of 4 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T4` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -931,12 +939,12 @@ template <class t_T0,
           class t_T4,
           class t_T5>
 struct Switch6<4, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5> {
-    // This specialization of 'Switch6' for a value of 4 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T4' as 'Type'.
 
     typedef t_T4 Type;
 };
 
+/// This specialization of `Switch6` for a value of 5 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T5` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -944,8 +952,6 @@ template <class t_T0,
           class t_T4,
           class t_T5>
 struct Switch6<5, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5> {
-    // This specialization of 'Switch6' for a value of 5 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T5' as 'Type'.
 
     typedef t_T5 Type;
 };
@@ -954,6 +960,10 @@ struct Switch6<5, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5> {
                                // struct Switch7
                                // ==============
 
+/// This meta-function, parameterized by an integral `t_SWITCH_SELECTOR` and
+/// exactly seven types `t_T0` up to `t_T6`, offers functionality identical
+/// to
+/// `Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6>`.
 template <size_t t_SWITCH_SELECTOR,
           class t_T0,
           class t_T1,
@@ -963,15 +973,14 @@ template <size_t t_SWITCH_SELECTOR,
           class t_T5,
           class t_T6>
 struct Switch7 {
-    // This meta-function, parameterized by an integral 't_SWITCH_SELECTOR' and
-    // exactly seven types 't_T0' up to 't_T6', offers functionality identical
-    // to
-    // 'Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6>'.
 
     typedef Nil Type;
 };
 
 // SPECIALIZATIONS
+
+/// This specialization of `Switch7` for a value of 0 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T0` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -980,12 +989,12 @@ template <class t_T0,
           class t_T5,
           class t_T6>
 struct Switch7<0, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6> {
-    // This specialization of 'Switch7' for a value of 0 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T0' as 'Type'.
 
     typedef t_T0 Type;
 };
 
+/// This specialization of `Switch7` for a value of 1 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T1` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -994,12 +1003,12 @@ template <class t_T0,
           class t_T5,
           class t_T6>
 struct Switch7<1, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6> {
-    // This specialization of 'Switch7' for a value of 1 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T1' as 'Type'.
 
     typedef t_T1 Type;
 };
 
+/// This specialization of `Switch7` for a value of 2 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T2` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1008,12 +1017,12 @@ template <class t_T0,
           class t_T5,
           class t_T6>
 struct Switch7<2, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6> {
-    // This specialization of 'Switch7' for a value of 2 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T2' as 'Type'.
 
     typedef t_T2 Type;
 };
 
+/// This specialization of `Switch7` for a value of 3 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T3` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1022,12 +1031,12 @@ template <class t_T0,
           class t_T5,
           class t_T6>
 struct Switch7<3, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6> {
-    // This specialization of 'Switch7' for a value of 3 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T3' as 'Type'.
 
     typedef t_T3 Type;
 };
 
+/// This specialization of `Switch7` for a value of 4 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T4` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1036,12 +1045,12 @@ template <class t_T0,
           class t_T5,
           class t_T6>
 struct Switch7<4, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6> {
-    // This specialization of 'Switch7' for a value of 4 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T4' as 'Type'.
 
     typedef t_T4 Type;
 };
 
+/// This specialization of `Switch7` for a value of 5 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T5` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1050,12 +1059,12 @@ template <class t_T0,
           class t_T5,
           class t_T6>
 struct Switch7<5, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6> {
-    // This specialization of 'Switch7' for a value of 5 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T5' as 'Type'.
 
     typedef t_T5 Type;
 };
 
+/// This specialization of `Switch7` for a value of 6 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T6` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1064,8 +1073,6 @@ template <class t_T0,
           class t_T5,
           class t_T6>
 struct Switch7<6, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6> {
-    // This specialization of 'Switch7' for a value of 6 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T6' as 'Type'.
 
     typedef t_T6 Type;
 };
@@ -1074,6 +1081,11 @@ struct Switch7<6, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6> {
                                // struct Switch8
                                // ==============
 
+/// This meta-function, parameterized by an integral `t_SWITCH_SELECTOR` and
+/// exactly eight types `t_T0` up to `t_T7`, offers functionality identical
+/// to
+/// 'Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2, t_T3, t_T4,
+///                            t_T5, t_T6, t_T7>'.
 template <size_t t_SWITCH_SELECTOR,
           class t_T0,
           class t_T1,
@@ -1084,16 +1096,14 @@ template <size_t t_SWITCH_SELECTOR,
           class t_T6,
           class t_T7>
 struct Switch8 {
-    // This meta-function, parameterized by an integral 't_SWITCH_SELECTOR' and
-    // exactly eight types 't_T0' up to 't_T7', offers functionality identical
-    // to
-    // 'Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2, t_T3, t_T4,
-    //                            t_T5, t_T6, t_T7>'.
 
     typedef Nil Type;
 };
 
 // SPECIALIZATIONS
+
+/// This specialization of `Switch8` for a value of 0 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T0` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1103,12 +1113,12 @@ template <class t_T0,
           class t_T6,
           class t_T7>
 struct Switch8<0, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7> {
-    // This specialization of 'Switch8' for a value of 0 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T0' as 'Type'.
 
     typedef t_T0 Type;
 };
 
+/// This specialization of `Switch8` for a value of 1 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T1` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1118,12 +1128,12 @@ template <class t_T0,
           class t_T6,
           class t_T7>
 struct Switch8<1, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7> {
-    // This specialization of 'Switch8' for a value of 1 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T1' as 'Type'.
 
     typedef t_T1 Type;
 };
 
+/// This specialization of `Switch8` for a value of 2 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T2` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1133,12 +1143,12 @@ template <class t_T0,
           class t_T6,
           class t_T7>
 struct Switch8<2, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7> {
-    // This specialization of 'Switch8' for a value of 2 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T2' as 'Type'.
 
     typedef t_T2 Type;
 };
 
+/// This specialization of `Switch8` for a value of 3 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T3` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1148,12 +1158,12 @@ template <class t_T0,
           class t_T6,
           class t_T7>
 struct Switch8<3, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7> {
-    // This specialization of 'Switch8' for a value of 3 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T3' as 'Type'.
 
     typedef t_T3 Type;
 };
 
+/// This specialization of `Switch8` for a value of 4 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T4` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1163,12 +1173,12 @@ template <class t_T0,
           class t_T6,
           class t_T7>
 struct Switch8<4, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7> {
-    // This specialization of 'Switch8' for a value of 4 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T4' as 'Type'.
 
     typedef t_T4 Type;
 };
 
+/// This specialization of `Switch8` for a value of 5 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T5` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1178,12 +1188,12 @@ template <class t_T0,
           class t_T6,
           class t_T7>
 struct Switch8<5, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7> {
-    // This specialization of 'Switch8' for a value of 5 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T5' as 'Type'.
 
     typedef t_T5 Type;
 };
 
+/// This specialization of `Switch8` for a value of 6 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T6` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1193,12 +1203,12 @@ template <class t_T0,
           class t_T6,
           class t_T7>
 struct Switch8<6, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7> {
-    // This specialization of 'Switch8' for a value of 6 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T6' as 'Type'.
 
     typedef t_T6 Type;
 };
 
+/// This specialization of `Switch8` for a value of 7 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T7` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1208,8 +1218,6 @@ template <class t_T0,
           class t_T6,
           class t_T7>
 struct Switch8<7, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7> {
-    // This specialization of 'Switch8' for a value of 7 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T7' as 'Type'.
 
     typedef t_T7 Type;
 };
@@ -1218,6 +1226,11 @@ struct Switch8<7, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7> {
                                // struct Switch9
                                // ==============
 
+/// This meta-function, parameterized by an integral `t_SWITCH_SELECTOR` and
+/// exactly nine types `t_T0` up to `t_T8`, offers functionality identical
+/// to
+/// 'Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2, t_T3, t_T4,
+///                            t_T5, t_T6, t_T7, t_T8>'.
 template <size_t t_SWITCH_SELECTOR,
           class t_T0,
           class t_T1,
@@ -1229,16 +1242,14 @@ template <size_t t_SWITCH_SELECTOR,
           class t_T7,
           class t_T8>
 struct Switch9 {
-    // This meta-function, parameterized by an integral 't_SWITCH_SELECTOR' and
-    // exactly nine types 't_T0' up to 't_T8', offers functionality identical
-    // to
-    // 'Switch<t_SWITCH_SELECTOR, t_T0, t_T1, t_T2, t_T3, t_T4,
-    //                            t_T5, t_T6, t_T7, t_T8>'.
 
     typedef Nil Type;
 };
 
 // SPECIALIZATIONS
+
+/// This specialization of `Switch9` for a value of 0 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T0` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1249,12 +1260,12 @@ template <class t_T0,
           class t_T7,
           class t_T8>
 struct Switch9<0, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8> {
-    // This specialization of 'Switch9' for a value of 0 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T0' as 'Type'.
 
     typedef t_T0 Type;
 };
 
+/// This specialization of `Switch9` for a value of 1 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T1` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1265,12 +1276,12 @@ template <class t_T0,
           class t_T7,
           class t_T8>
 struct Switch9<1, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8> {
-    // This specialization of 'Switch9' for a value of 1 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T1' as 'Type'.
 
     typedef t_T1 Type;
 };
 
+/// This specialization of `Switch9` for a value of 2 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T2` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1281,12 +1292,12 @@ template <class t_T0,
           class t_T7,
           class t_T8>
 struct Switch9<2, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8> {
-    // This specialization of 'Switch9' for a value of 2 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T2' as 'Type'.
 
     typedef t_T2 Type;
 };
 
+/// This specialization of `Switch9` for a value of 3 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T3` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1297,12 +1308,12 @@ template <class t_T0,
           class t_T7,
           class t_T8>
 struct Switch9<3, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8> {
-    // This specialization of 'Switch9' for a value of 3 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T3' as 'Type'.
 
     typedef t_T3 Type;
 };
 
+/// This specialization of `Switch9` for a value of 4 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T4` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1313,12 +1324,12 @@ template <class t_T0,
           class t_T7,
           class t_T8>
 struct Switch9<4, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8> {
-    // This specialization of 'Switch9' for a value of 4 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T4' as 'Type'.
 
     typedef t_T4 Type;
 };
 
+/// This specialization of `Switch9` for a value of 5 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T5` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1329,12 +1340,12 @@ template <class t_T0,
           class t_T7,
           class t_T8>
 struct Switch9<5, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8> {
-    // This specialization of 'Switch9' for a value of 5 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T5' as 'Type'.
 
     typedef t_T5 Type;
 };
 
+/// This specialization of `Switch9` for a value of 6 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T6` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1345,12 +1356,12 @@ template <class t_T0,
           class t_T7,
           class t_T8>
 struct Switch9<6, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8> {
-    // This specialization of 'Switch9' for a value of 6 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T6' as 'Type'.
 
     typedef t_T6 Type;
 };
 
+/// This specialization of `Switch9` for a value of 7 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T7` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1361,12 +1372,12 @@ template <class t_T0,
           class t_T7,
           class t_T8>
 struct Switch9<7, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8> {
-    // This specialization of 'Switch9' for a value of 7 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T7' as 'Type'.
 
     typedef t_T7 Type;
 };
 
+/// This specialization of `Switch9` for a value of 8 of the parameterized
+/// `t_SWITCH_SELECTOR` selects the parameterized `t_T8` as `Type`.
 template <class t_T0,
           class t_T1,
           class t_T2,
@@ -1377,8 +1388,6 @@ template <class t_T0,
           class t_T7,
           class t_T8>
 struct Switch9<8, t_T0, t_T1, t_T2, t_T3, t_T4, t_T5, t_T6, t_T7, t_T8> {
-    // This specialization of 'Switch9' for a value of 8 of the parameterized
-    // 't_SWITCH_SELECTOR' selects the parameterized 't_T8' as 'Type'.
 
     typedef t_T8 Type;
 };

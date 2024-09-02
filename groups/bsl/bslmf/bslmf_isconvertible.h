@@ -285,34 +285,34 @@ namespace bslmf {
                          // struct IsConvertible_Match
                          // ==========================
 
+/// This `struct` provides functions to check for successful conversion
+/// matches.  Sun CC 5.2 requires that this `struct` not be nested within
+/// `IsConvertible_Imp`.
 struct IsConvertible_Match {
-    // This 'struct' provides functions to check for successful conversion
-    // matches.  Sun CC 5.2 requires that this 'struct' not be nested within
-    // 'IsConvertible_Imp'.
 
     typedef struct { char a;    } yes_type;
     typedef struct { char a[2]; } no_type;
 
+    /// Return `yes_type` if called on `IsConvertible_Match` type.
     static yes_type match(IsConvertible_Match&);
-        // Return 'yes_type' if called on 'IsConvertible_Match' type.
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    /// Return `yes_type` if the (template parameter) `t_TYPE` is
+    /// `IsConvertible_Match`, and `no_type` otherwise.
     template <class t_TYPE>
     static no_type match(const t_TYPE&);
-        // Return 'yes_type' if the (template parameter) 't_TYPE' is
-        // 'IsConvertible_Match', and 'no_type' otherwise.
 
+    /// Return `yes_type` if the (template parameter) `t_TYPE` is
+    /// `IsConvertible_Match` and `no_type` otherwise.
     template <class t_TYPE>
     static no_type match(const volatile t_TYPE&);
-        // Return 'yes_type' if the (template parameter) 't_TYPE' is
-        // 'IsConvertible_Match' and 'no_type' otherwise.
 
+    /// Return `yes_type` if the (template parameter) `t_TYPE` is
+    /// `IsConvertible_Match` and `no_type` otherwise.
     template <class t_TYPE>
     static typename
     bsl::enable_if<bsl::is_function<t_TYPE>::value, no_type>::type
     match(t_TYPE&);
-        // Return 'yes_type' if the (template parameter) 't_TYPE' is
-        // 'IsConvertible_Match' and 'no_type' otherwise.
 #else
     template <class t_TYPE>
     static no_type match(t_TYPE&&);
@@ -325,6 +325,13 @@ struct IsConvertible_Match {
                          // struct IsConvertible_Imp
                          // ========================
 
+/// This `struct` template implements the meta-function to determine type
+/// conversion between the (template parameter) `t_FROM_TYPE` and the
+/// (template parameter) `t_TO_TYPE` where the conversion to the `t_TO_TYPE`
+/// is not necessarily the same as conversion to `const t_TO_TYPE&`.
+///
+/// Note that significant documentation about the details of this
+/// implementation can be found in `bslmf_isconvertible.cpp`.
 template <class t_FROM_TYPE,
           class t_TO_TYPE
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
@@ -334,21 +341,14 @@ template <class t_FROM_TYPE,
 #endif
           >
 struct IsConvertible_Imp {
-    // This 'struct' template implements the meta-function to determine type
-    // conversion between the (template parameter) 't_FROM_TYPE' and the
-    // (template parameter) 't_TO_TYPE' where the conversion to the 't_TO_TYPE'
-    // is not necessarily the same as conversion to 'const t_TO_TYPE&'.
-    //
-    // Note that significant documentation about the details of this
-    // implementation can be found in 'bslmf_isconvertible.cpp'.
 
   private:
+    /// A unique (empty) type returned by the comma operator.
     struct Test
     {
-        // A unique (empty) type returned by the comma operator.
 
+        /// Return a reference to type `IsConvertible_Match`.
         IsConvertible_Match& operator, (t_TO_TYPE) const;
-            // Return a reference to type 'IsConvertible_Match'.
     };
 
   public:
@@ -372,9 +372,9 @@ struct IsConvertible_Imp {
 #   pragma warning(pop)
 #endif
 
+    /// This `typedef` returns `bsl::true_type` if `t_FROM_TYPE` is
+    /// convertible to `t_TO_TYPE`, and `bsl::false_type` otherwise.
     typedef bsl::integral_constant<bool, value> type;
-        // This 'typedef' returns 'bsl::true_type' if 't_FROM_TYPE' is
-        // convertible to 't_TO_TYPE', and 'bsl::false_type' otherwise.
 };
 
 #if 0 // defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
@@ -593,31 +593,31 @@ namespace bsl {
                          // struct is_convertible_dispatch
                          // ==============================
 
+/// This `struct` template implements the `is_convertible_dispatch`
+/// meta-function defined in the C++11 standard [meta.rel] to determine if
+/// the (template parameter) `t_FROM_TYPE` is convertible to the (template
+/// parameter) `t_TO_TYPE`.  This `struct` derives from `bsl::true_type` if
+/// the `t_FROM_TYPE` is convertible to `t_TO_TYPE`, and from
+/// `bsl::false_type` otherwise.  Note that both `t_FROM_TYPE` and
+/// `t_TO_TYPE` should be complete types, arrays of unknown bound, or
+/// (possibly cv-qualified) `void` types.
 template <class t_FROM_TYPE, class t_TO_TYPE>
 struct is_convertible_dispatch
 : BloombergLP::bslmf::IsConvertible_Conditional<t_FROM_TYPE, t_TO_TYPE>::type {
-    // This 'struct' template implements the 'is_convertible_dispatch'
-    // meta-function defined in the C++11 standard [meta.rel] to determine if
-    // the (template parameter) 't_FROM_TYPE' is convertible to the (template
-    // parameter) 't_TO_TYPE'.  This 'struct' derives from 'bsl::true_type' if
-    // the 't_FROM_TYPE' is convertible to 't_TO_TYPE', and from
-    // 'bsl::false_type' otherwise.  Note that both 't_FROM_TYPE' and
-    // 't_TO_TYPE' should be complete types, arrays of unknown bound, or
-    // (possibly cv-qualified) 'void' types.
 };
 
+/// This set of rules corresponds with the reference binding rules in c++11,
+/// where the specification of `is_convertible_dispatch` relies on
+/// rvalue-references.  We must supply these specializations directly in
+/// order to support C++03 compilers that do not have a good substitute for
+/// rvalue-references, as using `const &` instead produces subtly different
+/// results in some cases.
 template <class t_TYPE>
 struct is_convertible_dispatch<t_TYPE, t_TYPE&>
 : integral_constant<bool,
                     is_reference<t_TYPE>::value ||
                         is_function<t_TYPE>::value ||
                         is_const<t_TYPE>::value> {
-    // This set of rules corresponds with the reference binding rules in c++11,
-    // where the specification of 'is_convertible_dispatch' relies on
-    // rvalue-references.  We must supply these specializations directly in
-    // order to support C++03 compilers that do not have a good substitute for
-    // rvalue-references, as using 'const &' instead produces subtly different
-    // results in some cases.
 };
 
 // Some compilers need explicit guidance on a few of the reference-binding
@@ -764,12 +764,12 @@ struct is_convertible_dispatch<const volatile t_TYPE&, const volatile t_TYPE&>
 : true_type {
 };
 
+/// Correct handling of non-fundamental volatile conversions to self.  Note
+/// that this is not trivially true, but tests that `t_TYPE` is copy (or
+/// move) constructible.
 template <class t_TYPE>
 struct is_convertible_dispatch<volatile t_TYPE, t_TYPE>
 : BloombergLP::bslmf::IsConvertible_Conditional<t_TYPE, t_TYPE>::type {
-    // Correct handling of non-fundamental volatile conversions to self.  Note
-    // that this is not trivially true, but tests that 't_TYPE' is copy (or
-    // move) constructible.
 };
 
 template <class t_FROM_TYPE, class t_TO_TYPE>
@@ -813,18 +813,18 @@ struct is_convertible_dispatch<volatile t_FROM_TYPE&, t_TO_TYPE>
           t_TO_TYPE>::type>::type {
 };
 
+/// This `struct` template implements the `is_convertible_dispatch`
+/// meta-function defined in the C++11 standard [meta.rel] to determine if
+/// the (template parameter) `t_FROM_TYPE` is convertible to the (template
+/// parameter) `t_TO_TYPE`.  This `struct` derives from `bsl::true_type` if
+/// the `t_FROM_TYPE` is convertible to `t_TO_TYPE`, and from
+/// `bsl::false_type` otherwise.  Note that both `t_FROM_TYPE` and
+/// `t_TO_TYPE` should be complete types, arrays of unknown bound, or
+/// (possibly cv-qualified) `void` types.
 template <class t_FROM_TYPE, class t_TO_TYPE>
 struct is_convertible
 : is_convertible_dispatch<typename EffectiveFromType<t_FROM_TYPE>::type,
                           t_TO_TYPE>::type {
-    // This 'struct' template implements the 'is_convertible_dispatch'
-    // meta-function defined in the C++11 standard [meta.rel] to determine if
-    // the (template parameter) 't_FROM_TYPE' is convertible to the (template
-    // parameter) 't_TO_TYPE'.  This 'struct' derives from 'bsl::true_type' if
-    // the 't_FROM_TYPE' is convertible to 't_TO_TYPE', and from
-    // 'bsl::false_type' otherwise.  Note that both 't_FROM_TYPE' and
-    // 't_TO_TYPE' should be complete types, arrays of unknown bound, or
-    // (possibly cv-qualified) 'void' types.
 };
 
 }  // close namespace bsl

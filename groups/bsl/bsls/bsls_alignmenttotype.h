@@ -350,9 +350,10 @@ struct AlignmentToType {
 
   public:
     // TYPES
+
+    /// Alias for a primitive type that has the specified `ALIGNMENT`
+    /// requirement.
     typedef typename AlignmentImpPriorityToType<PRIORITY>::Type Type;
-        // Alias for a primitive type that has the specified 'ALIGNMENT'
-        // requirement.
 #endif
 };
 

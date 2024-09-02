@@ -104,11 +104,11 @@ namespace bsl {
                          // struct is_error_code_enum
                          // =========================
 
+/// This class template represents a trait defining whether the specified
+/// enumeration type `TYPE` is to be treated as an error code by the
+/// `error_code` template methods.
 template <class TYPE>
 struct is_error_code_enum : public bsl::false_type
-    // This class template represents a trait defining whether the specified
-    // enumeration type 'TYPE' is to be treated as an error code by the
-    // 'error_code' template methods.
 {
 };
 

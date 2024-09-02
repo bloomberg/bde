@@ -195,11 +195,11 @@ struct integral_constant<bool, true> : ::std::true_type
 };
 
 #else
+/// Generate a unique type for the given `t_TYPE` and `t_VAL`.  This
+/// `struct` is used for compile-time dispatch of overloaded functions and
+/// as the base class for many metafunctions.
 template <class t_TYPE, t_TYPE t_VAL>
 struct integral_constant {
-    // Generate a unique type for the given 't_TYPE' and 't_VAL'.  This
-    // 'struct' is used for compile-time dispatch of overloaded functions and
-    // as the base class for many metafunctions.
 
   public:
     // CREATORS
@@ -216,8 +216,9 @@ struct integral_constant {
     static const t_TYPE value = t_VAL;
 
     // ACCESSORS
+
+    /// Return `t_VAL`.
     BSLS_KEYWORD_CONSTEXPR operator value_type() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 't_VAL'.
 };
 
 template <bool t_VAL>
@@ -237,8 +238,9 @@ struct integral_constant<bool, t_VAL> {
     static const bool value = t_VAL;
 
     // ACCESSORS
+
+    /// Return `t_VAL`.
     BSLS_KEYWORD_CONSTEXPR operator value_type() const BSLS_KEYWORD_NOEXCEPT;
-        // Return 't_VAL'.
 
     // COMPATIBILITY MEMBERS
     BSL_DEPRECATE_TRUE_FALSE_TYPE_VALUE

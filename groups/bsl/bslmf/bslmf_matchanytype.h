@@ -142,25 +142,25 @@ struct TypeRep {
     static typename bsl::add_rvalue_reference<t_TYPE>::type rep();
 };
 #else
+/// Generate a reference to `t_TYPE` for use in meta-functions.
 template <class t_TYPE>
 struct TypeRep {
-    // Generate a reference to 't_TYPE' for use in meta-functions.
 
+    /// Provide a reference to a `t_TYPE` object.  This function has no body
+    /// and must never be called at run time.  Thus, it does not matter if
+    /// `t_TYPE` has a default constructor or not.
     static t_TYPE& rep();
-        // Provide a reference to a 't_TYPE' object.  This function has no body
-        // and must never be called at run time.  Thus, it does not matter if
-        // 't_TYPE' has a default constructor or not.
 };
 
+/// Generate a reference to `t_TYPE` for use in meta-functions.  This is a
+/// partial specialization of `TypeRep` instantiated with a reference.
 template <class t_TYPE>
 struct TypeRep<t_TYPE&> {
-    // Generate a reference to 't_TYPE' for use in meta-functions.  This is a
-    // partial specialization of 'TypeRep' instantiated with a reference.
 
+    /// Provide a reference to a `t_TYPE` object.  This function has no body
+    /// and must never be called at run time.  Thus, it does not matter if
+    /// `t_TYPE` has a default constructor or not.
     static t_TYPE& rep();
-        // Provide a reference to a 't_TYPE' object.  This function has no body
-        // and must never be called at run time.  Thus, it does not matter if
-        // 't_TYPE' has a default constructor or not.
 };
 #endif
 

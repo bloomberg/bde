@@ -98,30 +98,30 @@ namespace bsl {
 using std::remove_reference;
 #else
 
+/// This `struct` template implements the `remove_reference` meta-function
+/// defined in the C++11 standard [meta.trans.ref], providing an alias,
+/// `type`, that returns the result.  `type` has the same type as the
+/// (template parameter) `t_TYPE` except with reference-ness removed.  Note
+/// that this generic default template provides a `type` that is an alias to
+/// `t_TYPE` for when `t_TYPE` is not a reference.  A template
+/// specialization is provided (below) that removes reference-ness for when
+/// `t_TYPE` is a reference.
 template <class t_TYPE>
 struct remove_reference {
-    // This 'struct' template implements the 'remove_reference' meta-function
-    // defined in the C++11 standard [meta.trans.ref], providing an alias,
-    // 'type', that returns the result.  'type' has the same type as the
-    // (template parameter) 't_TYPE' except with reference-ness removed.  Note
-    // that this generic default template provides a 'type' that is an alias to
-    // 't_TYPE' for when 't_TYPE' is not a reference.  A template
-    // specialization is provided (below) that removes reference-ness for when
-    // 't_TYPE' is a reference.
 
+    /// This `typedef` is an alias to the (template parameter) `t_TYPE`.
     typedef t_TYPE type;
-        // This 'typedef' is an alias to the (template parameter) 't_TYPE'.
 };
 
+/// This partial specialization of `bsl::remove_reference`, for when the
+/// (template parameter) `t_TYPE` is an rvalue reference, provides a
+/// `typedef`, `type`, that has reference-ness of `t_TYPE` removed.
 template <class t_TYPE>
 struct remove_reference<t_TYPE&> {
-    // This partial specialization of 'bsl::remove_reference', for when the
-    // (template parameter) 't_TYPE' is an rvalue reference, provides a
-    // 'typedef', 'type', that has reference-ness of 't_TYPE' removed.
 
+    /// This `typedef` is an alias to the same type as the (template
+    /// parameter) `t_TYPE` except with the reference-ness removed.
     typedef t_TYPE type;
-        // This 'typedef' is an alias to the same type as the (template
-        // parameter) 't_TYPE' except with the reference-ness removed.
 };
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)

@@ -394,8 +394,8 @@ class SipHashAlgorithm {
     // accumulated
     Uint64 d_v3;
 
+    /// Provides alignment
     union {
-        /// Provides alignment
         Uint64 d_alignment;
 
         /// Used to buffer data until we have enough to do a full round of

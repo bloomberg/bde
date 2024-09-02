@@ -187,18 +187,24 @@ struct IsNothrowMoveConstructible_Impl<
 
 #undef STD_IS_NOTHROW_MOVE_CONSTRUCTIBLE_VALUE
 #else
+/// This `struct` template implements a metafunction to determine whether
+/// the (non-cv-qualified) (template parameter) `t_TYPE` has a no-throw move
+/// constructor.  For C++03, the set of types known to be no-throw move
+/// constructible are all trivial types.  Note that the partial
+/// specializations below will provide the determination for class types,
+/// and this primary template is equivalent to querying whether `t_TYPE` is
+/// a scalar type.
 template <class t_TYPE, class = void>
 struct IsNothrowMoveConstructible_Impl
 : bslmf::IsBitwiseCopyable<t_TYPE>::type {
-    // This 'struct' template implements a metafunction to determine whether
-    // the (non-cv-qualified) (template parameter) 't_TYPE' has a no-throw move
-    // constructor.  For C++03, the set of types known to be no-throw move
-    // constructible are all trivial types.  Note that the partial
-    // specializations below will provide the determination for class types,
-    // and this primary template is equivalent to querying whether 't_TYPE' is
-    // a scalar type.
 };
 
+/// This `struct` template implements a metafunction to determine whether
+/// the (non-cv-qualified) (template parameter) `t_TYPE` has a no-throw move
+/// constructor.  To maintain consistency between the C++03 and C++11
+/// implementations of this trait, types that use the BDE trait association
+/// techniques are also detected as no-throw move constructible, even if the
+/// `noexcept` operator would draw a different conclusion.
 template <class t_TYPE>
 struct IsNothrowMoveConstructible_Impl<
     t_TYPE,
@@ -208,12 +214,6 @@ struct IsNothrowMoveConstructible_Impl<
       bslmf::IsBitwiseCopyable<t_TYPE>::value ||
           DetectNestedTrait<t_TYPE,
                             bsl::is_nothrow_move_constructible>::value> {
-    // This 'struct' template implements a metafunction to determine whether
-    // the (non-cv-qualified) (template parameter) 't_TYPE' has a no-throw move
-    // constructor.  To maintain consistency between the C++03 and C++11
-    // implementations of this trait, types that use the BDE trait association
-    // techniques are also detected as no-throw move constructible, even if the
-    // 'noexcept' operator would draw a different conclusion.
 
     enum { k_CHECK_COMPLETE = sizeof(t_TYPE) };  // Diagnose incomplete types
 };

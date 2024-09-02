@@ -326,9 +326,9 @@ namespace bdlb {
 struct CharType {
 
     // TYPES
-    enum Category {
-        // Set of character categories supported by this component.
 
+    /// Set of character categories supported by this component.
+    enum Category {
         e_UPPER,          // [A-Z]
         e_LOWER,          // [a-z]
         e_ALPHA,          // [A-Za-z]
@@ -460,10 +460,10 @@ struct CharType {
     static const bool *const s_noneArray_p;
 
     static const bool **s_categoryArray_p;       // indexed by
-                                                 // '[category, char]'
+                                                 // `[category, char]`
 
-    static const char *const s_toUpper_p;        // 'char' arrays index by
-    static const char *const s_toLower_p;        // '[char]'
+    static const char *const s_toUpper_p;        // `char` arrays index by
+    static const char *const s_toLower_p;        // `[char]`
 
   public:
     // CLASS METHODS
@@ -518,7 +518,7 @@ struct CharType {
     static bool isPunct(char character);
 
     /// Return `true` if the specified `character` is in the `CNTRL`
-    /// category (i.e., `[\1-\37]` and '\177'), and `false` otherwise.
+    /// category (i.e., `[\1-\37]` and `\177`), and `false` otherwise.
     static bool isCntrl(char character);
 
     /// Return `true` if the specified `character` is in the `ASCII`
@@ -606,7 +606,7 @@ struct CharType {
     static const char *stringPunct();
 
     /// Return a null-terminated string consisting of all characters in the
-    /// category `CNTRL` (i.e., `[\0-\37]` and '\177'), ordered by
+    /// category `CNTRL` (i.e., `[\0-\37]` and `\177`), ordered by
     /// increasing character codes.  Note that this string, if printed, may
     /// appear to be of length 0 because the `NULL` character is part of the
     /// set and appears first.
@@ -642,7 +642,7 @@ struct CharType {
 
     /// Return a null-terminated string consisting of all characters in
     /// the specified `category`, ordered by increasing character codes.
-    /// Note that for category values of `CNTRL`, `ASCII, and `ALL',
+    /// Note that for category values of `CNTRL`, `ASCII, and `ALL`,
     /// this string, if printed, may appear to be of length 0 because the
     /// `NULL` character is part of the set and appears first.
     static const char *stringCategory(CharType::Category category);
@@ -685,7 +685,7 @@ struct CharType {
     /// any printable character including `SPACE`).
     static int numPrint();
 
-    /// Return the number of characters in the category 'GRAPH (i.e.,
+    /// Return the number of characters in the category `GRAPH` (i.e.,
     /// any printable character except `SPACE`), and `false` otherwise.
     static int numGraph();
 
@@ -694,7 +694,7 @@ struct CharType {
     static int numPunct();
 
     /// Return the number of characters in the category `CNTRL` (i.e.,
-    /// `[\1-\37]` and '\177').
+    /// `[\1-\37]` and `\177`).
     static int numCntrl();
 
     /// Return the number of characters in the category `ASCII` (i.e.,

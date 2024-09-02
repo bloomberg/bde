@@ -91,13 +91,13 @@ struct add_lvalue_reference {
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
+/// This partial specialization of `add_lvalue_reference` defines a return
+/// type when it is instantiated with an lvalue reference type.
 template <class t_TYPE>
 struct add_lvalue_reference<t_TYPE&> {
-    // This partial specialization of 'add_lvalue_reference' defines a return
-    // type when it is instantiated with an lvalue reference type.
 
+    /// This `typedef` defines the return type of this meta function.
     typedef t_TYPE& type;
-        // This 'typedef' defines the return type of this meta function.
 };
 
 #endif

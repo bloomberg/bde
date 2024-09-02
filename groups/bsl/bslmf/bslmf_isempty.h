@@ -180,45 +180,45 @@ BSLS_KEYWORD_INLINE_VARIABLE constexpr bool is_empty_v =
                         // struct Is_Empty_Size
                         // ====================
 
+/// Private class: do not use outside of `bslmf_isempty` component.  This
+/// component-private class is an example of an empty type, that can be used
+/// to calculate the likely size of an empty type on the current platform.
+/// As the inheritance-based technique used below disallows unions with a
+/// hard error, rather than a SFINAE-friendly failure, it is important to
+/// avoid instantiating the `Imp` test unless there is a real chance that
+/// the type might be empty.  While we cannot protect against testing small
+/// unions, we can rule out the more common cases where at least one union
+/// member has more than the smallest permissible size on the current ABI.
 struct Is_Empty_Size {
-    // Private class: do not use outside of 'bslmf_isempty' component.  This
-    // component-private class is an example of an empty type, that can be used
-    // to calculate the likely size of an empty type on the current platform.
-    // As the inheritance-based technique used below disallows unions with a
-    // hard error, rather than a SFINAE-friendly failure, it is important to
-    // avoid instantiating the 'Imp' test unless there is a real chance that
-    // the type might be empty.  While we cannot protect against testing small
-    // unions, we can rule out the more common cases where at least one union
-    // member has more than the smallest permissible size on the current ABI.
 };
 
                          // =========================
                          // struct Is_Empty_Class_Imp
                          // =========================
 
+/// Private class: do not use outside of `bslmf_isempty` component.  This
+/// meta-function derives from `false_type` unless (the template parameter)
+/// `t_TYPE` is exactly the same size as a known empty type, in which case
+/// the following partial specialization is chosen.  This test filters out
+/// the majority of problems with `union` types that are classes, and would
+/// produce a hard, non-SFINAEable error trying to a create a derived class
+/// to compare size in the next test.
 template <class t_TYPE,
           bool IS_CLASS = sizeof(t_TYPE) == sizeof(Is_Empty_Size)>
 struct Is_Empty_Class_Imp : false_type {
-    // Private class: do not use outside of 'bslmf_isempty' component.  This
-    // meta-function derives from 'false_type' unless (the template parameter)
-    // 't_TYPE' is exactly the same size as a known empty type, in which case
-    // the following partial specialization is chosen.  This test filters out
-    // the majority of problems with 'union' types that are classes, and would
-    // produce a hard, non-SFINAEable error trying to a create a derived class
-    // to compare size in the next test.
 };
 
+/// Private class: do not use outside of `bslmf_isempty` component.
+/// Implementation of `bsl::is_empty` for class types that are small enough
+/// that they might be an empty class.
 template <class t_TYPE>
 struct Is_Empty_Class_Imp<t_TYPE, true> {
-    // Private class: do not use outside of 'bslmf_isempty' component.
-    // Implementation of 'bsl::is_empty' for class types that are small enough
-    // that they might be an empty class.
 
   private:
+    /// This `struct` derives from the template parameter `t_TYPE` from the
+    /// enclosing class template, and will have the same size as an `int` if
+    /// `t_TYPE` is an empty class, and a larger size otherwise.
     struct Derived : t_TYPE {
-        // This 'struct' derives from the template parameter 't_TYPE' from the
-        // enclosing class template, and will have the same size as an 'int' if
-        // 't_TYPE' is an empty class, and a larger size otherwise.
 
         Derived();                // Declared but not defined
         Derived(const Derived&);  // Declared but not defined
@@ -228,51 +228,51 @@ struct Is_Empty_Class_Imp<t_TYPE, true> {
     };
 
   public:
+    /// `true_type` if (the template parameter) `t_TYPE` is an empty class,
+    /// and `false_type` otherwise.
     typedef integral_constant<bool, sizeof(Derived) == sizeof(int)> type;
-        // 'true_type' if (the template parameter) 't_TYPE' is an empty class,
-        // and 'false_type' otherwise.
 };
 
                         // ===================
                         // struct Is_Empty_Imp
                         // ===================
 
+/// Private class: do not use outside of `bslmf_isempty` component.  This
+/// meta-function provides an initial dispatch that always derives from
+/// `false_type` unless the template parameter `t_TYPE` is a class type, as
+/// only class types can be empty.  The following partial specialization
+/// forwards all class types to a final test.  This two-phase dispatch is
+/// necessary as some types, such as `void` and function types, cannot be
+/// passed to a `sizeof` operator that is used to implement the next stage
+/// of matching.
 template <class t_TYPE, class = void>
 struct Is_Empty_Imp : false_type {
-    // Private class: do not use outside of 'bslmf_isempty' component.  This
-    // meta-function provides an initial dispatch that always derives from
-    // 'false_type' unless the template parameter 't_TYPE' is a class type, as
-    // only class types can be empty.  The following partial specialization
-    // forwards all class types to a final test.  This two-phase dispatch is
-    // necessary as some types, such as 'void' and function types, cannot be
-    // passed to a 'sizeof' operator that is used to implement the next stage
-    // of matching.
 };
 
+/// Private class: do not use outside of `bslmf_isempty` component.
+/// Implementation of `bsl::is_empty`.  This partial specialization derives
+/// from the nested `type` member of the `Is_Empty_Class_Imp` meta-function,
+/// which must be `true_type` if (the template parameter) `t_TYPE` is an
+/// empty class, and `false_type` otherwise.
 template <class t_TYPE>
 struct Is_Empty_Imp<t_TYPE, BSLMF_VOIDTYPE(int t_TYPE::*)>
 : Is_Empty_Class_Imp<t_TYPE>::type {
-    // Private class: do not use outside of 'bslmf_isempty' component.
-    // Implementation of 'bsl::is_empty'.  This partial specialization derives
-    // from the nested 'type' member of the 'Is_Empty_Class_Imp' meta-function,
-    // which must be 'true_type' if (the template parameter) 't_TYPE' is an
-    // empty class, and 'false_type' otherwise.
 };
 
                         // =======================
                         // struct is_empty (C++03)
                         // =======================
 
+/// This `struct` is a meta-function to determine whether the (template
+/// parameter) `t_TYPE` is an empty class type.  `is_empty` inherits from
+/// `true_type` if `t_TYPE` is a `class` or `struct` with no non-static data
+/// members other than bit-fields of length 0, no virtual member functions,
+/// no virtual base classes, and no base class `B` for which
+/// `is_empty<B>::value` is `false`; otherwise `is_empty` inherits from
+/// `false_type`.  Note that this meta-function will fail to compile for a
+/// union that is the same size as an empty class in C++03.
 template <class t_TYPE>
 struct is_empty : Is_Empty_Imp<t_TYPE>::type {
-    // This 'struct' is a meta-function to determine whether the (template
-    // parameter) 't_TYPE' is an empty class type.  'is_empty' inherits from
-    // 'true_type' if 't_TYPE' is a 'class' or 'struct' with no non-static data
-    // members other than bit-fields of length 0, no virtual member functions,
-    // no virtual base classes, and no base class 'B' for which
-    // 'is_empty<B>::value' is 'false'; otherwise 'is_empty' inherits from
-    // 'false_type'.  Note that this meta-function will fail to compile for a
-    // union that is the same size as an empty class in C++03.
 };
 
 template <class t_TYPE>

@@ -138,24 +138,24 @@ struct Assert_If<false> : Assert_FalseType {
 
 #else
 
+/// Declared but not defined.  If assert macro references this type, then
+/// compilation will fail (assert failure).
 template <bool IS_VALID>
 struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE;
-    // Declared but not defined.  If assert macro references this type, then
-    // compilation will fail (assert failure).
 
+/// Specialization for value 1 (true).  Referencing this specialization will
+/// allow compilation to succeed (assert succeeded).
 template <>
 struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE<true> : public bsl::true_type {
-    // Specialization for value 1 (true).  Referencing this specialization will
-    // allow compilation to succeed (assert succeeded).
 };
 
 namespace bslmf {
 
+/// Instantiating this type involves instantiating its template parameter.
+/// This dummy type is just used to force instantiation of a meta-function
+/// used as its argument.
 template <bool IS_VALID>
 struct AssertTest {
-    // Instantiating this type involves instantiating its template parameter.
-    // This dummy type is just used to force instantiation of a meta-function
-    // used as its argument.
 };
 
 }  // close package namespace

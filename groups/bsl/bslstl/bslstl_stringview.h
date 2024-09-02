@@ -411,9 +411,10 @@ class basic_string_view {
 
   public:
     // CLASS DATA
+
+    /// Value used to denote "not-a-position", guaranteed to be outside the
+    /// range `[0 .. max_size()]`.
     static const size_type npos = ~size_type(0);
-        // Value used to denote "not-a-position", guaranteed to be outside the
-        // range '[0 .. max_size()]'.
 
   private:
     // DATA

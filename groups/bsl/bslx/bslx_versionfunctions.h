@@ -157,18 +157,18 @@ struct VersionFunctions_NonFundamentalImpl {
 #endif
 };
 
+/// Return the maximum valid BDEX format version, as indicated by the
+/// specified `versionSelector`, to be passed to the `bdexStreamOut`
+/// method while streaming an object of the (template parameter) type
+/// `bsl::vector<TYPE, ALLOC>`.  Note that it is highly recommended that
+/// `versionSelector` be formatted as "YYYYMMDD", a date representation.
+/// Also note that `versionSelector` should be a *compile*-time-chosen
+/// value that selects a format version supported by both externalizer
+/// and unexternalizer.  See the `bslx` package-level documentation for
+/// more information on BDEX streaming of value-semantic types and
+/// containers.
 template <class TYPE, class ALLOC>
 struct VersionFunctions_NonFundamentalImpl<bsl::vector<TYPE, ALLOC> > {
-    /// Return the maximum valid BDEX format version, as indicated by the
-    /// specified `versionSelector`, to be passed to the `bdexStreamOut`
-    /// method while streaming an object of the (template parameter) type
-    /// `bsl::vector<TYPE, ALLOC>`.  Note that it is highly recommended that
-    /// `versionSelector` be formatted as "YYYYMMDD", a date representation.
-    /// Also note that `versionSelector` should be a *compile*-time-chosen
-    /// value that selects a format version supported by both externalizer
-    /// and unexternalizer.  See the `bslx` package-level documentation for
-    /// more information on BDEX streaming of value-semantic types and
-    /// containers.
     static int maxSupportedBdexVersion(int versionSelector);
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

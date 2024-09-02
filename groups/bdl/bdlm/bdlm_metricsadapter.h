@@ -43,8 +43,8 @@ BSLS_IDENT("$Id: $")
 // First, we define the interface of a limited `my_MetricsMonitor` class that
 // allows only one metric collection function to be registered:
 // ```
+// /// This class implements a metric monitoring system.
 // class my_MetricsMonitor {
-//     // This class implements a metric monitoring system.
 //
 //     // ...
 //
@@ -60,28 +60,30 @@ BSLS_IDENT("$Id: $")
 //     // ...
 //
 //     // MANIPULATORS
+//
+//     /// Register the specified `callback` with this monitoring system,
+//     /// using the specified `name` for display purposes.  Return a
+//     /// callback handle to be used with `removeCallback`.
 //     bdlm::MetricsAdapter::CallbackHandle registerCallback(
 //                             const bsl::string&                   name,
 //                             const bdlm::MetricsAdapter::Callback callback);
-//         // Register the specified 'callback' with this monitoring system,
-//         // using the specified 'name' for display purposes.  Return a
-//         // callback handle to be used with 'removeCallback'.
 //
+//     /// Remove the callback associated with the specified `handle`.
+//     /// Return 0 on success, or a non-zero value if `handle` cannot be
+//     /// found.
 //     int removeCallback(const bdlm::MetricsAdapter::CallbackHandle& handle);
-//         // Remove the callback associated with the specified 'handle'.
-//         // Return 0 on success, or a non-zero value if 'handle' cannot be
-//         // found.
 //
+//     /// Invoke the registered callback.
 //     void update();
-//         // Invoke the registered callback.
 //
 //     // ACCESSORS
-//     const bsl::string& name() const;
-//         // Return the name of the registered metric.
 //
+//     /// Return the name of the registered metric.
+//     const bsl::string& name() const;
+//
+//     /// Return the value computed by the invocations of the registered
+//     /// callback.
 //     double value() const;
-//         // Return the value computed by the invocations of the registered
-//         // callback.
 // };
 // ```
 // Then, we implement the functions:
@@ -124,9 +126,9 @@ BSLS_IDENT("$Id: $")
 // Next, we define the implementation class of the `bdlm::MetricsAdapter`
 // protocol:
 // ```
+// /// This class implements an interface for clients and suppliers of
+// /// metrics adapters.
 // class my_MetricsAdapter : public bdlm::MetricsAdapter {
-//     // This class implements an interface for clients and suppliers of
-//     // metrics adapters.
 //
 //     // DATA
 //     my_MetricsMonitor *d_monitor_p;  // pointer to monitor to use for
@@ -134,28 +136,30 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     my_MetricsAdapter(my_MetricsMonitor *monitor);
-//         // Create a 'my_MetricsAdapter' using the specified 'monitor' for
-//         // registered callbacks.
 //
+//     /// Create a `my_MetricsAdapter` using the specified `monitor` for
+//     /// registered callbacks.
+//     my_MetricsAdapter(my_MetricsMonitor *monitor);
+//
+//     /// Destroy this object.
 //     ~my_MetricsAdapter();
-//         // Destroy this object.
 //
 //     // MANIPULATORS
+//
+//     /// Register the specified `callback` with a monitoring system,
+//     /// using the specified `metricDescriptor` for the registration.
+//     /// Return the callback handle to be used with
+//     /// `removeCollectionCallback`.  Note the information used for
+//     /// registration is implementation dependant, and may involve values
+//     /// computed from the supplied arguments.
 //     CallbackHandle registerCollectionCallback(
 //                             const bdlm::MetricDescriptor& metricDescriptor,
 //                             const Callback&               callback);
-//         // Register the specified 'callback' with a monitoring system,
-//         // using the specified 'metricDescriptor' for the registration.
-//         // Return the callback handle to be used with
-//         // 'removeCollectionCallback'.  Note the information used for
-//         // registration is implementation dependant, and may involve values
-//         // computed from the supplied arguments.
 //
+//     /// Remove the callback associated with the specified `handle`.
+//     /// Return 0 on success, or a non-zero value if `handle` cannot be
+//     /// found.
 //     int removeCollectionCallback(const CallbackHandle& handle);
-//         // Remove the callback associated with the specified 'handle'.
-//         // Return 0 on success, or a non-zero value if 'handle' cannot be
-//         // found.
 // };
 // ```
 // Then, we implement the methods of `myMetricsAdapter`:

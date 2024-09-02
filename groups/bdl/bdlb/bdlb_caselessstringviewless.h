@@ -151,25 +151,27 @@ struct CaselessStringViewLess {
                                    bsl::is_trivially_default_constructible);
 
     // CREATORS
+
+    /// Create a `CaselessStringViewLess` object.
     //! CaselessStringViewLess() = default;
-        // Create a 'CaselessStringViewLess' object.
 
+    /// Create a `CaselessStringViewLess` object.  Note that as
+    /// `CaselessStringViewLess` is an empty (stateless) type, this
+    /// operation has no observable effect.
     //! CaselessStringViewLess(const CaselessStringViewLess& original) =
-    //                                                                 default;
-        // Create a 'CaselessStringViewLess' object.  Note that as
-        // 'CaselessStringViewLess' is an empty (stateless) type, this
-        // operation has no observable effect.
+    //!                                                                default;
 
+    /// Destroy this object.
     //! ~CaselessStringViewLess() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.  Note
+    /// that as `CaselessStringViewLess` is an empty (stateless) type, this
+    /// operation has no observable effect.
     //! CaselessStringViewLess& operator=(const CaselessStringViewLess& rhs) =
-    //                                                                 default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that as 'CaselessStringViewLess' is an empty (stateless) type, this
-        // operation has no observable effect.
+    //!                                                                default;
 
     // ACCESSORS
 

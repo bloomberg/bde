@@ -79,20 +79,21 @@ using std::remove_cvref;
                          // struct remove_cvref
                          // ===================
 
+/// This `struct` template implements the `remove_cvref` meta-function
+/// defined in the C++20 standard [meta.trans.other], providing an alias,
+/// `type`, that returns the result.  `type` has the same type as the
+/// (template parameter) `t_TYPE` except that its reference-ness has been
+/// stripped and any top-level cv-qualifiers have been removed.
 template <class t_TYPE>
 struct remove_cvref {
-    // This 'struct' template implements the 'remove_cvref' meta-function
-    // defined in the C++20 standard [meta.trans.other], providing an alias,
-    // 'type', that returns the result.  'type' has the same type as the
-    // (template parameter) 't_TYPE' except that its reference-ness has been
-    // stripped and any top-level cv-qualifiers have been removed.
 
     // PUBLIC TYPES
+
+    /// This `typedef` is an alias to the same type as the (template
+    /// parameter) `t_TYPE` except that its reference-ness has been stripped
+    /// and any top-level cv-qualifier has been removed.
     typedef typename bsl::remove_cv<
         typename bsl::remove_reference<t_TYPE>::type>::type type;
-        // This 'typedef' is an alias to the same type as the (template
-        // parameter) 't_TYPE' except that its reference-ness has been stripped
-        // and any top-level cv-qualifier has been removed.
 };
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 

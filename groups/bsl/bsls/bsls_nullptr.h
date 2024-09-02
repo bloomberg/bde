@@ -217,10 +217,10 @@ namespace bsls {
                        // class bsls::Nullptr
                        // ===================
 
+/// This implementation-private `struct` provides an alias for a type that
+/// can match a null pointer literal, but is not a pointer itself.  It
+/// offers a limited emulation of the C++11 `std::nullptr_t` type.
 struct Nullptr_Impl {
-    // This implementation-private 'struct' provides an alias for a type that
-    // can match a null pointer literal, but is not a pointer itself.  It
-    // offers a limited emulation of the C++11 'std::nullptr_t' type.
 
   private:
     struct Nullptr_ProxyType { int dummy; }; // private class to supply a
@@ -236,9 +236,9 @@ struct Nullptr_Impl {
 
 namespace bsl {
 
+    /// Alias for a type that can match a null pointer literal, but is not a
+    /// pointer type itself.
     typedef BloombergLP::bsls::Nullptr_Impl::Type nullptr_t;
-        // Alias for a type that can match a null pointer literal, but is not a
-        // pointer type itself.
 }
 #endif
 

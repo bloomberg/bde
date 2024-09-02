@@ -142,25 +142,26 @@ struct CaselessStringViewHash {
     BSLMF_NESTED_TRAIT_DECLARATION(CaselessStringViewHash,
                                       bsl::is_trivially_default_constructible);
 
+    /// Create a `CaselessStringViewHash` object.
     //! CaselessStringViewHash() = default;
-        // Create a 'CaselessStringViewHash' object.
 
+    /// Create a `CaselessStringViewHash` object.  Note that as
+    /// `CaselessStringViewHash` is an empty (stateless) type, this
+    /// operation will have no observable effect.
     //! CaselessStringViewHash(const CaselessStringViewHash& original) =
-    //                                                                 default;
-        // Create a 'CaselessStringViewHash' object.  Note that as
-        // 'CaselessStringViewHash' is an empty (stateless) type, this
-        // operation will have no observable effect.
+    //!                                                                default;
 
+    /// Destroy this object.
     //! ~CaselessStringViewHash() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and a
+    /// return a reference providing modifiable access to this object.  Note
+    /// that as `CaselessStringViewHash` is an empty (stateless) type, this
+    /// operation will have no observable effect.
     //! CaselessStringViewHash& operator=(const CaselessStringViewHash& rhs) =
-    //                                                                 default;
-        // Assign to this object the value of the specified 'rhs' object, and a
-        // return a reference providing modifiable access to this object.  Note
-        // that as 'CaselessStringViewHash' is an empty (stateless) type, this
-        // operation will have no observable effect.
+    //!                                                                default;
 
     // ACCESSORS
 

@@ -220,6 +220,10 @@ struct IsTriviallyCopyable_Intrinsic
       ::std::is_trivially_copyable<t_TYPE>::value>::type {
 };
 #else
+/// This `struct` template implements a meta-function to determine whether
+/// the (non-cv-qualified) (template parameter) `t_TYPE` is trivially
+/// copyable.  Without compiler support, only scalar types are trivial
+/// copyable.
 template <class t_TYPE>
 struct IsTriviallyCopyable_Intrinsic
 : IsTriviallyCopyable_DetectTrait<
@@ -227,16 +231,12 @@ struct IsTriviallyCopyable_Intrinsic
       bsl::is_fundamental<t_TYPE>::value || bsl::is_enum<t_TYPE>::value ||
           bsl::is_pointer<t_TYPE>::value ||
           bsl::is_member_pointer<t_TYPE>::value>::type {
-    // This 'struct' template implements a meta-function to determine whether
-    // the (non-cv-qualified) (template parameter) 't_TYPE' is trivially
-    // copyable.  Without compiler support, only scalar types are trivial
-    // copyable.
 };
 
+/// This explicit specialization reports that `void` is not a trivially
+/// copyable type, despite being a fundamental type.
 template <>
 struct IsTriviallyCopyable_Intrinsic<void> : bsl::false_type {
-    // This explicit specialization reports that 'void' is not a trivially
-    // copyable type, despite being a fundamental type.
 };
 #endif
 
@@ -436,10 +436,10 @@ struct is_trivially_copyable<BloombergLP::bsls::TimeInterval> : bsl::true_type{
 };
 
 #ifndef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
+/// This template specialization for `is_trivially_copyable` indicates that
+/// `Nil` is a trivially copyable type.
 template <>
 struct is_trivially_copyable<BloombergLP::bslmf::Nil> : bsl::true_type {
-    // This template specialization for 'is_trivially_copyable' indicates that
-    // 'Nil' is a trivially copyable type.
 };
 #endif
 }  // close namespace bsl

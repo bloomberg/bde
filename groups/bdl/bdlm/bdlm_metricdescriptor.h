@@ -176,8 +176,8 @@ class MetricDescriptor {
     MetricDescriptor(const MetricDescriptor&  original,
                      bslma::Allocator        *basicAllocator = 0);
 
+    /// Destroy this object.
     //! ~MetricDescriptor() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

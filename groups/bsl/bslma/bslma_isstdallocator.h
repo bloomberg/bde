@@ -242,14 +242,19 @@ struct IsStdAllocator_Imp<
 
 #else // if ! defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
 
+/// This C++03 primary template metafunction is derived from `false_type`.
+/// It is selected when the specified template paramter `TYPE` does not
+/// declare itself to be an allocator, i.e., when
+/// `bslmf::DetectNestedTrait<TYPE, IsStdAllocator>::value` is `false`.
 template <class TYPE, class SIZE_T, class>
 struct IsStdAllocator_Imp : bsl::false_type {
-    // This C++03 primary template metafunction is derived from 'false_type'.
-    // It is selected when the specified template paramter 'TYPE' does not
-    // declare itself to be an allocator, i.e., when
-    // 'bslmf::DetectNestedTrait<TYPE, IsStdAllocator>::value' is 'false'.
 };
 
+/// This C++03 specialization is derived from `true_type`.  It is selected
+/// when the specified template parameter `TYPE` is a class that declares
+/// the nested `IsStdAllocator` trait.  This specialization contains
+/// compile-time correctness checks to ensure that `TYPE` really does have
+/// `value_type` and `allocator()` members.
 template <class TYPE, class SIZE_T>
 struct IsStdAllocator_Imp<
                TYPE,
@@ -258,11 +263,6 @@ struct IsStdAllocator_Imp<
                    bslmf::DetectNestedTrait<TYPE, IsStdAllocator>::value>::type
     >
     : bsl::true_type {
-    // This C++03 specialization is derived from 'true_type'.  It is selected
-    // when the specified template parameter 'TYPE' is a class that declares
-    // the nested 'IsStdAllocator' trait.  This specialization contains
-    // compile-time correctness checks to ensure that 'TYPE' really does have
-    // 'value_type' and 'allocator()' members.
 
   private:
     // TYPES

@@ -203,6 +203,9 @@ struct IsTriviallyDefaultConstructible_Imp
       ::std::is_trivially_default_constructible<t_TYPE>::value>::type {
 };
 #else
+/// This `struct` template implements a meta-function to determine whether
+/// the (non-cv-qualified) (template parameter) `t_TYPE` is trivially
+/// default-constructible.
 template <class t_TYPE>
 struct IsTriviallyDefaultConstructible_Imp
 : IsTriviallyDefaultConstructible_DetectTrait<
@@ -211,16 +214,13 @@ struct IsTriviallyDefaultConstructible_Imp
       bsl::is_enum<t_TYPE>::value ||
       bsl::is_pointer<t_TYPE>::value ||
       bsl::is_member_pointer<t_TYPE>::value>::type {
-    // This 'struct' template implements a meta-function to determine whether
-    // the (non-cv-qualified) (template parameter) 't_TYPE' is trivially
-    // default-constructible.
 };
 
 
+/// This explicit specialization reports that `void` is not a trivially
+/// default constructible type, despite being a fundamental type.
 template <>
 struct IsTriviallyDefaultConstructible_Imp<void> : bsl::false_type {
-    // This explicit specialization reports that 'void' is not a trivially
-    // default constructible type, despite being a fundamental type.
 };
 #endif
 

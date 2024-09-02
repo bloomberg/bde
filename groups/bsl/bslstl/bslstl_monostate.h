@@ -44,6 +44,9 @@ struct monostate {
 
 // FREE OPERATORS
 
+/// Compare two `monostate` objects.  Since `monostate` only has one value,
+/// the result is `true` for the `==`, `<=`, and `>=` operators, and `false`
+/// for the `!=`, `<`, and `>` operators.
 BSLS_KEYWORD_CONSTEXPR bool operator==(monostate,
                                        monostate) BSLS_KEYWORD_NOEXCEPT;
 BSLS_KEYWORD_CONSTEXPR bool operator!=(monostate,
@@ -56,14 +59,11 @@ BSLS_KEYWORD_CONSTEXPR bool operator<=(monostate,
                                        monostate) BSLS_KEYWORD_NOEXCEPT;
 BSLS_KEYWORD_CONSTEXPR bool operator>=(monostate,
                                        monostate) BSLS_KEYWORD_NOEXCEPT;
-    // Compare two 'monostate' objects.  Since 'monostate' only has one value,
-    // the result is 'true' for the '==', '<=', and '>=' operators, and 'false'
-    // for the '!=', '<', and '>' operators.
 
+/// Pass a `monostate` to the specified `hashAlg`, where `hashAlg` is a
+/// hashing algorithm.
 template <class t_HASHALG>
 void hashAppend(t_HASHALG& hashAlg, const monostate&);
-    // Pass a 'monostate' to the specified 'hashAlg', where 'hashAlg' is a
-    // hashing algorithm.
 }  // close namespace bsl
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 

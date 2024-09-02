@@ -91,52 +91,52 @@ struct is_integral : bsl::integral_constant<bool,
 
 #else
 
+/// This `struct` template implements the `is_integral` meta-function
+/// defined in the C++11 standard [meta.unary.cat] to determine if the
+/// (template parameter) `t_TYPE` is an integral type.  This `struct`
+/// derives from `bsl::true_type` if the `t_TYPE` is an integral type, and
+/// `bsl::false_type` otherwise.
 template <class t_TYPE>
 struct is_integral : bsl::false_type {
-    // This 'struct' template implements the 'is_integral' meta-function
-    // defined in the C++11 standard [meta.unary.cat] to determine if the
-    // (template parameter) 't_TYPE' is an integral type.  This 'struct'
-    // derives from 'bsl::true_type' if the 't_TYPE' is an integral type, and
-    // 'bsl::false_type' otherwise.
 };
 
+/// This partial specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `const`-qualified delegates to the
+/// non-cv-qualified primary template.
 template <class t_TYPE>
 struct is_integral<const t_TYPE> : is_integral<t_TYPE>::type {
-    // This partial specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'const'-qualified delegates to the
-    // non-cv-qualified primary template.
 };
 
+/// This partial specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `volatile`-qualified delegates to the
+/// non-cv-qualified primary template.
 template <class t_TYPE>
 struct is_integral<volatile t_TYPE> : is_integral<t_TYPE>::type {
-    // This partial specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'volatile'-qualified delegates to the
-    // non-cv-qualified primary template.
 };
 
+/// This partial specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `const volatile`-qualified delegates to the
+/// non-cv-qualified primary template.
 template <class t_TYPE>
 struct is_integral<const volatile t_TYPE> : is_integral<t_TYPE>::type {
-    // This partial specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'const volatile'-qualified delegates to the
-    // non-cv-qualified primary template.
 };
 
+/// This explicit specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `bool`, derives from `bsl::true_type`.
 template <>
 struct is_integral<bool> : bsl::true_type {
-    // This explicit specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'bool', derives from 'bsl::true_type'.
 };
 
+/// This explicit specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `char`, derives from `bsl::true_type`.
 template <>
 struct is_integral<char> : bsl::true_type {
-    // This explicit specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'char', derives from 'bsl::true_type'.
 };
 
+/// This explicit specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `wchar_t`, derives from `bsl::true_type`.
 template <>
 struct is_integral<wchar_t> : bsl::true_type {
-    // This explicit specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'wchar_t', derives from 'bsl::true_type'.
 };
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
@@ -161,66 +161,66 @@ struct is_integral<char32_t> : bsl::true_type {
 };
 #endif // BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 
+/// This explicit specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `signed char`, derives from `bsl::true_type`.
 template <>
 struct is_integral<signed char> : bsl::true_type {
-    // This explicit specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'signed char', derives from 'bsl::true_type'.
 };
 
+/// This explicit specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `unsigned char`, derives from `bsl::true_type`.
 template <>
 struct is_integral<unsigned char> : bsl::true_type {
-    // This explicit specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'unsigned char', derives from 'bsl::true_type'.
 };
 
+/// This explicit specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `short`, derives from `bsl::true_type`.
 template <>
 struct is_integral<short int> : bsl::true_type {
-    // This explicit specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'short', derives from 'bsl::true_type'.
 };
 
+/// This explicit specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `unsigned short`, derives from `bsl::true_type`.
 template <>
 struct is_integral<unsigned short int> : bsl::true_type {
-    // This explicit specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'unsigned short', derives from 'bsl::true_type'.
 };
 
+/// This explicit specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `int`, derives from `bsl::true_type`.
 template <>
 struct is_integral<int> : bsl::true_type {
-    // This explicit specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'int', derives from 'bsl::true_type'.
 };
 
+/// This explicit specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `unsigned int`, derives from `bsl::true_type`.
 template <>
 struct is_integral<unsigned int> : bsl::true_type {
-    // This explicit specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'unsigned int', derives from 'bsl::true_type'.
 };
 
+/// This explicit specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `long int`, derives from `bsl::true_type`.
 template <>
 struct is_integral<long int> : bsl::true_type {
-    // This explicit specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'long int', derives from 'bsl::true_type'.
 };
 
+/// This explicit specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `unsigned long int`, derives from
+/// `bsl::true_type`.
 template <>
 struct is_integral<unsigned long int> : bsl::true_type {
-    // This explicit specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'unsigned long int', derives from
-    // 'bsl::true_type'.
 };
 
+/// This explicit specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `long long int`, derives from `bsl::true_type`.
 template <>
 struct is_integral<long long int> : bsl::true_type {
-    // This explicit specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'long long int', derives from 'bsl::true_type'.
 };
 
+/// This explicit specialization of `is_integral`, for when the (template
+/// parameter) `t_TYPE` is `unsigned long long int`, derives from
+/// `bsl::true_type`.
 template <>
 struct is_integral<unsigned long long int> : bsl::true_type {
-    // This explicit specialization of 'is_integral', for when the (template
-    // parameter) 't_TYPE' is 'unsigned long long int', derives from
-    // 'bsl::true_type'.
 };
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 

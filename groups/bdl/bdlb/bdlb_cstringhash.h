@@ -33,10 +33,10 @@ BSLS_IDENT("$Id: $")
 //
 // First, let us define our mapped type class:
 // ```
+// /// This class implements a value semantic type that represents
+// /// ownership of a security.
 // class Security
 // {
-//     // This class implements a value semantic type that represents
-//     // ownership of a security.
 //
 //     // DATA
 //     char         *d_name_p;      // Security name
@@ -44,32 +44,35 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `Security` object having the specified `name` and
+//     /// `sharesOwned`.
 //     Security(const char *name, unsigned int sharesOwned);
-//         // Create a 'Security' object having the specified 'name' and
-//         // 'sharesOwned'.
 //
+//     /// Create a `Security` object having the value of the specified
+//     /// `original` security.
 //     Security(const Security& original);
-//         // Create a 'Security' object having the value of the specified
-//         // 'original' security.
 //
+//     /// Destroy this security object.
 //     ~Security();
-//         // Destroy this security object.
 //
 //
 //     // ACCESSORS
+//
+//     /// Return the value of the `sharesOwned` attribute of this security
+//     /// object.
 //     unsigned int sharesOwned() const;
-//         // Return the value of the 'sharesOwned' attribute of this security
-//         // object.
 //
 //     // MANIPULATORS
-//     Security& operator=(Security other);
-//         // Assign to this security object the value of the specified
-//         // 'other' object, and return a reference providing modifiable
-//         // access to this object.
 //
+//     /// Assign to this security object the value of the specified
+//     /// `other` object, and return a reference providing modifiable
+//     /// access to this object.
+//     Security& operator=(Security other);
+//
+//     /// Efficiently exchange the value of this security with the value
+//     /// of the specified `other` security.
 //     void swap(Security& other);
-//         // Efficiently exchange the value of this security with the value
-//         // of the specified 'other' security.
 // };
 //
 // // CREATORS
@@ -199,23 +202,24 @@ struct CStringHash {
     BSLMF_NESTED_TRAIT_DECLARATION(CStringHash,
                                    bsl::is_trivially_default_constructible);
 
+    /// Create a `CStringHash` object.
     //! CStringHash() = default;
-        // Create a 'CStringHash' object.
 
+    /// Create a `CStringHash` object.  Note that as `CStringHash` is an
+    /// empty (stateless) type, this operation will have no observable
+    /// effect.
     //! CStringHash(const CStringHash& original) = default;
-        // Create a 'CStringHash' object.  Note that as 'CStringHash' is an
-        // empty (stateless) type, this operation will have no observable
-        // effect.
 
+    /// Destroy this object.
     //! ~CStringHash() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// a return a reference providing modifiable access to this object.
+    /// Note that as `CStringHash` is an empty (stateless) type, this
+    /// operation will have no observable effect.
     //! CStringHash& operator=(const CStringHash& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // a return a reference providing modifiable access to this object.
-        // Note that as 'CStringHash' is an empty (stateless) type, this
-        // operation will have no observable effect.
 
     // ACCESSORS
 

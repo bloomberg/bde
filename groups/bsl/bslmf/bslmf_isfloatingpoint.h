@@ -95,55 +95,55 @@ struct is_floating_point : bsl::integral_constant<
 
 #else
 
+/// This `struct` template implements the `is_floating_point` meta-function
+/// defined in the C++11 standard [meta.unary.cat] to determine if the
+/// (template parameter) `t_TYPE` is a floating-point type.  This `struct`
+/// derives from `bsl::true_type` if the `t_TYPE` is a floating-point type,
+/// and `bsl::false_type` otherwise.
 template <class t_TYPE>
 struct is_floating_point : bsl::false_type {
-    // This 'struct' template implements the 'is_floating_point' meta-function
-    // defined in the C++11 standard [meta.unary.cat] to determine if the
-    // (template parameter) 't_TYPE' is a floating-point type.  This 'struct'
-    // derives from 'bsl::true_type' if the 't_TYPE' is a floating-point type,
-    // and 'bsl::false_type' otherwise.
 };
 
+/// This explicit specialization of `is_floating_point`, for when the
+/// (template parameter) `t_TYPE` is `float`, derives from `bsl::true_type`.
 template <>
 struct is_floating_point<float> : bsl::true_type {
-    // This explicit specialization of 'is_floating_point', for when the
-    // (template parameter) 't_TYPE' is 'float', derives from 'bsl::true_type'.
 };
 
+/// This explicit specialization of `is_floating_point`, for when the
+/// (template parameter) `t_TYPE` is `double`, derives from
+/// `bsl::true_type`.
 template <>
 struct is_floating_point<double> : bsl::true_type {
-    // This explicit specialization of 'is_floating_point', for when the
-    // (template parameter) 't_TYPE' is 'double', derives from
-    // 'bsl::true_type'.
 };
 
+/// This explicit specialization of `is_floating_point`, for when the
+/// (template parameter) `t_TYPE` is `long double`, derives from
+/// `bsl::true_type`.
 template <>
 struct is_floating_point<long double> : bsl::true_type {
-    // This explicit specialization of 'is_floating_point', for when the
-    // (template parameter) 't_TYPE' is 'long double', derives from
-    // 'bsl::true_type'.
 };
 
+/// This partial specialization of `is_floating_point`, for when the
+/// (template parameter) `t_TYPE` is `const`-qualified delegates to the
+/// non-cv-qualified primary template.
 template <class t_TYPE>
 struct is_floating_point<const t_TYPE> : is_floating_point<t_TYPE>::type {
-    // This partial specialization of 'is_floating_point', for when the
-    // (template parameter) 't_TYPE' is 'const'-qualified delegates to the
-    // non-cv-qualified primary template.
 };
 
+/// This partial specialization of `is_floating_point`, for when the
+/// (template parameter) `t_TYPE` is `volatile`-qualified delegates to the
+/// non-cv-qualified primary template.
 template <class t_TYPE>
 struct is_floating_point<volatile t_TYPE> : is_floating_point<t_TYPE>::type {
-    // This partial specialization of 'is_floating_point', for when the
-    // (template parameter) 't_TYPE' is 'volatile'-qualified delegates to the
-    // non-cv-qualified primary template.
 };
 
+/// This partial specialization of `is_floating_point`, for when the
+/// (template parameter) `t_TYPE` is `const volatile`-qualified delegates to
+/// the non-cv-qualified primary template.
 template <class t_TYPE>
 struct is_floating_point<const volatile t_TYPE>
 : is_floating_point<t_TYPE>::type {
-    // This partial specialization of 'is_floating_point', for when the
-    // (template parameter) 't_TYPE' is 'const volatile'-qualified delegates to
-    // the non-cv-qualified primary template.
 };
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 

@@ -468,14 +468,14 @@ struct ProtocolTest_IsAbstract {
 
 #else
 
+/// This component-private, meta-function `struct` template provides a
+/// compile-time constant `value` class member with the value `true` if the
+/// supplied `T` type is an abstract class type, and provides a `value`
+/// class member with the value `false` otherwise.  This meta-function
+/// matches the behavior `std::is_abstract` would have if it were
+/// available on C++03 platforms.
 template <class T>
 struct ProtocolTest_IsAbstract {
-    // This component-private, meta-function 'struct' template provides a
-    // compile-time constant 'value' class member with the value 'true' if the
-    // supplied 'T' type is an abstract class type, and provides a 'value'
-    // class member with the value 'false' otherwise.  This meta-function
-    // matches the behavior 'std::is_abstract' would have if it were
-    // available on C++03 platforms.
 
     typedef char                    YesType;
     typedef struct { char a[2]; }   NoType;

@@ -285,10 +285,10 @@ class type_index {
     bool operator==(const type_index& other) const BSLS_KEYWORD_NOEXCEPT;
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    /// Return `true` if this and the specified `other` objects do not have
+    /// the same value, and `false` otherwise.  Two `type_index` objects do
+    /// not have the same value if they refer to different types.
     bool operator!=(const type_index& other) const BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if this and the specified 'other' objects do not have
-        // the same value, and 'false' otherwise.  Two 'type_index' objects do
-        // not have the same value if they refer to different types.
 #else
     /// Perform a three-way comparison with the specified `other` object;
     /// return the result of that comparison.

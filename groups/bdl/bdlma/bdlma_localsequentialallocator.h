@@ -202,11 +202,11 @@ class LocalSequentialAllocator : public BufferedSequentialAllocator {
     // alignment of 'd_buffer'.
     alignas(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT) char d_buffer[t_SIZE];
 #else
+    /// This anonymous union is `bsls::AlignedBuffer`, but typed out again
+    /// so that extra template instantiations are avoided.  The C++03
+    /// implementation uses a union data member to ensure the alignment of
+    /// `d_buffer`.
     union {
-        // This anonymous union is 'bsls::AlignedBuffer', but typed out again
-        // so that extra template instantiations are avoided.  The C++03
-        // implementation uses a union data member to ensure the alignment of
-        // 'd_buffer'.
         char          d_buffer[t_SIZE];
         AlignmentType d_align;
     };

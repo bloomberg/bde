@@ -36,9 +36,9 @@ BSLS_IDENT("$Id: $")
 // big-endian byte order ) or stored in-core as big-endian integers.  First, we
 // define the structure:
 // ```
+// /// This structure represents the header of the protocol.  All integer
+// /// values are stored in the network byte-order (i.e., big-endian).
 // struct ProtocolHeader {
-//     // This structure represents the header of the protocol.  All integer
-//     // values are stored in the network byte-order (i.e., big-endian).
 //
 //     bdlb::BigEndianUint16 d_protocolVersion;
 //     bdlb::BigEndianUint16 d_messageType;

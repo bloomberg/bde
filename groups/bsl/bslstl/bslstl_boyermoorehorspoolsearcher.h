@@ -1139,14 +1139,14 @@ namespace bsl {
                         // class boyer_moore_horspool_searcher
                         // ===================================
 
+/// This class template implements an STL-compliant searcher object that
+/// uses the Boyer, Moore, Horspool Algorithm.
 template <class RandomAccessIterator1,
           class Hash = hash<
                 typename iterator_traits<RandomAccessIterator1>::value_type>,
           class BinaryPredicate = equal_to<
                 typename iterator_traits<RandomAccessIterator1>::value_type> >
 class boyer_moore_horspool_searcher {
-    // This class template implements an STL-compliant searcher object that
-    // uses the Boyer, Moore, Horspool Algorithm.
 
   private:
     // DATA
@@ -1156,22 +1156,23 @@ class boyer_moore_horspool_searcher {
 
   public:
     // CREATORS
+
+    /// Create a `boyer_moore_horspool_searcher` object that can search for
+    /// the sequence of `value_type` values found in the specified range
+    /// `[pat_first, pat_last)`.  Generate meta-data and save for use by
+    /// `operator()`.  The complexity of this process is O(M) where M is
+    /// `pat_last - pat_first`.  Optionally specify `hf`, a hash functor,
+    /// that maps mis-matched values to the size of the next step in the
+    /// search -- as large as, `pat_Last - pat_First`.  Optionally specify
+    /// `pred`, an equality comparison functor for use with `hash` and for
+    /// use by `operator()`.  See {Requirements for `HASH` and `EQUAL`}.
+    /// The behavior is undefined unless `pat_First` can be advanced to
+    /// `pat_Last`.
     boyer_moore_horspool_searcher(RandomAccessIterator1 pat_first,
                                   RandomAccessIterator1 pat_last,
                                   Hash                  hf   = Hash(),
                                   BinaryPredicate       pred =
                                                             BinaryPredicate());
-        // Create a 'boyer_moore_horspool_searcher' object that can search for
-        // the sequence of 'value_type' values found in the specified range
-        // '[pat_first, pat_last)'.  Generate meta-data and save for use by
-        // 'operator()'.  The complexity of this process is O(M) where M is
-        // 'pat_last - pat_first'.  Optionally specify 'hf', a hash functor,
-        // that maps mis-matched values to the size of the next step in the
-        // search -- as large as, 'pat_Last - pat_First'.  Optionally specify
-        // 'pred', an equality comparison functor for use with 'hash' and for
-        // use by 'operator()'.  See {Requirements for 'HASH' and 'EQUAL'}.
-        // The behavior is undefined unless 'pat_First' can be advanced to
-        // 'pat_Last'.
 
     //! boyer_moore_horspool_searcher(
     //!                          const boyer_moore_horspool_searcher& original)
@@ -1204,22 +1205,23 @@ class boyer_moore_horspool_searcher {
         // in an unspecified (valid) state.
 
     // ACCESSORS
+
+    /// Search the specified range `[first, last)` for the first sequence of
+    /// the `value_type` values specified on construction.  Return the range
+    /// where those values are found, or the range `[last, last)` if that
+    /// sequence is not found.  The search is performed using an
+    /// implementation of the Boyer Moore Horspool algorithm and has a
+    /// complexity of O(N) for random text.  The behavior is undefined
+    /// unless `first` can be advanced to `last` and the iterators used to
+    /// construct this object are still valid.  Note that if the sought
+    /// sequence is empty, the range `[first, first)` is returned.  Also
+    /// note that if the sought sequence is longer than the searched
+    /// sequence -- thus, the sought sequence cannot be found -- the range
+    /// `[last, last)` is returned.
     template <class RandomAccessIterator2>
     pair<RandomAccessIterator2,
          RandomAccessIterator2> operator()(RandomAccessIterator2 first,
                                            RandomAccessIterator2 last) const;
-        // Search the specified range '[first, last)' for the first sequence of
-        // the 'value_type' values specified on construction.  Return the range
-        // where those values are found, or the range '[last, last)' if that
-        // sequence is not found.  The search is performed using an
-        // implementation of the Boyer Moore Horspool algorithm and has a
-        // complexity of O(N) for random text.  The behavior is undefined
-        // unless 'first' can be advanced to 'last' and the iterators used to
-        // construct this object are still valid.  Note that if the sought
-        // sequence is empty, the range '[first, first)' is returned.  Also
-        // note that if the sought sequence is longer than the searched
-        // sequence -- thus, the sought sequence cannot be found -- the range
-        // '[last, last)' is returned.
 };
 
 }  // close namespace bsl
