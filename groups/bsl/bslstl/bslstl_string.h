@@ -4043,8 +4043,16 @@ template <class CHAR_TYPE, class SIZE_TYPE>
 inline
 bool String_Imp<CHAR_TYPE, SIZE_TYPE>::isShortString() const
 {
+    // suppress buggy warning in GCC 12 and later {DRQS 176453450}
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     return d_capacity == this->SHORT_BUFFER_CAPACITY;
-                                           // See {DRQS 131792157} for 'this'.
+                                           // See {DRQS 131792157} for `this`.
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic pop
+#endif
 }
 
 template <class CHAR_TYPE, class SIZE_TYPE>
