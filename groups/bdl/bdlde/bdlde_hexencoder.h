@@ -163,11 +163,11 @@ BSLS_IDENT("$Id: $")
 // success and a negative value if the input data could not be successfully
 // encoded or if there is an I/O  error.
 // ```
+// /// Read the entire contents of the specified input stream `is`, convert
+// /// the input plain text to hex representation, and write the encoded
+// /// text to the specified output stream `os`.  Return 0 on success, and
+// /// a negative value otherwise.
 // int streamEncoder(bsl::ostream& os, bsl::istream& is)
-//     // Read the entire contents of the specified input stream 'is', convert
-//     // the input plain text to hex representation, and write the encoded
-//     // text to the specified output stream 'os'.  Return 0 on success, and
-//     // a negative value otherwise.
 // {
 //     enum {
 //         SUCCESS      =  0,
@@ -301,9 +301,9 @@ namespace bdlde {
 class HexEncoder {
 
     // PRIVATE TYPES
-    enum States {
-        // Symbolic state values for the encoder
 
+    /// Symbolic state values for the encoder
+    enum States {
         e_ERROR_STATE   = -1,  // input is irreparably invalid
         e_INPUT_STATE   =  0,  // general input state
         e_DONE_STATE    =  1   // any additional input is error
@@ -334,8 +334,8 @@ class HexEncoder {
     /// as uppercase letters(`A`-`F`) or as lowercase letters(`a`-`f`).
     explicit HexEncoder(bool upperCaseLetters = true);
 
-    // ~HexEncoder() = default;
-        // Destroy this object.
+    /// Destroy this object.
+    //! ~HexEncoder() = default;
 
     // MANIPULATORS
 

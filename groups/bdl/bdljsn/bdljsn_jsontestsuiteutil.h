@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdljsn::JsonTestSuiteUtil: data/types representing the JSON Test Suite
 //
-//@SEE_ALSO: `bdljsn_jsonutil`
+//@SEE_ALSO: bdljsn_jsonutil
 //
 //@DESCRIPTION: This component provides a utility `struct`,
 // `bdljsn::JsonTestSuiteUtil`, that encapsulates the JSON Test Suite found at:

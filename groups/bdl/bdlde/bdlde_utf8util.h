@@ -271,14 +271,14 @@ BSLS_IDENT("$Id: $")
 // how long the input will be, so we don't know how long to make the string
 // before we start.  We will grow the string in small, 32-byte increments.
 // ```
+// /// Read valid UTF-8 from the specified streambuf `sb` to the specified
+// /// `output`.  Return 0 if the input was exhausted without encountering
+// /// any invalid UTF-8, and a non-zero value otherwise.  If invalid UTF-8
+// /// is encountered, log a message describing the problem after loading
+// /// all the valid UTF-8 preceding it into `output`.  Note that after the
+// /// call, in no case will `output` contain any invalid UTF-8.
 // int utf8StreambufToString(bsl::string    *output,
 //                           bsl::streambuf *sb)
-//     // Read valid UTF-8 from the specified streambuf 'sb' to the specified
-//     // 'output'.  Return 0 if the input was exhausted without encountering
-//     // any invalid UTF-8, and a non-zero value otherwise.  If invalid UTF-8
-//     // is encountered, log a message describing the problem after loading
-//     // all the valid UTF-8 preceding it into 'output'.  Note that after the
-//     // call, in no case will 'output' contain any invalid UTF-8.
 // {
 //     enum { k_READ_LENGTH = 32 };
 //
@@ -297,8 +297,8 @@ BSLS_IDENT("$Id: $")
 //         output->resize(len + numBytes);
 //         if (0 < status) {
 //             // Buffer was full before the end of input was encountered.
-//             // Note that 'numBytes' may be up to 3 bytes less than
-//             // 'k_READ_LENGTH'.
+//             // Note that `numBytes` may be up to 3 bytes less than
+//             // `k_READ_LENGTH`.
 //
 //             BSLS_ASSERT(k_READ_LENGTH - 4 < numBytes);
 //
@@ -313,8 +313,8 @@ BSLS_IDENT("$Id: $")
 //             return 0;                                             // RETURN
 //         }
 //         else {
-//             // Invalid UTF-8 encountered; the value of 'status' indicates
-//             // the exact nature of the problem.  'numBytes' returned from
+//             // Invalid UTF-8 encountered; the value of `status` indicates
+//             // the exact nature of the problem.  `numBytes` returned from
 //             // the above call indicated the number of valid UTF-8 bytes
 //             // read before encountering the invalid UTF-8.
 //
@@ -340,7 +340,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
 
-#include <string>            // 'std::string', 'std::pmr::string'
+#include <string>
 
 namespace BloombergLP {
 
@@ -362,13 +362,13 @@ struct Utf8Util {
     typedef bsls::Types::IntPtr    IntPtr;
     typedef bsls::Types::Uint64    Uint64;
 
+    /// Enumerate the error status values that are returned (possibly
+    /// through an out parameter) from some methods in this utility.  Note
+    /// that some of the functions in this `struct` have a return value
+    /// that is non-negative on success, and one of these values when an
+    /// error occurs, so all of these values must be negative to distinguish
+    /// them from a "success" value.
     enum ErrorStatus {
-        // Enumerate the error status values that are returned (possibly
-        // through an out parameter) from some methods in this utility.  Note
-        // that some of the functions in this 'struct' have a return value
-        // that is non-negative on success, and one of these values when an
-        // error occurs, so all of these values must be negative to distinguish
-        // them from a "success" value.
 
         k_END_OF_INPUT_TRUNCATION       = -1,
            // The end of input was reached partway through a multibyte UTF-8
@@ -521,6 +521,9 @@ struct Utf8Util {
     static int appendUtf8Character(bsl::string  *output,
                                    unsigned int  codePoint);
 
+    /// Append the UTF-8 encoding of the specified Unicode `codePoint` to
+    /// the specified `output` string.  Return 0 on success, and a non-zero
+    /// value otherwise.
     static int appendUtf8CodePoint(bsl::string  *output,
                                    unsigned int  codePoint);
     static int appendUtf8CodePoint(std::string  *output,
@@ -529,9 +532,6 @@ struct Utf8Util {
     static int appendUtf8CodePoint(std::pmr::string  *output,
                                    unsigned int       codePoint);
 #endif
-        // Append the UTF-8 encoding of the specified Unicode 'codePoint' to
-        // the specified 'output' string.  Return 0 on success, and a non-zero
-        // value otherwise.
 
     /// Return the numeric value of the UTF-8-encoded code point beginning
     /// at the specified `codePoint`.  The behavior is undefined unless

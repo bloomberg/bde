@@ -198,11 +198,11 @@ BSLS_IDENT("$Id: $")
 // ```
 // streamencoder.h                    -*-C++-*-
 //
+// /// Read the entire contents of the specified input stream 'is', convert
+// /// the input plain text to base 64 encoding, and write the encoded text
+// /// to the specified output stream 'os'.  Return 0 on success, and a
+// /// negative value otherwise.
 // int streamEncoder(bsl::ostream& os, bsl::istream& is);
-//     // Read the entire contents of the specified input stream 'is', convert
-//     // the input plain text to base 64 encoding, and write the encoded text
-//     // to the specified output stream 'os'.  Return 0 on success, and a
-//     // negative value otherwise.
 // ```
 // We will use fixed-sized input and output buffers in the implementation, but,
 // because of the flexibility of `bsl::istream` and the output-buffer

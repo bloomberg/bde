@@ -124,9 +124,9 @@ namespace bdlde {
 class QuotedPrintableDecoder {
 
     // PRIVATE TYPES
-    enum {
-        // Symbolic state values.
 
+    /// Symbolic state values.
+    enum {
         e_ERROR_STATE        = -1, // input is irreparably invalid
         e_INPUT_STATE        =  0, // general input state
         e_SAW_EQUAL_STATE    =  1, // need two hexadecimal values or CR LF
@@ -242,7 +242,7 @@ class QuotedPrintableDecoder {
     int  d_bufferLength;  // TBD doc
     char d_hexBuffer;     // TBD doc
     int  d_outputLength;  // Total number of output characters
-    char *d_equivClass_p; // Map of 'unsigned char' to input equivalence class;
+    char *d_equivClass_p; // Map of `unsigned char` to input equivalence class;
                           // dynamically allocated because there is no default
                           // complete configuration.
 

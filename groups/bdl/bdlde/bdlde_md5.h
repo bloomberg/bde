@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::Md5: value-semantic type representing an MD5 digest
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bdlde_crc32
 //
 //@DESCRIPTION: This component implements a mechanism for computing, updating,
 // and streaming an MD5 digest (a hash comprising 128 bits).  One possible
@@ -65,20 +65,20 @@ BSLS_IDENT("$Id: $")
 // to a `bdex` output stream.  Note that `Out` may be a `typedef` of any class
 // that implements the `bslx::OutStream` protocol:
 // ```
+// /// Write a message and its MD5 digest to the specified `output`
+// /// stream.
 // void senderExample(Out& output)
-//     // Write a message and its MD5 digest to the specified 'output'
-//     // stream.
 // {
 //     // Prepare a message.
 //     bsl::string message = "This is a test message.";
 //
-//     // Generate a digest for 'message'.
+//     // Generate a digest for `message`.
 //     bdlde::Md5 digest(message.data(), static_cast<int>(message.length()));
 //
-//     // Write the message to 'output'.
+//     // Write the message to `output`.
 //     output << message;
 //
-//     // Write the digest to 'output'.
+//     // Write the digest to `output`.
 //     const int VERSION = 1;
 //     digest.bdexStreamOut(output, VERSION);
 // }
@@ -89,20 +89,20 @@ BSLS_IDENT("$Id: $")
 // that `In` may be a `typedef` of any class that implements the
 // `bslx::InStream` protocol:
 // ```
+// /// Read a message and its MD5 digest from the specified `input` stream,
+// /// and verify the integrity of the message.
 // void receiverExample(In& input)
-//     // Read a message and its MD5 digest from the specified 'input' stream,
-//     // and verify the integrity of the message.
 // {
-//     // Read the message from 'input'.
+//     // Read the message from `input`.
 //     bsl::string message;
 //     input >> message;
 //
-//     // Read the digest from 'input'.
+//     // Read the digest from `input`.
 //     bdlde::Md5 digest;
 //     const int VERSION = 1;
 //     digest.bdexStreamIn(input, VERSION);
 //
-//     // Locally compute the digest of the received 'message'.
+//     // Locally compute the digest of the received `message`.
 //     bdlde::Md5 digestLocal;
 //     digestLocal.update(message.data(), static_cast<int>(message.length()));
 //
@@ -160,7 +160,7 @@ class Md5 {
 
     unsigned char      d_buffer[64];  // buffer for storing remaining part of
                                       // message that is not yet incorporated
-                                      // into 'd_state'
+                                      // into `d_state`
 
     // FRIENDS
     friend bool operator==(const Md5&, const Md5&);
@@ -202,12 +202,12 @@ class Md5 {
     ~Md5();
 
     // MANIPULATORS
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+    /// Assign to this MD5 digest the value of the specified `rhs` MD5
+    /// digest and return a reference to this modifiable MD5 digest.
     Md5& operator=(const Md5& rhs) = default;
 #endif
-        // Assign to this MD5 digest the value of the specified 'rhs' MD5
-        // digest and return a reference to this modifiable MD5 digest.  Note
-        // that this method's definition is compiler generated.
 
     /// Assign to this object the value read from the specified input
     /// `stream` using the specified `version` format and return a reference
@@ -277,8 +277,7 @@ class Md5 {
 
 /// Return `true` if the specified `lhs` and `rhs` MD5 digests have the same
 /// value, and `false` otherwise.  Two digests have the same value if the
-/// values obtained from their respective `loadDigest` methods are
-/// identical.
+/// values obtained from their respective `loadDigest` methods are identical.
 bool operator==(const Md5& lhs, const Md5& rhs);
 
 /// Return `true` if the specified `lhs` and `rhs` MD5 digests do not have

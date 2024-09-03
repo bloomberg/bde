@@ -11,9 +11,8 @@ BSLS_IDENT_PRAGMA_ONCE
 //@CLASSES:
 //  bdlde::Base64EncoderOptions: options for encoder
 //
-//@SEE_ALSO: bdlde_base64encorderoptions, bdlde_base64decorderoptions,
-//           bdlde_base64encoder,         bdlde_base64decoder
-//           bdlde_base64alphabet
+//@SEE_ALSO: bdlde_base64decoderoptions, bdlde_base64encoder,
+//           bdlde_base64decoder, bdlde_base64alphabet
 //
 //@DESCRIPTION: This component provides a value-semantic attribute class for
 // specifying options for `bdlde::Base64Encoder`.

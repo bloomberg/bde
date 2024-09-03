@@ -185,11 +185,11 @@ BSLS_IDENT("$Id: $")
 // ```
 // streamconverter.h                    -*-C++-*-
 //
+// /// Read the entire contents of the specified input stream `is`, convert
+// /// the input plain text to quoted-printable encoding, and write the
+// /// encoded text to the specified output stream `os`.  Return 0 on
+// /// success, and a negative value otherwise.
 // int streamconverter(bsl::ostream& os, bsl::istream& is);
-//     // Read the entire contents of the specified input stream 'is', convert
-//     // the input plain text to quoted-printable encoding, and write the
-//     // encoded text to the specified output stream 'os'.  Return 0 on
-//     // success, and a negative value otherwise.
 // ```
 // We will use fixed-sized input and output buffers in the implementation, but,
 // because of the flexibility of `bsl::istream` and the output-buffer
@@ -433,9 +433,9 @@ namespace bdlde {
 class QuotedPrintableEncoder {
 
     // PRIVATE TYPES
-    enum States {
-        // symbolic state values for the encoder
 
+    /// Symbolic state values for the encoder
+    enum States {
         e_ERROR_STATE   = -1,  // input is irreparably invalid
         e_INITIAL_STATE =  0,  // require no more input
         e_INPUT_STATE   =  1,  // general input state
@@ -448,21 +448,14 @@ class QuotedPrintableEncoder {
 
   public:
     // PUBLIC TYPES
-    enum EquivalenceClass {
-        // The input equivalence classes
 
+    /// The input equivalence classes
+    enum EquivalenceClass {
         e_PC = 0,  // printable character - copy straight to output
         e_CR,      // carriage return     - wait for more input
         e_LF,      // line feed           - complete linebreak
         e_WS,      // whitespace          - buffer; wait for more input
         e_CC       // control character   - encode to Quoted Printable
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BDEDE_PC = e_PC
-      , BDEDE_CR = e_CR
-      , BDEDE_LF = e_LF
-      , BDEDE_WS = e_WS
-      , BDEDE_CC = e_CC
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum LineBreakMode {
@@ -475,17 +468,12 @@ class QuotedPrintableEncoder {
 
         e_MIXED_MODE,     // allow "\r\n" and '\n' as linebreaks
         e_BINARY_MODE     // allow no linebreaks
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BDEDE_CRLF_MODE = e_CRLF_MODE
-      , BDEDE_LF_MODE = e_LF_MODE
-      , BDEDE_MIXED_MODE = e_MIXED_MODE
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
     // CLASS DATA
     static const char  *s_defaultEquivClass_p;      // default map of
-                                                    // 'unsigned char' to
+                                                    // `unsigned char` to
                                                     // equivalent class
 
     static const char  *s_lineBreakModeName[];      // names of line break mode
@@ -500,7 +488,7 @@ class QuotedPrintableEncoder {
     int               d_lineLength;     // number of characters on the current
                                         //line
 
-    char             *d_equivClass_p;   // map of 'unsigned char' to input
+    char             *d_equivClass_p;   // map of `unsigned char` to input
                                         // equivalence class; dynamically
                                         // allocated if the default map is to
                                         // be modified; otherwise it is
@@ -577,9 +565,9 @@ class QuotedPrintableEncoder {
     /// 2045 maximum 76).  Optionally specify a `basicAllocator` used to
     /// supply memory.  If `basicAllocator` is 0, the currently installed
     /// default allocator is used.  The behavior is undefined unless
-    /// `4 <= maxLineLength <= 76`.  Note that BDEDE_CRLF_MODE passes "\r\n"
-    /// straight to output and converts '\n'; BDEDE_LF_MODE passes '\n' and
-    /// converts '\r'; BDEDE_MIXED_MODE passes both "\r\n" and '\n'.
+    /// `4 <= maxLineLength <= 76`.  Note that e_CRLF_MODE passes "\r\n"
+    /// straight to output and converts '\n'; e_LF_MODE passes '\n' and
+    /// converts '\r'; e_MIXED_MODE passes both "\r\n" and '\n'.
     explicit
     QuotedPrintableEncoder(
                        LineBreakMode     lineBreakMode = e_CRLF_MODE,
@@ -597,9 +585,9 @@ class QuotedPrintableEncoder {
     /// Optionally specify a `basicAllocator` used to supply memory.  If
     /// `basicAllocator` is 0, the currently installed default allocator is
     /// used.  The behavior is undefined unless `4 <= `maxLineLength <= 76'.
-    /// Note that BDEDE_CRLF_MODE passes "\r\n" straight to output and
-    /// converts '\n'; BDEDE_LF_MODE passes '\n' and converts '\r';
-    /// BDEDE_MIXED_MODE passes both "\r\n" and '\n'.
+    /// Note that e_CRLF_MODE passes "\r\n" straight to output and converts
+    /// '\n'; e_LF_MODE passes '\n' and converts '\r'; e_MIXED_MODE passes
+    /// both "\r\n" and '\n'.
     explicit
     QuotedPrintableEncoder(
                        const char       *extraCharsToEncode,

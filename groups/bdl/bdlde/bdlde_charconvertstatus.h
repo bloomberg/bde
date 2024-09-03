@@ -92,12 +92,6 @@ struct CharConvertStatus {
         k_OUT_OF_SPACE_BIT  = 0x2       // The space provided for the output
                                         // was insufficient for the
                                         // translation.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BDEDE_INVALID_CHARS_BIT = k_INVALID_INPUT_BIT
-      , BDEDE_OUT_OF_SPACE_BIT  = k_OUT_OF_SPACE_BIT
-      , k_INVALID_CHARS_BIT     = k_INVALID_INPUT_BIT
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   public:

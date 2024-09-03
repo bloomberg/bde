@@ -59,12 +59,12 @@ BSLS_IDENT("$Id$ $CSID$")
 // validate passwords against previously computed SHA-1 hashes, and only during
 // a transition period to a more secure password hashing function.
 // ```
+// /// Return `true` if the specified `password` concatenated with the
+// /// specified `salt` has a SHA-1 hash equal to the specified `expected`,
+// /// and `false` otherwise.
 // bool validatePassword(const bsl::string_view&  password,
 //                       const bsl::string_view&  salt,
 //                       const unsigned char     *expected)
-//     // Return 'true' if the specified 'password' concatenated with the
-//     // specified 'salt' has a SHA-1 hash equal to the specified 'expected',
-//     // and 'false' otherwise.
 // {
 //     bdlde::Sha1 hasher;
 //     hasher.update(password.data(), password.length());
@@ -75,10 +75,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //     return bsl::equal(bsl::begin(digest), bsl::end(digest), expected);
 // }
 //
+// /// Asserts that the constant string `pass` salted with `word` has the
+// /// expected hash value.  In a real application, the expected hash would
+// /// likely come from some sort of database.
 // void assertPasswordIsExpected()
-//     // Asserts that the constant string 'pass' salted with 'word' has the
-//     // expected hash value.  In a real application, the expected hash would
-//     // likely come from some sort of database.
 // {
 //     const bsl::string   password = "pass";
 //     const bsl::string   salt     = "word";

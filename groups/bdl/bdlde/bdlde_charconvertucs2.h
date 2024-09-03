@@ -409,7 +409,6 @@ struct CharConvertUcs2 {
 };
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

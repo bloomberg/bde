@@ -38,12 +38,12 @@ BSLS_IDENT("$Id$ $CSID$")
 // displayed for human consumption, they are typically converted to hex, but
 // that would create unnecessary overhead here.
 // ```
+// /// Return `true` if the specified `password` concatenated with the
+// /// specified `salt` has a SHA-512 hash equal to the specified
+// /// `expected`, and `false` otherwise.
 // bool validatePassword(const bsl::string&   password,
 //                       const bsl::string&   salt,
 //                       const unsigned char *expected)
-//     // Return 'true' if the specified 'password' concatenated with the
-//     // specified 'salt' has a SHA-512 hash equal to the specified
-//     // 'expected', and 'false' otherwise.
 // {
 //     bdlde::Sha512 hasher;
 //     hasher.update(password.c_str(), password.length());
@@ -57,10 +57,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //                       expected);
 // }
 //
+// /// Asserts that the constant string `pass` salted with `word` has the
+// /// expected hash value.  In a real application, the expected hash would
+// /// likely come from some sort of database.
 // void assertPasswordIsExpected()
-//     // Asserts that the constant string 'pass' salted with 'word' has the
-//     // expected hash value.  In a real application, the expected hash would
-//     // likely come from some sort of database.
 // {
 //     const bsl::string   password = "pass";
 //     const bsl::string   salt     = "word";
@@ -108,11 +108,11 @@ class Sha224 {
     // DATA
     bsl::uint64_t d_totalSize;       // length of the entire message
 
-    bsl::uint64_t d_bufferSize;      // bytes currently used for 'd_buffer'
+    bsl::uint64_t d_bufferSize;      // bytes currently used for `d_buffer`
 
     unsigned char d_buffer[512 / 8]; // buffer for storing remaining part of
                                      // message that is not yet incorporated
-                                     // into 'd_state'
+                                     // into `d_state`
 
     bsl::uint32_t d_state[8];        // state array storing the digest
 
@@ -192,11 +192,11 @@ class Sha256 {
     // DATA
     bsl::uint64_t d_totalSize;       // length of the entire message
 
-    bsl::uint64_t d_bufferSize;      // bytes currently used for 'd_buffer'
+    bsl::uint64_t d_bufferSize;      // bytes currently used for `d_buffer`
 
     unsigned char d_buffer[512 / 8]; // buffer for storing remaining part of
                                      // message that is not yet incorporated
-                                     // into 'd_state'
+                                     // into `d_state`
 
     bsl::uint32_t d_state[8];        // state array storing the digest
 
@@ -276,11 +276,11 @@ class Sha384 {
     // DATA
     bsl::uint64_t d_totalSize;        // length of the entire message
 
-    bsl::uint64_t d_bufferSize;       // bytes currently used for 'd_buffer'
+    bsl::uint64_t d_bufferSize;       // bytes currently used for `d_buffer`
 
     unsigned char d_buffer[1024 / 8]; // buffer for storing remaining part of
                                       // message that is not yet incorporated
-                                      // into 'd_state'
+                                      // into `d_state`
 
     bsl::uint64_t d_state[8];         // state array storing the digest
 
@@ -360,11 +360,11 @@ class Sha512 {
     // DATA
     bsl::uint64_t d_totalSize;        // length of the entire message
 
-    bsl::uint64_t d_bufferSize;       // bytes currently used for 'd_buffer'
+    bsl::uint64_t d_bufferSize;       // bytes currently used for `d_buffer`
 
     unsigned char d_buffer[1024 / 8]; // buffer for storing remaining part of
                                       // message that is not yet incorporated
-                                      // into 'd_state'
+                                      // into `d_state`
 
     bsl::uint64_t d_state[8];         // state array storing the digest
 

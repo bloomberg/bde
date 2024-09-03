@@ -11,8 +11,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::Base64Alphabet: namespace for an alphabet `enum`
 //
-//@SEE_ALSO: bdlde_base64encorderoptions, bdlde_base64decorderoptions,
-//           bdlde_base64encoder,         bdlde_base64decoder
+//@SEE_ALSO: bdlde_base64encoderoptions, bdlde_base64decoderoptions,
+//           bdlde_base64encoder,        bdlde_base64decoder
 //
 //@DESCRIPTION: This component provides a namespace for the `enum` type
 // `bdlde::Base64Alphabet::Enum`, which enumerates the set of possible
@@ -20,12 +20,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Enumerators
 ///-----------
-// ```
-// Name              Description
-// ---------------   ---------------------------------------------------
-// e_BASIC           standard base64 alphabet
-// e_URL             URL-safe base64 alphabet
-// ```
+//
+// | Name            | Description |
+// | --------------- | ----------- |
+// | e_BASIC         |  standard base64 alphabet |
+// | e_URL           |  URL-safe base64 alphabet |
+//
 //
 ///Usage
 ///-----

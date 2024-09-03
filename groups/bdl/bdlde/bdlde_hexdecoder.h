@@ -159,11 +159,11 @@ BSLS_IDENT("$Id: $")
 // if the input data could not be successfully decoded or if there is an I/O
 // error.
 // ```
+// /// Read the entire contents of the specified input stream `is`, convert
+// /// the input hex encoding into plain text, and write the decoded text
+// /// to the specified output stream `os`.  Return 0 on success, and a
+// /// negative value otherwise.
 // int streamDecoder(bsl::ostream& os, bsl::istream& is)
-//     // Read the entire contents of the specified input stream 'is', convert
-//     // the input hex encoding into plain text, and write the decoded text
-//     // to the specified output stream 'os'.  Return 0 on success, and a
-//     // negative value otherwise.
 // {
 //     enum {
 //         SUCCESS      =  0,
@@ -275,9 +275,9 @@ namespace bdlde {
 class HexDecoder {
 
     // PRIVATE TYPES
-    enum States {
-        // Symbolic state values for the decoder.
 
+    /// Symbolic state values for the decoder.
+    enum States {
         e_ERROR_STATE        = -1, // input is irreparably invalid
         e_INPUT_STATE        =  0, // general input state
         e_DONE_STATE         =  1  // any additional input is an error
@@ -309,8 +309,8 @@ class HexDecoder {
     /// Create a Hex decoder in the initial state.
     HexDecoder();
 
-    // ~HexDecoder() = default;
-        // Destroy this object.
+    /// Destroy this object.
+    //! ~HexDecoder() = default;
 
     // MANIPULATORS
 

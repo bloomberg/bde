@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::Base64Decoder: automata performing Base64 decoding operations
 //
-//@SEE_ALSO: `bdlde_base64encoder`
+//@SEE_ALSO: bdlde_base64encoder
 //
 //@DESCRIPTION: This component a `class`, `bdlde::Base64Decoder`, which
 // provides a pair of template functions (each parameterized separately on both

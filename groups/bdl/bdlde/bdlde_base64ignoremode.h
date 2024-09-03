@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::Base64IgnoreMode: namespace for an ignore mode `enum`
 //
-//@SEE_ALSO: bdlde_base64decorderoptions, bdlde_base64decoder
+//@SEE_ALSO: bdlde_base64decoderoptions, bdlde_base64decoder
 //
 //@DESCRIPTION: This component provides a namespace for the `enum` type
 // `bdlde::Base64IgnoreMode::Enum`, which enumerates the set of possible ignore

@@ -141,7 +141,7 @@ BSLS_IDENT("$Id: $")
 // call the `disablePublishInLocalTime` method.  Whether UTC time or local time
 // is in effect can be queried via `isPublishInLocalTimeEnabled`.  However,
 // note that if the user installs a log record formatting functor via
-// `setLogFileFunctor`, then the supplied functor determines how record 
+// `setLogFileFunctor`, then the supplied functor determines how record
 // timestamps are rendered to the log.
 //
 ///Local Time Offset Calculations
