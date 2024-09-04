@@ -183,6 +183,9 @@ BSLS_IDENT("$Id: $")
 // 13. Added constructor in place of `init`
 // 14. Made function names lower case (had to change `Final` to `finalize` and
 //     `Short` to `shortHash` to avoid using a keyword)
+// 15. Reformatted comments
+// 16. Replaced some uses of 'inline' with the new
+//     `BSLH_SPOOKYHASHALGORITHMIMP_INLINE` macro, which forces inlining on GCC
 //
 ///Third-Party Documentation
 ///-------------------------
@@ -218,9 +221,18 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <stddef.h>    // 'size_t'
+
+/// See implementation notes for the explanation of this macro.
+#if defined(BSLS_PLATFORM_CMP_GNU)
+#define BSLH_SPOOKYHASHALGORITHMIMP_INLINE \
+    inline __attribute__((always_inline))
+#else
+#define BSLH_SPOOKYHASHALGORITHMIMP_INLINE inline
+#endif
 
 namespace BloombergLP {
 
@@ -439,7 +451,7 @@ SpookyHashAlgorithmImp::SpookyHashAlgorithmImp(Uint64 seed1, Uint64 seed2)
 }
 
 // PRIVATE CLASS METHODS
-inline
+BSLH_SPOOKYHASHALGORITHMIMP_INLINE
 void SpookyHashAlgorithmImp::end(
     const Uint64 *data,
     Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
@@ -455,7 +467,7 @@ void SpookyHashAlgorithmImp::end(
     endPartial(h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
 }
 
-inline
+BSLH_SPOOKYHASHALGORITHMIMP_INLINE
 void SpookyHashAlgorithmImp::endPartial(
     Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
     Uint64 &h4, Uint64 &h5, Uint64 &h6, Uint64 &h7,
@@ -475,7 +487,7 @@ void SpookyHashAlgorithmImp::endPartial(
     h10+= h0;    h1 ^= h10;   h0 = rot64(h0,54);
 }
 
-inline
+BSLH_SPOOKYHASHALGORITHMIMP_INLINE
 void SpookyHashAlgorithmImp::mix(
     const Uint64 *data,
     Uint64 &s0, Uint64 &s1, Uint64 &s2, Uint64 &s3,
@@ -497,13 +509,13 @@ void SpookyHashAlgorithmImp::mix(
     s11 += data[11]; s1  ^= s9;  s10 ^= s11; s11 = rot64(s11,46); s10 += s0;
 }
 
-inline
+BSLH_SPOOKYHASHALGORITHMIMP_INLINE
 SpookyHashAlgorithmImp::Uint64 SpookyHashAlgorithmImp::rot64(Uint64 x, int k)
 {
     return (x << k) | (x >> (64 - k));
 }
 
-inline
+BSLH_SPOOKYHASHALGORITHMIMP_INLINE
 void SpookyHashAlgorithmImp::shortEnd(Uint64 &h0,
                                       Uint64 &h1,
                                       Uint64 &h2,
@@ -522,7 +534,7 @@ void SpookyHashAlgorithmImp::shortEnd(Uint64 &h0,
     h1 ^= h0;  h0 = rot64(h0,63);  h1 += h0;
 }
 
-inline
+BSLH_SPOOKYHASHALGORITHMIMP_INLINE
 void SpookyHashAlgorithmImp::shortMix(Uint64 &h0,
                                       Uint64 &h1,
                                       Uint64 &h2,
@@ -546,6 +558,7 @@ void SpookyHashAlgorithmImp::shortMix(Uint64 &h0,
 
 }  // close enterprise namespace
 
+#undef BSLH_SPOOKYHASHALGORITHMIMP_INLINE
 #endif
 
 // ----------------------------------------------------------------------------

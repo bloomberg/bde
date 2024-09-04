@@ -10,25 +10,19 @@ BSLS_IDENT("$Id$ $CSID$")
 // continues until the BloombergLP copyright notice.  Changes made to the
 // original code include:
 //
-//: 1 Added 'BloombergLP' and 'bslh' namespaces
-//:
-//: 2 Renamed 'SpookyHash' to 'SpookyHashAlgorithmImp'
-//:
-//: 3 Changed formatting to match BDE conventions
-//:
-//: 4 Changed C-style casts to 'static_cast's to match BDE conventions
-//:
-//: 5 Made function names lower case (had to change 'Final' to 'finalize' and
-//:   'Short' to 'shortHash' to avoid using a keyword)
-//:
-//: 6 Renamed 'end' varibles to 'endPtr' to avoid name conflict with renamed
-//:   function member.
-//:
-//: 7 Included 'cstring' rather than 'memory'
-//:
-//: 8 Reordered variable declarations to allow benefit from early returns
-//:
-//: 9 Added '#ifdef' to prevent unaligned reads on Solaris
+// 1. Added `BloombergLP` and `bslh` namespaces
+// 2. Renamed `SpookyHash` to `SpookyHashAlgorithmImp`
+// 3. Changed formatting to match BDE conventions
+// 4. Changed C-style casts to `static_cast`s to match BDE conventions
+// 5. Made function names lower case (had to change `Final` to `finalize` and
+//    `Short` to `shortHash` to avoid using a keyword)
+// 6. Renamed `end` varibles to `endPtr` to avoid name conflict with renamed
+//    function member.
+// 7. Included `cstring` rather than `memory`
+// 8. Reordered variable declarations to allow benefit from early returns
+// 9. Added `#ifdef` to prevent unaligned reads on Solaris
+// 10. Reformatted comments, removed support for unaligned reads, eliminated
+//     calls to `memcpy` with zero length, and added implementation note
 //
 ///Third Party Doc
 ///---------------
@@ -45,17 +39,22 @@ BSLS_IDENT("$Id$ $CSID$")
 //   July 30 2012: I reintroduced the buffer overflow
 //   August 5 2012: SpookyV2: d = should be d += in short hash, and remove
 //   extra mix from long hash
+//
+///Implementation Notes
+///--------------------
+// This component used to use unaligned reads on x86 platforms.  Because
+// unaligned reads are always undefined behavior according to the C++ standard,
+// the implementation was changed to never use unaligned reads; thus, unaligned
+// buffers must be `memcpy`ed into an aligned buffer before the main hash
+// computation begins.  Experiments showed that disabling unaligned reads
+// impacted performance on GCC only, but the losses are recovered by forcing
+// some functions defined in the header to be inlined (presumably because the
+// `memcpy` can then be optimized away).
 
 #include <bsls_annotation.h>
 #include <bsls_platform.h>
 
-#include <string.h> // for 'memcpy' and 'memset'
-
-#if defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86)
-#define ALLOW_UNALIGNED_READS 1
-#else
-#define ALLOW_UNALIGNED_READS 0
-#endif
+#include <string.h>  // for `memcpy` and `memset`
 
 namespace BloombergLP {
 
@@ -93,13 +92,13 @@ void SpookyHashAlgorithmImp::finalize(Uint64 *hash1, Uint64 *hash2)
 
     if (remainder >= k_BLOCK_SIZE)
     {
-        // 'm_data' can contain two blocks; handle any whole first block.
+        // `m_data` can contain two blocks; handle any whole first block.
         mix(data, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
         data      += k_NUM_VARS;
         remainder = static_cast<Uint8>(remainder - k_BLOCK_SIZE);
     }
 
-    // Mix in the last partial block as well as the length mod 'k_BLOCK_SIZE'.
+    // Mix in the last partial block as well as the length mod `k_BLOCK_SIZE`.
     memset(&(reinterpret_cast<Uint8 *>(data))[remainder], 0,
                                                    (k_BLOCK_SIZE - remainder));
 
@@ -146,8 +145,8 @@ void SpookyHashAlgorithmImp::hash128(
     u.p8 = static_cast<const Uint8 *>(message);
     endPtr = u.p64 + (length/k_BLOCK_SIZE)*k_NUM_VARS;
 
-    // Handle all whole 'k_BLOCK_SIZE' blocks of bytes.
-    if (ALLOW_UNALIGNED_READS || ((u.i & 0x7) == 0))
+    // Handle all whole `k_BLOCK_SIZE` blocks of bytes.
+    if ((u.i & 0x7) == 0)
     {
         while (u.p64 < endPtr)
         {
@@ -165,7 +164,7 @@ void SpookyHashAlgorithmImp::hash128(
         }
     }
 
-    // Handle the last partial block of k_BLOCK_SIZE bytes.
+    // Handle the last partial block of `k_BLOCK_SIZE` bytes.
     remainder = (length - (reinterpret_cast<const Uint8 *>(endPtr) -
                            static_cast<const Uint8 *>(message)));
     memcpy(buf, endPtr, remainder);
@@ -203,7 +202,7 @@ void SpookyHashAlgorithmImp::shortHash(
 
     u.p8 = static_cast<const Uint8 *>(message);
 
-    if (!ALLOW_UNALIGNED_READS && (u.i & 0x7))
+    if (0 < length && (u.i & 0x7))
     {
         memcpy(buf, message, length);
         u.p64 = buf;
@@ -301,7 +300,10 @@ void SpookyHashAlgorithmImp::shortHash(
 
 void SpookyHashAlgorithmImp::update(const void *message, size_t length)
 {
-    BSLS_ASSERT(0 != message || 0 == length);
+    if (0 == length) {
+        return;                                                       // RETURN
+    }
+    BSLS_ASSERT(0 != message);
 
     union
     {
@@ -365,11 +367,11 @@ void SpookyHashAlgorithmImp::update(const void *message, size_t length)
         u.p8 = static_cast<const Uint8 *>(message);
     }
 
-    // Handle all whole blocks of 'k_BLOCK_SIZE' bytes.
+    // Handle all whole blocks of `k_BLOCK_SIZE` bytes.
     const Uint64 *endPtr = u.p64 + (length/k_BLOCK_SIZE)*k_NUM_VARS;
     Uint8 remainder = static_cast<Uint8>(length -
                                (reinterpret_cast<const Uint8 *>(endPtr)-u.p8));
-    if (ALLOW_UNALIGNED_READS || (u.i & 0x7) == 0)
+    if ((u.i & 0x7) == 0)
     {
         while (u.p64 < endPtr)
         {
