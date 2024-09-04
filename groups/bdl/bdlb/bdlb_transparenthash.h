@@ -44,21 +44,23 @@ BSLS_IDENT("$Id: $")
 //                  // struct TestTransparentEqualTo
 //                  // =============================
 //
+// /// This `struct` defines an equality of objects of different types,
+// /// enabling them for use for heterogeneous comparison in the standard
+// /// associative containers such as `bsl::unordered_map`.  Note that this
+// /// class is an empty POD type.
 // struct TestTransparentEqualTo {
-//     // This 'struct' defines an equality of objects of different types,
-//     // enabling them for use for heterogeneous comparison in the standard
-//     // associative containers such as 'bsl::unordered_map'.  Note that this
-//     // class is an empty POD type.
 //
 //     // TYPES
+//
+//     // Type alias indicating this is a transparent comparator.
 //     typedef void is_transparent;
-//         // Type alias indicating this is a transparent comparator.
 //
 //     // ACCESSORS
+//
+//     /// Return `true` if the specified `lhs` is equal to the specified
+//     /// `rhs` and `false` otherwise.
 //     template <class LHS, class RHS>
 //     bool operator()(const LHS& lhs, const RHS& rhs) const
-//         // Return 'true' if the specified 'lhs' is equal to the specified
-//         // 'rhs' and 'false' otherwise.
 //     {
 //         return lhs == rhs;
 //     }
@@ -121,23 +123,25 @@ struct TransparentHash {
     typedef void is_transparent;
 
     // CREATORS
+
+    /// Create a `TransparentHash` object.
     //! TransparentHash() = default;
-        // Create a 'TransparentHash' object.
 
+    /// Create a `TransparentHash` object.  Note that as `TransparentHash`
+    /// is an empty (stateless) type, this operation has no observable
+    /// effect.
     //! TransparentHash(const TransparentHash& original) = default;
-        // Create a 'TransparentHash' object.  Note that as 'TransparentHash'
-        // is an empty (stateless) type, this operation has no observable
-        // effect.
 
+    /// Destroy this object.
     //! ~TransparentHash() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    /// Note that as `TransparentHash` is an empty (stateless) type, this
+    /// operation has no observable effect.
     //! TransparentHash& operator=(const TransparentHash& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
-        // Note that as 'TransparentHash' is an empty (stateless) type, this
-        // operation has no observable effect.
 
     // ACCESSORS
 

@@ -44,22 +44,24 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `ParsedUrl` from the specified `url`, and `host`.
 //     ParsedUrl(const bslstl::StringRef& url, bdlb::IndexSpan host)
-//         // Create a 'ParsedUrl' from the specified 'url', and 'host'.
 //     : d_url(url)
 //     , d_host(host)
 //     {
 //     }
 //
 //     // ACCESSORS
-//     bool isIPv6Host() const;
-//         // Return 'true' if the host part represents an IPv6 address and
-//         // 'false' otherwise.
 //
+//     /// Return `true` if the host part represents an IPv6 address and
+//     /// `false` otherwise.
+//     bool isIPv6Host() const;
+//
+//     /// Return a string reference to the IPv6 address in the host part
+//     /// of this URL.  The behavior is undefined unless
+//     /// `isIPv6Host() == true` for this object.
 //     bslstl::StringRef getIPv6Host() const;
-//         // Return a string reference to the IPv6 address in the host part
-//         // of this URL.  The behavior is undefined unless
-//         // 'isIPv6Host() == true' for this object.
 // };
 // ```
 // Next, we implement `isIPv6Host`.
@@ -74,10 +76,10 @@ BSLS_IDENT("$Id: $")
 //  (Don't do this in real code, use `IndexSpanStringUtil::bind` that is
 //  levelized above this component - so we cannot use it here.)
 // ```
+// /// Return a string reference to the substring of the specified `full`
+// /// thing defined by the specified `part`.
 // bslstl::StringRef bindSpan(const bslstl::StringRef& full,
 //                            const bdlb::IndexSpan&   part)
-//     // Return a string reference to the substring of the specified 'full'
-//     // thing defined by the specified 'part'.
 // {
 //     BSLS_ASSERT(part.position() <= full.length());
 //     BSLS_ASSERT(part.position() + part.length() <= full.length());

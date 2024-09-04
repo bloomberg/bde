@@ -134,8 +134,8 @@ class NullOutputIteratorAssignmentProxy {
 template <class TYPE>
 class NullOutputIterator
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
-// Sun CC workaround: iterators must be derived from 'std::iterator' to work
-// with the native std library algorithms.  However, 'std::iterator' is
+// Sun CC workaround: iterators must be derived from `std::iterator` to work
+// with the native std library algorithms.  However, `std::iterator` is
 // deprecated in C++17, so do not rely on derivation unless required, to avoid
 // deprecation warnings on modern compilers.
                          : public bsl::iterator<bsl::output_iterator_tag, TYPE>

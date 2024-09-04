@@ -43,20 +43,20 @@ BSLS_IDENT("$Id: $")
 // rtrim(SV)                  exclude whitespace from right side  of string
 //  trim(SV)                  exclude whitespace from both  sides of string
 //
-// substr(SV, pos, num)       substring, 'num' characters from 'pos'
+// substr(SV, pos, num)       substring, `num` characters from `pos`
 //
 // strstr         (SV, SUBSV) find first substring in string
 // strstrCaseless (SV, SUBSV) find first substring in string, case insensitive
 // strrstr        (SV, SUBSV) find last  substring in string
 // strrstrCaseless(SV, SUBSV) find last  substring in string, case insensitive
 //
-// findFirstOf   (SV, ch, p)  find first occurrence of any character from 'ch'
-// findLastOf    (SV, ch, p)  find last  occurrence of any character from 'ch'
-// findFirstNotOf(SV, ch, p)  find first occurrence of any char  not from 'ch'
-// findLastNotOf (SV, ch, p)  find last  occurrence of any char  not from 'ch'
+// findFirstOf   (SV, ch, p)  find first occurrence of any character from `ch`
+// findLastOf    (SV, ch, p)  find last  occurrence of any character from `ch`
+// findFirstNotOf(SV, ch, p)  find first occurrence of any char  not from `ch`
+// findLastNotOf (SV, ch, p)  find last  occurrence of any char  not from `ch`
 //
-// startsWith(SV, ch)         find out if string starts with 'ch'
-//   endsWith(SV, ch)         find out if string ends   with 'ch'
+// startsWith(SV, ch)         find out if string starts with `ch`
+//   endsWith(SV, ch)         find out if string ends   with `ch`
 // ```
 // Since `bsl::string_view` objects know the length of the referent data these
 // utility functions can make certain performance improvements over the
@@ -218,7 +218,7 @@ struct StringViewUtil {
     /// `string` (i.e., `bsl::string_view(string.data(), 0)`).
     static bsl::string_view trim(const bsl::string_view& string);
 
-                        // Create 'subString'
+                        // Create `subString`
 
     /// Return a string whose value is the substring starting at the
     /// optionally specified `position` in the specified `string`, of length
@@ -233,7 +233,7 @@ struct StringViewUtil {
                                    size_type               position = 0,
                                    size_type               numChars = k_NPOS);
 
-                         // Find 'subString'
+                         // Find `subString`
 
     /// Return a `bsl::string_view` object referring to the first occurrence
     /// in (the referent data of) the specified `string` at which (the

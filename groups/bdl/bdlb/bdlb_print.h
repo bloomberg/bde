@@ -162,10 +162,10 @@ struct Print {
     /// specified `length` and return a reference providing modifiable
     /// access to `stream`.  If the optionally specified `escapeBackSlash`
     /// flag is `true`, then all occurrences of the backslash character
-    /// ('\') in the `string` are escaped (i.e., expanded to "\\") when
+    /// (`\`) in the `string` are escaped (i.e., expanded to "\\") when
     /// written to the `stream`.  Note that non-printable characters in
     /// `string` will be printed in their hexadecimal representation
-    /// ('\xHH').  If `stream` is not valid on entry, this operation has no
+    /// (`\xHH`).  If `stream` is not valid on entry, this operation has no
     /// effect.  The behavior is undefined unless `0 <= length`.
     static bsl::ostream& printString(bsl::ostream&  stream,
                                      const char    *string,

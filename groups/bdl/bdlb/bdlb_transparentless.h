@@ -130,23 +130,25 @@ struct TransparentLess {
     typedef void is_transparent;
 
     // CREATORS
+
+    /// Create a `TransparentLess` object.
     //! TransparentLess() = default;
-        // Create a 'TransparentLess' object.
 
+    /// Create a `TransparentLess` object.  Note that as `TransparentLess`
+    /// is an empty (stateless) type, this operation has no observable
+    /// effect.
     //! TransparentLess(const TransparentLess& original) = default;
-        // Create a 'TransparentLess' object.  Note that as 'TransparentLess'
-        // is an empty (stateless) type, this operation has no observable
-        // effect.
 
+    /// Destroy this object.
     //! ~TransparentLess() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    /// Note that as `TransparentLess` is an empty (stateless) type, this
+    /// operation has no observable effect.
     //! TransparentLess& operator=(const TransparentLess& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
-        // Note that as 'TransparentLess' is an empty (stateless) type, this
-        // operation has no observable effect.
 
     // ACCESSORS
 

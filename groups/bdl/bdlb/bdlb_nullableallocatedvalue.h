@@ -46,9 +46,9 @@ BSLS_IDENT("$Id: $")
 // We can now traverse a linked list and add a new value at the end using the
 // following code:
 // ```
+// /// Add the specified `value` to the end of the list that contains the
+// /// specified `node`.
 // void addValueAtEnd(LinkedListNode *node, int value)
-//     // Add the specified 'value' to the end of the list that contains the
-//     // specified 'node'.
 // {
 //     while (!node->d_next.isNull()) {
 //         node = &node->d_next.value();
@@ -145,10 +145,10 @@ class NullableAllocatedValue {
 #  ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     // UNSPECIFIED BOOL
 
-    // This type is needed only in C++03 mode, where 'explicit' conversion
-    // operators are not supported.  A 'NullableAllocatedValue' is implicitly
-    // converted to 'UnspecifiedBool' when used in 'if' statements, but is not
-    // implicitly convertible to 'bool'.
+    /// This type is needed only in C++03 mode, where `explicit` conversion
+    /// operators are not supported.  A `NullableAllocatedValue` is implicitly
+    /// converted to `UnspecifiedBool` when used in `if` statements, but is not
+    /// implicitly convertible to `bool`.
     typedef BloombergLP::bsls::UnspecifiedBool<NullableAllocatedValue>
                                                            UnspecifiedBoolUtil;
     typedef typename UnspecifiedBoolUtil::BoolType         UnspecifiedBool;
@@ -285,8 +285,8 @@ class NullableAllocatedValue {
     /// Assign to this object the value of the (template parameter) `TYPE`
     /// created in place using the specified `args` and return a reference
     /// providing modifiable access to the underlying `TYPE` object.  If
-    /// this `optional` object already contains an object ('true ==
-    /// hasValue()'), that object is destroyed before the new object is
+    /// this `optional` object already contains an object (`true ==
+    /// hasValue()`), that object is destroyed before the new object is
     /// created.  Note that if the constructor of `TYPE` throws an exception
     /// this object is left in a disengaged state.
     template <class... ARGS>
@@ -296,8 +296,8 @@ class NullableAllocatedValue {
     /// Assign to this object the value of the (template parameter) `TYPE`
     /// created in place using the specified `il` and specified `args` and
     /// return a reference providing modifiable access to the underlying
-    /// `TYPE` object.  If this object already contains an object ('true ==
-    /// hasValue()'), that object is destroyed before the new object is
+    /// `TYPE` object.  If this object already contains an object (`true ==
+    /// hasValue()`), that object is destroyed before the new object is
     /// created.  Note that if the constructor of `TYPE` throws an exception
     /// this object is left in a disengaged state.
     template <class INIT_LIST_TYPE, class... ARGS>
@@ -412,8 +412,8 @@ class NullableAllocatedValue {
     /// otherwise.
     BSLS_KEYWORD_EXPLICIT operator bool() const BSLS_KEYWORD_NOEXCEPT;
 #  else  // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-    // Simulation of explicit conversion to bool.  Inlined to work around xlC
-    // bug when out-of-line.
+    /// Simulation of explicit conversion to bool.  Inlined to work around xlC
+    /// bug when out-of-line.
     operator UnspecifiedBool() const BSLS_NOTHROW_SPEC
     {
         return UnspecifiedBoolUtil::makeValue(has_value());
@@ -446,11 +446,11 @@ class NullableAllocatedValue {
     // DEPRECATED FUNCTIONS
     //  provided for compatibility with NullableValue
 
-    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::addressOr",
-                              "Use 'has_value() ? &value() : address' instead")
     /// Return an address providing non-modifiable access to the underlying
     /// object of a (template parameter) `TYPE` if this object is non-null,
     /// and the specified `address` otherwise.
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::addressOr",
+                              "Use 'has_value() ? &value() : address' instead")
     const TYPE *addressOr(const TYPE *address) const;
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=5
@@ -474,19 +474,19 @@ class NullableAllocatedValue {
     TYPE& makeValueInplace(ARGS&&... args);
 #endif
 
-    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::valueOr",
-                                                      "Use 'value_or' instead")
     /// Return the value of the underlying object of a (template parameter)
     /// `TYPE` if this object is non-null, and the specified `otherValue`
     /// otherwise.  Note that this method returns *by* *value*, so may be
     /// inefficient in some contexts.
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::valueOr",
+                                                      "Use 'value_or' instead")
     TYPE valueOr(const TYPE& otherValue) const;
 
-    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::valueOrNull",
-                                 "Use 'has_value() ? &value() : NULL' instead")
     /// Return an address providing non-modifiable access to the underlying
     /// object of a (template parameter) `TYPE` if this object is non-null,
     /// and 0 otherwise.
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::valueOrNull",
+                                 "Use 'has_value() ? &value() : NULL' instead")
     const TYPE *valueOrNull() const;
 
 };

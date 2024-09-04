@@ -63,15 +63,15 @@ struct LiteralUtil {
                                            const bsl::string_view&   input);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    /// Load into the specified `result` string the `"` delimited and
+    /// escaped C/C++ string literal equivalent representing the same value
+    /// as that of the specified `input` string.  When the C string literal
+    /// equivalent is translated by a compiler having C-compatible string
+    /// literals, it will result in a string identical to the `input`
+    /// string.  Note that this code uses the (ASCII) `\` character, rather
+    /// than Unicode code points for escapes.
     static void createQuotedEscapedCString(std::pmr::string         *result,
                                            const bsl::string_view&   input);
-        // Load into the specified 'result' string the '"' delimited and
-        // escaped C/C++ string literal equivalent representing the same value
-        // as that of the specified 'input' string.  When the C string literal
-        // equivalent is translated by a compiler having C-compatible string
-        // literals, it will result in a string identical to the 'input'
-        // string.  Note that this code uses the (ASCII) '\' character, rather
-        // than Unicode code points for escapes.
 #endif
 };
 

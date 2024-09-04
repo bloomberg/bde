@@ -10,7 +10,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bdld::DatumUdt: a *value-semantic* type representing user-defined type
 //
-//@SEE_ALSO: bdld_datum, bdld_datumerror, bdld_binaryref
+//@SEE_ALSO: bdld_datum, bdld_datumerror, bdld_datumbinaryref
 //
 //@DESCRIPTION: This component provides a single, simply-constrained (in-core
 // value-semantic) attribute class, `bdld::DatumUdt`, that is used to extend
@@ -18,12 +18,12 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Attributes
 ///----------
-// ```
-// Name                Type         Simple Constraints
-// ------------------  -----------  ------------------
-// data_p              void *       none
-// type                int          [0 .. 65355]
-// ```
+//
+// | Name    | Type     | Simple Constraints
+// | ------- | -------- | ------------------
+// | data_p  | void *   | none
+// | type    | int      | [0 .. 65355]
+//
 // * `data_p`: pointer to an external object/memory.
 // * `type`: user type associated with the pointer.
 //

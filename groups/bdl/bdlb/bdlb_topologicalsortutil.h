@@ -443,26 +443,26 @@ namespace bdlb {
 /// `bsl::pair`.  Clients may specialize `TopologicalSortUtilEdgeTraits` to
 /// supply the following:
 /// ```
+/// /// The type of the directed connection from one node to another
+/// /// `bsl::pair<NodeType, NodeType>` and `std::pair<NodeType>` work
+/// /// without `TopologicalSortUtilEdgeTraits` specialization.
 /// typedef EDGE_TYPE EdgeType;
-///     // The type of the directed connection from one node to another
-///     // 'bsl::pair<NodeType, NodeType>' and 'std::pair<NodeType>' work
-///     // without 'TopologicalSortUtilEdgeTraits' specialization.
 ///
+/// /// Alias describing the output values from a sort, as well as the
+/// /// results of the `from` and `to` functions of this edge traits
+/// /// instance.  Or in other words, the node (or node identifier) type
+/// /// of the directed acyclic graph.
 /// typedef user-defined NodeType;
-///     // Alias describing the output values from a sort, as well as the
-///     // results of the 'from' and 'to' functions of this edge traits
-///     // instance.  Or in other words, the node (or node identifier) type
-///     // of the directed acyclic graph.
 ///
+/// /// Return a `const` reference to the "from" attribute of the
+/// /// specified `input`.  Note that the template parameter type
+/// /// `EDGE_TYPE` is an element in the input range to `sort`.
 /// static const NodeType& from(const EDGE_TYPE& input);
-///     // Return a 'const' reference to the "from" attribute of the
-///     // specified 'input'.  Note that the template parameter type
-///     // 'EDGE_TYPE' is an element in the input range to 'sort'.
 ///
+/// /// Return a `const` reference to the "from" attribute of the
+/// /// specified `input`.  Note that the template parameter type
+/// /// `EDGE_TYPE` is an element in the input range to `sort`.
 /// static const NodeType& to(const EDGE_TYPE& input)
-///     // Return a 'const' reference to the "from" attribute of the
-///     // specified 'input'.  Note that the template parameter type
-///     // 'EDGE_TYPE' is an element in the input range to 'sort'.
 /// ```
 template <class EDGE_TYPE>
 struct TopologicalSortUtilEdgeTraits {
@@ -501,9 +501,9 @@ struct TopologicalSortUtilEdgeTraits<bsl::pair<NODE_TYPE, NODE_TYPE> > {
 /// type of the nodes(*) must be hashable and equality comparable by
 /// `bsl::hash`, and `bsl::equal_to` respectively.
 ///
-/// (*) The value type is determined by first getting the iterator's value
-///     type using `bsl::iterator_traits<INPUT_ITER>::ValueType` and then
-///     using `TopologicalSortUtilEdgeTraits::ValueType` on that result.
+/// * (*) The value type is determined by first getting the iterator's value
+///   type using `bsl::iterator_traits<INPUT_ITER>::ValueType` and then
+///   using `TopologicalSortUtilEdgeTraits::ValueType` on that result.
 template <class INPUT_ITER>
 class TopologicalSortUtil_Helper {
 
@@ -526,10 +526,10 @@ class TopologicalSortUtil_Helper {
     /// Relations information for a given node in the format necessary for
     /// topological sorting.  The attributes are:
     ///
-    /// * the predecessor count:
+    /// * **the predecessor count**:
     ///   How many need to be sorted before this node comes in order?
     ///
-    /// * the successor nodes:
+    /// * **the successor nodes**:
     ///   All the nodes that must come after this node in the order
     struct Links {
 
@@ -575,7 +575,7 @@ class TopologicalSortUtil_Helper {
 
     Fifo     d_readyNodes;     // elements whose predecessors have all already
                                // been sorted (or never had predecessors) as
-                               // iterators into the mapping ('d_workSet')
+                               // iterators into the mapping (`d_workSet`)
 
   private:
     // NOT IMPLEMENTED

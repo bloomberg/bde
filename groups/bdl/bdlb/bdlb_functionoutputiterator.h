@@ -102,8 +102,8 @@ BSLS_IDENT("$Id: $")
 // First, we define an `Accumulator` class that will total the values supplied
 // to the `increment` method:
 // ```
+// /// This class provides a value accumulating functionality.
 // class Accumulator {
-//     // This class provides a value accumulating functionality.
 //
 //     // DATA
 //     int d_sum;
@@ -122,22 +122,22 @@ BSLS_IDENT("$Id: $")
 // to a function object:
 // ```
 //
-//   class AccumulatorFunctor {
-//       // This class implements a function object that invokes 'increment' in
-//       // response of calling operator()(int).
+// /// This class implements a function object that invokes 'increment' in
+// /// response of calling operator()(int).
+// class AccumulatorFunctor {
 //
-//       // DATA
-//       Accumulator *d_accumulator_p;  // accumulator (held, not owned)
+//     // DATA
+//     Accumulator *d_accumulator_p;  // accumulator (held, not owned)
 //
-//     public:
-//       // CREATORS
-//       explicit AccumulatorFunctor(Accumulator *accumulator)
-//      : d_accumulator_p(accumulator)
-//       {}
+//   public:
+//     // CREATORS
+//     explicit AccumulatorFunctor(Accumulator *accumulator)
+//     : d_accumulator_p(accumulator)
+//     {}
 //
-//       // MANIPULATORS
-//       void operator()(int value) { d_accumulator_p->increment(value); };
-//   };
+//     // MANIPULATORS
+//     void operator()(int value) { d_accumulator_p->increment(value); };
+// };
 // ```
 // Then, we define data sequence to process:
 // ```
@@ -256,20 +256,21 @@ class FunctionOutputIterator BDLB_SUNITERATORWORKAROUND {
     /// `function` passing the assigned value as the argument.
     explicit FunctionOutputIterator(const FUNCTION& function);
 
+    /// Create a 'FunctionOutputIterator' object that, when an assignment is
+    /// performed on the dereferenced object, will call the same function or
+    /// functor used by the specified 'rhs' object.
     //! FunctionOutputIterator(const FunctionOutputIterator &rhs) = default;
-        // Create a 'FunctionOutputIterator' object that, when an assignment is
-        // performed on the dereferenced object, will call the same function or
-        // functor used by the specified 'rhs' object.
 
+    /// Destroy this object.
     //! ~FunctionOutputIterator() = default;
-        // Destroy this object.
 
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified 'rhs' object, and
+    /// return a reference providing modifiable access to this object.
     //! FunctionOutputIterator& operator=(
-    //                            const FunctionOutputIterator &rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
+    //!                           const FunctionOutputIterator &rhs) = default;
 
     /// Return an object that can appear on the left-hand side of an
     /// assignment from `TYPE`.  When a value is assigned to the returned

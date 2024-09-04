@@ -44,15 +44,17 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an object used to simulate a single die, using the
+//     /// specified `initialSeed`.
 //     Die(int initialSeed);
-//         // Create an object used to simulate a single die, using the
-//         // specified 'initialSeed'.
 //
 //     // MANIPULATORS
+//
+//     /// Return the next pseudo-random value in the range `[1 .. 6]`,
+//     /// based on the sequence of values established by the initial seed
+//     /// value supplied at construction.
 //     int roll();
-//         // Return the next pseudo-random value in the range '[1 .. 6]',
-//         // based on the sequence of values established by the initial seed
-//         // value supplied at construction.
 // };
 //
 //                     // ---------

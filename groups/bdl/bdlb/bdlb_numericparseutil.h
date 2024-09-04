@@ -122,14 +122,14 @@ BSLS_IDENT("$Id: $")
 // special values: Not-a-Number (NaN) and Infinity, both in positive or
 // negative.  `parseDouble` allows expressions for both:
 //
-//: *infinity-expression*: results in negative of positive
-//:       bsl::numeric_limits<double>::infinity() value.  The expresssion
-//:       consists of the following elements:
+// * **infinity-expression**: results in negative of positive
+//   bsl::numeric_limits<double>::infinity() value.  The expresssion
+//   consists of the following elements:
 //   - an optional plus (`+`) or minus (`-`) sign
 //   - the word "INF" or INFINITY", ignoring case
-//: *not-a-number-expression*: results in a negative or positive
-//:     bsl::numeric_limits<double>::quiet_NaN() value.  The expresssion
-//:     consists of the following elements:
+// * **not-a-number-expression**: results in a negative or positive
+//   bsl::numeric_limits<double>::quiet_NaN() value.  The expresssion
+//   consists of the following elements:
 //   - an optional plus (`+`) or minus (`-`) sign
 //   - "NAN" or "NAN(char-sequence)" ignoring the case of "NAN".  The
 //     char-sequence may be empty or contain digits, letters from the Latin
@@ -238,11 +238,9 @@ struct NumericParseUtil {
     /// [`A`-`Z`]).
     ///
     /// A parse failure can occur for the following reasons:
-    /// ```
-    ///  1. The 'inputString' is empty.
-    ///  2. The first character of 'inputString' is not a valid digit in
-    ///     'base', or an optional sign followed by a valid digit.
-    /// ```
+    ///  1. The `inputString` is empty.
+    ///  2. The first character of `inputString` is not a valid digit in
+    ///     `base`, or an optional sign followed by a valid digit.
     static int parseInt(int                     *result,
                         const bsl::string_view&  inputString,
                         int                      base = 10);
@@ -269,11 +267,9 @@ struct NumericParseUtil {
     /// characters in the range [`0`-`9`], [`a`-`z`], or [`A`-`Z`]).
     ///
     /// A parse failure can occur for the following reasons:
-    /// ```
-    ///  1. The 'inputString' is empty.
-    ///  2. The first character of 'inputString' is not a valid digit in
-    ///     'base', or an optional sign followed by a valid digit.
-    /// ```
+    ///  1. The `inputString` is empty.
+    ///  2. The first character of `inputString` is not a valid digit in
+    ///     `base`, or an optional sign followed by a valid digit.
     static int parseInt64(bsls::Types::Int64      *result,
                           const bsl::string_view&  inputString,
                           int                      base = 10);
@@ -300,11 +296,9 @@ struct NumericParseUtil {
     /// [`a`-`z`] or [`A`-`Z`]).
     ///
     /// A parse failure can occur for the following reasons:
-    /// ```
-    ///  1. The 'inputString' is empty.
-    ///  2. The first character of 'inputString' is not a valid digit in
-    ///     'base', or an optional sign followed by a valid digit.
-    /// ```
+    ///  1. The `inputString` is empty.
+    ///  2. The first character of `inputString` is not a valid digit in
+    ///     `base`, or an optional sign followed by a valid digit.
     static int parseShort(short                   *result,
                           const bsl::string_view&  inputString,
                           int                      base = 10);
@@ -330,11 +324,9 @@ struct NumericParseUtil {
     /// characters in the range [`0`-`9`], [`a`-`z`], or [`A`-`Z`]).
     ///
     /// A parse failure can occur for the following reasons:
-    /// ```
-    ///  1. The 'inputString' is empty.
-    ///  2. The first character of 'inputString' is not a valid digit in
-    ///     'base', or an optional sign followed by a valid digit.
-    /// ```
+    ///  1. The `inputString` is empty.
+    ///  2. The first character of `inputString` is not a valid digit in
+    ///     `base`, or an optional sign followed by a valid digit.
     static int parseUint(unsigned int            *result,
                          const bsl::string_view&  inputString,
                          int                      base = 10);
@@ -361,11 +353,9 @@ struct NumericParseUtil {
     /// [`A`-`Z`]).
     ///
     /// A parse failure can occur for the following reasons:
-    /// ```
-    ///  1. The 'inputString' is empty.
-    ///  2. The first character of 'inputString' is not a valid digit in
-    ///     'base', or an optional sign followed by a valid digit.
-    /// ```
+    ///  1. The `inputString` is empty.
+    ///  2. The first character of `inputString` is not a valid digit in
+    ///     `base`, or an optional sign followed by a valid digit.
     static int parseUint64(bsls::Types::Uint64     *result,
                            const bsl::string_view&  inputString,
                            int                      base = 10);
@@ -392,11 +382,9 @@ struct NumericParseUtil {
     /// [`A`-`Z`]).
     ///
     /// A parse failure can occur for the following reasons:
-    /// ```
-    ///  1. The 'inputString' is empty.
-    ///  2. The first character of 'inputString' is not a valid digit in
-    ///     'base', or an optional sign followed by a valid digit.
-    /// ```
+    ///  1. The `inputString` is empty.
+    ///  2. The first character of `inputString` is not a valid digit in
+    ///     `base`, or an optional sign followed by a valid digit.
     static int parseUshort(unsigned short          *result,
                            const bsl::string_view&  inputString,
                            int                      base = 10);
@@ -422,13 +410,11 @@ struct NumericParseUtil {
     /// characters `[ 0 .. 9 ]`, `[ a .. z ]` or `[ A .. Z ]`).
     ///
     /// A parse failure can occur for the following reasons:
-    /// ```
-    ///  1. The parsed string is not a '<NUMBER>', i.e., does not contain
+    ///  1. The parsed string is not a `<NUMBER>`, i.e., does not contain
     ///     an optional sign followed by at least one digit.
-    ///  2. The first digit in 'inputString' is larger than 'maxValue' or
-    ///     smaller than 'minValue'.
-    ///  3. The first digit is not a valid number for the 'base'.
-    /// ```
+    ///  2. The first digit in `inputString` is larger than `maxValue` or
+    ///     smaller than `minValue`.
+    ///  3. The first digit is not a valid number for the `base`.
     static int parseSignedInteger(bsls::Types::Int64       *result,
                                   const bsl::string_view&   inputString,
                                   int                       base,
@@ -458,12 +444,10 @@ struct NumericParseUtil {
     /// `[ A .. Z ]`).
     ///
     /// A parse failure can occur for the following reasons:
-    /// ```
-    ///  1. The 'inputString' is not a '<POSITIVE_NUMBER>', i.e., does
+    ///  1. The `inputString` is not a `<POSITIVE_NUMBER>`, i.e., does
     ///     not begin with a digit.
-    ///  2. The first digit in 'inputString' is larger than 'maxValue'.
-    ///  3. The first digit is not a valid number for the 'base'.
-    /// ```
+    ///  2. The first digit in `inputString` is larger than `maxValue`.
+    ///  3. The first digit is not a valid number for the `base`.
     static int parseUnsignedInteger(bsls::Types::Uint64       *result,
                                     const bsl::string_view&    inputString,
                                     int                        base,

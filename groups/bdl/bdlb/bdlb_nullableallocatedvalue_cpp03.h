@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 06:01:47 2024
+// Generated on Wed Sep  4 19:02:35 2024
 // Command line: sim_cpp11_features.pl bdlb_nullableallocatedvalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEALLOCATEDVALUE_H
@@ -63,10 +63,10 @@ class NullableAllocatedValue {
 #  ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     // UNSPECIFIED BOOL
 
-    // This type is needed only in C++03 mode, where 'explicit' conversion
-    // operators are not supported.  A 'NullableAllocatedValue' is implicitly
-    // converted to 'UnspecifiedBool' when used in 'if' statements, but is not
-    // implicitly convertible to 'bool'.
+    /// This type is needed only in C++03 mode, where `explicit` conversion
+    /// operators are not supported.  A `NullableAllocatedValue` is implicitly
+    /// converted to `UnspecifiedBool` when used in `if` statements, but is not
+    /// implicitly convertible to `bool`.
     typedef BloombergLP::bsls::UnspecifiedBool<NullableAllocatedValue>
                                                            UnspecifiedBoolUtil;
     typedef typename UnspecifiedBoolUtil::BoolType         UnspecifiedBool;
@@ -436,8 +436,8 @@ class NullableAllocatedValue {
     /// otherwise.
     BSLS_KEYWORD_EXPLICIT operator bool() const BSLS_KEYWORD_NOEXCEPT;
 #  else  // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-    // Simulation of explicit conversion to bool.  Inlined to work around xlC
-    // bug when out-of-line.
+    /// Simulation of explicit conversion to bool.  Inlined to work around xlC
+    /// bug when out-of-line.
     operator UnspecifiedBool() const BSLS_NOTHROW_SPEC
     {
         return UnspecifiedBoolUtil::makeValue(has_value());
@@ -470,11 +470,11 @@ class NullableAllocatedValue {
     // DEPRECATED FUNCTIONS
     //  provided for compatibility with NullableValue
 
-    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::addressOr",
-                              "Use 'has_value() ? &value() : address' instead")
     /// Return an address providing non-modifiable access to the underlying
     /// object of a (template parameter) `TYPE` if this object is non-null,
     /// and the specified `address` otherwise.
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::addressOr",
+                              "Use 'has_value() ? &value() : address' instead")
     const TYPE *addressOr(const TYPE *address) const;
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -559,19 +559,19 @@ class NullableAllocatedValue {
 // }}} END GENERATED CODE
 #endif
 
-    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::valueOr",
-                                                      "Use 'value_or' instead")
     /// Return the value of the underlying object of a (template parameter)
     /// `TYPE` if this object is non-null, and the specified `otherValue`
     /// otherwise.  Note that this method returns *by* *value*, so may be
     /// inefficient in some contexts.
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::valueOr",
+                                                      "Use 'value_or' instead")
     TYPE valueOr(const TYPE& otherValue) const;
 
-    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::valueOrNull",
-                                 "Use 'has_value() ? &value() : NULL' instead")
     /// Return an address providing non-modifiable access to the underlying
     /// object of a (template parameter) `TYPE` if this object is non-null,
     /// and 0 otherwise.
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::valueOrNull",
+                                 "Use 'has_value() ? &value() : NULL' instead")
     const TYPE *valueOrNull() const;
 
 };

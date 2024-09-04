@@ -41,21 +41,21 @@ namespace bdlb {
                                 // class NullOptType
                                 // =================
 
-BSLS_DEPRECATE_FEATURE("bdl", "NullOptType", "Use 'bsl::nullopt_t' instead")
 /// This `class` provides an empty tag type so that `bdlb::NullableValue`
 /// can be explicitly constructed in or assigned to an empty state.  There
 /// are no publicly accessible constructors for this type other than the
 /// copy constructor.  In particular, it is not default constructible, nor
 /// list-initializable in C++11.
+BSLS_DEPRECATE_FEATURE("bdl", "NullOptType", "Use 'bsl::nullopt_t' instead")
 typedef bsl::nullopt_t NullOptType;
 
+/// Value of type `NullOptType` that serves as a literal value for the empty
+/// state of any nullable value.
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
 inline constexpr bsl::nullopt_t nullOpt = bsl::nullopt;
 #else
 extern const bsl::nullopt_t nullOpt;
 #endif
-    // Value of type 'NullOptType' that serves as a literal value for the empty
-    // state of any nullable value.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS

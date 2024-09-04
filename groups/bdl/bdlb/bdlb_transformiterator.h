@@ -74,13 +74,15 @@ BSLS_IDENT("$Id: $")
 //     typedef double result_type;
 //
 //     // CREATORS
+//
+//     /// Create a `Pricer` object using the specified `prices`.  The
+//     /// lifetime of `prices` must be at least as long as this object.
 //     explicit Pricer(const bsl::map<bsl::string, double> *prices);
-//         // Create a 'Pricer' object using the specified 'prices'.  The
-//         // lifetime of 'prices' must be at least as long as this object.
 //
 //     // ACCESSORS
+//
+//     /// Return the price of the specified `product`.
 //     double operator()(const bsl::string& product) const;
-//         // Return the price of the specified 'product'.
 // };
 //
 // // CREATORS
@@ -266,25 +268,25 @@ struct TransformIterator_Traits {
     typedef ResultType                                           reference;
 
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
-// Sun CC workaround: iterators must be derived from 'std::iterator' to work
-// with the native std library algorithms.  However, 'std::iterator' is
+// Sun CC workaround: iterators must be derived from `std::iterator` to work
+// with the native std library algorithms.  However, `std::iterator` is
 // deprecated in C++17, so do not rely on derivation unless required, to avoid
 // deprecation warnings on modern compilers.
+
+    /// Define the standard iterator specialization that will apply to the
+    /// transform iterator.
     typedef bsl::iterator<iterator_category,
                           value_type,
                           difference_type,
                           pointer,
                           ResultType>        Iterator;
-        // Define the standard iterator specialization that will apply to the
-        // transform iterator.
 #endif
 };
 
-// Specialize the transform iterator traits template for functors that are
-// function or function pointer types.  It is sufficient to inherit from the
-// version of the traits class that corresponds to a 'bsl::function' of the
-// function type parameter.
-
+/// Specialize the transform iterator traits template for functors that are
+/// function or function pointer types.  It is sufficient to inherit from the
+/// version of the traits class that corresponds to a `bsl::function` of the
+/// function type parameter.
 template <class RESULT, class ARGUMENT, class ITERATOR>
 struct TransformIterator_Traits<RESULT (*)(ARGUMENT), ITERATOR>
 : public TransformIterator_Traits<bsl::function<RESULT(ARGUMENT)>, ITERATOR> {
@@ -366,8 +368,8 @@ class TransformIterator
       !bslma::UsesBslmaAllocator<ITERATOR>::value &&
           bslma::UsesBslmaAllocator<FUNCTOR>::value>
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
-// Sun CC workaround: iterators must be derived from 'std::iterator' to work
-// with the native std library algorithms.  However, 'std::iterator' is
+// Sun CC workaround: iterators must be derived from `std::iterator` to work
+// with the native std library algorithms.  However, `std::iterator` is
 // deprecated in C++17, so do not rely on derivation unless required, to avoid
 // deprecation warnings on modern compilers.
 , public TransformIterator_Traits<FUNCTOR, ITERATOR>::Iterator
@@ -421,8 +423,8 @@ class TransformIterator
     TransformIterator(const TransformIterator&  original,
                       bslma::Allocator         *basicAllocator = 0);
 
+    /// Destroy this object.
     //! ~TransformIterator() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

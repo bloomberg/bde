@@ -56,14 +56,14 @@ BSLS_IDENT("$Id: $")
 // it should behave according to the standard BDE `print` protocol that is
 // documented as follows:
 // ```
-// Format this object to the specified output 'stream' at the (absolute value
-// of) the optionally specified indentation 'level' and return a reference to
-// 'stream'.  If 'level' is specified, optionally specify 'spacesPerLevel',
+// Format this object to the specified output `stream` at the (absolute value
+// of) the optionally specified indentation `level` and return a reference to
+// `stream`.  If `level` is specified, optionally specify `spacesPerLevel`,
 // the number of spaces per indentation level for this and all of its nested
-// objects.  If 'level' is negative, suppress indentation of the first line.
-// If 'spacesPerLevel' is negative, format the entire output on one line,
-// suppressing all but the initial indentation (as governed by 'level').  If
-// 'stream' is not valid on entry, this operation has no effect.
+// objects.  If `level` is negative, suppress indentation of the first line.
+// If `spacesPerLevel` is negative, format the entire output on one line,
+// suppressing all but the initial indentation (as governed by `level`).  If
+// `stream` is not valid on entry, this operation has no effect.
 // ```
 //
 ///Effect of `bslalg::HasStlIterators` Trait
@@ -111,9 +111,9 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the wrapper class:
 // ```
+// /// An example wrapper class for a `TYPE` object.
 // template <class TYPE>
 // class MyWrapper {
-//   // An example wrapper class for a 'TYPE' object.
 //
 //   // PRIVATE DATA MEMBERS
 //   TYPE d_obj;  // wrapped object
@@ -131,19 +131,20 @@ BSLS_IDENT("$Id: $")
 //     // ... assignment operator, etc. ...
 //
 //     // ACCESSORS
+//
+//     /// Format the contained `TYPE` to the specified output `stream` at
+//     /// the (absolute value of) the optionally specified indentation
+//     /// `level` and return a reference to `stream`.  If `level` is
+//     /// specified, optionally specify `spacesPerLevel`, the number of
+//     /// spaces per indentation level for this and all of its nested
+//     /// objects.  If `level` is negative, suppress indentation of the
+//     /// first line.  If `spacesPerLevel` is negative, format the entire
+//     /// output on one line, suppressing all but the initial indentation
+//     /// (as governed by `level`).  If `stream` is not valid on entry,
+//     /// this operation has no effect.
 //     bsl::ostream& print(bsl::ostream& stream,
 //                         int           level          = 0,
 //                         int           spacesPerLevel = 4) const;
-//         // Format the contained 'TYPE' to the specified output 'stream' at
-//         // the (absolute value of) the optionally specified indentation
-//         // 'level' and return a reference to 'stream'.  If 'level' is
-//         // specified, optionally specify 'spacesPerLevel', the number of
-//         // spaces per indentation level for this and all of its nested
-//         // objects.  If 'level' is negative, suppress indentation of the
-//         // first line.  If 'spacesPerLevel' is negative, format the entire
-//         // output on one line, suppressing all but the initial indentation
-//         // (as governed by 'level').  If 'stream' is not valid on entry,
-//         // this operation has no effect.
 // };
 // ```
 // Now, we implement the `print` method of `MyWrapper` using the
@@ -174,7 +175,7 @@ BSLS_IDENT("$Id: $")
 //
 //     bsl::ostringstream oss1;
 //     myWrapperForMyDate.print(oss1); // No problem expected since
-//                                     // 'bsls::TimeInterval' has a 'print'
+//                                     // `bsls::TimeInterval` has a `print`
 //                                     // method.
 //     assert("01JAN0001\n" == oss1.str());
 // ```
@@ -185,7 +186,7 @@ BSLS_IDENT("$Id: $")
 //     MyWrapper<int> myWrapperForInt(myInt);
 //
 //     bsl::ostringstream oss2;
-//     myWrapperForInt.print(oss2);    // 'int' has no 'print' method.
+//     myWrapperForInt.print(oss2);    // `int` has no `print` method.
 //                                     // Problem?
 //     assert("123\n" == oss2.str());  // No problem!
 // ```
@@ -286,9 +287,9 @@ struct TypeTraitHasPrintMethod {
                         // namespace PrintMethods
                         // ======================
 
+/// This `namespace` contains parameterized `print` methods having the
+/// standard BDE signature for such methods.
 namespace PrintMethods {
-    // This 'namespace' contains parameterized 'print' methods having the
-    // standard BDE signature for such methods.
 
 /// Format the specified `object` to the specified output `stream` at the
 /// (absolute value of) the optionally specified indentation `level` and
@@ -505,8 +506,8 @@ bsl::ostream& PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> >::print(
 
     Print::indent(stream, level, spacesPerLevel);
 
-    // A compilation error indicating the next line of code implies the 'TYPE'
-    // parameter does not have the '<<' output stream operator.
+    // A compilation error indicating the next line of code implies the `TYPE`
+    // parameter does not have the `<<` output stream operator.
 
     stream << object;
 

@@ -424,14 +424,13 @@ class BigEndianInt32 {
     /// specified `value` as a signed 32-bit big-endian integer.
     static BigEndianInt32 make(int value);
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     /// Return the most current BDEX streaming version number supported by
     /// this class.  See the `bslx` package-level documentation for more
     /// information on BDEX streaming of value-semantic types and
     /// containers.
     static int maxSupportedBdexVersion();
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     /// Return the maximum valid BDEX format version, as indicated by the
     /// specified `versionSelector`, to be passed to the `bdexStreamOut`
@@ -562,14 +561,13 @@ class BigEndianUint32 {
     /// specified `value` as a unsigned 32-bit big-endian integer.
     static BigEndianUint32 make(unsigned int value);
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     /// Return the most current BDEX streaming version number supported by
     /// this class.  See the `bslx` package-level documentation for more
     /// information on BDEX streaming of value-semantic types and
     /// containers.
     static int maxSupportedBdexVersion();
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     /// Return the maximum valid BDEX format version, as indicated by the
     /// specified `versionSelector`, to be passed to the `bdexStreamOut`
@@ -698,14 +696,14 @@ class BigEndianInt64 {
     /// specified `value` as a signed 64-bit big-endian integer.
     static BigEndianInt64 make(bsls::Types::Int64 value);
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     /// Return the most current BDEX streaming version number supported by
     /// this class.  See the `bslx` package-level documentation for more
     /// information on BDEX streaming of value-semantic types and
     /// containers.
     static int maxSupportedBdexVersion();
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     /// Return the maximum valid BDEX format version, as indicated by the
     /// specified `versionSelector`, to be passed to the `bdexStreamOut`
@@ -836,14 +834,13 @@ class BigEndianUint64 {
     /// specified `value` as an unsigned 64-bit big-endian integer.
     static BigEndianUint64 make(bsls::Types::Uint64 value);
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     /// Return the most current BDEX streaming version number supported by
     /// this class.  See the `bslx` package-level documentation for more
     /// information on BDEX streaming of value-semantic types and
     /// containers.
     static int maxSupportedBdexVersion();
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     /// Return the maximum valid BDEX format version, as indicated by the
     /// specified `versionSelector`, to be passed to the `bdexStreamOut`
@@ -949,13 +946,13 @@ BigEndianInt16 BigEndianInt16::make(short value)
     return ret = value;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 int BigEndianInt16::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int BigEndianInt16::maxSupportedBdexVersion(int /* versionSelector */)
@@ -1056,13 +1053,13 @@ BigEndianUint16 BigEndianUint16::make(unsigned short value)
     return ret = value;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 int BigEndianUint16::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int BigEndianUint16::maxSupportedBdexVersion(int /* versionSelector */)
@@ -1163,13 +1160,13 @@ BigEndianInt32 BigEndianInt32::make(int value)
     return ret = value;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 int BigEndianInt32::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int BigEndianInt32::maxSupportedBdexVersion(int /* versionSelector */)
@@ -1268,13 +1265,13 @@ BigEndianUint32 BigEndianUint32::make(unsigned int value)
     return ret = value;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 int BigEndianUint32::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int BigEndianUint32::maxSupportedBdexVersion(int /* versionSelector */)
@@ -1375,13 +1372,13 @@ BigEndianInt64 BigEndianInt64::make(bsls::Types::Int64 value)
     return ret = value;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 int BigEndianInt64::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int BigEndianInt64::maxSupportedBdexVersion(int /* versionSelector */)
@@ -1480,13 +1477,13 @@ BigEndianUint64 BigEndianUint64::make(bsls::Types::Uint64 value)
     return ret = value;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 int BigEndianUint64::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 int BigEndianUint64::maxSupportedBdexVersion(int /* versionSelector */)

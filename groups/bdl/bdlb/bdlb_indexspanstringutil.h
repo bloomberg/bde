@@ -330,6 +330,11 @@ struct IndexSpanStringUtil {
     static IndexSpan create(const bsl::wstring_view& string,
                             const bsl::wstring_view& subString);
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` starting at the specified `begin` and having the specified
+    /// `length`.  The behavior is undefined unless
+    /// `begin >= string.begin()`, `begin <= string.end()`, and
+    /// `begin + length <= string.end()`.
     static IndexSpan create(const bsl::string_view&               string,
                             bsl::string_view::const_iterator      begin,
                             IndexSpan::size_type                  length);
@@ -362,12 +367,12 @@ struct IndexSpanStringUtil {
                             std::pmr::wstring::const_iterator     begin,
                             IndexSpan::size_type                  length);
 #endif
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' starting at the specified 'begin' and having the specified
-        // 'length'.  The behavior is undefined unless
-        // 'begin >= string.begin()', 'begin <= string.end()', and
-        // 'begin + length <= string.end()'.
 
+    /// Return an `IndexSpan` describing the substring of the specified
+    /// `string` starting at the specified `begin` and ending (not
+    /// including) the specified `end`.  The behavior is undefined unless
+    /// `begin >= string.begin()`, `begin <= string.end()`,
+    /// `end <= string.end()`, and `begin <= end`.
     static IndexSpan create(const bsl::string_view&               string,
                             bsl::string_view::const_iterator      begin,
                             bsl::string_view::const_iterator      end);
@@ -400,11 +405,6 @@ struct IndexSpanStringUtil {
                             std::pmr::wstring::const_iterator     begin,
                             std::pmr::wstring::const_iterator     end);
 #endif
-        // Return an 'IndexSpan' describing the substring of the specified
-        // 'string' starting at the specified 'begin' and ending (not
-        // including) the specified 'end'.  The behavior is undefined unless
-        // 'begin >= string.begin()', 'begin <= string.end()',
-        // 'end <= string.end()', and 'begin <= end'.
 };
 
 // ============================================================================

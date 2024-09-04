@@ -206,7 +206,7 @@ BSLS_IDENT("$Id: $")
 //     const int custId = insertCustomer(name, addressId);
 // ```
 // As our dummy `insertCustomer` function will fail first time by throwing an
-// exception (when'removedAddressId' is zero) we exit this function to the
+// exception (when `removedAddressId` is zero) we exit this function to the
 // caller's error handling `catch` clause.  While exiting the function due to
 // the exception, the local stack is unwound.  The non-trivial destructors of
 // local variables are invoked (in the opposite order of their creation).  In
@@ -594,6 +594,10 @@ BSLS_IDENT("$Id: $")
     // This macro is for internal use only and is undefined at the end of the
     // file.
 
+/// Create a local variable with the specified `NAME` with a type that is an
+/// instantiation of `bdlb::ScopeExit` initialized with the specified
+/// `EXIT_FUNC`.  Note that the specific type of `bdlb::ScopeExit` used will
+/// depend on available language features.
 #ifdef BDLB_SCOPEEXIT_USES_MODERN_CPP
     #define BDLB_SCOPEEXIT_PROCTOR(NAME, EXIT_FUNC) \
         auto NAME{ BloombergLP::bdlb::ScopeExitUtil::makeScopeExit(EXIT_FUNC) }
@@ -601,10 +605,6 @@ BSLS_IDENT("$Id: $")
     #define BDLB_SCOPEEXIT_PROCTOR(NAME, EXIT_FUNC) \
         BloombergLP::bdlb::ScopeExitAny NAME((EXIT_FUNC))
 #endif
-    // Create a local variable with the specified 'NAME' with a type that is an
-    // instantiation of 'bdlb::ScopeExit' initialized with the specified
-    // 'EXIT_FUNC'.  Note that the specific type of 'bdlb::ScopeExit' used will
-    // depend on available language features.
 
 
 /// This macro is for use by `BDLB_SCOPEEXIT_GUARD` only to provide unique
@@ -617,6 +617,9 @@ BSLS_IDENT("$Id: $")
 /// direct use is not supported under any circumstances.
 #define BDLB_SCOPEEXIT_PRIVATE_CAT_IMP(X, Y) X##Y
 
+/// This macro is for use by `BDLB_SCOPEEXIT_GUARD` only to provide unique
+/// variable names.  It is *not* undefined by the end of the file but its
+/// direct use is not supported under any circumstances.
 #if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFCORM_CMP_GNU) ||     \
     defined(BSLS_PLATFCORM_CMP_CLANG)
     // MSVC: The '__LINE__' macro breaks when '/ZI' is used (see Q199057 or
@@ -628,9 +631,6 @@ BSLS_IDENT("$Id: $")
 #else
     #define BDLB_SCOPEEXIT_PRIVATE_UNIQNUM __LINE__
 #endif
-    // This macro is for use by 'BDLB_SCOPEEXIT_GUARD' only to provide unique
-    // variable names.  It is *not* undefined by the end of the file but its
-    // direct use is not supported under any circumstances.
 
 /// Create a local variable with a generated unique name and with a type
 /// that is an instantiation of `bdlb::ScopeExit` initialized with the
@@ -685,10 +685,10 @@ class BSLA_NODISCARD_CPP17 ScopeExit {
     BSLMF_ASSERT(!bsl::is_reference<EXIT_FUNC>::value);
         // Reference types are not allowed, only objects.
 
-    // We could check for more, but 'is_destructible' needs full C++11
-    // '<type_traits>' support, and 'is_invocable' is C++17 or later.  So we
+    // We could check for more, but `is_destructible` needs full C++11
+    // `<type_traits>` support, and `is_invocable` is C++17 or later.  So we
     // skip checking these to avoid major conditional compilation clutter.  The
-    // chance of passing non-destructible or non-callable 'EXIT_FUNC' argument
+    // chance of passing non-destructible or non-callable `EXIT_FUNC` argument
     // is low, and they will result in a reasonable error message.
 
   private:
@@ -700,7 +700,7 @@ class BSLA_NODISCARD_CPP17 ScopeExit {
   private:
     // PRIVATE DATA
     EXIT_FUNC d_exitFunction;          // A function pointer or functor to call
-    bool      d_executeOnDestruction;  // 'false' if 'release' was called
+    bool      d_executeOnDestruction;  // `false` if `release` was called
 
   private:
     // NOT IMPLEMENTED
@@ -729,13 +729,13 @@ class BSLA_NODISCARD_CPP17 ScopeExit {
     template <class EXIT_FUNC_PARAM>
     explicit ScopeExit(
         BSLS_COMPILERFEATURES_FORWARD_REF(EXIT_FUNC_PARAM) function,
-        typename bsl::enable_if<
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
     // Enable explicit conversions on platforms where we can use
-    // 'bsl::is_constructible'.  Since this converting constructor itself is
-    // marked 'explicit' we are not enabling anything extra by allowing
-    // 'explicit' conversions when 'EXIT_FUNC' is already explicitly
+    // `bsl::is_constructible`.  Since this converting constructor itself is
+    // marked `explicit` we are not enabling anything extra by allowing
+    // `explicit` conversions when `EXIT_FUNC` is already explicitly
     // convertible.
+        typename bsl::enable_if<
         bsl::is_constructible<  // Copy construct
             EXIT_FUNC,
             const typename MoveUtil::Decay<EXIT_FUNC_PARAM>::type&
@@ -744,9 +744,11 @@ class BSLA_NODISCARD_CPP17 ScopeExit {
             EXIT_FUNC,
             bslmf::MovableRef<typename MoveUtil::Decay<EXIT_FUNC_PARAM>::type>
         >::value
+                               >::type * = 0);
 #else
-    // 'bsl::is_convertible' will not allow 'explicit' conversions as we cannot
+    // `bsl::is_convertible` will not allow `explicit` conversions as we cannot
     // check their existence in C++03 without running into a compilation error.
+        typename bsl::enable_if<
         bsl::is_convertible<  // "Copy convert"
             const typename MoveUtil::Decay<EXIT_FUNC_PARAM>::type&,
             EXIT_FUNC
@@ -755,8 +757,8 @@ class BSLA_NODISCARD_CPP17 ScopeExit {
             bslmf::MovableRef<typename MoveUtil::Decay<EXIT_FUNC_PARAM>::type>,
             EXIT_FUNC
         >::value
-#endif
                                >::type * = 0);
+#endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
     /// Create a `ScopeExit` object, which, upon its destruction will invoke
@@ -771,6 +773,10 @@ class BSLA_NODISCARD_CPP17 ScopeExit {
     explicit ScopeExit(void (*function)());
 #endif
 
+    /// If `bsl::is_nothrow_move_constructible<EXIT_FUNC>::value` is `true`
+    /// or `EXIT_FUNC` is a move-only type, move construct, otherwise, copy
+    /// construct the exit function from the specified `original`.  If
+    /// construction succeeds, call `release()` on `original`.
     ScopeExit(bslmf::MovableRef<ScopeExit> original)
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
         BDLB_SCOPEEXIT_NOEXCEPT_SPEC(
@@ -780,10 +786,6 @@ class BSLA_NODISCARD_CPP17 ScopeExit {
        BDLB_SCOPEEXIT_NOEXCEPT_SPEC(
                          bsl::is_nothrow_move_constructible<EXIT_FUNC>::value);
 #endif
-        // If 'bsl::is_nothrow_move_constructible<EXIT_FUNC>::value' is 'true'
-        // or 'EXIT_FUNC' is a move-only type, move construct, otherwise, copy
-        // construct the exit function from the specified 'original'.  If
-        // construction succeeds, call 'release()' on 'original'.
 
     /// Destroy this object.  Execute the exit function unless `release()`
     /// has been called on this object.

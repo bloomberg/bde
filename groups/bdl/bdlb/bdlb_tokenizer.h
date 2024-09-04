@@ -119,10 +119,10 @@ BSLS_IDENT("$Id: $")
 // `bslstl::StringRef`, making it suitable for generic use -- e.g., in a
 // range-based `for` loop:
 // ```
+// /// Print, to the specified `output` stream, each whitespace-delimited
+// /// token in the specified `input`; string on a separate line following
+// /// a vertical bar ('|') and a hard space (' ').
 // void parse_1(bsl::ostream& output, const char *input)
-//     // Print, to the specified 'output' stream, each whitespace-delimited
-//     // token in the specified 'input; string on a separate line following
-//     // a vertical bar ('|') and a hard space (' ').
 // {
 //     const char softDelimiters[] = " \t\n";  // whitespace
 //
@@ -156,11 +156,11 @@ BSLS_IDENT("$Id: $")
 // to the previous and current (trailing) delimiters as well as the current
 // token:
 // ```
+// /// Print, to the specified `output` stream the leader of the specified
+// /// `input`, on a singly line, followed by subsequent current token and
+// /// (trailing) delimiter pairs on successive lines, each line beginning
+// /// with a vertical bar ('|') followed by a tab ('\t') character.
 // void parse_2(bsl::ostream& output, const char *input)
-//     // Print, to the specified 'output' stream the leader of the specified
-//     // 'input', on a singly line, followed by subsequent current token and
-//     // (trailing) delimiter pairs on successive lines, each line beginning
-//     // with a vertical bar ('|') followed by a tab ('\t') character.
 // {
 //     const char softDelimiters[] = " ";
 //     const char hardDelimiters[] = ":/";
@@ -550,7 +550,7 @@ namespace bdlb {
 class Tokenizer_Data {
 
     enum {
-        k_MAX_CHARS = 256  // maximum # of unique values for an 8-bit 'char'
+        k_MAX_CHARS = 256  // maximum # of unique values for an 8-bit `char`
     };
 
     char d_charTypes[k_MAX_CHARS];  // table of SOFT / HARD / TOKEN characters
@@ -643,10 +643,10 @@ class Tokenizer_Proxy {
 /// change.
 class TokenizerIterator
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
-// Sun CC workaround: iterators must be derived from 'std::iterator' to work
-// with the native std library algorithms.  However, 'std::iterator' is
-// deprecated in C++17, so do not rely on derivation unless required, to avoid
-// deprecation warnings on modern compilers.
+/// Sun CC workaround: iterators must be derived from `std::iterator` to work
+/// with the native std library algorithms.  However, `std::iterator` is
+/// deprecated in C++17, so do not rely on derivation unless required, to avoid
+/// deprecation warnings on modern compilers.
     : public bsl::iterator<bsl::input_iterator_tag,
                            bslstl::StringRef,
                            int,
@@ -661,8 +661,8 @@ class TokenizerIterator
     const char           *d_cursor_p;      // tail of parsed input
     const char           *d_token_p;       // current token
     const char           *d_postDelim_p;   // current (trailing) delimiter
-    const char           *d_end_p;         // one past input; 0 for '(char *)'
-    bool                  d_endFlag;       // set 'true' when at end of input
+    const char           *d_end_p;         // one past input; 0 for `(char *)`
+    bool                  d_endFlag;       // set `true` when at end of input
 
     // FRIENDS
     friend class Tokenizer;
@@ -778,8 +778,8 @@ class Tokenizer {
     const char     *d_prevDelim_p; // previous delimiter
     const char     *d_token_p;     // current token
     const char     *d_postDelim_p; // current (trailing) delimiter
-    const char     *d_end_p;       // one past end of input; 0 for '(char *)'
-    bool            d_endFlag;     // set 'true' when cursor at end of input
+    const char     *d_end_p;       // one past end of input; 0 for `(char *)`
+    bool            d_endFlag;     // set `true` when cursor at end of input
 
   private:
     // PRIVATE MANIPULATORS

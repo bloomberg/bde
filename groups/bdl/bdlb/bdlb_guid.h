@@ -28,14 +28,15 @@ BSLS_IDENT("$Id: $")
 // First, let us define the core types needed, the first of which is a utility
 // to allocate GUIDs.
 // ```
+// /// This struct provides a namespace for methods to generate GUIDs.
 // struct MyGuidGeneratorUtil {
-//     // This struct provides a namespace for methods to generate GUIDs.
 //
 //     // CLASS METHODS
+//
+//     /// Generate a version 1 GUID, placing the value into the
+//     /// specified 'guid' pointer.  Return 0 on success, and non-zero
+//     /// otherwise.
 //     static int generate(bdlb::Guid *guid);
-//         // Generate a version 1 GUID, placing the value into the
-//         // specified 'guid' pointer.  Return 0 on success, and non-zero
-//         // otherwise.
 // };
 //
 // // CLASS METHODS
@@ -81,15 +82,14 @@ BSLS_IDENT("$Id: $")
 // ```
 //  Next, we create a utility to create unique strings.
 // ```
+// /// This struct provides methods to create globally unique strings.
 // struct UniqueStringGenerator {
-//     // This struct provides methods to create globally unique strings.
 //
+//     /// Create a globally unique string from the specified non-unique
+//     /// 'base' string, placing the result into the specified 'unique'
+//     /// string pointer.
 //     static int uniqueStringFromBase(bsl::string        *unique,
 //                                     const bsl::string&  base);
-//           // Create a globally unique string from the specified non-unique
-//           // 'base' string, placing the result into the specified 'unique'
-//           // string pointer.
-//
 // };
 //
 // int
@@ -195,8 +195,8 @@ class Guid {
     /// initialized guid object is not a GUID according to RFC 4122.
     Guid();
 
+    /// Destroy this object
     //! ~Guid() = default;
-        // Destroy this object
 
     /// Construct a guid object with the internal buffer set equal to the
     /// specified `buffer` with the first byte representing the most
@@ -216,14 +216,15 @@ class Guid {
          unsigned char       clockSeqLow,
          bsls::Types::Uint64 node);
 
+    /// Construct a guid object having the same value as the specified
+    /// 'original' object.
     //! Guid(const Guid& original) = default;
-        // Construct a guid object having the same value as the specified
-        // 'original' object.
 
     // MANIPULATORS
+
+    /// Assign to this guid object the value of the specified 'rhs' and
+    /// return a reference to this modifiable object.
     //! Guid& operator=(const Guid& rhs) = default;
-        // Assign to this guid object the value of the specified 'rhs' and
-        // return a reference to this modifiable object.
 
     /// Assign to the buffer of this guid the byte sequence in the specified
     /// `buffer`.

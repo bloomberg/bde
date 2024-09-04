@@ -52,9 +52,9 @@ BSLS_IDENT("$Id: $")
 // toLower(STR)                  convert to lower case
 // toUpper(STR)                  convert to upper case
 //
-// strnlen(const char *, int)    null-terminated length, but bounded by 'int'
+// strnlen(const char *, int)    null-terminated length, but bounded by `int`
 // toFixedLength(...)            fixed-length copy with padding character
-// pad(...)                      append padding 'char' up to specified length
+// pad(...)                      append padding `char` up to specified length
 // ```
 //
 ///UTF-8
@@ -85,7 +85,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstring.h>
 #include <bsl_string.h>
 
-#include <string>           // 'std::string', 'std::pmr::string'
+#include <string>
 
 namespace BloombergLP {
 namespace bdlb {
@@ -199,18 +199,18 @@ struct String {
     static int lowerCaseCmp(const bsl::string& lhsString,
                             const bsl::string& rhsString);
 
+    /// Remove all leading whitespace characters from the specified
+    /// `string`.  If `string` consists of only whitespace then it will be
+    /// empty (i.e., have 0 length) after this operation.  The behavior is
+    /// undefined unless `string->size() <= INT_MAX` (if applicable).  See
+    /// `bdlb_stringviewutil` for an identically named method having
+    /// similar semantics taking (and returning) `bsl::string_view`.
     static void ltrim(char *string);
     static void ltrim(bsl::string *string);
     static void ltrim(std::string *string);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void ltrim(std::pmr::string *string);
 #endif
-        // Remove all leading whitespace characters from the specified
-        // 'string'.  If 'string' consists of only whitespace then it will be
-        // empty (i.e., have 0 length) after this operation.  The behavior is
-        // undefined unless 'string->size() <= INT_MAX' (if applicable).  See
-        // {'bdlb_stringviewutil'} for an identically named method having
-        // similar semantics taking (and returning) 'bsl::string_view'.
 
     /// Remove all leading whitespace characters from the specified `string`
     /// having the specified `length`, and load into `length` the number of
@@ -218,7 +218,7 @@ struct String {
     /// of only whitespace then it will be empty (i.e., have 0 length) after
     /// this operation.  The behavior is undefined unless `0 <= *length`.
     /// Note that `length` is both an input and output parameter.  See
-    /// {`bdlb_stringviewutil`} for an identically named method having
+    /// `bdlb_stringviewutil` for an identically named method having
     /// similar semantics taking (and returning) `bsl::string_view`.
     static void ltrim(char *string, int *length);
 
@@ -231,27 +231,27 @@ struct String {
     static void pad(std::string *string, int length, char padChar = ' ');
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    /// Append repeatedly to the specified `string` the optionally specified
+    /// `padChar` until `string` has the specified `length`.  If `padChar`
+    /// is not specified the space (` `) character is appended.  This
+    /// operation has no effect if `string.size() >= length`.
     static void pad(std::pmr::string            *string,
                     std::pmr::string::size_type  length,
                     char                         padChar = ' ');
-        // Append repeatedly to the specified 'string' the optionally specified
-        // 'padChar' until 'string' has the specified 'length'.  If 'padChar'
-        // is not specified the space (' ') character is appended.  This
-        // operation has no effect if 'string.size() >= length'.
 #endif
 
+    /// Remove all trailing whitespace characters from the specified
+    /// `string`.  If `string` consists of only whitespace then it will be
+    /// empty (i.e., have 0 length) after this operation.  The behavior is
+    /// undefined unless `string->size() <= INT_MAX` (if applicable).  See
+    /// `bdlb_stringviewutil` for an identically named method having
+    /// similar semantics taking (and returning) `bsl::string_view`.
     static void rtrim(char *string);
     static void rtrim(bsl::string *string);
     static void rtrim(std::string *string);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void rtrim(std::pmr::string *string);
 #endif
-        // Remove all trailing whitespace characters from the specified
-        // 'string'.  If 'string' consists of only whitespace then it will be
-        // empty (i.e., have 0 length) after this operation.  The behavior is
-        // undefined unless 'string->size() <= INT_MAX' (if applicable).  See
-        // {'bdlb_stringviewutil'} for an identically named method having
-        // similar semantics taking (and returning) 'bsl::string_view'.
 
     /// Determine the number of characters that the specified `string`
     /// having the specified `length` would have if all trailing whitespace
@@ -337,6 +337,10 @@ struct String {
                               int         srcLength,
                               char        padChar = ' ');
 
+    /// Replace all upper case characters in the specified `string` having
+    /// the optionally specified `length` with their lower-case equivalent.
+    /// The behavior is undefined unless `0 <= length` (if specified) and
+    /// `string->size() <= INT_MAX` (if applicable).
     static void toLower(char *string);
     static void toLower(char *string, int length);
     static void toLower(bsl::string *string);
@@ -344,11 +348,11 @@ struct String {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void toLower(std::pmr::string *string);
 #endif
-        // Replace all upper case characters in the specified 'string' having
-        // the optionally specified 'length' with their lower-case equivalent.
-        // The behavior is undefined unless '0 <= length' (if specified) and
-        // 'string->size() <= INT_MAX' (if applicable).
 
+    /// Replace all lower case characters in the specified `string` having
+    /// the optionally specified `length` with their upper-case equivalent.
+    /// The behavior is undefined unless `0 <= length` (if specified) and
+    /// `string->size() <= INT_MAX` (if applicable).
     static void toUpper(char *string);
     static void toUpper(char *string, int length);
     static void toUpper(bsl::string *string);
@@ -356,24 +360,20 @@ struct String {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void toUpper(std::pmr::string *string);
 #endif
-        // Replace all lower case characters in the specified 'string' having
-        // the optionally specified 'length' with their upper-case equivalent.
-        // The behavior is undefined unless '0 <= length' (if specified) and
-        // 'string->size() <= INT_MAX' (if applicable).
 
+    /// Remove all leading and trailing whitespace characters from the
+    /// specified `string`.  If `string` consists of only whitespace then it
+    /// will be empty (i.e., have 0 length) after this operation.  The
+    /// behavior is undefined unless `string->size() <= INT_MAX` (if
+    /// applicable).  See `bdlb_stringviewutil` for an identically named
+    /// method having similar semantics taking (and returning)
+    /// `bsl::string_view`.
     static void trim(char *string);
     static void trim(bsl::string *string);
     static void trim(std::string *string);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void trim(std::pmr::string *string);
 #endif
-        // Remove all leading and trailing whitespace characters from the
-        // specified 'string'.  If 'string' consists of only whitespace then it
-        // will be empty (i.e., have 0 length) after this operation.  The
-        // behavior is undefined unless 'string->size() <= INT_MAX' (if
-        // applicable).  See {'bdlb_stringviewutil'} for an identically named
-        // method having similar semantics taking (and returning)
-        // 'bsl::string_view'.
 
     /// Remove all leading and trailing whitespace characters from the
     /// specified `string` having the specified `length`, and load into
@@ -381,7 +381,7 @@ struct String {
     /// If `string` consists of only whitespace then it will be empty (i.e.,
     /// have 0 length) after this operation.  The behavior is undefined
     /// unless `0 <= *length`.  Note that `length` is both an input and
-    /// output parameter.  See {`bdlb_stringviewutil`} for an identically
+    /// output parameter.  See `bdlb_stringviewutil` for an identically
     /// named method having similar semantics taking (and returning)
     /// `bsl::string_view`.
     static void trim(char *string, int *length);
@@ -401,6 +401,15 @@ struct String {
     /// the character one past the end of the subject string.
     static void skipLeadingTrailing(const char **begin, const char **end);
 
+    /// Compare the specified `lhsString` and `rhsString` having the
+    /// optionally specified `lhsLength` and `rhsLength`, respectively, *as*
+    /// *if* the strings were converted to upper case before the comparison.
+    /// Return 1 if `lhsString` is lexically greater than `rhsString`, 0 if
+    /// they are equal, and -1 otherwise.  The behavior is undefined unless
+    /// `0 <= lhsLength` and `0 <= rhsLength` (if specified), and
+    /// `lhsString.size() <= INT_MAX` and `rhsString.size() <= INT_MAX` (if
+    /// applicable).  See {`bdlb_stringviewutil`} for an identically named
+    /// method having the same semantics taking `bsl::string_view`.
     static int upperCaseCmp(const char *lhsString, const char *rhsString);
     static int upperCaseCmp(const char *lhsString,
                             const char *rhsString,
@@ -418,16 +427,6 @@ struct String {
     static int upperCaseCmp(const char         *lhsString,
                             int                 lhsLength,
                             const bsl::string&  rhsString);
-
-    /// Compare the specified `lhsString` and `rhsString` having the
-    /// optionally specified `lhsLength` and `rhsLength`, respectively, *as*
-    /// *if* the strings were converted to upper case before the comparison.
-    /// Return 1 if `lhsString` is lexically greater than `rhsString`, 0 if
-    /// they are equal, and -1 otherwise.  The behavior is undefined unless
-    /// `0 <= lhsLength` and `0 <= rhsLength` (if specified), and
-    /// `lhsString.size() <= INT_MAX` and `rhsString.size() <= INT_MAX` (if
-    /// applicable).  See {`bdlb_stringviewutil`} for an identically named
-    /// method having the same semantics taking `bsl::string_view`.
     static int upperCaseCmp(const bsl::string&  lhsString,
                             const char         *rhsString);
     static int upperCaseCmp(const bsl::string&  lhsString,

@@ -18,6 +18,8 @@ BSLS_IDENT("$Id$ $CSID$")
 ///-----
 // This section illustrates intended use of this component.
 //
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Suppose we need to implement a function that takes a `bsl::map` and stores
 // into out-parameters the key and value corresponding to the first entry in
 // the map.  Using `bsl::map`s container interface, we can obtain a reference
@@ -25,13 +27,13 @@ BSLS_IDENT("$Id$ $CSID$")
 // `bdlb::PairUtil::tie` to assign from both the key and value in a single
 // expression:
 // ```
+// /// Load into the specified `key` and the specified `value` the key and
+// /// value for the first entry in the specified `map` and return `true`,
+// /// or else fail by storing 0 and an empty string and return `false`
+// /// when `map` is empty.
 // bool getFirst(int                              *key,
 //               bsl::string                      *value,
 //               const bsl::map<int, bsl::string>& map)
-//     // Load into the specified 'key' and the specified 'value' the key and
-//     // value for the first entry in the specified 'map' and return 'true',
-//     // or else fail by storing 0 and an empty string and return 'false'
-//     // when 'map' is empty.
 // {
 //     if (map.empty()) {
 //         *key = 0;

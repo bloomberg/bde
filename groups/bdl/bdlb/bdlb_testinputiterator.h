@@ -15,15 +15,15 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This components provides a mechanism,
 // `bdlb::TestInputIterator`, that defines an input iterator with the following
 // attributes:
-// ```
-// o For a given type, 'T', all objects of type 'TestInputIterator<T>'
+//
+// * For a given type, `T`, all objects of type `TestInputIterator<T>`
 //   compare equal.  Thus, any pair of such iterators constitute an
 //   empty range.
-// o Dereferencing or incrementing the iterator is undefined behavior, since
+// * Dereferencing or incrementing the iterator is undefined behavior, since
 //   every iterator is logically at the end of its valid range.
-// o Exactly meets the requirements for an input iterator according to the
+// * Exactly meets the requirements for an input iterator according to the
 //   C++ Standard (C++98, Section 24.1.1 [lib.input.iterators]).
-// ```
+//
 // This iterator type is typically used to check algorithms for compatibility
 // with input iterators.  The goal is to make sure that their code is able to
 // work even with the most restrictive input iterator.
@@ -60,12 +60,12 @@ BSLS_IDENT("$Id: $")
 // {
 //     static const int myArray[6] = { 2, 3, 5, 7, 11, 0 };
 //
-//     // Verify that 'sum' correctly computes the sum using random access
+//     // Verify that `sum` correctly computes the sum using random access
 //     // iterators (pointers).
 //     int r1 = sum(&myArray[0], &myArray[5]);
 //     assert(28 == r1);
 //
-//     // Verify that 'sum' can be instantiated using a pure input iterator.
+//     // Verify that `sum` can be instantiated using a pure input iterator.
 //     typedef bdlb::TestInputIterator<unsigned> iterType;
 //     unsigned r2 = sum(iterType(), iterType());
 //     assert(0 == r2);

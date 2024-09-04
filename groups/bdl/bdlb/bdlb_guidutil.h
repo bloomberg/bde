@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 //
 // <GUID>             ::=  <FORMATTED GUID>   |   <UNFORMATTED GUID>
 //
-// <FORMATTED GUID>    ::=  <X>{4} '-' <X>{2} '-' <X>{2} '-' <X>{2} '-' <X>{6}
+// <FORMATTED GUID>   ::=  <X>{4} '-' <X>{2} '-' <X>{2} '-' <X>{2} '-' <X>{6}
 //
 // <UNFORMATTED GUID> ::=  <X>{16}
 //
@@ -76,9 +76,9 @@ BSLS_IDENT("$Id: $")
 //
 // First let us define a value-type for employees.
 // ```
+// /// This class provides a value-semantic type to represent an employee
+// /// record.  These records are for internal use only.
 // class MyEmployee {
-//     // This class provides a value-semantic type to represent an employee
-//     // record.  These records are for internal use only.
 // ```
 // For the sake of brevity, we provide a limited amount of data in each record.
 // We additionally show a very limited scope of functionality.
@@ -90,21 +90,24 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an object with the specified `name` and specified
+//     /// `salary`, generating a new GUID to represent the employee.
 //     MyEmployee(const string& name, double salary);
-//         // Create an object with the specified 'name' and specified
-//         //'salary', generating a new GUID to represent the employee.
 //
 //     // ...
 //
 //     // ACCESSORS
+//
+//     /// Return the `guid` of this object.
 //     const bdlb::Guid& Guid() const;
-//         // Return the 'guid' of this object.
 //
+//     /// Return the `name` of this object.
 //     const bsl::string& name() const;
-//         // Return the 'name' of this object.
 //
+//     /// Return the `salary` of this object.
 //     double salary() const;
-//         // Return the 'salary' of this object.
+//
 //     // ...
 // };
 // ```
@@ -113,53 +116,53 @@ BSLS_IDENT("$Id: $")
 // increasing nature of sequential GUIDs to implement these methods.
 // ```
 //
-//   bool operator== (const MyEmployee& lhs, const MyEmployee& rhs);
-//       // Return 'true' if the specified 'lhs' object has the same value as
-//       // the specified 'rhs' object, and 'false' otherwise.  Note that two
-//       // 'MyEmployee' objects have the same value if they have the same
-//       // guid.
+// /// Return `true` if the specified `lhs` object has the same value as
+// /// the specified `rhs` object, and `false` otherwise.  Note that two
+// /// `MyEmployee` objects have the same value if they have the same
+// /// guid.
+// bool operator== (const MyEmployee& lhs, const MyEmployee& rhs);
 //
-//   bool operator< (const MyEmployee& lhs, const MyEmployee& rhs);
-//       // Return 'true' if the value of the specified 'lhs' MyEmployee object
-//       // is less than the value of the specified 'rhs' MyEmployee object,
-//       // and 'false' otherwise.  A MyEmployee object is less than another if
-//       // the guid is less than the other.
-//  ...
+// /// Return `true` if the value of the specified `lhs` MyEmployee object
+// /// is less than the value of the specified `rhs` MyEmployee object,
+// /// and `false` otherwise.  A MyEmployee object is less than another if
+// /// the guid is less than the other.
+// bool operator< (const MyEmployee& lhs, const MyEmployee& rhs);
 //
-//   // CREATORS
-//   MyEmployee::MyEmployee(const string& name, double salary)
-//   : d_name(name)
-//   , d_salary(salary)
-//   {
-//       bdlb::GuidUtil::generate(&d_guid);
-//   }
 //
-//   // ACCESSORS
-//   const bdlb::Guid& MyEmployee::Guid() const
-//   {
-//       return d_guid;
-//   }
+// // CREATORS
+// MyEmployee::MyEmployee(const string& name, double salary)
+// : d_name(name)
+// , d_salary(salary)
+// {
+//     bdlb::GuidUtil::generate(&d_guid);
+// }
 //
-//   const bsl::string& MyEmployee::name() const
-//   {
-//       return d_name;
-//   }
+// // ACCESSORS
+// const bdlb::Guid& MyEmployee::Guid() const
+// {
+//     return d_guid;
+// }
 //
-//   double MyEmployee::salary() const
-//   {
-//       return d_salary;
-//   }
+// const bsl::string& MyEmployee::name() const
+// {
+//     return d_name;
+// }
 //
-//   // FREE FUNCTIONS
-//   bool operator==(const MyEmployee& lhs, const MyEmployee& rhs)
-//   {
-//       return lhs.Guid() == rhs.Guid();
-//   }
+// double MyEmployee::salary() const
+// {
+//     return d_salary;
+// }
 //
-//   bool operator<(const MyEmployee& lhs, const MyEmployee& rhs)
-//   {
-//        return lhs.Guid() < rhs.Guid();
-//   }
+// // FREE FUNCTIONS
+// bool operator==(const MyEmployee& lhs, const MyEmployee& rhs)
+// {
+//     return lhs.Guid() == rhs.Guid();
+// }
+//
+// bool operator<(const MyEmployee& lhs, const MyEmployee& rhs)
+// {
+//      return lhs.Guid() < rhs.Guid();
+// }
 // ```
 // Next, we create some employees:
 // ```
@@ -310,13 +313,13 @@ struct GuidUtil {
     /// string is improperly formatted.
     static Guid guidFromString(const bsl::string_view& guidString);
 
+    /// Serialize the specified `guid` into the specified `result`.  The
+    /// `result` string will be in a format suitable for `guidFromString`.
     static void guidToString(bsl::string *result, const Guid& guid);
     static void guidToString(std::string *result, const Guid& guid);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static void guidToString(std::pmr::string *result, const Guid& guid);
 #endif
-        // Serialize the specified 'guid' into the specified 'result'.  The
-        // 'result' string will be in a format suitable for 'guidFromString'.
 
     /// Convert the specified `guid` into a string suitable for
     /// `guidFromString`, and return the string.

@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::StringRefUtil: namespace for functions on `bslstl::StringRef` strings
 //
-//@SEE_ALSO: bdlb_String, bslstl_stringref
+//@SEE_ALSO: bdlb_string, bslstl_stringref
 //
 //@DESCRIPTION: This component defines a utility `struct`,
 // `bdlb::StringRefUtil`, that provides a suite of functions that operate on
@@ -45,7 +45,7 @@ BSLS_IDENT("$Id: $")
 //                  rtrim(SR) exclude whitespace from right side  of string
 //                   trim(SR) exclude whitespace from both  sides of string
 //
-//       substr(SR, pos, num) substring, 'num' characters from 'pos'
+//       substr(SR, pos, num) substring, `num` characters from `pos`
 //
 // strstr         (SR, SUBSR) find first substring in string
 // strstrCaseless (SR, SUBSR) find first substring in string, case insensitive
@@ -212,7 +212,7 @@ struct StringRefUtil {
     /// `string` (i.e., `bslstl::StringRef(string.data(), 0)`).
     static bslstl::StringRef trim(const bslstl::StringRef& string);
 
-                        // Create 'subString'
+                        // Create `subString`
 
     /// Return a string whose value is the substring starting at the
     /// optionally specified `position` in the specified `string`, of length
@@ -228,7 +228,7 @@ struct StringRefUtil {
                                   size_type                position = 0,
                                   size_type                numChars = k_NPOS);
 
-                        // Find 'subString'
+                        // Find `subString`
 
     /// Return a `bslstl::StringRef` object referring to the first
     /// occurrence in (the referent data of) the specified `string` at which

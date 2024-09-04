@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::NullableAllocatedValue_PointerBitsPair: pointer and bits together.
 //
-//@SEE_ALSO: NullableAllocatedValue
+//@SEE_ALSO: bdlb_nullablesllocatedvalue
 //
 //@DESCRIPTION: This private, subordinate component to
 // `bdlb_nullableallocatedvalue` provides a templated class,
@@ -86,15 +86,13 @@ class NullableAllocatedValue_PointerBitsPair {
     explicit NullableAllocatedValue_PointerBitsPair(t_TYPE   *ptr,
                                                     unsigned  flags = 0);
 
+    /// Create a `NullableAllocatedValue_PointerBitsPair` having the same
+    /// value as the specified `original` object.
     //! NullableAllocatedValue_PointerBitsPair(
-    //       const NullableAllocatedValue_PointerBitsPair& original) = default;
-        // Create a 'NullableAllocatedValue_PointerBitsPair' having the same
-        // value as the specified 'original' object.  Note that this trivial
-        // constructor is compiler generated.
+    //!       const NullableAllocatedValue_PointerBitsPair& original) = default;
 
+    /// Destroy this object.
     //! ~NullableAllocatedValue_PointerBitsPair() = default;
-        // Destroy this object.  Note that this trivial destructor's definition
-        // is compiler generated.
 
     // ACCESSORS
 
@@ -112,12 +110,11 @@ class NullableAllocatedValue_PointerBitsPair {
     bool readFlag(unsigned idx) const;
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
     //! NullableAllocatedValue_PointerBitsPair& operator=(
-    //            const NullableAllocatedValue_PointerBitsPair& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that this trivial copy-assignment operator's definition is compiler
-        // generated.
+    //!           const NullableAllocatedValue_PointerBitsPair& rhs) = default;
 
     /// Clear the flag specified by `idx`.  The behavior is undefined unless
     /// `idx < t_NUM_BITS`.

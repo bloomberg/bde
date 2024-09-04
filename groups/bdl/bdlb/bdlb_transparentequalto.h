@@ -89,23 +89,25 @@ struct TransparentEqualTo {
     typedef void is_transparent;
 
     // CREATORS
+
+    /// Create a `TransparentEqualTo` object.
     //! TransparentEqualTo() = default;
-        // Create a 'TransparentEqualTo' object.
 
+    /// Create a `TransparentEqualTo` object.  Note that as
+    /// `TransparentEqualTo` is an empty (stateless) type, this operation
+    /// has no observable effect.
     //! TransparentEqualTo(const TransparentEqualTo& original) = default;
-        // Create a 'TransparentEqualTo' object.  Note that as
-        // 'TransparentEqualTo' is an empty (stateless) type, this operation
-        // has no observable effect.
 
+    /// Destroy this object.
     //! ~TransparentEqualTo() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    /// Note that as `TransparentEqualTo` is an empty (stateless) type, this
+    /// operation has no observable effect.
     //! TransparentEqualTo& operator=(const TransparentEqualTo& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
-        // Note that as 'TransparentEqualTo' is an empty (stateless) type, this
-        // operation has no observable effect.
 
     // ACCESSORS
 
