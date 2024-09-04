@@ -34,8 +34,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // First, we need to write a verification function:
 // ```
+// /// Verify if specified `password` meets basic security requirements.
 // bdld::DatumError verifyNewPassword(const char *password)
-//     // Verify if specified 'password' meets basic security requirements.
 // {
 //     bool uppercasePresence     = false;
 //     bool lowercasePresence     = false;
@@ -146,6 +146,7 @@ class DatumError {
     //! ~DatumError() = default;
 
     // MANIPULATORS
+
     //! DatumError& operator=(const DatumError& rhs) = default;
 
     // ACCESSORS

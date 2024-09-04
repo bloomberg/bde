@@ -121,6 +121,7 @@ class DatumUdt {
     //! ~DatumUdt() = default;
 
     // MANIPULATORS
+
     //! DatumUdt& operator=(const DatumUdt& rhs) = default;
 
     // ACCESSORS
@@ -202,8 +203,8 @@ bool operator>=(const DatumUdt& lhs, const DatumUdt& rhs);
 /// ```
 /// user-defined(<address>,type)
 /// ```
-///(where `address` is hex value of the pointer to the user-define object
-///and `type` is the type of the user-defined object)
+/// (where `address` is hex value of the pointer to the user-define object
+/// and `type` is the type of the user-defined object)
 bsl::ostream& operator<<(bsl::ostream& stream, const DatumUdt& rhs);
 
 // ============================================================================

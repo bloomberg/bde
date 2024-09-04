@@ -36,9 +36,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // First, we write all three functions:
 // ```
+// // Allocate array of the specified `size` and initialize it with some
+// // values.
 // bdld::DatumBinaryRef obtainData(size_t size)
-//     // Allocate array of the specified 'size' and initialize it with some
-//     // values.
 // {
 //     if (0 == size) {
 //         return bdld::DatumBinaryRef();                            // RETURN
@@ -50,8 +50,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //     return bdld::DatumBinaryRef(static_cast<void *>(buffer), size);
 // }
 //
+// /// Process data, held by the specified `binaryData` object.
 // int processData(const bdld::DatumBinaryRef& binaryData)
-//     // Process data, held by the specified 'binaryData' object.
 // {
 //     ostringstream out;
 //     binaryData.print(out);
@@ -68,8 +68,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //     return result;
 // }
 //
+// /// Release memory, held by the specified `binaryData` object.
 // void releaseData(const bdld::DatumBinaryRef& binaryData)
-//     // Release memory, held by the specified 'binaryData' object.
 // {
 //     const int *array = static_cast<const int *>(binaryData.data());
 //     delete [] array;
@@ -146,6 +146,7 @@ class DatumBinaryRef {
     //! ~DatumBinaryRef() = default;
 
     // MANIPULATORS
+
     //! DatumBinaryRef& operator=(const DatumBinaryRef& rhs) = default;
 
     // ACCESSORS

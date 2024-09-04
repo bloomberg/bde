@@ -42,10 +42,10 @@ BSLS_IDENT("$Id$ $CSID$")
 // First we define a function `nextValue` that we will use to tokenize the
 // input string:
 // ```
+// /// Extract the next value from a list of comma separated values in the
+// /// specified `input` string and load it in the specified `value`.
+// /// Return the index of the next value within `input`.
 // bsl::size_t nextValue(bsl::string *value, const bsl::string& input)
-//     // Extract the next value from a list of comma separated values in the
-//     // specified 'input' string and load it in the specified 'value'.
-//     // Return the index of the next value within 'input'.
 // {
 //     if (input.empty()) {
 //         return bsl::string::npos;
@@ -64,11 +64,11 @@ BSLS_IDENT("$Id$ $CSID$")
 // Next, we define a function `convertToDatum` that will convert a string
 // token into a `Datum` scalar value:
 // ```
+// // Convert the specified `token` into the appropriate type of scalar
+// // value and then create and return a `Datum` object using that value.
+// // Use the specified `basicAllocator` to supply memory.
 // bdld::Datum convertToDatum(const bsl::string&  token,
 //                            bslma::Allocator   *basicAllocator)
-//     // Convert the specified 'token' into the appropriate type of scalar
-//     // value and then create and return a 'Datum' object using that value.
-//     // Use the specified 'basicAllocator' to supply memory.
 // {
 //     bool isInteger = true;
 //     bool isDouble = false;
@@ -204,7 +204,6 @@ class DatumArrayBuilder {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(DatumArrayBuilder,
                                    bslma::UsesBslmaAllocator);
-        // 'DatumArrayBuilder' is allocator-aware.
 
     // CREATORS
 

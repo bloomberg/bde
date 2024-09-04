@@ -134,9 +134,8 @@ class DatumMapOwningKeysBuilder {
   public:
     // TYPES
 
-    /// `SizeType` is an alias for a signed value, representing the
-    /// capacity, *keys-capacity*, size or *keys-size* of a datum-key-owning
-    /// map.
+    /// `SizeType` is an alias for a signed value, representing the capacity,
+    /// *keys-capacity*, size or *keys-size* of a datum-key-owning map.
     typedef Datum::SizeType SizeType;
 
     typedef bsl::allocator<char> allocator_type;
@@ -165,9 +164,10 @@ class DatumMapOwningKeysBuilder {
 
   public:
     // TRAITS
+
+    /// `DatumMapOwningKeysBuilder` is allocator-aware.
     BSLMF_NESTED_TRAIT_DECLARATION(DatumMapOwningKeysBuilder,
                                    bslma::UsesBslmaAllocator);
-        // 'DatumMapOwningKeysBuilder' is allocator-aware.
 
     // CREATORS
 

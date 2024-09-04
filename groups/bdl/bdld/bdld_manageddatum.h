@@ -33,7 +33,7 @@ BSLS_IDENT("$Id$ $CSID$")
 ///---------------
 // `ManagedDatum`, while not strictly a value-semantic type, provides the full
 // set of value-semantic-like operations for `Datum` (see
-// {`bsldoc_glossary`|Value-Semantic Operations}):
+// [](bsldoc_glossary#Value-Semantic Operations)):
 //
 // * Equality and Non-Equality Comparisons
 // * Copy Construction
@@ -47,7 +47,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // performs a shallow copy (copying the reference rather than the value), which
 // is inconsistent with value-semantics.  For *all* other types `ManagedDatum`
 // copy operations (copy construction, copy assignment, and non-member `swap`
-// when the allocators differ) will deep-copy the value using 'Datum::clone,
+// when the allocators differ) will deep-copy the value using `Datum::clone`,
 // which creates a completely independent copy, with independent lifetime, by
 // duplicating all data, even referenced data (except for UDTs).
 //
@@ -230,8 +230,9 @@ class ManagedDatum {
 
   public:
     // TRAITS
+
+    /// 'ManagedDatum' objects are allocator-aware and bitwise movable.
     BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bslmf::IsBitwiseMoveable);
-        // 'ManagedDatum' objects are allocator-aware and bitwise movable.
 
     // CREATORS
 

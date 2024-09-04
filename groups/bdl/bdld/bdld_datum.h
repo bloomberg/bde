@@ -282,7 +282,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // * *dataType* - the value returned by the `type()`
 // * *external-reference* - whether `isExternalReference` will return `true`,
 //   in which case `Datum::destroy` will not release the externally
-//   referenced data (see `References to External Strings and Arrays`})
+//   referenced data (see
+//   [](bdld_datum#References to External Strings and Arrays))
 // * *requires-allocation* - whether a `Datum` referring to this type requires
 //   memory allocation.  Note that for externally represented string or
 //   arrays, meta-data may still need to be allocated.
@@ -413,9 +414,11 @@ BSLS_IDENT("$Id$ $CSID$")
 // The following example illustrates the construction of an owned array of
 // datums.
 //
-// *WARNING*: Using corresponding builder components is a preferred way of
-// constructing `Datum` array objects.  This example shows how a user-facing
-// builder component might use the primitives provided in `bdld_datum`.
+// > **WARNING**
+// >> Using corresponding builder components is a preferred way of
+// >> constructing `Datum` array objects.  This example shows how a
+// >> user-facing builder component might use the primitives provided in
+// >> `bdld_datum`.
 //
 // First we create an array of datums:
 // ```
@@ -454,9 +457,10 @@ BSLS_IDENT("$Id$ $CSID$")
 // The following example illustrates the construction of a map of datums
 // indexed by string keys.
 //
-// *WARNING*: Using corresponding builder components is a preferred way of
-// constructing `Datum` map objects.  This example shows how a user-facing
-// builder component might use the primitives provided in `bdld_datum`.
+// > **WARNING**
+// >> Using corresponding builder components is a preferred way of
+// >> constructing `Datum` map objects.  This example shows how a user-facing
+// >> builder component might use the primitives provided in `bdld_datum`.
 //
 // First we create a map of datums:
 // ```
@@ -517,7 +521,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //     maggieArray.data()[1] = Datum::createStringRef("Simpson", &arena);
 //     *maggieArray.length() = 2;
 //     Datum maggie = Datum::adoptArray(maggieArray);
-// } // end of scope
+//    // end of scope
+// }
 // ```
 // Here all the allocated memory is lodged in the `arena` allocator. At the end
 // of the scope the memory is freed in a single step.  Calling `destroy` for
@@ -707,9 +712,9 @@ class Datum {
     // TYPES
     typedef bsl::allocator<> AllocatorType;
 
+    /// Enumeration used to discriminate among the different externally-
+    /// exposed types of values that can be stored inside `bdld::Datum`.
     enum DataType {
-        // Enumeration used to discriminate among the different externally-
-        // exposed types of values that can be stored inside 'Datum'.
           e_NIL                  =  0  // null value
         , e_INTEGER              =  1  // integer value
         , e_DOUBLE               =  2  // double value
@@ -750,10 +755,9 @@ class Datum {
 #endif  // end - do not omit internal deprecated
     };
 
+    // Define `k_NUM_TYPES` to be the number of consecutively valued
+    // enumerators in the range `[ e_NIL .. e_DECIMAL64 ]`.
     enum {
-        // Define 'k_NUM_TYPES' to be the number of consecutively valued
-        // enumerators in the range '[ e_NIL .. e_DECIMAL64 ]'.
-
           k_NUM_TYPES    = 17           // number of distinct enumerated types
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
         , DLCT_NUM_TYPES = k_NUM_TYPES
@@ -764,9 +768,10 @@ class Datum {
   private:
     // PRIVATE TYPES
     // 32-bit variation
+
+    /// Enumeration used to discriminate among the different types of values
+    /// that can be stored inside `bdld::Datum`.
     enum InternalDataType {
-        // Enumeration used to discriminate among the different types of values
-        // that can be stored inside 'Datum'.
 
           e_INTERNAL_INF                 =  0  // +/- infinity value
         , e_INTERNAL_LONGEST_SHORTSTRING =  1  // 6 character string
@@ -786,19 +791,19 @@ class Datum {
         , e_INTERNAL_EXTENDED            = 15  // extended data types
         , e_INTERNAL_DOUBLE              = 16  // double value
     };
+
+    /// Define `k_NUM_INTERNAL_TYPES` to be the number of consecutively
+    /// valued enumerators in the range
+    /// `[ e_INTERNAL_INF .. e_INTERNAL_DOUBLE ]`.
     enum {
-        // Define 'k_NUM_INTERNAL_TYPES' to be the number of consecutively
-        // valued enumerators in the range
-        // '[ e_INTERNAL_INF .. e_INTERNAL_DOUBLE ]'.
 
         k_NUM_INTERNAL_TYPES             = 17  // number of internal types
     };
 
+    /// Enumeration used to discriminate among different types of values
+    /// that map on to the `e_INTERNAL_EXTENDED` discriminator value inside
+    /// `bdld::Datum`.  It is used to add any new required types.
     enum ExtendedInternalDataType {
-        // Enumeration used to discriminate among different types of values
-        // that map on to the 'e_INTERNAL_EXTENDED' discriminator value inside
-        // 'Datum'.  It is used to add any new required types.
-
           e_EXTENDED_INTERNAL_MAP         = 0  // map of datums keyed by string
                                                // values that are not owned
 
@@ -840,11 +845,10 @@ class Datum {
                                                      // 32-bit integer values
     };
 
+    // Define `k_NUM_EXTENDED_INTERNAL_TYPES` to be the number of
+    // consecutively valued enumerators in the range
+    // `[ e_EXTENDED_INTERNAL_MAP .. e_EXTENDED_INTERNAL_INT_MAP ]`.
     enum {
-        // Define 'k_NUM_EXTENDED_INTERNAL_TYPES' to be the number of
-        // consecutively valued enumerators in the range
-        // '[ e_EXTENDED_INTERNAL_MAP .. e_EXTENDED_INTERNAL_INT_MAP ]'.
-
         k_NUM_EXTENDED_INTERNAL_TYPES = 16  // number of distinct enumerated
                                             // extended types
     };
@@ -854,9 +858,9 @@ class Datum {
     static const unsigned short k_DOUBLE_MASK = 0x7ff0U;  // mask value to be
                                                           // stored in the
                                                           // exponent part of
-                                                          // 'd_data' to
+                                                          // `d_data` to
                                                           // indicate a special
-                                                          // 'double' value
+                                                          // `double` value
 
     static const int k_SHORTSTRING_SIZE  = 6; // maximum size of short strings
                                               // stored in the internal storage
@@ -868,16 +872,16 @@ class Datum {
 
     static const short k_DATETIME_OFFSET_FROM_EPOCH = 18262;
         // Number of days offset from 1970 Jan 1 used to create the epoch used
-        // to determine if 'Datum' stores a date-time value using dynamic
-        // memory allocation or withing the 'Datum' itself.  This offset, added
+        // to determine if `Datum` stores a date-time value using dynamic
+        // memory allocation or withing the `Datum` itself.  This offset, added
         // to the 1970 Jan 1 date, creates an (mid) epoch of 2020 Jan 1.
-        // Given that 'Datum' uses a signed 16 bits day-offset when storing
+        // Given that `Datum` uses a signed 16 bits day-offset when storing
         // date-time internally, the 2020 Jan 1 epoch enables of storing
         // date-times internally the range of 1930 Apr 15 to 2109 Sept 18.
         // Note that the time part of date-time can be stored internally
         // without data loss, so that makes the no-allocation range to be
         // 1930 Apr 15 00:00:00.000000 to 2109 Sept 18 24:00:00.000000. See
-        // 'createDatetime' and 'theDatetime' methods for the implementation.
+        // `createDatetime` and `theDatetime` methods for the implementation.
 
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     // Check if platform is little endian.
@@ -943,10 +947,9 @@ class Datum {
                                               // the internal storage buffer
 #endif  // end - big endian
 
+    /// Enumeration used to discriminate between the special incompressible
+    /// Decimal64 values.
     enum {
-        // Enumeration used to discriminate between the special incompressible
-        // Decimal64 values.
-
         e_DECIMAL64_SPECIAL_NAN,
         e_DECIMAL64_SPECIAL_INFINITY,
         e_DECIMAL64_SPECIAL_NEGATIVE_INFINITY
@@ -1105,55 +1108,58 @@ class Datum {
 
     // PRIVATE CLASS METHODS
     // 32-bit variation
+
+    // Return a datum by copying the specified `data` of the specified
+    // `type`.  Note that the pointer value in `data` is copied and the
+    // pointed object is not cloned.
     static Datum createExtendedDataObject(ExtendedInternalDataType  type,
                                           void                     *data);
     static Datum createExtendedDataObject(ExtendedInternalDataType  type,
                                           int                       data);
-        // Return a datum by copying the specified 'data' of the specified
-        // 'type'.  Note that the pointer value in 'data' is copied and the
-        // pointed object is not cloned.
 
     // PRIVATE ACCESSORS
     // 32-bit variation
+
+    /// Return the extended type of the value stored in this object (which
+    /// cannot be represented by the 4-bit discriminator `InternalDataType`)
+    /// as one of the enumeration values defined in
+    /// `ExtendedInternalDataType`.
     ExtendedInternalDataType extendedInternalType() const;
-        // Return the extended type of the value stored in this object (which
-        // cannot be represented by the 4-bit discriminator 'InternalDataType')
-        // as one of the enumeration values defined in
-        // 'ExtendedInternalDataType'.
 
+    /// Return the type of the value stored in this object as one of the
+    /// enumeration values defined in `DataType` (mapped from the
+    /// `ExtendedInternalDataType` value).
     DataType typeFromExtendedInternalType() const;
-        // Return the type of the value stored in this object as one of the
-        // enumeration values defined in 'DataType' (mapped from the
-        // 'ExtendedInternalDataType' value).
 
+    /// Return the 64-bit integer value stored in the allocated storage.
     bsls::Types::Int64 theLargeInteger64() const;
-        // Return the 64-bit integer value stored in the allocated storage.
 
+    // Return the array referenced by this object.  The behavior is
+    // undefined unless this object references an array with `length >=
+    // USHORT_MAX`.
     DatumArrayRef theLongArrayReference() const;
-        // Return the array referenced by this object.  The behavior is
-        // undefined unless this object references an array with 'length >=
-        // USHORT_MAX'.
 
+    /// Return the short string value stored in this object as a
+    /// `bslstl::StringRef` object.  The behavior is undefined unless this
+    /// object actually stores a short string value.
     bslstl::StringRef theLongestShortString() const;
-        // Return the short string value stored in this object as a
-        // 'bslstl::StringRef' object.  The behavior is undefined unless this
-        // object actually stores a short string value.
 
+    /// Return the string referenced by this object.  The behavior is
+    /// undefined unless this object holds a reference to a string with
+    /// `length >= USHORT_MAX`.
     bslstl::StringRef theLongStringReference() const;
-        // Return the string referenced by this object.  The behavior is
-        // undefined unless this object holds a reference to a string with
-        // 'length >= USHORT_MAX'.
 
+    /// Return the 64-bit integer value stored inline in this object.
     bsls::Types::Int64 theSmallInteger64() const;
-        // Return the 64-bit integer value stored inline in this object.
 
 #else // end - 32 bit / begin - 64 bit
   private:
     // PRIVATE TYPES
-    enum InternalDataType {
-        // Enumeration used to discriminate among the different types of values
-        // that can be stored inside 'Datum'.
 
+
+    // Enumeration used to discriminate among the different types of values
+    // that can be stored inside `bdld::Datum`.
+    enum InternalDataType {
         e_INTERNAL_UNINITIALIZED     =  0,  // zero-filled Datums are invalid
 
         e_INTERNAL_INF               =  1,  // +/- infinity value
@@ -1208,11 +1214,10 @@ class Datum {
                                             // integer values
     };
 
+    /// Define `k_NUM_INTERNAL_TYPES` to be the number of consecutively
+    /// valued enumerators in the range
+    /// `[ e_INTERNAL_UNINITIALIZED .. e_INTERNAL_DECIMAL64 ]`.
     enum {
-        // Define 'k_NUM_INTERNAL_TYPES' to be the number of consecutively
-        // valued enumerators in the range
-        // '[ e_INTERNAL_UNINITIALIZED .. e_INTERNAL_DECIMAL64 ]'.
-
         k_NUM_INTERNAL_TYPES         = 25  // number of internal types
     };
 
@@ -1353,16 +1358,16 @@ class Datum {
     /// the object internal storage buffer on 64-bit platforms.
     bslstl::StringRef theStringReference() const;
 
-    bsl::size_t theMapAllocNumBytes() const;
-    bsl::size_t theIntMapAllocNumBytes() const;
-    bsl::size_t theErrorAllocNumBytes() const;
-    bsl::size_t theBinaryAllocNumBytes() const;
-    bsl::size_t theInternalStringAllocNumBytes() const;
 
     /// Return the number of bytes that have been directly allocated for
     /// this object (not for elements or entries).  Used in deallocation.
     /// The behavior is undefined unless the type of the object matches the
     /// allocated internal variant of the type in the function name.
+    bsl::size_t theMapAllocNumBytes() const;
+    bsl::size_t theIntMapAllocNumBytes() const;
+    bsl::size_t theErrorAllocNumBytes() const;
+    bsl::size_t theBinaryAllocNumBytes() const;
+    bsl::size_t theInternalStringAllocNumBytes() const;
     bsl::size_t theInternalArrayAllocNumBytes() const;
 
   public:
@@ -1381,8 +1386,8 @@ class Datum {
     /// supply memory (if needed).  `array` is not copied, and is not freed
     /// when the returned object is destroyed with `Datum::destroy`.  The
     /// behavior is undefined unless `array` contains at least `length`
-    /// elements.  The behavior is also undefined unless 'length <
-    /// UINT_MAX'.
+    /// elements.  The behavior is also undefined unless `length <
+    /// UINT_MAX`.
     static Datum createArrayReference(const Datum          *array,
                                       SizeType              length,
                                       const AllocatorType&  allocator);
@@ -1700,22 +1705,24 @@ class Datum {
     BSLMF_NESTED_TRAIT_DECLARATION(Datum, bdlb::HasPrintMethod);
 
     // CREATORS
+
+    /// Create a datum having an uninitialized value.  The behavior for
+    /// every accessor method is undefined until this object is assigned a
+    /// value.
     //! Datum() = default;
-        // Create a datum having an uninitialized value.  The behavior for
-        // every accessor method is undefined until this object is assigned a
-        // value.
 
+    /// Create a datum having the value of the specified `original`.
     //! Datum(const Datum& original) = default;
-        // Create a datum having the value of the specified 'original'.
 
+    /// Destroy this object. Note that this method does not deallocate any
+    /// dynamically allocated memory used by this object (see `destroy`).
     //! ~Datum() = default;
-        // Destroy this object. Note that this method does not deallocate any
-        // dynamically allocated memory used by this object (see 'destroy').
 
     // MANIPULATORS
+
+    // Assign to this object the value of the specified `rhs` object. Note
+    // that this method's definition is compiler generated.
     //! Datum& operator=(const Datum& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object. Note
-        // that this method's definition is compiler generated.
 
     // ACCESSORS
 
@@ -1983,9 +1990,9 @@ bool operator!=(const Datum& lhs, const Datum& rhs);
 ///
 /// bool                   - true/false
 ///
-/// DatumError             - error(code)/error(code, 'msg')
-///                          where 'code' is the integer error code and
-///                          'msg' is the error description message
+/// DatumError             - error(code)/error(code, `msg`)
+///                          where `code` is the integer error code and
+///                          `msg` is the error description message
 ///
 /// int                    - plain integer value
 ///
@@ -2016,8 +2023,8 @@ bool operator!=(const Datum& lhs, const Datum& rhs);
 /// bdlt::DatetimeInterval - sDD_HH:MM:SS.SSS (where s is the sign(+/-))
 ///
 /// DatumUdt               - user-defined(address,type)
-///                          where 'address' is a hex encoded pointer to
-///                          the user-defined object and 'type' is its type
+///                          where `address` is a hex encoded pointer to
+///                          the user-defined object and `type` is its type
 /// ```
 /// and return a reference to the modifiable `stream`.  The function will
 /// have no effect if the specified `stream` is not valid.
@@ -2047,9 +2054,10 @@ class DatumMutableArrayRef {
 
   public:
     // TYPES
+
+    /// `SizeType` is an alias for an unsigned integral value, representing
+    /// the capacity of a datum array.
     typedef Datum::SizeType SizeType;
-      // 'SizeType' is an alias for an unsigned integral value, representing
-      // the capacity of a datum array.
 
   private:
     // DATA
@@ -2067,20 +2075,21 @@ class DatumMutableArrayRef {
     /// `length`, and `capacity`.
     DatumMutableArrayRef(Datum *data, SizeType *length, SizeType capacity);
 
+    /// Create a `DatumMutableArrayRef` having the value of the specified
+    /// `original` object.  Note that this method's definition is compiler
+    /// generated.
     //! DatumMutableArrayRef(const DatumMutableArrayRef& original) = default;
-        // Create a 'DatumMutableArrayRef' having the value of the specified
-        // 'original' object.  Note that this method's definition is compiler
-        // generated.
 
+    /// Destroy this object. Note that this method's definition is compiler
+    /// generated.
     //! ~DatumMutableArrayRef() = default;
-        // Destroy this object. Note that this method's definition is compiler
-        // generated.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object. Note
+    /// that this method's definition is compiler generated.
     //! DatumMutableArrayRef& operator=(
     //!                             const DatumMutableArrayRef& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object. Note
-        // that this method's definition is compiler generated.
 
     // ACCESSORS
 
@@ -2137,6 +2146,7 @@ struct Datum_MapHeader {
 class DatumMutableMapRef {
 
   public:
+
     /// `SizeType` is an alias for an unsigned integral value, representing
     /// the capacity of a datum array, the capacity of a datum map, the
     /// capacity of the *keys-capacity* of a datum-key-owning map or the
@@ -2162,19 +2172,20 @@ class DatumMutableMapRef {
     /// `size`, and `sorted`.
     DatumMutableMapRef(DatumMapEntry *data, SizeType *size, bool *sorted);
 
+    /// Create a `DatumMutableMapRef` having the value of the specified
+    /// `original` object.  Note that this method's definition is compiler
+    /// generated.
     //! DatumMutableMapRef(const DatumMutableMapRef& original) = default;
-        // Create a 'DatumMutableMapRef' having the value of the specified
-        // 'original' object.  Note that this method's definition is compiler
-        // generated.
 
+    /// Destroy this object. Note that this method's definition is compiler
+    /// generated.
     //! ~DatumMutableMapRef() = default;
-        // Destroy this object. Note that this method's definition is compiler
-        // generated.
 
     // MANIPULATORS
+
+    // Assign to this object the value of the specified `rhs` object. Note
+    // that this method's definition is compiler generated.
     //! DatumMutableMapRef& operator=(const DatumMutableMapRef& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object. Note
-        // that this method's definition is compiler generated.
 
     // ACCESSORS
 
@@ -2203,6 +2214,7 @@ class DatumMutableMapRef {
 class DatumMutableIntMapRef {
 
   public:
+
     /// `SizeType` is an alias for an unsigned integral value, representing
     /// the capacity of a datum array, the capacity of a datum map, the
     /// capacity of the *keys-capacity* of a datum-key-owning map or the
@@ -2231,20 +2243,21 @@ class DatumMutableIntMapRef {
                           SizeType         *size,
                           bool             *sorted);
 
+    /// Create a `DatumMutableIntMapRef` having the value of the specified
+    /// `original` object.  Note that this method's definition is compiler
+    /// generated.
     //! DatumMutableIntMapRef(const DatumMutableIntMapRef& original) = default;
-        // Create a 'DatumMutableIntMapRef' having the value of the specified
-        // 'original' object.  Note that this method's definition is compiler
-        // generated.
 
+    /// Destroy this object. Note that this method's definition is compiler
+    /// generated.
     //! ~DatumMutableIntMapRef() = default;
-        // Destroy this object. Note that this method's definition is compiler
-        // generated.
 
     // MANIPULATORS
+
+    // Assign to this object the value of the specified `rhs` object. Note
+    // that this method's definition is compiler generated.
     //! DatumMutableIntMapRef& operator=(const DatumMutableIntMapRef& rhs)
-                                                                 //! = default;
-        // Assign to this object the value of the specified 'rhs' object. Note
-        // that this method's definition is compiler generated.
+    //!                                                              = default;
 
     // ACCESSORS
 
@@ -2273,6 +2286,7 @@ class DatumMutableIntMapRef {
 class DatumMutableMapOwningKeysRef {
 
   public:
+
     /// `SizeType` is an alias for an unsigned integral value, representing
     /// the capacity of a datum array, the capacity of a datum map, the
     /// capacity of the *keys-capacity* of a datum-key-owning map or the
@@ -2306,21 +2320,20 @@ class DatumMutableMapOwningKeysRef {
                                  char          *keys,
                                  bool          *sorted);
 
+    /// Create a `DatumMutableMapOwningKeysRef` having the value of the
+    /// specified `original` object.
     //! DatumMutableMapOwningKeysRef(
     //!                const DatumMutableMapOwningKeysRef& original) = default;
-        // Create a 'DatumMutableMapOwningKeysRef' having the value of the
-        // specified 'original' object.  Note that this method's definition is
-        // compiler generated.
 
-    //!~DatumMutableMapOwningKeysRef() = default;
-        // Destroy this object. Note that this method's definition is compiler
-        // generated.
+    /// Destroy this object.
+    //! ~DatumMutableMapOwningKeysRef() = default;
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object. Note
+    /// that this method's definition is compiler generated.
     //! DatumMutableMapOwningKeysRef& operator=(
     //!                     const DatumMutableMapOwningKeysRef& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object. Note
-        // that this method's definition is compiler generated.
 
     // ACCESSORS
 
@@ -2396,23 +2409,21 @@ class DatumArrayRef {
     DatumArrayRef();
 
     /// Create a `DatumArrayRef` object having the specified `data` and
-    /// `length`.  The behavior is undefined unless `0 != data` or '0 ==
-    /// length'.  Note that the pointer to the array is just copied.
+    /// `length`.  The behavior is undefined unless `0 != data` or `0 ==
+    /// length`.  Note that the pointer to the array is just copied.
     DatumArrayRef(const Datum *data, SizeType length);
 
+    /// Create a `DatumArrayRef` object having the value of the specified
+    /// `original` object.
     //! DatumArrayRef(const DatumArrayRef& other) = default;
-        // Create a 'DatumArrayRef' object having the value of the specified
-        // 'original' object.  Note that this method's definition is compiler
-        // generated.
 
+    // Destroy this object.
     //! ~DatumArrayRef() = default;
-        // Destroy this object. Note that this method's definition is compiler
-        // generated.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     //! DatumArrayRef& operator=(const DatumArrayRef& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object. Note
-        // that this method's definition is compiler generated.
 
     // ACCESSORS
 
@@ -2508,7 +2519,7 @@ bool operator!=(const DatumArrayRef& lhs, const DatumArrayRef& rhs);
 /// Write the specified `rhs` value to the specified output `stream` in the
 /// format shown below:
 /// ```
-/// [aa,bb,cc] - aa, bb and cc are the result of invoking operator '<<'
+/// [aa,bb,cc] - aa, bb and cc are the result of invoking operator `<<`
 ///              on the individual elements in the array
 /// ```
 /// and return a reference to the modifiable `stream`.  The function will
@@ -2536,14 +2547,16 @@ class DatumIntMapEntry {
     BSLMF_NESTED_TRAIT_DECLARATION(DatumIntMapEntry, bdlb::HasPrintMethod);
 
     // CREATORS
-      DatumIntMapEntry();
-        // Create a 'DatumIntMapEntry' object.
 
-      DatumIntMapEntry(int key, const Datum& value);
-        // Create a 'DatumIntMapEntry' object using the specified 'key' and
-        // 'value'.
+    /// Create a `DatumIntMapEntry` object.
+    DatumIntMapEntry();
 
-    //!~DatumIntMapEntry() = default;
+    /// Create a `DatumIntMapEntry` object using the specified `key` and
+    /// `value`.
+    DatumIntMapEntry(int key, const Datum& value);
+
+    /// Destroy this object.
+    //! ~DatumIntMapEntry() = default;
 
     // MANIPULATORS
 
@@ -2596,7 +2609,7 @@ bool operator!=(const DatumIntMapEntry& lhs, const DatumIntMapEntry& rhs);
 /// format shown below:
 /// ```
 /// (nnn,aa) - nnn is key integer, while aa is the result of invoking
-///            operator '<<' on the value
+///            operator `<<` on the value
 /// ```
 /// and return a reference to the modifiable `stream`.  The function will
 /// have no effect if the `stream` is not valid.
@@ -2660,7 +2673,8 @@ class DatumIntMapRef {
                   SizeType                 size,
                   bool                     sorted);
 
-    //!~DatumIntMapRef() = default;
+    /// Destroy this object.
+    //! ~DatumIntMapRef() = default;
 
     // ACCESSORS
 
@@ -2765,7 +2779,7 @@ bool operator!=(const DatumIntMapRef& lhs, const DatumIntMapRef& rhs);
 /// format shown below:
 /// ```
 /// [ nnn = aa, mmm = bb] - nnn and mmm are key ints, while aa and bb
-///                         are the result of invoking operator '<<' on the
+///                         are the result of invoking operator `<<` on the
 ///                         individual value elements in the map
 /// ```
 /// and return a reference to the modifiable `stream`.  The function will
@@ -2798,7 +2812,8 @@ class DatumMapEntry {
     /// `value`.
     DatumMapEntry(const bslstl::StringRef& key, const Datum& value);
 
-    //!~DatumMapEntry() = default;
+    /// Destroy this object.
+    //! ~DatumMapEntry() = default;
 
     // MANIPULATORS
 
@@ -2850,7 +2865,7 @@ bool operator!=(const DatumMapEntry& lhs, const DatumMapEntry& rhs);
 /// format shown below:
 /// ```
 /// (abc,aa) - abc is key string, while aa is the result of invoking
-///            operator '<<' on the value
+///            operator `<<` on the value
 /// ```
 /// and return a reference to the modifiable `stream`.  The function will
 /// have no effect if the `stream` is not valid.
@@ -2917,7 +2932,8 @@ class DatumMapRef {
                 bool                 sorted,
                 bool                 ownsKeys);
 
-    //!~DatumMapRef() = default;
+    /// Destroy this object.
+    //! ~DatumMapRef() = default;
 
     // ACCESSORS
 
@@ -3061,10 +3077,10 @@ struct Datum_Helpers {
                         // struct Datum_Helpers32
                         // ======================
 
+/// This struct contains helper functions used in the 32-bit variation.  The
+/// functions are for internal use only and may change or disappear without
+/// notice.
 struct Datum_Helpers32 : Datum_Helpers {
-    // This struct contains helper functions used in the 32-bit variation.  The
-    // functions are for internal use only and may change or disappear without
-    // notice.
 
     // CLASS DATA
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
@@ -3078,30 +3094,31 @@ struct Datum_Helpers32 : Datum_Helpers {
 #endif  // end - big endian
 
     // CLASS METHODS
-    static bsls::Types::Int64 loadInt48(short high16, int low32);
-        // Load an Int64 from the specified 'high16' and 'low32' values created
-        // by storeSmallInt48.  This method is public for testing purpose only.
-        // It may change or be removed without notice.
 
+    /// Load an Int64 from the specified `high16` and `low32` values created
+    /// by storeSmallInt48.  This method is public for testing purpose only.
+    /// It may change or be removed without notice.
+    static bsls::Types::Int64 loadInt48(short high16, int low32);
+
+    /// Store an Int64  in short at `phigh16` and int at `plow32` if its
+    /// highest order 16 bits are zero.  Return true if it fits.  This
+    /// method is public for testing purpose only. It may change or be
+    /// removed without notice.
     static bool storeInt48(bsls::Types::Int64  value,
                            short              *phigh16,
                            int                *plow32);
-        // Store an Int64  in short at 'phigh16' and int at 'plow32' if its
-        // highest order 16 bits are zero.  Return true if it fits.  This
-        // method is public for testing purpose only. It may change or be
-        // removed without notice.
 
+    /// Load an Int64 from the specified `high16` and `low32` values created
+    /// by storeSmallInt64.  This method is public for testing purpose only.
+    /// It may change or be removed without notice.
     static bsls::Types::Int64 loadSmallInt64(short high16, int low32);
-        // Load an Int64 from the specified 'high16' and 'low32' values created
-        // by storeSmallInt64.  This method is public for testing purpose only.
-        // It may change or be removed without notice.
 
+    /// Store an Int64 in short at `phigh16` and int at `plow32`.  Return
+    /// true if it fits.  This method is public for testing purpose only.
+    /// It may change or be removed without notice.
     static bool storeSmallInt64(bsls::Types::Int64  value,
                                 short              *phigh16,
                                 int                *plow32);
-        // Store an Int64 in short at 'phigh16' and int at 'plow32'.  Return
-        // true if it fits.  This method is public for testing purpose only.
-        // It may change or be removed without notice.
 };
 
 #endif  // end - 32 bit
@@ -3119,7 +3136,7 @@ template <class t_TYPE>
 inline
 t_TYPE Datum_Helpers::load(const void *source, int offset)
 {
-    // The intermediate cast to 'void *' avoids warnings about the cast to a
+    // The intermediate cast to `void *` avoids warnings about the cast to a
     // pointer of stricter alignment.
     return *static_cast<const t_TYPE *>(
             static_cast<const void *>(
@@ -3130,7 +3147,7 @@ template <class t_TYPE>
 inline
 t_TYPE Datum_Helpers::store(void *destination, int offset, t_TYPE value)
 {
-    // The intermediate cast to 'void *' avoids warnings about the cast to a
+    // The intermediate cast to `void *` avoids warnings about the cast to a
     // pointer of stricter alignment.
     return *static_cast<t_TYPE *>(
             static_cast<void *>(

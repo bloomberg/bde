@@ -146,7 +146,6 @@ class DatumIntMapBuilder {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(DatumIntMapBuilder,
                                    bslma::UsesBslmaAllocator);
-        // 'DatumIntMapBuilder' is allocator-aware.
 
     // CREATORS
 
