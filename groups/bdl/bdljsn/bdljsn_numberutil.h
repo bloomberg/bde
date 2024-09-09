@@ -176,13 +176,12 @@ struct NumberUtil {
 
            // basic floating point conversions
 
+    /// Return the closest floating point representation to the specified
+    /// `value`.  If `value` is outside the representable range, return +INF or
+    /// -INF (as appropriate).  The behavior is undefined unless
+    /// `isValidNumber(value)` is `true`.
     static bdldfp::Decimal64 asDecimal64(const bsl::string_view& value);
     static double asDouble(const bsl::string_view& value);
-
-    /// Return the closest floating point representation to the specified
-    /// `value`.  If `value` is outside the representable range, return +INF
-    /// or -INF (as appropriate).  The behavior is undefined unless
-    /// `isValidNumber(value)` is `true`.
     static float asFloat(const bsl::string_view& value);
 
            // exact floating point conversions
@@ -201,25 +200,23 @@ struct NumberUtil {
 
            // typed integer conversions
 
-    static int asInt(int *result, const bsl::string_view& value);
-    static int asInt64(Int64 *result, const bsl::string_view& value);
-    static int asUint(unsigned int *result, const bsl::string_view& value);
-
     /// Load the specified `result` with the specified `value`, even if a
     /// non-zero status is returned (truncating fractional digits if
     /// necessary).  Return 0 on success, `k_OVERFLOW` if `value` is larger
     /// than can be represented by `result`, `k_UNDERFLOW` if `value` is
-    /// smaller than can be represented by `result`,  and `k_NOT_INTEGRAL`
-    /// if `value` is not an integral number (i.e., there is a fractional
-    /// part).  For underflow, `result` will be loaded with the minimum
-    /// representable value, for overflow, `result` will be loaded with the
-    /// maximum representable value, for non-integral values `result` will
-    /// be loaded with the integer part of `value` (truncating the
-    /// fractional part of `value`).  The behavior is undefined unless
-    /// `isValidNumber(value)` is `true`.  Note that this operation will
-    /// correctly handle exponents (e.g., a `value` of
-    /// "0.00000000000000000001e20" will produce a `result` of
-    /// 1).
+    /// smaller than can be represented by `result`,  and `k_NOT_INTEGRAL` if
+    /// `value` is not an integral number (i.e., there is a fractional part).
+    /// For underflow, `result` will be loaded with the minimum representable
+    /// value, for overflow, `result` will be loaded with the maximum
+    /// representable value, for non-integral values `result` will be loaded
+    /// with the integer part of `value` (truncating the fractional part of
+    /// `value`).  The behavior is undefined unless `isValidNumber(value)` is
+    /// `true`.  Note that this operation will correctly handle exponents
+    /// (e.g., a `value` of "0.00000000000000000001e20" will produce a `result`
+    /// of 1).
+    static int asInt(int *result, const bsl::string_view& value);
+    static int asInt64(Int64 *result, const bsl::string_view& value);
+    static int asUint(unsigned int *result, const bsl::string_view& value);
     static int asUint64(Uint64 *result, const bsl::string_view& value);
 
             // generic integer conversion
