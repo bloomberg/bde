@@ -941,6 +941,19 @@ class TimeQueue {
                  int                 *newLength = 0,
                  bsls::TimeInterval  *newMinTime = 0);
 
+    /// Remove from this queue all the items that have a time value less than
+    /// or equal to the specified `time`, and optionally append into the
+    /// optionally specified `buffer` a list of the removed items, ordered by
+    /// their corresponding time values (top item first).  Optionally load into
+    /// the optionally specified `newLength` the number of items remaining in
+    /// this queue, and into the optionally specified `newMinTime` the lowest
+    /// remaining time value in this queue.  Note that `newMinTime` is only
+    /// loaded if there are items remaining in the time queue; therefore,
+    /// `newLength` should be specified and examined to determine whether items
+    /// remain, and `newMinTime` used only when `newLength > 0`.  Also note
+    /// that if `DATA` follows the `bdema` allocator model, the allocator of
+    /// the `buffer` vector is used to supply memory for the items appended to
+    /// the `buffer`.
     void popLE(const bsls::TimeInterval&               time);
     void popLE(const bsls::TimeInterval&               time,
                bsl::vector<TimeQueueItem<DATA> >      *buffer,
@@ -956,20 +969,22 @@ class TimeQueue {
                int                                    *newLength = 0,
                bsls::TimeInterval                     *newMinTime = 0);
 #endif
-        // Remove from this queue all the items that have a time value less
-        // than or equal to the specified 'time', and optionally append into
-        // the optionally specified 'buffer' a list of the removed items,
-        // ordered by their corresponding time values (top item first).
-        // Optionally load into the optionally specified 'newLength' the number
-        // of items remaining in this queue, and into the optionally specified
-        // 'newMinTime' the lowest remaining time value in this queue.  Note
-        // that 'newMinTime' is only loaded if there are items remaining in the
-        // time queue; therefore, 'newLength' should be specified and examined
-        // to determine whether items remain, and 'newMinTime' used only when
-        // 'newLength' > 0.  Also note that if 'DATA' follows the 'bdema'
-        // allocator model, the allocator of the 'buffer' vector is used to
-        // supply memory for the items appended to the 'buffer'.
 
+    /// Remove from this queue up to the specified `maxTimers` number of items
+    /// that have a time value less than or equal to the specified `time`, and
+    /// optionally append into the optionally specified `buffer` a list of the
+    /// removed items, ordered by their corresponding time values (top item
+    /// first).  Optionally load into the optionally specified `newLength` the
+    /// number of items remaining in this queue, and into the optionally
+    /// specified `newMinTime` the lowest remaining time value in this queue.
+    /// The behavior is undefined unless `maxTimers >= 0`.  Note that
+    /// `newMinTime` is only loaded if there are items remaining in the time
+    /// queue; therefore, `newLength` should be specified and examined to
+    /// determine whether items remain, and `newMinTime` used only when
+    /// `newLength > 0`.  Also note that if `DATA` follows the `bdema`
+    /// allocator model, the allocator of the `buffer` vector is used to supply
+    /// memory.  Note finally that all the items appended into `buffer` have a
+    /// time value less than or equal to the elements remaining in this queue.
     void popLE(const bsls::TimeInterval&               time,
                int                                     maxTimers);
     void popLE(const bsls::TimeInterval&               time,
@@ -989,22 +1004,6 @@ class TimeQueue {
                int                                    *newLength = 0,
                bsls::TimeInterval                     *newMinTime = 0);
 #endif
-        // Remove from this queue up to the specified 'maxTimers' number of
-        // items that have a time value less than or equal to the specified
-        // 'time', and optionally append into the optionally specified 'buffer'
-        // a list of the removed items, ordered by their corresponding time
-        // values (top item first).  Optionally load into the optionally
-        // specified 'newLength' the number of items remaining in this queue,
-        // and into the optionally specified 'newMinTime' the lowest remaining
-        // time value in this queue.  The behavior is undefined unless
-        // 'maxTimers' >= 0.  Note that 'newMinTime' is only loaded if there
-        // are items remaining in the time queue; therefore, 'newLength' should
-        // be specified and examined to determine whether items remain, and
-        // 'newMinTime' used only when 'newLength' > 0.  Also note that if
-        // 'DATA' follows the 'bdema' allocator model, the allocator of the
-        // 'buffer' vector is used to supply memory.  Note finally that all the
-        // items appended into 'buffer' have a time value less than or equal to
-        // the elements remaining in this queue.
 
     /// Remove from this queue the item having the specified `handle`, and
     /// optionally load into the optionally specified `item` the time and

@@ -119,9 +119,8 @@ namespace baljsn {
 
 /// This simply constrained (value-semantic) attribute class specifies
 /// options for encoding `Datum` objects in the JSON format.  See the
-/// Attributes section under @DESCRIPTION in the component-level
-/// documentation for information on the class attributes.  Note that the
-/// class invariants are identically the constraints on the individual
+/// [](#Attributes) section for information on the class attributes.  Note that
+/// the class invariants are identically the constraints on the individual
 /// attributes.
 class DatumEncoderOptions {
 
@@ -266,9 +265,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const DatumEncoderOptions& rhs);
 
 namespace baljsn {
 
-                           // ----------------------
+                           // -------------------------
                            // class DatumEncoderOptions
-                           // ----------------------
+                           // -------------------------
 
 inline
 void DatumEncoderOptions::setEncodingStyle(baljsn::EncodingStyle::Value value)

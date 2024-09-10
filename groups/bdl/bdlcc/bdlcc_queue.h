@@ -417,12 +417,11 @@ namespace bdlcc {
 
 /// This class provides a thread-enabled implementation of an efficient,
 /// in-place, indexable, double-ended queue of parameterized `TYPE` values.
-/// Very efficient access to the underlying `bdlc::Queue` object is
-/// provided, as well as to a `bslmt::Mutex` and a `bslmt::Condition`
-/// variable, to facilitate thread-safe use of the `bdlc::Queue`.  Note that
-/// `Queue` is not a value-semantic type, but the underlying `bdlc::Queue`
-/// is.  In this regard, `Queue` is a thread-enabled handle for a
-/// `bdlc::Queue`.
+/// Very efficient access to the underlying `bdlc::Queue` object is provided,
+/// as well as to a `bslmt::Mutex` and a `bslmt::Condition` variable, to
+/// facilitate thread-safe use of the `bdlc::Queue`.  Note that `Queue` is not
+/// a value-semantic type, but the underlying `bdlc::Queue` is.  In this
+/// regard, `Queue` is a thread-enabled handle for a `bdlc::Queue`.
 template <class TYPE>
 class Queue {
 
@@ -624,15 +623,15 @@ class Queue {
     /// item was available.
     int timedPopFront(TYPE *buffer, const bsls::TimeInterval& timeout);
 
+    /// Remove all the items in this queue.  If the optionally specified
+    /// `buffer` is not 0, load into `buffer` a copy of the items removed in
+    /// front to back order of the queue prior to `removeAll`.
     void removeAll();
     void removeAll(bsl::vector<TYPE>      *buffer);
     void removeAll(std::vector<TYPE>      *buffer);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
     void removeAll(std::pmr::vector<TYPE> *buffer);
 #endif
-        // Remove all the items in this queue.  If the optionally specified
-        // 'buffer' is not 0, load into 'buffer' a copy of the items removed in
-        // front to back order of the queue prior to 'removeAll'.
 
     /// Append the specified `item` to the back of this queue.  If the
     /// high-water mark is non-negative and the number of items in this
@@ -681,55 +680,55 @@ class Queue {
     /// `buffer` or the state of this queue.  This method never blocks.
     int tryPopFront(TYPE *buffer);
 
+    // Remove up to the specified `maxNumItems` from the front of this
+    // queue.  Optionally specify a `buffer` into which the items removed
+    // from the queue are loaded.  If `buffer` is non-null, the removed
+    // items are appended to it as if by repeated application of
+    // `buffer->push_back(popFront())` while the queue is not empty and
+    // `maxNumItems` have not yet been removed.  The behavior is undefined
+    // unless `maxNumItems >= 0`.  This method never blocks.
     void tryPopFront(int maxNumItems);
     void tryPopFront(int maxNumItems, bsl::vector<TYPE>      *buffer);
     void tryPopFront(int maxNumItems, std::vector<TYPE>      *buffer);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
     void tryPopFront(int maxNumItems, std::pmr::vector<TYPE> *buffer);
 #endif
-        // Remove up to the specified 'maxNumItems' from the front of this
-        // queue.  Optionally specify a 'buffer' into which the items removed
-        // from the queue are loaded.  If 'buffer' is non-null, the removed
-        // items are appended to it as if by repeated application of
-        // 'buffer->push_back(popFront())' while the queue is not empty and
-        // 'maxNumItems' have not yet been removed.  The behavior is undefined
-        // unless 'maxNumItems >= 0'.  This method never blocks.
 
-    /// If this queue is non-empty, remove the last item, load that item
-    /// into the specified `buffer`, and return 0 indicating success.  If
-    /// this queue is empty, return a non-zero value with no effect on
-    /// `buffer` or the state of this queue.  This method never blocks.
+    /// If this queue is non-empty, remove the last item, load that item into
+    /// the specified `buffer`, and return 0 indicating success.  If this queue
+    /// is empty, return a non-zero value with no effect on `buffer` or the
+    /// state of this queue.  This method never blocks.
     int tryPopBack(TYPE *buffer);
 
+    // Remove up to the specified `maxNumItems` from the back of this
+    // queue.  Optionally specify a `buffer` into which the items removed
+    // from the queue are loaded.  If `buffer` is non-null, the removed
+    // items are appended to it as if by repeated application of
+    // `buffer->push_back(popBack())` while the queue is not empty and
+    // `maxNumItems` have not yet been removed.  This method never blocks.
+    // The behavior is undefined unless `maxNumItems >= 0`.  Note that the
+    // ordering of the items in `*buffer` after the call is the reverse of
+    // the ordering they had in the queue.
     void tryPopBack(int maxNumItems);
     void tryPopBack(int maxNumItems, bsl::vector<TYPE>      *buffer);
     void tryPopBack(int maxNumItems, std::vector<TYPE>      *buffer);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
     void tryPopBack(int maxNumItems, std::pmr::vector<TYPE> *buffer);
 #endif
-        // Remove up to the specified 'maxNumItems' from the back of this
-        // queue.  Optionally specify a 'buffer' into which the items removed
-        // from the queue are loaded.  If 'buffer' is non-null, the removed
-        // items are appended to it as if by repeated application of
-        // 'buffer->push_back(popBack())' while the queue is not empty and
-        // 'maxNumItems' have not yet been removed.  This method never blocks.
-        // The behavior is undefined unless 'maxNumItems >= 0'.  Note that the
-        // ordering of the items in '*buffer' after the call is the reverse of
-        // the ordering they had in the queue.
 
     // *** Modifiable access to the mutex, condition variable, and queue ***
 
     /// Return a reference to the modifiable condition variable used by this
     /// queue to signal that the queue is not empty.
     ///
-    /// *DEPRECATED* Use `notEmptyCondition` instead.
+    /// @DEPRECATED Use `notEmptyCondition` instead.
     bslmt::Condition& condition();
 
     /// Return a reference to the modifiable condition variable used by this
     /// queue to signal that the queue is not full (i.e., has fewer items
     /// than its high-water mark).
     ///
-    /// *DEPRECATED* Use `notFullCondition` instead.
+    /// @DEPRECATED Use `notFullCondition` instead.
     bslmt::Condition& insertCondition();
 
     /// Return a reference to the modifiable mutex used by this queue to
@@ -759,15 +758,14 @@ class Queue {
 
     // ACCESSORS
 
-    /// Return the high-water mark value for this queue.  Note that a
-    /// negative value indicates no suggested-maximum capacity, and is not
-    /// necessarily the same negative value that was passed to the
-    /// constructor.
+    /// Return the high-water mark value for this queue.  Note that a negative
+    /// value indicates no suggested-maximum capacity, and is not necessarily
+    /// the same negative value that was passed to the constructor.
     int highWaterMark() const;
 
     /// Return the number of elements in this queue.  Note that if other
-    /// threads are manipulating the queue, this information may be obsolete
-    /// by the time it is returned.
+    /// threads are manipulating the queue, this information may be obsolete by
+    /// the time it is returned.
     int length() const;
 };
 

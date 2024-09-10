@@ -360,20 +360,19 @@ namespace bdlcc {
                          // class StripedUnorderedMap
                          // =========================
 
-/// This class template defines a fully thread-safe container that provides
-/// a mapping from keys (of template parameter type `KEY`) to their
-/// associated mapped values (of template parameter type `VALUE`).
+/// This class template defines a fully thread-safe container that provides a
+/// mapping from keys (of template parameter type `KEY`) to their associated
+/// mapped values (of template parameter type `VALUE`).
 ///
 /// The buckets of this hash map are guarded by `numStripes` reader-writer
-/// locks, a value specified on construction.  Partitioning the buckets
-/// among several locks allows greater overall concurrency than a
+/// locks, a value specified on construction.  Partitioning the buckets among
+/// several locks allows greater overall concurrency than a
 /// `bsl::unordered_map` object guarded by a single lock.
 ///
 /// The interface is inspired by, but not identical to that of
-/// `bsl::unordered_map`.  Notably absent are iterators, which are of
-/// limited practicality in the typical use case because they are readily
-/// invalidated when the map population is open to modification by multiple
-/// threads.
+/// `bsl::unordered_map`.  Notably absent are iterators, which are of limited
+/// practicality in the typical use case because they are readily invalidated
+/// when the map population is open to modification by multiple threads.
 template <class KEY,
           class VALUE,
           class HASH  = bsl::hash<KEY>,
@@ -460,8 +459,8 @@ class StripedUnorderedMap {
     explicit StripedUnorderedMap(
                    bslma::Allocator *basicAllocator);
 
+    /// Destroy this hash map.
     //! ~StripedUnorderedMap() = default;
-        // Destroy this hash map.
 
     // MANIPULATORS
 
@@ -728,9 +727,9 @@ class StripedUnorderedMap {
 
                                // Aspects
 
-    /// Return the allocator used by this hash map to supply memory.  Note
-    /// that if no allocator was supplied at construction the default
-    /// allocator installed at that time is used.
+    /// Return the allocator used by this hash map to supply memory.  Note that
+    /// if no allocator was supplied at construction the default allocator
+    /// installed at that time is used.
     bslma::Allocator *allocator() const;
 };
 

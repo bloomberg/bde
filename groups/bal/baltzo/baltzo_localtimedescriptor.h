@@ -37,9 +37,9 @@ BSLS_IDENT("$Id: $")
 // Standard Time, Daylight-Saving Time (DST) is not in effect, and the offset
 // from UTC is -5 hours.  We can represent this information using a
 // `baltzo::LocalTimeDescriptor` object whose `description` is "EST",
-// `dstInEffectFlag` is `false`, and `utcOffsetInSeconds` is -18,000 (-5 * 60
-// * 60).  Note that `description` is *not* canonical, and is intended for
-// development and debugging only.
+// `dstInEffectFlag` is `false`, and `utcOffsetInSeconds` is
+// `-18,000 (-5*60*60)`.  Note that `description` is *not* canonical, and is
+// intended for development and debugging only.
 //
 ///Usage
 ///-----
@@ -139,10 +139,9 @@ namespace baltzo {
                          // =========================
 
 /// This simply constrained (value-semantic) attribute class characterizes a
-/// subset of local time values.  See the Attributes section under
-/// @DESCRIPTION in the component-level documentation for information on the
-/// class attributes.  Note that the class invariants are identically the
-/// constraints on the individual attributes.
+/// subset of local time values.  See the [](#Attributes) section for
+/// information on the class attributes.  Note that the class invariants are
+/// identically the constraints on the individual attributes.
 class LocalTimeDescriptor {
 
     // DATA

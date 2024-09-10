@@ -112,8 +112,7 @@ namespace bdlt {
 
 /// This unconstrained (value-semantic) attribute class characterizes how to
 /// configure certain behavior in `Iso8601Util` functions.  See the
-/// Attributes section under @DESCRIPTION in the component-level
-/// documentation for information on the class attributes.
+/// [](#Attributes) section for information on the class attributes.
 class Iso8601UtilParseConfiguration {
 
   private:
@@ -140,8 +139,8 @@ class Iso8601UtilParseConfiguration {
 
     /// Create an `Iso8601UtilParseConfiguration` object having the value of
     /// the specified `original` configuration.
-    // Iso8601UtilParseConfiguration(
-    //                 const Iso8601UtilParseConfiguration original) = default;
+    //! Iso8601UtilParseConfiguration(
+    //!                const Iso8601UtilParseConfiguration original) = default;
 
     /// Destroy this object.
     ~Iso8601UtilParseConfiguration();

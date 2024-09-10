@@ -75,12 +75,10 @@ namespace baljsn {
                          // class DatumDecoderOptions
                          // =========================
 
-/// This simply constrained (value-semantic) attribute class specifies
-/// options for decoding `Datum` objects in the JSON format.  See the
-/// Attributes section under @DESCRIPTION in the component-level
-/// documentation for information on the class attributes.  Note that the
-/// class invariants are identically the constraints on the individual
-/// attributes.
+/// This simply constrained (value-semantic) attribute class specifies options
+/// for decoding `Datum` objects in the JSON format.  See the [](#Attributes)
+/// section for information on the class attributes.  Note that the class
+/// invariants are identically the constraints on the individual attributes.
 class DatumDecoderOptions {
 
     // INSTANCE DATA
@@ -99,8 +97,8 @@ class DatumDecoderOptions {
     /// value.
     DatumDecoderOptions();
 
-    /// Create an object of type `DatumDecoderOptions` having the value of
-    /// the specified `original` object.
+    /// Create an object of type `DatumDecoderOptions` having the value of the
+    /// specified `original` object.
     DatumDecoderOptions(const DatumDecoderOptions& original);
 
     /// Destroy this object.
@@ -111,8 +109,8 @@ class DatumDecoderOptions {
     /// Assign to this object the value of the specified `rhs` object.
     DatumDecoderOptions& operator=(const DatumDecoderOptions& rhs);
 
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
+    /// Reset this object to the default value (i.e., its value upon default
+    /// construction).
     void reset();
 
     /// Set the "maxNestedDepth" attribute of this object to the specified
@@ -126,17 +124,16 @@ class DatumDecoderOptions {
 
                                   // Aspects
 
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
+    /// Format this object to the specified output `stream` at the optionally
+    /// specified indentation `level` and return a reference to the modifiable
+    /// `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for this
+    /// and all of its nested objects.  Each line is indented by the absolute
+    /// value of `level * spacesPerLevel`.  If `level` is negative, suppress
+    /// indentation of the first line.  If `spacesPerLevel` is negative,
+    /// suppress line breaks and format the entire output on one line.  If
+    /// `stream` is initially invalid, this operation has no effect.  Note that
+    /// a trailing newline is provided in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;

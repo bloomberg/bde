@@ -29,9 +29,9 @@ BSLS_IDENT("$Id: $")
 // numLocalTimeTypes  int    1       >= 1
 // abbrevDataSize     int    1       >= 1
 // ```
+//
 // * `version`: Zoneinfo file format version, as of 2013, either '\0', `2`,
 //    or `3`.
-//:
 // * `numIsGmt`: number of encoded UTC/local indicators in the file,
 //   indicating whether a transition time was originally specified as UTC in
 //   the rule file.
@@ -110,7 +110,7 @@ BSLS_IDENT("$Id: $")
 // To use our helper function, we supply it with a stream of (decimal,
 // whitespace-separated values).  The resulting object has the expected value.
 // ```
-// bsl::stringstream           input("50 1 2 0 3 4 5");
+// bsl::stringstream            input("50 1 2 0 3 4 5");
 // baltzo::ZoneinfoBinaryHeader header;
 // int rc;
 //
@@ -167,9 +167,9 @@ namespace baltzo {
 /// header information found at the start of a Zoneinfo (binary) database
 /// file, which describes the contents of the file.
 ///
-/// See the Attributes section under @DESCRIPTION in the component-level
-/// documentation.  Note that the class invariants are identically the
-/// constraints on the individual attributes.
+/// See the [](#Attributes) section for information on the class attributes.
+/// Note that the class invariants are identically the constraints on the
+/// individual attributes.
 ///
 /// This class:
 /// * supports a complete set of *value* *semantic* operations

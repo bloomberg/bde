@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsltf::CopyMoveState: namespace for copy/move state enumeration
 //
-//@SEE ALSO: bsltf_copymovetracker
+//@SEE_ALSO: bsltf_copymovetracker
 //
 //@DESCRIPTION: This component provides a `struct`, `bsltf::CopyMoveState`,
 // which serves as a namespace for enumerating the copy and move state of an

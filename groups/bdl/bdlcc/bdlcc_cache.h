@@ -331,18 +331,19 @@ namespace bdlcc {
 struct CacheEvictionPolicy {
 
     // TYPES
+
+    /// Enumeration of supported cache eviction policies.
     enum Enum {
-        // Enumeration of supported cache eviction policies.
 
         e_LRU,  // Least Recently Used
         e_FIFO  // First In, First Out
     };
 };
 
-/// This class implements a proctor that, on destruction, restores the queue
-/// to its state at the time of the proctor's creation.  We assume that the
-/// only change to the queue is that 0 or more items have been added to the
-/// end.  If `release` has been called, the destructor takes no action.
+/// This class implements a proctor that, on destruction, restores the queue to
+/// its state at the time of the proctor's creation.  We assume that the only
+/// change to the queue is that 0 or more items have been added to the end.  If
+/// `release` has been called, the destructor takes no action.
 template <class KEY>
 class Cache_QueueProctor {
 
@@ -353,19 +354,18 @@ class Cache_QueueProctor {
   private:
     // PRIVATE ACCESSORS
 
-    /// Return a pointer to the element at the end of the queue, or 0 if
-    /// the queue is empty.
+    /// Return a pointer to the element at the end of the queue, or 0 if the
+    /// queue is empty.
     KEY *last() const;
 
   public:
     // CREATORS
 
-    /// Create a `Cache_QueueProctor` object to monitor the specified
-    /// `queue`.
+    /// Create a `Cache_QueueProctor` object to monitor the specified `queue`.
     explicit Cache_QueueProctor(bsl::list<KEY> *queue);
 
-    /// Destroy this proctor object.  Remove any elements that we added
-    /// since the proctor was created.
+    /// Destroy this proctor object.  Remove any elements that we added since
+    /// the proctor was created.
     ~Cache_QueueProctor();
 
     // MANIPULATORS
@@ -395,8 +395,7 @@ class Cache {
     /// Shared pointer type pointing to value type.
     typedef bsl::shared_ptr<VALUE>                            ValuePtrType;
 
-    /// Type of function to call after an item has been evicted from the
-    /// cache.
+    /// Type of function to call after an item has been evicted from the cache.
     typedef bsl::function<void(const ValuePtrType&)> PostEvictionCallback;
 
     /// Value type of a bulk insert entry.
@@ -462,14 +461,14 @@ class Cache {
     /// callback for that item.
     void evictItem(const typename MapType::iterator& mapIt);
 
-    /// Add a node with the specified `*key_p` and the specified
-    /// `*valuePtr_p` to the cache.  If an entry already exists for
-    /// `*key_p`, override its value with `*valuePtr_p`.  If the specified
-    /// `moveKey` is `true`, move `*key_p`, and if the specified
-    /// `moveValuePtr` is `true`, move `*valuePtr_p`, if the boolean values
-    /// corresponding to `*key_p` or `*valuePtr_p` are `false`, do not move
-    /// or modify the arguments.  Return `true` if `*key_p` was not
-    /// previously in the cache and `false` otherwise.
+    /// Add a node with the specified `*key_p` and the specified `*valuePtr_p`
+    /// to the cache.  If an entry already exists for `*key_p`, override its
+    /// value with `*valuePtr_p`.  If the specified `moveKey` is `true`, move
+    /// `*key_p`, and if the specified `moveValuePtr` is `true`, move
+    /// `*valuePtr_p`, if the boolean values corresponding to `*key_p` or
+    /// `*valuePtr_p` are `false`, do not move or modify the arguments.  Return
+    /// `true` if `*key_p` was not previously in the cache and `false`
+    /// otherwise.
     bool insertValuePtrMoveImp(KEY          *key_p,
                                bool          moveKey,
                                ValuePtrType *valuePtr_p,
@@ -486,31 +485,30 @@ class Cache {
   public:
     // CREATORS
 
-    /// Create an empty LRU cache having no size limit.  Optionally specify
-    /// a `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.
+    /// Create an empty LRU cache having no size limit.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     explicit Cache(bslma::Allocator *basicAllocator = 0);
 
     /// Create an empty cache using the specified `evictionPolicy` and the
-    /// specified `lowWatermark` and `highWatermark`.  Optionally specify
-    /// the `basicAllocator` used to supply memory.  If `basicAllocator` is
-    /// 0, the currently installed default allocator is used.  The behavior
-    /// is undefined unless `lowWatermark <= highWatermark`,
-    /// `1 <= lowWatermark`, and `1 <= highWatermark`.
+    /// specified `lowWatermark` and `highWatermark`.  Optionally specify the
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.  The behavior is
+    /// undefined unless `lowWatermark <= highWatermark`, `1 <= lowWatermark`,
+    /// and `1 <= highWatermark`.
     Cache(CacheEvictionPolicy::Enum  evictionPolicy,
           bsl::size_t                lowWatermark,
           bsl::size_t                highWatermark,
           bslma::Allocator          *basicAllocator = 0);
 
     /// Create an empty cache using the specified `evictionPolicy`,
-    /// `lowWatermark`, and `highWatermark`.  The specified `hashFunction`
-    /// is used to generate the hash values for a given key, and the
-    /// specified `equalFunction` is used to determine whether two keys have
-    /// the same value.  Optionally specify the `basicAllocator` used to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.  The behavior is undefined unless
-    /// `lowWatermark <= highWatermark`, `1 <= lowWatermark`, and
-    /// `1 <= highWatermark`.
+    /// `lowWatermark`, and `highWatermark`.  The specified `hashFunction` is
+    /// used to generate the hash values for a given key, and the specified
+    /// `equalFunction` is used to determine whether two keys have the same
+    /// value.  Optionally specify the `basicAllocator` used to supply memory.
+    /// If `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  The behavior is undefined unless `lowWatermark <=
+    /// highWatermark`, `1 <= lowWatermark`, and `1 <= highWatermark`.
     Cache(CacheEvictionPolicy::Enum  evictionPolicy,
           bsl::size_t                lowWatermark,
           bsl::size_t                highWatermark,
@@ -518,8 +516,8 @@ class Cache {
           const EQUAL&               equalFunction,
           bslma::Allocator          *basicAllocator = 0);
 
+    /// Destroy this object.
     //! ~Cache() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 
@@ -527,9 +525,9 @@ class Cache {
     /// callback.
     void clear();
 
-    /// Remove the item having the specified `key` from this cache.  Invoke
-    /// the post-eviction callback for the removed item.  Return 0 on
-    /// success and 1 if `key` does not exist.
+    /// Remove the item having the specified `key` from this cache.  Invoke the
+    /// post-eviction callback for the removed item.  Return 0 on success and 1
+    /// if `key` does not exist.
     int erase(const KEY& key);
 
     /// Remove the items having the keys in the specified range
@@ -545,12 +543,12 @@ class Cache {
     int eraseBulk(const bsl::vector<KEY>& keys);
 
     /// Move the specified `key` and its associated `value` into this cache.
-    /// If `key` already exists, then its value will be replaced with
-    /// `value`.  Note that all the methods that take moved objects provide
-    /// the `basic` but not the `strong` exception guarantee -- throws may
-    /// occur after the objects are moved out of; the cache will not be
-    /// modified, but `key` or `value` may be changed.  Also note that `key`
-    /// must be copyable, even if it is moved.
+    /// If `key` already exists, then its value will be replaced with `value`.
+    /// Note that all the methods that take moved objects provide the `basic`
+    /// but not the `strong` exception guarantee -- throws may occur after the
+    /// objects are moved out of; the cache will not be modified, but `key` or
+    /// `value` may be changed.  Also note that `key` must be copyable, even if
+    /// it is moved.
     void insert(const KEY& key, const VALUE& value);
     void insert(const KEY& key, bslmf::MovableRef<VALUE> value);
     void insert(bslmf::MovableRef<KEY> key, const VALUE& value);
@@ -658,8 +656,8 @@ class Cache_TestUtil {
     /// `cache`.
     explicit Cache_TestUtil(Cache<KEY, VALUE, HASH, EQUAL>& cache);
 
+    /// Destroy this object.
     //! ~Cache_TestUtil() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

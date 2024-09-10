@@ -422,8 +422,8 @@ namespace bslma {
 
 /// This mechanism provides a set of boolean accessor methods indicating
 /// whether a change has occurred in the state of the `TestAllocator` object
-/// (supplied at construction) since the construction of the monitor.  See
-/// the Statistics section of @DESCRIPTION for the statics tracked.
+/// (supplied at construction) since the construction of the monitor.  See the
+/// [](#Statistics) section for the statics tracked.
 class TestAllocatorMonitor {
 
     // DATA

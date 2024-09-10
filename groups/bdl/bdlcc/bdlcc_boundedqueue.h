@@ -225,8 +225,8 @@ namespace bdlcc {
                    // class BoundedQueue_PopCompleteGuard
                    // ===================================
 
-/// This class implements a guard that invokes `TYPE::popComplete` on a
-/// `NODE` upon destruction.
+/// This class implements a guard that invokes `TYPE::popComplete` on a `NODE`
+/// upon destruction.
 template <class TYPE, class NODE>
 class BoundedQueue_PopCompleteGuard {
 
@@ -243,12 +243,11 @@ class BoundedQueue_PopCompleteGuard {
   public:
     // CREATORS
 
-    /// Create a `popComplete` guard managing the specified `queue` and
-    /// `node`.
+    /// Create a `popComplete` guard managing the specified `queue` and `node`.
     BoundedQueue_PopCompleteGuard(TYPE *queue, NODE *node);
 
-    /// Destroy this object and invoke the `TYPE::popComplete` method with
-    /// the managed `node`.
+    /// Destroy this object and invoke the `TYPE::popComplete` method with the
+    /// managed `node`.
     ~BoundedQueue_PopCompleteGuard();
 };
 
@@ -256,9 +255,8 @@ class BoundedQueue_PopCompleteGuard {
              // class BoundedQueue_PushExceptionCompleteProctor
              // ===============================================
 
-/// This class implements a proctor that invokes
-/// `TYPE::pushExceptionComplete` upon destruction unless `release` has been
-/// called.
+/// This class implements a proctor that invokes `TYPE::pushExceptionComplete`
+/// upon destruction unless `release` has been called.
 template <class TYPE>
 class BoundedQueue_PushExceptionCompleteProctor {
 
@@ -275,13 +273,13 @@ class BoundedQueue_PushExceptionCompleteProctor {
   public:
     // CREATORS
 
-    /// Create a `pushExceptionComplete` proctor that conditionally manages
-    /// the specified `queue` (if non-zero).
+    /// Create a `pushExceptionComplete` proctor that conditionally manages the
+    /// specified `queue` (if non-zero).
     explicit
     BoundedQueue_PushExceptionCompleteProctor(TYPE *queue);
 
-    /// Destroy this object and, if `release` has not been invoked', invoke
-    /// the managed queue's `pushExceptionComplete` method.
+    /// Destroy this object and, if `release` has not been invoked', invoke the
+    /// managed queue's `pushExceptionComplete` method.
     ~BoundedQueue_PushExceptionCompleteProctor();
 
     // MANIPULATORS
@@ -295,20 +293,20 @@ class BoundedQueue_PushExceptionCompleteProctor {
                          // struct BoundedQueue_Node
                          // ========================
 
-/// This class implements the queue's node.  A node stores an instance of
-/// the specified (template parameter) `TYPE`, and provides an accessor
+/// This class implements the queue's node.  A node stores an instance of the
+/// specified (template parameter) `TYPE`, and provides an accessor
 /// `isUnconstructed` that indicates whether the value of the node was
 /// correctly constructed.  If `isUnconstructed` is `false`, then the value
-/// (`d_value`) refers to a valid object.  If `isUnconstructed` is `true`
-/// then `d_value` does not refer to a valid object, it does not represent a
-/// value in this queue, and the destructor of `d_value` should not be
-/// called.  The specified (template parameter) type `RECLAIMABLE` is used
-/// to provide a compile time optimization for the footprint of this
-/// template when the value of `isUnconstructed` is known at compile-time.
-/// If `RECLAIMABLE` is `false` then it can be determined at compile time
-/// that the construction of `TYPE` will uncoditionally succeed (e.g., it
-/// `IsBitwiseCopyable`), and the `isUnconstructed` property does not
-/// require a data member to be accessed at run-time.
+/// (`d_value`) refers to a valid object.  If `isUnconstructed` is `true` then
+/// `d_value` does not refer to a valid object, it does not represent a value
+/// in this queue, and the destructor of `d_value` should not be called.  The
+/// specified (template parameter) type `RECLAIMABLE` is used to provide a
+/// compile time optimization for the footprint of this template when the value
+/// of `isUnconstructed` is known at compile-time.  If `RECLAIMABLE` is `false`
+/// then it can be determined at compile time that the construction of `TYPE`
+/// will uncoditionally succeed (e.g., it `IsBitwiseCopyable`), and the
+/// `isUnconstructed` property does not require a data member to be accessed at
+/// run-time.
 template <class TYPE, bool RECLAIMABLE>
 struct BoundedQueue_Node;
 
@@ -325,11 +323,11 @@ struct BoundedQueue_Node<TYPE, true> {
     // MANIPULATORS
 
     /// If the specified `isUnconstructedFlag` is `false`, then `d_value`
-    /// refers to a valid object of (the template parameter) `TYPE`,
-    /// otherwise (if `isUnconstrucedFlag` is `true`) `d_value` does not
-    /// refer to a valid object (because the attempt to construct `TYPE`
-    /// resulted in an expection).  Note that this method is normally
-    /// invoked after each write to `d_value`.
+    /// refers to a valid object of (the template parameter) `TYPE`, otherwise
+    /// (if `isUnconstrucedFlag` is `true`) `d_value` does not refer to a valid
+    /// object (because the attempt to construct `TYPE` resulted in an
+    /// expection).  Note that this method is normally invoked after each write
+    /// to `d_value`.
     void setIsUnconstructed(bool isUnconstructedFlag);
 
     // ACCESSORS
@@ -465,91 +463,86 @@ class BoundedQueue {
     /// in `[1 .. 2^31]` to `rhs`.
     static bool circularlyGreater(Uint lhs, Uint rhs);
 
-    /// Return `true` if the specified `count` implies a quiescent state
-    /// (see *Implementation* *Note*), and `false` otherwise.  A quiescent
-    /// state indicates there is a (possibly zero length) contiguous set of
-    /// elements that can safely be made available to the operation
-    /// complementary to the operation `count` tracks (pop and push are
-    /// complementary operations).
+    /// Return `true` if the specified `count` implies a quiescent state (see
+    /// **Implementation Note**), and `false` otherwise.  A quiescent state
+    /// indicates there is a (possibly zero length) contiguous set of elements
+    /// that can safely be made available to the operation complementary to the
+    /// operation `count` tracks (pop and push are complementary operations).
     static bool isQuiescentState(bsls::Types::Uint64 count);
 
     /// Update the specified `count` to indicate that an operation (or the
     /// optionally specified `num` operations) has completed, and return the
     /// updated `count` value.  Marking an operation finished means that
-    /// `isQuiscentState` *may* now be true.  The behavior is undefined
+    /// `isQuiscentState` **may** now be true.  The behavior is undefined
     /// unless `markStartedOperation` was previously called on this `count`,
-    /// and a corresponding `markFinishedOperation` or
-    /// `unmarkStartOperation` has not already been called.  Note that the
-    /// "operation" that has finished refers to either a push or pop
-    /// (depending on whether this is applied to `d_pushCount` or
-    /// `d_popCount`).
+    /// and a corresponding `markFinishedOperation` or `unmarkStartOperation`
+    /// has not already been called.  Note that the "operation" that has
+    /// finished refers to either a push or pop (depending on whether this is
+    /// applied to `d_pushCount` or `d_popCount`).
     static Uint64 markFinishedOperation(AtomicUint64 *count);
     static Uint64 markFinishedOperation(AtomicUint64 *count, int num);
 
-    /// Update the specified `count` to indicate that a node that suffered
-    /// an exception has been reclaimed.  Marking a node reclaimed can *not*
-    /// alter the value of `isQuiescentState`, but does increase the size of
-    /// the contiguous set of elements that will eventially be made
-    /// available to the operation complementary to the operation `count`
-    /// tracks (pop and push are complementary operations).  Note that this
-    /// method does not require a previous call to `markStartedOperation`
-    /// and does not meet the requirements for `markFinishedOperation` or
-    /// `unmarkStartOperation` to be invoked.
+    /// Update the specified `count` to indicate that a node that suffered an
+    /// exception has been reclaimed.  Marking a node reclaimed can *not* alter
+    /// the value of `isQuiescentState`, but does increase the size of the
+    /// contiguous set of elements that will eventially be made available to
+    /// the operation complementary to the operation `count` tracks (pop and
+    /// push are complementary operations).  Note that this method does not
+    /// require a previous call to `markStartedOperation` and does not meet the
+    /// requirements for `markFinishedOperation` or `unmarkStartOperation` to
+    /// be invoked.
     static void markReclaimed(AtomicUint64 *count);
 
     /// Update the specified `count` to indicate that an operation (or the
     /// optionally specified `num` operations) has started, and return the
     /// updated `count` value.  Marking an operation started means that
     /// `isQuiescentState` is not true and will not be true until
-    /// `markFinishedOperation` or `unmarkStartedOperation` is invoked.
-    /// Note that the "operation" that has started refers to either a push
-    /// or pop (depending on whether this is applied to `d_pushCount` or
+    /// `markFinishedOperation` or `unmarkStartedOperation` is invoked.  Note
+    /// that the "operation" that has started refers to either a push or pop
+    /// (depending on whether this is applied to `d_pushCount` or
     /// `d_popCount`).
     static void markStartedOperation(AtomicUint64 *count);
     static void markStartedOperation(AtomicUint64 *count, int num);
 
-    /// Update the specified `count` to indicate that an operation has
-    /// aborted without finishing, and return the updated `count` value.
-    /// Marking a started operation as having aborted means that
-    /// `isQuiscentState` *may* now be true.  The behavior is undefined
-    /// unless `markStartedOperation` was previously called on this `count`,
-    /// and a corresponding `markFinishedOperation` or
-    /// `unmarkStartOperation` has not already been called.  Note that the
-    /// "operation" that has aborted refers to either a push or pop
-    /// (depending on whether this is applied to `d_pushCount` or
+    /// Update the specified `count` to indicate that an operation has aborted
+    /// without finishing, and return the updated `count` value.  Marking a
+    /// started operation as having aborted means that `isQuiscentState` *may*
+    /// now be true.  The behavior is undefined unless `markStartedOperation`
+    /// was previously called on this `count`, and a corresponding
+    /// `markFinishedOperation` or `unmarkStartOperation` has not already been
+    /// called.  Note that the "operation" that has aborted refers to either a
+    /// push or pop (depending on whether this is applied to `d_pushCount` or
     /// `d_popCount`).
     static Uint64 unmarkStartedOperation(AtomicUint64 *count);
 
     // PRIVATE MANIPULATORS
 
-    /// Destruct the value stored in the specified `node`, and mark the
-    /// `node` writable.  This method is used within `popFrontHelper` by a
-    /// guard to complete the reclamation of a node in the presence of an
-    /// exception.
+    /// Destruct the value stored in the specified `node`, and mark the `node`
+    /// writable.  This method is used within `popFrontHelper` by a guard to
+    /// complete the reclamation of a node in the presence of an exception.
     void popComplete(Node *node);
 
-    /// Remove the element from the front of this queue and load that
-    /// element into the specified `value`.  This method is invoked by
-    /// `popFront` and `tryPopFront` once an element is available.
+    /// Remove the element from the front of this queue and load that element
+    /// into the specified `value`.  This method is invoked by `popFront` and
+    /// `tryPopFront` once an element is available.
     void popFrontHelper(TYPE *value);
 
-    /// Mark a "push" operation as complete, and `post` to the
-    /// `d_popSemaphore` if appropriate.
+    /// Mark a "push" operation as complete, and `post` to the `d_popSemaphore`
+    /// if appropriate.
     void pushComplete();
 
     /// Remove the indicator for a started push operation, and `post` to the
     /// `d_popSemaphore` if appropriate.  This method is used within
-    /// `pushFront` by a proctor to complete the marking of a node to
-    /// reclaim in the presence of an exception.
+    /// `pushFront` by a proctor to complete the marking of a node to reclaim
+    /// in the presence of an exception.
     void pushExceptionComplete();
 
     /// If the specified `emptyCount` is (circularly) greater than
-    /// `d_emptyCountSeen`, assign `d_emptyCountSeen` the value of
-    /// `emptyCount` and return `true`.  Otherwise, return `false`.  A
-    /// return value of `true` indicates this thread *must* signal any
-    /// waiting threads.  Note that a return value of `false` indicates
-    /// another thread has (or will) signal the queue is empty and this
-    /// thread does not need to signal.
+    /// `d_emptyCountSeen`, assign `d_emptyCountSeen` the value of `emptyCount`
+    /// and return `true`.  Otherwise, return `false`.  A return value of
+    /// `true` indicates this thread *must* signal any waiting threads.  Note
+    /// that a return value of `false` indicates another thread has (or will)
+    /// signal the queue is empty and this thread does not need to signal.
     bool updateEmptyCountSeen(Uint emptyCount);
 
     // NOT IMPLEMENTED
@@ -669,9 +662,9 @@ class BoundedQueue {
 
     // ACCESSORS
 
-    /// Return the maximum number of elements that may be stored in this
-    /// queue.  Note that the value returned may be greater than that
-    /// supplied at construction.
+    /// Return the maximum number of elements that may be stored in this queue.
+    /// Note that the value returned may be greater than that supplied at
+    /// construction.
     bsl::size_t capacity() const;
 
     /// Return `true` if this queue is empty (has no elements), or `false`
@@ -679,31 +672,28 @@ class BoundedQueue {
     bool isEmpty() const;
 
     /// Return `true` if this queue is full (has no available capacity), or
-    /// `false` otherwise.  Note that for unbounded queues, this method
-    /// always returns `false`.
+    /// `false` otherwise.  Note that for unbounded queues, this method always
+    /// returns `false`.
     bool isFull() const;
 
-    /// Return `true` if this queue is dequeue disabled, and `false`
-    /// otherwise.  Note that the queue is created in the "dequeue enabled"
-    /// state.
+    /// Return `true` if this queue is dequeue disabled, and `false` otherwise.
+    /// Note that the queue is created in the "dequeue enabled" state.
     bool isPopFrontDisabled() const;
 
-    /// Return `true` if this queue is enqueue disabled, and `false`
-    /// otherwise.  Note that the queue is created in the "enqueue enabled"
-    /// state.
+    /// Return `true` if this queue is enqueue disabled, and `false` otherwise.
+    /// Note that the queue is created in the "enqueue enabled" state.
     bool isPushBackDisabled() const;
 
     /// Returns the number of elements currently in this queue.  Note that
-    /// `numElements() == capacity()` is not a valid replacement for
-    /// `isFull` (see {Exception Safety} for details).
+    /// `numElements() == capacity()` is not a valid replacement for `isFull`
+    /// (see {Exception Safety} for details).
     bsl::size_t numElements() const;
 
     /// Block until all the elements in this queue are removed.  Return 0 on
     /// success, and a non-zero value otherwise.  Specifically, return
-    /// `e_SUCCESS` on success, `e_DISABLED` if
-    /// `!isEmpty() && isPopFrontDisabled()`.  A blocked thread waiting for
-    /// the queue to empty will return `e_DISABLED` if `disablePopFront` is
-    /// invoked.
+    /// `e_SUCCESS` on success, `e_DISABLED` if `!isEmpty() &&
+    /// isPopFrontDisabled()`.  A blocked thread waiting for the queue to empty
+    /// will return `e_DISABLED` if `disablePopFront` is invoked.
     int waitUntilEmpty() const;
 
                                   // Aspects

@@ -47,30 +47,30 @@ BSLS_IDENT("$Id: $")
 ///--------
 // Some terms used frequently in this documentation:
 //
-//: Back:
-//:     The last element in the list.  The key value at the back is greater
-//:     than or equal to every other key value in the list.
-//:
-//: Front:
-//:     The beginning of the list.  The key value at the front is less than or
-//:     equal to every other key value in the list.
-//:
-//: Pair:
-//:     An element of the list; a pairing (association) of a data object with a
-//:     key value.  Also a type name used for *references* to such objects
-//:     (`bdlcc::SkipListPair` objects cannot be constructed directly).
-//:
-//: PairHandle:
-//:     An object (of type `bdlcc::SkipListPairHandle`) with scope and copy
-//:     semantics that makes it easier to manage and use than a raw
-//:     `bdlcc::SkipListPair *`.
-//:
-//: R:
-//:     Stands for "Reverse search" (see `"R" Methods` documentation below).
-//:
-//: Reference:
-//:     An object referring to a pair; either a `bdlcc::SkipListPair *` which
-//:     has not yet been released, or a `bdlcc::SkipListPairHandle` object.
+// * **Back**
+// >    The last element in the list.  The key value at the back is greater
+// >    than or equal to every other key value in the list.
+//
+// * **Front**
+// >    The beginning of the list.  The key value at the front is less than or
+// >    equal to every other key value in the list.
+//
+// * **Pair**
+// >    An element of the list; a pairing (association) of a data object with a
+// >    key value.  Also a type name used for *references* to such objects
+// >    (`bdlcc::SkipListPair` objects cannot be constructed directly).
+//
+// * **PairHandle**
+// >    An object (of type `bdlcc::SkipListPairHandle`) with scope and copy
+// >    semantics that makes it easier to manage and use than a raw
+// >    `bdlcc::SkipListPair *`.
+//
+// * **R**
+// >    Stands for "Reverse search" (see `"R" Methods` documentation below).
+//
+// * **Reference**
+// >    An object referring to a pair; either a `bdlcc::SkipListPair *` which
+// >    has not yet been released, or a `bdlcc::SkipListPairHandle` object.
 //
 ///"R" Methods: Optimized Search From The Back Of The List
 ///-------------------------------------------------------
@@ -472,11 +472,6 @@ class SkipList_RandomLevelGenerator {
         k_MAX_LEVEL      = 31,         // Also defined in SkipList and
                                        // PoolManager
         k_SEED           = 0x12b9b0a1  // arbitrary
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BCEC_MAX_LEVEL = k_MAX_LEVEL
-      , BCEC_SEED = k_SEED
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // DATA
@@ -1330,31 +1325,31 @@ class SkipList {
     /// already been removed from the list.
     int remove(const Pair *reference);
 
+    /// Remove all items from this list.  Optionally specify `removed`, a
+    /// vector to which to append handles to the removed nodes.  The items
+    /// appended to `removed` will be in ascending order by key value.
+    /// Return the number of items that were removed from this list.  Note
+    /// that all references in `removed` must be released (i.e., destroyed)
+    /// before this skip list is destroyed.  Note that if `removed` is not
+    /// specified, all removed elements will be released by this method.
     int removeAll();
     int removeAll(bsl::vector<PairHandle>      *removed);
     int removeAll(std::vector<PairHandle>      *removed);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
     int removeAll(std::pmr::vector<PairHandle> *removed);
 #endif
-        // Remove all items from this list.  Optionally specify 'removed', a
-        // vector to which to append handles to the removed nodes.  The items
-        // appended to 'removed' will be in ascending order by key value.
-        // Return the number of items that were removed from this list.  Note
-        // that all references in 'removed' must be released (i.e., destroyed)
-        // before this skip list is destroyed.  Note that if 'removed' is not
-        // specified, all removed elements will be released by this method.
 
+    /// Remove all items from this list.  Append to the specified
+    /// `removed` vector pointers that can be used to refer to the removed
+    /// items.  *Each* such pointer must be released (using
+    /// `releaseReferenceRaw`) when it is no longer needed.  The pairs
+    /// appended to `removed` will be in ascending order by key value.
+    /// Return the number of items that were removed from this list.
     int removeAllRaw(bsl::vector<Pair *>      *removed);
     int removeAllRaw(std::vector<Pair *>      *removed);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
     int removeAllRaw(std::pmr::vector<Pair *> *removed);
 #endif
-        // Remove all items from this list.  Append to the specified
-        // 'removed' vector pointers that can be used to refer to the removed
-        // items.  *Each* such pointer must be released (using
-        // 'releaseReferenceRaw') when it is no longer needed.  The pairs
-        // appended to 'removed' will be in ascending order by key value.
-        // Return the number of items that were removed from this list.
 
                          // Update Methods
 
@@ -1618,22 +1613,22 @@ class SkipList {
 /// Return `true` if the specified `lhs` list has the same value as the
 /// specified `rhs` list, and `false` otherwise.  Two lists A and B have the
 /// same value if they have the same number of elements, and if for all i in
-/// the range [0, numberOfElements), the i'th pair from the front of A has
-/// the same key and data values as the i'th pair from the front of B.  Note
-/// that if there are duplicate key values in a list, the order of iteration
-/// over those pairs may be different than for another list that was
-/// constructed from the same sequence of values (and thus the lists may not
-/// compare equal).
+/// the range [0, numberOfElements), the i'th pair from the front of A has the
+/// same key and data values as the i'th pair from the front of B.  Note that
+/// if there are duplicate key values in a list, the order of iteration over
+/// those pairs may be different than for another list that was constructed
+/// from the same sequence of values (and thus the lists may not compare
+/// equal).
 template <class KEY, class DATA>
 bool operator==(const SkipList<KEY, DATA>& lhs,
                 const SkipList<KEY, DATA>& rhs);
 
-/// Return `true` if the specified `lhs` list list has a different value
-/// from the specified `rhs` list, and `false` otherwise.  Two lists A and B
-/// have different values if they have a different of elements, or if there
-/// exists an i in the range [0, numberOfElements) such that the i'th pair
-/// from the front of A differs in key or data values from i'th pair from
-/// the front of B.
+/// Return `true` if the specified `lhs` list list has a different value from
+/// the specified `rhs` list, and `false` otherwise.  Two lists A and B have
+/// different values if they have a different of elements, or if there exists
+/// an i in the range [0, numberOfElements) such that the i'th pair from the
+/// front of A differs in key or data values from i'th pair from the front of
+/// B.
 template <class KEY, class DATA>
 bool operator!=(const SkipList<KEY, DATA>& lhs,
                 const SkipList<KEY, DATA>& rhs);

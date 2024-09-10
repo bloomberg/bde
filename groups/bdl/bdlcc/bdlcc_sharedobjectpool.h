@@ -399,14 +399,14 @@ class SharedObjectPool {
     // MANIPULATORS
 
     /// Return a pointer to an object from this object pool.  When the last
-    /// shared pointer to the object is destroyed, the object will be reset
-    /// as specified at construction and then returned to the pool.  If this
-    /// pool is empty, it is replenished according to the strategy specified
-    /// at construction.
+    /// shared pointer to the object is destroyed, the object will be reset as
+    /// specified at construction and then returned to the pool.  If this pool
+    /// is empty, it is replenished according to the strategy specified at
+    /// construction.
     bsl::shared_ptr<TYPE> getObject();
 
-    /// Create the specified `growBy` objects and add them to this object
-    /// pool.  The behavior is undefined unless `0 <= growBy`.
+    /// Create the specified `growBy` objects and add them to this object pool.
+    /// The behavior is undefined unless `0 <= growBy`.
     void increaseCapacity(int growBy);
 
     /// Create enough objects to satisfy requests for at least the specified

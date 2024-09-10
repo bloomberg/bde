@@ -84,16 +84,16 @@ BSLS_IDENT("$Id: $")
 // behaviors differ when the container is *full* (i.e. when the push would
 // raise the length of the container above the high-water mark).
 //
-// 1. *blocking*: (`pushBack`, `pushFront`): If the container is full, block
+// 1. **blocking**: (`pushBack`, `pushFront`): If the container is full, block
 //    until space is available, then push, otherwise push immediately.
-// 2. *try* (`tryPushBack`, `tryPushFront`): If the container is full, fail
+// 2. **try** (`tryPushBack`, `tryPushFront`): If the container is full, fail
 //    immediately.  If space is available, succeed immediately.  Note that
 //    partial success is possible in the case of a range try push.
-// 3. *timed* *blocking*: (`timedPushBack`, `timedPushFront`): If the container
+// 3. **timed blocking**: (`timedPushBack`, `timedPushFront`): If the container
 //    is full, block until either space is available or the specified timeout
 //    has been reached.  If space was, or became, available, push and succeed,
 //    otherwise fail.
-// 4. *force*: (`forcePushBack`, `forcePushFront`): If the container is full,
+// 4. **force**: (`forcePushBack`, `forcePushFront`): If the container is full,
 //    push anyway, increasing the container's size above its high-water mark,
 //    always succeeding immediately.
 //
@@ -344,9 +344,9 @@ BSLS_IDENT("$Id: $")
 //     bdlcc::Deque<Event> *d_deque_p;
 //     bslmt::Barrier      *d_barrier_p;
 //
+//     /// All the threads will block on the same barrier so they all start
+//     /// at once to maximize concurrency.
 //     void operator()()
-//         // All the threads will block on the same barrier so they all start
-//         // at once to maximize concurrency.
 //     {
 //         d_barrier_p->wait();
 //
@@ -474,8 +474,8 @@ namespace bdlcc {
 /// in-place, indexable, double-ended queue of (template parameter) `TYPE`
 /// values.  Direct access to the underlying `bsl::deque<TYPE>` object is
 /// provided through the nested `Proctor` and `ConstProctor` classes.  While
-/// this class is not value-semantic, the underlying `bsl::deque<TYPE>`
-/// class is.
+/// this class is not value-semantic, the underlying `bsl::deque<TYPE>` class
+/// is.
 template <class TYPE>
 class Deque {
 
@@ -570,23 +570,23 @@ class Deque {
 
     // CREATORS
 
-    /// Create a container of objects of (template parameter) `TYPE`, with
-    /// no high water mark, and use the specified `clockType` to indicate
-    /// the epoch used for all time intervals (see {Supported Clock-Types}
-    /// in the component documentation).  If `basicAllocator` is 0, the
-    /// currently installed default allocator is used.
+    /// Create a container of objects of (template parameter) `TYPE`, with no
+    /// high water mark, and use the specified `clockType` to indicate the
+    /// epoch used for all time intervals (see {Supported Clock-Types} in the
+    /// component documentation).  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     explicit
     Deque(bslma::Allocator            *basicAllocator = 0);
     explicit
     Deque(bsls::SystemClockType::Enum  clockType,
           bslma::Allocator            *basicAllocator = 0);
 
-    /// Create a container of objects of (template parameter) `TYPE`, with
-    /// the specified `highWaterMark`, and use the specified `clockType` to
+    /// Create a container of objects of (template parameter) `TYPE`, with the
+    /// specified `highWaterMark`, and use the specified `clockType` to
     /// indicate the epoch used for all time intervals (see {Supported
     /// Clock-Types} in the component documentation).  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The behavior is
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.  The behavior is
     /// undefined unless `highWaterMark > 0`.
     explicit
     Deque(bsl::size_t                  highWaterMark,
@@ -736,17 +736,17 @@ class Deque {
     /// left in a valid but unspecified state.
     void pushFront(bslmf::MovableRef<TYPE> item);
 
+    /// If the optionally specified `buffer` is non-zero, append all the
+    /// elements from this container to `*buffer` in the same order, then,
+    /// regardless of whether `buffer` is zero, clear this container.  Note
+    /// that the previous contents of `*buffer` are not discarded -- the
+    /// removed items are appended to it.
     void removeAll();
     void removeAll(bsl::vector<TYPE>      *buffer);
     void removeAll(std::vector<TYPE>      *buffer);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
     void removeAll(std::pmr::vector<TYPE> *buffer);
 #endif
-        // If the optionally specified 'buffer' is non-zero, append all the
-        // elements from this container to '*buffer' in the same order, then,
-        // regardless of whether 'buffer' is zero, clear this container.  Note
-        // that the previous contents of '*buffer' are not discarded -- the
-        // removed items are appended to it.
 
     /// Remove the last item in this container and load that item value into
     /// the specified `*item`.  If this container is empty, block until an
@@ -832,6 +832,18 @@ class Deque {
     /// `item` or the state of this container.
     int tryPopBack(TYPE *item);
 
+    /// Remove up to the specified `maxNumItems` from the back of this
+    /// container.  Optionally specify a `buffer` into which the items
+    /// removed from the container are loaded.  If `buffer` is non-null, the
+    /// removed items are appended to it as if by repeated application of
+    /// `buffer->push_back(popBack())` while the container is not empty and
+    /// `maxNumItems` have not yet been removed.  Note that the ordering of
+    /// the items in `*buffer` after the call is the reverse of the ordering
+    /// they had in the deque.  Also note that `*buffer` is not cleared --
+    /// the popped items are appended after any pre-existing contents.
+    ///
+    /// Also note that to transfer the entire contents of a `Deque` `d` to a
+    /// vector `v`, use `d.removeAll(&v);`.
     void tryPopBack(size_type               maxNumItems);
     void tryPopBack(size_type               maxNumItems,
                     bsl::vector<TYPE>      *buffer);
@@ -841,18 +853,6 @@ class Deque {
     void tryPopBack(size_type               maxNumItems,
                     std::pmr::vector<TYPE> *buffer);
 #endif
-        // Remove up to the specified 'maxNumItems' from the back of this
-        // container.  Optionally specify a 'buffer' into which the items
-        // removed from the container are loaded.  If 'buffer' is non-null, the
-        // removed items are appended to it as if by repeated application of
-        // 'buffer->push_back(popBack())' while the container is not empty and
-        // 'maxNumItems' have not yet been removed.  Note that the ordering of
-        // the items in '*buffer' after the call is the reverse of the ordering
-        // they had in the deque.  Also note that '*buffer' is not cleared --
-        // the popped items are appended after any pre-existing contents.
-        //
-        // Also note that to transfer the entire contents of a 'Deque' 'd' to a
-        // vector 'v', use 'd.removeAll(&v);'.
 
     /// If this container is non-empty, remove the first item, load that
     /// item into the specified `*item`, and return 0 indicating success.
@@ -860,6 +860,17 @@ class Deque {
     /// on `*item` or the state of this container.
     int tryPopFront(TYPE *item);
 
+    /// Remove up to the specified `maxNumItems` from the front of this
+    /// container.  Optionally specify a `buffer` into which the items
+    /// removed from the container are appended.  If `buffer` is non-null,
+    /// the removed items are appended to it as if by repeated application
+    /// of `buffer->push_back(popFront())` while the const is not empty and
+    /// `maxNumItems` have not yet been removed.  Note that `*buffer` is not
+    /// cleared -- the popped items are appended after any pre-existing
+    /// contents.
+    ///
+    /// Also note that to transfer the entire contents of a `Deque` `d` to a
+    /// vector `v`, use `d.removeAll(&v);`.
     void tryPopFront(size_type               maxNumItems);
     void tryPopFront(size_type               maxNumItems,
                      bsl::vector<TYPE>      *buffer);
@@ -869,17 +880,6 @@ class Deque {
     void tryPopFront(size_type               maxNumItems,
                      std::pmr::vector<TYPE> *buffer);
 #endif
-        // Remove up to the specified 'maxNumItems' from the front of this
-        // container.  Optionally specify a 'buffer' into which the items
-        // removed from the container are appended.  If 'buffer' is non-null,
-        // the removed items are appended to it as if by repeated application
-        // of 'buffer->push_back(popFront())' while the const is not empty and
-        // 'maxNumItems' have not yet been removed.  Note that '*buffer' is not
-        // cleared -- the popped items are appended after any pre-existing
-        // contents.
-        //
-        // Also note that to transfer the entire contents of a 'Deque' 'd' to a
-        // vector 'v', use 'd.removeAll(&v);'.
 
     /// If the container is not full (see {`High-Water Mark` Feature}),
     /// append the specified `item` to the back of the container, otherwise
@@ -953,15 +953,15 @@ class Deque {
     size_type length() const;
 };
 
-/// This private `class` is used to manage a `bsl::deque`, during the course
-/// of an operation by a `bdlcc::Deque`.  Because it has a `release` method,
-/// it is actually a proctor, but we call it a `guard` to avoid having
-/// clients confuse it with this component's `Proctor` and `ConstProctor`
-/// types.  A `deque` that is being managed may only grow, and only on one
-/// end or the other.  If a throw happens during the course of the operation
-/// and this guard's destructor is called while still managing the object,
-/// it will restore the managed object to its initial state via operations
-/// that are guaranteed not to throw.
+/// This private `class` is used to manage a `bsl::deque`, during the course of
+/// an operation by a `bdlcc::Deque`.  Because it has a `release` method, it is
+/// actually a proctor, but we call it a `guard` to avoid having clients
+/// confuse it with this component's `Proctor` and `ConstProctor` types.  A
+/// `deque` that is being managed may only grow, and only on one end or the
+/// other.  If a throw happens during the course of the operation and this
+/// guard's destructor is called while still managing the object, it will
+/// restore the managed object to its initial state via operations that are
+/// guaranteed not to throw.
 template <class TYPE>
 class Deque<TYPE>::DequeThrowGuard {
 
@@ -1003,13 +1003,12 @@ class Deque<TYPE>::DequeThrowGuard {
 
 /// This private `class` is used to manage one `vector` object during the
 /// course of an operation by a `bdlcc::Deque`.  Because it has a `release`
-/// method, it is actually a proctor, but we call it a `guard` to avoid
-/// having clients confuse it with the `Proctor` and `ConstProctor` types.
-/// The vector may only grow by having objects appended to it.  If a throw
-/// happens during the course of the operation and the guard's destructor is
-/// called while still managing the object, it will restore the managed
-/// object to its initial state via operations that are guaranteed not to
-/// throw.
+/// method, it is actually a proctor, but we call it a `guard` to avoid having
+/// clients confuse it with the `Proctor` and `ConstProctor` types.  The vector
+/// may only grow by having objects appended to it.  If a throw happens during
+/// the course of the operation and the guard's destructor is called while
+/// still managing the object, it will restore the managed object to its
+/// initial state via operations that are guaranteed not to throw.
 template <class TYPE>
 template <class VECTOR>
 class Deque<TYPE>::VectorThrowGuard {
@@ -1095,10 +1094,10 @@ class Deque<TYPE>::Proctor {
     Proctor(Deque<TYPE> *container = 0);
 
     /// Release the lock on the mutex of the `Deque` that was provided at
-    /// contstuction and destroy this `Proctor` object.  Signal the
-    /// conditions on the `Deque` that was supplied to this object at
-    /// construction to reflect any changes that have been made to its
-    /// contents since construction.
+    /// contstuction and destroy this `Proctor` object.  Signal the conditions
+    /// on the `Deque` that was supplied to this object at construction to
+    /// reflect any changes that have been made to its contents since
+    /// construction.
     ~Proctor();
 
     // MANIPULATORS
@@ -1132,8 +1131,7 @@ class Deque<TYPE>::Proctor {
     /// the number of elements in that deque.
     TYPE& operator[](typename MonoDeque::size_type position) const;
 
-    /// Return `true` if this object is not associated with a `Deque`
-    /// object.
+    /// Return `true` if this object is not associated with a `Deque` object.
     bool isNull() const;
 };
 
@@ -1141,8 +1139,8 @@ class Deque<TYPE>::Proctor {
                             // class Deque::ConstProctor
                             // =========================
 
-/// This class defines a proctor type that provides direct const access to
-/// the underlying `bsl::deque` contained in a `Deque`.
+/// This class defines a proctor type that provides direct const access to the
+/// underlying `bsl::deque` contained in a `Deque`.
 template <class TYPE>
 class Deque<TYPE>::ConstProctor {
 

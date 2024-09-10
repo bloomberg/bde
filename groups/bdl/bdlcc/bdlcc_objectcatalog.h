@@ -306,10 +306,9 @@ class ObjectCatalog;
                    // local class ObjectCatalog_AutoCleanup
                    // =====================================
 
-/// This class provides a specialized proctor object that, upon destruction
-/// and unless the `release` method is called (1) removes a managed node
-/// from the `ObjectCatalog`, and (2) deallocates all associated memory as
-/// necessary.
+/// This class provides a specialized proctor object that, upon destruction and
+/// unless the `release` method is called (1) removes a managed node from the
+/// `ObjectCatalog`, and (2) deallocates all associated memory as necessary.
 template <class TYPE>
 class ObjectCatalog_AutoCleanup {
 
@@ -472,15 +471,15 @@ class ObjectCatalog {
     /// is assigned into, and thus must point to a valid `TYPE` instance.
     int remove(int handle, TYPE *valueBuffer = 0);
 
+    /// Remove all objects that are currently held in this catalog and
+    /// optionally load into the optionally specified `buffer` the removed
+    /// objects.
     void removeAll();
     void removeAll(bsl::vector<TYPE>      *buffer);
     void removeAll(std::vector<TYPE>      *buffer);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
     void removeAll(std::pmr::vector<TYPE> *buffer);
 #endif
-        // Remove all objects that are currently held in this catalog and
-        // optionally load into the optionally specified 'buffer' the removed
-        // objects.
 
     /// Replace the object having the specified `handle` with the specified
     /// `newObject`.  Return 0 on success, and a non-zero value if the

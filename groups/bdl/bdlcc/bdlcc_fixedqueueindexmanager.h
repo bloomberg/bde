@@ -204,10 +204,10 @@ namespace bdlcc {
                         // class FixedQueueIndexManager
                         // ============================
 
-/// This class implements a circular buffer of atomic state variables.
-/// These are intended to synchronize access to another (non-atomic) indexed
-/// data structure so that the other data structure can be used as a
-/// thread-enabled fixed-size queue.
+/// This class implements a circular buffer of atomic state variables.  These
+/// are intended to synchronize access to another (non-atomic) indexed data
+/// structure so that the other data structure can be used as a thread-enabled
+/// fixed-size queue.
 class FixedQueueIndexManager {
 
     // PRIVATE CONSTANTS
@@ -325,11 +325,9 @@ class FixedQueueIndexManager {
                                     // implementation note in the .cpp for more
                                     // details)
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
-
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , e_MAX_CAPACITY = k_MAX_CAPACITY
-
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     };
 

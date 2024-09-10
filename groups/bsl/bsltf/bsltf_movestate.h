@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsltf::MoveState: namespace for move-state enumeration
 //
-//@SEE ALSO: bsltf_copystate
+//@SEE_ALSO: bsltf_copystate
 //
 //@DESCRIPTION: This component provides a `struct`, `bsltf_MoveState`, which
 // serves as a namespace for enumerating the move-state of an object, including
@@ -72,9 +72,9 @@ namespace bsltf {
 struct MoveState {
   public:
     // TYPES
-    enum Enum {
-        // Enumeration of move state.
 
+    /// Enumeration of move state.
+    enum Enum {
         e_NOT_MOVED,  // The type was not involved in a move operation.
 
         e_MOVED,      // The type was involved in a move operation.
@@ -110,7 +110,6 @@ struct MoveState {
 /// Print the specified `value` as a string.
 void debugprint(const MoveState::Enum& value);
 
-/// **DEPRECATED**: Use `CopyMoveState::isMovedFrom` or `CopyMoveState::get`.
 /// Return the moved-from state of the specified `object` of (template
 /// parameter) `TYPE`.  The default implementation of this ADL customization
 /// point calls `CopyMoveState::get` and translates the result into the
@@ -118,10 +117,11 @@ void debugprint(const MoveState::Enum& value);
 /// a customization of this function for a specific type will not be
 /// "inherited" by derived classes of that type; new types should customize
 /// `copyMoveState`, not `getMovedFrom`.
+///
+/// @DEPRECATED Use `CopyMoveState::isMovedFrom` or `CopyMoveState::get`.
 template <class TYPE>
 MoveState::Enum getMovedFrom(const TYPE& object);
 
-/// **DEPRECATED**: Use `CopyMoveState::isMovedInto` or `CopyMoveState::get`.
 /// Return the moved-from state of the specified `object` of (template
 /// parameter) `TYPE`.  The default implementation of this ADL customization
 /// point calls `CopyMoveState::get` and translates the result into the
@@ -129,16 +129,19 @@ MoveState::Enum getMovedFrom(const TYPE& object);
 /// function for a specific type will not be "inherited" by derived classes
 /// of that type; new types should customize `copyMoveState`, not
 /// `getMovedInto`.
+///
+/// @DEPRECATED Use `CopyMoveState::isMovedInto` or `CopyMoveState::get`.
 template <class TYPE>
 MoveState::Enum getMovedInto(const TYPE& object);
 
-/// **DEPRECATED**: Use `CopyMoveState::set` insetead.
 /// Set the moved-into state of the specified `object` to the specified
 /// `value`.  The default implementation of this ADL customization point
 /// calls `CopyMoveState::set` and translates `value` into the correpsonding
 /// `CopyMoveState::Enum`.  Note that a customization of this function for a
 /// specific type will not be "inherited" by derived classes of that type;
 /// new types should customize `setCopyMoveState`, not `setMovedInto`.
+///
+/// @DEPRECATED Use `CopyMoveState::set` instead.
 template <class TYPE>
 void setMovedInto(TYPE *object, MoveState::Enum value);
 

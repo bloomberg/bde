@@ -449,7 +449,7 @@ class ObjectPool_CreatorConverter {
 /// case that the default creator type is used with a unary creator.  In
 /// this case, `creator` will return a binder (see `bdlf_bind`) that adapts
 /// the unary creator to a binary creator that discards the second argument.
-/// This usage is *DEPRECATED* and provided only for backward compatibility.
+/// This usage is **DEPRECATED** and provided only for backward compatibility.
 template <>
 class ObjectPool_CreatorConverter<ObjectPoolFunctors::DefaultCreator,
                                   bsl::function<void(void *)> > {
@@ -726,10 +726,9 @@ class ObjectPool : public bdlma::Factory<TYPE> {
                                      // overflow
     };
 
+    /// Default configuration parameters.  Adjust these to tune up
+    /// performance of `ObjectPool`.
     enum {
-        // Default configuration parameters.  Adjust these to tune up
-        // performance of 'ObjectPool'.
-
         k_GROW_FACTOR           =   2,  // multiplicative factor to grow
                                         // capacity
 
@@ -857,7 +856,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
                int               growBy = -1,
                bslma::Allocator *basicAllocator = 0);
 
-    /// *DEPRECATED* Use a creator of the parameterized `CREATOR` type.
+    /// @DEPRECATED Use a creator of the parameterized `CREATOR` type.
     template <class ANYPROTO>
     explicit
     ObjectPool(const bsl::function<ANYPROTO>&  objectCreator,

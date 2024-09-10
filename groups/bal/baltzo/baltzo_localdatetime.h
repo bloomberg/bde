@@ -123,9 +123,8 @@ namespace baltzo {
                             // ===================
 
 /// This unconstrained (value-semantic) attribute class characterizes a date
-/// time, offset from UTC, and a time zone identifier represented by a
-/// string.  See the Attributes section under @DESCRIPTION in the
-/// component-level documentation.
+/// time, offset from UTC, and a time zone identifier represented by a string.
+/// See the [](#Attributes) section for information on the class attributes.
 class LocalDatetime {
 
     // DATA
@@ -147,33 +146,28 @@ class LocalDatetime {
 
                         // Aspects
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // pending deprecation
-
-    // DEPRECATED METHODS
-
-    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
-    ///
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     /// Return the most current BDEX streaming version number supported by
     /// this class.
+    ///
+    /// @DEPRECATED Use `maxSupportedBdexVersion(int)` instead.
     static int maxSupportedBdexVersion();
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED -- pending deprecation
 
     /// Return the maximum valid BDEX format version, as indicated by the
     /// specified `versionSelector`, to be passed to the `bdexStreamOut`
-    /// method.  Note that it is highly recommended that `versionSelector`
-    /// be formatted as "YYYYMMDD", a date representation.  Also note that
-    /// `versionSelector` should be a *compile*-time-chosen value that
-    /// selects a format version supported by both externalizer and
-    /// unexternalizer.  See the `bslx` package-level documentation for more
-    /// information on BDEX streaming of value-semantic types and
-    /// containers.
+    /// method.  Note that it is highly recommended that `versionSelector` be
+    /// formatted as "YYYYMMDD", a date representation.  Also note that
+    /// `versionSelector` should be a *compile*-time-chosen value that selects
+    /// a format version supported by both externalizer and unexternalizer.
+    /// See the `bslx` package-level documentation for more information on BDEX
+    /// streaming of value-semantic types and containers.
     static int maxSupportedBdexVersion(int versionSelector);
 
     // CREATORS
 
-    /// Create a `LocalDatetime` object having the (default) attribute
-    /// values:
+    /// Create a `LocalDatetime` object having the (default) attribute values:
     /// ```
     /// datetimeTz() == bdlt::DatetimeTz()
     /// timeZoneId() == ""
@@ -197,28 +191,26 @@ class LocalDatetime {
                   const char               *timeZoneId,
                   const allocator_type&     allocator = allocator_type());
 
-    /// Create a `LocalDatetime` object having the same value as the
-    /// specified `original` object.  Optionally specify an `allocator`
-    /// (e.g., the address of a `bslma::Allocator` object) to supply memory;
-    /// otherwise, the default allocator is used.
+    /// Create a `LocalDatetime` object having the same value as the specified
+    /// `original` object.  Optionally specify an `allocator` (e.g., the
+    /// address of a `bslma::Allocator` object) to supply memory; otherwise,
+    /// the default allocator is used.
     LocalDatetime(const LocalDatetime&  original,
                   const allocator_type& allocator = allocator_type());
 
     /// Create a `LocalDatetime` object having the same value and the same
-    /// allocator as the specified `original` object.  The value of
-    /// `original` becomes unspecified but valid, and its allocator remains
-    /// unchanged.
+    /// allocator as the specified `original` object.  The value of `original`
+    /// becomes unspecified but valid, and its allocator remains unchanged.
     LocalDatetime(bslmf::MovableRef<LocalDatetime> original)
                                                          BSLS_KEYWORD_NOEXCEPT;
 
-    /// Create a `LocalDatetime` object having the same value as the
-    /// specified `original` object, using the specified `allocator` (e.g.,
-    /// the address of a `bslma::Allocator` object) to supply memory.  The
-    /// allocator of `original` remains unchanged.  If `original` and the
-    /// newly created object have the same allocator then the value of
-    /// `original` becomes unspecified but valid, and no exceptions will be
-    /// thrown; otherwise `original` is unchanged and an exception may be
-    /// thrown.
+    /// Create a `LocalDatetime` object having the same value as the specified
+    /// `original` object, using the specified `allocator` (e.g., the address
+    /// of a `bslma::Allocator` object) to supply memory.  The allocator of
+    /// `original` remains unchanged.  If `original` and the newly created
+    /// object have the same allocator then the value of `original` becomes
+    /// unspecified but valid, and no exceptions will be thrown; otherwise
+    /// `original` is unchanged and an exception may be thrown.
     LocalDatetime(bslmf::MovableRef<LocalDatetime> original,
                   const allocator_type&            allocator);
 
@@ -232,34 +224,33 @@ class LocalDatetime {
     LocalDatetime& operator=(const LocalDatetime& rhs);
 
     /// Assign to this object the value of the specified `rhs` object, and
-    /// return a non-`const` reference to this object.  The allocators of
-    /// this object and `rhs` both remain unchanged.  If `rhs` and this
-    /// object have the same allocator then the value of `rhs` becomes
-    /// unspecified but valid, and no exceptions will be thrown; otherwise
-    /// `rhs` is unchanged (and an exception may be thrown).
+    /// return a non-`const` reference to this object.  The allocators of this
+    /// object and `rhs` both remain unchanged.  If `rhs` and this object have
+    /// the same allocator then the value of `rhs` becomes unspecified but
+    /// valid, and no exceptions will be thrown; otherwise `rhs` is unchanged
+    /// (and an exception may be thrown).
     LocalDatetime& operator=(bslmf::MovableRef<LocalDatetime> rhs);
 
-    /// Set the `datetimeTz` attribute of this object to the specified
-    /// `value`.
+    /// Set the `datetimeTz` attribute of this object to the specified `value`.
     void setDatetimeTz(const bdlt::DatetimeTz& value);
 
-    /// Set the `timeZoneId` attribute of this object to the specified
-    /// `value`.  If `value` is null, it is treated as an empty string.
+    /// Set the `timeZoneId` attribute of this object to the specified `value`.
+    /// If `value` is null, it is treated as an empty string.
     void setTimeZoneId(const bsl::string_view&  value);
     void setTimeZoneId(const char              *value);
 
                         // Aspects
 
-    /// Assign to this object the value read from the specified input
-    /// `stream` using the specified `version` format, and return a
-    /// reference to `stream`.  If `stream` is initially invalid, this
-    /// operation has no effect.  If `version` is not supported, this object
-    /// is unaltered and `stream` is invalidated, but otherwise unmodified.
-    /// If `version` is supported but `stream` becomes invalid during this
-    /// operation, this object has an undefined, but valid, state.  Note
-    /// that no version is read from `stream`.  See the `bslx` package-level
-    /// documentation for more information on BDEX streaming of
-    /// value-semantic types and containers.
+    /// Assign to this object the value read from the specified input `stream`
+    /// using the specified `version` format, and return a reference to
+    /// `stream`.  If `stream` is initially invalid, this operation has no
+    /// effect.  If `version` is not supported, this object is unaltered and
+    /// `stream` is invalidated, but otherwise unmodified.  If `version` is
+    /// supported but `stream` becomes invalid during this operation, this
+    /// object has an undefined, but valid, state.  Note that no version is
+    /// read from `stream`.  See the `bslx` package-level documentation for
+    /// more information on BDEX streaming of value-semantic types and
+    /// containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
 
@@ -275,50 +266,48 @@ class LocalDatetime {
     /// `datetimeTz` attribute of this object.
     const bdlt::DatetimeTz& datetimeTz() const;
 
-    /// Return a reference providing non-modifiable access to the
-    /// `timeZoneId` attribute of this object.
+    /// Return a reference providing non-modifiable access to the `timeZoneId`
+    /// attribute of this object.
     const bsl::string& timeZoneId() const;
 
                                 // Aspects
 
                                 // Allocator
 
-    /// **DEPRECATED**: Use `get_allocator()` instead.
-    ///
     /// Return `get_allocator().mechanism()`.
+    ///
+    /// @DEPRECATED Use `get_allocator()` instead.
     bslma::Allocator *allocator() const;
 
-    /// Return the allocator used by this object to supply memory.  Note
-    /// that if no allocator was supplied at construction the default
-    /// allocator in effect at construction is used.
+    /// Return the allocator used by this object to supply memory.  Note that
+    /// if no allocator was supplied at construction the default allocator in
+    /// effect at construction is used.
     allocator_type get_allocator() const;
 
                                 // Output
 
-    /// Write the value of this object, using the specified `version`
-    /// format, to the specified output `stream`, and return a reference to
-    /// `stream`.  If `stream` is initially invalid, this operation has no
-    /// effect.  If `version` is not supported, `stream` is invalidated, but
-    /// otherwise unmodified.  Note that `version` is not written to
-    /// `stream`.  See the `bslx` package-level documentation for more
-    /// information on BDEX streaming of value-semantic types and
-    /// containers.
+    /// Write the value of this object, using the specified `version` format,
+    /// to the specified output `stream`, and return a reference to `stream`.
+    /// If `stream` is initially invalid, this operation has no effect.  If
+    /// `version` is not supported, `stream` is invalidated, but otherwise
+    /// unmodified.  Note that `version` is not written to `stream`.  See the
+    /// `bslx` package-level documentation for more information on BDEX
+    /// streaming of value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
 
     /// Write the value of this object to the specified output `stream` in a
     /// human-readable format, and return a reference providing modifiable
-    /// access to `stream`.  Optionally specify an initial indentation
-    /// `level`, whose absolute value is incremented recursively for nested
-    /// objects.  If `level` is specified, optionally specify
-    /// `spacesPerLevel`, whose absolute value indicates the number of
-    /// spaces per indentation level for this and all of its nested objects.
-    /// If `level` is negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, format the entire output on one line,
-    /// suppressing all but the initial indentation (as governed by
-    /// `level`).  If `stream` is not valid on entry, this operation has no
-    /// effect.  Note that the format is not fully specified, and can change
-    /// without notice.
+    /// access to `stream`.  Optionally specify an initial indentation `level`,
+    /// whose absolute value is incremented recursively for nested objects.  If
+    /// `level` is specified, optionally specify `spacesPerLevel`, whose
+    /// absolute value indicates the number of spaces per indentation level for
+    /// this and all of its nested objects.  If `level` is negative, suppress
+    /// indentation of the first line.  If `spacesPerLevel` is negative, format
+    /// the entire output on one line, suppressing all but the initial
+    /// indentation (as governed by `level`).  If `stream` is not valid on
+    /// entry, this operation has no effect.  Note that the format is not fully
+    /// specified, and can change without notice.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
@@ -326,25 +315,24 @@ class LocalDatetime {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `LocalDatetime` objects have the
-/// same value if all of the corresponding values of their `datetimeTz` and
-/// `timeZoneId` attributes are the same.
+/// Return `true` if the specified `lhs` and `rhs` objects have the same value,
+/// and `false` otherwise.  Two `LocalDatetime` objects have the same value if
+/// all of the corresponding values of their `datetimeTz` and `timeZoneId`
+/// attributes are the same.
 bool operator==(const LocalDatetime& lhs, const LocalDatetime& rhs);
 
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same value, and `false` otherwise.  Two `LocalDatetime` objects do not
-/// have the same value if any of the corresponding values of their
-/// `datetimeTz` or `timeZoneId` attributes are not the same.
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the same
+/// value, and `false` otherwise.  Two `LocalDatetime` objects do not have the
+/// same value if any of the corresponding values of their `datetimeTz` or
+/// `timeZoneId` attributes are not the same.
 bool operator!=(const LocalDatetime& lhs, const LocalDatetime& rhs);
 
-/// Write the value of the specified `object` to the specified output
-/// `stream` in a single-line format, and return a reference providing
-/// modifiable access to `stream`.  If `stream` is not valid on entry, this
-/// operation has no effect.  Note that this human-readable format is not
-/// fully specified and can change without notice.  Also note that this
-/// method has the same behavior as `object.print(stream, 0, -1)` with the
-/// attribute names elided.
+/// Write the value of the specified `object` to the specified output `stream`
+/// in a single-line format, and return a reference providing modifiable access
+/// to `stream`.  If `stream` is not valid on entry, this operation has no
+/// effect.  Note that this human-readable format is not fully specified and
+/// can change without notice.  Also note that this method has the same
+/// behavior as `object.print(stream, 0, -1)` with the attribute names elided.
 bsl::ostream& operator<<(bsl::ostream& stream, const LocalDatetime& object);
 
 // FREE FUNCTIONS

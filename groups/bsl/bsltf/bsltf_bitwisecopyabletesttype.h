@@ -36,9 +36,9 @@ BSLS_IDENT("$Id: $")
 // First, we create a function template `printTypeTraits` with a parameterized
 // `TYPE`:
 // ```
+// /// Prints the traits of the parameterized 'TYPE' to the console.
 // template <class TYPE>
 // void printTypeTraits()
-//     // Prints the traits of the parameterized 'TYPE' to the console.
 // {
 //     if (bslma::UsesBslmaAllocator<TYPE>::value) {
 //         printf("Type defines bslma::UsesBslmaAllocator.\n");
@@ -82,9 +82,8 @@ namespace bsltf {
                         // =============================
 
 /// This unconstrained (value-semantic) attribute class defines the
-/// `bsl::is_trivially_copyable` trait and does not allocate memory.  See
-/// the Attributes section under @DESCRIPTION in the component-level
-/// documentation for information on the class attributes.
+/// `bsl::is_trivially_copyable` trait and does not allocate memory.  See the
+/// [](#Attributes) section for information on the class attributes.
 class BitwiseCopyableTestType {
 
     // DATA
@@ -97,31 +96,31 @@ class BitwiseCopyableTestType {
 
     // CREATORS
 
-    /// Create a `SimpleTestType` object having the (default) attribute
-    /// values:
+    /// Create a `SimpleTestType` object having the (default) attribute values:
     /// ```
     /// data() == 0
     /// ```
     BitwiseCopyableTestType();
 
-    /// Create a `BitwiseCopyableTestType` object having the specified
-    /// `data` attribute value.
+    /// Create a `BitwiseCopyableTestType` object having the specified `data`
+    /// attribute value.
     explicit BitwiseCopyableTestType(int data);
 
+    /// Create a 'BitwiseCopyableTestType' object having the same value as the
+    /// specified 'original' object.
     //! BitwiseCopyableTestType(
-    //                      const BitwiseCopyableTestType& original) = default;
-        // Create a 'BitwiseCopyableTestType' object having the same value as
-        // the specified 'original' object.
+    //!                     const BitwiseCopyableTestType& original) = default;
 
+    /// Destroy this object.  Note that this destructor is neither declared nor
+    /// defined because this type is trivially copyable.
     //! ~BitwiseCopyableTestType() = default;
-         // Destroy this object.  Note that this destructor is neither declared
-         // nor defined because this type is trivially copyable.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified 'rhs' object, and
+    /// return a reference providing modifiable access to this object.
     //! BitwiseCopyableTestType& operator=(
-    //                           const BitwiseCopyableTestType& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
+    //!                          const BitwiseCopyableTestType& rhs) = default;
 
     /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
@@ -134,16 +133,15 @@ class BitwiseCopyableTestType {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `BitwiseCopyableTestType` objects
-/// have the same if their `data` attributes are the same.
+/// Return `true` if the specified `lhs` and `rhs` objects have the same value,
+/// and `false` otherwise.  Two `BitwiseCopyableTestType` objects have the same
+/// if their `data` attributes are the same.
 bool operator==(const BitwiseCopyableTestType& lhs,
                 const BitwiseCopyableTestType& rhs);
 
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same value, and `false` otherwise.  Two `BitwiseCopyableTestType`
-/// objects do not have the same value if their `data` attributes are not
-/// the same.
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the same
+/// value, and `false` otherwise.  Two `BitwiseCopyableTestType` objects do not
+/// have the same value if their `data` attributes are not the same.
 bool operator!=(const BitwiseCopyableTestType& lhs,
                 const BitwiseCopyableTestType& rhs);
 

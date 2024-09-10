@@ -697,24 +697,22 @@ struct DecimalUtil {
     /// designated by the specified `buffer` and `length`, and return the
     /// length of the formatted value.  If there is insufficient room in the
     /// buffer, its contents will be left in an unspecified state, with the
-    /// returned value indicating the necessary size.  This function does
-    /// not write a terminating null character.  If `length` is not
-    /// positive, `buffer` is permitted to be null.  This can be used to
-    /// determine the necessary buffer size.  Optionally specify a `cfg`,
-    /// indicating formatting parameters.  If `cfg` is not specified, then
-    /// default configuration instance, indicating scientific notation style
-    /// with a precision sufficient to produce all available digits is used.
-    /// See the Attributes section under @DESCRIPTION in the component-level
-    /// documentation for `bdldfp::DecimalFormatConfig` component for
-    /// information on the configuration attributes.
+    /// returned value indicating the necessary size.  This function does not
+    /// write a terminating null character.  If `length` is not positive,
+    /// `buffer` is permitted to be null.  This can be used to determine the
+    /// necessary buffer size.  Optionally specify a `cfg`, indicating
+    /// formatting parameters.  If `cfg` is not specified, then default
+    /// configuration instance, indicating scientific notation style with a
+    /// precision sufficient to produce all available digits is used.  See the
+    /// [](bdldfp_decimalformatconfig#Attributes) section for information on
+    /// the configuration attributes.
     ///
     /// Note that for some combinations of `value` and precision provided by
-    /// `cfg` object, the number being written must first be rounded to
-    /// fewer digits than it initially contains.  The number written must be
-    /// as close as possible to the initial value given the constraints on
-    /// precision.  The rounding should be done as "round-half-up", i.e.,
-    /// round up in magnitude when the first of the discarded digits is
-    /// between 5 and 9.
+    /// `cfg` object, the number being written must first be rounded to fewer
+    /// digits than it initially contains.  The number written must be as close
+    /// as possible to the initial value given the constraints on precision.
+    /// The rounding should be done as "round-half-up", i.e., round up in
+    /// magnitude when the first of the discarded digits is between 5 and 9.
     ///
     /// Also note that if the configuration format attribute `style` is
     /// `e_NATURAL` then all significand digits of the `value` are output in
@@ -732,31 +730,30 @@ struct DecimalUtil {
                        // =============================
 
 /// This component-private utility `struct` provides a namespace for the
-/// `flatten` overload set intended to be used in concert with an overload
-/// set consisting of a function template with a deduced argument and an
+/// `flatten` overload set intended to be used in concert with an overload set
+/// consisting of a function template with a deduced argument and an
 /// non-template overload accepting a `const char *`.  The actual
-/// implementation of the functionality would be in the `const char *`
-/// overload whereas the purpose of the function template is to invoke the
-/// `const char *` overload with a null-terminated string.
+/// implementation of the functionality would be in the `const char *` overload
+/// whereas the purpose of the function template is to invoke the `const char
+/// *` overload with a null-terminated string.
 ///
-/// The function template achieves null-termination by recursively calling
-/// the function and supplying it with the result of `flatten` invoked on
-/// the deduced argument.  This `flatten` invocation will call `c_str()` on
-/// various supported `string` types, will produce a temporary `bsl::string`
-/// for possibly non-null-terminated `bslstl::StringRef`, and will result in
-/// a `BSLMF_ASSERT` for any unsupported type.  Calling the function with
-/// the temporary `bsl::string` produced from `bslstl::StringRef` will
-/// result in a second invocation of `flatten`, this time producing
-/// `const char *`, and finally calling the function with a null-terminated
-/// string.
+/// The function template achieves null-termination by recursively calling the
+/// function and supplying it with the result of `flatten` invoked on the
+/// deduced argument.  This `flatten` invocation will call `c_str()` on various
+/// supported `string` types, will produce a temporary `bsl::string` for
+/// possibly non-null-terminated `bslstl::StringRef`, and will result in a
+/// `BSLMF_ASSERT` for any unsupported type.  Calling the function with the
+/// temporary `bsl::string` produced from `bslstl::StringRef` will result in a
+/// second invocation of `flatten`, this time producing `const char *`, and
+/// finally calling the function with a null-terminated string.
 ///
 /// Note that the `bslstl::StringRef` overload for `flatten` is provided for
-/// backwards compatibility.  Without it, the `bsl::string` and
-/// `std::string` overloads would be ambiguous.  In new code, it is
-/// preferable to not provide `bslstl::StringRef` overload in a similar
-/// facility and require the clients to explicitly state the string type in
-/// their code, making a potential allocation obvious.  The
-/// `bsl::string_view` overload is not provided for the same reason.
+/// backwards compatibility.  Without it, the `bsl::string` and `std::string`
+/// overloads would be ambiguous.  In new code, it is preferable to not provide
+/// `bslstl::StringRef` overload in a similar facility and require the clients
+/// to explicitly state the string type in their code, making a potential
+/// allocation obvious.  The `bsl::string_view` overload is not provided for
+/// the same reason.
 struct DecimalUtil_CStringUtil {
 
     // CLASS METHODS
@@ -765,12 +762,12 @@ struct DecimalUtil_CStringUtil {
     static const char *flatten(const char *cString);
     static const char *flatten(char *cString);
 
+    /// Return the result of invoking 'c_str()' on the specified 'string'.
     static const char *flatten(const bsl::string& string);
     static const char *flatten(const std::string& string);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static const char *flatten(const std::pmr::string& string);
 #endif
-        // Return the result of invoking 'c_str()' on the specified 'string'.
 
     /// Return a temporary `bsl::string` constructed from the specified
     /// `stringRef`.

@@ -53,6 +53,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Suppose we want to create a hash table that keeps track of pointers.
 // Pointers can be added (`insert`ed) or removed (`erase`d) from the table, and
 // the table will keep track, at any time, of whether a pointer is currently
@@ -83,10 +85,10 @@ BSLS_IDENT("$Id: $")
 //
 //     // PRIVATE ACCESSORS
 //
-//     // Perform sanity checks on this table, returning `true` if all the
-//     // tests pass and `false` otherwise.  Note that many of the checks
-//     // are done with the `ASSERTV` macro and will cause messages to be
-//     // written to the console.
+//     /// Perform sanity checks on this table, returning `true` if all the
+//     /// tests pass and `false` otherwise.  Note that many of the checks
+//     /// are done with the `ASSERTV` macro and will cause messages to be
+//     /// written to the console.
 //     bool checkInvariants() const;
 //
 //     /// If the specified value `ptr` is stored in this table, return
@@ -108,8 +110,8 @@ BSLS_IDENT("$Id: $")
 //   public:
 //     // CREATORS
 //
-//     // Create a `PtrHashSet`, using the specified `allocator`.  If no
-//     // allocator is specified, use the default allocator.
+//     /// Create a `PtrHashSet`, using the specified `allocator`.  If no
+//     /// allocator is specified, use the default allocator.
 //     explicit
 //     PtrHashSet(bslma::Allocator *allocator = 0);
 //
@@ -435,7 +437,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // if (verbose) {
 //     printf("sevens = %u, killed = %u, phs.size() = %u\n", sevens,
-//                                         killed, (unsigned) phs.size());
+//            killed, (unsigned) phs.size());
 // }
 // ```
 // Now, we iterate through every element of the `pc` array, verifying that the
@@ -480,8 +482,7 @@ struct HashTableBucket;  // This is known to be a POD struct.
 
 /// This complex constrained *in*-*core* (value-semantic) attribute class
 /// characterizes the key data elements of a hash table.  See the
-/// "Attributes" section under @DESCRIPTION in the component-level
-/// documentation for/ information on the class attributes.  Note that the
+/// [](#Attributes) section information on the class attributes.  Note that the
 /// class invariant is the identically the complex constraint of this
 /// component.
 ///
@@ -527,7 +528,7 @@ class HashTableAnchor {
     HashTableAnchor(const HashTableAnchor& original);
 
     /// Destroy this object.
-    // ~bslalg::HashTableAnchor(); = default
+    //! ~bslalg::HashTableAnchor(); = default
 
     // MANIPULATORS
 
@@ -570,26 +571,24 @@ class HashTableAnchor {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `bslalg::HashTableAnchor` objects
-/// have the same value if all of the corresponding values of their
-/// `bucketArrayAddress`, `bucketArraySize`, and `listRootAddress`
-/// attributes are the same.
+/// Return `true` if the specified `lhs` and `rhs` objects have the same value,
+/// and `false` otherwise.  Two `bslalg::HashTableAnchor` objects have the same
+/// value if all of the corresponding values of their `bucketArrayAddress`,
+/// `bucketArraySize`, and `listRootAddress` attributes are the same.
 bool operator==(const HashTableAnchor& lhs, const HashTableAnchor& rhs);
 
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same value, and `false` otherwise.  Two `bslalg::HashTableAnchor`
-/// objects do not have the same value if any of the corresponding values of
-/// their `bucketArrayAddress`, `bucketArraySize`, or `listRootAddress`
-/// attributes are not the same.
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the same
+/// value, and `false` otherwise.  Two `bslalg::HashTableAnchor` objects do not
+/// have the same value if any of the corresponding values of their
+/// `bucketArrayAddress`, `bucketArraySize`, or `listRootAddress` attributes
+/// are not the same.
 bool operator!=(const HashTableAnchor& lhs, const HashTableAnchor& rhs);
 
 // FREE FUNCTIONS
 
-/// Efficiently exchange the values of the specified `a` and `b` objects.
-/// This function provides the no-throw exception-safety guarantee.  The
-/// behavior is undefined unless the two objects were created with the same
-/// allocator.
+/// Efficiently exchange the values of the specified `a` and `b` objects.  This
+/// function provides the no-throw exception-safety guarantee.  The behavior is
+/// undefined unless the two objects were created with the same allocator.
 void swap(HashTableAnchor& a, HashTableAnchor& b);
 
 // ============================================================================

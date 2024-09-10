@@ -159,12 +159,11 @@ namespace baltzo {
                            // class LocalTimePeriod
                            // =====================
 
-/// This complex-constrained (value-semantic) attribute class describes a
-/// range of time in which a particular local time description (offset, DST
-/// status, and a descriptive string) is in effect.  See the Attributes
-/// section under @DESCRIPTION in the component-level documentation.  Note
-/// that the class invariants are identically the constraints on the
-/// attributes.
+/// This complex-constrained (value-semantic) attribute class describes a range
+/// of time in which a particular local time description (offset, DST status,
+/// and a descriptive string) is in effect.  See the [](#Attributes) section
+/// for information on the class attributes.  Note that the class invariants
+/// are identically the constraints on the attributes.
 class LocalTimePeriod {
 
     // DATA
@@ -209,41 +208,38 @@ class LocalTimePeriod {
     explicit LocalTimePeriod(const allocator_type& allocator);
 
     /// Create a `LocalTimePeriod` object having the specified `descriptor`,
-    /// `utcStartTime`, and `utcEndTime` attribute values.  Optionally
-    /// specify an `allocator` (e.g., the address of a `bslma::Allocator`
-    /// object) to supply memory; otherwise, the default allocator is used.
-    /// The behavior is undefined unless `utcStartTime == utcEndTime`, or if
-    /// `utcStartTime` and `utcEndTime` are comparable (i.e., neither equals
-    /// the a default constructed `bdlt::DateTime` object) unless
-    /// `utcStartTime < utcEndTime`.  (See the `isValidUtcStartAndEndTime`
-    /// method.)
+    /// `utcStartTime`, and `utcEndTime` attribute values.  Optionally specify
+    /// an `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory; otherwise, the default allocator is used.  The behavior
+    /// is undefined unless `utcStartTime == utcEndTime`, or if `utcStartTime`
+    /// and `utcEndTime` are comparable (i.e., neither equals the a default
+    /// constructed `bdlt::DateTime` object) unless `utcStartTime <
+    /// utcEndTime`.  (See the `isValidUtcStartAndEndTime` method.)
     LocalTimePeriod(const LocalTimeDescriptor& descriptor,
                     const bdlt::Datetime&      utcStartTime,
                     const bdlt::Datetime&      utcEndTime,
                     const allocator_type&      allocator = allocator_type());
 
-    /// Create a `LocalTimePeriod` object with the same value as the
-    /// specified `original` object.  Optionally specify an `allocator`
-    /// (e.g., the address of a `bslma::Allocator` object) to supply memory;
-    /// otherwise, the default allocator is used.
+    /// Create a `LocalTimePeriod` object with the same value as the specified
+    /// `original` object.  Optionally specify an `allocator` (e.g., the
+    /// address of a `bslma::Allocator` object) to supply memory; otherwise,
+    /// the default allocator is used.
     LocalTimePeriod(const LocalTimePeriod& original,
                     const allocator_type&  allocator = allocator_type());
 
     /// Create a `LocalTimePeriod` object having the same value and the same
-    /// allocator as the specified `original` object.  The value of
-    /// `original` becomes unspecified but valid, and its allocator remains
-    /// unchanged.
+    /// allocator as the specified `original` object.  The value of `original`
+    /// becomes unspecified but valid, and its allocator remains unchanged.
     LocalTimePeriod(bslmf::MovableRef<LocalTimePeriod> original)
                                                          BSLS_KEYWORD_NOEXCEPT;
 
     /// Create a `LocalTimePeriod` object having the same value as the
-    /// specified `original` object, using the specified `allocator` (e.g.,
-    /// the address of a `bslma::Allocator` object) to supply memory.  The
-    /// allocator of `original` remains unchanged.  If `original` and the
-    /// newly created object have the same allocator then the value of
-    /// `original` becomes unspecified but valid, and no exceptions will be
-    /// thrown; otherwise `original` is unchanged and an exception may be
-    /// thrown.
+    /// specified `original` object, using the specified `allocator` (e.g., the
+    /// address of a `bslma::Allocator` object) to supply memory.  The
+    /// allocator of `original` remains unchanged.  If `original` and the newly
+    /// created object have the same allocator then the value of `original`
+    /// becomes unspecified but valid, and no exceptions will be thrown;
+    /// otherwise `original` is unchanged and an exception may be thrown.
     LocalTimePeriod(bslmf::MovableRef<LocalTimePeriod> original,
                     const allocator_type&              allocator);
 
@@ -257,23 +253,22 @@ class LocalTimePeriod {
     LocalTimePeriod& operator=(const LocalTimePeriod& rhs);
 
     /// Assign to this object the value of the specified `rhs` object, and
-    /// return a non-`const` reference to this object.  The allocators of
-    /// this object and `rhs` both remain unchanged.  If `rhs` and this
-    /// object have the same allocator then the value of `rhs` becomes
-    /// unspecified but valid, and no exceptions will be thrown; otherwise
-    /// `rhs` is unchanged (and an exception may be thrown).
+    /// return a non-`const` reference to this object.  The allocators of this
+    /// object and `rhs` both remain unchanged.  If `rhs` and this object have
+    /// the same allocator then the value of `rhs` becomes unspecified but
+    /// valid, and no exceptions will be thrown; otherwise `rhs` is unchanged
+    /// (and an exception may be thrown).
     LocalTimePeriod& operator=(bslmf::MovableRef<LocalTimePeriod> rhs);
 
     /// Set the `descriptor` attribute to the specified `value`.
     void setDescriptor(const LocalTimeDescriptor& value);
 
     /// Use the specified `utcStartTime` and `utcEndTime` to set the
-    /// `utcStartTime` and `utcEndTime` attributes of this object
-    /// respectively.  The behavior is undefined unless
-    /// `utcStartTime == utcEndTime`, or if `utcStartTime` and `utcEndTime`
-    /// are comparable (i.e., neither equals a default constructed
-    /// `bdlt::DateTime` object) unless `utcStartTime < utcEndTime`.  (See
-    /// the `isValidUtcStartAndEndTime` method.)
+    /// `utcStartTime` and `utcEndTime` attributes of this object respectively.
+    /// The behavior is undefined unless `utcStartTime == utcEndTime`, or if
+    /// `utcStartTime` and `utcEndTime` are comparable (i.e., neither equals a
+    /// default constructed `bdlt::DateTime` object) unless `utcStartTime <
+    /// utcEndTime`.  (See the `isValidUtcStartAndEndTime` method.)
     void setUtcStartAndEndTime(const bdlt::Datetime& utcStartTime,
                                const bdlt::Datetime& utcEndTime);
 
@@ -285,22 +280,22 @@ class LocalTimePeriod {
 
     // ACCESSORS
 
-    /// **DEPRECATED**: Use `get_allocator()` instead.
-    ///
     /// Return `get_allocator().mechanism()`.
+    ///
+    /// @DEPRECATED Use `get_allocator()` instead.
     bslma::Allocator *allocator() const;
 
     /// Return a reference providing non-modifiable access to the
     /// `descriptor` attribute of this object.
     const LocalTimeDescriptor& descriptor() const;
 
-    /// Return the allocator used by this object to supply memory.  Note
-    /// that if no allocator was supplied at construction the default
-    /// allocator in effect at construction is used.
+    /// Return the allocator used by this object to supply memory.  Note that
+    /// if no allocator was supplied at construction the default allocator in
+    /// effect at construction is used.
     allocator_type get_allocator() const;
 
-    /// Return a reference providing non-modifiable access to the
-    /// `utcEndTime` attribute of this object.
+    /// Return a reference providing non-modifiable access to the `utcEndTime`
+    /// attribute of this object.
     const bdlt::Datetime& utcEndTime() const;
 
     /// Return a reference providing non-modifiable access to the
@@ -310,17 +305,17 @@ class LocalTimePeriod {
                         // Aspects
 
     /// Write the value of this object to the specified output `stream` in a
-    /// human-readable format, and return a reference to `stream`.
-    /// Optionally specify an initial indentation `level`, whose absolute
-    /// value is incremented recursively for nested objects.  If `level` is
-    /// specified, optionally specify `spacesPerLevel`, whose absolute value
-    /// indicates the number of spaces per indentation level for this and
-    /// all of its nested objects.  If `level` is negative, suppress
-    /// indentation of the first line.  If `spacesPerLevel` is negative,
-    /// format the entire output on one line, suppressing all but the
-    /// initial indentation (as governed by `level`).  If `stream` is not
-    /// valid on entry, this operation has no effect.  Note that the format
-    /// is not fully specified, and can change without notice.
+    /// human-readable format, and return a reference to `stream`.  Optionally
+    /// specify an initial indentation `level`, whose absolute value is
+    /// incremented recursively for nested objects.  If `level` is specified,
+    /// optionally specify `spacesPerLevel`, whose absolute value indicates the
+    /// number of spaces per indentation level for this and all of its nested
+    /// objects.  If `level` is negative, suppress indentation of the first
+    /// line.  If `spacesPerLevel` is negative, format the entire output on one
+    /// line, suppressing all but the initial indentation (as governed by
+    /// `level`).  If `stream` is not valid on entry, this operation has no
+    /// effect.  Note that the format is not fully specified, and can change
+    /// without notice.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
@@ -328,24 +323,24 @@ class LocalTimePeriod {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `LocalTimePeriod` objects have the
-/// same value if each of their corresponding `descriptor`, `utcStartTime`,
-/// and `utcEndTime` attributes have the same value.
+/// Return `true` if the specified `lhs` and `rhs` objects have the same value,
+/// and `false` otherwise.  Two `LocalTimePeriod` objects have the same value
+/// if each of their corresponding `descriptor`, `utcStartTime`, and
+/// `utcEndTime` attributes have the same value.
 bool operator==(const LocalTimePeriod& lhs, const LocalTimePeriod& rhs);
 
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same value, and `false` otherwise.  Two `LocalTimePeriod` objects do not
-/// have the same value if the corresponding values of their `descriptor`,
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the same
+/// value, and `false` otherwise.  Two `LocalTimePeriod` objects do not have
+/// the same value if the corresponding values of their `descriptor`,
 /// `utcStartTime`, or `utcEndTime` attributes are not the same.
 bool operator!=(const LocalTimePeriod& lhs, const LocalTimePeriod& rhs);
 
-/// Write the value of the specified `object` to the specified output
-/// `stream` in a single-line format, and return a reference to `stream`.
-/// If `stream` is not valid on entry, this operation has no effect.  Note
-/// that this human-readable format is not fully specified and can change
-/// without notice.  Also note that this method has the same behavior as
-/// `object.print(stream, 0, -1)`.
+/// Write the value of the specified `object` to the specified output `stream`
+/// in a single-line format, and return a reference to `stream`.  If `stream`
+/// is not valid on entry, this operation has no effect.  Note that this
+/// human-readable format is not fully specified and can change without notice.
+/// Also note that this method has the same behavior as `object.print(stream,
+/// 0, -1)`.
 std::ostream& operator<<(bsl::ostream&          stream,
                          const LocalTimePeriod& object);
 

@@ -37,9 +37,9 @@ BSLS_IDENT("$Id: $")
 // First, we create a function template `printTypeTraits` with a parameterized
 // `TYPE`:
 // ```
+// /// Prints the traits of the parameterized `TYPE` to the console.
 // template <class TYPE>
 // void printTypeTraits()
-//     // Prints the traits of the parameterized 'TYPE' to the console.
 // {
 //     if (bslma::UsesBslmaAllocator<TYPE>::value) {
 //         printf("Type defines bslma::UsesBslmaAllocator.\n");
@@ -83,8 +83,7 @@ namespace bsltf {
 
 /// This unconstrained (value-semantic) attribute class defines the
 /// `bslmf::IsBitwiseMoveable` and does not allocate memory.  See the
-/// Attributes section under @DESCRIPTION in the component-level
-/// documentation for information on the class attributes.
+/// [](#Attributes) section for information on the class attributes.
 class BitwiseMoveableTestType {
 
     // DATA
@@ -93,30 +92,30 @@ class BitwiseMoveableTestType {
   public:
     // CREATORS
 
-    /// Create a `SimpleTestType` object having the (default) attribute
-    /// values:
+    /// Create a `SimpleTestType` object having the (default) attribute values:
     /// ```
     /// data() == 0
     /// ```
     BitwiseMoveableTestType();
 
-    /// Create a `BitwiseMoveableTestType` object having the specified
-    /// `data` attribute value.
+    /// Create a `BitwiseMoveableTestType` object having the specified `data`
+    /// attribute value.
     explicit BitwiseMoveableTestType(int data);
 
-    // BitwiseMoveableTestType(
-    //                      const BitwiseMoveableTestType& original) = default;
-        // Create a 'BitwiseMoveableTestType' object having the same value
-        // as the specified 'original' object.
+    /// Create a `BitwiseMoveableTestType` object having the same value as the
+    /// specified `original` object.
+    //! BitwiseMoveableTestType(
+    //!                     const BitwiseMoveableTestType& original) = default;
 
     /// Destroy this object.
     ~BitwiseMoveableTestType();
 
     // MANIPULATORS
-    // BitwiseMoveableTestType& operator=(
-    //                           const BitwiseMoveableTestType& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    //! BitwiseMoveableTestType& operator=(
+    //!                          const BitwiseMoveableTestType& rhs) = default;
 
     /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
@@ -129,16 +128,15 @@ class BitwiseMoveableTestType {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `BitwiseMoveableTestType` objects
-/// have the same if their `data` attributes are the same.
+/// Return `true` if the specified `lhs` and `rhs` objects have the same value,
+/// and `false` otherwise.  Two `BitwiseMoveableTestType` objects have the same
+/// if their `data` attributes are the same.
 bool operator==(const BitwiseMoveableTestType& lhs,
                 const BitwiseMoveableTestType& rhs);
 
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same value, and `false` otherwise.  Two `BitwiseMoveableTestType`
-/// objects do not have the same value if their `data` attributes are not
-/// the same.
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the same
+/// value, and `false` otherwise.  Two `BitwiseMoveableTestType` objects do not
+/// have the same value if their `data` attributes are not the same.
 bool operator!=(const BitwiseMoveableTestType& lhs,
                 const BitwiseMoveableTestType& rhs);
 

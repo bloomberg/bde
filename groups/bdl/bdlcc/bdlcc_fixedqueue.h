@@ -217,8 +217,7 @@ namespace bdlcc {
                               // class FixedQueue
                               // ================
 
-/// This class provides a thread-aware, lock-free, fixed-size queue of
-/// values.
+/// This class provides a thread-aware, lock-free, fixed-size queue of values.
 template <class TYPE>
 class FixedQueue {
 
@@ -381,8 +380,8 @@ class FixedQueue {
                          // class FixedQueue_PopGuard
                          // =========================
 
-/// This class provides a guard that, upon its destruction, will remove
-/// (pop) the indicated element from the `FixedQueue` object supplied at
+/// This class provides a guard that, upon its destruction, will remove (pop)
+/// the indicated element from the `FixedQueue` object supplied at
 /// construction.  Note that this guard is used to provide exception safety
 /// when popping an element from a `FixedQueue` object.
 template <class VALUE>
@@ -430,10 +429,10 @@ class FixedQueue_PopGuard {
 
 /// This class provides a proctor that, unless the `release` method has been
 /// previously invoked, will remove and destroy all the elements from a
-/// `FixedQueue` object supplied at construction (putting that ring-buffer
-/// into a valid empty state) upon the proctor's destruction.  Note that
-/// this guard is used to provide exception safety when pushing an element
-/// into a `FixedQueue`.
+/// `FixedQueue` object supplied at construction (putting that ring-buffer into
+/// a valid empty state) upon the proctor's destruction.  Note that this guard
+/// is used to provide exception safety when pushing an element into a
+/// `FixedQueue`.
 template <class VALUE>
 class FixedQueue_PushProctor {
 
@@ -467,9 +466,9 @@ class FixedQueue_PushProctor {
                            unsigned int       generation,
                            unsigned int       index);
 
-    /// Destroy this proctor and, if `release` was not called on this
-    /// object, remove and destroy all the elements from the `FixedQueue`
-    /// object supplied at construction.
+    /// Destroy this proctor and, if `release` was not called on this object,
+    /// remove and destroy all the elements from the `FixedQueue` object
+    /// supplied at construction.
     ~FixedQueue_PushProctor();
 
     // MANIPULATORS
