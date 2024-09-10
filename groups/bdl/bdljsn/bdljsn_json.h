@@ -1475,36 +1475,34 @@ class Json {
 
     // ACCESSORS
     // BDE_VERIFY pragma: -FABC01
+
+    /// Load into the specified `result` the integer value of the value of type
+    /// `JsonNumber` held by this object.  Return 0 on success,
+    /// `JsonNumber::k_OVERFLOW` if `value` is larger than can be represented
+    /// by `result`, `JsonNumber::k_UNDERFLOW` if `value` is smaller than can
+    /// be represented by `result`, and `JsonNumber::k_NOT_INTEGRAL` if `value`
+    /// is not an integral number (i.e., there is a fractional part).  For
+    /// underflow, `result` will be loaded with the minimum representable
+    /// value, for overflow, `result` will be loaded with the maximum
+    /// representable value, for non-integral values `result` will be loaded
+    /// with the integer part of `value` (truncating the value to the nearest
+    /// integer).  If the result is not an integer and also either overflows or
+    /// underflows, it is treated as an overflow or underflow (respectively).
+    /// Note that this operation returns a status value (unlike similar
+    /// floating point conversions) because typically it is an error if a
+    /// conversion to an integer results in an inexact value.  The behavior is
+    /// undefined unless `isNumber()` returns true.
     int asInt(int *result) const;
     int asInt64(bsls::Types::Int64 *result) const;
     int asUint(unsigned int *result) const;
-
-    /// Load into the specified `result` the integer value of the value of
-    /// type `JsonNumber` held by this object.  Return 0 on success,
-    /// `JsonNumber::k_OVERFLOW` if `value` is larger than can be
-    /// represented by `result`, `JsonNumber::k_UNDERFLOW` if `value` is
-    /// smaller than can be represented by `result`, and
-    /// `JsonNumber::k_NOT_INTEGRAL` if `value` is not an integral number
-    /// (i.e., there is a fractional part).  For underflow, `result` will be
-    /// loaded with the minimum representable value, for overflow, `result`
-    /// will be loaded with the maximum representable value, for
-    /// non-integral values `result` will be loaded with the integer part of
-    /// `value` (truncating the value to the nearest integer).  If the
-    /// result is not an integer and also either overflows or underflows, it
-    /// is treated as an overflow or underflow (respectively).  Note that
-    /// this operation returns a status value (unlike similar floating point
-    /// conversions) because typically it is an error if a conversion to an
-    /// integer results in an inexact value.  The behavior is undefined
-    /// unless `isNumber()` returns true.
     int asUint64(bsls::Types::Uint64 *result) const;
 
+    /// Return the closest floating point representation to the value of the
+    /// type `JsonNumber` held by this object.  If this number is outside the
+    /// representable range, return +INF or -INF (as appropriate).  The
+    /// behavior is undefined unless `isNumber()` returns true.
     float             asFloat() const;
     double            asDouble() const;
-
-    /// Return the closest floating point representation to the value of the
-    /// type `JsonNumber` held by this object.  If this number is outside
-    /// the representable range, return +INF or -INF (as appropriate).  The
-    /// behavior is undefined unless `isNumber()` returns true.
     bdldfp::Decimal64 asDecimal64() const;
 
     // BDE_VERIFY pragma: +FABC01

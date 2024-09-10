@@ -536,36 +536,33 @@ class JsonNumber {
 
                         //  Integer Accessors
 
-    int asInt   (int                 *result) const;
-    int asInt64 (bsls::Types::Int64  *result) const;
-    int asUint  (unsigned int        *result) const;
-
     /// Load into the specified `result` the integer value of this number.
     /// Return 0 on success, `k_OVERFLOW` if `value` is larger than can be
-    /// represented by `result`, `k_UNDERFLOW` if `value` is smaller than
-    /// can be represented by `result`,  and `k_NOT_INTEGRAL` if `value` is
-    /// not an integral number (i.e., there is a fractional part).  For
-    /// underflow, `result` will be loaded with the minimum representable
-    /// value, for overflow, `result` will be loaded with the maximum
-    /// representable value, for non-integral values `result` will be loaded
-    /// with the integer part of `value` (truncating the fractional part).
-    /// If the result is not an integer and also either overflows or
-    /// underflows, it is treated as an overflow or underflow
-    /// (respectively).  Note that this operation returns an error status
-    /// value (unlike similar floating point conversions) because typically
-    /// it is an error if a conversion to an integer results in an in-exact
-    /// value.
+    /// represented by `result`, `k_UNDERFLOW` if `value` is smaller than can
+    /// be represented by `result`,  and `k_NOT_INTEGRAL` if `value` is not an
+    /// integral number (i.e., there is a fractional part).  For underflow,
+    /// `result` will be loaded with the minimum representable value, for
+    /// overflow, `result` will be loaded with the maximum representable value,
+    /// for non-integral values `result` will be loaded with the integer part
+    /// of `value` (truncating the fractional part).  If the result is not an
+    /// integer and also either overflows or underflows, it is treated as an
+    /// overflow or underflow (respectively).  Note that this operation returns
+    /// an error status value (unlike similar floating point conversions)
+    /// because typically it is an error if a conversion to an integer results
+    /// in an in-exact value.
+    int asInt(int *result) const;
+    int asInt64 (bsls::Types::Int64  *result) const;
+    int asUint  (unsigned int        *result) const;
     int asUint64(bsls::Types::Uint64 *result) const;
 
-    float              asFloat()     const;
-    double             asDouble()    const;
-
     /// Return the closest floating point representation to this number.  If
-    /// this number is outside the representable range, return `+INF` or
-    /// `-INF` (as appropriate).  Note that values smaller than the smallest
+    /// this number is outside the representable range, return `+INF` or `-INF`
+    /// (as appropriate).  Note that values smaller than the smallest
     /// representable non-zero value (a.k.a, `MIN`) are rounded to `MIN`
     /// (positive or negative, as appropriate) or 0, whichever is the better
     /// approximation.
+    float              asFloat() const;
+    double             asDouble()    const;
     bdldfp::Decimal64  asDecimal64() const;
 
                         // 'Exact' Accessors
