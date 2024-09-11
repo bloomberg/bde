@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 #define BAL_VERSION_MAJOR 4
 
 /// BAL release major version
-#define BAL_VERSION_MINOR 13
+#define BAL_VERSION_MINOR 14
 
 /// Construct an integer (unique to the specified `BAL_VERSION_MAJOR` and
 /// `BAL_VERSION_MINOR` numbers) corresponding to the major and minor
