@@ -383,33 +383,30 @@ struct NumericFormatterUtil {
                                  TYPE  value,
                                  int   base) BSLS_KEYWORD_NOEXCEPT;
 
+    /// Write the textual representation of the specified `value` in decimal
+    /// notation into the character buffer starting a the specified `first` and
+    /// ending at the specified `last`.  Return the address one past the lowest
+    /// order digit written on success, or 0 on failure.  The only possible
+    /// reason for failure is if the range `[ first, last )` is not large
+    /// enough to contain the result.  The written result is to begin at
+    /// `first` with leftover room following the return value.
     static char *toCharsDecimal(char   *first,
                                 char   *last,
                                 double  value) BSLS_KEYWORD_NOEXCEPT;
-
-    /// Write the textual representation of the specified `value` in decimal
-    /// notation into the character buffer starting a the specified `first`
-    /// and ending at the specified `last`.  Return the address one past the
-    /// lowest order digit written on success, or 0 on failure.  The only
-    /// possible reason for failure is if the range `[ first, last )` is not
-    /// large enough to contain the result.  The written result is to begin
-    /// at `first` with leftover room following the return value.
     static char *toCharsDecimal(char   *first,
                                 char   *last,
                                 float   value) BSLS_KEYWORD_NOEXCEPT;
 
+    /// Write the textual representation of the specified `value` in scientific
+    /// notation into the character buffer starting a the specified `first` and
+    /// ending at the specified `last`.  Return the address one past the lowest
+    /// order digit of the exponent written on success, or 0 on failure.  The
+    /// only possible reason for failure is if the range `[ first, last )` is
+    /// not large enough to contain the result.  The written result is to begin
+    /// at `first` with leftover room following the return value.
     static char *toCharsScientific(char   *first,
                                    char   *last,
                                    double  value) BSLS_KEYWORD_NOEXCEPT;
-
-    /// Write the textual representation of the specified `value` in
-    /// scientific notation into the character buffer starting a the
-    /// specified `first` and ending at the specified `last`.  Return the
-    /// address one past the lowest order digit of the exponent written on
-    /// success, or 0 on failure.  The only possible reason for failure is
-    /// if the range `[ first, last )` is not large enough to contain the
-    /// result.  The written result is to begin at `first` with leftover
-    /// room following the return value.
     static char *toCharsScientific(char   *first,
                                    char   *last,
                                    float   value) BSLS_KEYWORD_NOEXCEPT;
@@ -510,6 +507,30 @@ struct NumericFormatterUtil {
     struct ToCharsMaxLength;
 
     // PUBLIC CLASS METHODS
+
+    /// Write the specified `value` into the character buffer starting a the
+    /// specified `first` and ending at the specified `last`, `last` not
+    /// included.  In integer conversions, if the optionally specified `base`
+    /// argument is not present or specified, base 10 is used. In floating
+    /// point conversions, if the optionally specified `format` argument is not
+    /// present or specified, the {Default Floating Point Format} is used.  If
+    /// a `format` argument is specified (`e_DECIMAL` or `e_SCIENTIFIC`), the
+    /// {Shortest (Textual) Decimal Representation for Binary Floating Point
+    /// Values} is used in that format (that will produce the exact binary
+    /// floating point `value` when converted back to the original type from
+    /// text), but see possible exceptions under {Special Floating Point
+    /// Values}.  Return the address one past the last character (lowest order
+    /// digit or last digit of the exponent) written on success, or `0` on
+    /// failure.  The only reason for failure is when the range
+    /// `[ first, last )` is not large enough to contain the result.  The
+    /// written result is to begin at `first` with leftover room following the
+    /// return value.  The behavior is undefined unless `first <= last`, and
+    /// `base` is in the range `[ 2 .. 36 ]`.  Note that the type `bool` for
+    /// the `value` parameter is explicitly disabled in the "NOT IMPLEMENTED"
+    /// `private` section, because `bool` would otherwise be promoted to `int`
+    /// and printed as `0` or `1`, instead of the (possibly) expected `false`
+    /// and `true`; and `bool` is not an integral or numeric type either.  Also
+    /// note that these functions do **not** null-terminate the result.
     static
     char *toChars(char                   *first,
                   char                   *last,
@@ -578,31 +599,6 @@ struct NumericFormatterUtil {
                   char                   *last,
                   double                  value,
                   Format                  format) BSLS_KEYWORD_NOEXCEPT;
-
-    /// Write the specified `value` into the character buffer starting a the
-    /// specified `first` and ending at the specified `last`, `last` not
-    /// included.  In integer conversions, if the optionally specified
-    /// `base` argument is not present or specified, base 10 is used. In
-    /// floating point conversions, if the optionally specified `format`
-    /// argument is not present or specified, the {Default Floating Point
-    /// Format} is used.  If a `format` argument is specified (`e_DECIMAL`
-    /// or `e_SCIENTIFIC`), the {Shortest (Textual) Decimal Representation
-    /// for Binary Floating Point Values} is used in that format (that will
-    /// produce the exact binary floating point `value` when converted back
-    /// to the original type from text), but see possible exceptions under
-    /// {Special Floating Point Values}.  Return the address one past the
-    /// last character (lowest order digit or last digit of the exponent)
-    /// written on success, or `0` on failure.  The only reason for failure
-    /// is when the range `[ first, last )` is not large enough to contain
-    /// the result.  The written result is to begin at `first` with leftover
-    /// room following the return value.  The behavior is undefined unless
-    /// `first <= last`, and `base` is in the range `[ 2 .. 36 ]`.  Note
-    /// that the type `bool` for the `value` parameter is explicitly
-    /// disabled in the "NOT IMPLEMENTED" `private` section, because `bool`
-    /// would otherwise be promoted to `int` and printed as `0` or `1`,
-    /// instead of the (possibly) expected `false` and `true`; and `bool`
-    /// is not an integral or numeric type either.  Also note that these
-    /// functions do **not** null-terminate the result.
     static
     char *toChars(char                   *first,
                   char                   *last,
