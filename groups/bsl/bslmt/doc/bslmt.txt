@@ -102,10 +102,10 @@
 :      Provide a portable, efficient condition variable.
 :
 : 'bslmt_conditionimpl_pthread':                                      !PRIVATE!
-:      Provide a POSIX implementation of 'bslmt::Condition'.
+:      Provide a POSIX implementation of `bslmt::Condition`.
 :
 : 'bslmt_conditionimpl_win32':                                        !PRIVATE!
-:      Provide a win32 implementation of 'bslmt::Condition'.
+:      Provide a win32 implementation of `bslmt::Condition`.
 :
 : 'bslmt_configuration':
 :      Provide utilities to allow configuration of values for BCE.
@@ -114,10 +114,10 @@
 :      Provide types and utilities to simplify thread creation.
 :
 : 'bslmt_fastpostsemaphore':
-:      Provide a semaphore class optimizing 'post'.
+:      Provide a semaphore class optimizing `post`.
 :
 : 'bslmt_fastpostsemaphoreimpl':
-:      Provide a testable semaphore class optimizing 'post'.
+:      Provide a testable semaphore class optimizing `post`.
 :
 : 'bslmt_latch':
 :      Provide a single-use mechanism for synchronizing on an event count.
@@ -135,10 +135,10 @@
 :      Provide an assert macro for verifying that a mutex is locked.
 :
 : 'bslmt_muteximpl_pthread':                                          !PRIVATE!
-:      Provide a POSIX implementation of 'bslmt::Mutex'.
+:      Provide a POSIX implementation of `bslmt::Mutex`.
 :
 : 'bslmt_muteximpl_win32':                                            !PRIVATE!
-:      Provide a win32 implementation of 'bslmt::Mutex'.
+:      Provide a win32 implementation of `bslmt::Mutex`.
 :
 : 'bslmt_once':
 :      Provide a thread-safe way to execute code once per process.
@@ -168,10 +168,10 @@
 :      Provide a platform-independent recursive mutex.
 :
 : 'bslmt_recursivemuteximpl_pthread':                                 !PRIVATE!
-:      Provide a POSIX implementation of 'bslmt::RecursiveMutex'.
+:      Provide a POSIX implementation of `bslmt::RecursiveMutex`.
 :
 : 'bslmt_recursivemuteximpl_win32':                                   !PRIVATE!
-:      Provide a win32 implementation of 'bslmt::RecursiveMutex'.
+:      Provide a win32 implementation of `bslmt::RecursiveMutex`.
 :
 : 'bslmt_rwmutex':                                       !DEPRECATED!
 :      Provide a platform-independent RW mutex class.
@@ -183,16 +183,16 @@
 :      Provide a semaphore class.
 :
 : 'bslmt_semaphoreimpl_counted':                                      !PRIVATE!
-:      Provide an implementation of 'bslmt::Semaphore' with count.
+:      Provide an implementation of `bslmt::Semaphore` with count.
 :
 : 'bslmt_semaphoreimpl_darwin':                                       !PRIVATE!
-:      Provide a Darwin implementation of 'bslmt::Semaphore'.
+:      Provide a Darwin implementation of `bslmt::Semaphore`.
 :
 : 'bslmt_semaphoreimpl_pthread':                                      !PRIVATE!
-:      Provide a POSIX implementation of 'bslmt::Semaphore'.
+:      Provide a POSIX implementation of `bslmt::Semaphore`.
 :
 : 'bslmt_semaphoreimpl_win32':                                        !PRIVATE!
-:      Provide a win32 implementation of 'bslmt::Semaphore'.
+:      Provide a win32 implementation of `bslmt::Semaphore`.
 :
 : 'bslmt_sluice':
 :      Provide a "sluice" class.
@@ -213,10 +213,10 @@
 :      Provide platform-independent utilities related to threading.
 :
 : 'bslmt_threadutilimpl_pthread':                                     !PRIVATE!
-:      Provide a POSIX implementation of 'bslmt::ThreadUtil'.
+:      Provide a POSIX implementation of `bslmt::ThreadUtil`.
 :
 : 'bslmt_threadutilimpl_win32':                                       !PRIVATE!
-:      Provide a win32 implementation of 'bslmt::ThreadUtil'.
+:      Provide a win32 implementation of `bslmt::ThreadUtil`.
 :
 : 'bslmt_throughputbenchmark':
 :      Provide a performance test harness for multi-threaded components.
@@ -228,13 +228,13 @@
 :      Provide a timed semaphore class.
 :
 : 'bslmt_timedsemaphoreimpl_posixadv':                                !PRIVATE!
-:      Provide "advanced" POSIX implementation of 'bslmt::TimedSemaphore'.
+:      Provide "advanced" POSIX implementation of `bslmt::TimedSemaphore`.
 :
 : 'bslmt_timedsemaphoreimpl_pthread':                                 !PRIVATE!
-:      Provide a POSIX implementation of 'bslmt::TimedSemaphore'.
+:      Provide a POSIX implementation of `bslmt::TimedSemaphore`.
 :
 : 'bslmt_timedsemaphoreimpl_win32':                                   !PRIVATE!
-:      Provide a win32 implementation of 'bslmt::TimedSemaphore'.
+:      Provide a win32 implementation of `bslmt::TimedSemaphore`.
 :
 : 'bslmt_turnstile':
 :      Provide a mechanism to meter time.

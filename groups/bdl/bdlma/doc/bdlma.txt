@@ -129,7 +129,7 @@
 :      Provide an efficient managed allocator using a local buffer.
 :
 : 'bdlma_managedallocator':
-:      Provide a protocol for memory allocators that support 'release'.
+:      Provide a protocol for memory allocators that support `release`.
 :
 : 'bdlma_memoryblockdescriptor':
 :      Provide a class describing a block of memory.

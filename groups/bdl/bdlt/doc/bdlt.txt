@@ -80,7 +80,7 @@
 :      Provide fast repository for accessing weekend/holiday information.
 :
 : 'bdlt_calendarcache':
-:      Provide an efficient cache for read-only 'bdlt::Calendar' objects.
+:      Provide an efficient cache for read-only `bdlt::Calendar` objects.
 :
 : 'bdlt_calendarloader':
 :      Provide a protocol (or pure interface) for loading calendars.
@@ -107,13 +107,13 @@
 :      Provide a representation of an interval of time.
 :
 : 'bdlt_datetimeintervalutil':
-:      Provide non-primitive operations on 'bdlt::DatetimeInterval'.
+:      Provide non-primitive operations on `bdlt::DatetimeInterval`.
 :
 : 'bdlt_datetimetz':
 :      Provide a representation of a date and time with time zone offset.
 :
 : 'bdlt_datetimeutil':
-:      Provide common non-primitive operations on 'bdlt::Datetime'.
+:      Provide common non-primitive operations on `bdlt::Datetime`.
 :
 : 'bdlt_datetz':
 :      Provide a representation of a date with time zone offset.
@@ -125,16 +125,16 @@
 :      Provide an enumeration of the set of days of the week.
 :
 : 'bdlt_dayofweekset':
-:      Provide an ordered set of (unique) 'bdlt::DayOfWeek::Enum' values.
+:      Provide an ordered set of (unique) `bdlt::DayOfWeek::Enum` values.
 :
 : 'bdlt_dayofweekutil':
-:      Provide common non-primitive operations on 'bdlt::DayOfWeek::Enum'.
+:      Provide common non-primitive operations on `bdlt::DayOfWeek::Enum`.
 :
 : 'bdlt_defaultcalendarcache':
-:      Provide a process-wide default 'bdlt::CalendarCache' object.
+:      Provide a process-wide default `bdlt::CalendarCache` object.
 :
 : 'bdlt_defaulttimetablecache':
-:      Provide a process-wide default 'bdlt::TimetableCache' object.
+:      Provide a process-wide default `bdlt::TimetableCache` object.
 :
 : 'bdlt_epochutil':
 :      Conversion between absolute/relative time with respect to epoch.
@@ -146,7 +146,7 @@
 :      Provide an attribute class to configure FIX string generation.
 :
 : 'bdlt_fuzzutil':
-:      Provide creation of 'bdlt' data types from fuzz data.
+:      Provide creation of `bdlt` data types from fuzz data.
 :
 : 'bdlt_intervalconversionutil':
 :      Provide functions to convert between time-interval representations.
@@ -185,7 +185,7 @@
 :      Provide a repository for accessing timetable information.
 :
 : 'bdlt_timetablecache':
-:      Provide an efficient cache for read-only 'bdlt::Timetable' objects.
+:      Provide an efficient cache for read-only `bdlt::Timetable` objects.
 :
 : 'bdlt_timetableloader':
 :      Provide a protocol (or pure interface) for loading timetables.
@@ -197,7 +197,7 @@
 :      Provide constants characterizing ratios between common time units.
 :
 : 'bdlt_timeutil':
-:      Provide common non-primitive operations on 'bdlt::Time'.
+:      Provide common non-primitive operations on `bdlt::Time`.
 
 /Value Types
 /-----------

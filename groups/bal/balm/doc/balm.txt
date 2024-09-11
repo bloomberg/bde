@@ -75,7 +75,7 @@
 /Component Synopsis
 /------------------
 : 'balm_bdlmmetricsadapter':
-:      Provide a concrete instance of the 'bdlm' metrics adapter.
+:      Provide a concrete instance of the `bdlm` metrics adapter.
 :
 : 'balm_category':
 :      Provide a representation of a metric category.
@@ -138,7 +138,7 @@
 :      Provide a scoped guard for recording elapsed time.
 :
 : 'balm_streampublisher':
-:      Provide a 'balm::Publisher' implementation that writes to a stream.
+:      Provide a `balm::Publisher` implementation that writes to a stream.
 
 /Getting Started
 /---------------

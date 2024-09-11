@@ -39,7 +39,7 @@
 :      Provide a space-efficient, sequential container of boolean values.
 :
 : 'bdlc_compactedarray':
-:      Provide a compacted array of 'const' user-defined objects.
+:      Provide a compacted array of `const` user-defined objects.
 :
 : 'bdlc_flathashmap':
 :      Provide an open-addressed unordered map container.
@@ -54,7 +54,7 @@
 :      Provide C++03 implementation for bdlc_flathashset.h
 :
 : 'bdlc_flathashtable':
-:      Provide an open-addressed hash table like Abseil 'flat_hash_map'.
+:      Provide an open-addressed hash table like Abseil `flat_hash_map`.
 :
 : 'bdlc_flathashtable_cpp03':                                         !PRIVATE!
 :      Provide C++03 implementation for bdlc_flathashtable.h
@@ -72,7 +72,7 @@
 :      Provide an extensible, packed array of integral values.
 :
 : 'bdlc_packedintarrayutil':
-:      Provide common non-primitive operations on 'bdlc::PackedIntArray'.
+:      Provide common non-primitive operations on `bdlc::PackedIntArray`.
 :
 : 'bdlc_queue':                                          !DEPRECATED!
-:      Provide an in-place double-ended queue of 'T' values.
+:      Provide an in-place double-ended queue of `T` values.

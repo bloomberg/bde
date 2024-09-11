@@ -272,7 +272,7 @@
 :      Provide a suite of utility functions for logging administration.
 :
 : 'ball_asyncfileobserver':
-:      Provide an asynchronous observer that logs to a file and 'stdout'.
+:      Provide an asynchronous observer that logs to a file and `stdout`.
 :
 : 'ball_attribute':
 :      Provide a representation of (literal) name/value pairs.
@@ -308,7 +308,7 @@
 :      Provide a default container for storing attribute name/value pairs.
 :
 : 'ball_fileobserver':
-:      Provide a thread-safe observer that logs to a file and to 'stdout'.
+:      Provide a thread-safe observer that logs to a file and to `stdout`.
 :
 : 'ball_fileobserver2':
 :      Provide a thread-safe observer that emits log records to a file.
@@ -341,10 +341,10 @@
 :      Provide constrained default attributes for the logger manager.
 :
 : 'ball_logthrottle':
-:      Provide throttling equivalents of some of the 'ball_log' macros.
+:      Provide throttling equivalents of some of the `ball_log` macros.
 :
 : 'ball_managedattribute':
-:      Provide a wrapper for 'ball::Attribute' with managed name storage.
+:      Provide a wrapper for `ball::Attribute` with managed name storage.
 :
 : 'ball_managedattributeset':
 :      Provide a container for managed attributes.
@@ -356,7 +356,7 @@
 :      Define a protocol for receiving and processing log records.
 :
 : 'ball_observeradapter':
-:      Provide a helper for implementing the 'ball::Observer' protocol.
+:      Provide a helper for implementing the `ball::Observer` protocol.
 :
 : 'ball_patternutil':
 :      Provide a utility class for string pattern matching.
@@ -380,7 +380,7 @@
 :      Provide a formatter for log records that renders output in JSON.
 :
 : 'ball_recordstringformatter':
-:      Provide a record formatter that uses a 'printf'-style format spec.
+:      Provide a record formatter that uses a `printf`-style format spec.
 :
 : 'ball_rule':
 :      Provide an object having a pattern, thresholds, and attributes.
@@ -398,7 +398,7 @@
 :      Enumerate a set of logging severity levels.
 :
 : 'ball_severityutil':
-:      Provide a suite of utility functions on 'ball::Severity' levels.
+:      Provide a suite of utility functions on `ball::Severity` levels.
 :
 : 'ball_streamobserver':
 :      Provide an observer that emits log records to a stream.

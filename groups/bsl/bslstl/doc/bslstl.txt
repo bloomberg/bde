@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 128 components having 10 levels of physical
+ The 'bslstl' package currently has 126 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -60,8 +60,6 @@
    6. bslstl_bitset
       bslstl_defaultsearcher
       bslstl_deque
-      bslstl_hashtable_test1                                          !PRIVATE!
-      bslstl_hashtable_test2                                          !PRIVATE!
       bslstl_iomanip
       bslstl_priorityqueue
       bslstl_span
@@ -170,19 +168,19 @@
 :      Provide a namespace for work arounds for the standard algorithms
 :
 : 'bslstl_allocator':                                    !DEPRECATED!
-:      Provide an STL-compatible proxy for 'bslma::Allocator' objects.
+:      Provide an STL-compatible proxy for `bslma::Allocator` objects.
 :
 : 'bslstl_array':
 :      Provide an STL compliant array.
 :
 : 'bslstl_badfunctioncall':
-:      Provide an exception class thrown by 'bsl::function'.
+:      Provide an exception class thrown by `bsl::function`.
 :
 : 'bslstl_badoptionalaccess':
-:      Provide an exception class thrown by 'bsl::optional'.
+:      Provide an exception class thrown by `bsl::optional`.
 :
 : 'bslstl_badvariantaccess':
-:      Provide an exception class thrown by 'bsl::variant'.
+:      Provide an exception class thrown by `bsl::variant`.
 :
 : 'bslstl_badweakptr':
 :      Provide an exception class to indicate a weak_ptr has expired.
@@ -200,7 +198,7 @@
 :      Provide an STL-compliant bitset class.
 :
 : 'bslstl_boyermoorehorspoolsearcher':
-:      Provide an STL-compliant 'boyer_moore_horspool_searcher' class.
+:      Provide an STL-compliant `boyer_moore_horspool_searcher` class.
 :
 : 'bslstl_charconv':
 :      Provide implementations for functions not in the system library.
@@ -215,7 +213,7 @@
 :      Provide functionality of the corresponding C++ Standard header.
 :
 : 'bslstl_defaultsearcher':
-:      Provide an STL-compliant 'default_searcher' class.
+:      Provide an STL-compliant `default_searcher` class.
 :
 : 'bslstl_deque':
 :      Provide an STL-compliant deque class.
@@ -224,16 +222,16 @@
 :      Provide C++03 implementation for bslstl_deque.h
 :
 : 'bslstl_equalto':
-:      Provide a binary functor conforming to the C++11 'equal_to' spec.
+:      Provide a binary functor conforming to the C++11 `equal_to` spec.
 :
 : 'bslstl_errc':
-:      Provide a standard compliant version of 'errc'.
+:      Provide a standard compliant version of `errc`.
 :
 : 'bslstl_error':
 :      Provide standard compliant versions of <system_error> classes.
 :
 : 'bslstl_exception':
-:      Provide an implementation of 'uncaught_exceptions'.
+:      Provide an implementation of `uncaught_exceptions`.
 :
 : 'bslstl_forwarditerator':
 :      Provide a template to create STL-compliant forward iterators.
@@ -245,7 +243,7 @@
 :      Provide C++03 implementation for bslstl_function.h
 :
 : 'bslstl_function_invokerutil':                                      !PRIVATE!
-:      Provide invoker adaptors for 'bsl::function'
+:      Provide invoker adaptors for `bsl::function`
 :
 : 'bslstl_function_invokerutil_cpp03':                                !PRIVATE!
 :      Provide C++03 implementation for bslstl_function_invokerutil.h
@@ -254,10 +252,10 @@
 :      Provide a metafunction for substitutability of type references.
 :
 : 'bslstl_function_rep':                                              !PRIVATE!
-:      Provide a non-template, common implementation for 'bsl::function'.
+:      Provide a non-template, common implementation for `bsl::function`.
 :
 : 'bslstl_function_smallobjectoptimization':                          !PRIVATE!
-:      Provide small-object optimization buffer for 'bsl::function'.
+:      Provide small-object optimization buffer for `bsl::function`.
 :
 : 'bslstl_hash':
 :      Provide a namespace for hash functions.
@@ -267,12 +265,6 @@
 :
 : 'bslstl_hashtable_cpp03':                                           !PRIVATE!
 :      Provide C++03 implementation for bslstl_hashtable.h
-:
-: 'bslstl_hashtable_test1':                                           !PRIVATE!
-:      Provide support for the 'bslstl_hashtable.t.cpp' test driver.
-:
-: 'bslstl_hashtable_test2':                                           !PRIVATE!
-:      Provide support for the 'bslstl_hashtable.t.cpp' test driver.
 :
 : 'bslstl_hashtablebucketiterator':
 :      Provide an STL compliant iterator over hash table buckets.
@@ -293,13 +285,13 @@
 :      Provide forward declarations for Standard stream classes.
 :
 : 'bslstl_iserrorcodeenum':
-:      Provide a compliant standard 'is_error_code_enum' trait.
+:      Provide a compliant standard `is_error_code_enum` trait.
 :
 : 'bslstl_iserrorconditionenum':
-:      Provide a compliant standard 'is_error_condition_enum' trait.
+:      Provide a compliant standard `is_error_condition_enum` trait.
 :
 : 'bslstl_istringstream':
-:      Provide a C++03-compatible 'istringstream' class.
+:      Provide a C++03-compatible `istringstream` class.
 :
 : 'bslstl_iterator':
 :      Provide basic iterator traits, adaptors, and utilities.
@@ -320,19 +312,19 @@
 :      Provide C++03 implementation for bslstl_map.h
 :
 : 'bslstl_map_test1':                                                 !PRIVATE!
-:      Provide support for the 'bslstl_map.t.cpp' test driver.
+:      Provide support for the `bslstl_map.t.cpp` test driver.
 :
 : 'bslstl_map_test2':                                                 !PRIVATE!
-:      Provide support for the 'bslstl_map.t.cpp' test driver.
+:      Provide support for the `bslstl_map.t.cpp` test driver.
 :
 : 'bslstl_map_test3':                                                 !PRIVATE!
-:      Provide support for the 'bslstl_map.t.cpp' test driver.
+:      Provide support for the `bslstl_map.t.cpp` test driver.
 :
 : 'bslstl_mapcomparator':
-:      Provide a comparator for 'TreeNode' objects and a lookup key.
+:      Provide a comparator for `TreeNode` objects and a lookup key.
 :
 : 'bslstl_monostate':
-:      Provide a default constructible alternative for 'bsl::variant'.
+:      Provide a default constructible alternative for `bsl::variant`.
 :
 : 'bslstl_multimap':
 :      Provide an STL-compliant multimap class.
@@ -341,7 +333,7 @@
 :      Provide C++03 implementation for bslstl_multimap.h
 :
 : 'bslstl_multimap_test':                                             !PRIVATE!
-:      Provide support for the 'bslstl_multimap.t.cpp' test driver.
+:      Provide support for the `bslstl_multimap.t.cpp` test driver.
 :
 : 'bslstl_multiset':
 :      Provide an STL-compliant multiset class.
@@ -350,7 +342,7 @@
 :      Provide C++03 implementation for bslstl_multiset.h
 :
 : 'bslstl_multiset_test':                                             !PRIVATE!
-:      Provide support for the 'bslstl_multiset.t.cpp' test driver.
+:      Provide support for the `bslstl_multiset.t.cpp` test driver.
 :
 : 'bslstl_optional':
 :      Provide a standard-compliant allocator aware optional type.
@@ -362,10 +354,10 @@
 :      Provide aliases and implementations matching standard <ostream>.
 :
 : 'bslstl_ostringstream':
-:      Provide a C++03-compatible 'ostringstream' class.
+:      Provide a C++03-compatible `ostringstream` class.
 :
 : 'bslstl_osyncstream':
-:      Provide a C++20-compatible 'basic_osyncstream' class template.
+:      Provide a C++20-compatible `basic_osyncstream` class template.
 :
 : 'bslstl_ownerequal':
 :      Provide an ownership comparison for shared and weak pointers.
@@ -377,16 +369,16 @@
 :      Provide an ordering for shared and weak pointers.
 :
 : 'bslstl_pair':
-:      Provide a simple 'struct' with two members that may use allocators.
+:      Provide a simple `struct` with two members that may use allocators.
 :
 : 'bslstl_priorityqueue':
-:      Provide container adapter class template 'priority_queue'.
+:      Provide container adapter class template `priority_queue`.
 :
 : 'bslstl_priorityqueue_cpp03':                                       !PRIVATE!
 :      Provide C++03 implementation for bslstl_priorityqueue.h
 :
 : 'bslstl_queue':
-:      Provide container adapter class template 'queue'.
+:      Provide container adapter class template `queue`.
 :
 : 'bslstl_queue_cpp03':                                               !PRIVATE!
 :      Provide C++03 implementation for bslstl_queue.h
@@ -407,10 +399,10 @@
 :      Provide C++03 implementation for bslstl_set.h
 :
 : 'bslstl_set_test':                                                  !PRIVATE!
-:      Provide support for the 'bslstl_set.t.cpp' test driver.
+:      Provide support for the `bslstl_set.t.cpp` test driver.
 :
 : 'bslstl_setcomparator':
-:      Provide a comparator for 'TreeNode' objects and a lookup key.
+:      Provide a comparator for `TreeNode` objects and a lookup key.
 :
 : 'bslstl_sharedptr':
 :      Provide a generic reference-counted shared pointer wrapper.
@@ -419,16 +411,16 @@
 :      Provide C++03 implementation for bslstl_sharedptr.h
 :
 : 'bslstl_sharedptrallocateinplacerep':
-:      Provide an in-place implementation of 'bslma::SharedPtrRep'.
+:      Provide an in-place implementation of `bslma::SharedPtrRep`.
 :
 : 'bslstl_sharedptrallocateoutofplacerep':
-:      Provide an out-of-place implementation of 'bslma::SharedPtrRep'.
+:      Provide an out-of-place implementation of `bslma::SharedPtrRep`.
 :
 : 'bslstl_simplepool':
 :      Provide efficient allocation of memory blocks for a specific type.
 :
 : 'bslstl_span':
-:      Provide a (mostly) standard-compliant 'span' class template.
+:      Provide a (mostly) standard-compliant `span` class template.
 :
 : 'bslstl_stack':
 :      Provide an STL-compliant stack class.
@@ -440,43 +432,43 @@
 :      Provide a utility to throw standard exceptions.
 :
 : 'bslstl_stopstate':
-:      Provide a stop state for 'std'-compliant stop tokens.
+:      Provide a stop state for `std`-compliant stop tokens.
 :
 : 'bslstl_stoptoken':
-:      Provide an allocator-aware standard-compliant 'stop_source' type.
+:      Provide an allocator-aware standard-compliant `stop_source` type.
 :
 : 'bslstl_string':
-:      Provide a standard-compliant 'basic_string' class template.
+:      Provide a standard-compliant `basic_string` class template.
 :
 : 'bslstl_string_test':                                               !PRIVATE!
-:      Provide support for the 'bslstl_string.t.cpp' test driver.
+:      Provide support for the `bslstl_string.t.cpp` test driver.
 :
 : 'bslstl_stringbuf':
-:      Provide a C++03-compatible 'stringbuf' class.
+:      Provide a C++03-compatible `stringbuf` class.
 :
 : 'bslstl_stringref':
-:      Provide a reference to a 'const' string.
+:      Provide a reference to a `const` string.
 :
 : 'bslstl_stringrefdata':
-:      Provide a base class for 'bslstl::StringRef'.
+:      Provide a base class for `bslstl::StringRef`.
 :
 : 'bslstl_stringstream':
-:      Provide a C++03-compatible 'stringstream' class.
+:      Provide a C++03-compatible `stringstream` class.
 :
 : 'bslstl_stringview':
-:      Provide a standard-compliant 'basic_string_view' class template.
+:      Provide a standard-compliant `basic_string_view` class template.
 :
 : 'bslstl_syncbuf':
-:      Provide a C++20-compatible 'basic_syncbuf' class template.
+:      Provide a C++20-compatible `basic_syncbuf` class template.
 :
 : 'bslstl_syncbufbase':
-:      Provide an allocator-independent base-class for 'basic_syncbuf'.
+:      Provide an allocator-independent base-class for `basic_syncbuf`.
 :
 : 'bslstl_systemerror':
-:      Provide a standard compliant 'system_error' class.
+:      Provide a standard compliant `system_error` class.
 :
 : 'bslstl_treeiterator':
-:      Provide an STL compliant iterator for a tree of 'TreeNode' objects.
+:      Provide an STL compliant iterator for a tree of `TreeNode` objects.
 :
 : 'bslstl_treenode':
 :      Provide a POD-like tree node type holding a parameterized value.
@@ -488,46 +480,46 @@
 :      Provide C++03 implementation for bslstl_treenodepool.h
 :
 : 'bslstl_typeindex':
-:      Provide an value-semantic type to represent 'type_info' objects.
+:      Provide an value-semantic type to represent `type_info` objects.
 :
 : 'bslstl_unorderedmap':
-:      Provide an STL-compliant 'unordered_map' container.
+:      Provide an STL-compliant `unordered_map` container.
 :
 : 'bslstl_unorderedmap_cpp03':                                        !PRIVATE!
 :      Provide C++03 implementation for bslstl_unorderedmap.h
 :
 : 'bslstl_unorderedmap_test':                                         !PRIVATE!
-:      Provide support for the 'bslstl_unorderedmap.t.cpp' test driver.
+:      Provide support for the `bslstl_unorderedmap.t.cpp` test driver.
 :
 : 'bslstl_unorderedmapkeyconfiguration':
-:      Provide a class template to extract keys as the 'first' attribute.
+:      Provide a class template to extract keys as the `first` attribute.
 :
 : 'bslstl_unorderedmultimap':
-:      Provide an STL-compliant 'unordered_multimap' container.
+:      Provide an STL-compliant `unordered_multimap` container.
 :
 : 'bslstl_unorderedmultimap_cpp03':                                   !PRIVATE!
 :      Provide C++03 implementation for bslstl_unorderedmultimap.h
 :
 : 'bslstl_unorderedmultimap_test':                                    !PRIVATE!
-:      Provide support for the 'bslstl_unorderedmultimap.t.cpp' test driver.
+:      Provide support for the `bslstl_unorderedmultimap.t.cpp` test driver.
 :
 : 'bslstl_unorderedmultiset':
-:      Provide an STL-compliant 'unordered_multiset' container.
+:      Provide an STL-compliant `unordered_multiset` container.
 :
 : 'bslstl_unorderedmultiset_cpp03':                                   !PRIVATE!
 :      Provide C++03 implementation for bslstl_unorderedmultiset.h
 :
 : 'bslstl_unorderedmultiset_test':                                    !PRIVATE!
-:      Provide support for the 'bslstl_unorderedmultiset.t.cpp' test driver.
+:      Provide support for the `bslstl_unorderedmultiset.t.cpp` test driver.
 :
 : 'bslstl_unorderedset':
-:      Provide an STL-compliant 'unordered_set' container.
+:      Provide an STL-compliant `unordered_set` container.
 :
 : 'bslstl_unorderedset_cpp03':                                        !PRIVATE!
 :      Provide C++03 implementation for bslstl_unorderedset.h
 :
 : 'bslstl_unorderedset_test':                                         !PRIVATE!
-:      Provide support for the 'bslstl_unorderedset.t.cpp' test driver.
+:      Provide support for the `bslstl_unorderedset.t.cpp` test driver.
 :
 : 'bslstl_unorderedsetkeyconfiguration':
 :      Provide a configuration class to use a whole object as its own key.

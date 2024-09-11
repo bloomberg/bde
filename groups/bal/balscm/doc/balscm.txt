@@ -34,4 +34,4 @@
 :      Provide source control management (versioning) information.
 :
 : 'balscm_versiontag':
-:      Provide versioning information for the 'bal' package group.
+:      Provide versioning information for the `bal` package group.

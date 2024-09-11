@@ -56,13 +56,13 @@
 :      Provide iterator support for bdlat_ArrayFunction-conformant types.
 :
 : 'bdlat_arrayutil':
-:      Provide utilities for operating on 'bdlat' "array" types.
+:      Provide utilities for operating on `bdlat` "array" types.
 :
 : 'bdlat_attributeinfo':
 :      Provide a container for attribute information.
 :
 : 'bdlat_bdeatoverrides':
-:      Provide macros to map 'bdeat' names to 'bdlat' names.
+:      Provide macros to map `bdeat` names to `bdlat` names.
 :
 : 'bdlat_choicefunctions':
 :      Provide a namespace defining choice functions.
@@ -86,7 +86,7 @@
 :      Provide a namespace defining nullable value functions.
 :
 : 'bdlat_nullablevalueutil':
-:      Provide utilities for operating on 'bdlat' "nullable value" types.
+:      Provide utilities for operating on `bdlat` "nullable value" types.
 :
 : 'bdlat_selectioninfo':
 :      Provide a container for selection information.

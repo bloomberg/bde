@@ -130,7 +130,7 @@
 :      Provide a range proctor to manage a sequence objects.
 :
 : 'bslma_bslallocator':
-:      Provide an STL-compatible proxy for 'bslma::Allocator' objects.
+:      Provide an STL-compatible proxy for `bslma::Allocator` objects.
 :
 : 'bslma_bslallocator_cpp03':                                         !PRIVATE!
 :      Provide C++03 implementation for bslma_bslallocator.h
@@ -181,7 +181,7 @@
 :      Provide a check that objects throwing exceptions do not change.
 :
 : 'bslma_hasallocatortype':
-:      Provide a compile-time check for an 'allocator_type' typedef
+:      Provide a compile-time check for an `allocator_type` typedef
 :
 : 'bslma_infrequentdeleteblocklist':                     !DEPRECATED!
 :      Provide allocation and management of a sequence of memory blocks.
@@ -190,10 +190,10 @@
 :      Provide a compile-time check for determining allocator types.
 :
 : 'bslma_mallocfreeallocator':
-:      Provide malloc/free adaptor to 'bslma::Allocator' protocol.
+:      Provide malloc/free adaptor to `bslma::Allocator` protocol.
 :
 : 'bslma_managedallocator':                              !DEPRECATED!
-:      Provide a protocol for memory allocators that support 'release'.
+:      Provide a protocol for memory allocators that support `release`.
 :
 : 'bslma_managedptr':
 :      Provide a managed pointer class.
@@ -217,10 +217,10 @@
 :      Provide a pure abstract interface for memory-allocation mechanisms.
 :
 : 'bslma_newdeleteallocator':
-:      Provide singleton new/delete adaptor to 'bslma::Allocator' protocol.
+:      Provide singleton new/delete adaptor to `bslma::Allocator` protocol.
 :
 : 'bslma_polymorphicallocator':
-:      Provide an allocator interface for 'bsl::memory_resource' objects.
+:      Provide an allocator interface for `bsl::memory_resource` objects.
 :
 : 'bslma_polymorphicallocator_cpp03':                                 !PRIVATE!
 :      Provide C++03 implementation for bslma_polymorphicallocator.h
@@ -238,22 +238,22 @@
 :      Provide fast variable-size memory pool with allocation methods.
 :
 : 'bslma_sharedptrinplacerep':
-:      Provide an in-place implementation of 'bslma::SharedPtrRep'.
+:      Provide an in-place implementation of `bslma::SharedPtrRep`.
 :
 : 'bslma_sharedptrinplacerep_cpp03':                                  !PRIVATE!
 :      Provide C++03 implementation for bslma_sharedptrinplacerep.h
 :
 : 'bslma_sharedptroutofplacerep':
-:      Provide an out-of-place implementation of 'bslma::SharedPtrRep'.
+:      Provide an out-of-place implementation of `bslma::SharedPtrRep`.
 :
 : 'bslma_sharedptrrep':
 :      Provide an abstract class for a shared object manager.
 :
 : 'bslma_stdallocator':                                  !DEPRECATED!
-:      Provide an STL-compatible proxy for 'bslma::Allocator' objects.
+:      Provide an STL-compatible proxy for `bslma::Allocator` objects.
 :
 : 'bslma_stdtestallocator':
-:      Provide stl-compatible, 'bslma'-style allocator to track usage.
+:      Provide stl-compatible, `bslma`-style allocator to track usage.
 :
 : 'bslma_testallocator':
 :      Provide instrumented malloc/free allocator to track memory usage.
@@ -262,10 +262,10 @@
 :      Provide an exception class for memory allocation operations.
 :
 : 'bslma_testallocatormonitor':
-:      Provide a mechanism to summarize 'bslma::TestAllocator' object use.
+:      Provide a mechanism to summarize `bslma::TestAllocator` object use.
 :
 : 'bslma_usesbslmaallocator':
-:      Provide a metafunction to indicate the use of 'bslma' allocators.
+:      Provide a metafunction to indicate the use of `bslma` allocators.
 /Component Overview
 /------------------
  This section provides a brief introduction to some of the components of the

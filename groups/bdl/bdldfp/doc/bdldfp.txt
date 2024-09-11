@@ -52,7 +52,7 @@
 :      Provide a unified low-level interface for decimal floating point.
 :
 : 'bdldfp_decimalimputil_inteldfp':                                   !PRIVATE!
-:      Provide utility to implement decimal 'float's on the Intel library.
+:      Provide utility to implement decimal `float`s on the Intel library.
 :
 : 'bdldfp_decimalplatform':
 :      Provide decimal floating-point platform information macros.
@@ -67,4 +67,4 @@
 :      Provide a central mechanism to configure the Intel DFP library.
 :
 : 'bdldfp_uint128':
-:      Provide a representation of a 128-bit 'int' for bitwise operations.
+:      Provide a representation of a 128-bit `int` for bitwise operations.

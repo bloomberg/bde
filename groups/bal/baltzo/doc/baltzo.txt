@@ -56,7 +56,7 @@
 /Component Synopsis
 /------------------
 : 'baltzo_datafileloader':
-:      Provide a concrete 'baltzo::Loader' for Zoneinfo binary files.
+:      Provide a concrete `baltzo::Loader` for Zoneinfo binary files.
 :
 : 'baltzo_defaultzoneinfocache':
 :      Provide facilities to manage a default Zoneinfo cache object.
@@ -65,7 +65,7 @@
 :      Enumerate the set of daylight-saving time (DST) policy values.
 :
 : 'baltzo_errorcode':
-:      Enumerate the set of named errors for the 'baltzo' package.
+:      Enumerate the set of named errors for the `baltzo` package.
 :
 : 'baltzo_loader':
 :      Provide a protocol for obtaining information about a time zone.
@@ -77,7 +77,7 @@
 :      Provide an attribute class for characterizing local time values.
 :
 : 'baltzo_localtimeoffsetutil':
-:      Provide utilities for a 'bdlt_localtimeoffset' local time callback.
+:      Provide utilities for a `bdlt_localtimeoffset` local time callback.
 :
 : 'baltzo_localtimeperiod':
 :      Provide a type describing local time over a time period.
@@ -86,7 +86,7 @@
 :      Enumerate the set of local time validity codes.
 :
 : 'baltzo_testloader':
-:      Provide a test implementation of the 'baltzo::Loader' protocol.
+:      Provide a test implementation of the `baltzo::Loader` protocol.
 :
 : 'baltzo_timezoneutil':
 :      Provide utilities for converting times among different time zones.
@@ -110,4 +110,4 @@
 :      Provide a cache for time-zone information.
 :
 : 'baltzo_zoneinfoutil':
-:      Provide utility operations on 'baltzo::Zoneinfo' objects.
+:      Provide utility operations on `baltzo::Zoneinfo` objects.

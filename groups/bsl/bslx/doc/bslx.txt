@@ -62,10 +62,10 @@
 :      Facilitate uniform externalization of user and fundamental types.
 :
 : 'bslx_streambufinstream':
-:      Unexternalization of fundamental types from a 'bsl::streambuf'.
+:      Unexternalization of fundamental types from a `bsl::streambuf`.
 :
 : 'bslx_streambufoutstream':
-:      Externalization of fundamental types to a 'bsl::streambuf'.
+:      Externalization of fundamental types to a `bsl::streambuf`.
 :
 : 'bslx_testinstream':
 :      Enable unexternalization of fundamental types with identification.

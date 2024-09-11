@@ -177,7 +177,7 @@
 /Component Synopsis
 /------------------
 : 'bslmf_addconst':
-:      Provide a meta-function for adding a top-level 'const'-qualifier.
+:      Provide a meta-function for adding a top-level `const`-qualifier.
 :
 : 'bslmf_addcv':
 :      Provide a meta-function for adding top-level cv-qualifiers.
@@ -195,7 +195,7 @@
 :      Provide a compile-time type transformation to rvalue reference.
 :
 : 'bslmf_addvolatile':
-:      Provide a meta-function for adding a 'volatile'-qualifier.
+:      Provide a meta-function for adding a `volatile`-qualifier.
 :
 : 'bslmf_allocatorargt':
 :      Provide a tag type to precede allocator arguments.
@@ -207,7 +207,7 @@
 :      Provide a compile-time assertion facility.
 :
 : 'bslmf_booleantestable':
-:      Provide an exposition-only concept 'boolean-testable'.
+:      Provide an exposition-only concept `boolean-testable`.
 :
 : 'bslmf_conditional':
 :      Provide a compile-time conditional type selector.
@@ -249,7 +249,7 @@
 :      Provide a type trait for pointer semantics.
 :
 : 'bslmf_if':                                            !DEPRECATED!
-:      Provide a compile-time 'if/else' (conditional) meta-function.
+:      Provide a compile-time `if/else` (conditional) meta-function.
 :
 : 'bslmf_integersequence':
 :      Provide a template parameter pack of integers.
@@ -285,7 +285,7 @@
 :      Provide a compile-time check for determining class types.
 :
 : 'bslmf_isconst':
-:      Provide a compile-time check for 'const'-qualified types.
+:      Provide a compile-time check for `const`-qualified types.
 :
 : 'bslmf_isconvertible':
 :      Provide a compile-time check for type conversion.
@@ -366,10 +366,10 @@
 :      Provide a compile-time check for trivially default-constructible.
 :
 : 'bslmf_isvoid':
-:      Provide a compile-time check for 'void' types.
+:      Provide a compile-time check for `void` types.
 :
 : 'bslmf_isvolatile':
-:      Provide a compile-time check for 'volatile'-qualified types.
+:      Provide a compile-time check for `volatile`-qualified types.
 :
 : 'bslmf_makeintegersequence':
 :      Provide a template parameter pack of integers.
@@ -408,13 +408,13 @@
 :      Provide C++03 implementation for bslmf_nthparameter.h
 :
 : 'bslmf_removeconst':
-:      Provide a meta-function for removing top-level 'const'-qualifier.
+:      Provide a meta-function for removing top-level `const`-qualifier.
 :
 : 'bslmf_removecv':
 :      Provide a meta-function for removing top-level cv-qualifiers.
 :
 : 'bslmf_removecvq':
-:      Provide a meta-function for removing 'const'/'volatile' qualifiers.
+:      Provide a meta-function for removing `const`/`volatile` qualifiers.
 :
 : 'bslmf_removecvref':
 :      Provide a meta-func for removing reference-ness and cv-qualifiers.
@@ -429,16 +429,16 @@
 :      Provide a meta-function for stripping reference-ness from types.
 :
 : 'bslmf_removevolatile':
-:      Provide a meta-function for removing 'volatile'-qualifier.
+:      Provide a meta-function for removing `volatile`-qualifier.
 :
 : 'bslmf_resulttype':
-:      Provide access to 'result_type' or 'ResultType' nested type.
+:      Provide access to `result_type` or `ResultType` nested type.
 :
 : 'bslmf_selecttrait':
 :      Provide clean compile-time dispatch based on multiple traits
 :
 : 'bslmf_switch':
-:      Provide a compile-time 'switch' meta-function.
+:      Provide a compile-time `switch` meta-function.
 :
 : 'bslmf_tag':
 :      Provide an integral-constant-to-type conversion.
@@ -453,10 +453,10 @@
 :      Provide a meta-function to determine if a type uses an allocator.
 :
 : 'bslmf_usesallocatorargt':
-:      Provide a metafunction for 'allocator_arg_t' construction
+:      Provide a metafunction for `allocator_arg_t` construction
 :
 : 'bslmf_util':
-:      Provide low-level functions on 'bslmf' types.
+:      Provide low-level functions on `bslmf` types.
 :
 : 'bslmf_voidtype':
 :      Provide a helper for implementing SFINAE-based metafunctions.

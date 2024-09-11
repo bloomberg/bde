@@ -29,4 +29,4 @@
 :      Provide source control management (versioning) information.
 :
 : 'bdlscm_versiontag':
-:      Provide versioning information for the 'bdl' package group.
+:      Provide versioning information for the `bdl` package group.

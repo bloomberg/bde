@@ -87,16 +87,16 @@
 :      Provide big-endian integer types.
 :
 : 'bdlb_bitmaskutil':
-:      Provide simple mask values of 'uint32_t' and 'uint64_t' types.
+:      Provide simple mask values of `uint32_t` and `uint64_t` types.
 :
 : 'bdlb_bitstringimputil':
-:      Provide functional bit-manipulation of 'uint64_t' values.
+:      Provide functional bit-manipulation of `uint64_t` values.
 :
 : 'bdlb_bitstringutil':
 :      Provide efficient operations on a multi-word sequence of bits.
 :
 : 'bdlb_bitutil':
-:      Provide efficient bit-manipulation of 'uint32_t'/'uint64_t' values.
+:      Provide efficient bit-manipulation of `uint32_t`/`uint64_t` values.
 :
 : 'bdlb_caselessstringviewequalto':
 :      Provide a case-insensitive equality predicate for string views.
@@ -108,7 +108,7 @@
 :      Provide a case-insensitive less-than predicate for string views.
 :
 : 'bdlb_chartype':
-:      Supply locale-independent version of '<ctype.h>' functionality.
+:      Supply locale-independent version of `<ctype.h>` functionality.
 :
 : 'bdlb_cstringequalto':
 :      Provide a standard compatible equality predicate for C-strings.
@@ -138,10 +138,10 @@
 :      Provide a value-semantic attribute type for position and length.
 :
 : 'bdlb_indexspanstringutil':
-:      Provide functions that operate on 'IndexSpan' and string objects.
+:      Provide functions that operate on `IndexSpan` and string objects.
 :
 : 'bdlb_indexspanutil':
-:      Provide functions that operate on 'IndexSpan' objects.
+:      Provide functions that operate on `IndexSpan` objects.
 :
 : 'bdlb_literalutil':
 :      Provide utility routines for programming language literals.
@@ -177,7 +177,7 @@
 :      Provide conversions from text into fundamental numeric types.
 :
 : 'bdlb_optionalprinter':
-:      Provide a suite of helper classes for printing 'bsl::optional'.
+:      Provide a suite of helper classes for printing `bsl::optional`.
 :
 : 'bdlb_pairutil':
 :      Provide a function that creates a pair of references.
@@ -189,7 +189,7 @@
 :      Provide platform-independent stream utilities.
 :
 : 'bdlb_printadapter':
-:      Provide object for streaming objects using 'bdlb::PrintMethods'.
+:      Provide object for streaming objects using `bdlb::PrintMethods`.
 :
 : 'bdlb_printmethods':
 :      Provide methods for uniform printing of value-semantic types.
@@ -207,10 +207,10 @@
 :      Provide utility functions on STL-style and C-style strings.
 :
 : 'bdlb_stringrefutil':                                  !DEPRECATED!
-:      Provide utility functions on 'bslstl::StringRef'-erenced strings.
+:      Provide utility functions on `bslstl::StringRef`-erenced strings.
 :
 : 'bdlb_stringviewutil':
-:      Provide utility functions on 'bsl::string_view' containers.
+:      Provide utility functions on `bsl::string_view` containers.
 :
 : 'bdlb_testinputiterator':                              !DEPRECATED!
 :      Provide a pure input iterator for an empty range.
@@ -234,7 +234,7 @@
 :      Provide a transparent less-than predicate.
 :
 : 'bdlb_variant':
-:      Provide a variant (discriminated 'union'-like) type.
+:      Provide a variant (discriminated `union`-like) type.
 :
 : 'bdlb_variant_cpp03':                                               !PRIVATE!
 :      Provide C++03 implementation for bdlb_variant.h

@@ -181,10 +181,10 @@
 :      Provide a meta-function to select a suitable trait on a type.
 :
 : 'bslalg_swaputil':
-:      Provide a simple to use 'swap' algorithm.
+:      Provide a simple to use `swap` algorithm.
 :
 : 'bslalg_synththreewayutil':
-:      Provide implementation utilities for 'operator<=>'.
+:      Provide implementation utilities for `operator<=>`.
 :
 : 'bslalg_typetraitbitwisecopyable':                     !DEPRECATED!
 :      Provide a trait to mark classes as bit-wise copyable.
@@ -208,10 +208,10 @@
 :      Provide a trait to mark classes as having no other traits.
 :
 : 'bslalg_typetraitpair':                                !DEPRECATED!
-:      Provide a trait to mark classes as similar to 'std::pair'.
+:      Provide a trait to mark classes as similar to `std::pair`.
 :
 : 'bslalg_typetraits':                                   !DEPRECATED!
 :      Provide compile-time traits that can be associated with types.
 :
 : 'bslalg_typetraitusesbslmaallocator':                  !DEPRECATED!
-:      Provide a trait to mark types that use 'bslma' allocators.
+:      Provide a trait to mark types that use `bslma` allocators.

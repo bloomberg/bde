@@ -48,7 +48,7 @@
 :      Provide platform-independent file input for stack trace resolvers.
 :
 : 'balst_resolverimpl_dladdr':                                        !PRIVATE!
-:      Provide functions for resolving a stack trace using 'dladdr'.
+:      Provide functions for resolving a stack trace using `dladdr`.
 :
 : 'balst_resolverimpl_elf':                                           !PRIVATE!
 :      Provide a utility to resolve ELF symbols in a stack trace.

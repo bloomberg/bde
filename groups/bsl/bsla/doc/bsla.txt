@@ -61,7 +61,7 @@
 :      Provide a macro to emit an error message when a function is called.
 :
 : 'bsla_fallthrough':
-:      Provide a macro to suppress warnings on 'switch' fall-throughs.
+:      Provide a macro to suppress warnings on `switch` fall-throughs.
 :
 : 'bsla_format':
 :      Provide a macro to indicate that a return value is a format string.
@@ -79,13 +79,13 @@
 :      Provide a macro to issue a compiler warning if a function returns.
 :
 : 'bsla_nullterminated':
-:      Provide macros for use with 'NULL'-terminated variadic functions.
+:      Provide macros for use with `NULL`-terminated variadic functions.
 :
 : 'bsla_printf':
-:      Provide a macro to indicate 'printf'-style arguments.
+:      Provide a macro to indicate `printf`-style arguments.
 :
 : 'bsla_scanf':
-:      Provide a macro for checking 'scanf'-style format strings.
+:      Provide a macro for checking `scanf`-style format strings.
 :
 : 'bsla_unreachable':
 :      Provide a compiler-hint macro to indicate unreachable code.

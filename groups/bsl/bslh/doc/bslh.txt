@@ -851,25 +851,25 @@
 :      Provide a wrapper to improve "bad" hash algorithms.
 :
 : 'bslh_filesystem':
-:      Provide 'hash' for 'std::filesystem::path'.
+:      Provide `hash` for `std::filesystem::path`.
 :
 : 'bslh_hash':
-:      Provide a struct to run 'bslh' hash algorithms on supported types.
+:      Provide a struct to run `bslh` hash algorithms on supported types.
 :
 : 'bslh_hashoptional':
-:      Provide 'hashAppend' for 'std::optional'.
+:      Provide `hashAppend` for `std::optional`.
 :
 : 'bslh_hashpair':
-:      Provide 'hashAppend' for 'std::pair'.
+:      Provide `hashAppend` for `std::pair`.
 :
 : 'bslh_hashtuple':
-:      Provide 'hashAppend' for 'std::tuple'.
+:      Provide `hashAppend` for `std::tuple`.
 :
 : 'bslh_hashvariant':
-:      Provide 'hashAppend' for 'std::variant'.
+:      Provide `hashAppend` for `std::variant`.
 :
 : 'bslh_seededhash':
-:      Provide a struct to run seeded 'bslh' hash algorithms on types.
+:      Provide a struct to run seeded `bslh` hash algorithms on types.
 :
 : 'bslh_seedgenerator':
 :      Provide a class to generate arbitrary length seeds for algorithms.

@@ -102,7 +102,7 @@
 :      Provide a thread-safe object pool.
 :
 : 'bdlcc_queue':                                         !DEPRECATED!
-:      Provide a thread-enabled queue of items of parameterized 'TYPE'.
+:      Provide a thread-enabled queue of items of parameterized `TYPE`.
 :
 : 'bdlcc_sharedobjectpool':
 :      Provide a thread-safe pool of shared objects.

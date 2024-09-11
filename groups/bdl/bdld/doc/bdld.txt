@@ -42,7 +42,7 @@
 :      Provide a discriminated variant type with a small footprint.
 :
 : 'bdld_datumarraybuilder':
-:      Provide a utility to build a 'Datum' object holding an array.
+:      Provide a utility to build a `Datum` object holding an array.
 :
 : 'bdld_datumbinaryref':
 :      Provide a type to represent binary data and its size.
@@ -51,22 +51,22 @@
 :      Provide a type for an error code with an optional error message.
 :
 : 'bdld_datumintmapbuilder':
-:      Provide a utility to build a 'Datum' object holding an int-map.
+:      Provide a utility to build a `Datum` object holding an int-map.
 :
 : 'bdld_datummaker':
-:      Provide a mechanism for easily creating 'bdld::Datum' objects.
+:      Provide a mechanism for easily creating `bdld::Datum` objects.
 :
 : 'bdld_datummapbuilder':
-:      Provide a utility to build a 'Datum' object holding a map.
+:      Provide a utility to build a `Datum` object holding a map.
 :
 : 'bdld_datummapowningkeysbuilder':
-:      Provide a utility to build a 'Datum' object holding a map.
+:      Provide a utility to build a `Datum` object holding a map.
 :
 : 'bdld_datumudt':
 :      Provide a type to represent a user-defined type.
 :
 : 'bdld_datumutil':
-:      Provide extra functions that operate on 'bdld::Datum' objects.
+:      Provide extra functions that operate on `bdld::Datum` objects.
 :
 : 'bdld_manageddatum':
-:      Provide a smart-pointer-like manager for a 'Datum' object.
+:      Provide a smart-pointer-like manager for a `Datum` object.

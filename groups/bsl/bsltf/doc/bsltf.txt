@@ -73,10 +73,10 @@
 :      Provide a class that allocates memory and is bitwise-moveable.
 :
 : 'bsltf_allocemplacabletesttype':
-:      Provide an allocating test class used to test 'emplace' methods.
+:      Provide an allocating test class used to test `emplace` methods.
 :
 : 'bsltf_alloctesttype':
-:      Provide a class for testing that allocates with 'bsl::allocator'.
+:      Provide a class for testing that allocates with `bsl::allocator`.
 :
 : 'bsltf_argumenttype':
 :      Provide a non-allocating class to test variadic function arguments.
@@ -100,13 +100,13 @@
 :      Provide an awkward type to adapt a user-supplied functor.
 :
 : 'bsltf_emplacabletesttype':
-:      Provide a non-allocating test class used to test 'emplace' methods.
+:      Provide a non-allocating test class used to test `emplace` methods.
 :
 : 'bsltf_enumeratedtesttype':
 :      Provide an enumerated test type.
 :
 : 'bsltf_evilbooleantype':
-:      Provide the most awkward type that is convertible to 'bool'.
+:      Provide the most awkward type that is convertible to `bool`.
 :
 : 'bsltf_inputiterator':
 :      Provide a pure input iterator capable of traversing a range.
@@ -118,7 +118,7 @@
 :      Provide a non-allocating test class that records when moved from.
 :
 : 'bsltf_moveonlyalloctesttype':
-:      Provide testing type that is move-only & uses 'bslma' allocators.
+:      Provide testing type that is move-only & uses `bslma` allocators.
 :
 : 'bsltf_movestate':
 :      Provide an enumeration of move-state, including unsupported.
@@ -136,7 +136,7 @@
 :      Provide an attribute class that is not equal comparable.
 :
 : 'bsltf_nonoptionalalloctesttype':
-:      Provide a class for testing that allocates with 'bslma::Allocator'.
+:      Provide a class for testing that allocates with `bslma::Allocator`.
 :
 : 'bsltf_nontypicaloverloadstesttype':
 :      Provide a class that overloads the non-typical operators.
@@ -178,4 +178,4 @@
 :      Provide an union test type.
 :
 : 'bsltf_wellbehavedmoveonlyalloctesttype':
-:      Provide well-behaved move-only type using 'bslma' allocators.
+:      Provide well-behaved move-only type using `bslma` allocators.

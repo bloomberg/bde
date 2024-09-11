@@ -92,13 +92,13 @@
 :      Provide a simple interface for writing formatted XML.
 :
 : 'balxml_formatter_compactimpl':                                     !PRIVATE!
-:      Provide a minimal-whitespace implementation for 'balxml_formatter'.
+:      Provide a minimal-whitespace implementation for `balxml_formatter`.
 :
 : 'balxml_formatter_prettyimpl':                                      !PRIVATE!
-:      Provide pretty-printing implementation for 'balxml_formatter'.
+:      Provide pretty-printing implementation for `balxml_formatter`.
 :
 : 'balxml_formatterwhitespacetype':
-:      Enumerate the set of whitespace options for 'balxml_formatter'.
+:      Enumerate the set of whitespace options for `balxml_formatter`.
 :
 : 'balxml_hexparser':
 :      Provide push parser for hex types.
@@ -107,7 +107,7 @@
 :      Provide push parser for lists.
 :
 : 'balxml_minireader':
-:      Provide light-weight implementation of 'balxml::Reader' protocol.
+:      Provide light-weight implementation of `balxml::Reader` protocol.
 :
 : 'balxml_namespaceregistry':
 :      Provide a unique integer ID for each XML namespace.
@@ -125,7 +125,7 @@
 :      Provide a utility for printing types using XML formatting.
 :
 : 'balxml_utf8readerwrapper':
-:      Provide wrapper for 'Reader' to check input UTF-8 validity.
+:      Provide wrapper for `Reader` to check input UTF-8 validity.
 :
 : 'balxml_util':
 :      Provide a suite of common XML utilities.

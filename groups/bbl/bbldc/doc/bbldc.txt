@@ -65,7 +65,7 @@
 :      Provide a protocol for basic day-count calculations.
 :
 : 'bbldc_basicdaycountutil':
-:      Support for day-count calculations of 'enum'-specified conventions.
+:      Support for day-count calculations of `enum`-specified conventions.
 :
 : 'bbldc_basicisdaactualactual':
 :      Provide stateless functions for the ISDA Actual/Actual convention.
@@ -92,19 +92,19 @@
 :      Provide a parameterized day-count convention implementation.
 :
 : 'bbldc_calendardaycountutil':
-:      Support for day-count calculations of 'enum'-specified conventions.
+:      Support for day-count calculations of `enum`-specified conventions.
 :
 : 'bbldc_daterangedaycount':
 :      Provide a protocol for date-range limited day-count calculations.
 :
 : 'bbldc_daycountconvention':
-:      Provide an enumeration of 'bbldc' day-count conventions.
+:      Provide an enumeration of `bbldc` day-count conventions.
 :
 : 'bbldc_perioddaterangedaycountadapter':
 :      Provide a parameterized day-count convention implementation.
 :
 : 'bbldc_perioddaycountutil':
-:      Support for day-count calculations of 'enum'-specified conventions.
+:      Support for day-count calculations of `enum`-specified conventions.
 :
 : 'bbldc_periodicmaactualactual':
 :      Provide stateless functions for period-based ICMA Actual/Actual.
@@ -116,7 +116,7 @@
 :      Provide a parameterized day-count convention implementation.
 :
 : 'bbldc_terminateddaycountutil':
-:      Support for day-count calculations of 'enum'-specified conventions.
+:      Support for day-count calculations of `enum`-specified conventions.
 :
 : 'bbldc_terminatedisda30360eom':
 :      Provide stateless functions for ISDA 30/360 eom convention.

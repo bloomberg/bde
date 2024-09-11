@@ -223,10 +223,10 @@
 :      Provide an in-memory representation of a JSON document.
 :
 : 'bdljsn_jsonliterals':
-:      Provide user-defined literals for 'bdljsn::Json' objects.
+:      Provide user-defined literals for `bdljsn::Json` objects.
 :
 : 'bdljsn_jsonnull':
-:      Provide a type that represents the JSON 'null' value.
+:      Provide a type that represents the JSON `null` value.
 :
 : 'bdljsn_jsonnumber':
 :      Provide a value-semantic type representing a JSON number.
@@ -238,7 +238,7 @@
 :      Enumerate the set of JSON value types.
 :
 : 'bdljsn_jsonutil':
-:      Provide common non-primitive operations on 'Json' objects.
+:      Provide common non-primitive operations on `Json` objects.
 :
 : 'bdljsn_location':
 :      Provide a value-semantic type for location in a JSON document.
@@ -253,7 +253,7 @@
 :      Provide a utility functions for JSON strings.
 :
 : 'bdljsn_tokenizer':
-:      Provide a tokenizer for extracting JSON data from a 'streambuf'.
+:      Provide a tokenizer for extracting JSON data from a `streambuf`.
 :
 : 'bdljsn_writeoptions':
 :      Provide options for writing a JSON document.

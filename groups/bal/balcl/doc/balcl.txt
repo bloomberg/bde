@@ -101,7 +101,7 @@
 :      Provide an allocator-aware command-line-option descriptor class.
 :
 : 'balcl_optioninfo':
-:      Provide a POD command-line-option descriptor 'struct'.
+:      Provide a POD command-line-option descriptor `struct`.
 :
 : 'balcl_optiontype':
 :      Enumerate the types supported for command-line-option values.

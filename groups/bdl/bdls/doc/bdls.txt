@@ -46,16 +46,16 @@
 :      Provide methods for filesystem access with multi-language names.
 :
 : 'bdls_filesystemutil_transitionaluniximputil':                      !PRIVATE!
-:      Provide testable 'bdls::FilesystemUtil' operations for some Unixes.
+:      Provide testable `bdls::FilesystemUtil` operations for some Unixes.
 :
 : 'bdls_filesystemutil_uniximputil':                                  !PRIVATE!
-:      Provide testable 'bdls::FilesystemUtil' operations for some Unixes.
+:      Provide testable `bdls::FilesystemUtil` operations for some Unixes.
 :
 : 'bdls_filesystemutil_unixplatform':                                 !PRIVATE!
 :      Provide Unix timstamp and offset type width detection macros.
 :
 : 'bdls_filesystemutil_windowsimputil':                               !PRIVATE!
-:      Provide testable 'bdls::FilesystemUtil' operations on Windows.
+:      Provide testable `bdls::FilesystemUtil` operations on Windows.
 :
 : 'bdls_memoryutil':
 :      Provide a set of portable utilities for memory manipulation.
@@ -76,4 +76,4 @@
 :      Provide a scoped guard that creates a unique temporary directory.
 :
 : 'bdls_testutil':                                       !DEPRECATED!
-:      Provide test utilities for components in 'bdl' and above.
+:      Provide test utilities for components in `bdl` and above.

@@ -36,7 +36,7 @@
 /Component Synopsis
 /------------------
 : 'bslim_bslstandardheadertest':
-:      Provide a location for testing 'bsl' standard library headers.
+:      Provide a location for testing `bsl` standard library headers.
 :
 : 'bslim_formatguard':
 :      Provide a guard for saving the state of a stream object.
@@ -51,7 +51,7 @@
 :      Provide facilities for debugging BDE with gtest.
 :
 : 'bslim_printer':
-:      Provide a mechanism to implement standard 'print' methods.
+:      Provide a mechanism to implement standard `print` methods.
 :
 : 'bslim_testutil':
-:      Provide test utilities for components above 'bsl'.
+:      Provide test utilities for components above `bsl`.

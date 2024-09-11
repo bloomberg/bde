@@ -34,13 +34,13 @@
 :      Provide an indexed set of buffers from multiple sources.
 :
 : 'bdlbb_blobstreambuf':
-:      Provide blob implementing the 'streambuf' interface.
+:      Provide blob implementing the `streambuf` interface.
 :
 : 'bdlbb_blobutil':
-:      Provide a suite of utilities for I/O operations on 'bdlbb::Blob'.
+:      Provide a suite of utilities for I/O operations on `bdlbb::Blob`.
 :
 : 'bdlbb_pooledblobbufferfactory':
-:      Provide a concrete implementation of 'bdlbb::BlobBufferFactory'.
+:      Provide a concrete implementation of `bdlbb::BlobBufferFactory`.
 :
 : 'bdlbb_simpleblobbufferfactory':
-:      Provide a simple implementation of 'bdlbb::BlobBufferFactory'.
+:      Provide a simple implementation of `bdlbb::BlobBufferFactory`.

@@ -41,25 +41,25 @@
 /Component Synopsis
 /------------------
 : 'baljsn_datumdecoderoptions':
-:      Provide options for decoding JSON into a 'Datum' object.
+:      Provide options for decoding JSON into a `Datum` object.
 :
 : 'baljsn_datumencoderoptions':
 :      Provide an attribute class for specifying Datum<->JSON options.
 :
 : 'baljsn_datumutil':
-:      Provide utilities converting between 'bdld::Datum' and JSON data.
+:      Provide utilities converting between `bdld::Datum` and JSON data.
 :
 : 'baljsn_decoder':
-:      Provide a JSON decoder for 'bdeat' compatible types.
+:      Provide a JSON decoder for `bdeat` compatible types.
 :
 : 'baljsn_decoderoptions':
 :      Provide an attribute class for specifying JSON decoding options.
 :
 : 'baljsn_decoderoptionsutil':
-:      Provide a utility for configuring 'baljsn::DecoderOptions'.
+:      Provide a utility for configuring `baljsn::DecoderOptions`.
 :
 : 'baljsn_encoder':
-:      Provide a JSON encoder for 'bdlat'-compatible types.
+:      Provide a JSON encoder for `bdlat`-compatible types.
 :
 : 'baljsn_encoder_testtypes':                                         !PRIVATE!
 :      Provide value-semantic attribute classes
@@ -83,7 +83,7 @@
 :      Provide a simple formatter for encoding data in the JSON format.
 :
 : 'baljsn_tokenizer':
-:      Provide a tokenizer for extracting JSON data from a 'streambuf'.
+:      Provide a tokenizer for extracting JSON data from a `streambuf`.
 
 /Encoding Format
 /---------------
