@@ -928,6 +928,24 @@ unsigned int crc32c8s(const unsigned char *data,
     return calculateBuiltin32Crc(data, diff, crc);
 }
 
+inline
+bsls::Types::Uint64 unalignedBuiltinCrc32di(bsls::Types::Uint64 initial,
+                                            const unsigned char *data)
+{
+    bsls::Types::Uint64 temp;
+    memcpy(&temp, data, sizeof(temp));
+    return __builtin_ia32_crc32di(initial, temp);
+}
+
+inline
+bsls::Types::Uint64 unalignedBuiltinCrc32diOffset(bsls::Types::Uint64 initial,
+                                                  const unsigned char *data,
+                                                  unsigned int offset)
+{
+    return unalignedBuiltinCrc32di(initial,
+                                  data + sizeof(bsls::Types::Uint64) * offset);
+}
+
 unsigned int crc32c1024SseInt(const unsigned char *data,
                               unsigned int         crc)
     // Calculate the CRC32-C value (using SSE intrinsics) for the specified
@@ -1077,21 +1095,15 @@ unsigned int crc32c1024SseInt(const unsigned char *data,
         0x606C8304, 0x847B708E, 0xADAF12E1, 0x49B8E16B
     };
 
-#define C(i)                                \
-    c1 = __builtin_ia32_crc32di(c1, b1[i]); \
-    c2 = __builtin_ia32_crc32di(c2, b2[i]); \
-    c3 = __builtin_ia32_crc32di(c3, b3[i]); \
+#define C(i) \
+    c1 = unalignedBuiltinCrc32diOffset(c1, data, i + 1); \
+    c2 = unalignedBuiltinCrc32diOffset(c2, data, i + 43); \
+    c3 = unalignedBuiltinCrc32diOffset(c3, data, i + 85);
 
     bsls::Types::Uint64 c1, c2, c3, tmp;
 
-    const bsls::Types::Uint64 *b8 =
-                           reinterpret_cast<const bsls::Types::Uint64 *>(data);
-    const bsls::Types::Uint64 *b1 = &b8[1];
-    const bsls::Types::Uint64 *b2 = &b8[43];
-    const bsls::Types::Uint64 *b3 = &b8[85];
-
     c2 = c3 = 0;
-    c1 = __builtin_ia32_crc32di(crc, b8[0]);
+    c1 = unalignedBuiltinCrc32di(crc, data);
 
     C(0);  C(1);  C(2);  C(3);  C(4);  C(5);  C(6);  C(7);  C(8);  C(9);
     C(10); C(11); C(12); C(13); C(14); C(15); C(16); C(17); C(18); C(19);
@@ -1100,7 +1112,7 @@ unsigned int crc32c1024SseInt(const unsigned char *data,
     C(40); C(41);
 
     // merge in c2
-    tmp  = b8[127];
+    memcpy(&tmp, data + sizeof(bsls::Types::Uint64) * 127, sizeof(tmp));
     tmp ^= k_MUL_TABLE1_336[c2 & 0xFF];
     tmp ^= static_cast<bsls::Types::Uint64>(
                                     k_MUL_TABLE1_336[(c2 >> 8) & 0xFF])  << 8;
