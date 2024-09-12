@@ -952,9 +952,6 @@ class Tokenizer {
     iterator end() const;
 };
 
-// FREE OPERATORS
-const Tokenizer operator++(Tokenizer& object, int);
-
 // ============================================================================
 //                               INLINE DEFINITIONS
 // ============================================================================
