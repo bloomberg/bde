@@ -1,9 +1,36 @@
-bsl-internal (4.13.1.0) unstable; urgency=low
+bsl-internal (4.14.0.0) unstable; urgency=low
 
+  * e7fb56e4b 'bdlb::Tokenizer' postfix increment operator has been removed (#4938)
+  * bdfe0738f bdlde_crc32c ubsan fixes with elided memcpys (#4940)
+  * 445a8ac42 Bumped version to 4.14.0.0
+  * e255697f2 fix function doc location (numericformatterutil) (#4941)
+  * b36d19e9d Fix function doc location (#4937)
+  * 085fed37c Fix function doc location (#4936)
+  * 8f9c3d720 Merge pull request #4932 from bbi10/176453450
+  * 38daddb0f Merge pull request #4920 from afeher/drqs-176415137-resplit-bslstl_list-test-driver-with-script
+  * 6f7f6f256 fix UB in bslh_spookyhashalgorithmimp (DRQS 175773116) (#4895)
+  * 4f25a451d Merge pull request #4921 from afeher/drqs-176415225-resplit-bslstl_vector-test-driver-with-script
+  * b8cabd794 Use gnu_printf attribute on gcc. (#4926)
+  * 323f28aa9 add t_ to bslstl_optional.h templates (#4643)
+  * a7bab8c95 Merge pull request #4919 from afeher/drqs-176414997-resplit-bslstl_function-test-with-script
+  * 091219b97 Merge pull request #4916 from afeher/drqs-176412444-bslma_constructionutil-auto-split
+  * 1e779cbca Merge pull request #4925 from afeher/drqs-_176461860-do-not-deallocate-nullptr-via-allocator-in-datum
+  * ca3179202 Merge pull request #4918 from afeher/drqs-176414948-resplit-bslstl_deque-with-script
+  * 9395cc102 Merge pull request #4917 from afeher/drqs-176413913-resplit-bslmf_invokeresult-with-script
+  * cb66e678b replace BSLS_ASSERT_OPT with BSLS_ASSERT_INVOKE_NORETURN where appropriate (#4922)
+  * ec6321128 Remove memcpy UB from bdlde_md5.cpp. (#4888)
+  * 1d0919602 bslh_siphashalgorithm: eliminated ubsan from non-aligned Uint64 loads (#4897)
+  * 1ee96d9bf Merge pull request #4864 from afeher/drqs-176224752-new-allocator-style-for-datum
+
+ -- Denis Sokolov <dsokolov7@bloomberg.net>  Thu, 12 Sep 2024 10:12:58 -0400
+
+bsl-internal (4.13.1.0) git; urgency=low
+
+  * a84e4db57 Changelog for version 4.13.1.0
   * 589dcb93a Bumped version to 4.13.1.0
   * ed849f973  bdlb_variant replace doNotCall with BSLS_ASSERT_INVOKE_NORETURN (DRQS 176399968) (#4915)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 23 Aug 2024 16:03:46 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 23 Aug 2024 16:04:48 -0400
 
 bsl-internal (4.13.0.0) git; urgency=low
 
