@@ -63,8 +63,15 @@ using namespace BloombergLP;
     std::wformat_string<t_TYPE, t_ARG_1, t_ARG_2>
 #define BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING                        \
     std::basic_format_string<t_CHAR, t_TYPE, t_ARG_1, t_ARG_2>
+#define BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING_P                            \
+    std::format_string<t_TYPE, int, int>
+#define BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING_P                           \
+    std::wformat_string<t_TYPE, int, int>
+#define BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_P                      \
+    std::basic_format_string<t_CHAR, t_TYPE, int, int>
 #define BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_GETTER(ARG)            \
     ARG.get()
+#define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
 #else
 #define BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING                              \
     bsl::string_view
@@ -72,8 +79,15 @@ using namespace BloombergLP;
     bsl::wstring_view
 #define BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING                        \
     bsl::basic_string_view<t_CHAR>
+#define BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING_P                            \
+    bsl::string_view
+#define BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING_P                           \
+    bsl::wstring_view
+#define BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_P                      \
+    bsl::basic_string_view<t_CHAR>
 #define BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_GETTER(ARG)            \
     ARG
+#define BSLFMT_FORMATTER_TEST_CONSTEVAL
 #endif
 
 namespace BloombergLP {
@@ -294,14 +308,11 @@ struct Formatter_TestUtil_Impl {
                                 bool                            alsoTestOracle,
                                 bsl::basic_string_view<t_CHAR>  fmt);
 
-    template <class t_TYPE, class t_ARG_1, class t_ARG_2>
-    static bool testParseFormat(
-                bsl::string                                    *message,
-                bool                                            alsoTestOracle,
-                BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING  fmt,
-                BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)       dummyValue,
-                BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)      arg1,
-                BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)      arg2);
+    template <class t_TYPE>
+    static BSLS_KEYWORD_CONSTEXPR_CPP20 bool testParseFormat(
+                bsl::string                                      *message,
+                bool                                              alsoTestOracle,
+                BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_P  fmt);
 
     template <class t_TYPE>
     static bool testParseVFormat(
@@ -394,14 +405,11 @@ struct Formatter_TestUtil<char> {
                                  bool                          alsoTestOracle,
                                  bsl::basic_string_view<char>  fmt);
 
-    template <class t_TYPE, class t_ARG_1, class t_ARG_2>
-    static bool testParseFormat(
+    template <class t_TYPE>
+    static BSLFMT_FORMATTER_TEST_CONSTEVAL bool testParseFormat(
           bsl::string                                *message,
           bool                                        alsoTestOracle,
-          BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING    fmt,
-          BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)   dummyValue,
-          BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)  arg1 = bsl::monostate(),
-          BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)  arg2 = bsl::monostate());
+          BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING_P  fmt);
 
     template <class t_TYPE>
     static bool testParseVFormat(
@@ -440,14 +448,11 @@ struct Formatter_TestUtil<wchar_t> {
                               bool                             alsoTestOracle,
                               bsl::basic_string_view<wchar_t>  fmt);
 
-    template <class t_TYPE, class t_ARG_1, class t_ARG_2>
-    static bool testParseFormat(
+    template <class t_TYPE>
+    static BSLFMT_FORMATTER_TEST_CONSTEVAL bool testParseFormat(
           bsl::string                                *message,
           bool                                        alsoTestOracle,
-          BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING   fmt,
-          BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)   dummyValue,
-          BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)  arg1 = bsl::monostate(),
-          BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)  arg2 = bsl::monostate());
+          BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING_P fmt);
 
     template <class t_TYPE>
     static bool testParseVFormat(
@@ -780,25 +785,113 @@ bool Formatter_TestUtil_Impl<t_CHAR>::testParseFailure(
 }
 
 template <class t_CHAR>
-template <class t_TYPE, class t_ARG_1, class t_ARG_2>
+template <class t_TYPE>
+BSLS_KEYWORD_CONSTEXPR_CPP20
 bool Formatter_TestUtil_Impl<t_CHAR>::testParseFormat(
-                bsl::string                                    *message,
-                bool                                            alsoTestOracle,
-                BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING  fmt,
-                BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)       dummyValue,
-                BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)      arg1,
-                BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)      arg2)
+                bsl::string                                      *message,
+                bool                                              alsoTestOracle,
+                BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_P  fmt)
 {
     bsl::basic_string_view<t_CHAR> fmtStr =
                     BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_GETTER(fmt);
 
-    (void) dummyValue;
-    (void) arg1;
-    (void) arg2;
+    Formatter_MockParseContext<t_CHAR> mpc1(fmtStr, 3);
 
-    return testParseVFormat<t_TYPE>(message,
-                            alsoTestOracle,
-                            fmtStr);
+    if (fmtStr.size() == 0 || fmtStr.front() != '{') {
+        if (message)
+            *message = "opening brace missing";
+        return false;
+    }
+    fmtStr.remove_prefix(1);
+    mpc1.advance_to(mpc1.begin() + 1);
+
+    if (fmtStr.size() == 0) {
+        if (message)
+            *message = "format string too short.";
+        return false;
+    }
+
+    if (fmtStr.front() != '0' && fmtStr.front() != ':' &&
+        fmtStr.front() != '}') {
+        if (message)
+            *message = "For testing, value must be arg 0 if specified";
+        return false;
+    }
+
+    bool haveArgIds;
+
+    if (fmtStr.front() == '0') {
+        mpc1.check_arg_id(0);
+        fmtStr.remove_prefix(1);
+        mpc1.advance_to(mpc1.begin() + 1);
+        if (fmtStr.size() == 0) {
+            if (message)
+            *message = "format string too short.";
+            return false;
+        }
+        if (fmtStr.front() != ':' && fmtStr.front() != '}') {
+            if (message)
+                *message = "Missing ':' separator";
+            return false;
+        }
+        haveArgIds = true;
+    }
+    else {
+        (void)mpc1.next_arg_id();
+        haveArgIds = false;
+    }
+
+    if (fmtStr.size() == 0) {
+        if (message)
+            *message = "format string too short.";
+        return false;
+    }
+
+    if (fmtStr.front() == ':') {
+        fmtStr.remove_prefix(1);
+        mpc1.advance_to(mpc1.begin() + 1);
+    }
+
+    bsl::formatter<typename bsl::decay<t_TYPE>::type, t_CHAR> f1;
+
+    try {
+        mpc1.advance_to(f1.parse(mpc1));
+    }
+    catch (const bsl::format_error&) {
+        if (message)
+            *message = "bslfmt parsing failed";
+        return false;
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+    if (alsoTestOracle) {
+        // TODO: this interface changes in C++26 so we will need to modify this
+        // code accordingly then.
+        std::basic_format_parse_context<t_CHAR> spc(fmtStr, 3);
+
+        if (haveArgIds) {
+            spc.check_arg_id(0);
+        }
+        else {
+            (void)spc.next_arg_id();
+        }
+        std::formatter<typename bsl::decay<t_TYPE>::type, t_CHAR> f2;
+
+        try {
+            spc.advance_to(f2.parse(spc));
+        }
+        catch (const bsl::format_error&) {
+            if (message)
+                *message = "bslfmt parsing failed";
+            return false;
+        }
+    }
+#else
+    (void)alsoTestOracle;
+    (void)haveArgIds;
+#endif
+
+    return true;
 }
 
 template <class t_CHAR>
@@ -961,22 +1054,18 @@ bool Formatter_TestUtil<char>::testParseFailure(
                                                                 fmt);
 }
 
-template <class t_TYPE, class t_ARG_1, class t_ARG_2>
+template <class t_TYPE>
+BSLFMT_FORMATTER_TEST_CONSTEVAL
 bool Formatter_TestUtil<char>::testParseFormat(
                     bsl::string                                *message,
                     bool                                        alsoTestOracle,
-                    BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING    fmt,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)   value,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)  arg1,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)  arg2)
+                    BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING_P  fmt)
 {
-    return Formatter_TestUtil_Impl<char>::testParseFormat(
+    //return true;
+    return Formatter_TestUtil_Impl<char>::testParseFormat<t_TYPE>(
                                  message,
                                  alsoTestOracle,
-                                 fmt,
-                                 BSLS_COMPILERFEATURES_FORWARD(t_TYPE, value),
-                                 BSLS_COMPILERFEATURES_FORWARD(t_ARG_1, arg1),
-                                 BSLS_COMPILERFEATURES_FORWARD(t_ARG_2, arg2));
+                                 fmt);
 }
 
 template <class t_TYPE>
@@ -1043,22 +1132,17 @@ bool Formatter_TestUtil<wchar_t>::testParseFailure(
                                                                 fmt);
 }
 
-template <class t_TYPE, class t_ARG_1, class t_ARG_2>
+template <class t_TYPE>
+BSLFMT_FORMATTER_TEST_CONSTEVAL
 bool Formatter_TestUtil<wchar_t>::testParseFormat(
                     bsl::string                                *message,
                     bool                                        alsoTestOracle,
-                    BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING   fmt,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(t_TYPE)   dummyValue,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_1)  arg1,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG_2)  arg2)
+                    BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING_P fmt)
 {
-    return Formatter_TestUtil_Impl<wchar_t>::testParseFormat(
+    return Formatter_TestUtil_Impl<wchar_t>::testParseFormat<t_TYPE>(
                              message,
                              alsoTestOracle,
-                             fmt,
-                             BSLS_COMPILERFEATURES_FORWARD(t_TYPE, dummyValue),
-                             BSLS_COMPILERFEATURES_FORWARD(t_ARG_1, arg1),
-                             BSLS_COMPILERFEATURES_FORWARD(t_ARG_2, arg2));
+                             fmt);
 }
 
 template <class t_TYPE>
@@ -1154,7 +1238,11 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 #undef BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING
 #undef BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING
 #undef BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING
+#undef BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING_P
+#undef BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING_P
+#undef BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_P
 #undef BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_GETTER
+#undef BSLFMT_FORMATTER_TEST_CONSTEVAL
 
 #endif  // INCLUDED_BSLFMT_FORMATTERTESTUTIL
 
