@@ -162,7 +162,6 @@ void aSsErT(bool condition, const char *message, int line)
         bsl::string errorMsg;                                                  \
         bool rv;                                                               \
                                                                                \
-        const type *dummyArg1 = 0;                                             \
         rv = bslfmt::Formatter_TestUtil<type>::                                \
                  testParseFormat<const type *>(&errorMsg,                      \
                                   useOracle,                                   \
@@ -172,7 +171,6 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
         }                                                                      \
                                                                                \
-        type *dummyArg2 = 0;                                                   \
         rv = bslfmt::Formatter_TestUtil<type>::                                \
                  testParseFormat<type *>(&errorMsg,                            \
                                   useOracle,                                   \
@@ -192,7 +190,6 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
         }                                                                      \
                                                                                \
-        bsl::basic_string<type> dummyArg4;                                     \
         rv = bslfmt::Formatter_TestUtil<type>::                                \
                  testParseFormat<bsl::basic_string<type> >(&errorMsg,          \
                                   useOracle,                                   \
@@ -202,7 +199,6 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
         }                                                                      \
                                                                                \
-        std::basic_string<type> dummyArg5;                                     \
         rv = bslfmt::Formatter_TestUtil<type>::                                \
                  testParseFormat<std::basic_string<type> > (&errorMsg,         \
                                   useOracle,                                   \
@@ -212,7 +208,6 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
         }                                                                      \
                                                                                \
-        constexpr bsl::basic_string_view<type> dummyArg6;                      \
         rv = bslfmt::Formatter_TestUtil<type>::                                \
                  testParseFormat<bsl::basic_string_view<type> >(&errorMsg,     \
                                   useOracle,                                   \
@@ -222,7 +217,6 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
         }                                                                      \
                                                                                \
-        constexpr TEST_STD_STRING_VIEW<type> dummyArg7;                        \
         rv = bslfmt::Formatter_TestUtil<type>::                                \
                  testParseFormat<TEST_STD_STRING_VIEW<type> >(                 \
                                  &errorMsg,                                    \
