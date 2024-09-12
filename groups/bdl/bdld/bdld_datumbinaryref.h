@@ -262,8 +262,8 @@ DatumBinaryRef::SizeType DatumBinaryRef::size() const
 inline
 bool bdld::operator==(const DatumBinaryRef& lhs, const DatumBinaryRef& rhs)
 {
-    return (lhs.size() == rhs.size())
-            && !bsl::memcmp(lhs.data(), rhs.data(), rhs.size());
+    return (lhs.size() == rhs.size()) &&
+         (lhs.size() == 0 || !bsl::memcmp(lhs.data(), rhs.data(), rhs.size()));
 }
 
 
@@ -276,8 +276,8 @@ bool bdld::operator!=(const DatumBinaryRef& lhs, const DatumBinaryRef& rhs)
 inline
 bool bdld::operator<(const DatumBinaryRef& lhs, const DatumBinaryRef& rhs)
 {
-    int cmp = bsl::memcmp(lhs.data(),
-                          rhs.data(),
+    int cmp = bsl::memcmp(lhs.data() ? lhs.data() : &lhs,
+                          rhs.data() ? rhs.data() : &rhs,
                           bsl::min(lhs.size(), rhs.size()));
     return cmp == 0 ? lhs.size() < rhs.size() : cmp < 0;
 }
@@ -285,8 +285,8 @@ bool bdld::operator<(const DatumBinaryRef& lhs, const DatumBinaryRef& rhs)
 inline
 bool bdld::operator>(const DatumBinaryRef& lhs, const DatumBinaryRef& rhs)
 {
-    int cmp = bsl::memcmp(lhs.data(),
-                          rhs.data(),
+    int cmp = bsl::memcmp(lhs.data() ? lhs.data() : &lhs,
+                          rhs.data() ? rhs.data() : &rhs,
                           bsl::min(lhs.size(), rhs.size()));
     return cmp == 0 ? lhs.size() > rhs.size() : cmp > 0;
 }
