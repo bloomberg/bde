@@ -212,15 +212,13 @@ class RecordStringFormatter {
 
     // PUBLIC CONSTANTS
 
-    /// The default log format specification used by
-    /// `RecordStringFormatter`.
+    /// The default log format specification used by `RecordStringFormatter`.
     static const char *k_DEFAULT_FORMAT;
 
-    /// A simple standard record format that renders `ball::Attribute`
-    /// values in the formatted output.  Note that this format is
-    /// recommended over the default format, `k_DEFAULT_FORMAT`, for most
-    /// applications (the default format is currently maintained for
-    /// backwards compatibility).
+    /// A simple standard record format that renders `ball::Attribute` values
+    /// in the formatted output.  Note that this format is recommended over the
+    /// default format, `k_DEFAULT_FORMAT`, for most applications (the default
+    /// format is currently maintained for backwards compatibility).
     static const char *k_BASIC_ATTRIBUTE_FORMAT;
 
     // CREATORS

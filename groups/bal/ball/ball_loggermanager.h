@@ -154,30 +154,30 @@ BSLS_IDENT("$Id: $")
 // The names and exact meanings of the four severity threshold levels are as
 // follows:
 //
-//: Record:
-//:     If the severity level of the record is at least as severe as the Record
-//:     threshold level of the associated category, then the record will be
-//:     stored by the logger in its log record buffer (i.e., it will be
-//:     recorded).
-//:
-//: Pass:
-//:     If the severity of the record is at least as severe as the Pass
-//:     threshold level of the associated category, then the record will be
-//:     immediately published by the logger (i.e., it will be transmitted to
-//:     the logger's downstream recipient -- the observer).
-//:
-//: Trigger:
-//:     If the severity of the record is at least as severe as the Trigger
-//:     threshold level of the associated category, then the record will cause
-//:     immediate publication of that record and any records in the logger's
-//:     log record buffer (i.e., this record will trigger a general log record
-//:     dump).
-//:
-//: Trigger-All:
-//:     If the severity of the record is at least as severe as the Trigger-All
-//:     threshold level of the associated category, then the record will cause
-//:     immediate publication of that record and all other log records stored
-//:     by *all* active loggers.
+// * **Record**
+//  > If the severity level of the record is at least as severe as the Record
+//  > threshold level of the associated category, then the record will be
+//  > stored by the logger in its log record buffer (i.e., it will be
+//  > recorded).
+//
+// * **Pass**
+//  > If the severity of the record is at least as severe as the Pass
+//  > threshold level of the associated category, then the record will be
+//  > immediately published by the logger (i.e., it will be transmitted to
+//  > the logger's downstream recipient -- the observer).
+//
+// * **Trigger**
+//  > If the severity of the record is at least as severe as the Trigger
+//  > threshold level of the associated category, then the record will cause
+//  > immediate publication of that record and any records in the logger's
+//  > log record buffer (i.e., this record will trigger a general log record
+//  > dump).
+//
+// * **Trigger-All**
+//  > If the severity of the record is at least as severe as the Trigger-All
+//  > threshold level of the associated category, then the record will cause
+//  > immediate publication of that record and all other log records stored
+//  > by *all* active loggers.
 //
 // Note that more than one of the above actions can apply to a given log
 // record, since the four threshold levels are independent of one another.
@@ -359,8 +359,8 @@ BSLS_IDENT("$Id: $")
 // `ball_log` component documentation for recommended real-world usage
 // examples.
 //
-///Example 1: Initialization #1
-/// - - - - - - - - - - - - - -
+///Example 1: Initialization Case 1
+/// - - - - - - - - - - - - - - - -
 // Clients that perform logging must first instantiate the singleton logger
 // manager using the `ball::LoggerManagerScopedGuard` class.  This example
 // shows how to create a logger manager with the most basic "default behavior".
@@ -419,8 +419,8 @@ BSLS_IDENT("$Id: $")
 // or after being registered with a logger manager.  For an example of such an
 // observer, see `ball_asyncfileobserver`.
 //
-///Example 2: Initialization #2
-/// - - - - - - - - - - - - - -
+///Example 2: Initialization Case 2
+/// - - - - - - - - - - - - - - - -
 // In this example, we demonstrate a more elaborate initial configuration for
 // the logger manager.  In particular, we create the singleton logger manager
 // with a configuration that has a category name filter functor, a
@@ -461,16 +461,16 @@ BSLS_IDENT("$Id: $")
 // that a category named "xx.y" (for example) is not related to either of "x",
 // "x.y", or "x.y.z":
 // ```
-// // Obtain appropriate threshold levels for the category having the
-// // specified `categoryName` by searching the registry of the specified
-// // `loggerManager`, and store the resulting values at the specified
-// // `recordLevel`, `passLevel`, `triggerLevel`, and `triggerAllLevel`
-// // addresses.  A hierarchical category naming scheme is assumed that
-// // employs the specified `delimiter` to separate the components of
-// // category names.  Return 0 on success, and a non-zero value
-// // otherwise.  The behavior is undefined unless `recordLevel`,
-// // `passLevel`, `triggerLevel`, and `triggerAllLevel` are non-null, and
-// // `categoryName` is null-terminated.
+// /// Obtain appropriate threshold levels for the category having the
+// /// specified `categoryName` by searching the registry of the specified
+// /// `loggerManager`, and store the resulting values at the specified
+// /// `recordLevel`, `passLevel`, `triggerLevel`, and `triggerAllLevel`
+// /// addresses.  A hierarchical category naming scheme is assumed that
+// /// employs the specified `delimiter` to separate the components of
+// /// category names.  Return 0 on success, and a non-zero value
+// /// otherwise.  The behavior is undefined unless `recordLevel`,
+// /// `passLevel`, `triggerLevel`, and `triggerAllLevel` are non-null, and
+// /// `categoryName` is null-terminated.
 // static
 // int getDefaultThresholdLevels(int                        *recordLevel,
 //                               int                        *passLevel,
@@ -508,12 +508,12 @@ BSLS_IDENT("$Id: $")
 //     }
 // }
 //
-// // Obtain appropriate threshold levels for the category having the
-// // specified `categoryName`, and store the resulting values at the
-// // specified `recordLevel`, `passLevel`, `triggerLevel`, and
-// // `triggerAllLevel` addresses.  The behavior is undefined unless
-// // `recordLevel`, `passLevel`, `triggerLevel`, and `triggerAllLevel`
-// // are non-null, and `categoryName` is null-terminated.
+// /// Obtain appropriate threshold levels for the category having the
+// /// specified `categoryName`, and store the resulting values at the
+// /// specified `recordLevel`, `passLevel`, `triggerLevel`, and
+// /// `triggerAllLevel` addresses.  The behavior is undefined unless
+// /// `recordLevel`, `passLevel`, `triggerLevel`, and `triggerAllLevel`
+// /// are non-null, and `categoryName` is null-terminated.
 // static
 // void inheritThresholdLevels(int        *recordLevel,
 //                             int        *passLevel,

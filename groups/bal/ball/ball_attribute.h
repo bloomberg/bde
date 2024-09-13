@@ -271,8 +271,8 @@ class Attribute {
     Attribute(const Attribute&      original,
               const allocator_type& allocator = allocator_type());
 
+    /// Destroy this object.
     //! ~Attribute() = default;
-        // Destroy this attribute object.
 
     // MANIPULATORS
 

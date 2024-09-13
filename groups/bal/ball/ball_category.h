@@ -218,7 +218,7 @@ class Category {
              int               triggerAllLevel,
              bslma::Allocator *basicAllocator = 0);
 
-    /// Destroy this category.
+    /// Destroy this object.
     //! ~Category() = default;
 
     // MANIPULATORS

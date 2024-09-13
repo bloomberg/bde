@@ -141,7 +141,7 @@ class ScopedAttribute_Container : public AttributeContainer {
                         const void              *value,
                         const allocator_type&    allocator = allocator_type());
 
-    /// Destroy this object;
+    /// Destroy this object.
     ~ScopedAttribute_Container() BSLS_KEYWORD_OVERRIDE;
 
     // ACCESSORS

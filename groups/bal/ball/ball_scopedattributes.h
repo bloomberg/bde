@@ -90,10 +90,10 @@ namespace ball {
                         // class ScopedAttributes
                         // ======================
 
-/// This class installs a `AttributeContainer` object in the current
-/// attribute context on construction, and removes it on destruction.  Note
-/// that the `AttributeContainer` supplied at construction must remain valid
-/// and *unmodified* for the lifetime of this object.
+/// This class installs a `AttributeContainer` object in the current attribute
+/// context on construction, and removes it on destruction.  Note that the
+/// `AttributeContainer` supplied at construction must remain valid and
+/// **unmodified** for the lifetime of this object.
 class ScopedAttributes {
 
     // DATA
@@ -106,9 +106,9 @@ class ScopedAttributes {
   public:
     // CREATORS
 
-    /// Create a `ScopedAttributes` object having the specified
-    /// `attributes`.  Note that `attributes` must remain valid and
-    /// *unmodified* for the lifetime of this object.
+    /// Create a `ScopedAttributes` object having the specified `attributes`.
+    /// Note that `attributes` must remain valid and **unmodified** for the
+    /// lifetime of this object.
     ScopedAttributes(const AttributeContainer *attributes);
 
     /// Remove the associated attributes from the current attribute context.

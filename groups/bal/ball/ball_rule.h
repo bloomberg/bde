@@ -263,8 +263,8 @@ class Rule {
     /// **DEPRECATED**: Use `hasAttribute` instead.
     bool hasPredicate(const Predicate& value) const;
 
-    /// Return an iterator referring to the first member of the attribute
-    /// set maintained by this object.
+    /// Return an iterator referring to the first member of the attribute set
+    /// maintained by this object.
     ManagedAttributeSet::const_iterator begin() const;
 
     /// Return an iterator referring to one past the last member of the
@@ -321,8 +321,8 @@ bool operator==(const Rule& lhs, const Rule& rhs);
 /// of the four respective threshold levels, or different patterns.
 bool operator!=(const Rule& lhs, const Rule& rhs);
 
-/// Write the value of the specified `rule` to the specified `output`
-/// stream.  Return the specified `output` stream.
+/// Write the value of the specified `rule` to the specified `output` stream.
+/// Return the specified `output` stream.
 bsl::ostream& operator<<(bsl::ostream& output, const Rule& rule);
 
 // ============================================================================

@@ -129,7 +129,7 @@ namespace ball {
 /// no guarantee of rollback: If an exception is thrown during the
 /// invocation of a method on a pre-existing instance, the object is left in
 /// a valid state, but its value is undefined.  In no event is memory
-/// leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+/// leaked.  Finally, **aliasing** (e.g., using all or part of an object as
 /// both source and destination) is supported in all cases.
 class Record {
 
@@ -153,9 +153,9 @@ class Record {
   public:
     // CLASS METHODS
 
-    /// Destroy the specified `*object` and use the allocator held by
-    /// `*object` to deallocate its memory footprint.  The behavior is
-    /// undefined unless `object` is the address of a valid log record.
+    /// Destroy the specified `*object` and use the allocator held by `*object`
+    /// to deallocate its memory footprint.  The behavior is undefined unless
+    /// `object` is the address of a valid log record.
     static void deleteObject(const Record *object);
 
     // TRAITS
@@ -163,34 +163,34 @@ class Record {
 
     // CREATORS
 
-    /// Create a log record having default values for its fixed fields and
-    /// its user-defined fields.  Optionally specify a `basicAllocator` used
-    /// to supply memory.  If `basicAllocator` is 0, the currently installed
+    /// Create a log record having default values for its fixed fields and its
+    /// user-defined fields.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
     /// default allocator is used.
     explicit Record(bslma::Allocator *basicAllocator = 0);
 
-    /// Create a log record with fixed fields having the value of the
-    /// specified `fixedFields` and user-defined fields having the value of
-    /// the specified `userFields`.  Optionally specify a `basicAllocator`
-    /// used to supply memory.  If `basicAllocator` is 0, the currently
-    /// installed default allocator is used.
+    /// Create a log record with fixed fields having the value of the specified
+    /// `fixedFields` and user-defined fields having the value of the specified
+    /// `userFields`.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.
     Record(const RecordAttributes&  fixedFields,
            const UserFields&        userFields,
            bslma::Allocator        *basicAllocator = 0);
 
     /// Create a log record having the value of the specified `original` log
-    /// record.  Optionally specify a `basicAllocator` used to supply
-    /// memory.  If `basicAllocator` is 0, the currently installed default
-    /// allocator is used.
+    /// record.  Optionally specify a `basicAllocator` used to supply memory.
+    /// If `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     Record(const Record& original, bslma::Allocator *basicAllocator = 0);
 
-    /// Destroy this log record.
+    /// Destroy this object.
     //! ~Record() = default;
 
     // MANIPULATORS
 
-    /// Assign to this log record the value of the specified `rhs` log
-    /// record and return the reference to this modifiable record.
+    /// Assign to this log record the value of the specified `rhs` log record
+    /// and return the reference to this modifiable record.
     Record& operator=(const Record& rhs);
 
     /// Clear this log record by removing the user fields, attributes, and
@@ -209,14 +209,16 @@ class Record {
     /// specified `fixedFields`.
     void setFixedFields(const RecordAttributes& fixedFields);
 
-    /// **DEPRECATED**: Use log record attributes.
     /// Set the custom user-defined fields of this log record to the value
     /// of the specified `userFields`.
+    ///
+    /// **DEPRECATED**: Use log record attributes.
     void setCustomFields(const ball::UserFields& userFields);
 
-    /// **DEPRECATED**: Use log record attributes.
     /// Return a reference providing modifiable access to the custom
     /// user-defined fields of this log record.
+    ///
+    /// **DEPRECATED**: Use log record attributes.
     ball::UserFields& customFields();
 
     // ACCESSORS
@@ -224,9 +226,10 @@ class Record {
     /// Return the non-modifiable fixed fields of this log record.
     const RecordAttributes& fixedFields() const;
 
-    /// **DEPRECATED**: Use log record attributes.
     /// Return a reference providing non-modifiable access to the custom
     /// user-defined fields of this log record.
+    ///
+    /// **DEPRECATED**: Use log record attributes.
     const ball::UserFields& customFields() const;
 
     /// Return a reference providing non-modifiable access to the attributes
@@ -256,15 +259,15 @@ class Record {
 // FREE OPERATORS
 
 /// Return `true` if the specified `lhs` and `rhs` log records have the same
-/// value, and `false` otherwise.  Two log records have the same value if
-/// the respective fixed fields have the same value and the respective
-/// user-defined fields have the same value.
+/// value, and `false` otherwise.  Two log records have the same value if the
+/// respective fixed fields have the same value and the respective user-defined
+/// fields have the same value.
 bool operator==(const Record& lhs, const Record& rhs);
 
-/// Return `true` if the specified `lhs` and `rhs` log records do not have
-/// the same value, and `false` otherwise.  Two log records do not have the
-/// same value if either the respective fixed fields or user-defined fields
-/// do not have the same value.
+/// Return `true` if the specified `lhs` and `rhs` log records do not have the
+/// same value, and `false` otherwise.  Two log records do not have the same
+/// value if either the respective fixed fields or user-defined fields do not
+/// have the same value.
 bool operator!=(const Record& lhs, const Record& rhs);
 
 /// Format the members of the specified `record` to the specified output

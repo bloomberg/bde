@@ -162,7 +162,7 @@ class FilteringObserver : public Observer {
                       const RecordFilterCallback&       recordFilterCallback,
                       bslma::Allocator                 *basicAllocator = 0);
 
-    /// Destroy this filtering observer.
+    /// Destroy this object.
     ~FilteringObserver() BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS

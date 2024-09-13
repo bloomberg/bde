@@ -110,7 +110,7 @@ class ThresholdAggregate {
     ThresholdAggregate(const ThresholdAggregate& original);
 
     /// Destroy this object.
-    //! ~ThresholdAggregate();
+    //! ~ThresholdAggregate() = default;
 
     // MANIPULATORS
 

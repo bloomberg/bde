@@ -181,10 +181,9 @@ namespace ball {
                         // class CategoryManager
                         // =====================
 
-/// This class manages a set (or "registry") of categories.  Categories may
-/// be added to the registry, but they cannot be removed.  However, the
-/// threshold levels of existing categories may be accessed and modified
-/// directly.
+/// This class manages a set (or "registry") of categories.  Categories may be
+/// added to the registry, but they cannot be removed.  However, the threshold
+/// levels of existing categories may be accessed and modified directly.
 class CategoryManager {
 
     // PRIVATE TYPES

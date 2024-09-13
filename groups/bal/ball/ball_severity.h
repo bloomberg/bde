@@ -189,8 +189,8 @@ struct Severity {
                          const char      *string,
                          int              stringLength);
 
-    /// Return the string representation exactly matching the enumerator
-    /// name corresponding to the specified enumeration `value`.
+    /// Return the string representation exactly matching the enumerator name
+    /// corresponding to the specified enumeration `value`.
     static const char *toAscii(Severity::Level value);
 
     /// Format the specified `value` to the specified output `stream` and

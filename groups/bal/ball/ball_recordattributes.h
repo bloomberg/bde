@@ -301,7 +301,7 @@ class RecordAttributes {
     RecordAttributes(const RecordAttributes&  original,
                      bslma::Allocator        *basicAllocator = 0);
 
-    /// Destroy this record attributes object.
+    /// Destroy this object.
     //! ~RecordAttributes() = default;
 
     // MANIPULATORS

@@ -128,7 +128,7 @@ class RuleSet {
   private:
     // PRIVATE TYPES
 
-    /// hash functor for `Rule`
+    /// Hash functor for `Rule`.
     struct RuleHash {
 
       private:
@@ -203,7 +203,7 @@ class RuleSet {
     /// installed default allocator will be used.
     RuleSet(const RuleSet& original, bslma::Allocator *basicAllocator = 0);
 
-    /// Destroy this rule set.
+    /// Destroy this object.
     //! ~RuleSet() = default;
 
     // MANIPULATOR

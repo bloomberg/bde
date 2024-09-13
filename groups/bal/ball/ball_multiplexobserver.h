@@ -177,8 +177,8 @@ class MultiplexObserver : public Observer {
     explicit MultiplexObserver(bslma::Allocator *basicAllocator = 0);
 
     /// Destroy this multiplexing observer.  Note that this method has no
-    /// effect on the lifetime of observers registered with this observer,
-    /// if any.
+    /// effect on the lifetime of observers registered with this observer, if
+    /// any.
     ~MultiplexObserver() BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS
