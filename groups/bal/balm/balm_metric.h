@@ -274,9 +274,8 @@ class Metric {
     /// inactive.
     Metric(const Metric& original);
 
-    // ~Metric();
-        // Destroy this metric.  Note that this trivial destructor is generated
-        // by the compiler.
+    /// Destroy this object.
+    //! ~Metric();
 
     // MANIPULATORS
 

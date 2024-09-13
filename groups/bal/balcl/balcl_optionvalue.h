@@ -487,8 +487,8 @@ class OptionValue {
     OptionValue(const OptionValue&  original,
                 bslma::Allocator   *basicAllocator = 0);
 
+    /// Destroy this object.
     //! ~OptionValue() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

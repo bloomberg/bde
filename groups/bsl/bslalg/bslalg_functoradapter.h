@@ -68,7 +68,7 @@ BSLS_IDENT("$Id: $")
 //     Bind2ndInteger(int value, const BINARY_PREDICATE& predicate);
 //
 //     /// Destroy this object.
-//     // ~Bind2ndInteger() = default;
+//     //! ~Bind2ndInteger() = default;
 //
 //     // ACCESSORS
 //
@@ -207,9 +207,9 @@ class FunctorAdapter<FUNCTION*> {
   public:
     // PUBLIC TYPES
 
-    /// This `typedef` is an alias for a functor that delegates to the
-    /// function referred to by the function pointer matching the
-    /// parameterized `FUNCTION` type.
+    /// This `typedef` is an alias for a functor that delegates to the function
+    /// referred to by the function pointer matching the parameterized
+    /// `FUNCTION` type.
     typedef FunctorAdapter_FunctionPointer<FUNCTION*> Type;
 };
 

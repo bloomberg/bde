@@ -440,9 +440,8 @@ class bdlat_SymbolicConverter_Imp {
     /// Create the imp object.
     bdlat_SymbolicConverter_Imp(bsl::ostream *errorStream);
 
-    // ~bdlat_SymbolicConverter_Imp();
-        // Destroy this object.  Note that this trivial destructor is generated
-        // by the compiler.
+    /// Destroy this object.
+    //! ~bdlat_SymbolicConverter_Imp() = default;
 
     // MANIPULATORS
 

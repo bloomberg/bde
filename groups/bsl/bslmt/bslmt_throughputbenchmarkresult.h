@@ -183,7 +183,7 @@ class ThroughputBenchmarkResult {
                  bslma::Allocator                             *basicAllocator);
 
     /// Destroy this object.
-    // ~ThroughputBenchmarkResult() = default;
+    //! ~ThroughputBenchmarkResult() = default;
 
     // MANIPULATORS
 
@@ -321,7 +321,8 @@ class ThroughputBenchmarkResult_TestUtil {
     explicit ThroughputBenchmarkResult_TestUtil(
                                               ThroughputBenchmarkResult& data);
 
-    // ~ThroughputBenchmarkResult_TestUtil() = default; Destroy this object.
+    /// Destroy this object.
+    //! ~ThroughputBenchmarkResult_TestUtil() = default;
 
     // MANIPULATORS
 

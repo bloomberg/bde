@@ -219,18 +219,18 @@ class MetricRecord {
                  double          min,
                  double          max);
 
-    // MetricRecord(const MetricRecord& original) = default;
-        // Create a metric record having the value of the specified 'original'
-        // record.
+    /// Create a metric record having the value of the specified 'original'
+    /// record.
+    //! MetricRecord(const MetricRecord& original) = default;
 
-    // ~MetricRecord();
-        // Destroy this object.  Note that this trivial destructor is generated
-        // by the compiler.
+    /// Destroy this object.
+    //! ~MetricRecord() = default;
 
     // MANIPULATORS
-    // MetricRecord& operator=(const MetricRecord& rhs) = default;
-        // Assign to this metric record the value of the specified 'rhs'
-        // record, and return a reference to this modifiable record.
+
+    /// Assign to this metric record the value of the specified 'rhs' record,
+    /// and return a reference to this modifiable record.
+    //! MetricRecord& operator=(const MetricRecord& rhs) = default;
 
     /// Return a reference to the modifiable `metricId` attribute
     /// representing the identifier for the metric being recorded.

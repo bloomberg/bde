@@ -97,35 +97,38 @@ BSLS_IDENT("$Id: $")
 //
 // First, we declare the `class`:
 // ```
+// /// A pretend GUI button.
 // class Button {
-//     // A pretend GUI button.
 //
 //     // DATA
 //     int d_numPresses;
 //
 //   public:
 //     // TYPES
+//
+//     /// Slot argument is the number of times the button has been pressed.
 //     typedef bsl::function<void(int)> OnPressSlotType;
-//         // Slot argument is the number of times the button has been
-//         // pressed.
 //
 //   private:
 //     // PRIVATE DATA
+//
+//     /// Signaler argument is the number of times the button has been
+//     /// pressed.
 //     bdlmt::Signaler<void(int)> d_onPress;
-//         // Signaler argument is the number of times the button has been
-//         // pressed.
 //
 //   public:
 //     // CREATORS
+//
+//     /// Construct a `Button` object.
 //     Button();
-//         // Construct a 'Button' object.
 //
 //     // MANIPULATORS
-//     bdlmt::SignalerConnection onPressConnect(const OnPressSlotType& slot);
-//         // Connect the specified 'slot' to this button.
 //
+//     /// Connect the specified `slot` to this button.
+//     bdlmt::SignalerConnection onPressConnect(const OnPressSlotType& slot);
+//
+//     /// Simulate user pressing on GUI button.
 //     void press();
-//         // Simulate user pressing on GUI button.
 // };
 // ```
 // Then, we define its methods:
@@ -692,8 +695,8 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
                     SlotMapKey                                 slotMapKey,
                     bslma::Allocator                          *allocator);
 
-    // ~Signaler_SlotNode() = default;
-        // Destroy this object.
+    /// Destroy this object.
+    //! ~Signaler_SlotNode() = default;
 
   public:
     // MANIPULATOR

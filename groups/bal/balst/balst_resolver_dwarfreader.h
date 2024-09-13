@@ -389,18 +389,19 @@ class Resolver_DwarfReader {
 
   private:
     // PRIVATE MANIPULATORS
-    int needBytes(bsl::size_t numBytes);
-        // Determine if we are able to read the specified 'numBytes' from
-        // 'd_buffer'.  If not, 'reload' is used to attempt to accomodate this
-        // 'needBytes' request.  Return 0 if we are able to read 'numBytes'
-        // from 'd_buffer' after this invocation of 'needBytes', and a non-zero
-        // value otherwise.
 
+    /// Determine if we are able to read the specified `numBytes` from
+    /// `d_buffer`.  If not, `reload` is used to attempt to accomodate this
+    /// `needBytes` request.  Return 0 if we are able to read `numBytes`
+    /// from `d_buffer` after this invocation of `needBytes`, and a non-zero
+    /// value otherwise.
+    int needBytes(bsl::size_t numBytes);
+
+    /// Reload the buffer to accomodate a read of at least the specified
+    /// `numBytes`.  If possible, read up to the end of the section or the
+    /// size of the buffer, whichever is shorter.  Return 0 on success, and
+    /// a non-zero value otherwise.
     int reload(bsl::size_t numBytes);
-        // Reload the buffer to accomodate a read of at least the specified
-        // 'numBytes'.  If possible, read up to the end of the section or the
-        // size of the buffer, whichever is shorter.  Return 0 on success, and
-        // a non-zero value otherwise.
 
   public:
     // CLASS METHODS
@@ -434,160 +435,161 @@ class Resolver_DwarfReader {
         // Return the string equivalent of the specified 'e_DW_TAG_*' 'tag'.
 
     // CREATORS
-    Resolver_DwarfReader();
-        // Create a 'Reader' object in a null state.
 
-    // ~Resolver_DwarfReader() = default;
+    /// Create a `Reader` object in a null state.
+    Resolver_DwarfReader();
+
+    /// Destroy this object.
+    //! ~Resolver_DwarfReader() = default;
 
     // MANIPULATORS
-    void disable();
-        // Disable this object for further use.
 
+    /// Disable this object for further use.
+    void disable();
+
+    /// Initialize this `Reader` object using the specified `fileHelper` and
+    /// the specified `buffer`, to operate on the specified `section`, where
+    /// the specified `libraryFileSize` is the size of the library or
+    /// executable file.  `buffer` is assumed to be at least
+    /// `k_SCRATCH_BUF_LEN` long.
     int init(balst::Resolver_FileHelper *fileHelper,
              char                       *buffer,
              const Section&              section,
              Offset                      libraryFileSize);
-        // Initialize this 'Reader' object using the specified 'fileHelper' and
-        // the specified 'buffer', to operate on the specified 'section', where
-        // the specified 'libraryFileSize' is the size of the library or
-        // executable file.  'buffer' is assumed to be at least
-        // 'k_SCRATCH_BUF_LEN' long.
 
+    /// Read to the specified `dst`.  This function will fail if
+    /// `d_addressSize` has not been initialized by `readAddressSize` or
+    /// `setAddressSize`.  Return 0 on success and a non-zero value
+    /// otherwise.
     int readAddress(UintPtr *dst);
-        // Read to the specified 'dst'.  This function will fail if
-        // 'd_addressSize' has not been initialized by 'readAddressSize' or
-        // 'setAddressSize'.  Return 0 on success and a non-zero value
-        // otherwise.
 
+    /// Read to the specified `dst` according to the specified `form`.
+    /// Return 0 on success and a non-zero value otherwise.
     int readAddress(UintPtr *dst, unsigned form);
-        // Read to the specified 'dst' according to the specified 'form'.
-        // Return 0 on success and a non-zero value otherwise.
 
+    /// Read the address size from a single unsigned byte, check it, and
+    /// assign `d_addressSize` to it.  Return 0 on success and a non-zero
+    /// value otherwise.  It is an error if address size is not equal to the
+    /// size of an `unsigned int` or of a `void *`.
     int readAddressSize();
-        // Read the address size from a single unsigned byte, check it, and
-        // assign 'd_addressSize' to it.  Return 0 on success and a non-zero
-        // value otherwise.  It is an error if address size is not equal to the
-        // size of an 'unsigned int' or of a 'void *'.
 
+    /// Read the initial length of the object according to the DWARF
+    /// specification to the specified `*dst`, which is an 8-byte value.
+    /// Read `*dst` first as a 4 byte value, setting the high-order 4 bytes
+    /// to 0, and if the value is below 0xfffffff0, then that indicates that
+    /// section offsets are to be read as 4 byte values within the object
+    /// whose length is specified.  If the value is 0xffffffff, read the
+    /// next 8 bytes into `*dst` and that indicates that section offsets are
+    /// to be 8 bytes within the object whose length is specified.
+    /// Initialize `d_offsetSize` accordingly.  Values in the range
+    /// `[0xfffffff0, 0xffffffff)` are illegal for that first 4 bytes.
+    /// Return 0 on success and a non-zero value otherwise.  Note that when
+    /// we read a 4-byte value, we do not extend sign to the high order 4
+    /// bytes of `*dst`.
     int readInitialLength(Offset *dst);
-        // Read the initial length of the object according to the DWARF
-        // specification to the specified '*dst', which is an 8-byte value.
-        // Read '*dst' first as a 4 byte value, setting the high-order 4 bytes
-        // to 0, and if the value is below 0xfffffff0, then that indicates that
-        // section offsets are to be read as 4 byte values within the object
-        // whose length is specified.  If the value is 0xffffffff, read the
-        // next 8 bytes into '*dst' and that indicates that section offsets are
-        // to be 8 bytes within the object whose length is specified.
-        // Initialize 'd_offsetSize' accordingly.  Values in the range
-        // '[0xfffffff0, 0xffffffff)' are illegal for that first 4 bytes.
-        // Return 0 on success and a non-zero value otherwise.  Note that when
-        // we read a 4-byte value, we do not extend sign to the high order 4
-        // bytes of '*dst'.
 
+    /// Read a signed, variable-length number into the specified `*dst`.
+    /// Return 0 on success and a non-zero value otherwise.
     template <class TYPE>
     int readLEB128(TYPE *dst);
-        // Read a signed, variable-length number into the specified '*dst'.
-        // Return 0 on success and a non-zero value otherwise.
 
+    /// Read an unsigned, variable-length number into the specified `*dst`.
+    /// Return 0 on success and a non-zero value otherwise.
     template <class TYPE>
     int readULEB128(TYPE *dst);
-        // Read an unsigned, variable-length number into the specified '*dst'.
-        // Return 0 on success and a non-zero value otherwise.
 
+    /// Read to the specified `*dst`, where the specified `offsetSize` is the
+    /// number of low-order bytes to be read into the offset, where `*dst` is 8
+    /// bytes, and extra high-order bytes are to be set to 0.  Do not extend
+    /// sign.  Return 0 on success and a non-zero value otherwise.
     int readOffset(Offset      *dst,
                    bsl::size_t  offsetSize);
-        // Read to the specified '*dst', where the specified 'offsetSize' is
-        // the number of low-order bytes to be read into the offset, where
-        // '*dst' is 8 bytes, and extra high-order bytes are to be set to 0.
-        // Do not extend sign.  Return 0 on success and a non-zero value
-        // otherwise.
 
+    /// Read to the specified `*dst` according to the specified `form`, where
+    /// `form` is a DWARF enum of the `e_DW_FORM_*` category.  Return 0 on
+    /// success and a non-zero value otherwise.
     int readOffsetFromForm(Offset   *dst,
                            unsigned  form);
-        // Read to the specified '*dst' according to the specified 'form',
-        // where 'form' is a DWARF enum of the 'e_DW_FORM_*' category.  Return
-        // 0 on success and a non-zero value otherwise.
 
+    /// Read to the specified offset `*dst` according to `d_offsetSize`.
+    /// Return 0 on success and a non-zero value otherwise.  Note that when
+    /// the offset read is only 4 bytes, no sign extension takes place as
+    /// we always expect a positive result.
     int readSectionOffset(Offset *dst);
-        // Read to the specified offset '*dst' according to 'd_offsetSize'.
-        // Return 0 on success and a non-zero value otherwise.  Note that when
-        // the offset read is only 4 bytes, no sign extension takes place as
-        // we always expect a positive result.
 
+    /// Read a null-terminated string to the specified `*dst`.  If no `dst`
+    /// is specified, skip over the string without copying it.  This
+    /// function will fail if the string length is greater than
+    /// `k_SCRATCH_BUFFER_LEN - 1`.
     int readString(bsl::string *dst = 0);
-        // Read a null-terminated string to the specified '*dst'.  If no 'dst'
-        // is specified, skip over the string without copying it.  This
-        // function will fail if the string length is greater than
-        // 'k_SCRATCH_BUFFER_LEN - 1'.
 
+    /// Read a null terminated string to the specified `*dst` from the
+    /// specified `offset` plus `d_beginOffset`.  Note that, unlike most of
+    /// the other `read` functions, this one is intended for random access
+    /// so does not read a full buffer ahead, instead reading a fairly
+    /// minimal amount of data near the specified location.
     int readStringAt(bsl::string *dst, Offset offset);
-        // Read a null terminated string to the specified '*dst' from the
-        // specified 'offset' plus 'd_beginOffset'.  Note that, unlike most of
-        // the other 'read' functions, this one is intended for random access
-        // so does not read a full buffer ahead, instead reading a fairly
-        // minimal amount of data near the specified location.
 
+    /// Read to the specified string either from the current reader (if the
+    /// specified `form` is `e_DW_FORM_string`) or read an offset from the
+    /// current reader, then use that to read the string either from the
+    /// specified `*strReader` (if `form` is `e_DW_FORM_strp`) or from the
+    /// specified `*lineStrReader` (if `form` is `e_DW_FORM_line_strp`).
+    /// Return 0 on success and a non-zero value otherwise.
     int readStringFromForm(bsl::string          *dst,
                            Resolver_DwarfReader *strReader,
                            Resolver_DwarfReader *lineStrReader,
                            unsigned              form);
-        // Read to the specified string either from the current reader (if the
-        // specified 'form' is 'e_DW_FORM_string') or read an offset from the
-        // current reader, then use that to read the string either from the
-        // specified '*strReader' (if 'form' is 'e_DW_FORM_strp') or from the
-        // specified '*lineStrReader' (if 'form' is 'e_DW_FORM_line_strp').
-        // Return 0 on success and a non-zero value otherwise.
 
+    /// Read a value into the specified `*dst`, assuming that it is represented
+    /// by `sizeof(*dst)` bytes.
     template <class TYPE>
     int readValue(TYPE *dst);
-        // Read a value into the specified '*dst', assuming that it is
-        // represented by 'sizeof(*dst)' bytes.
 
+    /// Explicitly set the `d_addressSize` of this reader to the specified
+    /// `size`.  This function will fail unless the size is the
+    /// `sizeof(unsigned) == size` or `sizeof(UintPtr) == size`.
     int setAddressSize(unsigned size);
-        // Explicitly set the 'd_addressSize' of this reader to the specified
-        // 'size'.  This function will fail unless the size is the
-        // 'sizeof(unsigned) == size' or 'sizeof(UintPtr) == size'.
 
+    /// Set the end offset to the specified `newOffset`.
     int setEndOffset(Offset newOffset);
-        // Set the end offset to the specified 'newOffset'.
 
+    /// Skip forward over the specified `bytes` without reading them.
     int skipBytes(Offset bytes);
-        // Skip forward over the specified 'bytes' without reading them.
 
+    /// Skip over a null terminated string without copying it.
     int skipString();
-        // Skip over a null terminated string without copying it.
 
+    /// Skip over data according to the specified `form`, which is an enum
+    /// of type `e_DW_FORM_*`.
     int skipForm(unsigned form);
-        // Skip over data according to the specified 'form', which is an enum
-        // of type 'e_DW_FORM_*'.
 
+    /// Skip to the specified `offset`, which must be in the section associated
+    /// with this reader.  Return 0 on success and a non-zero value otherwise.
     int skipTo(Offset offset);
-        // Skip to the specified 'offset', which must be in the section
-        // associated with this reader.  Return 0 on success and a non-zero
-        // value otherwise.
 
+    /// Skip a variable-length integer.  Note this will work for both
+    /// LEB128's and ULEB128's.
     int skipULEB128();
-        // Skip a variable-length integer.  Note this will work for both
-        // LEB128's and ULEB128's.
 
     // ACCESSORS
+
+    /// Return the address size field.
     int addressSize() const;
-        // Return the address size field.
 
+    /// Return `true` if the reader has reached the end of the section and
+    /// `false` otherwise.
     bool atEndOfSection() const;
-        // Return 'true' if the reader has reached the end of the section and
-        // 'false' otherwise.
 
+    /// Return the current offset taking the `d_reader` position into account.
     Offset offset() const;
-        // Return the current offset taking the 'd_reader' position into
-        // account.
 
+    /// Return the offset length that was set by the `readInitialLength`
+    /// function.
     Offset offsetSize() const;
-        // Return the offset length that was set by the 'readInitialLength'
-        // function.
 
+    /// Return `false` if this reader is disabled and `true` otherwise.
     bool isEnabled() const;
-        // Return 'false' if this reader is disabled and 'true' otherwise.
 };
 
 // PRIVATE MANIPULATORS

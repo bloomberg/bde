@@ -185,17 +185,17 @@ class FastPostSemaphoreImpl {
         e_FAILED      = -4   // indicates failure reported from condition
     };
 
-    // The following constants are used to maintain the semaphore's 'd_state'
+    // The following constants are used to maintain the semaphore`s `d_state`
     // attribute values for:
-    //: o number of threads blocked,
-    //: o generation count for tracking enabled/disabled,
-    //: o and available count.
+    // * number of threads blocked,
+    // * generation count for tracking enabled/disabled,
+    // * and available count.
     //
-    // The 'k_*_MASK' constants define the layout of the attributes, the
-    // 'k_*_INC' constants are used to modify the 'd_state' attributes, and the
-    // 'k_*_SHIFT' constants allow recovery of the stored value.
+    // The `k_*_MASK` constants define the layout of the attributes, the
+    // `k_*_INC` constants are used to modify the `d_state` attributes, and the
+    // `k_*_SHIFT` constants allow recovery of the stored value.
     //
-    // See *Implementation* *Note* for further details.  These are 'public' to
+    // See **Implementation Note** for further details.  These are `public` to
     // ease testing.
 
     static const Int64 k_BLOCKED_INC        = 0x0000000000000001LL;
@@ -209,12 +209,12 @@ class FastPostSemaphoreImpl {
 
     // CREATORS
 
-    /// Create a `FastPostSemaphoreImpl` object initially having a count of
-    /// 0.  Optionally specify a `clockType` indicating the type of the
-    /// system clock against which the `bsls::TimeInterval` `absTime`
-    /// timeouts passed to the `timedWait` method are to be interpreted (see
-    /// {Supported Clock-Types} in the component-level documentation).  If
-    /// `clockType` is not specified then the realtime system clock is used.
+    /// Create a `FastPostSemaphoreImpl` object initially having a count of 0.
+    /// Optionally specify a `clockType` indicating the type of the system
+    /// clock against which the `bsls::TimeInterval` `absTime` timeouts passed
+    /// to the `timedWait` method are to be interpreted (see
+    /// [](#Supported Clock-Types)).  If `clockType` is not specified then the
+    /// realtime system clock is used.
     explicit
     FastPostSemaphoreImpl(
     bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
@@ -223,16 +223,15 @@ class FastPostSemaphoreImpl {
     /// specified `count`.  Optionally specify a `clockType` indicating the
     /// type of the system clock against which the `bsls::TimeInterval`
     /// `absTime` timeouts passed to the `timedWait` method are to be
-    /// interpreted (see {Supported Clock-Types} in the component
-    /// documentation).  If `clockType` is not specified then the realtime
-    /// system clock is used.
+    /// interpreted (see [](#Supported Clock-Types)).  If `clockType` is not
+    /// specified then the realtime system clock is used.
     explicit
     FastPostSemaphoreImpl(
     int                         count,
     bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
 
-    // ~FastPostSemaphoreImpl() = default;
-        // Destroy this object.
+    /// Destroy this object.
+    //! ~FastPostSemaphoreImpl() = default;
 
     // MANIPULATORS
 

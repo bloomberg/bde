@@ -268,8 +268,8 @@ class Formatter {
               int               spacesPerLevel     = 0,
               bslma::Allocator *basicAllocator     = 0);
 
+    /// Destroy this object.
     //! ~Formatter() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

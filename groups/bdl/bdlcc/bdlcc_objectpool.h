@@ -856,7 +856,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
                int               growBy = -1,
                bslma::Allocator *basicAllocator = 0);
 
-    /// @DEPRECATED Use a creator of the parameterized `CREATOR` type.
+    /// @DEPRECATED: Use a creator of the parameterized `CREATOR` type.
     template <class ANYPROTO>
     explicit
     ObjectPool(const bsl::function<ANYPROTO>&  objectCreator,

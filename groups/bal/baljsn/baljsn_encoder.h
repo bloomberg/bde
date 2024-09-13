@@ -201,8 +201,8 @@ class Encoder {
     /// default allocator is used.
     explicit Encoder(bslma::Allocator *basicAllocator = 0);
 
+    /// Destroy this object.
     //! ~Encoder() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 

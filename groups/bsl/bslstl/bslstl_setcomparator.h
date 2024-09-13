@@ -160,10 +160,10 @@ class SetComparator : private bslalg::FunctorAdapter<COMPARATOR>::Type {
 
     /// Create a `SapComparator` object with the `COMPARATOR` object of the
     /// specified `original` object.
-    // SetComparator(const SetComparator&) = default;
+    //! SetComparator(const SetComparator&) = default;
 
     /// Destroy this object.
-    // ~SapComparator() = default;
+    //! ~SapComparator() = default;
 
     // MANIPULATORS
 

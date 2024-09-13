@@ -319,9 +319,8 @@ class MemFn {
     /// same member function as the specified `original` object.
     MemFn(const MemFn<PROTOTYPE>& original);
 
-    // ~MemFn();
-        // Destroy this object.  Note that this trivial destructor is generated
-        // by the compiler.
+    /// Destroy this object.
+    //! ~MemFn() = default;
 
     // ACCESSORS
 
@@ -800,7 +799,7 @@ class MemFnInstance {
     /// `ProtoType` is an alias for the parameterized `PROTOTYPE` passed as
     /// a template argument to this wrapper.
     ///
-    /// *DEPRECATED*: Use `Prototype` instead.
+    /// @DEPRECATED: Use `Prototype` instead.
     typedef PROTOTYPE                     ProtoType;
 
     typedef MemFn_Dereference<ObjectType> Deref;

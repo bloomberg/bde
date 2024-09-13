@@ -95,12 +95,12 @@ BSLS_IDENT("$Id: $")
 // ```
 // // my_genericcontainer.hpp                                        -*-C++-*-
 //
+// /// This generic container type contains a single object, always
+// /// initialized, which can be replaced and accessed.  This container
+// /// always takes an allocator argument and thus follows the
+// /// `bslalg::TypeTraitUsesBslmaAllocator` protocol.
 // template <class TYPE>
 // class MyGenericContainer {
-//     // This generic container type contains a single object, always
-//     // initialized, which can be replaced and accessed.  This container
-//     // always takes an allocator argument and thus follows the
-//     // 'bslalg::TypeTraitUsesBslmaAllocator' protocol.
 //
 //     // PRIVATE DATA MEMBERS
 //     bsls::ObjectBuffer<TYPE> d_object;
@@ -118,21 +118,22 @@ BSLS_IDENT("$Id: $")
 // require that an element always be initialized.
 // ```
 // // CREATORS
+//
+// /// Create a container containing the specified `object`, using the
+// /// optionally specified `allocator` to supply memory.  If `allocator`
+// /// is 0, the currently installed allocator is used.
 // explicit MyGenericContainer(const TYPE& object,
 //                             bslma::Allocator *allocator = 0);
-//     // Create a container containing the specified 'object', using the
-//     // optionally specified 'allocator' to supply memory.  If 'allocator'
-//     // is 0, the currently installed allocator is used.
 //
+// /// Create a container containing the same object as the specified
+// /// `container`, using the optionally specified `allocator` to supply
+// /// memory.  If `allocator` is 0, the currently installed allocator is
+// /// used.
 // MyGenericContainer(const MyGenericContainer&  container,
 //                    bslma::Allocator          *allocator = 0);
-//     // Create a container containing the same object as the specified
-//     // 'container', using the optionally specified 'allocator' to supply
-//     // memory.  If 'allocator' is 0, the currently installed allocator is
-//     // used.
 //
+// /// Destroy this object.
 // ~MyGenericContainer();
-//     // Destroy this container.
 // ```
 // We can also allow the container to change the object it contains, by
 // granting modifiable as well as non-modifiable access to this object:
@@ -160,17 +161,17 @@ BSLS_IDENT("$Id: $")
 // ```
 // // my_genericcontainer.cpp  i                                     -*-C++-*-
 //
+// /// This `struct` provides a namespace for utilities implementing the
+// /// allocator pass-through mechanism in a generic container.
 // struct my_GenericContainerUtil {
-//     // This 'struct' provides a namespace for utilities implementing the
-//     // allocator pass-through mechanism in a generic container.
 //
+//     /// Create a copy of the specified `value` at the specified
+//     /// `location`, using the specified `allocator` to supply memory.
 //     template <class TYPE>
 //     static void copyConstruct(TYPE             *location,
 //                               const TYPE&       value,
 //                               bslma::Allocator *allocator,
 //                               bslalg::TypeTraitUsesBslmaAllocator)
-//         // Create a copy of the specified 'value' at the specified
-//         // 'location', using the specified 'allocator' to supply memory.
 //     {
 //         new (location) TYPE(value, allocator);
 //     }
@@ -180,28 +181,28 @@ BSLS_IDENT("$Id: $")
 // `bslalg::TypeTraitUsesBslmaAllocator`.  In that case, note that the type
 // traits always inherit from `bslalg::TypeTraitNil`.
 // ```
-// template <class TYPE>
-// static void copyConstruct(TYPE             *location,
-//                           const TYPE&       value,
-//                           bslma::Allocator *allocator,
-//                           bslalg::TypeTraitNil)
-//     // Create a copy of the specified 'value' at the specified
-//     // 'location'.  Note that the specified 'allocator' is ignored.
-// {
-//     new (location) TYPE(value);
-// }
+//     /// Create a copy of the specified `value` at the specified
+//     /// `location`.  Note that the specified `allocator` is ignored.
+//     template <class TYPE>
+//     static void copyConstruct(TYPE             *location,
+//                               const TYPE&       value,
+//                               bslma::Allocator *allocator,
+//                               bslalg::TypeTraitNil)
+//     {
+//         new (location) TYPE(value);
+//     }
 // ```
 // And finally, this function will instantiate the type trait and pass it to
 // the appropriately (compiler-)chosen overload:
 // ```
+//     /// Create a copy of the specified `value` at the specified
+//     /// `location`, optionally using the specified `allocator` to supply
+//     /// memory if the parameterized `TYPE` possesses the
+//     /// `bslalg::TypeTraitUsesBslmaAllocator`.
 //     template <class TYPE>
 //     static void copyConstruct(TYPE             *location,
 //                               const TYPE&       value,
 //                               bslma::Allocator *allocator)
-//         // Create a copy of the specified 'value' at the specified
-//         // 'location', optionally using the specified 'allocator' to supply
-//         // memory if the parameterized 'TYPE' possesses the
-//         // 'bslalg::TypeTraitUsesBslmaAllocator'.
 //     {
 //         copyConstruct(
 //                location, value, allocator,
@@ -274,9 +275,9 @@ BSLS_IDENT("$Id: $")
 // ```
 // bslma::Allocator *allocSlot;
 //
+// /// Class with declared traits.  Calling copy constructor without an
+// /// allocator will compile, but will not set `allocSlot`.
 // struct MyTestTypeWithBslmaAllocatorTraits {
-//     // Class with declared traits.  Calling copy constructor without an
-//     // allocator will compile, but will not set 'allocSlot'.
 //
 //     // TRAITS
 //     BSLALG_DECLARE_NESTED_TRAITS(MyTestTypeWithBslmaAllocatorTraits,
@@ -293,11 +294,10 @@ BSLS_IDENT("$Id: $")
 //     }
 // };
 //
+// /// Class with no declared traits.  Calling copy constructor without
+// /// an allocator will not set the `allocSlot`, but passing it by mistake
+// /// will set it.
 // struct MyTestTypeWithNoBslmaAllocatorTraits {
-//     // Class with no declared traits.  Calling copy constructor without
-//     // an allocator will not set the 'allocSlot', but passing it by mistake
-//     // will set it.
-//
 //     // CREATORS
 //     MyTestTypeWithNoBslmaAllocatorTraits() {}
 //

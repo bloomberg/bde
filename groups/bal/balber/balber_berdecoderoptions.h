@@ -169,16 +169,17 @@ class BerDecoderOptions {
     /// value.
     BerDecoderOptions();
 
+    /// Create a 'BderDecoderOptons' object having the same value as the
+    /// specified 'original'.
     //! BerDecoderOptions(const BerDecoderOptions& original) = default;
-        // Create a 'BderDecoderOptons' object having the same value as the
-        // specified 'original'.
 
+    /// Destroy this object.
     //! ~BerDecoderOptions() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified 'rhs' object.
     //! BerDecoderOptions& operator=(const BerDecoderOptions& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object.
 
     /// Assign to this object the value read from the specified input
     /// `stream` using the specified `version` format, and return a

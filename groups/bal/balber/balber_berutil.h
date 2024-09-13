@@ -259,8 +259,8 @@ struct BerUtil {
                         const BerEncoderOptions *options = 0);
 };
 
-///Implementation Note
-///-------------------
+// Implementation Note
+// -------------------
 // The following utility structs used in the implementation of 'BerUtil' are
 // provided in reverse dependency order.  This means that low-level utilities
 // appear first, and higher-level utilities later.  No utility uses another
@@ -1501,19 +1501,20 @@ class BerUtil_DateAndTimeHeader {
     /// `timezoneOffsetInMinutes` attribute with the 0 value.
     BerUtil_DateAndTimeHeader();
 
+    /// Create a 'BerUtil_DateAndTimeHeader' object having the same value as
+    /// the specified 'original' object.
     //! BerUtil_DateAndTimeHeader(
-        //!               const BerUtil_DateAndTimeHeader& original) = default;
-        // Create a 'BerUtil_DateAndTimeHeader' object having the same value as
-        // the specified 'original' object.
+    //!                   const BerUtil_DateAndTimeHeader& original) = default;
 
+    /// Destroy this object.
     //! ~BerUtil_DateAndTimeHeader() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified 'rhs' object, and
+    /// return a non-'const' reference to this object.
     //! BerUtil_DateAndTimeHeader&
-        //!          operator=(const BerUtil_DateAndTimeHeader& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a non-'const' reference to this object.
+    //!              operator=(const BerUtil_DateAndTimeHeader& rhs) = default;
 
     /// Set the `type` attribute of this object to the
     /// `Type::e_NOT_EXTENDED_BINARY` value and the

@@ -900,8 +900,10 @@ using     NAMESPACE_USAGE_EXAMPLE_1::MyUser;
 }  // close namespace NAMESPACE_USAGE_EXAMPLE_2
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#if 0  // Note that usage example 3, 4 and 5 rely on both mutex and condition
-       // variable objects that have not yet been ported down to 'bsl'.
+#if 0
+// Note that usage example 3, 4 and 5 rely on both mutex and condition
+// variable objects that have not yet been ported down to 'bsl'.
+
 namespace NAMESPACE_USAGE_EXAMPLE_3 {
 //
 ///Example 3 - Custom Deleters
@@ -922,12 +924,13 @@ namespace NAMESPACE_USAGE_EXAMPLE_3 {
 
       public:
         // CREATORS
+
+        /// Create this `my_MutexUnlockAndBroadcastDeleter` object.  Use the
+        /// specified `cond` to broadcast a signal and the specified `mutex`
+        /// to serialize access to `cond`.  The behavior is undefined unless
+        /// `mutex` is not 0 and `cond` is not 0.
         my_MutexUnlockAndBroadcastDeleter(bslmt::Mutex     *mutex,
                                           bslmt::Condition *cond)
-            // Create this 'my_MutexUnlockAndBroadcastDeleter' object.  Use the
-            // specified 'cond' to broadcast a signal and the specified 'mutex'
-            // to serialize access to 'cond'.  The behavior is undefined unless
-            // 'mutex' is not 0 and 'cond' is not 0.
         : d_mutex_p(mutex)
         , d_cond_p(cond)
         {
@@ -1677,28 +1680,30 @@ struct FactoryDeleter {
     // able to require well-formedness of discarded-value expressions.
 
 #if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_DISCARDING)
+    /// Return a type that overloads the comma operator in an attempt to
+    /// catch the most awkward metaprogramming corners.  Similarly, this
+    /// method is not 'const'-qualified.
     template <class TYPE>
     const CommaTest& deleteObject(TYPE *)
-        // Return a type that overloads the comma operator in an attempt to
-        // catch the most awkward metaprogramming corners.  Similarly, this
-        // method is not 'const'-qualified.
     {
         return CommaTest::value;
     }
 #else
+    /// Do nothing.
     template <class TYPE>
     void deleteObject(TYPE *)
-        // Do nothing.
     {
     }
 #endif
 
-#if 0   // This matches current test driver expectations, but should actually
-        // be removed to provide a more interesting test case
+#if 0
+    // This matches current test driver expectations, but should actually
+    // be removed to provide a more interesting test case.
+
+    /// Return a type that overloads the comma operator in an attempt to
+    /// catch the most awkward metaprogramming corners.  Similarly, this
+    /// method is not 'const'-qualified.
     const CommaTest& deleteObject(bsl::nullptr_t)
-        // Return a type that overloads the comma operator in an attempt to
-        // catch the most awkward metaprogramming corners.  Similarly, this
-        // method is not 'const'-qualified.
     {
         return CommaTest::value;
     }
@@ -1709,8 +1714,8 @@ struct FactoryDeleter {
 template <class TYPE>
 struct TypedFactory {
 
+    /// This function has no effect.
     void deleteObject(TYPE *) const
-        // This function has no effect.
     {
     }
 };
@@ -1778,22 +1783,23 @@ class NonPolymorphicTestBaseObject {
 
   public:
     // CREATORS
+
+    /// Create a `NonPolymorphicTestBaseObject` object.  Note that the
+    /// padding bytes are deliberately never initialized.
     NonPolymorphicTestBaseObject() { (void)d_padding; }
-        // Create a 'NonPolymorphicTestBaseObject' object.  Note that the
-        // padding bytes are deliberately never initialized.
 
+    // Create a `NonPolymorphicTestBaseObject` object.  Note that this
+    // constructor does not copy the unused (and uninitialized) values of
+    // the `d_padding` bytes.
     NonPolymorphicTestBaseObject(const NonPolymorphicTestBaseObject&) {}
-        // Create a 'NonPolymorphicTestBaseObject' object.  Note that this
-        // constructor does not copy the unused (and uninitialized) values of
-        // the 'd_padding' bytes.
 
-    // ~NonPolymorphicTestBaseObject() = default;
-        // Destroy this object.  Note that this descructor is deliberately not
-        // virtual!
+    /// Destroy this object.  Note that this descructor is deliberately not
+    /// virtual!
+    //! ~NonPolymorphicTestBaseObject() = default;
 
+    /// Return a reference to `this` object.  There are no other effects.
     NonPolymorphicTestBaseObject&
     operator=(const NonPolymorphicTestBaseObject&) { return *this; }
-        // Return a reference to 'this' object.  There are no other effects.
 
 };
 
@@ -1801,10 +1807,10 @@ class NonPolymorphicTestBaseObject {
                        // class NonPolymorphicTestObject
                        // ==============================
 
+/// This class provides a non-polymorphic test object that keeps track of
+/// how many objects have been deleted.  Optionally, also keeps track of how
+/// many objects have been copied.
 class NonPolymorphicTestObject : public NonPolymorphicTestBaseObject {
-    // This class provides a non-polymorphic test object that keeps track of
-    // how many objects have been deleted.  Optionally, also keeps track of how
-    // many objects have been copied.
 
     // DATA
     bsls::Types::Int64 *d_deleteCounter_p;
@@ -1812,25 +1818,26 @@ class NonPolymorphicTestObject : public NonPolymorphicTestBaseObject {
 
   public:
     // CREATORS
+
+    /// Create a copy of the specified `original` object.
     NonPolymorphicTestObject(const NonPolymorphicTestObject& original);
-        // Create a copy of the specified 'original' object.
 
     explicit NonPolymorphicTestObject(bsls::Types::Int64 *deleteCounter,
                                       bsls::Types::Int64 *copyCounter = 0);
 
+    /// Destroy this object.  Note that this destructor is deliberately not
+    /// virtual.
     ~NonPolymorphicTestObject();
-        // Destroy this object.  Note that this destructor is deliberately not
-        // virtual.
 
     // ACCESSORS
+
+    /// Return a pointer to the counter (if any) used to track the number of
+    /// times an object of type `NonPolymorphicTestObject` has been copied.
     bsls::Types::Int64 *copyCounter() const;
-        // Return a pointer to the counter (if any) used to track the number of
-        // times an object of type 'NonPolymorphicTestObject' has been copied.
 
+    /// Return a pointer to the counter used to track the number of times an
+    /// object of type `NonPolymorphicTestObject` has been copied.
     bsls::Types::Int64 *deleteCounter() const;
-        // Return a pointer to the counter used to track the number of times an
-        // object of type 'NonPolymorphicTestObject' has been copied.
-
 };
 
                    // *** 'MyTestObject' CLASS HIERARCHY ***

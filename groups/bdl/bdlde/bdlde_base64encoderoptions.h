@@ -225,12 +225,17 @@ class Base64EncoderOptions {
     Base64EncoderOptions urlSafe(bool padded = false);
 
     // CREATORS
-    // Base64EncoderOptions(const Base64EncoderOptions&) = default;
 
-    // ~Base64EncoderOptions() = default;
+    /// Default copy constructor.
+    //! Base64EncoderOptions(const Base64EncoderOptions&) = default;
+
+    /// Destroy this object.
+    //! ~Base64EncoderOptions() = default;
 
     // MANIPULATORS
-    // Base64EncoderOptions& operator=(const Base64EncoderOptions&) = default;
+
+    /// Default operator=().
+    //! Base64EncoderOptions& operator=(const Base64EncoderOptions&) = default;
 
     /// Set the `alphabet` attribute to the specified `value`.  The behavior
     /// is undefined unless `value` is either `e_BASIC` or `e_UTL`.

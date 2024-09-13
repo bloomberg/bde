@@ -184,11 +184,10 @@ class Base64DecoderOptions {
   private:
     // PRIVATE CREATORS
 
-    /// Create a `Base64DecoderOptions` object having the specified
-    /// `alphabet`, `padded`, and `ignoreMode` attribute values.  The
-    /// behavior is undefined unless `alphabet` is a defined value of
-    /// `Base64Alphabet::Enum` and `ignoreMode` is a defined value of
-    /// `Base64IgnoreMode::Enum`.
+    /// Create a `Base64DecoderOptions` object having the specified `alphabet`,
+    /// `padded`, and `ignoreMode` attribute values.  The behavior is undefined
+    /// unless `alphabet` is a defined value of `Base64Alphabet::Enum` and
+    /// `ignoreMode` is a defined value of `Base64IgnoreMode::Enum`.
     Base64DecoderOptions(IgnoreMode::Enum     ignoreMode,
                          Base64Alphabet::Enum alphabet,
                          bool                 padded);
@@ -196,10 +195,10 @@ class Base64DecoderOptions {
   public:
     // CLASS METHODS
 
-    /// Return a `Base64DecoderOptions` object having the specified
-    /// `alphabet`, `padded`, and `ignoreMode` attribute values.  The
-    /// behavior is unless `ignoreMode` is a defined value of `IgnoreMode`,
-    /// and `alphabet` is a defined value of `Base64Alphabet::Enum`.
+    /// Return a `Base64DecoderOptions` object having the specified `alphabet`,
+    /// `padded`, and `ignoreMode` attribute values.  The behavior is unless
+    /// `ignoreMode` is a defined value of `IgnoreMode`, and `alphabet` is a
+    /// defined value of `Base64Alphabet::Enum`.
     static
     Base64DecoderOptions custom(
                        IgnoreMode::Enum     ignoreMode,
@@ -236,12 +235,17 @@ class Base64DecoderOptions {
                                  bool             padded = false);
 
     // CREATORS
-    // Base64DecoderOptions(const Base64DecoderOptions&) = default;
 
-    // ~Base64DecoderOptions() = default;
+    /// Default copy constructor.
+    //! Base64DecoderOptions(const Base64DecoderOptions&) = default;
+
+    /// Destroy this object.
+    //! ~Base64DecoderOptions() = default;
 
     // MANIPULATORS
-    // Base64DecoderOptions& operator=(const Base64DecoderOptions&) = default;
+
+    /// Default operator=().
+    //! Base64DecoderOptions& operator=(const Base64DecoderOptions&) = default;
 
     /// Set the `alphabet` attribute to the specified `value`.  The behavior
     /// is undefined unless `value` is either `e_BASIC` or `e_UTL`.
@@ -257,17 +261,16 @@ class Base64DecoderOptions {
 
     // ACCESSORS
 
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
+    /// Format this object to the specified output `stream` at the optionally
+    /// specified indentation `level` and return a reference to the modifiable
+    /// `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for this
+    /// and all of its nested objects.  Each line is indented by the absolute
+    /// value of `level * spacesPerLevel`.  If `level` is negative, suppress
+    /// indentation of the first line.  If `spacesPerLevel` is negative,
+    /// suppress line breaks and format the entire output on one line.  If
+    /// `stream` is initially invalid, this operation has no effect.  Note that
+    /// a trailing newline is provided in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
@@ -284,21 +287,20 @@ class Base64DecoderOptions {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have the
+/// same value, and `false` otherwise.  Two attribute objects have the same
+/// value if each respective attribute has the same value.
 bool operator==(const Base64DecoderOptions& lhs,
                 const Base64DecoderOptions& rhs);
 
 /// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
+/// have the same value, and `false` otherwise.  Two attribute objects do not
+/// have the same value if one or more respective attributes differ in values.
 bool operator!=(const Base64DecoderOptions& lhs,
                 const Base64DecoderOptions& rhs);
 
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream&               stream,
                          const Base64DecoderOptions& rhs);
 

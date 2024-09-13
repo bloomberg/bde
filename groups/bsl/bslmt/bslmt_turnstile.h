@@ -170,9 +170,8 @@ class Turnstile {
               const bsls::TimeInterval& minTimeToCallSleep =
                                                      bsls::TimeInterval(1e-4));
 
-    /// Destroy this object.  Note that this trivial destructor is generated
-    /// by the compiler.
-    // ~Turnstile();
+    /// Destroy this object.
+    //! ~Turnstile() = default;
 
     // MANIPULATORS
 

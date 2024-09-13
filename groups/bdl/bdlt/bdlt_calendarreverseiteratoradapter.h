@@ -284,8 +284,8 @@ class CalendarReverseIteratorAdapter {
     CalendarReverseIteratorAdapter(
                   const CalendarReverseIteratorAdapter& original) = default;
 
+     /// Destroy this object.
      ~CalendarReverseIteratorAdapter() = default;
-        // Destroy this 'CalendarReverseIteratorAdapter' object.
 #endif
 
     // MANIPULATORS
@@ -295,38 +295,36 @@ class CalendarReverseIteratorAdapter {
     CalendarReverseIteratorAdapter& operator=(
                                     const CalendarReverseIteratorAdapter& rhs);
 
-    /// Set the value of this object to refer to the element that precedes,
-    /// in the forward sequence (or that follows, in the backward sequence)
-    /// the element referred to by the specified `rhs`, and return a
-    /// reference providing modifiable access to this object.
+    /// Set the value of this object to refer to the element that precedes, in
+    /// the forward sequence (or that follows, in the backward sequence) the
+    /// element referred to by the specified `rhs`, and return a reference
+    /// providing modifiable access to this object.
     CalendarReverseIteratorAdapter& operator=(const ITERATOR& rhs);
 
     /// Modify this reverse iterator to refer to the next element in the
-    /// reverse iteration sequence, and return a reference providing
-    /// modifiable access to this reverse iterator.  The behavior is
-    /// undefined unless, on entry, this reverse iterator does not have the
-    /// past-the-end value for a reverse iterator over the underlying
-    /// sequence.
+    /// reverse iteration sequence, and return a reference providing modifiable
+    /// access to this reverse iterator.  The behavior is undefined unless, on
+    /// entry, this reverse iterator does not have the past-the-end value for a
+    /// reverse iterator over the underlying sequence.
     CalendarReverseIteratorAdapter& operator++();
 
     /// Modify this reverse iterator to refer to the previous element in the
-    /// reverse iteration sequence, and return a reference providing
-    /// modifiable access to this reverse iterator.  The behavior is
-    /// undefined unless, on entry, this reverse iterator does not have the
-    /// same value as a reverse iterator at the start of the underlying
-    /// sequence.
+    /// reverse iteration sequence, and return a reference providing modifiable
+    /// access to this reverse iterator.  The behavior is undefined unless, on
+    /// entry, this reverse iterator does not have the same value as a reverse
+    /// iterator at the start of the underlying sequence.
     CalendarReverseIteratorAdapter& operator--();
 
     // ACCESSORS
 
-    /// Return a reference to the element referred to by this reverse
-    /// iterator.  The behavior is undefined unless this iterator is within
-    /// the bounds of the underlying sequence.
+    /// Return a reference to the element referred to by this reverse iterator.
+    /// The behavior is undefined unless this iterator is within the bounds of
+    /// the underlying sequence.
     reference operator*() const;
 
-    /// Return a pointer to the element referred to by this reverse
-    /// iterator.  The behavior is undefined unless this iterator is within
-    /// the bounds of the underlying sequence.
+    /// Return a pointer to the element referred to by this reverse iterator.
+    /// The behavior is undefined unless this iterator is within the bounds of
+    /// the underlying sequence.
     pointer operator->() const;
 
     /// Return the forward iterator referring to the element in the forward

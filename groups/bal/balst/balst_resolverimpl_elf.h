@@ -121,8 +121,8 @@ class ResolverImpl<ObjectFileFormat::Elf> {
     ResolverImpl(StackTrace *stackTrace,
                  bool        demanglingPreferredFlag);
 
-    // ~ResolverImpl() = default;
-        // Destroy this object.
+    /// Destroy this object.
+    //! ~ResolverImpl() = default;
 
     // PRIVATE MANIPULATORS
 
