@@ -276,18 +276,22 @@ bool bdld::operator!=(const DatumBinaryRef& lhs, const DatumBinaryRef& rhs)
 inline
 bool bdld::operator<(const DatumBinaryRef& lhs, const DatumBinaryRef& rhs)
 {
-    int cmp = bsl::memcmp(lhs.data() ? lhs.data() : &lhs,
-                          rhs.data() ? rhs.data() : &rhs,
-                          bsl::min(lhs.size(), rhs.size()));
+    const size_t minSize = bsl::min(lhs.size(), rhs.size());
+    const int    cmp     = minSize
+                         ? bsl::memcmp(lhs.data(), rhs.data(), minSize)
+                         : 0;
+
     return cmp == 0 ? lhs.size() < rhs.size() : cmp < 0;
 }
 
 inline
 bool bdld::operator>(const DatumBinaryRef& lhs, const DatumBinaryRef& rhs)
 {
-    int cmp = bsl::memcmp(lhs.data() ? lhs.data() : &lhs,
-                          rhs.data() ? rhs.data() : &rhs,
-                          bsl::min(lhs.size(), rhs.size()));
+    const size_t minSize = bsl::min(lhs.size(), rhs.size());
+    const int    cmp     = minSize
+                         ? bsl::memcmp(lhs.data(), rhs.data(), minSize)
+                         : 0;
+
     return cmp == 0 ? lhs.size() > rhs.size() : cmp > 0;
 }
 
