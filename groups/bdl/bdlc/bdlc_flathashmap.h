@@ -823,7 +823,7 @@ class FlatHashMap {
     try_emplace(const_iterator, const KEY& key, ARGS&&... args);
 
     /// If a key equivalent to the specified `key` already exists in this
-    /// map, return an iterator referring to the existing item.  Otherwise, 
+    /// map, return an iterator referring to the existing item.  Otherwise,
     /// insert into this map a newly-created `value_type` object,
     /// constructed from `std::forward<KEY>(key)` and the specified `args`,
     /// and return an iterator referring to the newly-created entry.  This

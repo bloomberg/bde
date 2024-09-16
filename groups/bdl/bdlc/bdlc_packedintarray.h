@@ -1664,9 +1664,11 @@ void PackedIntArrayImp<STORAGE>::remove(bsl::size_t dstIndex,
 
     d_length -= numElements;
 
-    bsl::memmove(address() + dstIndex * d_bytesPerElement,
-                 address() + (dstIndex + numElements) * d_bytesPerElement,
-                 (d_length - dstIndex) * d_bytesPerElement);
+    if (address()) {
+        bsl::memmove(address() + dstIndex * d_bytesPerElement,
+                     address() + (dstIndex + numElements) * d_bytesPerElement,
+                     (d_length - dstIndex) * d_bytesPerElement);
+    }
 }
 
 template <class STORAGE>
