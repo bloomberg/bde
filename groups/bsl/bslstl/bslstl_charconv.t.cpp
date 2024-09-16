@@ -206,7 +206,7 @@ bool parseAndTestSignedInteger(bsls::Types::Int64 exp,
     }
 
     if (sign) {
-        exp = -exp;
+        exp = -static_cast<Uint64>(exp);
         inputString.assign(inputString.begin() + 1, inputString.end());
     }
 
@@ -1273,7 +1273,7 @@ int main(int argc, char *argv[])
 
                 Int64 svalue = value;
                 if (svalue < 0) {
-                    value = -svalue;
+                    value = -static_cast<Uint64>(svalue);
 
                     result = bsl::to_chars(
                                          toCharsBuffer,

@@ -833,7 +833,10 @@ struct AsIntegralTest {
                 // The expected result can be represented in 't_INTEGRAL_TYPE'.
 
                 expected = static_cast<t_INTEGRAL_TYPE>(EXPECTED_U64);
-                if (ISNEG) {
+                t_INTEGRAL_TYPE min =
+                                   bsl::numeric_limits<t_INTEGRAL_TYPE>::min();
+                // cannot negate maximally negative values
+                if (ISNEG && (expected != min)) {
                     expected = static_cast<t_INTEGRAL_TYPE>(
                                   static_cast<t_INTEGRAL_TYPE>(-1) * expected);
                 }

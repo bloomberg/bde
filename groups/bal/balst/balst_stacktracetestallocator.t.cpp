@@ -785,7 +785,7 @@ struct Functor {
     static const unsigned int  s_allocOneIdx = 5;
     static const unsigned int  s_freeSomeIdx = 6;
 
-    static bsls::AtomicInt  s_threadRand;
+    static bsls::AtomicUint  s_threadRand;
     static bslmt::Barrier    s_startBarrier;
     static bslmt::Barrier    s_underwayBarrier;
 
@@ -817,7 +817,7 @@ struct Functor {
     , d_numAllocations(0)
     , d_allocator_p(traceAllocator)
     {
-        bdlb::Random::generate15(&d_randNum, ++s_threadRand * 987654321);
+        bdlb::Random::generate15(&d_randNum, static_cast<int>(++s_threadRand * 987654321));
     }
 
     Functor(const Functor& original)
@@ -827,7 +827,7 @@ struct Functor {
     , d_allocator_p(original.d_allocator_p)
     {
         bdlb::Random::generate15(&d_randNum,
-                                original.d_randNum + ++s_threadRand * 9876543);
+                                original.d_randNum + static_cast<int>(++s_threadRand * 9876543));
     }
 
   private:
@@ -875,7 +875,7 @@ struct Functor {
     void operator()();
 };
 Functor::FuncPtr Functor::s_funcPtrs[10];
-bsls::AtomicInt  Functor::s_threadRand(0);
+bsls::AtomicUint  Functor::s_threadRand(0);
 bslmt::Barrier    Functor::s_startBarrier(NUM_THREADS);
 bslmt::Barrier    Functor::s_underwayBarrier(NUM_THREADS + 1);
 
@@ -1645,7 +1645,9 @@ int main(int argc, char *argv[])
                     char *f =
                             bsl::find_if(s.d_ptr, end, TC::NotEqual(s.d_fill));
                     ASSERT(f == end);
-                    memset(s.d_ptr, ~s.d_fill, s.d_len);
+                    if (s.d_len) {
+                        memset(s.d_ptr, ~s.d_fill, s.d_len);
+                    }
 
                     ta.deallocate(s.d_ptr);
                     s.d_ptr = 0;
@@ -3287,7 +3289,7 @@ int main(int argc, char *argv[])
         if (verbose) Q("2: Prove if no ostream is given, output goes to cout");
         {
             bsl::stringstream oss(&ota);
-            cerr.rdbuf(oss.rdbuf());
+            std::basic_streambuf<char>* origCerrBuf = cerr.rdbuf(oss.rdbuf());
 
             for (int i = 0; i < 4; ++i) {
                 const bool hasNumRecrodedFrames = i % 2;
@@ -3328,6 +3330,8 @@ int main(int argc, char *argv[])
                     ASSERT(npos != report.find("main"));
                 }
             }
+
+            cerr.rdbuf(origCerrBuf);
         }
       }  break;
       case 1: {

@@ -538,11 +538,11 @@ double wasteCpuTime()
 
 bsls::Types::Int64 controlledCpuBurn()
 {
-    bsls::Types::Int64 factorial = 1;
+    bsls::Types::Uint64 factorial = 1;
     bsls::TimeInterval begin = bdlt::CurrentTime::now();
 
     while (1) {
-        for (int x = 1; x <= 20; ++x) {
+        for (unsigned x = 1; x <= 20; ++x) {
             factorial *= x;
         }
 

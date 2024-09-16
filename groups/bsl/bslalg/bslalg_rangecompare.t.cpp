@@ -1325,7 +1325,7 @@ void testLexicographical(bool verboseFlag, bslma::TestAllocator& testAllocator)
     for (int i = 0; i < NUM_DATA_CASE4; ++i) {
         const char   *STRING = DATA_CASE4[i].d_string_p;
         const size_t  LEN    = std::strlen(STRING);
-        strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
+        strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE) + 1);
         gg(strings[i], STRING);
     }
 
@@ -1379,14 +1379,14 @@ CharEquivalentNonBitwiseWithOpEqual charGenerator(int i, int j)
 
 int intGenerator(int i, int j)
 {
-    int result = (2 - j) << ((i / 2) % (8 * sizeof(int)));
+    unsigned result = (2 - j) << ((i / 2) % (8 * sizeof(int)));
     result += j << (i / 3);
     return result;
 }
 
 Uint64 uint64Generator(int i, int j)
 {
-    Uint64 result = (2 - j) << ((i / 2) % 64);
+    Uint64 result = static_cast<Uint64>(2 - j) << ((i / 2) % 64);
     result += j << (i / 3);
     return result;
 }
@@ -1519,7 +1519,7 @@ void testLexicographicalNonBitwise(bool                  verboseFlag,
     for (int i = 0; i < NUM_DATA_CASE4; ++i) {
         const char   *STRING = DATA_CASE4[i].d_string_p;
         const size_t  LEN    = std::strlen(STRING);
-        strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
+        strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE) + 1);
         gg(strings[i], STRING);
     }
 
@@ -1645,7 +1645,7 @@ void testEqual(bool verboseFlag, bslma::TestAllocator& testAllocator)
     for (int i = 0; i < NUM_DATA_CASE3; ++i) {
         const char   *STRING = DATA_CASE3[i].d_string_p;
         const size_t  LEN    = std::strlen(STRING);
-        strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
+        strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE) + 1);
         gg(strings[i], STRING);
     }
 
@@ -1709,7 +1709,7 @@ void testEqualNonBitwise(bool verboseFlag, bslma::TestAllocator& testAllocator)
     for (int i = 0; i < NUM_DATA_CASE3; ++i) {
         const char   *STRING = DATA_CASE3[i].d_string_p;
         const size_t  LEN    = std::strlen(STRING);
-        strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
+        strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE) + 1);
         gg(strings[i], STRING);
     }
 

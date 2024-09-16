@@ -553,7 +553,9 @@ void my_StrArray<ALLOCATOR>::append(const char *src)
 
         char ** newArray =
                  (char **) d_allocator_p->allocate(d_size * sizeof(char*));
-        memcpy(newArray, d_array_p, d_length * sizeof(char *));
+        if (d_length) {
+            memcpy(newArray, d_array_p, d_length * sizeof(char *));
+        }
         if (d_array_p) {
             d_allocator_p->deallocate(d_array_p);
         }

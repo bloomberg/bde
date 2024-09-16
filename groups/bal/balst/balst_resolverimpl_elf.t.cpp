@@ -100,6 +100,7 @@ typedef balst::ResolverImpl<balst::ObjectFileFormat::Elf> Obj;
 typedef balst::StackTraceFrame                            Frame;
 typedef bsls::Types::UintPtr                              UintPtr;
 typedef bsls::Types::Int64                                Int64;
+typedef bsls::Types::Uint64                               Uint64;
 
 #if defined(BSLS_PLATFORM_OS_LINUX)
 enum { e_IS_LINUX = 1 };
@@ -135,11 +136,12 @@ static TYPE abs(TYPE num)
 const Int64 mask32 = 0xffffffffLL;
 
 static
-int funcStaticOne(int i)
+int funcStaticOne(int k)
     // Target function to be resolved.  Never called.  Do some arbitary
     // arithmetic so there will be some length of code in this routine.
 {
-    Int64 ret = L_;
+    Uint64 ret = L_;
+    unsigned i = k;
     for (int j = 0; j < 2; ++j) {
         i = i * i * i;
     }
@@ -148,12 +150,13 @@ int funcStaticOne(int i)
     return static_cast<int>(ret & mask32);
 }
 
-int funcGlobalOne(int i)
+int funcGlobalOne(int k)
     // Target function to be resolved.  Never called.  Do some arbitary
     // arithmetic so there will be some length of code in this routine.
 {
-    Int64 ret = L_;
-    for (int j = 0; j < 2; ++j) {
+    Uint64 ret = L_;
+    unsigned i = k;
+    for (unsigned j = 0; j < 2; ++j) {
         i = i * i * i * i;
     }
 
@@ -162,12 +165,13 @@ int funcGlobalOne(int i)
 }
 
 static inline
-int funcStaticInlineOne(int i)
+int funcStaticInlineOne(int k)
     // Target function to be resolved.  Never called.  Do some arbitary
     // arithmetic so there will be some length of code in this routine.
 {
-    Int64 ret = L_;
-    for (int j = 0; j < 5; ++j) {
+    Uint64 ret = L_;
+    unsigned i = k;
+    for (unsigned j = 0; j < 5; ++j) {
         i = 75 * i * i + i / (j + 1);
     }
 

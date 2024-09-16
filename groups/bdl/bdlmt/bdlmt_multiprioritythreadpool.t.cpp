@@ -611,7 +611,7 @@ void checkOutPool(bdlmt::MultipriorityThreadPool *pool)
 
 namespace MULTIPRIORITYTHREADPOOL_CASE_3 {
 
-long counter;
+unsigned long counter;
 
 extern "C" void *sleepAndAmassCounterBy(void *arg)
 {
@@ -632,7 +632,7 @@ extern "C" void *sleepAndAmassCounterBy(void *arg)
 namespace MULTIPRIORITYTHREADPOOL_CASE_2 {
 
 int callCount;
-long counter;
+unsigned long counter;
 
 extern "C" void *amassCounterBy(void *arg)
 {
@@ -1817,7 +1817,7 @@ int main(int argc, char *argv[])
                                             &ta);
 
         counter = 0;
-        long otherCounter = 0;
+        unsigned long otherCounter = 0;
 
         for (int i = 0; i < k_INC_BY_LENGTH; ++i) {
             int sts = pool.enqueueJob(&sleepAndAmassCounterBy,
@@ -1880,7 +1880,7 @@ int main(int argc, char *argv[])
 
         for (int j = 0; 100 > j; ++j) {
             counter = 0;
-            long otherCounter = 0;
+            unsigned long otherCounter = 0;
 
             for (int i = 0; i < k_INC_BY_LENGTH; ++i) {
                 ASSERT(!pool.enqueueJob(&amassCounterBy,

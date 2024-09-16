@@ -435,6 +435,14 @@ int find1AtMinOracle(uint64_t value)
     return -1;
 }
 
+uint64_t safeRightShift(uint64_t value, unsigned shift)
+{
+    if (shift >= sizeof(value) * 8) {
+        return 0;                                                     // RETURN
+    }
+    return value >> shift;
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1863,7 +1871,7 @@ int main(int argc, char *argv[])
             const int   srcIndex = DATA_B[di].d_sindex;
 
             uint64_t dst =   g(spec);
-            uint64_t src =   g(DATA_B[di].d_src) >> srcIndex;
+            uint64_t src =   safeRightShift(g(DATA_B[di].d_src), srcIndex);
 
             if (veryVerbose) {
                 P_(LINE); P_(spec); P_(DATA_B[di].d_xorEqual); P(dst);
@@ -3067,7 +3075,7 @@ int main(int argc, char *argv[])
             const int   srcIndex = DATA_B[di].d_sindex;
 
             uint64_t dst = g(spec);
-            uint64_t src = g(DATA_B[di].d_src) >> srcIndex;
+            uint64_t src = safeRightShift(g(DATA_B[di].d_src), srcIndex);
 
             if (veryVerbose) {
                 P_(LINE); P_(spec); P_(DATA_B[di].d_orEqual); P(dst);
@@ -3883,7 +3891,7 @@ int main(int argc, char *argv[])
 
             uint64_t dst = g(spec);
             uint64_t src = g(DATA_B[di].d_src);
-            src >>= DATA_B[di].d_sindex;
+            src = safeRightShift(src, DATA_B[di].d_sindex);
 
             if (veryVerbose) {
                 P_(LINE); P_(spec); P_(DATA_B[di].d_minusEqual); P(dst);
@@ -4637,7 +4645,7 @@ int main(int argc, char *argv[])
             const int   srcIndex = DATA_B[di].d_sindex;
 
             uint64_t dst = g(spec);
-            uint64_t src = g(DATA_B[di].d_src) >> srcIndex;
+            uint64_t src = safeRightShift(g(DATA_B[di].d_src), srcIndex);
 
             if (veryVerbose) {
                 P_(LINE); P_(spec); P_(DATA_B[di].d_andEqual); P(dst);

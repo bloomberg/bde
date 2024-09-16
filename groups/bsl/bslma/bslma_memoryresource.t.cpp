@@ -728,7 +728,11 @@ int main(int argc, char *argv[])
 
         // Create a reference to 'memory_resource' to test protocol.
         const bsl::memory_resource& other = MemoryResourceProtocolTest();
-        void *p = 0;
+
+        // The first argument to 'deallocate' cannot be null, so 'buffer' is
+        // just something to point at.
+        char buffer[8];
+        void *p = buffer;
 
         // Note that we are testing the public pass-through functions as a
         // proxy for the private virtual functions.

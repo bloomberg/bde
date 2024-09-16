@@ -1316,7 +1316,8 @@ bsl::size_t calcRestPos(ParsedChars parsedChars, bsl::size_t length)
         return parsedChars;                                           // RETURN
     }
 
-    if (static_cast<bsl::size_t>(-parsedChars) > length) { // large negative
+    if ((parsedChars == All) ||
+        (static_cast<bsl::size_t>(-parsedChars) > length)) { // large negative
         return length;                                                // RETURN
     }
 
@@ -3216,8 +3217,9 @@ Result::ValueCat ResultCatKey::convertToValueCategory(unsigned bits)
     return Result::e_ZERO;
 }
 
-ResultCatKey ResultCatKey::fromBits(unsigned bits)
+ResultCatKey ResultCatKey::fromBits(unsigned ubits)
 {
+    unsigned char bits = ubits & 0xff; // quiet conversion warning
     return ResultCatKey(!!(bits & 0x40), (bits & 0x38) >> 3, bits & 0x7);
 }
 

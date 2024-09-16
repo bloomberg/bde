@@ -237,8 +237,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bsls::TimeInterval Obj;
-typedef bsls::Types::Int64 Int64;
+typedef bsls::TimeInterval  Obj;
+typedef bsls::Types::Int64  Int64;
+typedef bsls::Types::Uint64 Uint64;
 
 #define BUFFER_SIZE 512            // must be large enough to enable BDEX tests
 #define VERSION_SELECTOR 20140601
@@ -690,7 +691,8 @@ void testChronoAddition(
 
     const std::int64_t k_SHIFT =  k_SECONDS.count() > 0
                                ?  k_SECONDS.count()
-                               : -k_SECONDS.count();
+                               : -static_cast<std::uint64_t>
+                                                           (k_SECONDS.count());
         // Absolute value for calculating the minimum allowable and maximum
         // allowable values of 'TimeInterval' object.  Incoming parameters can
         // be either positive or negative, so we need to find absolute value to
@@ -698,7 +700,8 @@ void testChronoAddition(
 
     // Positive 'TimeInterval' values.
 
-    const Int64 k_POSITIVE_SECONDS_LIMIT     = LLONG_MAX - k_SHIFT;
+    const Int64 k_POSITIVE_SECONDS_LIMIT = static_cast<Uint64>(LLONG_MAX) -
+                                           static_cast<Uint64>(k_SHIFT);
     const int   k_POSITIVE_NANOSECONDS_LIMIT = 999999999;
 
     for (Int64 i = 0, s = k_POSITIVE_SECONDS_LIMIT; i > 0; i = s, s /= 10) {
@@ -729,7 +732,8 @@ void testChronoAddition(
 
     // Negative 'TimeInterval' values.
 
-    const Int64 k_NEGATIVE_SECONDS_LIMIT     = LLONG_MIN + k_SHIFT;
+    const Int64 k_NEGATIVE_SECONDS_LIMIT = static_cast<Uint64>(LLONG_MIN) +
+                                           static_cast<Uint64>(k_SHIFT);
     const int   k_NEGATIVE_NANOSECONDS_LIMIT = -999999999;
 
     for (Int64 i = 0, s = k_NEGATIVE_SECONDS_LIMIT; i < 0; i = s, s /= 10) {

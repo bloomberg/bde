@@ -7640,9 +7640,9 @@ int main(int argc, char *argv[])
                 X.bdexStreamOut(out, VERSION);
 
                 LOOP_ASSERT(LINE, LEN == out.length());
-                LOOP_ASSERT(LINE, 0 == memcmp(out.data(),
-                                              FMT,
-                                              LEN));
+                if (LEN) {
+                    LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));
+                }
 
                 if (veryVerbose && LEN != out.length()) {
                     P_(LINE);

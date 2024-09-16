@@ -377,6 +377,7 @@ int main(int argc, char **argv)
 // value is known by the compiler to be null, but since 'np1' is a non-'const'
 // variable, no warning is issued:
 //..
+#if U_TRIGGER_WARNINGS
         char *np1 = NULL;
         usagePrint1(np1,    0);
         usagePrint2(np1,    0);
@@ -384,7 +385,6 @@ int main(int argc, char **argv)
 // Now, we call both functions passing various forms of constant null pointer
 // expressions to the first argument:
 //..
-#if U_TRIGGER_WARNINGS
         usagePrint1(   0, -10);
         usagePrint2(   0, -10);
 

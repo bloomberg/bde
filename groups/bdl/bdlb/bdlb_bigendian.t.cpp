@@ -2225,7 +2225,7 @@ int main(int argc, char *argv[])
                 const Obj X = Obj::make(0);
                 ASSERT(0 == static_cast<int>(X));
             }
-            for (bsl::size_t i = 0; i <= sizeof(int) * 8; ++i) {
+            for (bsl::size_t i = 0; i <= sizeof(int) * 8 - 1; ++i) {
                 const Obj X = Obj::make(1 << i);
                 ASSERTV(i, (1 << i) == static_cast<int>(X));
             }
@@ -2239,7 +2239,7 @@ int main(int argc, char *argv[])
                 const Obj X = Obj::make(0);
                 ASSERT(0 == static_cast<unsigned int>(X));
             }
-            for (bsl::size_t i = 0; i <= sizeof(int) * 8; ++i) {
+            for (bsl::size_t i = 0; i <= sizeof(int) * 8 - 1; ++i) {
                 const Obj X = Obj::make(1U << i);
                 ASSERTV(i, (1U << i) == static_cast<unsigned int>(X));
             }
@@ -2253,7 +2253,9 @@ int main(int argc, char *argv[])
                 const Obj X = Obj::make(0);
                 ASSERT(0 == static_cast<bsls::Types::Int64>(X));
             }
-            for (bsl::size_t i = 0; i <= sizeof(bsls::Types::Int64) * 8; ++i) {
+            for (bsl::size_t i = 0;
+                 i <= sizeof(bsls::Types::Int64) * 8 - 1;
+                 ++i) {
                 const Obj X = Obj::make(1LL << i);
                 ASSERTV(i, (1LL << i) == static_cast<bsls::Types::Int64>(X));
             }
@@ -2267,7 +2269,9 @@ int main(int argc, char *argv[])
                 const Obj X = Obj::make(0);
                 ASSERT(0 == static_cast<bsls::Types::Uint64>(X));
             }
-            for (bsl::size_t i = 0; i <= sizeof(bsls::Types::Uint64) * 8; ++i)
+            for (bsl::size_t i = 0;
+                 i <= sizeof(bsls::Types::Uint64) * 8 - 1;
+                 ++i)
             {
                 const Obj X = Obj::make(1ULL << i);
                 ASSERTV(i, (1ULL << i) == static_cast<bsls::Types::Uint64>(X));

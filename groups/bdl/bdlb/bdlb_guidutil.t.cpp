@@ -1413,7 +1413,7 @@ int main(int argc, char *argv[])
                  << "-------------------" << endl;
         }
         for (bsl::size_t i = 0; i < NUM_ITERS; ++i) {
-            for (int j = 0; j < NUM_ITERS + 2; ++j) {
+            for (int j = 0; j < NUM_ITERS + 1; ++j) {
                 guids[j] = Obj();
             }
             if (i & 1) {

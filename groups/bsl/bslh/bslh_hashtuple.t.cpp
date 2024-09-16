@@ -156,6 +156,10 @@ bool operator==(MockAccumulatingHashingAlgorithm& lhs,
         return false;                                                 // RETURN
     }
 
+    if (0 == rhs.getLength()) {
+        return true;
+    }
+
     return 0 == memcmp(lhs.getData(), rhs.getData(), rhs.getLength());
 }
 

@@ -4797,7 +4797,7 @@ void testIntValue(const Uint64 numArg, unsigned base)
 
             if (flip) {
                 Int64 signedArg = numArg;
-                signedArg = -signedArg;
+                signedArg = -static_cast<Uint64>(signedArg);
 
                 sprintf(sBuffer, "%lld", signedArg);
             }

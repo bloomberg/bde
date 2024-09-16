@@ -1467,7 +1467,7 @@ int main(int argc, char *argv[])
 
         using namespace OBJECTPOOL_TEST_USAGE_EXAMPLE;
 
-        QueryFactory *queryFactory = new QueryFactory;
+        queryFactory = new QueryFactory;
 
 // The main thread starts and joins these threads:
 //..

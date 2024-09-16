@@ -4808,7 +4808,10 @@ if (veryVerbose) {
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
             if (veryVerbose) { P(X2) }
             LOOP_ASSERT(i, X2 && X2.isValid());
-            LOOP_ASSERT(i, 0 == bsl::memcmp(X2.data(), o.data(), o.length()));
+            if (o.length()) {
+                LOOP_ASSERT(i,
+                            0 == bsl::memcmp(X2.data(), o.data(), o.length()));
+            }
 
             LOOP_ASSERT(i, X && X2);
             LOOP_ASSERT(i, X.isValid() && X2.isValid());

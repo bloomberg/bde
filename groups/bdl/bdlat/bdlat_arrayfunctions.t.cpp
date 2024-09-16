@@ -598,13 +598,17 @@ bsl::size_t Test::bdlat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
         int *newData = static_cast<int *>(bsl::malloc(sizeof(int)
                                                     * newSize));
         if (d_size < newSize) {
-            bsl::memcpy(newData, d_data_p, d_size * sizeof(int));
+            if (d_size) {
+                bsl::memcpy(newData, d_data_p, d_size * sizeof(int));
+            }
             std::memset(newData + d_size,
                         0,
                         (newSize - d_size) * sizeof(int));
 
         } else {
-            bsl::memcpy(newData, d_data_p, newSize);
+            if (newSize) {
+                bsl::memcpy(newData, d_data_p, newSize);
+            }
         }
 
         bsl::free(d_data_p);

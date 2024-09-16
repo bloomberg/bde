@@ -409,7 +409,9 @@ int main(int argc, char *argv[])
 
                     // write to entire buffer (allowing 'ta' to hopefully catch
                     // if we did not actually get sufficient memory allocated).
-                    bsl::memset(segment, 17, size);
+                    if (size) {
+                        bsl::memset(segment, 17, size);
+                    }
 
                     segments.push_back(segment);
                 }

@@ -130,7 +130,7 @@ char randChar()
 
 int randInt()
 {
-    static int accum = 0x12345678;
+    static unsigned accum = 0x12345678;
     accum = accum * 1103515245 + 12345;
     int lo = (accum >> 16) & 0xffff;
     accum = accum * 1103515245 + 12345;

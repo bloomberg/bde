@@ -4145,7 +4145,9 @@ int main(int argc, char *argv[])
             // verify length()
             LOOP_ASSERT(iLen, X.length() == bytes);
             // verify data()
-            LOOP_ASSERT(iLen, 0 == memcmp(X.data(), DATA[iLen], bytes));
+            if (bytes) {
+                LOOP_ASSERT(iLen, 0 == memcmp(X.data(), DATA[iLen], bytes));
+            }
         }
 
         if (verbose) cout << "\nTesting bdexVersionSelector()." << endl;

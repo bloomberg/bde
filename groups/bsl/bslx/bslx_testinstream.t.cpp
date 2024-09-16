@@ -4444,8 +4444,12 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
                                   << "\tACTUAL : "   << RESULT   << endl;
             ASSERT(XX == RESULT[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
-            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
+            if (LEN) {
+                ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            }
+            if (SIZE - LEN) {
+                ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
+            }
         }
         {
             Out o(VERSION_SELECTOR);
@@ -4472,8 +4476,12 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
                                   << "\tACTUAL : "   << RESULT   << endl;
             ASSERT(XX == RESULT[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
-            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
+            if (LEN) {
+                ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            }
+            if (SIZE - LEN) {
+                ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
+            }
         }
         {
             Out o(VERSION_SELECTOR);
@@ -4506,8 +4514,12 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
                                   << "\tACTUAL : "   << RESULT   << endl;
             ASSERT(XX == RESULT[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
-            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
+            if (LEN) {
+                ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            }
+            if (SIZE - LEN) {
+                ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
+            }
         }
       } break;
       case 4: {
@@ -4819,9 +4831,11 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) { P(o) }
             ASSERT(1 == res);
             ASSERT(X.length() == o.length());
-            ASSERT(0 == memcmp(X.data(),
-                               o.data(),
-                               X.length()));
+            if (X.length()) {
+                ASSERT(0 == memcmp(X.data(),
+                                   o.data(),
+                                   X.length()));
+            }
         }
         if (verbose) cout << "\nTesting spec w/ single operation." << endl;
         {
@@ -4837,9 +4851,11 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
             ASSERT(X.length() == o.length());
-            ASSERT(0 == memcmp(X.data(),
-                               o.data(),
-                               X.length()));
+            if (X.length()) {
+                ASSERT(0 == memcmp(X.data(),
+                                   o.data(),
+                                   X.length()));
+            }
         }
         if (verbose) cout << "\nTesting spec w/ spaces." << endl;
         {
@@ -4856,9 +4872,11 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
             ASSERT(X.length() == o.length());
-            ASSERT(0 == memcmp(X.data(),
-                               o.data(),
-                               X.length()));
+            if (X.length()) {
+                ASSERT(0 == memcmp(X.data(),
+                                   o.data(),
+                                   X.length()));
+            }
         }
         if (verbose) cout << "\nTesting spec w/ multiple operations." << endl;
         {
@@ -4883,9 +4901,11 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
             ASSERT(X.length() == o.length());
-            ASSERT(0 == memcmp(X.data(),
-                               o.data(),
-                               X.length()));
+            if (X.length()) {
+                ASSERT(0 == memcmp(X.data(),
+                                   o.data(),
+                                   X.length()));
+            }
         }
         if (verbose)
             cout << "\nTesting spec w/ single array operation." << endl;
@@ -4904,9 +4924,11 @@ int main(int argc, char *argv[]) {
                 if (veryVerbose) { P(o); }
                 ASSERT(1 == res);
                 ASSERT(X.length() == o.length());
-                ASSERT(0 == memcmp(X.data(),
-                                   o.data(),
-                                   X.length()));
+                if (X.length()) {
+                    ASSERT(0 == memcmp(X.data(),
+                                       o.data(),
+                                       X.length()));
+                }
             }
 
             const char *SPEC = "a012";
@@ -4919,9 +4941,11 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
             ASSERT(X.length() == o.length());
-            ASSERT(0 == memcmp(X.data(),
-                               o.data(),
-                               X.length()));
+            if (X.length()) {
+                ASSERT(0 == memcmp(X.data(),
+                                   o.data(),
+                                   X.length()));
+            }
         }
         if (verbose)
             cout << "\nTesting spec w/ multiple array operations." << endl;
@@ -4947,9 +4971,11 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
             ASSERT(X.length() == o.length());
-            ASSERT(0 == memcmp(X.data(),
-                               o.data(),
-                               X.length()));
+            if (X.length()) {
+                ASSERT(0 == memcmp(X.data(),
+                                   o.data(),
+                                   X.length()));
+            }
         }
         if (verbose) cout << "\nTesting invalid specs." << endl;
         {

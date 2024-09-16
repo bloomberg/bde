@@ -497,7 +497,7 @@ struct StressData {
     bslmt::ThreadUtil::Handle            handle;
     bdlcc::FixedQueue<StressNode>        *queue;
     int                                *counts;
-    int                                *checksums;
+    unsigned                           *checksums;
     int                                 maxCount;
     int                                 thread;
     bool                               *stopProd;
@@ -526,7 +526,7 @@ extern "C" void *stressConsumer2(void* arg) {
 }
 
 int stressrand() {
-    static int v = 0;
+    static unsigned v = 0;
     return v = (v*1664525 + 1013904223)&0xFFFFFFFF;
 }
 
@@ -2535,7 +2535,7 @@ int main(int argc, char *argv[])
         bool stopProducers = false;
         for (int i=0; i<numProducers; i++) {
             producerData[i].counts = new int[1];
-            producerData[i].checksums = new int[1];
+            producerData[i].checksums = new unsigned[1];
             producerData[i].counts[0] = 0;
             producerData[i].checksums[0] = 0;
             producerData[i].queue = &queue;
@@ -2548,7 +2548,7 @@ int main(int argc, char *argv[])
         }
         for (int i=0; i<numConsumers; i++) {
             consumerData[i].counts = new int[numProducers];
-            consumerData[i].checksums = new int[numProducers];
+            consumerData[i].checksums = new unsigned[numProducers];
             for (int j=0; j<numProducers; j++) {
                 consumerData[i].counts[j] = 0;
                 consumerData[i].checksums[j] = 0;
@@ -2586,7 +2586,7 @@ int main(int argc, char *argv[])
         // now, verify the results
         for (int i=0; i<numProducers;i++) {
             int count = 0;
-            int checksum = 0;
+            unsigned checksum = 0;
             for (int j=0; j<numConsumers; j++) {
                 count += consumerData[j].counts[i];
                 checksum += consumerData[j].checksums[i];

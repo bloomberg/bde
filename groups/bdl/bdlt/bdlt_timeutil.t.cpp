@@ -1029,9 +1029,9 @@ if (veryVerbose) {
             const int MILLISECOND = DATA[ti].d_millisecond;
             const int VALID       = DATA[ti].d_valid;
 
-            const int VALUE =   HOUR * 10000000
-                            + MINUTE * 100000
-                            + SECOND * 1000
+            const int VALUE =   HOUR * 10000000U
+                            + MINUTE * 100000U
+                            + SECOND * 1000U
                             + MILLISECOND;
 
             if (veryVerbose) {
