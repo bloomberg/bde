@@ -19,9 +19,13 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemclocktype.h>
@@ -57,6 +61,7 @@
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <thread>
+#include <bsl_thread.h>
 #endif
 
 using namespace BloombergLP;
@@ -1488,20 +1493,14 @@ long myAbs(long a)
     return a >= 0 ? a : -a;
 }
 
-#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_CLANG
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Winfinite-recursion"
-#endif
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    #pragma warning(push)
-    #pragma warning(disable:4717)
-#endif
-
 void testCaseMinus1Recurser(const char *start)
 {
     enum { k_BUF_LEN = 1024 };
+
     char buffer[k_BUF_LEN];
-    static double lastDistance = 1;
+
+    static double   lastDistance = 1;
+    static unsigned iterations = 0;
 
     double distance = (double) mymax(myAbs(&buffer[0]             - start),
                                      myAbs(&buffer[k_BUF_LEN - 1] - start));
@@ -1510,7 +1509,10 @@ void testCaseMinus1Recurser(const char *start)
         lastDistance = distance;
     }
 
-    testCaseMinus1Recurser(start);
+    if (iterations < 0xffffffffu) {
+        ++iterations;
+        testCaseMinus1Recurser(start);
+    }
 }
 
 extern "C" void *testCaseMinus1ThreadMain(void *)
@@ -1520,12 +1522,6 @@ extern "C" void *testCaseMinus1ThreadMain(void *)
 
     return 0;
 }
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    #pragma warning(pop)
-#endif
-#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_CLANG
-    #pragma GCC diagnostic pop
-#endif
 
 // ----------------------------------------------------------------------------
 //                                TEST CASE -2
@@ -1595,6 +1591,8 @@ extern "C" void *secondClearanceTest(void *vStackSize)
         printf("%d\n", diff);
     }
 
+    pc = 0;
+
     return 0;
 }
 
@@ -1629,6 +1627,25 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 20: {
+        // --------------------------------------------------------------------
+        // THREAD LIBRARY CONSISTENCY
+        //
+        // Concern:
+        //: 1 The used thread library matches the one used in 'std'.
+        //
+        // Plan:
+        //: 1 Assert the native types for thread handles match.  (C-1)
+        // --------------------------------------------------------------------
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
+          BSLMF_ASSERT(
+                    (bsl::is_same<BloombergLP::bslmt::ThreadUtil::NativeHandle,
+                                  std::thread::native_handle_type>::value));
+
+#endif
+      } break;
       case 19: {
         // --------------------------------------------------------------------
         // NAMED DETACHED THREADS
