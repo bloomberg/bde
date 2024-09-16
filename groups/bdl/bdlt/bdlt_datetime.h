@@ -2072,7 +2072,9 @@ STREAM& Datetime::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) { // switch on the schema version
           case 2: {
-            bsls::Types::Uint64 tmp;
+            bsls::Types::Uint64 tmp = 0;    // Note that we have to initialize
+                                            // this to a value to silence
+                                            // potential -Wmaybe-uninitialized
 
             stream.getUint64(tmp);
 
