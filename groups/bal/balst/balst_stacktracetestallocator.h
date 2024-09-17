@@ -24,7 +24,6 @@ BSLS_IDENT("$Id: $")
 //                   `------------------------------'
 //                                   |    ctor/dtor
 //                                   |    numAllocations
-//                                   |    allocationLimit
 //                                   |    numBlocksInUse
 //                                   |    reportBlocksInUse
 //                                   |    setFailureHandler
@@ -523,19 +522,15 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
     AllocatorMagic            d_magic;             // magic # to identify type
                                                    // of memory allocator
 
-    bsls::AtomicInt           d_numBlocksInUse;    // number of currently
-                                                   // allocated blocks, unfreed
+    bsls::AtomicInt           d_numBlocksInUse;    // number of allocated
+                                                   // blocks currently unfreed
 
-    bsls::AtomicInt64         d_numAllocations;    // number of allocations
-                                                   // that have occurred since
+    bsls::AtomicInt64         d_numAllocations;    // number of alloctions that
+                                                   // have occurred since
                                                    // creation
 
-    bsls::AtomicInt64         d_allocationLimit;   // number of allocations
-                                                   // before exception is
-                                                    // thrown by this object
-
-    BlockHeader              *d_blocks;            // list of currently
-                                                   // allocated, unfreed blocks
+    BlockHeader              *d_blocks;            // list of allocated,
+                                                   // unfreed blocks
 
     mutable bslmt::Mutex      d_mutex;             // mutex used to synchronize
                                                    // access to this object
@@ -655,12 +650,6 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
     /// Deallocate all memory held by this allocator.
     void release() BSLS_KEYWORD_OVERRIDE;
 
-    /// Set the number of valid allocation requests before an exception is
-    /// to be thrown for this allocator to the specified `limit`.  If
-    /// `limit` is less than 0, no exception is to be thrown.  By default,
-    /// no exception is scheduled.
-    void setAllocationLimit(bsls::Types::Int64 limit);
-
     /// Set the `demanglingPreferredFlag` attribute, which is used to
     /// determine whether demangling of symbols is to be attempted when
     /// generating diagnostics, to the specified `value`.  The default value
@@ -691,13 +680,8 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
 
     // ACCESSORS
 
-    /// Return the current number of allocation requests left before an
-    /// exception is thrown.  A negative value indicates that no exception
-    /// is scheduled.
-    bsls::Types::Int64 allocationLimit() const;
-
     /// Return a reference to the function that will be called when a
-    /// failure is observed.
+    /// failure is observered.
     const FailureHandler& failureHandler() const;
 
     /// Return the number of allocations from this object that have occurred
