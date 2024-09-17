@@ -1425,6 +1425,7 @@ int main(int argc, char *argv[])
         ASSERTV(arrDropWhileView.size(),
                 3 == arrDropWhileView.size());  // 3, 4, 5
 
+#if BSL_RANGES_HAS_JOIN_VIEW
         bsl::array<int, 2>                arr2{4, 5};
         bsl::array<bsl::array<int, 2>, 3> bigArray = {arr2, arr2, arr2};
         ranges::join_view                 arrJoinView =
@@ -1438,6 +1439,7 @@ int main(int argc, char *argv[])
                                                      return true;
                                                  });
         ASSERT(joinViewCount == 6);
+#endif
 
         ranges::lazy_split_view arrLazySplitView = bsl::views::lazy_split(arr,
                                                                           3);
@@ -1483,13 +1485,13 @@ int main(int argc, char *argv[])
 
         Array arrToTransform{1, 2, 3, 4, 5};
 
-        ranges::for_each_result arrForEachResult =
+        auto arrForEachResult =
                                ranges::for_each(arrToTransform, multiplyByTwo);
         ASSERTV(0 == ranges::distance(arrToTransform.end(),
                                       arrForEachResult.in));
         ASSERTV(arrToTransform[0], 2 == arrToTransform[0]);  // 2, 4, 6, 8, 10
 
-        ranges::for_each_n_result arrForEachNResult =
+        auto arrForEachNResult =
                   ranges::for_each_n(arrToTransform.begin(), 1, multiplyByTwo);
         // 4, 4, 6, 8, 10
         ASSERTV(1 == ranges::distance(arrToTransform.begin(),
@@ -1499,8 +1501,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == ranges::count(arr, 2));
         ASSERT(3 == ranges::count_if(arr, greaterThanTwo));
 
-        ranges::mismatch_result arrMismatchResult =
-                                         ranges::mismatch(arr, arrToTransform);
+        auto arrMismatchResult = ranges::mismatch(arr, arrToTransform);
         ASSERT(0 == ranges::distance(arr.begin(), arrMismatchResult.in1));
         ASSERT(0 == ranges::distance(arrToTransform.begin(),
                                      arrMismatchResult.in2));
@@ -1538,17 +1539,15 @@ int main(int argc, char *argv[])
         Array     arrToCopyTo {};
         ArrayLong arrToCopyToLong {};
 
-        ranges::copy_result arrCopyResult = ranges::copy(arr,
-                                                         arrToCopyTo.begin());
+        auto arrCopyResult = ranges::copy(arr, arrToCopyTo.begin());
         ASSERT(0 == ranges::distance(arr.end(), arrCopyResult.in));
         ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 3, 4, 5
 
         arrToCopyTo = Array {};
 
-        ranges::copy_if_result arrCopyIfResult = ranges::copy_if(
-                                                           arrToTransform,
-                                                           arrToCopyTo.begin(),
-                                                           greaterThanTwo);
+        auto arrCopyIfResult = ranges::copy_if(arrToTransform,
+                                               arrToCopyTo.begin(),
+                                               greaterThanTwo);
         ASSERT(0 == ranges::distance(arrToTransform.end(),
                                      arrCopyIfResult.in));
         ASSERTV(arrToCopyTo[0], 4 == arrToCopyTo[0]);  // 4, 4, 6, 8, 10
@@ -1556,7 +1555,7 @@ int main(int argc, char *argv[])
         arrToCopyTo = Array {};
 
         arrToCopyTo = {1, 2, 3, 4, 5};
-        ranges::copy_n_result arrCopyNResult =
+        auto arrCopyNResult =
                 ranges::copy_n(arrToTransform.begin(), 5, arrToCopyTo.begin());
         ASSERT(0 == ranges::distance(arrToTransform.begin() + 5,
                                      arrCopyNResult.in));
@@ -1564,8 +1563,7 @@ int main(int argc, char *argv[])
 
         arrToCopyTo = Array {};
 
-        ranges::copy_backward_result arrCopyBackResult =
-                                 ranges::copy_backward(arr, arrToCopyTo.end());
+        auto arrCopyBackResult = ranges::copy_backward(arr, arrToCopyTo.end());
         ASSERT(0 == ranges::distance(arr.end(), arrCopyBackResult.in));
         ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 3, 4, 5
         ASSERTV(arrToCopyTo[4], 5 == arrToCopyTo[4]);  // 1, 2, 3, 4, 5
@@ -1582,7 +1580,7 @@ int main(int argc, char *argv[])
 
         arrToCopyTo          = Array {};
 
-        ranges::move_backward_result arrMoveBackResult =
+        auto arrMoveBackResult =
                     ranges::move_backward(arrToMoveFrom2, arrToCopyTo.end());
         ASSERT(0 == ranges::distance(arrToMoveFrom2.end(),
                                      arrMoveBackResult.in));
@@ -1596,21 +1594,19 @@ int main(int argc, char *argv[])
         ASSERTV(arrToTransform[0], 1 == arrToTransform[0]);
         ASSERTV(arrToTransform[1], -1 == arrToTransform[1]);
 
-        ranges::unary_transform_result uArrTransformResult = ranges::transform(
-                                                        arrToTransform,
-                                                        arrToTransform.begin(),
-                                                        multiplyByTwo);
+        auto uArrTransformResult = ranges::transform(arrToTransform,
+                                                     arrToTransform.begin(),
+                                                     multiplyByTwo);
         // 2, -2, -2, -2, -2
         ASSERT(0 == ranges::distance(arrToTransform.end(),
                                      uArrTransformResult.in));
         ASSERTV(arrToTransform[0], 2 == arrToTransform[0]);
         ASSERTV(arrToTransform[1], -2 == arrToTransform[1]);
 
-        ranges::binary_transform_result bArrTransformResult =
-                                     ranges::transform(arr,
-                                                       arrToTransform,
-                                                       arrToTransform.begin(),
-                                                       bsl::multiplies<int>());
+        auto bArrTransformResult = ranges::transform(arr,
+                                                     arrToTransform,
+                                                     arrToTransform.begin(),
+                                                     bsl::multiplies<int>());
         ASSERT(0 == ranges::distance(arr.end(), bArrTransformResult.in1));
         ASSERTV(arrToTransform[1], -4 == arrToTransform[1]);
 
@@ -1624,24 +1620,24 @@ int main(int argc, char *argv[])
 
         arrToTransform[1] = 2;
 
-        ranges::remove(arrToTransform, 2);
+        (void)ranges::remove(arrToTransform, 2);
         ASSERTV(arrToTransform[1], 1 == arrToTransform[1]);  // 1, 1, 1, 1, 1
 
         arrToTransform[1] = 3;
 
-        ranges::remove_if(arrToTransform, greaterThanTwo);
+        (void)ranges::remove_if(arrToTransform, greaterThanTwo);
         ASSERTV(arrToTransform[1], 1 == arrToTransform[1]);  // 1, 1, 1, 1, 1
 
         arrToCopyTo = Array {};
 
-        ranges::remove_copy_result arrRemoveCopyResult =
+        auto arrRemoveCopyResult =
                               ranges::remove_copy(arr, arrToCopyTo.begin(), 1);
         ASSERTV(0 == ranges::distance(arr.end(), arrRemoveCopyResult.in));
         ASSERTV(arrToCopyTo[0], 2 == arrToCopyTo[0]);  // 2, 3, 4, 5, 1
 
         arrToCopyTo = Array {};
 
-        ranges::remove_copy_if_result arrRemoveCopyIfResult =
+        auto arrRemoveCopyIfResult =
               ranges::remove_copy_if(arr, arrToCopyTo.begin(), greaterThanTwo);
         ASSERTV(0 == ranges::distance(arr.end(), arrRemoveCopyIfResult.in));
         ASSERTV(arrToCopyTo[0], 1 == arrToCopyTo[0]);  // 1, 2, 4, 5, 1
@@ -1657,15 +1653,15 @@ int main(int argc, char *argv[])
 
         arrToCopyTo = Array {};
 
-        ranges::replace_copy_result arrReplaceCopyResult =
+        auto arrReplaceCopyResult =
                           ranges::replace_copy(arr, arrToCopyTo.begin(), 1, 3);
         ASSERTV(0 == ranges::distance(arr.end(), arrReplaceCopyResult.in));
         ASSERTV(arrToCopyTo[0], 3 == arrToCopyTo[0]);  // 3, 2, 4, 5, 3
 
         arrToCopyTo = Array {};
 
-        ranges::replace_copy_if_result arrReplaceCopyIfResult =
-                                   ranges::replace_copy_if(arr,
+        auto arrReplaceCopyIfResult = ranges::replace_copy_if(
+                                                           arr,
                                                            arrToCopyTo.begin(),
                                                            greaterThanTwo,
                                                            1);
@@ -1674,7 +1670,7 @@ int main(int argc, char *argv[])
 
         Array arrToTransform1{1, 2, 3, 4, 5};
 
-        ranges::swap_ranges_result arrSwapRangesResult =
+        auto arrSwapRangesResult =
                           ranges::swap_ranges(arrToTransform, arrToTransform1);
         ASSERTV(0 == ranges::distance(arrToTransform.end(),
                                       arrSwapRangesResult.in1));
@@ -1685,7 +1681,7 @@ int main(int argc, char *argv[])
 
         arrToCopyTo = Array {};
 
-        ranges::reverse_copy_result arrReverseCopyResult =
+        auto arrReverseCopyResult =
                                 ranges::reverse_copy(arr, arrToCopyTo.begin());
         ASSERTV(0 == ranges::distance(arr.end(), arrReverseCopyResult.in));
         ASSERTV(arr[1], 2 == arr[1]);                  // 1, 2, 3, 4, 5
@@ -1697,7 +1693,7 @@ int main(int argc, char *argv[])
 
         arrToCopyTo = Array {};
 
-        ranges::rotate_copy_result arrRotateCopyResult =
+        auto arrRotateCopyResult =
                 ranges::rotate_copy(arr, arr.begin() + 2, arrToCopyTo.begin());
         ASSERTV(0 == ranges::distance(arr.end(), arrRotateCopyResult.in));
         ASSERTV(arr[1], 2 == arr[1]);                  // 1, 2, 3, 4, 5
@@ -1716,14 +1712,14 @@ int main(int argc, char *argv[])
 
         arrToTransform = Array{1, 1, 1, 2, 2};
 
-        ranges::unique(arrToTransform);
+        (void)ranges::unique(arrToTransform);
         ASSERTV(arrToTransform[1], 2 == arrToTransform[1]);  // 1, 2, ?, ?, ?
 
         arrToTransform = Array{1, 1, 1, 2, 2};
 
         arrToCopyTo = Array {};
 
-        ranges::unique_copy_result arrUniqueCopyResult =
+        auto arrUniqueCopyResult =
                       ranges::unique_copy(arrToTransform, arrToCopyTo.begin());
         ASSERTV(0 == ranges::distance(arrToTransform.end(),
                                       arrUniqueCopyResult.in));
@@ -1741,8 +1737,8 @@ int main(int argc, char *argv[])
 
         arrToCopyTo = Array {};
 
-        ranges::partition_copy_result arrPartitionCopyResult =
-                                ranges::partition_copy(arrToTransform,
+        auto arrPartitionCopyResult = ranges::partition_copy(
+                                                       arrToTransform,
                                                        arrToCopyTo.begin(),
                                                        arrToCopyTo.begin() + 2,
                                                        greaterThanTwo);
@@ -1804,7 +1800,7 @@ int main(int argc, char *argv[])
         ASSERTV(3 == arrEqualRangeResult[0]);
 
         bsl::array<int, 10>        arrToMergeTo{};
-        const ranges::merge_result arrMergeResult =
+        const auto arrMergeResult =
                                  ranges::merge(arr, arr, arrToMergeTo.begin());
         ASSERTV(0 == ranges::distance(arr.end(), arrMergeResult.in1));
         ASSERTV(arrToMergeTo[0],
@@ -1821,7 +1817,7 @@ int main(int argc, char *argv[])
 
         arrToCopyTo = Array {};
 
-        const ranges::set_difference_result arrSetDifferenceResult =
+        const auto arrSetDifferenceResult =
                                    ranges::set_difference(arr.begin(),
                                                           arr.end(),
                                                           arr.begin(),
@@ -1832,7 +1828,7 @@ int main(int argc, char *argv[])
 
         arrToCopyTo = Array {};
 
-        const ranges::set_intersection_result arrSetIntersectionResult =
+        const auto arrSetIntersectionResult =
                        ranges::set_intersection(arr, arr, arrToCopyTo.begin());
         ASSERTV(0 == ranges::distance(arr.end(),
                                       arrSetIntersectionResult.in1));
@@ -1841,7 +1837,7 @@ int main(int argc, char *argv[])
         arrToTransform  = Array{4, 5, 6, 7, 8};
         arrToCopyToLong = ArrayLong{};
 
-        const ranges::set_symmetric_difference_result
+        const auto
             arrSetSymmetricDifferenceResult = ranges::set_symmetric_difference(
                                                       arr,
                                                       arrToTransform,
@@ -1855,7 +1851,7 @@ int main(int argc, char *argv[])
 
         arrToCopyToLong = ArrayLong{};
 
-        const ranges::set_union_result arrSetUnionResult =
+        const auto arrSetUnionResult =
                ranges::set_union(arr, arrToTransform, arrToCopyToLong.begin());
         ASSERTV(0 == ranges::distance(arr.end(), arrSetUnionResult.in1));
         ASSERTV(arrToCopyToLong[0],
@@ -1893,12 +1889,11 @@ int main(int argc, char *argv[])
         const auto arrMinElement = ranges::min_element(arr);
         ASSERTV(0 == ranges::distance(arr.begin(), arrMinElement));
 
-        const ranges::minmax_result arrMinMaxResult = ranges::minmax(arr);
+        const auto arrMinMaxResult = ranges::minmax(arr);
         ASSERTV(arrMinMaxResult.min, 1 == arrMinMaxResult.min);
         ASSERTV(arrMinMaxResult.max, 5 == arrMinMaxResult.max);
 
-        const ranges::minmax_element_result arrMinMaxElementResult =
-                                                   ranges::minmax_element(arr);
+        const auto arrMinMaxElementResult = ranges::minmax_element(arr);
         ASSERTV(0 == ranges::distance(arr.begin(),
                                       arrMinMaxElementResult.min));
 
@@ -1908,13 +1903,13 @@ int main(int argc, char *argv[])
 
         arrToTransform = Array{1, 2, 3, 4, 5};
 
-        const ranges::next_permutation_result arrNextPermutationResult =
+        const auto arrNextPermutationResult =
                                       ranges::next_permutation(arrToTransform);
         ASSERTV(0 == ranges::distance(arrToTransform.end(),
                                       arrNextPermutationResult.in));
         ASSERTV(arrToTransform[3], 5 == arrToTransform[3]);  // 1, 2, 3, 5, 4
 
-        const ranges::prev_permutation_result arrPrevPermutationResult =
+        const auto arrPrevPermutationResult =
                                       ranges::prev_permutation(arrToTransform);
         ASSERTV(0 == ranges::distance(arrToTransform.end(),
                                       arrPrevPermutationResult.in));
@@ -2817,11 +2812,13 @@ int main(int argc, char *argv[])
                                                           });
         ASSERTV(dropWhileView.size(), 3 == dropWhileView.size());  // 3, 4, 5
 
+#if BSL_RANGES_HAS_JOIN_VIEW
         Vector            vec1{6, 7, 8};
         Vector            vecArray[] = {vec, vec1};
         ranges::join_view joinView = bsl::views::join(vecArray);
         ASSERTV(joinView.front(), 1 == joinView.front());  // vecArray[0][0]
         ASSERTV(joinView.back(),  8 == joinView.back() );  // vecArray[1][2]
+#endif
 
         ranges::lazy_split_view lazySplitView = bsl::views::lazy_split(vec, 3);
         ASSERTV(false == lazySplitView.empty());
@@ -2884,12 +2881,12 @@ int main(int argc, char *argv[])
                                    return i;
                                };
 
-        ranges::for_each_result forEachResult =
+        auto forEachResult =
                                ranges::for_each(vecToTransform, multiplyByTwo);
         ASSERTV(0 == ranges::distance(vecToTransform.end(), forEachResult.in));
         ASSERTV(vecToTransform[0], 2 == vecToTransform[0]);
 
-        ranges::for_each_n_result forEachNResult =
+        auto forEachNResult =
                   ranges::for_each_n(vecToTransform.begin(), 1, multiplyByTwo);
         ASSERTV(1 == ranges::distance(vecToTransform.begin(),
                                       forEachNResult.in));
@@ -2898,8 +2895,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == ranges::count   (vec, 2));
         ASSERT(3 == ranges::count_if(vec, greaterThanTwo));
 
-        ranges::mismatch_result mismatchResult =
-                                         ranges::mismatch(vec, vecToTransform);
+        auto mismatchResult = ranges::mismatch(vec, vecToTransform);
         ASSERT(0 == ranges::distance(vec.begin(), mismatchResult.in1));
         ASSERT(0 == ranges::distance(vecToTransform.begin(),
                                      mismatchResult.in2));
@@ -2907,19 +2903,19 @@ int main(int argc, char *argv[])
         ASSERT(true  == ranges::equal                  (vec, vec));
         ASSERT(false == ranges::lexicographical_compare(vec, vec));
 
-        auto findResult         = ranges::find(vec, 1);
+        auto findResult = ranges::find(vec, 1);
         ASSERT(0 == ranges::distance(vec.begin(), findResult));
 
-        auto findIfResult       = ranges::find_if(vec, greaterThanTwo);
+        auto findIfResult = ranges::find_if(vec, greaterThanTwo);
         ASSERT(2 == ranges::distance(vec.begin(), findIfResult));
 
-        auto findIfNotResult    = ranges::find_if_not(vec, greaterThanTwo);
+        auto findIfNotResult = ranges::find_if_not(vec, greaterThanTwo);
         ASSERT(0 == ranges::distance(vec.begin(), findIfNotResult));
 
-        auto findEndResult      = ranges::find_end(vec, vecToTransform);
+        auto findEndResult = ranges::find_end(vec, vecToTransform);
         ASSERT(0 == ranges::distance(vec.end(), findEndResult.begin()));
 
-        auto findFirstOfResult  = ranges::find_first_of(vec, vec);
+        auto findFirstOfResult = ranges::find_first_of(vec, vec);
         ASSERT(0 == ranges::distance(vec.begin(), findFirstOfResult));
 
         auto adjacentFindResult = ranges::adjacent_find(vecToTransform);
@@ -2935,28 +2931,23 @@ int main(int argc, char *argv[])
 
         Vector vecToCopyTo(20);
 
-        ranges::copy_result copyResult =  ranges::copy(vec,
-                                                       vecToCopyTo.begin());
+        auto copyResult = ranges::copy(vec, vecToCopyTo.begin());
         ASSERT(0 == ranges::distance(vec.end(), copyResult.in));
         ASSERTV(vecToCopyTo[0], 1 == vecToCopyTo[0]);  // 1, 2, 3, 4, 5
 
-        ranges::copy_if_result copyIfResult = ranges::copy_if(
-                                                       vecToTransform,
-                                                       vecToCopyTo.begin() + 5,
-                                                       greaterThanTwo);
+        auto copyIfResult = ranges::copy_if(vecToTransform,
+                                            vecToCopyTo.begin() + 5,
+                                            greaterThanTwo);
         ASSERT(0 == ranges::distance(vecToTransform.end(), copyIfResult.in));
         ASSERTV(vecToCopyTo[5], 4  == vecToCopyTo[5]); // ... 4, 4, 6, 8, 10
 
-        ranges::copy_n_result copyNResult = ranges::copy_n(
-                                                     vecToCopyTo.begin(),
-                                                     5,
-                                                     vecToCopyTo.begin() + 10);
+        auto copyNResult = ranges::copy_n(vecToCopyTo.begin(),
+                                          5,
+                                          vecToCopyTo.begin() + 10);
         ASSERT(0 == ranges::distance(vecToCopyTo.begin() + 5, copyNResult.in));
         ASSERTV(vecToCopyTo[10], 1  == vecToCopyTo[10]);  // ... 1, 2, 3, 4, 5
 
-        ranges::copy_backward_result copyBackResult = ranges::copy_backward(
-                                                            vec,
-                                                            vecToCopyTo.end());
+        auto copyBackResult = ranges::copy_backward(vec, vecToCopyTo.end());
         ASSERT(0 == ranges::distance(vec.end(), copyBackResult.in));
         ASSERTV(vecToCopyTo[15], 1  == vecToCopyTo[15]);  // ... 1, 2, 3, 4, 5
 
@@ -2968,9 +2959,8 @@ int main(int argc, char *argv[])
 
         Vector vecToMoveFrom2 = {5, 4, 3, 2, 1};
 
-        ranges::move_backward_result moveBackResult = ranges::move_backward(
-                                                     vecToMoveFrom2,
-                                                     vecToCopyTo.begin() + 10);
+        auto moveBackResult = ranges::move_backward(vecToMoveFrom2,
+                                                    vecToCopyTo.begin() + 10);
         ASSERT(0 == ranges::distance(vecToMoveFrom2.end(), moveBackResult.in));
         ASSERTV(vecToCopyTo[5], 5 == vecToCopyTo[5]);  // ... 5, 4, 3, 2, 1 ...
 
@@ -2981,19 +2971,17 @@ int main(int argc, char *argv[])
         ASSERTV(vecToTransform[0],  1 == vecToTransform[0]);
         ASSERTV(vecToTransform[1], -1 == vecToTransform[1]);
 
-        ranges::unary_transform_result uTransformResult = ranges::transform(
-                                                        vecToTransform,
-                                                        vecToTransform.begin(),
-                                                        multiplyByTwo);
+        auto uTransformResult = ranges::transform(vecToTransform,
+                                                  vecToTransform.begin(),
+                                                  multiplyByTwo);
         ASSERT(0 == ranges::distance(vecToTransform.end(),
                                      uTransformResult.in));
         ASSERTV(vecToTransform[0], 2 == vecToTransform[0]);
 
-        ranges::binary_transform_result bTransformResult = ranges::transform(
-                                                       vec,
-                                                       vecToTransform,
-                                                       vecToTransform.begin(),
-                                                       bsl::multiplies<int>());
+        auto bTransformResult = ranges::transform(vec,
+                                                  vecToTransform,
+                                                  vecToTransform.begin(),
+                                                  bsl::multiplies<int>());
         ASSERT(0 == ranges::distance(vec.end(), bTransformResult.in1));
         ASSERTV(vecToTransform[1], -4 == vecToTransform[1]);
 
@@ -3020,18 +3008,15 @@ int main(int argc, char *argv[])
         (void)ranges::remove_if(vecToTransform, greaterThanTwo);
         ASSERTV(vecToTransform[1], 1 == vecToTransform[1]);  // 1, 1, 1, 1, 1
 
-        ranges::remove_copy_result removeCopyResult = ranges::remove_copy(
-                                                           vec,
-                                                           vecToCopyTo.begin(),
-                                                           1);
+        auto removeCopyResult = ranges::remove_copy(vec,
+                                                    vecToCopyTo.begin(),
+                                                    1);
         ASSERTV(0 == ranges::distance(vec.end(), removeCopyResult.in));
         ASSERTV(vecToCopyTo[0], 2 == vecToCopyTo[0]);  // 2, 3, 4, 5, 1, ...
 
-        ranges::remove_copy_if_result removeCopyIfResult =
-                                             ranges::remove_copy_if(
-                                                           vec,
-                                                           vecToCopyTo.begin(),
-                                                           greaterThanTwo);
+        auto removeCopyIfResult = ranges::remove_copy_if(vec,
+                                                         vecToCopyTo.begin(),
+                                                         greaterThanTwo);
         ASSERTV(0 == ranges::distance(vec.end(), removeCopyIfResult.in));
         ASSERTV(vecToCopyTo[0], 1 == vecToCopyTo[0]);  // 1, 2, 4, 5, 1, ...
 
@@ -3041,17 +3026,14 @@ int main(int argc, char *argv[])
         ranges::replace_if(vecToTransform, greaterThanTwo, 1);
         ASSERTV(vecToTransform[1], 1 == vecToTransform[1]);  // 1, 1, 1, 1, 1
 
-        ranges::replace_copy_result replaceCopyResult = ranges::replace_copy(
-                                                           vec,
-                                                           vecToCopyTo.begin(),
-                                                           1,
-                                                           3);
+        auto replaceCopyResult = ranges::replace_copy(vec,
+                                                      vecToCopyTo.begin(),
+                                                      1,
+                                                      3);
         ASSERTV(0 == ranges::distance(vec.end(), replaceCopyResult.in));
         ASSERTV(vecToCopyTo[0], 3 == vecToCopyTo[0]);  // 3, 2, 4, 5, 3, ...
 
-        ranges::replace_copy_if_result replaceCopyIfResult =
-                                             ranges::replace_copy_if(
-                                                           vec,
+        auto replaceCopyIfResult = ranges::replace_copy_if(vec,
                                                            vecToCopyTo.begin(),
                                                            greaterThanTwo,
                                                            1);
@@ -3060,9 +3042,8 @@ int main(int argc, char *argv[])
 
         Vector vecToTransform1{1, 2, 3, 4, 5};
 
-        ranges::swap_ranges_result swapRangesResult = ranges::swap_ranges(
-                                                              vecToTransform,
-                                                              vecToTransform1);
+        auto swapRangesResult = ranges::swap_ranges(vecToTransform,
+                                                    vecToTransform1);
         ASSERTV(0 == ranges::distance(vecToTransform.end(),
                                       swapRangesResult.in1));
         ASSERTV(vecToTransform[1], 2 == vecToTransform[1]);  // 1, 2, 3, 4, 5
@@ -3070,9 +3051,8 @@ int main(int argc, char *argv[])
         ranges::reverse(vecToTransform);
         ASSERTV(vecToTransform[1], 4 == vecToTransform[1]);  // 5, 4, 3, 2, 1
 
-        ranges::reverse_copy_result reverseCopyResult = ranges::reverse_copy(
-                                                          vec,
-                                                          vecToCopyTo.begin());
+        auto reverseCopyResult = ranges::reverse_copy(vec,
+                                                      vecToCopyTo.begin());
         ASSERTV(0 == ranges::distance(vec.end(), reverseCopyResult.in));
         ASSERTV(vec[1],         2 == vec[1]);          // 1, 2, 3, 4, 5
         ASSERTV(vecToCopyTo[1], 4 == vecToCopyTo[1]);  // 5, 4, 3, 2, 1, ...
@@ -3080,10 +3060,9 @@ int main(int argc, char *argv[])
         ranges::rotate(vecToTransform, vecToTransform.begin() + 1);
         ASSERTV(vecToTransform[1], 3 == vecToTransform[1]);  // 4, 3, 2, 1, 5
 
-        ranges::rotate_copy_result rotateCopyResult = ranges::rotate_copy(
-                                                          vec,
-                                                          vec.begin() + 2,
-                                                          vecToCopyTo.begin());
+        auto rotateCopyResult = ranges::rotate_copy(vec,
+                                                    vec.begin() + 2,
+                                                    vecToCopyTo.begin());
         ASSERTV(0 == ranges::distance(vec.end(), rotateCopyResult.in));
         ASSERTV(vec[1],         2 == vec[1]);          // 1, 2, 3, 4, 5
         ASSERTV(vecToCopyTo[1], 4 == vecToCopyTo[1]);  // 3, 4, 5, 1, 2, ...
@@ -3107,9 +3086,8 @@ int main(int argc, char *argv[])
 
         vecToTransform = Vector{1, 1, 1, 2, 2};
 
-        ranges::unique_copy_result uniqueCopyResult = ranges::unique_copy(
-                                                          vecToTransform,
-                                                          vecToCopyTo.begin());
+        auto uniqueCopyResult = ranges::unique_copy(vecToTransform,
+                                                    vecToCopyTo.begin());
         ASSERTV(0 == ranges::distance(vecToTransform.end(),
                                       uniqueCopyResult.in));
         ASSERTV(vecToTransform[1], 1 == vecToTransform[1]);  // 1, 1, 1, 2, 2
@@ -3124,8 +3102,7 @@ int main(int argc, char *argv[])
 
         vecToTransform = Vector{2, 2, 2, 3, 3};
 
-        ranges::partition_copy_result partitionCopyResult =
-                                                   ranges::partition_copy(
+        auto partitionCopyResult = ranges::partition_copy(
                                                        vecToTransform,
                                                        vecToCopyTo.begin(),
                                                        vecToCopyTo.begin() + 5,
@@ -3185,9 +3162,9 @@ int main(int argc, char *argv[])
         auto equalRangeResult = ranges::equal_range(vec, 3);
         ASSERTV(3 == equalRangeResult[0]);
 
-        ranges::merge_result mergeResult = ranges::merge(vec,
-                                                         vec,
-                                                         vecToCopyTo.begin());
+        auto mergeResult = ranges::merge(vec,
+                                         vec,
+                                         vecToCopyTo.begin());
         ASSERTV(0 == ranges::distance(vec.end(), mergeResult.in1));
         ASSERTV(vecToCopyTo[0], 1 == vecToCopyTo[0]);  // 1, 1, 2, 2, 3, 3, ...
         ASSERTV(true == ranges::is_sorted(vecToCopyTo.begin(),
@@ -3200,8 +3177,7 @@ int main(int argc, char *argv[])
 
         ASSERTV(true == ranges::includes(vec, vec));
 
-        ranges::set_difference_result setDifferenceResult =
-                                   ranges::set_difference(vec.begin(),
+        auto setDifferenceResult = ranges::set_difference(vec.begin(),
                                                           vec.end(),
                                                           vec.begin(),
                                                           vec.begin() + 3,
@@ -3209,7 +3185,7 @@ int main(int argc, char *argv[])
         ASSERTV(0 == ranges::distance(vec.end(), setDifferenceResult.in));
         ASSERTV(vecToCopyTo[0], 4 == vecToCopyTo[0]);  // 4, 5, 2, 2, 3, 3, ...
 
-        ranges::set_intersection_result setIntersectionResult =
+        auto setIntersectionResult =
                                  ranges::set_intersection(vec,
                                                           vec,
                                                           vecToCopyTo.begin());
@@ -3218,7 +3194,7 @@ int main(int argc, char *argv[])
 
         vecToTransform = Vector{4, 5, 6, 7, 8};
 
-        ranges::set_symmetric_difference_result setSymmetricDifferenceResult =
+        auto setSymmetricDifferenceResult =
                          ranges::set_symmetric_difference(vec,
                                                           vecToTransform,
                                                           vecToCopyTo.begin());
@@ -3226,10 +3202,9 @@ int main(int argc, char *argv[])
                                       setSymmetricDifferenceResult.in1));
         ASSERTV(vecToCopyTo[0], 1 == vecToCopyTo[0]);  // 1, 2, 3, 6, 7, 8, ...
 
-        ranges::set_union_result setUnionResult = ranges::set_union(
-                                                          vec,
-                                                          vecToTransform,
-                                                          vecToCopyTo.begin());
+        auto setUnionResult = ranges::set_union(vec,
+                                                vecToTransform,
+                                                vecToCopyTo.begin());
         ASSERTV(0 == ranges::distance(vec.end(),
                                       setUnionResult.in1));
         ASSERTV(vecToCopyTo[0], 1 == vecToCopyTo[0]);  // 1, 2, 3, 4, 5, 6, ...
@@ -3265,11 +3240,10 @@ int main(int argc, char *argv[])
         auto minElement = ranges::min_element(vec);
         ASSERTV(0 == ranges::distance(vec.begin(), minElement));
 
-        ranges::minmax_result minMaxResult = ranges::minmax(vec);
+        auto minMaxResult = ranges::minmax(vec);
         ASSERTV(minMaxResult.min, 1 == minMaxResult.min);
 
-        ranges::minmax_element_result minMaxElementResult =
-                                                   ranges::minmax_element(vec);
+        auto minMaxElementResult = ranges::minmax_element(vec);
         ASSERTV(0 == ranges::distance(vec.begin(), minMaxElementResult.min));
 
         ASSERT(2 == bsl::clamp(1, 2, 3));
@@ -3278,14 +3252,12 @@ int main(int argc, char *argv[])
 
         vecToTransform = Vector{1, 2, 3, 4, 5};
 
-        ranges::next_permutation_result nextPermutationResult =
-                                      ranges::next_permutation(vecToTransform);
+        auto nextPermutationResult = ranges::next_permutation(vecToTransform);
         ASSERTV(0 == ranges::distance(vecToTransform.end(),
                                       nextPermutationResult.in));
         ASSERTV(vecToTransform[3], 5 == vecToTransform[3]);  // 1, 2, 3, 5, 4
 
-        ranges::prev_permutation_result prevPermutationResult =
-                                      ranges::prev_permutation(vecToTransform);
+        auto prevPermutationResult = ranges::prev_permutation(vecToTransform);
         ASSERTV(0 == ranges::distance(vecToTransform.end(),
                                       prevPermutationResult.in));
         ASSERTV(vecToTransform[3], 4 == vecToTransform[3]);  // 1, 2, 3, 4, 5
