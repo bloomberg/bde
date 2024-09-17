@@ -281,9 +281,11 @@ bsl::streamsize InBlobStreamBuf::xsgetn(char_type       *destination,
         bsl::streamsize remainingChars = egptr() - gptr();
         bsl::streamsize canCopy        = bsl::min(remainingChars, numLeft);
 
-        bsl::memcpy(destination + numCopied, gptr(), canCopy);
-        gbump(static_cast<int>(canCopy));
-        numLeft -= canCopy;
+        if (0 < canCopy) {
+            bsl::memcpy(destination + numCopied, gptr(), canCopy);
+            gbump(static_cast<int>(canCopy));
+            numLeft -= canCopy;
+        }
 
         if (0 < numLeft && gptr() == egptr() &&
             traits_type::eof() == underflow()) {
