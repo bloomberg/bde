@@ -43,32 +43,6 @@ BSLS_IDENT("$Id: $")
 // Note that, `BSLMT_THREAD_LOCAL_VARIABLE` should *not* be instantiated at
 // class scope.
 //
-///Platform Notes
-///--------------
-// Since the C++ standard prior to C++11 does not define a thread-local storage
-// specifier, support varies between platforms and compilers.  Moreover,
-// thread-local variables are *not* supported on (1) Solaris with gcc or (2)
-// AIX due to compiler or runtime limitations.  See the following table for
-// details.
-// ```
-// +----------+----------------------------------------------------------------
-// | Platform |  Note
-// |----------+----------------------------------------------------------------
-// |  AIX     |  o A bug in the AIX compiler prevents compiling translation
-// |          |    units with more than 10 thread-local variables with debug
-// |          |    symbols.  This has been fixed in xlC8 (internal ticket
-// |          |    DRQS 13819416), but has not yet been fixed for xlC10.
-// |          |
-// |          |  o xlC8 does not support class scoped thread-local variables.
-// |----------+----------------------------------------------------------------
-// | Solaris  |  o Thread local variables are not currently supported due to a
-// |  gcc     |    run-time failure (on thread-exit) for tasks using
-// |          |    thread-local variables.  Note that both the Solaris native
-// |          |    compiler, and gcc on Linux do support thread-local
-// |          |    variables.
-// +----------+----------------------------------------------------------------
-// ```
-//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -187,29 +161,18 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_platform.h>
 
-#include <bslmf_assert.h>
-#include <bslmf_ispointer.h>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    #include <bsls_platform.h>
+
+    #include <bslmf_assert.h>
+    #include <bslmf_ispointer.h>
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
                             // =================
                             // Macro Definitions
                             // =================
 
-#if !(defined(BSLS_PLATFORM_OS_AIX)     && defined(BSLS_PLATFORM_CMP_IBM))    \
- && !(defined(BSLS_PLATFORM_OS_SOLARIS) && defined(BSLS_PLATFORM_CMP_GCC))
-/// This macro should *not* be used by clients outside of the `bslmt`
-/// package at this time.
-///
-/// On IBM, the introduction of thread-local storage causes static
-/// initializers for shared objects to stop running.  This problem is
-/// described in DRQS 16438026.  Therefore, even though thread-local storage
-/// is supported by xlC10, it is explicitly not used here.
-///
-/// On Solaris, only native Sun C++ compiler correctly supports this
-/// feature.  GCC causes run-time failure on thread-exit when thread-local
-/// variables are used.
-///
 /// Define, at function or namespace scope, a thread-local `static` variable
 /// having the specified `VARIABLE_NAME` of the specified `BASIC_TYPE`,
 /// initialized with the specified `INITIAL_VALUE`.  If `VARIABLE_NAME` is
@@ -224,7 +187,6 @@ static BSLMT_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
 #define BSLMT_THREAD_LOCAL_KEYWORD thread_local
 #else
 #define BSLMT_THREAD_LOCAL_KEYWORD __thread
-#endif
 #endif
 
 #endif

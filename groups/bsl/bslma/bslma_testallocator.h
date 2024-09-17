@@ -826,7 +826,7 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
 // Note that the `while` loop in the following code uses a flag
 // `bslmaKeepLoopingInTestAllocatorExceptionTest`.  This is a workaround for an
 // XLC16 bug: a `continue` statement in a `catch` block can result in
-// segementation faults on optimized XLC16 builds.  Bug raised with IBM - see
+// segmentation faults on optimized XLC16 builds.  Bug raised with IBM - see
 // DRQS 169604597
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(BSLMA_TESTALLOCATOR) {     \
     {                                                                       \

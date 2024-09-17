@@ -446,32 +446,8 @@ void my_Barrier::wait()
 }
 
 // ============================================================================
-//                                TEST GUARD
-// ----------------------------------------------------------------------------
-
-// Verify that the macro is defined on supported platforms.
-#if !(defined(BSLS_PLATFORM_OS_AIX)     && defined(BSLS_PLATFORM_CMP_IBM))    \
- && !(defined(BSLS_PLATFORM_OS_SOLARIS) && defined(BSLS_PLATFORM_CMP_GCC))
-#ifndef BSLMT_THREAD_LOCAL_VARIABLE
-#error "'BSLMT_THREAD_LOCAL_VARIABLE' macro undefined for a supported platform"
-#endif
-#else  // unsupported platform
-#ifdef BSLMT_THREAD_LOCAL_VARIABLE
-#error "BSLMT_THREAD_LOCAL_VARIABLE macro defined for an unsupported platform"
-#endif
-#endif
-
-// If the macro is not define (i.e., this is an unsupported platform) disable
-// all the tests.
-#ifndef BSLMT_THREAD_LOCAL_VARIABLE
-#define DISABLE_TEST
-#endif
-
-// ============================================================================
 //                               TEST CLASSES
 // ----------------------------------------------------------------------------
-
-#ifndef DISABLE_TEST
 
 // ---------------------------  my_Barrier Test  ------------------------------
 
@@ -803,8 +779,6 @@ extern "C" void *usageTest(void *voidArgs)
     return 0;
 }
 
-#endif // #ifndef DISABLE_TEST
-
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -823,10 +797,6 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-#ifdef DISABLE_TEST
-// If testing is disable, we still require a fake test case.
-      case 1: {} break;
-#else // #ifndef DISABLE_TEST
       case 6: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
@@ -844,7 +814,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Usage Example"
-                          << "\n=====================" << endl;
+                             "\n=====================\n";
 
         RequestProcessor processor;
         const int NUM_THREADS = 5;
@@ -874,9 +844,8 @@ int main(int argc, char *argv[])
         //    the same value.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "DATA TYPES" << endl
-                          << "==========" << endl;
+        if (verbose) cout << "\nDATA TYPES"
+                             "\n==========\n";
 
         const int NUM_THREADS = 5;
         my_Barrier             barrier(NUM_THREADS);
@@ -907,9 +876,8 @@ int main(int argc, char *argv[])
         //    and verify that they are initialized correctly.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "Initial Value" << endl
-                          << "=============" << endl;
+        if (verbose) cout << "\nInitial Value"
+                             "\n=============\n";
 
         const int NUM_THREADS = 5;
         my_Barrier             barrier(NUM_THREADS);
@@ -940,9 +908,8 @@ int main(int argc, char *argv[])
         //    different address (and value) for each thread.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "Global Scope Variable Address Test" << endl
-                          << "==================================" << endl;
+        if (verbose) cout << "\nGlobal Scope Variable Address Test"
+                             "\n==================================\n";
 
         const int NUM_THREADS = 5;
         my_Barrier              barrier(NUM_THREADS);
@@ -987,9 +954,8 @@ int main(int argc, char *argv[])
         //    invocation.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "Function Scope Variable Address Test" << endl
-                          << "====================================" << endl;
+        if (verbose) cout << "\nFunction Scope Variable Address Test"
+                             "\n====================================\n";
 
         const int NUM_THREADS = 5;
         my_Barrier              barrier(NUM_THREADS);
@@ -1035,8 +1001,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTesting Helper: 'my_Barrier'"
-                               << "\n============================"
-                               << bsl::endl;
+                                  "\n============================\n";
 
         for (int numThreads = 1; numThreads < 9; ++numThreads) {
 
@@ -1051,12 +1016,12 @@ int main(int argc, char *argv[])
             for (int i = 0; i < numThreads; ++i) {
                 myCreateThread(&handles[i], barrierTest, &args);
             }
+
             for (int i = 0; i < numThreads; ++i) {
                 myJoinThread(handles[i]);
             }
         }
       } break;
-#endif // #ifndef DISABLE_TEST
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
         testStatus = -1;
