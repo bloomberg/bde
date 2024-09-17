@@ -61,6 +61,15 @@ BSLS_IDENT("$Id: $")
 // notation and the scientific notation, favoring decimal notation in case of a
 // tie.
 //
+///General Floating Point Format
+///-----------------------------
+// The general floating point format uses the shortest representation of either
+// the decimal notation or the scientific notation.  The decision between the
+// two notations is done so that if the scientific notation's exponent would be
+// [6, -4) (less than 7 and greater than -4) decimal notation is produced,
+// otherwise (if the exponent is 7 or greater, or -4 or smaller) the scientific
+// notation will be used.
+//
 ///Special Floating Point Values
 ///-----------------------------
 // Floating point values may also be special-numerical or non-numerical(*)
@@ -83,11 +92,13 @@ BSLS_IDENT("$Id: $")
 // +-------------------+----------------+
 // | negative zero     | "-0", "-0e+00" |
 // +-------------------+----------------+
-// | positive infinity | "+INF"         |
+// | positive infinity | "inf"          |
 // +-------------------+----------------+
-// | negative infinity | "-INF"         |
+// | negative infinity | "-inf"         |
 // +-------------------+----------------+
-// | Not-a-number      | "NaN"          |
+// | not-a-number      | "nan"          |
+// +-------------------+----------------+
+// | neg. not-a-number | "-nan"         |
 // +-------------------+----------------+
 // ```
 //
@@ -337,23 +348,23 @@ struct NumericFormatterUtil {
   private:
     // PRIVATE CLASS METHODS
 
-    /// Write the specified `value` into the character buffer starting a the
+    /// Write the specified `value` into the character buffer starting at the
     /// specified `first` and ending at the specified `last`, rendering the
-    /// value in the specified base `base`.  On success, return a the
-    /// address one past the lowest order digit written, on failure, return
-    /// 0.  The only reason for failure is if the range `[ first, last )` is
-    /// not large enough to contain the result.  The written result is to
-    /// begin at `first` with leftover room following the return value.  The
-    /// behavior is undefined unless `first <= last` and `base` is in the
-    /// range `[ 2 .. 36 ]`.
+    /// value in the specified `base`.  On success, return a the address one
+    /// past the lowest order digit written, on failure, return 0.  The only
+    /// reason for failure is if the range `[ first, last )` is not large
+    /// enough to contain the result.  The written result is to begin at
+    /// `first` with leftover room following the return value.  The behavior is
+    /// undefined unless `first <= last` and `base` is in the range
+    /// `[ 2 .. 36 ]`.
     static char *toCharsImpl(char     *first,
                              char     *last,
                              unsigned  value,
                              int       base) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Write the specified `value` into the character buffer starting a the
-    /// specified `first` and ending at the specified `last`, ing the value
-    /// in the specified base `base`.  On success, return a the address one
+    /// Write the specified `value` into the character buffer starting at the
+    /// specified `first` and ending at the specified `last`, rendering the
+    /// value in the specified `base`.  On success, return a the address one
     /// past the lowest order digit written, on failure, return 0.  The only
     /// reason for failure is if the range `[ first, last )` is not large
     /// enough to contain the result.  The written result is to begin at
@@ -367,7 +378,7 @@ struct NumericFormatterUtil {
                       int                      base) BSLS_KEYWORD_NOEXCEPT;
 
     /// Write the textual representation of the specified `value` in the
-    /// specified `base` into the character buffer starting a the specified
+    /// specified `base` into the character buffer starting at the specified
     /// `first` and ending at the specified `last`.  Return the address one
     /// past the lowest order digit written on success, or 0 on failure.
     /// The only possible reason for failure is if the range
@@ -384,11 +395,11 @@ struct NumericFormatterUtil {
                                  int   base) BSLS_KEYWORD_NOEXCEPT;
 
     /// Write the textual representation of the specified `value` in decimal
-    /// notation into the character buffer starting a the specified `first` and
-    /// ending at the specified `last`.  Return the address one past the lowest
-    /// order digit written on success, or 0 on failure.  The only possible
-    /// reason for failure is if the range `[ first, last )` is not large
-    /// enough to contain the result.  The written result is to begin at
+    /// notation into the character buffer starting at the specified `first`
+    /// and ending at the specified `last`.  Return the address one past the
+    /// lowest order digit written on success, or 0 on failure.  The only
+    /// possible reason for failure is if the range `[ first, last )` is not
+    /// large enough to contain the result.  The written result is to begin at
     /// `first` with leftover room following the return value.
     static char *toCharsDecimal(char   *first,
                                 char   *last,
@@ -398,18 +409,116 @@ struct NumericFormatterUtil {
                                 float   value) BSLS_KEYWORD_NOEXCEPT;
 
     /// Write the textual representation of the specified `value` in scientific
-    /// notation into the character buffer starting a the specified `first` and
-    /// ending at the specified `last`.  Return the address one past the lowest
-    /// order digit of the exponent written on success, or 0 on failure.  The
-    /// only possible reason for failure is if the range `[ first, last )` is
-    /// not large enough to contain the result.  The written result is to begin
-    /// at `first` with leftover room following the return value.
+    /// notation into the character buffer starting at the specified `first`
+    /// and ending at the specified `last`.  Return the address one past the
+    /// lowest order digit of the exponent written on success, or 0 on failure.
+    /// The only possible reason for failure is if the range `[ first, last )`
+    /// is not large enough to contain the result.  The written result is to
+    /// begin at `first` with leftover room following the return value.
     static char *toCharsScientific(char   *first,
                                    char   *last,
                                    double  value) BSLS_KEYWORD_NOEXCEPT;
     static char *toCharsScientific(char   *first,
                                    char   *last,
                                    float   value) BSLS_KEYWORD_NOEXCEPT;
+
+    /// Write the textual representation of the specified `value` in general
+    /// notation into the character buffer starting at the specified `first`
+    /// and ending at the specified `last`.  Return the address one past the
+    /// lowest order digit written on success, or 0 on failure.  The only
+    /// possible reason for failure is if the range `[ first, last )` is not
+    /// large enough to contain the result.  The written result is to begin at
+    /// `first` with leftover room following the return value.
+    static char *toCharsGeneral(char   *first,
+                                char   *last,
+                                double  value) BSLS_KEYWORD_NOEXCEPT;
+    static char *toCharsGeneral(char   *first,
+                                char   *last,
+                                float   value) BSLS_KEYWORD_NOEXCEPT;
+
+    /// Write the textual representation of the specified `value` in hexfloat
+    /// notation into the character buffer starting at the specified `first`
+    /// and ending at the specified `last`.  Return the address one past the
+    /// lowest order digit of the exponent written on success, or 0 on failure.
+    /// The only possible reason for failure is if the range `[ first, last )`
+    /// is not large enough to contain the result.  The written result is to
+    /// begin at `first` with leftover room following the return value.
+    static char *toCharsHex(char   *first,
+                            char   *last,
+                            double  value) BSLS_KEYWORD_NOEXCEPT;
+    static char *toCharsHex(char   *first,
+                            char   *last,
+                            float   value) BSLS_KEYWORD_NOEXCEPT;
+
+    /// Write the textual representation of the specified `value` in decimal
+    /// notation using the specified `precision` into the character buffer
+    /// starting at the specified `first` and ending at the specified `last`.
+    /// Return the address one past the lowest order digit written on success,
+    /// or 0 on failure.  The only possible reason for failure is if the range
+    /// `[ first, last )` is not large enough to contain the result.  The
+    /// written result is to begin at `first` with leftover room following the
+    /// return value.
+    static char *toCharsDecimalPrec(char   *first,
+                                    char   *last,
+                                    double  value,
+                                    int     precision) BSLS_KEYWORD_NOEXCEPT;
+    static char *toCharsDecimalPrec(char   *first,
+                                    char   *last,
+                                    float   value,
+                                    int     precision) BSLS_KEYWORD_NOEXCEPT;
+
+    /// Write the textual representation of the specified `value` in scientific
+    /// notation using the specified `precision` into the character buffer
+    /// starting at the specified `first` and ending at the specified `last`.
+    /// Return the address one past the lowest order digit of the exponent
+    /// written on success, or 0 on failure.  The only possible reason for
+    /// failure is if the range `[ first, last )` is not large enough to
+    /// contain the result.  The written result is to begin at `first` with
+    /// leftover room following the return value.
+    static char *toCharsScientificPrec(char   *first,
+                                       char   *last,
+                                       double  value,
+                                       int     precision)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    static char *toCharsScientificPrec(char   *first,
+                                       char   *last,
+                                       float   value,
+                                       int     precision)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+
+    /// Write the textual representation of the specified `value` in general
+    /// notation using the specified `precision` into the character buffer
+    /// starting at the specified `first` and ending at the specified `last`.
+    /// Return the address one past the lowest order digit written on success,
+    /// or 0 on failure.  The only possible reason for failure is if the range
+    /// `[ first, last )` is not large enough to contain the result.  The
+    /// written result is to begin at `first` with leftover room following the
+    /// return value.
+    static char *toCharsGeneralPrec(char   *first,
+                                    char   *last,
+                                    double  value,
+                                    int     precision) BSLS_KEYWORD_NOEXCEPT;
+    static char *toCharsGeneralPrec(char   *first,
+                                    char   *last,
+                                    float   value,
+                                    int     precision) BSLS_KEYWORD_NOEXCEPT;
+
+    /// Write the textual representation of the specified `value` in hexfloat
+    /// notation using the specified `precision` into the character buffer
+    /// starting at the specified `first` and ending at the specified `last`.
+    /// Return the address one past the lowest order digit of the exponent
+    /// written on success, or 0 on failure.  The only possible reason for
+    /// failure is if the range `[ first, last )` is not large enough to
+    /// contain the result.  The written result is to begin at `first` with
+    /// leftover room following the return value.
+    static char *toCharsHexPrec(char   *first,
+                                char   *last,
+                                double  value,
+                                int precision) BSLS_KEYWORD_NOEXCEPT;
+    static char *toCharsHexPrec(char   *first,
+                                char   *last,
+                                float   value,
+                                int precision) BSLS_KEYWORD_NOEXCEPT;
 
   private:
     // NOT IMPLEMENTED
@@ -470,20 +579,14 @@ struct NumericFormatterUtil {
 
   public:
     // PUBLIC TYPES
-    enum Format {
-        // This enumeration lists the supported, explicitly specified 'toChars'
-        // formatting options for floating point values.  (The default format
-        // option, shortest round-trip, is specified implicitly by omitting the
-        // 'format' argument.)  Additional enumerators are reserved for future
-        // use:
-        //: 'e_HEX     = 0x100'
-        //: 'e_GENERAL = e_SCIENTIFIC | e_FIXED'
-        // and correspond to the C++17 'std::chars_format' 'hex', and 'general'
-        // enumerators.  See {Adding 'Format's} in the {Implementation Notes}
-        // of the implementation (.cpp) file.
 
-        e_SCIENTIFIC = 0x40,
-        e_FIXED      = 0x80
+    /// This enumeration lists the supported, explicitly specified 'toChars'
+    /// formatting options for floating point values, according to ISO C++17.
+    enum Format {
+        e_SCIENTIFIC = 0x040,
+        e_FIXED      = 0x080,
+        e_HEX        = 0x100,
+        e_GENERAL    = e_FIXED | e_SCIENTIFIC
     };
 
     // PUBLIC METAFUNCTIONS
@@ -502,26 +605,17 @@ struct NumericFormatterUtil {
     /// compile-time "return value" of `ToCharsMaxLength` is an enumerator
     /// name `k_VALUE`.  For usage examples see {Example 3: Determining The
     /// Required Buffer Size}.
-    template <class TYPE,
-              int   ARG = k_MAXLEN_ARG_DEFAULT>
+    template <class TYPE, int ARG = k_MAXLEN_ARG_DEFAULT>
     struct ToCharsMaxLength;
 
     // PUBLIC CLASS METHODS
 
-    /// Write the specified `value` into the character buffer starting a the
-    /// specified `first` and ending at the specified `last`, `last` not
-    /// included.  In integer conversions, if the optionally specified `base`
-    /// argument is not present or specified, base 10 is used. In floating
-    /// point conversions, if the optionally specified `format` argument is not
-    /// present or specified, the {Default Floating Point Format} is used.  If
-    /// a `format` argument is specified (`e_DECIMAL` or `e_SCIENTIFIC`), the
-    /// {Shortest (Textual) Decimal Representation for Binary Floating Point
-    /// Values} is used in that format (that will produce the exact binary
-    /// floating point `value` when converted back to the original type from
-    /// text), but see possible exceptions under {Special Floating Point
-    /// Values}.  Return the address one past the last character (lowest order
-    /// digit or last digit of the exponent) written on success, or `0` on
-    /// failure.  The only reason for failure is when the range
+    /// Write the specified integral `value` into the character buffer starting
+    // a the/ specified `first` and ending at the specified `last`, `last` not
+    /// included.  If the optionally specified `base`argument is not present
+    /// base 10 is used. Return the address one past the last character (lowest
+    /// order digit or last digit of the exponent) written on success, or `0`
+    /// on failure.  The only reason for failure is when the range
     /// `[ first, last )` is not large enough to contain the result.  The
     /// written result is to begin at `first` with leftover room following the
     /// return value.  The behavior is undefined unless `first <= last`, and
@@ -586,6 +680,17 @@ struct NumericFormatterUtil {
                   char                   *last,
                   unsigned long long int  value,
                   int                     base = 10) BSLS_KEYWORD_NOEXCEPT;
+
+    /// Write the specified floating point `value` into the character buffer
+    /// starting a the specified `first` and ending at the specified `last`,
+    /// `last` not included.  Use the {Default Floating Point Format}.  Return
+    /// the address one past the last character (lowest order digit or last
+    /// digit of the exponent) written on success, or `0` on failure.  The only
+    /// reason for failure is when the range `[ first, last )` is not large
+    /// enough to contain the result.  The written result is to begin at
+    /// `first` with leftover room following the return value.  The behavior is
+    /// undefined unless `first <= last`.  Note that these functions do **not**
+    /// null-terminate the result.
     static
     char *toChars(char                   *first,
                   char                   *last,
@@ -594,6 +699,21 @@ struct NumericFormatterUtil {
     char *toChars(char                   *first,
                   char                   *last,
                   float                   value) BSLS_KEYWORD_NOEXCEPT;
+
+    /// Write the specified floating point `value` into the character buffer
+    /// starting a the specified `first` and ending at the specified `last`,
+    /// `last` not included, using the specified `format` with the {Shortest
+    /// (Textual) Decimal Representation for Binary Floating Point Values} used
+    /// in that format (that will produce the exact binary floating point
+    /// `value` when converted back to the original type from text), but see
+    /// possible exceptions under {Special Floating Point Values}.  Return the
+    /// address one past the last character (lowest order digit or last digit
+    /// of the exponent) written on success, or `0` on failure.  The only
+    /// reason for failure is when the range `[ first, last )` is not large
+    /// enough to contain the result.  The written result is to begin at
+    /// `first` with leftover room following the return value.  The behavior is
+    /// undefined unless `first <= last`.  Note that these functions do **not**
+    /// null-terminate the result.
     static
     char *toChars(char                   *first,
                   char                   *last,
@@ -604,6 +724,91 @@ struct NumericFormatterUtil {
                   char                   *last,
                   float                   value,
                   Format                  format) BSLS_KEYWORD_NOEXCEPT;
+
+    /// Write the specified floating point `value` into the character buffer
+    /// starting a the specified `first` and ending at the specified `last`,
+    /// `last` not included, using the specified `format` and `precision`.
+    /// Return the address one past the last character (lowest order digit or
+    /// last digit of the exponent) written on success, or `0` on failure.  The
+    /// only reason for failure is when the range `[ first, last )` is not
+    /// large enough to contain the result.  The written result is to begin at
+    /// `first` with leftover room following the return value.  The behavior is
+    /// undefined unless `first <= last`.  Note that these functions do **not**
+    /// null-terminate the result.
+    static
+    char *toChars(char                   *first,
+                  char                   *last,
+                  double                  value,
+                  Format                  format,
+                  int                     precision) BSLS_KEYWORD_NOEXCEPT;
+    static
+    char *toChars(char                   *first,
+                  char                   *last,
+                  float                   value,
+                  Format                  format,
+                  int                     precision) BSLS_KEYWORD_NOEXCEPT;
+
+    /// Metafunction that provides access to `float` and `double` variation of
+    /// the `value` class method that returns the maximum required buffer size
+    /// to for the textual representation (`toChars`) for a specified format
+    /// and precision value.  The metafuction provides a single class method
+    /// `value` with the signature `size_t value(Format format, int precision)`
+    /// that returns the maximum required buffer size for the specified
+    /// `format` and `precision`.
+    template <class t_FLOATING>
+    struct PrecisionMaxBufferLength;
+};
+
+      // --------------------------------------------------------------
+      // template struct NumericFormatterUtil::PrecisionMaxBufferLength
+
+template <class t_FLOATING>
+struct NumericFormatterUtil::PrecisionMaxBufferLength {};
+
+template <>
+struct NumericFormatterUtil::PrecisionMaxBufferLength<double> {
+
+    ///  Return the maximum required output buffer size for `toChars`
+    ///  conversion of a `double` with the specified `format` and `precision`.
+    static
+    BSLS_KEYWORD_CONSTEXPR_CPP14 size_t value(Format format, int precision)
+    {
+        if (-1 == precision) {
+            precision = (e_HEX == format) ? 13 : 6;
+        }
+
+        switch (format) {
+          case e_FIXED:      return 311 + precision;                  // RETURN
+          case e_SCIENTIFIC: return   8 + precision;                  // RETURN
+          case e_HEX:        return  22 + precision;                  // RETURN
+          case e_GENERAL:    return   8 + precision;                  // RETURN
+        }
+
+        return 0;
+    }
+};
+
+template <>
+struct NumericFormatterUtil::PrecisionMaxBufferLength<float> {
+
+    ///  Return the maximum required output buffer size for `toChars`
+    ///  conversion of a `float` with the specified `format` and `precision`.
+    static
+    BSLS_KEYWORD_CONSTEXPR_CPP14 size_t value(Format format, int precision)
+    {
+        if (-1 == precision) {
+            precision = 6;
+        }
+
+        switch (format) {
+          case e_FIXED:      return 41 + precision;                   // RETURN
+          case e_SCIENTIFIC: return  7 + precision;                   // RETURN
+          case e_HEX:        return  8 + precision;                   // RETURN
+          case e_GENERAL:    return  7 + precision;                   // RETURN
+        }
+
+        return 0;
+    }
 };
 
             // -----------------------------------------------
@@ -612,21 +817,89 @@ struct NumericFormatterUtil {
 
 template <class FLT_TYPE, int FORMAT>
 struct NumericFormatterUtil::FltMaxLen {
-  private:
-    // PRIVATE TYPES
-
-    /// For more readable lines below.
-    typedef typename bsl::remove_cv<FLT_TYPE>::type NoCvT;
-  public:
     // PUBLIC TYPES
-    enum Enum {
-        // The default and 'e_SCIENTIFIC' formats have the same maximum size,
-        // so we simplify the expression.
-
-        k_VALUE = bsl::is_same<NoCvT, double>::value
-                  ? FORMAT == NumericFormatterUtil::e_FIXED ? 327 : 24
-                  : FORMAT == NumericFormatterUtil::e_FIXED ?  48 : 15
+    enum {
+        k_VALUE = -1 // Ensure this is invalid for array length
     };
+};
+
+template <>
+struct NumericFormatterUtil::FltMaxLen<double, NumericFormatterUtil::e_FIXED> {
+    // PUBLIC TYPES
+    enum {
+        k_VALUE = 327
+    };
+};
+
+template <>
+struct NumericFormatterUtil::FltMaxLen<double, NumericFormatterUtil::e_GENERAL> {
+    // PUBLIC TYPES
+    enum {
+        k_VALUE = 24
+    };
+};
+
+template <>
+struct NumericFormatterUtil::FltMaxLen<double, NumericFormatterUtil::e_HEX> {
+    // PUBLIC TYPES
+    enum {
+        k_VALUE = 22
+    };
+};
+
+template <>
+struct NumericFormatterUtil::FltMaxLen<double, NumericFormatterUtil::e_SCIENTIFIC> {
+    // PUBLIC TYPES
+    enum {
+        k_VALUE = 24
+    };
+};
+
+template <>
+struct NumericFormatterUtil::FltMaxLen<
+                                    double,
+                                    NumericFormatterUtil::k_MAXLEN_ARG_DEFAULT>
+: NumericFormatterUtil::FltMaxLen<double, NumericFormatterUtil::e_SCIENTIFIC> {
+};
+
+
+template <>
+struct NumericFormatterUtil::FltMaxLen<float, NumericFormatterUtil::e_FIXED> {
+    // PUBLIC TYPES
+    enum {
+        k_VALUE = 48
+    };
+};
+
+template <>
+struct NumericFormatterUtil::FltMaxLen<float, NumericFormatterUtil::e_GENERAL> {
+    // PUBLIC TYPES
+    enum {
+        k_VALUE = 15
+    };
+};
+
+template <>
+struct NumericFormatterUtil::FltMaxLen<float, NumericFormatterUtil::e_HEX> {
+    // PUBLIC TYPES
+    enum {
+        k_VALUE = 14
+    };
+};
+
+template <>
+struct NumericFormatterUtil::FltMaxLen<float, NumericFormatterUtil::e_SCIENTIFIC> {
+    // PUBLIC TYPES
+    enum {
+        k_VALUE = 15
+    };
+};
+
+template <>
+struct NumericFormatterUtil::FltMaxLen<
+                                    float,
+                                    NumericFormatterUtil::k_MAXLEN_ARG_DEFAULT>
+: NumericFormatterUtil::FltMaxLen<float, NumericFormatterUtil::e_SCIENTIFIC> {
 };
 
             // -----------------------------------------------
@@ -1053,7 +1326,8 @@ struct NumericFormatterUtil::ToCharsMaxLength {
                             // Argument Related
 
     static Cbool k_ARG_NOT_BASE   = (ARG < 2 || ARG > 37);
-    static Cbool k_ARG_NOT_FORMAT = (ARG != e_FIXED && ARG != e_SCIENTIFIC);
+    static Cbool k_ARG_NOT_FORMAT = (ARG != e_FIXED && ARG != e_SCIENTIFIC &&
+                                     ARG != e_GENERAL && ARG != e_HEX);
 
     static Cbool k_ARGUMENT_VALUE_IS_WRONG = !( // We negate the valid cases
                                                 // for easier human consumption
@@ -1253,6 +1527,8 @@ char *NumericFormatterUtil::toChars(char   *first,
     switch (format) {
       case e_FIXED:      return toCharsDecimal(first, last, value);   // RETURN
       case e_SCIENTIFIC: return toCharsScientific(first, last, value);// RETURN
+      case e_GENERAL:    return toCharsGeneral(first, last, value);   // RETURN
+      case e_HEX:        return toCharsHex(first, last, value);       // RETURN
     }
 
     BSLS_ASSERT_INVOKE_NORETURN("Invalid 'format' argument value.");
@@ -1268,6 +1544,60 @@ char *NumericFormatterUtil::toChars(char   *first,
     switch (format) {
       case e_FIXED:      return toCharsDecimal(first, last, value);   // RETURN
       case e_SCIENTIFIC: return toCharsScientific(first, last, value);// RETURN
+      case e_GENERAL:    return toCharsGeneral(first, last, value);   // RETURN
+      case e_HEX:        return toCharsHex(first, last, value);       // RETURN
+    }
+
+    BSLS_ASSERT_INVOKE_NORETURN("Invalid 'format' argument value.");
+    return 0;  // To avoid warning from AIX xlC
+}
+
+inline
+char *NumericFormatterUtil::toChars(char   *first,
+                                    char   *last,
+                                    double  value,
+                                    Format  format,
+                                    int     precision) BSLS_KEYWORD_NOEXCEPT
+{
+    switch (format) {
+      case e_FIXED: {
+        return toCharsDecimalPrec(first, last, value, precision);     // RETURN
+      }
+      case e_SCIENTIFIC: {
+        return toCharsScientificPrec(first, last, value, precision);  // RETURN
+      }
+      case e_GENERAL: {
+        return toCharsGeneralPrec(first, last, value, precision);     // RETURN
+      }
+      case e_HEX: {
+        return toCharsHexPrec(first, last, value, precision);         // RETURN
+      }
+    }
+
+    BSLS_ASSERT_INVOKE_NORETURN("Invalid 'format' argument value.");
+    return 0;  // To avoid warning from AIX xlC
+}
+
+inline
+char *NumericFormatterUtil::toChars(char   *first,
+                                    char   *last,
+                                    float   value,
+                                    Format  format,
+                                    int     precision) BSLS_KEYWORD_NOEXCEPT
+{
+    switch (format) {
+      case e_FIXED: {
+        return toCharsDecimalPrec(first, last, value, precision);     // RETURN
+      }
+      case e_SCIENTIFIC: {
+        return toCharsScientificPrec(first, last, value, precision);  // RETURN
+      }
+      case e_GENERAL: {
+        return toCharsGeneralPrec(first, last, value, precision);     // RETURN
+      }
+      case e_HEX: {
+        return toCharsHexPrec(first, last, value, precision);         // RETURN
+      }
     }
 
     BSLS_ASSERT_INVOKE_NORETURN("Invalid 'format' argument value.");

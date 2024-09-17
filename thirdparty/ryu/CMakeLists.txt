@@ -4,6 +4,7 @@ message(VERBOSE "Processing target \"${target}\"")
 add_library(${target} STATIC
     blp_d2cpp.c
     blp_f2cpp.c
+    blp_d2fixed_cpp.c
     d2fixed.c
     d2s.c
     f2s.c

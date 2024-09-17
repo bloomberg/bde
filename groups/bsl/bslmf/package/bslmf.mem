@@ -17,6 +17,7 @@ bslmf_detectnestedtrait
 bslmf_disjunction
 bslmf_disjunction_cpp03
 bslmf_enableif
+bslmf_floatingtypestructuraltraits
 bslmf_forwardingreftype
 bslmf_forwardingtype
 bslmf_functionpointertraits

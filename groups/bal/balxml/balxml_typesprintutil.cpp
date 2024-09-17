@@ -150,8 +150,11 @@ BSLS_IDENT_RCSID(balxml_typesprintutil_cpp,"$Id$ $CSID$")
 // do they seee '5e-324' in their printout when '<limits.h>' from C clearly has
 // 'DBL_TRUE_MIN' defined as '4.9406564584124654e-324'.
 
+#include <bdlb_float.h>
 #include <bdlb_print.h>
+
 #include <bdlde_base64encoder.h>
+
 #include <bdldfp_decimalutil.h>
 
 #include <bsla_fallthrough.h>
@@ -914,7 +917,7 @@ bsl::ostream& printDecimalUsingNecessaryDigitsOnly(bsl::ostream& stream,
     };
     char buffer[k_SIZE];
     const char * const endPtr = FmtUtil::toChars(buffer,
-                                                  buffer + sizeof buffer,
+                                                 buffer + sizeof buffer,
                                                  object,
                                                  FmtUtil::e_FIXED);
     BSLS_ASSERT(0 != endPtr);
@@ -1014,6 +1017,52 @@ bsl::ostream& printDecimalImpl(bsl::ostream&            stream,
 
     return stream;
 }
+
+/// Print into the specified `stream` the `object` of parameterized
+/// `t_FLOATING` type (`float` or `double`) and return `stream`.
+template <class t_FLOATING>
+inline
+bsl::ostream&
+printDefaultFloatImpl(bsl::ostream& stream, const t_FLOATING& object)
+{
+    switch (bdlb::Float::classifyFine(object)) {
+      case bdlb::Float::k_POSITIVE_INFINITY: {
+        stream << "+INF";
+        return stream;                                                // RETURN
+      } break;
+      case bdlb::Float::k_NEGATIVE_INFINITY: {
+        stream << "-INF";
+        return stream;                                                // RETURN
+      } break;
+      case bdlb::Float::k_QNAN:               BSLA_FALLTHROUGH;
+      case bdlb::Float::k_SNAN: {
+        stream << "NaN";
+        return stream;                                                // RETURN
+      } break;
+      default: {
+        ;  // do nothing here
+      } break;
+    }
+
+    /// The `typedef` is necessary due to the very long type name.
+    typedef bslalg::NumericFormatterUtil NfUtil;
+
+    // `NfUtil::ToCharsMaxLength<float>::k_VALUE` is the minimum size with
+    // which `bslalg::NumericFormatterUtil::toChars` is guaranteed to never
+    // fail when called with *any* `float` value and the default format as
+    // we do below.
+    char buffer[NfUtil::ToCharsMaxLength<t_FLOATING>::k_VALUE];
+
+    const char * const endPtr = NfUtil::toChars(buffer,
+                                                buffer + sizeof buffer,
+                                                object);
+    BSLS_ASSERT(0 != endPtr);
+
+    stream.write(buffer, endPtr - buffer);
+
+    return stream;
+}
+
 
 }  // close namespace u
 }  // close unnamed namespace
@@ -1172,25 +1221,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                             const EncoderOptions       *,
                                             bdlat_TypeCategory::Simple)
 {
-    /// The `typedef` is necessary due to the very long type name.
-    typedef bslalg::NumericFormatterUtil NfUtil;
-
-    // `NfUtil::ToCharsMaxLength<float>::k_VALUE` is the minimum size with
-    // which `bslalg::NumericFormatterUtil::toChars` is guaranteed to never
-    // fail when called with *any* `float` value and the default format as
-    // we do below.
-    char buffer[NfUtil::ToCharsMaxLength<float>::k_VALUE];
-
-    const char * const endPtr = NfUtil::toChars(buffer,
-                                                buffer + sizeof buffer,
-                                                object);
-    BSLS_ASSERT(0 != endPtr);
-
-    const bsl::size_t len = endPtr - buffer;
-
-    stream.write(buffer, len);
-
-    return stream;
+    return u::printDefaultFloatImpl(stream, object);
 }
 
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
@@ -1199,25 +1230,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                             const EncoderOptions       *,
                                             bdlat_TypeCategory::Simple)
 {
-    /// The `typedef` is necessary due to the very long type name.
-    typedef bslalg::NumericFormatterUtil NfUtil;
-
-    // `NfUtil::ToCharsMaxLength<double>::k_VALUE` is the minimum size with
-    // which `bslalg::NumericFormatterUtil::toChars` is guaranteed to never
-    // fail when called with *any* `double` value and the default format as
-    // we do below.
-    char buffer[NfUtil::ToCharsMaxLength<double>::k_VALUE];
-
-    const char * const endPtr = NfUtil::toChars(buffer,
-                                                buffer + sizeof buffer,
-                                                object);
-    BSLS_ASSERT(0 != endPtr);
-
-    const bsl::size_t len = endPtr - buffer;
-
-    stream.write(buffer, len);
-
-    return stream;
+    return u::printDefaultFloatImpl(stream, object);
 }
 
 bsl::ostream& TypesPrintUtil_Imp::printDecimal(
