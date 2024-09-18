@@ -264,6 +264,7 @@ StackTraceTestAllocator::StackTraceTestAllocator(
 : d_magic(k_STACK_TRACE_TEST_ALLOCATOR_MAGIC)
 , d_numBlocksInUse(0)
 , d_numAllocations(0)
+, d_allocationLimit(-1)
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
