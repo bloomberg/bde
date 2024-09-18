@@ -6,7 +6,9 @@
 
 #include <bdlb_random.h>
 #include <bdlb_string.h>
+
 #include <bdlma_bufferedsequentialallocator.h>
+
 #include <bdls_filesystemutil.h>
 
 #include <bslim_testutil.h>
@@ -16,9 +18,10 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_mallocfreeallocator.h>
 #include <bslma_newdeleteallocator.h>
-#include <bslma_testallocator.h>
-#include <bslma_testallocatorexception.h>  // for testing only
+#include <bslma_testallocator.h>           // for testing only
+#include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
+#include <bslma_managedptr.h>
 
 #include <bslmt_barrier.h>
 #include <bslmt_threadutil.h>
@@ -76,7 +79,8 @@ using bsl::flush;
 //
 //-----------------------------------------------------------------------------
 // [23] o usage example
-// [22] o block header test -- use 'my_BlockHeader' to test
+// [22] o CONCERN: Exception Test Loop Compatibility
+// [21] o block header test -- use 'my_BlockHeader' to test
 //      o magic number
 //      o pointer to allocator
 //      o validity of next block
@@ -296,7 +300,7 @@ static int veryVerbose;
 static int veryVeryVerbose;
 
 static const bsl::size_t npos = bsl::string::npos;
-static bool narcissicStack = false;         // On Windows, the stack trace
+static bool narcissictStack = false;         // On Windows, the stack trace
                                             // intermittently captures its own
                                             // image.
 
@@ -1063,21 +1067,21 @@ int main(int argc, char *argv[])
     ASSERT(voidFuncsSize <= sizeof voidFuncs / sizeof *voidFuncs);
 
     if (e_WINDOWS) {
-        // Windows intermittently has a narcissic stack, that is,
+        // Windows intermittently has a narcissist stack, that is,
         // 'k_IGNORE_FRAMES' should be 1 higher than it is.
 
         balst::StackTrace st;
         int rc = balst::StackTraceUtil::loadStackTraceFromStack(&st, 1, false);
         ASSERT(0 == rc);
 
-        narcissicStack = bsl::string::npos != st[0].mangledSymbolName().find(
+        narcissictStack = bsl::string::npos != st[0].mangledSymbolName().find(
                                                     "loadStackTraceFromStack");
 
-        if (veryVerbose) P(narcissicStack);
+        if (veryVerbose) P(narcissictStack);
     }
 
     switch (test) { case 0:
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1244,6 +1248,126 @@ int main(int argc, char *argv[])
         expectedDefaultAllocations = -1;
 #endif
       }  break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // CONCERN: Exception Test Loop Compatibility
+        //   Verify that the object works together with the
+        //   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
+        //   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros.
+        //
+        // Concerns:
+        //: 1 If 'allocate' causes the allocator to throw a
+        //:   'bslma::TestAllocatorException' that exception is propagated to
+        //:   the caller.
+        //:
+        //: 2 No resources are leaked if the allocator throws.
+        //:
+        //: 3 The number of allocations and number of allocated blocks counters
+        //:   are updated properly on allocation's that throw.
+        //
+        // Plan:
+        //: 1 Create a 'StackTraceTestAllocator' to use as exception test
+        //:   allocator.
+        //:
+        //: 2 Within a 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' loop:
+        //:   1 Allocate a few bytes from the second allocator.
+        //:   2 Deallocate the allocated bytes.
+        //:   3 Allocate and deallocate 0 bytes.
+        //:   4 Perform one more allocation and deallocation.
+        //:
+        //: 3 Verify that no allocated blocks remain allocated from the
+        //:   allocator once the exception loop succeeds.  (C-2)
+        //:
+        //: 4 Verify that the exception loop ran three iterations,
+        //:   indicating that all exceptions have occurred and been propagated
+        //:   to the caller.  (C-1)
+        //:
+        //: 5 Verify that the two counters are the expected values.  (C-3)
+        //:
+        //: 6 Repeat with more allocations, and deallocations happening at the
+        //:   end of the loop
+        //
+        // Testing:
+        //   CONCERN: Exception Test Loop Compatibility
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: Exception Test Loop Compatibility"
+                            "\n==========================================\n");
+
+#ifdef BDE_BUILD_TARGET_EXC
+        {
+            Obj obj;
+            int iterations = 0;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(obj) {
+                ++iterations;
+                if (veryVeryVerbose) {
+                    P_(iterations) P(obj.allocationLimit());
+                }
+
+                void* p = obj.allocate(13);  // Might throw from allocator
+                ASSERT(p);
+                obj.deallocate(p);
+
+                p = obj.allocate(0);         // Might throw from allocator
+                ASSERT(0 == p);
+                obj.deallocate(p);
+
+                p = obj.allocate(15);        // Might throw from allocator
+                ASSERT(p);
+                obj.deallocate(p);
+
+                // If got here, then upstream allocator did not throw, and the
+                // exception loop will end.
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+
+            ASSERTV(obj.numBlocksInUse(), 0 == obj.numBlocksInUse());
+            // 1 + 2 + 3 + 3 ==> 4 iterations, first 3 throws last succeeds
+            ASSERTV(iterations, 4 == iterations);
+            // 1 + 2 + 3 + 3 ==> obj.numAllocations() <== 9
+            ASSERTV(obj.numAllocations(), 9 == obj.numAllocations());
+        }
+
+        // Second test with smart pointer releasing at the end of the scope
+        {
+            Obj obj;
+            int iterations = 0;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(obj) {
+                ++iterations;
+                if (veryVeryVerbose) {
+                    P_(iterations) P(obj.allocationLimit());
+                }
+
+                bslma::ManagedPtr<char> p1;         // Might throw
+                p1.load((char *)obj.allocate(13), &obj);
+                ASSERT(p1);
+
+                bslma::ManagedPtr<char> p2;         // Might throw
+                p2.load((char*)obj.allocate(15), &obj);
+                ASSERT(p2);
+
+                bslma::ManagedPtr<char> p3;         // Might throw
+                p3.load((char*)obj.allocate(0), &obj);
+                ASSERT(0 == p3.get());
+
+                bslma::ManagedPtr<char> p4;         // Might throw
+                p4.load((char*)obj.allocate(146), &obj);
+                ASSERT(p4.get());
+
+                // If got here, then upstream allocator did not throw, and the
+                // exception loop will end.
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+
+            ASSERTV(obj.numBlocksInUse(), 0 == obj.numBlocksInUse());
+            // 1 + 2 + 3 + 4 + 4 ==> 5 iterations, first 4 throws last succeeds
+            ASSERTV(iterations, 5 == iterations);
+            // 1 + 2 + 3 + 4 + 4 ==> obj.numAllocations() <== 14
+            ASSERTV(obj.numAllocations(), 14 == obj.numAllocations());
+        }
+#else
+        if (verbose) printf("\nNo testing.  Exceptions are not enabled.\n");
+#endif // BDE_BUILD_TARGET_EXC
+
+      } break;
       case 21: {
         //---------------------------------------------------------------------
         // WHITE-BOX EXAMINATION OF BLOCK HEADER
@@ -1419,8 +1543,8 @@ int main(int argc, char *argv[])
             }
 
             LOOP4_ASSERT(report, numRecurserInTrace, RECORDED_FRAMES,
-                                                                narcissicStack,
-                   numRecurserInTrace + 1 + narcissicStack == RECORDED_FRAMES);
+                                                                narcissictStack,
+                   numRecurserInTrace + 1 + narcissictStack == RECORDED_FRAMES);
             ss.str("");
         }
       }  break;
