@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 //     void withdraw(double amount);
 //
 //     // ACCESSORS
-
+//
 //     /// Return the amount of money that is available for withdrawal
 //     /// from this account.
 //     double balance() const;

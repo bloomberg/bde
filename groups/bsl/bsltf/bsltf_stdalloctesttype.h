@@ -43,9 +43,9 @@ BSLS_IDENT("$Id: $")
 // First, we create a function template `printTypeTraits` with a parameterized
 // `TYPE`:
 // ```
+// /// Prints the traits of the parameterized `TYPE` to the console.
 // template <class TYPE>
 // void printTypeTraits()
-//     // Prints the traits of the parameterized 'TYPE' to the console.
 // {
 //     if (bslma::UsesBslmaAllocator<TYPE>::value) {
 //         printf("Type defines bslma::UsesBslmaAllocator.\n");
@@ -64,9 +64,9 @@ BSLS_IDENT("$Id: $")
 // ```
 // Next, we create an STL-style allocator:
 // ```
+// /// An STL-compliant allocator type.
 // template <class TYPE>
 // struct StlAllocator {
-//     // An STL-compliant allocator type.
 //
 //     typedef TYPE value_type;
 //
@@ -114,9 +114,8 @@ namespace bsltf {
 /// `bslma::Allocator *` (e.g., if it is an instantiation of
 /// `bsl::allocator`).  This class is primarily provided to facilitate
 /// testing of templates by defining a simple type representative of
-/// user-defined types using a standard allocator.  See the Attributes
-/// section under @DESCRIPTION in the component-level documentation for
-/// information on the class attributes.
+/// user-defined types using a standard allocator.  See the [](#Attributes)
+/// section for information on the class attributes.
 template <class ALLOC>
 class StdAllocTestType {
 

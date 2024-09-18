@@ -125,10 +125,10 @@ template <class t_TYPE>
 struct IsReferenceWrapper : bsl::false_type {
 };
 
-}  // close enterprise namespace
 }  // close package namespace
+}  // close enterprise namespace
 
-#endif // INCLUDED_BSLMF_ISREFERENCEWRAPPER
+#endif  // INCLUDED_BSLMF_ISREFERENCEWRAPPER
 
 // ----------------------------------------------------------------------------
 // Copyright 2021 Bloomberg Finance L.P.

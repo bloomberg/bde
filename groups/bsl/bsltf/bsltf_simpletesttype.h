@@ -81,9 +81,8 @@ namespace bsltf {
                         // ====================
 
 /// This unconstrained (value-semantic) attribute class does not allocate
-/// memory and does not define any traits.  See the Attributes section under
-/// @DESCRIPTION in the component-level documentation for information on the
-/// class attributes.
+/// memory and does not define any traits.  See the [](#Attributes) section for
+/// information on the class attributes.
 class SimpleTestType {
 
     // DATA

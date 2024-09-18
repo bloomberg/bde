@@ -23,7 +23,7 @@
 // dpkg build.
 //
 ///Concerns with Compiler Warnings
-///- - - - - - - - - - - - - - - -
+///-------------------------------
 // In large development organization, where many teams may enable "warnings as
 // errors", enabling deprecation warnings in a cross-organizational integration
 // build will frequently prevent lower-level software from applying the
@@ -40,37 +40,38 @@
 ///---------------
 // This section documents the preprocessor macros defined in this component.
 //
-//: `BSLS_DEPRECATE_FEATURE(UOR, FEATURE, MESSAGE)`:
-//:    This macro is used to annotate code to indicate that a name or entity
-//:    has been deprecated, and is associated with the specified `UOR`
-//:    (Unit-Of-Release), deprecated `FEATURE`, and `MESSAGE`.  This macro can
-//:    be used as if it were the C++ standard attribute `[[deprecated]]`, and
-//:    in appropriate build configurations will instantiate as a C++
-//:    `[[deprecated]]` annotation.  `UOR` and `FEATURE` are character strings
-//:    intended to uniquely identify one or more related entities that have
-//:    been deprecated.  `MESSAGE` is a descriptive text intended for the a
-//:    user of the deprecated feature (for example informing them of a
-//:    replacement feature).  For example, if several of the date and time
-//:    types in the `bde` library were deprecated they might be marked with the
-//:    annotation:
-//:    `BSLS_DEPRECATE_FEATURE("bde", "date-and-time", "Use bdlt instead")`.
-//:    `UOR` and `FEATURE` are meant to help uniquely identify a deprecation in
-//:    external systems (e.g., a dashboard monitoring the state of a
-//:    deprecation) so the supplied strings should start with a letter, and
-//:    contain only letters, numbers, underscore, and dash characters (i.e.,
-//:    matching the regular expression "[a-zA-Z][\w\-]*").
-//:
-//: `BSLS_DEPRECATE_FEATURE_IS_SUPPORTED`:  This macro is defined if the
-//:    current platform supports instantiating the deprecation annotation
-//:    macros into annotation understood by the compiler.
-//:
-//: `BSLS_DEPRECATE_FEATURE_ANNOTATION_IS_ACTIVE`: This macro is defined if
-//:    deprecation annotation macros defined in this component *will* be
-//:    instantiated into annotations understood by the compiler (i.e., this
-//:    will be defined if `BSLS_DEPRECATE_FEATURE_SUPPORTED_PLATFORM` is
-//:    defined and the build configuration macros are configured in a way
-//:    that the annotations will instantiate as the `[[deprecated]]`
-//:    attribute).
+// * `BSLS_DEPRECATE_FEATURE(UOR, FEATURE, MESSAGE)`
+//   > This macro is used to annotate code to indicate that a name or entity
+//   > has been deprecated, and is associated with the specified `UOR`
+//   > (Unit-Of-Release), deprecated `FEATURE`, and `MESSAGE`.  This macro can
+//   > be used as if it were the C++ standard attribute `[[deprecated]]`, and
+//   > in appropriate build configurations will instantiate as a C++
+//   > `[[deprecated]]` annotation.  `UOR` and `FEATURE` are character strings
+//   > intended to uniquely identify one or more related entities that have
+//   > been deprecated.  `MESSAGE` is a descriptive text intended for the a
+//   > user of the deprecated feature (for example informing them of a
+//   > replacement feature).  For example, if several of the date and time
+//   > types in the `bde` library were deprecated they might be marked with the
+//   > annotation:
+//   > `BSLS_DEPRECATE_FEATURE("bde", "date-and-time", "Use bdlt instead")`.
+//   > `UOR` and `FEATURE` are meant to help uniquely identify a deprecation in
+//   > external systems (e.g., a dashboard monitoring the state of a
+//   > deprecation) so the supplied strings should start with a letter, and
+//   > contain only letters, numbers, underscore, and dash characters (i.e.,
+//   > matching the regular expression "[a-zA-Z][\w\-]*").
+//
+// * `BSLS_DEPRECATE_FEATURE_IS_SUPPORTED`
+//   > This macro is defined if the current platform supports instantiating the
+//   > deprecation annotation macros into annotation understood by the
+//   > compiler.
+//
+// * `BSLS_DEPRECATE_FEATURE_ANNOTATION_IS_ACTIVE`
+//   > This macro is defined if deprecation annotation macros defined in this
+//   > component *will* be instantiated into annotations understood by the
+//   > compiler (i.e., this will be defined if
+//   > `BSLS_DEPRECATE_FEATURE_SUPPORTED_PLATFORM` is defined and the build
+//   > configuration macros are configured in a way that the annotations will
+//   > instantiate as the `[[deprecated]]` attribute).
 //
 ///Configuration Reference
 ///-----------------------
@@ -79,23 +80,24 @@
 // deprecation annotation macros provided by this component.
 //
 // The available configuration macros are described below:
-// ```
-// * 'BB_DEPRECATE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING': This macro, when
-//   defined, enables the instantiation of every deprecation macro as a C++
-//   '[[deprecated]]' annotation.  This *MUST* *NOT* be defined as part of
-//   cross-organization integration build such as an 'unstable' dpkg build
-//   (see {Concerns with Compiler Warnings}).
+// * `BB_DEPRECATE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING`
+//   > This macro, when
+//   > defined, enables the instantiation of every deprecation macro as a C++
+//   > `[[deprecated]]` annotation.  This *MUST* *NOT* be defined as part of
+//   > cross-organization integration build such as an 'unstable' dpkg build
+//   > (see {Concerns with Compiler Warnings}).
 //
-// * 'BB_DEPRECATE_ENABLE_JSON_MESSAGE': Changes the messages reported by
-//   compiler deprecation annotations to be a JSON document intended to
-//   be useful for tools looking to identify and categorize deprecations.
+// * `BB_DEPRECATE_ENABLE_JSON_MESSAGE`
+//   > Changes the messages reported by compiler deprecation annotations to be
+//   > a JSON document intended to be useful for tools looking to identify and
+//   > categorize deprecations.
 //
-// * 'BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING': This macro
-//   is a synonym for 'BB_DEPRECATE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING'.
+// * `BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING`
+//   > This macro is a synonym for
+//   > `BB_DEPRECATE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING`.
 //
-// * 'BSLS_DEPRECATE_FEATURE_ENABLE_JSON_MESSAGE': This macro is a synonym for
-//   'BB_DEPRECATE_ENABLE_JSON_MESSAGE'.
-// ```
+// * `BSLS_DEPRECATE_FEATURE_ENABLE_JSON_MESSAGE`
+//   > This macro is a synonym for `BB_DEPRECATE_ENABLE_JSON_MESSAGE`.
 //
 ///Usage
 ///-----
@@ -131,10 +133,10 @@
 // Similarly, if we were deprecating a class `OldType` we might write:
 // ```
 //
-//   class BSLS_DEPRECATE_FEATURE("bsl", "OldType", "Use NewType instead")
-//                                                                     OldType {
-//       // ...
-//   };
+// /// ...
+// class BSLS_DEPRECATE_FEATURE("bsl", "OldType", "Use NewType instead")
+//                                                                    OldType {
+// };
 // ```
 // Frequently, more than one C++ related entity may be associated with a
 // deprecated feature.  In that case we would want to use the same identifier
@@ -142,15 +144,15 @@
 // deprecation macro that is local to the component.  For example, if we were
 // deprecating a queue and its iterator in the `bde` library we might write:
 // ```
-// #define BDEC_QUEUE_DEPRECATE                                             \.
+// #define BDEC_QUEUE_DEPRECATE                                              \.
 //     BSLS_DEPRECATE_FEATURE("bde", "bdec_queue", "Use bsl::queue instead")
 //
+// /// ...
 // class BDEC_QUEUE_DEPRECATE bdec_Queue {
-//     //...
 // };
 //
+// /// ...
 // class BDEC_QUEUE_DEPRECATE bdec_QueueIterator {
-//     //...
 // };
 // ```
 // Sometimes several entities are deprecated as part of the same feature where
@@ -158,7 +160,7 @@
 // `bsls_measurementutil` that we were converting from imperial to metric
 // units:
 // ```
-// #define BSLS_MEASUREMEANTUTIL_DEPRECATE_IMPERIAL(MESSAGE)                \.
+// #define BSLS_MEASUREMEANTUTIL_DEPRECATE_IMPERIAL(MESSAGE)                 \.
 //     BSLS_DEPRECATE_FEATURE("bsl", "deprecate-imperial-units", MESSAGE)
 //
 // struct MeasurementUtil {
@@ -188,7 +190,7 @@
 // ```
 // // bdet_deprecate.h
 //
-// #define BDET_DEPRECATE_DATE_AND_TIME(MESSAGE)                           \.
+// #define BDET_DEPRECATE_DATE_AND_TIME(MESSAGE)                             \.
 //     BSLS_DEPRECATE_FEATURE("bde", "date-and-time", MESSAGE)
 // ```
 // We can use that macro to mark various components deprecated.  Next, we mark
@@ -202,8 +204,8 @@
 // ```
 // // bdet_calendar.h
 //
+// /// ...
 // class BDET_DEPRECATE_DATE_AND_TIME("Use bdlt::PackedCalendar") Calendar {
-//    // ...
 // };
 // ```
 // Finally we mark a function as deprecated:

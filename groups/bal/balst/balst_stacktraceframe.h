@@ -168,10 +168,9 @@ namespace balst {
 /// This simply constrained (value-semantic) attribute class describes a
 /// call frame created on the execution stack when a *parent* function calls
 /// a *child* function.  Supplementary predicate methods indicate whether a
-/// given attribute value is considered "unknown".  See the Attributes
-/// section under @DESCRIPTION in the component-level documentation.  Note
-/// that the class invariants are identically the constraints on the
-/// individual attributes.
+/// given attribute value is considered "unknown".  See the [](#Attributes)
+/// section for infromation on the class attributes.  Note that the class
+/// invariants are identically the constraints on the individual attributes.
 class StackTraceFrame {
 
   private:

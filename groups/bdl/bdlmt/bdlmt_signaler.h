@@ -1211,7 +1211,7 @@ class SignalerConnectionGuard {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(SignalerConnectionGuard,
-                                   bslmf::IsBitwiseMoveable)
+                                   bslmf::IsBitwiseMoveable);
 
   public:
     // CREATORS

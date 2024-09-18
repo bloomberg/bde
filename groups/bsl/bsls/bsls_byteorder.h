@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_BYTEORDER_NTOHS(x):  Convert 16-bit value from network to host order
 //  BSLS_BYTEORDER_NTOHL(x):  Convert 32-bit value from network to host order
 //  BSLS_BYTEORDER_NTOHLL(x): Convert 64-bit value from network to host order
-//
+//  ---
 //  BSLS_BYTEORDER_HTON_CONSTANT(x):   static host to network order
 //  BSLS_BYTEORDER_HTONS_CONSTANT(x):  static 16-bit network to host order
 //  BSLS_BYTEORDER_HTONL_CONSTANT(x):  static 32-bit network to host order
@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_BYTEORDER_NTOHS_CONSTANT(x):  static 16-bit network to host order
 //  BSLS_BYTEORDER_NTOHL_CONSTANT(x):  static 32-bit network to host order
 //  BSLS_BYTEORDER_NTOHLL_CONSTANT(x): static 64-bit network to host order
-//
+//  ---
 //  BSLS_BYTEORDER_LE_TO_HOST(x):     little-endian to host-endian
 //  BSLS_BYTEORDER_LE_U16_TO_HOST(x): 16-bit little-endian to host-endian
 //  BSLS_BYTEORDER_LE_U32_TO_HOST(x): 32-bit little-endian to host-endian
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_BYTEORDER_BE_U16_TO_HOST(x): 16-bit    big-endian to host-endian
 //  BSLS_BYTEORDER_BE_U32_TO_HOST(x): 32-bit    big-endian to host-endian
 //  BSLS_BYTEORDER_BE_U64_TO_HOST(x): 64-bit    big-endian to host-endian
-//
+//  ---
 //  BSLS_BYTEORDER_HOST_TO_LE(x):     host-endian to little-endian
 //  BSLS_BYTEORDER_HOST_U16_TO_LE(x): 16-bit host-endian to little-endian
 //  BSLS_BYTEORDER_HOST_U32_TO_LE(x): 32-bit host-endian to little-endian

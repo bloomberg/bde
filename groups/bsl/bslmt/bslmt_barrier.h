@@ -82,8 +82,8 @@ BSLS_IDENT("$Id: $")
 //     k_MAX_BASKET_TRADES = 10
 // };
 //
+// /// Trade stuff...
 // struct Trade {
-//     // Trade stuff...
 // };
 //
 // struct BasketTrade {
@@ -236,11 +236,11 @@ BSLS_IDENT("$Id: $")
 // basket, supplying the function `tradeProcessingThread` to be executed on
 // each thread.
 // ```
+// /// Return `true` if the specified basket `trade` was processed
+// /// successfully, and `false` otherwise.  The `trade` is processed
+// /// atomically, i.e., all the trades succeed, or none of the trades are
+// /// executed.
 // bool processBasketTrade(BasketTrade& trade)
-//     // Return 'true' if the specified basket 'trade' was processed
-//     // successfully, and 'false' otherwise.  The 'trade' is processed
-//     // atomically, i.e., all the trades succeed, or none of the trades are
-//     // executed.
 // {
 //     TradeThreadArgument arguments[k_MAX_BASKET_TRADES];
 //     bslmt::ThreadAttributes attributes;

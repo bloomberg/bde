@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide namespace for platform-dependent 64-bit integer types.
 //
-//@INTERNAL_DEPRECATED: Use component `bsls_types` instead.
+//@DEPRECATED: Use component `bsls_types` instead.
 //
 //@CLASSES:
 //  bsls_Int64: namespace for platform-dependent 64-bit integer types
@@ -54,7 +54,7 @@ struct bsls_Int64 {
     // TYPES
     typedef bsls::Types::Int64  Int64;
 
-    /// DEPRECATED: Use `bsls::Types::Int64` and `bsls::Types::Uint64`,
+    /// @DEPRECATED: Use `bsls::Types::Int64` and `bsls::Types::Uint64`,
     /// respectively, instead.
     typedef bsls::Types::Uint64 Uint64;
 };

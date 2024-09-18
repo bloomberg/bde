@@ -92,13 +92,14 @@ BSLS_IDENT("$Id: $")
 //
 //   private:
 //     // PRIVATE ACCESSORS
+//
+//     /// Look up the specified `value`, having hash value `hashValue`,
+//     /// and return its index in `d_bucketArray`.  If not found, return
+//     /// the vacant entry in `d_bucketArray` where it should be inserted.
+//     /// Return `true` if `value is found and `false` otherwise.
 //     bool lookup(size_t      *idx,
 //                 const TYPE&  value,
 //                 size_t       hashValue) const
-//         // Look up the specified 'value', having hash value 'hashValue',
-//         // and return its index in 'd_bucketArray'.  If not found, return
-//         // the vacant entry in 'd_bucketArray' where it should be inserted.
-//         // Return 'true' if 'value is found and 'false' otherwise.
 //     {
 //         const TYPE *ptr;
 //         for (*idx = hashValue & d_bucketArrayMask;
@@ -115,10 +116,11 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a hash cross reference referring to the array of value.
 //     HashCrossReference(const TYPE       *valuesArray,
 //                        size_t            numValues,
 //                        bslma::Allocator *allocator = 0)
-//         // Create a hash cross reference referring to the array of value.
 //     : d_values(valuesArray)
 //     , d_numValues(numValues)
 //     , d_hasher()
@@ -154,16 +156,17 @@ BSLS_IDENT("$Id: $")
 //         }
 //     }
 //
+//     /// Free up memory used by this cross-reference.
 //     ~HashCrossReference()
-//         // Free up memory used by this cross-reference.
 //     {
 //         d_allocator_p->deallocate(d_bucketArray);
 //     }
 //
 //     // ACCESSORS
+//
+//     /// Return 1 if the specified `value` is found in the cross
+//     /// reference and 0 otherwise.
 //     int count(const TYPE& value) const
-//         // Return 1 if the specified 'value' is found in the cross
-//         // reference and 0 otherwise.
 //     {
 //         BSLS_ASSERT_OPT(d_valid);
 //
@@ -247,32 +250,34 @@ template <>
 struct Hash<std::filesystem::path> {
 
     // STANDARD TYPEDEFS
-    BSLH_FILESYSTEM_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLH_FILESYSTEM_DEPRECATED_CPP17
     typedef std::filesystem::path argument_type;
 
-    BSLH_FILESYSTEM_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLH_FILESYSTEM_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
+    /// Create a `hash` object.
     //! hash() = default;
-        // Create a 'hash' object.
 
+    /// Create a `hash` object.  Note that as `hash` is an empty (stateless)
+    /// type, this operation has no observable effect.
     //! hash(const hash& original) = default;
-        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
-        // type, this operation has no observable effect.
 
+    /// Destroy this object.
     //! ~hash() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified 'rhs' object, and
+    /// return a reference providing modifiable access to this object.  Note
+    /// that as 'hash' is an empty (stateless) type, this operation has no
+    /// observable effect.
     //! hash& operator=(const hash& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that as 'hash' is an empty (stateless) type, this operation has no
-        // observable effect.
 
     // ACCESSORS
 
@@ -310,7 +315,7 @@ void hashAppend(HASHALG& hashAlg, const std::filesystem::path& path)
     hashAppend(hashAlg, hashFunctor(path));
 }
 
-}  // close namespace bslh
+}  // close package namespace
 }  // close enterprise namespace
 
 #undef BSLH_FILESYSTEM_DEPRECATED_CPP17

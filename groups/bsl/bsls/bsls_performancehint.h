@@ -120,14 +120,13 @@ BSLS_IDENT("$Id: $")
 //                                  the specified 'address' for writing.
 // ```
 //
-///Warning
-///- - - -
-// These functions must be used *with* *caution*.  Inappropriate use of these
-// functions degrades performance.  Note that there should be sufficient time
-// for the prefetch instruction to finish before the specified address is
-// accessed, otherwise prefetching will be pointless.  A profiler should be
-// used to understand the program's behavior before attempting to optimize with
-// these functions.
+// **Warning**
+// > These functions must be used **with caution**.  Inappropriate use of these
+// > functions degrades performance.  Note that there should be sufficient time
+// > for the prefetch instruction to finish before the specified address is
+// > accessed, otherwise prefetching will be pointless.  A profiler should be
+// > used to understand the program's behavior before attempting to optimize
+// > with these functions.
 //
 ///Optimization Fence
 ///------------------
@@ -139,11 +138,10 @@ BSLS_IDENT("$Id: $")
 // performing benchmarks, or working around bugs identified in the compiler's
 // optimizer.
 //
-///Warning
-///- - - -
-// This macro should be used *with* *caution*.  The macro will generally
-// decrease the performance of code on which it is applied, and is not
-// implemented on all platforms.
+// **Warning**
+// > This macro should be used *with* *caution*.  The macro will generally
+// > decrease the performance of code on which it is applied, and is not
+// > implemented on all platforms.
 //
 ///Usage
 ///-----

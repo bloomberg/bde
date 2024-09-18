@@ -602,8 +602,8 @@ BSLS_IDENT("$Id: $")
 // };
 // ```
 //
-///Binding to Free Functions
-///- - - - - - - - - - - - -
+///Example 2: Binding to Free Functions
+/// - - - - - - - - - - - - - - - - - -
 // We illustrate how to use the dispatcher with free callback functions that
 // have various signatures by passing a binder as the callback function of the
 // dispatcher, and how to use the binder to match the signature of the callback
@@ -694,8 +694,8 @@ BSLS_IDENT("$Id: $")
 // }
 // ```
 //
-///Binding to Function Objects
-///- - - - - - - - - - - - - -
+///Example 3: Binding to Function Objects
+/// - - - - - - - - - - - - - - - - - - -
 // In the next example, we wrap the callback function into a function object
 // which is bound by value.  For brevity, we only present the basic example of
 // passing the arguments straight through to the actual callback `operator()`,
@@ -722,8 +722,8 @@ BSLS_IDENT("$Id: $")
 // }
 // ```
 //
-///Binding to Function Objects by Reference
-/// - - - - - - - - - - - - - - - - - - - -
+///Example 4: Binding to Function Objects by Reference
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example reuses the `MyCallbackObject` of the previous example,
 // but illustrates that it can be passed by reference as well as by value:
 // ```
@@ -743,8 +743,8 @@ BSLS_IDENT("$Id: $")
 // Hence the function object must remain valid throughout the lifetime of the
 // binder.
 //
-///Binding to Member Functions
-///- - - - - - - - - - - - - -
+///Example 5: Binding to Member Functions
+/// - - - - - - - - - - - - - - - - - - -
 // In the next example, we show that the callback function can be a member
 // function, in which case there are three, not two, bound arguments.  The
 // first bound argument must be a pointer to an instance of the class owning
@@ -776,8 +776,8 @@ BSLS_IDENT("$Id: $")
 // }
 // ```
 //
-///Nesting Bindings
-/// - - - - - - - -
+///Example 6: Nesting Bindings
+///- - - - - - - - - - - - - -
 // We now show that it is possible to provide a binder as an argument to
 // `bdlf::BindUtil`.  Upon invocation, the invocation arguments are forwarded
 // to the nested binder.
@@ -803,8 +803,8 @@ BSLS_IDENT("$Id: $")
 // }
 // ```
 //
-///Binding to a Function Object with Explicit Return Type
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 7: Binding to a Function Object with Explicit Return Type
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // When the return type cannot be inferred from the bound functor (using
 // `typename t_FUNC::ResultType`), the binder needs an explicit specification.
 // This is done by using the `bdlf::BindUtil::bindR` function template as

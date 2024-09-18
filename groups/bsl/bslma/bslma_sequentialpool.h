@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide fast variable-size memory pool with allocation methods.
 //
-//@INTERNAL_DEPRECATED: Use `bdlma_sequentialpool` instead.
+//@DEPRECATED: Use `bdlma_sequentialpool` instead.
 //
 //@CLASSES:
 //  bslma::SequentialPool: fast variable-size memory pool
@@ -103,10 +103,9 @@ BSLS_IDENT("$Id: $")
 // destructor to deallocate memory for all elements:
 // ```
 // // MyList.h
-// #include <bsls_types.h>
+// #include <bslma_allocator.fwd.h>
 // #include <bslma_sequentialpool.h>
-//
-// namespace bslma { class Allocator; }
+// #include <bsls_types.h>
 //
 // class MyList {
 //     char                   *d_typeArray_p;
@@ -187,12 +186,12 @@ BSLS_IDENT("$Id: $")
 //
 // enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 //
+// /// Copy the value of the specified `srcElement` of the specified `type`
+// /// to the specified `index` position in the specified `list`.  Use the
+// /// specified `pool` to supply memory.
 // static
 // void copyElement(void **list, MyList::Type type, int index,
 //                  void *srcElement, bslma::SequentialPool *pool)
-//     // Copy the value of the specified 'srcElement' of the specified 'type'
-//     // to the specified 'index' position in the specified 'list'.  Use the
-//     // specified 'pool' to supply memory.
 // {
 //     assert(list);
 //     assert(0 <= index);
@@ -219,16 +218,16 @@ BSLS_IDENT("$Id: $")
 //     }
 // }
 //
+// /// Reallocate memory in the specified `list` and `typeArray` using the
+// /// specified `basicAllocator` and update the specified size to the
+// /// specified `newSize`.  The specified `length` number of leading
+// /// elements are preserved in `list` and `typeArray`.  If `allocate`
+// /// should throw an exception, this function has no effect.  The
+// /// behavior is undefined unless `1 <= newSize`, `0 <= length`, and
+// /// `newSize <= length`.
 // static
 // void reallocate(void ***list, char **typeArray, int *size,
 //                 int newSize, int length, bslma::Allocator *basicAllocator)
-//     // Reallocate memory in the specified 'list' and 'typeArray' using the
-//     // specified 'basicAllocator' and update the specified size to the
-//     // specified 'newSize'.  The specified 'length' number of leading
-//     // elements are preserved in 'list' and 'typeArray'.  If 'allocate'
-//     // should throw an exception, this function has no effect.  The
-//     // behavior is undefined unless 1 <= newSize, 0 <= length, and
-//     // newSize <= length.
 // {
 //     assert(list);
 //     assert(*list);

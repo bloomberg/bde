@@ -332,7 +332,6 @@ MetaInt<1>::operator bool() const
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

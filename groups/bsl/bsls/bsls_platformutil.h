@@ -7,8 +7,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide consistent interface for platform-dependent functionality.
 //
-//@INTERNAL_DEPRECATED: Use `bsls_alignmentutil`, `bsls_byteorder`,
-// `bsls_platform`, and `bsls_types` instead.
+//@DEPRECATED: Use `bsls_alignmentutil`, `bsls_byteorder`, `bsls_platform`, and
+//  `bsls_types` instead.
 //
 //@CLASSES:
 //  bsls::PlatformUtil: namespace for platform-neutral type names and API
@@ -137,7 +137,7 @@ struct PlatformUtil {
     /// (`max_size`) to determine overflows resulting from converting from
     /// one size type to the other.
     ///
-    /// DEPRECATED: Use `Types::size_type` instead.
+    /// @DEPRECATED: Use `Types::size_type` instead.
     typedef Types::size_type size_type;
 
     typedef Types::UintPtr UintPtr;
@@ -145,7 +145,7 @@ struct PlatformUtil {
     /// The aliases `UintPtr` and `IntPtr` are guaranteed to have the same
     /// size as pointers.
     ///
-    /// DEPRECATED: Use `Types::UintPtr` and `Types::IntPtr` instead.
+    /// @DEPRECATED: Use `Types::UintPtr` and `Types::IntPtr` instead.
     typedef Types::IntPtr  IntPtr;
 
     typedef Types::Int64  Int64;
@@ -153,14 +153,14 @@ struct PlatformUtil {
     /// The aliases `Int64` and `Uint64` stand for whatever type `Types`
     /// implements for the appropriate supported platforms.
     ///
-    /// DEPRECATED: Use `Types::Int64` and `Types::Uint64` instead.
+    /// @DEPRECATED: Use `Types::Int64` and `Types::Uint64` instead.
     typedef Types::Uint64 Uint64;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     /// The alias `MaxAlign` refers to a type that is maximally-aligned on
     /// the current platform.
     ///
-    /// DEPRECATED: Use `AlignmentUtil::MaxAlignedType` instead.
+    /// @DEPRECATED: Use `AlignmentUtil::MaxAlignedType` instead.
     typedef AlignmentUtil::MaxAlignedType MaxAlign;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
@@ -171,7 +171,7 @@ struct PlatformUtil {
     /// of data at the lowest byte address) is consistent with network byte
     /// order.
     ///
-    /// DEPRECATED: Use preprocessor macro `BSLS_PLATFORM_IS_BIG_ENDIAN`
+    /// @DEPRECATED: Use preprocessor macro `BSLS_PLATFORM_IS_BIG_ENDIAN`
     /// defined in `bsls_platform` instead.
     static bool isBigEndian();
 
@@ -180,7 +180,7 @@ struct PlatformUtil {
     /// byte of data at the lowest byte address) is inconsistent with
     /// network byte order.
     ///
-    /// DEPRECATED: Use preprocessor macro
+    /// @DEPRECATED: Use preprocessor macro
     /// `BSLS_PLATFORMUTIL_IS_BIG_ENDIAN` defined in `bsls_platform`
     /// instead.
     static bool isLittleEndian();
@@ -189,7 +189,7 @@ struct PlatformUtil {
     /// integral multiple of the maximum alignment.  The behavior is
     /// undefined unless `0 <= size`.
     ///
-    /// DEPRECATED: Use `AlignmentUtil::roundUpToMaximalAlignment` instead.
+    /// @DEPRECATED: Use `AlignmentUtil::roundUpToMaximalAlignment` instead.
     static int roundUpToMaximalAlignment(int size);
 };
 
@@ -199,33 +199,33 @@ struct PlatformUtil {
 //                 COMPILE-TIME CONSTANT PRE-PROCESSOR MACROS
 // ============================================================================
 
-// The following preprocessor macros are DEPRECATED.  Please use their
-// replacements in 'bsls_byteorder' and 'bsls_platform' instead.
+// The following preprocessor macros are **DEPRECATED**.  Please use their
+// replacements in `bsls_byteorder` and `bsls_platform` instead.
 
 #if defined(BSLS_PLATFORM_CPU_X86_64)
-    /// DEPRECATED: Use preprocessor macro `BSLS_PLATFORM_IS_LITTLE_ENDIAN`
+    /// @DEPRECATED: Use preprocessor macro `BSLS_PLATFORM_IS_LITTLE_ENDIAN`
     /// defined in `bsls_platform` instead.
     #define BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN BSLS_PLATFORM_IS_LITTLE_ENDIAN
 #endif
 
 #if defined(BSLS_PLATFORM_CPU_X86)
+    /// @DEPRECATED: Use preprocessor macro `BSLS_PLATFORM_IS_LITTLE_ENDIAN`
+    /// defined in `bsls_platform` instead.
     #define BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN \
                                                 BSLS_PLATFORM_IS_LITTLE_ENDIAN
-        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM_IS_LITTLE_ENDIAN'
-        // defined in 'bsls_platform' instead.
 #endif
 
 #if defined(BSLS_PLATFORM_CPU_ARM)
+    /// @DEPRECATED: Use preprocessor macro `BSLS_PLATFORM_IS_LITTLE_ENDIAN`
+    /// defined in `bsls_platform` instead.
     #define BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN \
                                                 BSLS_PLATFORM_IS_LITTLE_ENDIAN
-        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM_IS_LITTLE_ENDIAN'
-        // defined in 'bsls_platform' instead.
 #endif
 
 #if !defined(BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN)
+   /// @DEPRECATED: Use preprocessor macro `BSLS_PLATFORM_IS_BIG_ENDIAN`
+   /// defined in `bsls_platform` instead.
    #define BSLS_PLATFORMUTIL_IS_BIG_ENDIAN BSLS_PLATFORM_IS_BIG_ENDIAN
-       // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM_IS_BIG_ENDIAN'
-       // defined in 'bsls_platform' instead.
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -235,10 +235,10 @@ struct PlatformUtil {
 #define BSLS_PLATFORMUTIL_HTONS(x) (x)
 #define BSLS_PLATFORMUTIL_NTOHL(x) (x)
 #define BSLS_PLATFORMUTIL_NTOHS(x) (x)
-    // DEPRECATED: Use preprocessor macros 'BSLS_BYTEORDER_*TO*' defined in
-    // 'bsls_byteorder' instead.
+    /// @DEPRECATED: Use preprocessor macros `BSLS_BYTEORDER_*TO*` defined in
+    /// `bsls_byteorder` instead.
 #else
-    // Use built-in if using gcc 4.3.
+    /// Use built-in if using gcc 4.3.
 
 #if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300) \
  || defined(BSLS_PLATFORM_CMP_CLANG)

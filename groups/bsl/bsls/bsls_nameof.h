@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::NameOf: template class to return name of template parameter
 //
-//@FREE FUNCTIONS
+//@FREE FUNCTIONS:
 //  bsls::nameOfType(const TYPE&): template function to return name of `TYPE`
 //
 //@DESCRIPTION: This component provides a template class,

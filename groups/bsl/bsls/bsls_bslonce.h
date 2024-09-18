@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //   bsls::BslOnce: statically initializable gate-keeper for a once-block
 //   bsls::BslOnceGuard: guard for safely using `bsls::BslOnce`
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component provides a pair of classes, `bsls::BslOnce`
 // and `bsls::BslOnceGuard`, which give the caller a way to run a block of
 // code exactly once within the current process, particularly in the presence
@@ -54,8 +52,8 @@ BSLS_IDENT("$Id: $")
 // `getSingleton` uses `BslOnce` to ensure the singleton is initialized only
 // once, and that the singleton is initialized before the function returns:
 // ```
+// /// Return a reference to a modifiable singleton object.
 // MySingleton *getSingleton()
-//     // Return a reference to a modifiable singleton object.
 // {
 //    static MySingleton singleton = { 0 };
 //    static BslOnce     once      = BSLS_BSLONCE_INITIALIZER;
@@ -105,11 +103,11 @@ namespace bsls {
 #define BSLS_BSLONCE_INITIALIZER { { 0xdead } }
 
 
+ // This `struct` provides a simple data type for ensuring a block of code
+ // is executed (only) once.  Note that this is defined as a `struct` to
+ // allow constant initialization in a global or static context using
+ // `BSLS_BSLONCE_INITIALIZER`.
 struct BslOnce {
-     // This 'struct' provides a simple data type for ensuring a block of code
-     // is executed (only) once.  Note that this is defined as a 'struct' to
-     // allow constant initialization in a global or static context using
-     // 'BSLS_BSLONCE_INITIALIZER'.
 
   public:
      // PUBLIC DATA
