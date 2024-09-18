@@ -32,7 +32,7 @@ pipeline {
             steps{
 		echo 'Running BDE CI Bot'
                 sh """             
-		PATH=/bb/bde/bbshr/bin/:$PATH /opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/bdecibot.py --verbose --nolint --url ${CHANGE_URL} --create-checkout ${WORKSPACE}
+		/opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/bdecibot.py --verbose --nolint --url ${CHANGE_URL} --create-checkout ${WORKSPACE}
                 """                
             }
         }
