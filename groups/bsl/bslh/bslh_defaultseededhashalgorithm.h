@@ -92,28 +92,27 @@ BSLS_IDENT("$Id: $")
 // parameters: `TYPE` (the type being referenced) and `HASHER` (a functor that
 // produces the hash).
 // ```
+// /// This class template implements a hash table providing fast lookup of
+// /// an external, non-owned, array of values of (template parameter) `TYPE`.
+// ///
+// /// The (template parameter) `TYPE` shall have a transitive, symmetric
+// /// `operator==` function.  There is no requirement that it have any
+// /// kind of creator defined.
+// ///
+// /// The `HASHER` template parameter type must be a functor with a method
+// /// having the following signature:
+// ///..
+// ///  size_t operator()(TYPE)  const;
+// ///                   -OR-
+// ///  size_t operator()(const TYPE&) const;
+// ///..
+// /// and `HASHER` shall have a publicly accessible default constructor
+// /// and destructor.
+// ///
+// /// Note that this hash table has numerous simplifications because we
+// /// know the size of the array and never have to resize the table.
 // template <class TYPE, class HASHER>
 // class HashTable {
-//     // This class template implements a hash table providing fast lookup of
-//     // an external, non-owned, array of values of (template parameter)
-//     // 'TYPE'.
-//     //
-//     // The (template parameter) 'TYPE' shall have a transitive, symmetric
-//     // 'operator==' function.  There is no requirement that it have any
-//     // kind of creator defined.
-//     //
-//     // The 'HASHER' template parameter type must be a functor with a method
-//     // having the following signature:
-//     //..
-//     //  size_t operator()(TYPE)  const;
-//     //                   -OR-
-//     //  size_t operator()(const TYPE&) const;
-//     //..
-//     // and 'HASHER' shall have a publicly accessible default constructor
-//     // and destructor.
-//     //
-//     // Note that this hash table has numerous simplifications because we
-//     // know the size of the array and never have to resize the table.
 //
 //     // DATA
 //     const TYPE       *d_values;          // Array of values table is to
@@ -125,40 +124,42 @@ BSLS_IDENT("$Id: $")
 //
 //   private:
 //     // PRIVATE ACCESSORS
+//
+//     /// Look up the specified `value`, having the specified `hashValue`,
+//     /// and load its index in `d_bucketArray` into the specified `idx`.
+//     /// If not found, return the vacant entry in `d_bucketArray` where
+//     /// it should be inserted.  Return `true` if `value` is found and
+//     /// `false` otherwise.
 //     bool lookup(size_t      *idx,
 //                 const TYPE&  value,
 //                 size_t       hashValue) const;
-//         // Look up the specified 'value', having the specified 'hashValue',
-//         // and load its index in 'd_bucketArray' into the specified 'idx'.
-//         // If not found, return the vacant entry in 'd_bucketArray' where
-//         // it should be inserted.  Return 'true' if 'value' is found and
-//         // 'false' otherwise.
 //
 //   public:
 //     // CREATORS
-//     HashTable(const TYPE *valuesArray,
-//               size_t      numValues);
-//         // Create a hash table referring to the specified 'valuesArray'
-//         // having length of the specified 'numValues'.  No value in
-//         // 'valuesArray' shall have the same value as any of the other
-//         // values in 'valuesArray'
 //
+//     /// Create a hash table referring to the specified `valuesArray`
+//     /// having length of the specified `numValues`.  No value in
+//     /// `valuesArray` shall have the same value as any of the other
+//     /// values in `valuesArray`
+//     HashTable(const TYPE *valuesArray, size_t      numValues);
+//
+//     /// Free up memory used by this hash table.
 //     ~HashTable();
-//         // Free up memory used by this hash table.
 //
 //     // ACCESSORS
+//
+//     /// Return true if the specified `value` is found in the table and
+//     /// false otherwise.
 //     bool contains(const TYPE& value) const;
-//         // Return true if the specified 'value' is found in the table and
-//         // false otherwise.
 // };
 // ```
 // Then, we define a `Future` class, which holds a c-string `name`, char
 // `callMonth`, and short `callYear`.
 // ```
+// /// This class identifies a future contract.  It tracks the name, call
+// /// month and year of the contract it represents, and allows equality
+// /// comparison.
 // class Future {
-//     // This class identifies a future contract.  It tracks the name, call
-//     // month and year of the contract it represents, and allows equality
-//     // comparison.
 //
 //     // DATA
 //     const char *d_name;    // held, not owned
@@ -167,38 +168,40 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `Future` object out of the specified `name`,
+//     /// `callMonth`, and `callYear`.
 //     Future(const char *name, const char callMonth, const short callYear)
 //     : d_name(name), d_callMonth(callMonth), d_callYear(callYear)
-//         // Create a 'Future' object out of the specified 'name',
-//         // 'callMonth', and 'callYear'.
 //     {}
 //
+//     /// Create a `Future` with default values.
 //     Future() : d_name(""), d_callMonth('\0'), d_callYear(0)
-//         // Create a 'Future' with default values.
 //     {}
 //
 //     // ACCESSORS
+//
+//     /// Return the month that this future expires.
 //     const char * getMonth() const
-//         // Return the month that this future expires.
 //     {
 //         return &d_callMonth;
 //     }
 //
+//     /// Return the name of this future.
 //     const char * getName() const
-//         // Return the name of this future
 //     {
 //         return d_name;
 //     }
 //
+//     /// Return the year that this future expires.
 //     const short * getYear() const
-//         // Return the year that this future expires
 //     {
 //         return &d_callYear;
 //     }
 //
+//     /// Compare this to the specified `other` object and return true if
+//     /// they are equal.
 //     bool operator==(const Future& other) const
-//         // Compare this to the specified 'other' object and return true if
-//         // they are equal
 //     {
 //         return (!strcmp(d_name, other.d_name))  &&
 //            d_callMonth == other.d_callMonth &&
@@ -206,9 +209,9 @@ BSLS_IDENT("$Id: $")
 //     }
 // };
 //
+// /// Compare compare the specified `lhs` and `rhs` objects and return true
+// /// if they are not equal.
 // bool operator!=(const Future& lhs, const Future& rhs)
-//     // Compare compare the specified 'lhs' and 'rhs' objects and return
-//     // true if they are not equal
 // {
 //     return !(lhs == rhs);
 // }
@@ -223,18 +226,17 @@ BSLS_IDENT("$Id: $")
 // automatically be upgraded to use it as soon as
 // `bslh::DefaultSeededHashAlgorithm` is updated.
 // ```
+// /// This struct is a functor that will apply the
+// /// `DefaultSeededHashAlgorithm` to objects of type `Future`, using a
+// /// generated seed.
+// struct HashFuture {
 //
-//   struct HashFuture {
-//       // This struct is a functor that will apply the
-//       // 'DefaultSeededHashAlgorithm' to objects of type 'Future', using a
-//       // generated seed.
-//
-//       size_t operator()(const Future& future) const
-//           // Return the hash of the of the specified 'future'.  Note that
-//           // this uses the 'DefaultSeededHashAlgorithm' to quickly combine
-//           // the attributes of 'Future' objects that are salient to hashing
-//           // into a hash suitable for a hash table.
-//       {
+//   /// Return the hash of the of the specified `future`.  Note that
+//   /// this uses the `DefaultSeededHashAlgorithm` to quickly combine
+//   /// the attributes of `Future` objects that are salient to hashing
+//   /// into a hash suitable for a hash table.
+//   size_t operator()(const Future& future) const
+//   {
 // ```
 // Then, we use a `bslh::SeedGenerator` combined with a RNG (implementation not
 // shown), to generate the seeds for our algorithm.
@@ -250,13 +252,13 @@ BSLS_IDENT("$Id: $")
 // just as easily as for a non-seeded algorithm
 // ```
 //
-//           hash(future.getName(),  strlen(future.getName()));
-//           hash(future.getMonth(), sizeof(char));
-//           hash(future.getYear(),  sizeof(short));
+//         hash(future.getName(),  strlen(future.getName()));
+//         hash(future.getMonth(), sizeof(char));
+//         hash(future.getYear(),  sizeof(short));
 //
-//           return static_cast<size_t>(hash.computeHash());
-//       }
-//   };
+//         return static_cast<size_t>(hash.computeHash());
+//   }
+// };
 // ```
 // Then, we want to actually use our hash table on `Future` objects.  We create
 // an array of `Future`s based on data that was originally from some external
@@ -351,8 +353,8 @@ class DefaultSeededHashAlgorithm {
     /// memory.
     explicit DefaultSeededHashAlgorithm(const char *seed);
 
+    /// Destroy this object.
     //! ~DefaultSeededHashAlgorithm() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 
@@ -405,7 +407,6 @@ DefaultSeededHashAlgorithm::computeHash()
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

@@ -540,19 +540,20 @@ struct Hash {
     //! Hash() = default;
         // Create a 'bslh::Hash' object.
 
+    /// Create a `bslh::Hash` object.  Note that as `bslh::Hash` is an empty
+    /// (stateless) type, this operation will have no observable effect.
     //! Hash(const Hash& original) = default;
-        // Create a 'bslh::Hash' object.  Note that as 'bslh::Hash' is an empty
-        // (stateless) type, this operation will have no observable effect.
 
+    /// Destroy this object.
     //! ~Hash() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.  Note
+    /// that as `bslh::Hash` is an empty (stateless) type, this operation will
+    /// have no observable effect.
     //! Hash& operator=(const Hash& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that as 'bslh::Hash' is an empty (stateless) type, this operation
-        // will have no observable effect.
 
     // ACCESSORS
 

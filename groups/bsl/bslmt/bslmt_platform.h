@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide platform-dependent thread-related trait definitions.
 //
 //@CLASSES:
-//   Platform: namespace for platform-dependent thread-related traits
+//   bslmt::Platform: namespace for platform-dependent thread-related traits
 //
 //@SEE_ALSO:
 //

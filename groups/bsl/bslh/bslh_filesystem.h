@@ -59,32 +59,31 @@ BSLS_IDENT("$Id: $")
 // to `bslh::Hash<TYPE>`.  This component provides the specialization of
 // `bslh::Hash` for `std::filesystem::path`:
 // ```
+// /// This table leverages a hash table to provide a fast lookup of an
+// /// external, non-owned, array of values of configurable type.
+// ///
+// /// The only requirement for `TYPE` is that it have a transitive,
+// /// symmetric `operator==` function.  There is no requirement that it
+// /// have any kind of creator defined.
+// ///
+// /// The `HASHER` template parameter type must be a functor with a
+// /// function of the following signature:
+// /// ```
+// /// size_t operator()(const TYPE)  const; or
+// /// size_t operator()(const TYPE&) const; or
+// /// ```
+// /// and `HASHER` must have a publicly available default constructor and
+// /// destructor.
 // template <class TYPE, class HASHER = bslh::Hash<TYPE> >
 // class HashCrossReference {
-//     // This table leverages a hash table to provide a fast lookup of an
-//     // external, non-owned, array of values of configurable type.
-//     //
-//     // The only requirement for 'TYPE' is that it have a transitive,
-//     // symmetric 'operator==' function.  There is no requirement that it
-//     // have any kind of creator defined.
-//     //
-//     // The 'HASHER' template parameter type must be a functor with a
-//     // function of the following signature:
-//     //..
-//     //  size_t operator()(const TYPE)  const; or
-//     //  size_t operator()(const TYPE&) const; or
-//     //..
-//     // and 'HASHER' must have a publicly available default constructor and
-//     // destructor.
-//
 //     // DATA
 //     const TYPE       *d_values;             // Array of values table is to
 //                                             // cross-reference.  Held, not
 //                                             // owned.
-//     size_t            d_numValues;          // Length of 'd_values'.
+//     size_t            d_numValues;          // Length of `d_values`.
 //     const TYPE      **d_bucketArray;        // Contains ptrs into
-//                                             // 'd_values'
-//     size_t            d_bucketArrayMask;    // Will always be '2^N - 1'.
+//                                             // `d_values`
+//     size_t            d_bucketArrayMask;    // Will always be `2^N - 1`.
 //     HASHER            d_hasher;
 //     bool              d_valid;              // Object was properly
 //                                             // initialized.
@@ -174,9 +173,9 @@ BSLS_IDENT("$Id: $")
 //         return lookup(&idx, value, d_hasher(value));
 //     }
 //
+//     /// Return `true` if this cross reference was successfully
+//     /// constructed and `false` otherwise.
 //     bool isValid() const
-//         // Return 'true' if this cross reference was successfully
-//         // constructed and 'false' otherwise.
 //     {
 //         return d_valid;
 //     }
