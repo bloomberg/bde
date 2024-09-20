@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Aug 26 12:00:04 2024
+// Generated on Fri Sep 20 16:36:50 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatimp.h
 
 #ifdef COMPILING_BSLFMT_FORMATIMP_H
@@ -3000,7 +3000,7 @@ t_OUT Format_FormatImp<t_CHAR>::processImp(
          const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args)
     // The actual meat of the implementation.
 {
-    const size_t argssize = Format_FormatArgs_ImpUtils::formatArgsSize(args);
+    const size_t argssize = Format_FormatArgs_ImpUtil::formatArgsSize(args);
 
     basic_format_parse_context<t_CHAR>  pc(fmtstr, argssize);
     basic_format_context<t_OUT, t_CHAR> fc(
