@@ -315,10 +315,10 @@ class Decoder {
                const DecoderOptions  *options);
 
     /// Decode an object of (template parameter) `TYPE` from the specified
-    /// `streamBuf` and load the result into the specified modifiable
-    /// `value`.  Return 0 on success, and a non-zero value otherwise.
+    /// `streamBuf` and load the result into the specified modifiable `value`.
+    /// Return 0 on success, and a non-zero value otherwise.
     ///
-    /// DEPRECATED: Use the `decode` function passed a reference to a
+    /// @DEPRECATED: Use the `decode` function passed a reference to a
     /// non-modifiable `DecoderOptions` object instead.
     template <class TYPE>
     int decode(bsl::streambuf *streamBuf, TYPE *value);
@@ -328,16 +328,16 @@ class Decoder {
     /// Return 0 on success, and a non-zero value otherwise.  Note that
     /// `stream` will be invalidated if the decoding fails.
     ///
-    /// DEPRECATED: Use the `decode` function passed a reference to a
+    /// @DEPRECATED: Use the `decode` function passed a reference to a
     /// non-modifiable `DecoderOptions` object instead.
     template <class TYPE>
     int decode(bsl::istream& stream, TYPE *value);
 
     // ACCESSORS
 
-    /// Return a string containing any error, warning, or trace messages
-    /// that were logged during the last call to the `decode` method.  The
-    /// log is reset each time `decode` is called.
+    /// Return a string containing any error, warning, or trace messages that
+    /// were logged during the last call to the `decode` method.  The log is
+    /// reset each time `decode` is called.
     bsl::string loggedMessages() const;
 };
 
@@ -345,11 +345,11 @@ class Decoder {
                        // struct Decoder_ElementVisitor
                        // =============================
 
-/// This `class` implements a visitor for decoding elements within a
-/// sequence, choice, or array type.  This is a component-private class and
-/// should not be used outside of this component.  Note that the operators
-/// provided in this `class` match the function signatures required of
-/// visitors decoding into elements of compatible types.
+/// This `class` implements a visitor for decoding elements within a sequence,
+/// choice, or array type.  This is a component-private class and should not be
+/// used outside of this component.  Note that the operators provided in this
+/// `class` match the function signatures required of visitors decoding into
+/// elements of compatible types.
 struct Decoder_ElementVisitor {
 
     // DATA
@@ -368,8 +368,8 @@ struct Decoder_ElementVisitor {
     template <class TYPE>
     int operator()(TYPE *value);
 
-    /// Decode into the specified `value` using the specified `info` the
-    /// data in the JSON format.  Return 0 on success and a non-zero value
+    /// Decode into the specified `value` using the specified `info` the data
+    /// in the JSON format.  Return 0 on success and a non-zero value
     /// otherwise.
     template <class TYPE, class INFO>
     int operator()(TYPE *value, const INFO& info);
@@ -379,10 +379,10 @@ struct Decoder_ElementVisitor {
                        // struct Decoder_DecodeImpProxy
                        // =============================
 
-/// This class provides a functor that dispatches the appropriate
-/// `decodeImp` method for a `bdeat` Dynamic type.  Note that the operators
-/// provided in this `class` match the function signatures required of
-/// visitors decoding into compatible types.
+/// This class provides a functor that dispatches the appropriate `decodeImp`
+/// method for a `bdeat` Dynamic type.  Note that the operators provided in
+/// this `class` match the function signatures required of visitors decoding
+/// into compatible types.
 struct Decoder_DecodeImpProxy {
 
     // DATA
@@ -398,9 +398,9 @@ struct Decoder_DecodeImpProxy {
     template <class TYPE>
     int operator()(TYPE *, bslmf::Nil);
 
-    /// Dencode into the specified `value` of the specified `bdeat`
-    /// `category` from the data in the JSON format.  Return 0 on success
-    /// and a non-zero value otherwise.
+    /// Dencode into the specified `value` of the specified `bdeat` `category`
+    /// from the data in the JSON format.  Return 0 on success and a non-zero
+    /// value otherwise.
     template <class TYPE, class ANY_CATEGORY>
     int operator()(TYPE *object, ANY_CATEGORY category);
 };

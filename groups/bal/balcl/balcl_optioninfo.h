@@ -20,13 +20,13 @@ BSLS_IDENT("$Id: $")
 // allocator-aware, full-featured value-semantic class is needed to describe
 // command-line options, use `balcl::Option`.
 //
-// For further details see {`balcl_commandline`|Specifying Command-Line
-// Arguments}.
+// For further details see
+// [](balcl_commandline#Specifying Command-Line Arguments).
 //
 ///Usage
 ///-----
 // The intended use of this component is illustrated in
-// {`balcl_commandline`|Usage}.
+// [](balcl_commandline#Usage).
 
 #include <balscm_version.h>
 
@@ -94,9 +94,9 @@ namespace balcl {
 struct OptionInfo {
 
     // TYPES
-    enum ArgType {
-        // Enumerate the categories of command-line arguments.
 
+    /// Enumerate the categories of command-line arguments.
+    enum ArgType {
         e_FLAG       = 0,  // boolean option (present on command line, or not)
         e_OPTION     = 1,  // option having a value
         e_NON_OPTION = 2   // other command-line argument
@@ -132,16 +132,16 @@ struct OptionInfo {
                bsl::string_view      name = "",
                bsl::string_view      description = "");             // IMPLICIT
 
-    /// Create an `OptionInfo` with the specified `tag`, `name`,
-    /// `description`, and `typeInfo`, with `d_defaultInfo`, and
-    /// `d_environmentVariableName` default-constructed.
+    /// Create an `OptionInfo` with the specified `tag`, `name`, `description`,
+    /// and `typeInfo`, with `d_defaultInfo`, and `d_environmentVariableName`
+    /// default-constructed.
     OptionInfo(bsl::string_view      tag,
                bsl::string_view      name,
                bsl::string_view      description,
                const TypeInfo&       typeInfo);
 
-    /// Create an `OptionInfo` with the specified `tag`, `name`,
-    /// `description`, `typeInfo`, `defaultInfo`, and `envVarName`.
+    /// Create an `OptionInfo` with the specified `tag`, `name`, `description`,
+    /// `typeInfo`, `defaultInfo`, and `envVarName`.
     OptionInfo(bsl::string_view      tag,
                bsl::string_view      name,
                bsl::string_view      description,

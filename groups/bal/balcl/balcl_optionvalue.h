@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // The following snippets of code illustrate how to create and use a
 // `balcl::OptionValue` object.  Note that `balcl::OptionValue` objects are
 // typically used in a description of a sequence of command-line options (see
-// {`balcl_optiontype`}).
+// `balcl_optiontype`).
 //
 // First, we create a default `balcl::OptionValue`, `valueA`, and observe that
 // it is in the unset state:
@@ -110,20 +110,22 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an object that can parse command-line arguments that
+//     /// satisfy the specified `descriptions`, an array containing the
+//     /// specified `count` elements.
 //     MyCommandLineParser(const MyOptionDescription *descriptions,
 //                         bsl::size_t                count);
-//         // Create an object that can parse command-line arguments that
-//         // satisfy the specified 'descriptions', an array containing the
-//         // specified 'count' elements.
 //
 //     // ...
 //
 //     // MANIPULATORS
+//
+//     /// Parse the command-line options in the specified `argv`, an array
+//     /// having the specified `argc` elements.  Return 0 on success --
+//     /// i.e., the options were compatible with the option descriptions
+//     /// specified on construction -- and a non-zero value otherwise.
 //     int parse(int argc, const char **argv);
-//         // Parse the command-line options in the specified 'argv', an array
-//         // having the specified 'argc' elements.  Return 0 on success --
-//         // i.e., the options were compatible with the option descriptions
-//         // specified on construction -- and a non-zero value otherwise.
 //
 //     // ...
 // ```
@@ -132,24 +134,25 @@ BSLS_IDENT("$Id: $")
 // index of that option in the description provided on construction:
 // ```
 //     // ACCESSORS
+//
+//     /// Return `true` if the most recent call to `parsed` was successful
+//     /// and `false` otherwise.
 //     bool isParsed() const;
-//         // Return 'true' if the most recent call to 'parsed' was successful
-//         // and 'false' otherwise.
 //
+//     /// Return of the name of the parsed option at the specified `index`
+//     /// position.  The behavior is undefined unless
+//     /// `0 <= index < numOptions()` and `true == isParsed()`
 //     const char *name (bsl::size_t index) const;
-//         // Return of the name of the parsed option at the specified 'index'
-//         // position.  The behavior is undefined unless
-//         // '0 <= index < numOptions()' and 'true == isParsed()'
 //
+//     /// Return a `const` reference to the value (possibly in a null
+//     /// state) of the parsed option at the specified `index` position.
+//     /// The behavior is undefined unless `0 <= index < numOptions()` and
+//     /// `true == isParsed()`.
 //     const balcl::OptionValue& value(bsl::size_t index) const;
-//         // Return a 'const' reference to the value (possibly in a null
-//         // state) of the parsed option at the specified 'index' position.
-//         // The behavior is undefined unless '0 <= index < numOptions()' and
-//         // 'true == isParsed()'.
 //
+//     /// Return the number of parsed options.  The behavior is undefined
+//     /// unless `true == isParsed()`.
 //     bsl::size_t numOptions() const;
-//         // Return the number of parsed options.  The behavior is undefined
-//         // unless 'true == isParsed()'.
 //
 //     // ...
 // };
@@ -337,10 +340,10 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
 /// This class implements a special-use value-semantic variant type used to
 /// represent values parsed from process command lines.  Accordingly, this
 /// class can represent values of any of the types defined in
-/// {`balcl_optiontype`}.  Furthermore, that value can also be in a null
-/// state (defined type but no defined value) to represent allowed options
-/// that do not appear among the command-line arguments (and for which no
-/// default value has been configured).
+/// `balcl_optiontype`.  Furthermore, that value can also be in a null state
+/// (defined type but no defined value) to represent allowed options that do
+/// not appear among the command-line arguments (and for which no default value
+/// has been configured).
 class OptionValue {
 
   private:

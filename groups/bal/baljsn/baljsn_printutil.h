@@ -144,9 +144,8 @@ struct PrintUtil {
 
     // CLASS METHODS
 
-    /// Encode the specified `value` into JSON using ISO 8601 format and
-    /// output the result to the specified `stream` using the specified
-    /// `options`.
+    /// Encode the specified `value` into JSON using ISO 8601 format and output
+    /// the result to the specified `stream` using the specified `options`.
     template <class TYPE>
     static int printDateAndTime(bsl::ostream&         stream,
                                 const TYPE&           value,

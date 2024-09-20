@@ -258,16 +258,15 @@ class DecoderOptions {
                             const char   *name,
                             int           nameLength);
 
-    /// Set the "MaxDepth" attribute of this object to the specified
-    /// `value`.
+    /// Set the "MaxDepth" attribute of this object to the specified `value`.
     void setMaxDepth(int value);
 
-    /// Set the "SkipUnknownElements" attribute of this object to the
-    /// specified `value`.
+    /// Set the "SkipUnknownElements" attribute of this object to the specified
+    /// `value`.
     void setSkipUnknownElements(bool value);
 
-    /// Set the "ValidateInputIsUtf8" attribute of this object to the
-    /// specified `value`.
+    /// Set the "ValidateInputIsUtf8" attribute of this object to the specified
+    /// `value`.
     void setValidateInputIsUtf8(bool value);
 
     /// Set the "AllowConsecutiveSeparators" attribute of this object to the
@@ -278,8 +277,8 @@ class DecoderOptions {
     /// specified `value`.
     void setAllowFormFeedAsWhitespace(bool value);
 
-    /// Set the "AllowUnescapedControlCharacters" attribute of this object
-    /// to the specified `value`.
+    /// Set the "AllowUnescapedControlCharacters" attribute of this object to
+    /// the specified `value`.
     void setAllowUnescapedControlCharacters(bool value);
 
     // ACCESSORS
@@ -376,10 +375,9 @@ class DecoderOptions {
         return rhs.print(stream, 0, -1);
     }
 
-    /// Pass the specified `object` to the specified `hashAlg`.  This
-    /// function integrates with the `bslh` modular hashing system and
-    /// effectively provides a `bsl::hash` specialization for
-    /// `DecoderOptions`.
+    /// Pass the specified `object` to the specified `hashAlg`.  This function
+    /// integrates with the `bslh` modular hashing system and effectively
+    /// provides a `bsl::hash` specialization for `DecoderOptions`.
     template <typename t_HASH_ALGORITHM>
     friend void hashAppend(t_HASH_ALGORITHM&     hashAlg,
                            const DecoderOptions& object)

@@ -37,7 +37,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // Clients wishing to ensure that encoding and then decoding results in a
 // `Datum` equal to the original value should use only `Datum` types natively
-// supported in JSON (see {`Supported Types`} below), and ensure that duplicate
+// supported in JSON (see [](#Supported Types)), and ensure that duplicate
 // keys are not present in the source `Datum` (duplicate keys in a `Datum` map
 // are typically an error, but the interface does allow them to be created).
 // Enabling the `strictTypes` option verifies that the types in encoded JSON
@@ -257,7 +257,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // ```
 // Notice that the `type` of "age" is `double`, since "age" was encoded as a
 // number, and `double` is the supported representation of a JSON number (see
-// {`Supported Types`}).
+// [](#Supported Types)).
 
 #include <balscm_version.h>
 
@@ -302,7 +302,7 @@ struct DatumUtil {
     /// violated).  An error status will be returned if `json` contains
     /// arrays or objects that are nested beyond a depth configured by
     /// `options.maxNestedDepth()`.  The mapping of types in JSON to the
-    /// types supported by `Datum` is described in {Supported Types}.
+    /// types supported by `Datum` is described in [](#Supported Types).
     static int decode(bdld::ManagedDatum         *result,
                       const bsl::string_view&     json);
     static int decode(bdld::ManagedDatum         *result,
@@ -327,7 +327,7 @@ struct DatumUtil {
     /// be returned if `json` contains arrays or objects that are nested
     /// beyond a depth configured by `options.maxNestedDepth()`.  The
     /// mapping of types in JSON to the types supported by `Datum` is
-    /// described in {Supported Types}.
+    /// described in [](#Supported Types).
     static int decode(bdld::ManagedDatum         *result,
                       bsl::streambuf             *jsonBuffer);
     static int decode(bdld::ManagedDatum         *result,
@@ -341,6 +341,19 @@ struct DatumUtil {
                       bsl::streambuf             *jsonBuffer,
                       const DatumDecoderOptions&  options);
 
+    /// Encode the specified `datum` as a JSON string, and load the
+    /// specified `result` with the encoded JSON string.  Return 0 on
+    /// success, and a negative value if `datum` could not be encoded (with
+    /// no effect on `result`).  If the optionally specified `options`
+    /// argument is not present, treat it as a default-constructed
+    /// `DatumEncoderOptions`.  If `options.strictTypes` is `true` and a
+    /// type that is not supported by JSON, or a singular double value
+    /// (e.g., NaN or infinity) is being encoded (see [](#Supported Types))
+    /// return a positive value, but also populate `result` with an encoded
+    /// JSON string (i.e., the value of `result` is the same regardless of
+    /// the `strictTypes` option, but if `strictTypes` is `true` a non-zero
+    /// positive status will be returned).  The mapping of types supported
+    /// by `Datum` to JSON types is described in [](#Supported Types).
     static int encode(bsl::string         *result,
                       const bdld::Datum&   datum);
     static int encode(std::string         *result,
@@ -360,19 +373,6 @@ struct DatumUtil {
                       const bdld::Datum&          datum,
                       const DatumEncoderOptions&  options);
 #endif
-        // Encode the specified 'datum' as a JSON string, and load the
-        // specified 'result' with the encoded JSON string.  Return 0 on
-        // success, and a negative value if 'datum' could not be encoded (with
-        // no effect on 'result').  If the optionally specified 'options'
-        // argument is not present, treat it as a default-constructed
-        // 'DatumEncoderOptions'.  If 'options.strictTypes' is 'true' and a
-        // type that is not supported by JSON, or a singular double value
-        // (e.g., NaN or infinity) is being encoded (see {Supported Types})
-        // return a positive value, but also populate 'result' with an encoded
-        // JSON string (i.e., the value of 'result' is the same regardless of
-        // the 'strictTypes' option, but if 'strictTypes' is 'true' a non-zero
-        // positive status will be returned).  The mapping of types supported
-        // by 'Datum' to JSON types is described in {Supported Types}.
 
     /// Encode the specified `datum` as a JSON string, and write it into the
     /// specified `stream`.  Return 0 on success, and a negative value if
@@ -381,12 +381,12 @@ struct DatumUtil {
     /// argument is not present, treat it as a default-constructed
     /// `DatumEncoderOptions`.  If `options.strictTypes` is `true` and a
     /// type that is not supported by JSON, or a singular double value
-    /// (e.g., NaN or infinity) is being encoded (see {Supported Types})
+    /// (e.g., NaN or infinity) is being encoded (see [](#Supported Types))
     /// return a positive value, but also populate `result` with an encoded
     /// JSON string (i.e., the value of `result` is the same regardless of
     /// the `strictTypes` option, but if `strictTypes` is `true` a non-zero
     /// positive status will be returned).  The mapping of types supported
-    /// by `Datum` to JSON types is described in {Supported Types}.
+    /// by `Datum` to JSON types is described in [](#Supported Types).
     static int encode(bsl::ostream&              stream,
                       const bdld::Datum&         datum);
     static int encode(bsl::ostream&              stream,

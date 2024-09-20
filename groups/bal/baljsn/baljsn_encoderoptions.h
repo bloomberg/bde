@@ -261,12 +261,11 @@ class EncoderOptions {
     bool                   d_encodeQuotedDecimal64;
   public:
     // TYPES
-    enum EncodingStyle {
-        // This 'enum' provides enumerators to specify the encoding styles.
-        // This 'enum' is replicated in this 'class' for
-        // backwards-compatibility with 'baejsn'.  Users should use
-        // 'baljsn::EncodingStyle' directly.
 
+    // This `enum` provides enumerators to specify the encoding styles.  This
+    // `enum` is replicated in this `class` for backwards-compatibility with
+    // `baejsn`.  Users should use `baljsn::EncodingStyle` directly.
+    enum EncodingStyle {
         e_COMPACT = baljsn::EncodingStyle::e_COMPACT,
         e_PRETTY  = baljsn::EncodingStyle::e_PRETTY
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -383,19 +382,19 @@ class EncoderOptions {
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
+    /// Invoke the specified `manipulator` on the address of the (modifiable)
+    /// attribute indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the invocation
+    /// of `manipulator` if `name` identifies an attribute of this class, and
+    /// -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
-    /// Set the "InitialIndentLevel" attribute of this object to the
-    /// specified `value`.
+    /// Set the "InitialIndentLevel" attribute of this object to the specified
+    /// `value`.
     void setInitialIndentLevel(int value);
 
     /// Set the "SpacesPerLevel" attribute of this object to the specified
@@ -407,12 +406,12 @@ class EncoderOptions {
     void setEncodingStyle(baljsn::EncodingStyle::Value value);
     void setEncodingStyle(baljsn::EncoderOptions::EncodingStyle value);
 
-    /// Set the "EncodeEmptyArrays" attribute of this object to the
-    /// specified `value`.
+    /// Set the "EncodeEmptyArrays" attribute of this object to the specified
+    /// `value`.
     void setEncodeEmptyArrays(bool value);
 
-    /// Set the "EncodeNullElements" attribute of this object to the
-    /// specified `value`.
+    /// Set the "EncodeNullElements" attribute of this object to the specified
+    /// `value`.
     void setEncodeNullElements(bool value);
 
     /// Set the "EncodeInfAndNaNAsStrings" attribute of this object to the

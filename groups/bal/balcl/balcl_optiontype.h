@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // the type is not known until runtime.
 //
 // The names of related symbols are similar to each other.  For example, the
-// supported option-value type `bsl::vector<bdtl::Datetime>` has:
+// supported option-value type `bsl::vector<bdlt::Datetime>` has:
 // ```
 // Symbol                               Description
 // ------------------------------------ --------------------------------
@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // The null pointer symbols are typically used with the constructor of
 // `balcl::TypeInfo`.  They provide a clearly named way to select the
 // constructor to create an object having the desired type attribute.  See
-// {`balcl_typeinfo`} and {`balcl_commandline`}.
+// `balcl_typeinfo` and `balcl_commandline`.
 //
 // In addition to the conventional enumeration methods, this component also
 // provides some utility functions that categorize the represented types.  For
@@ -176,7 +176,7 @@ namespace balcl {
 /// * Supports a complete set of *enumeration* operations.
 /// * Provides several additional utility functions.
 ///
-/// For terminology {`bsldoc_glossary`}.
+/// For terminology see `bsldoc_glossary`.
 struct OptionType {
 
   public:
@@ -272,13 +272,12 @@ struct OptionType {
 
     // CLASS METHODS
 
-    /// If `isArrayType(type)` for the specified `type`, then return the
-    /// type of the elements of that array `type`; otherwise return
-    /// `e_VOID`.
+    /// If `isArrayType(type)` for the specified `type`, then return the type
+    /// of the elements of that array `type`; otherwise return `e_VOID`.
     static Enum fromArrayType(Enum type);
 
-    /// Return `true` if the specified `type` corresponds to an array type,
-    /// and `false` otherwise.
+    /// Return `true` if the specified `type` corresponds to an array type, and
+    /// `false` otherwise.
     static bool isArrayType(Enum type);
 
     /// If there is an array type whose elements have the specified `type`
@@ -290,18 +289,17 @@ struct OptionType {
 
                                   // Aspects
 
-    /// Write the string representation of the specified enumeration `value`
-    /// to the specified output `stream`, and return a reference to
-    /// `stream`.  Optionally specify an initial indentation `level`, whose
-    /// absolute value is incremented recursively for nested objects.  If
-    /// `level` is specified, optionally specify `spacesPerLevel`, whose
-    /// absolute value indicates the number of spaces per indentation level
-    /// for this and all of its nested objects.  If `level` is negative,
-    /// suppress indentation of the first line.  If `spacesPerLevel` is
-    /// negative, format the entire output on one line, suppressing all but
-    /// the initial indentation (as governed by `level`).  See `toAscii` for
-    /// what constitutes the string representation of a `OptionType::Enum`
-    /// value.
+    /// Write the string representation of the specified enumeration `value` to
+    /// the specified output `stream`, and return a reference to `stream`.
+    /// Optionally specify an initial indentation `level`, whose absolute value
+    /// is incremented recursively for nested objects.  If `level` is
+    /// specified, optionally specify `spacesPerLevel`, whose absolute value
+    /// indicates the number of spaces per indentation level for this and all
+    /// of its nested objects.  If `level` is negative, suppress indentation of
+    /// the first line.  If `spacesPerLevel` is negative, format the entire
+    /// output on one line, suppressing all but the initial indentation (as
+    /// governed by `level`).  See `toAscii` for what constitutes the string
+    /// representation of a `OptionType::Enum` value.
     static bsl::ostream& print(bsl::ostream&    stream,
                                OptionType::Enum value,
                                int              level          = 0,

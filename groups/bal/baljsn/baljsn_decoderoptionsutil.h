@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 // `baljsn::DecoderOptionsUtil`, for configuring `baljsn::DecoderOptions`
 // object.  In particular, this utility can be used to set the combination of
 // options needed for strict compliance with the JSON grammar (see
-// {`baljsn_decoder`|Strict Conformance}).  This utility can also be used to
+// [](baljsn_decoder#Strict Conformance)).  This utility can also be used to
 // set a `baljsn::DecoderOptions` object to its default state.
 //
 ///Modes
@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // allowFormFeedAsWhitespace        true
 // allowUnescapedControlCharacters  true
 // ```
-// See {`baljsn_decoderoptions`|Attributes} for examples.  Should any of these
+// See [](baljsn_decoderoptions#Attributes) for examples.  Should any of these
 // variances be unacceptable, then one can flip individual options.  Strict
 // compliance (see `bdljsn_jsontestsuiteutil`) with the JSON grammar requires
 // that each option named above be flipped to the opposite value:

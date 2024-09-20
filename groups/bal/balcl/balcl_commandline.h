@@ -192,6 +192,7 @@ BSLS_IDENT("$Id: $")
 // $ mysort -riuomyoutfile
 // $ mysort -riuo=myoutfile
 // ```
+//
 ///Multi-Valued Options and How to Specify Them
 ///--------------------------------------------
 // Options can have several values.  For example, in the command-line
@@ -1441,11 +1442,11 @@ class CommandLine {
     /// or -1 if no such `shortTag` exists.
     int findTag(char shortTag) const;
 
-    /// Output to the specified `errorStream` a message describing the
-    /// location in the argument at the specified `index` (in the list of
-    /// command-line arguments) where an error was found.  Optionally
-    /// specify a `start` character position in that argument; if `start` is
-    /// specified, optionally specify an `end` character position as well.
+    /// Output to the specified `errorStream` a message describing the location
+    /// in the argument at the specified `index` (in the list of command-line
+    /// arguments) where an error was found.  Optionally specify a `start`
+    /// character position in that argument; if `start` is specified,
+    /// optionally specify an `end` character position as well.
     void location(bsl::ostream& errorStream,
                   int           index,
                   int           start = -1,
@@ -1455,16 +1456,15 @@ class CommandLine {
     /// options of this command line.
     int longestNonFlagNameSize() const;
 
-    /// Return the length of the longest long tag in all the possible
-    /// options of this command line.  Note that short tags are ignored.
+    /// Return the length of the longest long tag in all the possible options
+    /// of this command line.  Note that short tags are ignored.
     int longestTagSize() const;
 
-    /// Check that all required options have already been parsed.
-    /// Optionally specify `checkAlsoNonOptions`.  If `checkAlsoNonOptions`
-    /// is `true` or not specified, required non-option arguments that have
-    /// not been parsed will also be returned; if `false`, they will be
-    /// ignored.  Return the index of the first missing option, or -1 if
-    /// none.
+    /// Check that all required options have already been parsed.  Optionally
+    /// specify `checkAlsoNonOptions`.  If `checkAlsoNonOptions` is `true` or
+    /// not specified, required non-option arguments that have not been parsed
+    /// will also be returned; if `false`, they will be ignored.  Return the
+    /// index of the first missing option, or -1 if none.
     int missing(bool checkAlsoNonOptions = true) const;
 
   public:
@@ -1474,13 +1474,13 @@ class CommandLine {
 
     // CLASS METHODS
 
-    /// Return `true` if the specified (statically-initialized) `specTable`
-    /// of the specified `LENGTH` has a valid set of command-line option
+    /// Return `true` if the specified (statically-initialized) `specTable` of
+    /// the specified `LENGTH` has a valid set of command-line option
     /// specifications, and `false` otherwise.  Optionally specify
-    /// `errorStream` to which error messages are written.  If no
-    /// `errorStream` is specified, this method produces no output.  See
-    /// {Valid `balcl::OptionInfo` Specifications} for a description of the
-    /// validity requirements.
+    /// `errorStream` to which error messages are written.  If no `errorStream`
+    /// is specified, this method produces no output.  See {Valid
+    /// `balcl::OptionInfo` Specifications} for a description of the validity
+    /// requirements.
     template <int LENGTH>
     static bool isValidOptionSpecificationTable(
                                         const OptionInfo (&specTable)[LENGTH]);
@@ -1513,12 +1513,12 @@ class CommandLine {
     // CREATORS
 
     /// Create an object accepting the command-line options described by the
-    /// specified (statically-initialized) `specTable`.  Optionally specify
-    /// a `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The behavior is
+    /// specified (statically-initialized) `specTable`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.  The behavior is
     /// undefined unless `specTable` satisfies the
-    /// `isValidOptionSpecificationTable` function.  Note that an
-    /// appropriate error message is written to the specified `errorStream`.
+    /// `isValidOptionSpecificationTable` function.  Note that an appropriate
+    /// error message is written to the specified `errorStream`.
     template <int LENGTH>
     CommandLine(const OptionInfo (&specTable)[LENGTH],
                 bsl::ostream&      errorStream,
@@ -1529,12 +1529,12 @@ class CommandLine {
                 bslma::Allocator *basicAllocator = 0);
 
     /// Create an object accepting the command-line options described by the
-    /// specified (statically-initialized) `specTable`.  Optionally specify
-    /// a `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The behavior is
+    /// specified (statically-initialized) `specTable`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.  The behavior is
     /// undefined unless `specTable` satisfies the
-    /// `isValidOptionSpecificationTable` function.  Note that an
-    /// appropriate error message is written to `bsl::cerr`.
+    /// `isValidOptionSpecificationTable` function.  Note that an appropriate
+    /// error message is written to `bsl::cerr`.
     template <int LENGTH>
     explicit
     CommandLine(const OptionInfo (&specTable)[LENGTH],
@@ -1545,25 +1545,25 @@ class CommandLine {
                 bslma::Allocator  *basicAllocator = 0);
 
     /// Create an object accepting the command-line options described by the
-    /// specified `specTable` of the specified `length`.  Optionally specify
-    /// a `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The behavior is
+    /// specified `specTable` of the specified `length`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.  The behavior is
     /// undefined unless `specTable` satisfies the
-    /// `isValidOptionSpecificationTable` function.  Note that an
-    /// appropriate error message is written to `bsl::cerr`.  Also note that
-    /// `specTable` need not be statically initialized.
+    /// `isValidOptionSpecificationTable` function.  Note that an appropriate
+    /// error message is written to `bsl::cerr`.  Also note that `specTable`
+    /// need not be statically initialized.
     CommandLine(const OptionInfo *specTable,
                 int               length,
                 bslma::Allocator *basicAllocator = 0);
 
     /// Create an object accepting the command-line options described by the
-    /// specified `specTable` of the specified `length`.  Optionally specify
-    /// a `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The behavior is
+    /// specified `specTable` of the specified `length`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.  The behavior is
     /// undefined unless `specTable` satisfies the
-    /// `isValidOptionSpecificationTable` function.  Note that an
-    /// appropriate error message is written to the specified `errorStream`.
-    /// Also note that `specTable` need not be statically initialized.
+    /// `isValidOptionSpecificationTable` function.  Note that an appropriate
+    /// error message is written to the specified `errorStream`.  Also note
+    /// that `specTable` need not be statically initialized.
     CommandLine(const OptionInfo *specTable,
                 int               length,
                 bsl::ostream&     errorStream,
@@ -1571,8 +1571,8 @@ class CommandLine {
 
     /// Create a command-line object having the value of the specified
     /// `original` command line, if the `original` is parsed, and otherwise
-    /// having a state such that parsing command-line arguments results in
-    /// the same value as parsing the same command-line arguments with the
+    /// having a state such that parsing command-line arguments results in the
+    /// same value as parsing the same command-line arguments with the
     /// `original`.  Optionally specify a `basicAllocator` used to supply
     /// memory.  If `basicAllocator` is 0, the currently installed default
     /// allocator is used.  The behavior is undefined unless `original` is
@@ -1586,48 +1586,47 @@ class CommandLine {
     // MANIPULATORS
 
     /// Assign to this command-line object the value of the specified `rhs`
-    /// command-line object and return a reference providing modifiable
-    /// access to this object.  The behavior is undefined unless both `rhs`
-    /// and this object are valid (i.e., `isValid()` and `rhs.isValid()`
-    /// both return `true`).
+    /// command-line object and return a reference providing modifiable access
+    /// to this object.  The behavior is undefined unless both `rhs` and this
+    /// object are valid (i.e., `isValid()` and `rhs.isValid()` both return
+    /// `true`).
     CommandLine& operator=(const CommandLine& rhs);
 
-    /// Parse the command-line arguments contained in the array starting at
-    /// the specified `argv` having the specified `argc` length.  Optionally
+    /// Parse the command-line arguments contained in the array starting at the
+    /// specified `argv` having the specified `argc` length.  Optionally
     /// specify an `errorStream` to which an appropriate error message is
     /// written if parsing fails.  If `errorStream` is not specified,
     /// `bsl::cerr` is used.  Return 0 on success, and a non-zero value
-    /// otherwise.  If an argument is not specified on the command-line,
-    /// then if the `Option` object configuration for this `CommandLine`
-    /// defines an environment variable name and the runtime environment for
-    /// this application has set that environment variable, then set the
-    /// option to the value of the environment variable.  Otherwise, if an
-    /// option is not set by the command line, or the environment, set the
-    /// option using the default value if one has been provided.  If the
-    /// option has not been set by the command line, environment, or by
-    /// default, `hasValue` for the option will return `false`.  After a
-    /// successful call `isParsed()` and `isValid()` will both be `true`,
-    /// and the information provided by `argv` can be viewed via the
-    /// accessors.  After an unsuccessful call `isParsed()` and `isValid()`
-    /// will both be `false`.  The behavior is undefined unless `isValid()`
-    /// is `true` and `isParsed()` is `false` (i.e. the `CommandLine` was
-    /// constructed in a valid state, and `parse` has not previously been
-    /// called).
+    /// otherwise.  If an argument is not specified on the command-line, then
+    /// if the `Option` object configuration for this `CommandLine` defines an
+    /// environment variable name and the runtime environment for this
+    /// application has set that environment variable, then set the option to
+    /// the value of the environment variable.  Otherwise, if an option is not
+    /// set by the command line, or the environment, set the option using the
+    /// default value if one has been provided.  If the option has not been set
+    /// by the command line, environment, or by default, `hasValue` for the
+    /// option will return `false`.  After a successful call `isParsed()` and
+    /// `isValid()` will both be `true`, and the information provided by `argv`
+    /// can be viewed via the accessors.  After an unsuccessful call
+    /// `isParsed()` and `isValid()` will both be `false`.  The behavior is
+    /// undefined unless `isValid()` is `true` and `isParsed()` is `false`
+    /// (i.e. the `CommandLine` was constructed in a valid state, and `parse`
+    /// has not previously been called).
     int parse(int argc, const char *const argv[]);
     int parse(int argc, const char *const argv[], bsl::ostream& errorStream);
 
     // ACCESSORS
 
-    /// Return `true` if this command-line object is configured with an
-    /// option having the specified `name`, and `false` otherwise.
+    /// Return `true` if this command-line object is configured with an option
+    /// having the specified `name`, and `false` otherwise.
     bool hasOption(const bsl::string_view& name) const;
 
-    /// Return `true` if this command-line object's option having the
-    /// specified `name` has a defined value, and `false` otherwise.  An
-    /// option has a defined value if `isSpecified(name)` or if a default
-    /// value was configured for the option (see {Occurrence Information
-    /// Field}).  The behavior is undefined unless this command-line object
-    /// `isParsed()` and `hasOption(name)`.
+    /// Return `true` if this command-line object's option having the specified
+    /// `name` has a defined value, and `false` otherwise.  An option has a
+    /// defined value if `isSpecified(name)` or if a default value was
+    /// configured for the option (see {Occurrence Information Field}).  The
+    /// behavior is undefined unless this command-line object `isParsed()` and
+    /// `hasOption(name)`.
     bool hasValue(const bsl::string_view& name) const;
 
     /// Return `true` if this object was parsed successfully, and `false`
@@ -1635,12 +1634,12 @@ class CommandLine {
     /// returns `false`.
     bool isParsed() const;
 
-    /// Return `true` if the option with the specified `name` has been
-    /// entered on the command line and, if the optionally specified `count`
-    /// is not 0, load into `count` the number of times the option `name`
-    /// has been entered on the command line; otherwise, return `false` and
-    /// leave `count` unaffected.  Note that, in order to receive the valid
-    /// value, the command line must be successfully parsed.
+    /// Return `true` if the option with the specified `name` has been entered
+    /// on the command line and, if the optionally specified `count` is not 0,
+    /// load into `count` the number of times the option `name` has been
+    /// entered on the command line; otherwise, return `false` and leave
+    /// `count` unaffected.  Note that, in order to receive the valid value,
+    /// the command line must be successfully parsed.
     bool isSpecified(const bsl::string_view& name) const;
     bool isSpecified(const bsl::string_view& name, int *count) const;
 
@@ -1656,29 +1655,28 @@ class CommandLine {
     bool isValid() const;
 
     /// Return the number of times the option with the specified `name` has
-    /// been entered on the command line, or 0 if `name` is not the name of
-    /// a field in the command-line specification passed at construction to
-    /// this object.  Note that, in order to receive the valid number of
+    /// been entered on the command line, or 0 if `name` is not the name of a
+    /// field in the command-line specification passed at construction to this
+    /// object.  Note that, in order to receive the valid number of
     /// occurrences, the command line must be successfully parsed.
     int numSpecified(const bsl::string_view& name) const;
 
-    /// Return the command-line options and their values.  If an option was
-    /// not entered on the command line *and* a default value was provided
-    /// for that option, then that default value will be used (note the
-    /// difference with the `specifiedOptions` method).  If an option was
-    /// not entered on the command line *and* no default value was provided
-    /// for that option, then the corresponding option will be in a null
-    /// state.  The behavior is undefined unless `isParsed` returns `true`.
+    /// Return the command-line options and their values.  If an option was not
+    /// entered on the command line *and* a default value was provided for that
+    /// option, then that default value will be used (note the difference with
+    /// the `specifiedOptions` method).  If an option was not entered on the
+    /// command line *and* no default value was provided for that option, then
+    /// the corresponding option will be in a null state.  The behavior is
+    /// undefined unless `isParsed` returns `true`.
     CommandLineOptionsHandle options() const;
 
-    /// Return the position where the option with the specified `name` has
-    /// been entered on the command line (i.e., the index in the `argv`
-    /// argument to the `parse` method).  If the option was specified
-    /// multiple times on the command line, return the position of the first
-    /// instance.  If the option was specified as an environment variable
-    /// but not on the command line, return -2.  If the option was not
-    /// specified, return -1.  The behavior is undefined unless the option
-    /// is of scalar type.
+    /// Return the position where the option with the specified `name` has been
+    /// entered on the command line (i.e., the index in the `argv` argument to
+    /// the `parse` method).  If the option was specified multiple times on the
+    /// command line, return the position of the first instance.  If the option
+    /// was specified as an environment variable but not on the command line,
+    /// return -2.  If the option was not specified, return -1.  The behavior
+    /// is undefined unless the option is of scalar type.
     int position(const bsl::string_view& name) const;
 
     /// Return the positions where the option with the specified `name` has
@@ -1688,27 +1686,26 @@ class CommandLine {
     /// positions, the command line must be successfully parsed.
     const bsl::vector<int>& positions(const bsl::string_view& name) const;
 
-    /// Print usage to the specified output `errorStream`, describing what
-    /// the command line should look like.  If `errorStream` is not
-    /// specified, print usage to `stderr`.  Optionally specify
-    /// `programName` to use as the name of the program in the printed
-    /// usage.  If `programName` is not specified and if `parse` has been
-    /// previously called successfully, use the first element of the `argv`
-    /// argument; otherwise, use a default name.  This method can be invoked
-    /// at any time, even before `parse` has been invoked on this object.
+    /// Print usage to the specified output `errorStream`, describing what the
+    /// command line should look like.  If `errorStream` is not specified,
+    /// print usage to `stderr`.  Optionally specify `programName` to use as
+    /// the name of the program in the printed usage.  If `programName` is not
+    /// specified and if `parse` has been previously called successfully, use
+    /// the first element of the `argv` argument; otherwise, use a default
+    /// name.  This method can be invoked at any time, even before `parse` has
+    /// been invoked on this object.
     void printUsage() const;
     void printUsage(const bsl::string_view& programName) const;
     void printUsage(bsl::ostream&           errorStream) const;
     void printUsage(bsl::ostream&           errorStream,
                     const bsl::string_view& programName) const;
 
-    /// Return the command-line options and their values.  If an option was
-    /// not entered on the command line or set through an environment
-    /// variable, then the option will be in a null state (note the
-    /// difference with the `options` method).  This method is especially
-    /// useful for overwriting some other configuration (potentially
-    /// obtained from a configuration file).  The behavior is undefined
-    /// unless `isParsed` returns `true`.
+    /// Return the command-line options and their values.  If an option was not
+    /// entered on the command line or set through an environment variable,
+    /// then the option will be in a null state (note the difference with the
+    /// `options` method).  This method is especially useful for overwriting
+    /// some other configuration (potentially obtained from a configuration
+    /// file).  The behavior is undefined unless `isParsed` returns `true`.
     CommandLineOptionsHandle specifiedOptions() const;
 
     /// Return the type of the option having the specified `name`.  The
@@ -1720,9 +1717,9 @@ class CommandLine {
 
 // BDE_VERIFY pragma: -FABC01  // not in alphabetic order
 
-    /// Return the value of the option having the specified `name`.  The
-    /// value returned matches that returned by `isSpecified(name)`.  The
-    /// behavior is undefined unless this command-line object `isParsed()`,
+    /// Return the value of the option having the specified `name`.  The value
+    /// returned matches that returned by `isSpecified(name)`.  The behavior is
+    /// undefined unless this command-line object `isParsed()`,
     /// `hasOption(name)`, and `OptionType::e_BOOL == type(name)`.
     bool theBool(const bsl::string_view& name) const;
 

@@ -20,8 +20,8 @@ BSLS_IDENT("$Id: $")
 // `printUsage` method of `balcl::CommandLine` (see `{balcl_commandline}`).
 // Additionally, default values can be provided for non-required options.
 //
-// For further details see {`balcl_commandline`|Occurrence Information Field}
-// and {`balcl_commandline`|Example: Occurrence Information Field}.
+// For further details see [](balcl_commandline#Occurrence Information Field)
+// and [](balcl_commandline#Example: Occurrence Information Field).
 //
 ///Attributes
 ///----------
@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The intended use of this component is illustrated in
-// {`balcl_commandline`|Usage}.
+// [](balcl_commandline#Usage).
 
 #include <balscm_version.h>
 
@@ -97,28 +97,26 @@ class OccurrenceInfo {
     // CREATORS
 
     /// Construct an `OccurrenceInfo` object that describes a command-line
-    /// option that is optional but not hidden (i.e.,
-    /// `e_OPTIONAL == occurrenceType()`) and has no default value.
-    /// Optionally specify a `basicAllocator` used to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.
+    /// option that is optional but not hidden (i.e., `e_OPTIONAL ==
+    /// occurrenceType()`) and has no default value.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     OccurrenceInfo();
     explicit
     OccurrenceInfo(bslma::Allocator *basicAllocator);
 
     /// Construct an `OccurrenceInfo` object that describes a command-line
     /// option of the specified `type` and has no default value.  Optionally
-    /// specify a `basicAllocator` used to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.
+    /// specify a `basicAllocator` used to supply memory.  If `basicAllocator`
+    /// is 0, the currently installed default allocator is used.
     OccurrenceInfo(OccurrenceType    type,
                    bslma::Allocator *basicAllocator = 0); // IMPLICIT
 
     /// Construct an `OccurrenceInfo` object that describes a command-line
     /// option that is not required or hidden, and that has the specified
-    /// `defaultValue`.  Optionally specify a `basicAllocator` used to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.
+    /// `defaultValue`.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.
     explicit
     OccurrenceInfo(char              defaultValue,
                    bslma::Allocator *basicAllocator = 0);
@@ -168,10 +166,10 @@ class OccurrenceInfo {
     OccurrenceInfo(const bsl::vector<bdlt::Time>&  defaultValue,
                    bslma::Allocator               *basicAllocator = 0);
 
-    /// Construct a `OccurrenceInfo` object having the value of the
-    /// specified `original` object.  Optionally specify a `basicAllocator`
-    /// used to supply memory.  If `basicAllocator` is 0, the currently
-    /// installed default allocator is used.
+    /// Construct a `OccurrenceInfo` object having the value of the specified
+    /// `original` object.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     OccurrenceInfo(const OccurrenceInfo&  original,
                    bslma::Allocator      *basicAllocator = 0);
 
@@ -205,8 +203,8 @@ class OccurrenceInfo {
     /// otherwise.
     bool hasDefaultValue() const;
 
-    /// Return `true` if the described option is hidden (i.e., not printed
-    /// in the usage string), and `false` otherwise.
+    /// Return `true` if the described option is hidden (i.e., not printed in
+    /// the usage string), and `false` otherwise.
     bool isHidden() const;
 
     /// Return `true` if the described option is required, and `false`
@@ -219,19 +217,18 @@ class OccurrenceInfo {
 
                                   // Aspects
 
-    /// Return the allocator used by this object to supply memory.  Note
-    /// that if no allocator was supplied at construction the currently
-    /// installed default allocator at construction is used.
+    /// Return the allocator used by this object to supply memory.  Note that
+    /// if no allocator was supplied at construction the currently installed
+    /// default allocator at construction is used.
     bslma::Allocator *allocator() const;
 
     /// Format this object to the specified output `stream` at the (absolute
     /// value of) the optionally specified indentation `level` and return a
     /// reference to `stream`.  If `level` is specified, optionally specify
-    /// `spacesPerLevel`, the number of spaces per indentation level for
-    /// this object.  If `level` is negative, suppress indentation of the
-    /// first line.  If `stream` is not valid on entry, this operation has
-    /// no effect.  The behavior is undefined if `spacesPerLevel` is
-    /// negative.
+    /// `spacesPerLevel`, the number of spaces per indentation level for this
+    /// object.  If `level` is negative, suppress indentation of the first
+    /// line.  If `stream` is not valid on entry, this operation has no effect.
+    /// The behavior is undefined if `spacesPerLevel` is negative.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
@@ -241,21 +238,21 @@ class OccurrenceInfo {
 
 /// Return `true` if the specified `lhs` and `rhs` have the same value, and
 /// `false` otherwise.  Two objects of type `OccurrenceInfo` have the same
-/// value if and only if they have the same occurrence type and either both
-/// do not have a default value, or their respective default values have the
-/// same type and value.
+/// value if and only if they have the same occurrence type and either both do
+/// not have a default value, or their respective default values have the same
+/// type and value.
 bool operator==(const OccurrenceInfo& lhs, const OccurrenceInfo& rhs);
 
-/// Return `true` if the specified `lhs` and `rhs` do not have the same
-/// value, and `false` otherwise.  Two objects of type `OccurrenceInfo` do
-/// not have the same value if and only if they have different occurrence
-/// types, or exactly one has a default value, or else both have a default
-/// value but their respective default values have either different types or
-/// different values.
+/// Return `true` if the specified `lhs` and `rhs` do not have the same value,
+/// and `false` otherwise.  Two objects of type `OccurrenceInfo` do not have
+/// the same value if and only if they have different occurrence types, or
+/// exactly one has a default value, or else both have a default value but
+/// their respective default values have either different types or different
+/// values.
 bool operator!=(const OccurrenceInfo& lhs, const OccurrenceInfo& rhs);
 
-/// Write the value of the specified `rhs` object to the specified `stream`
-/// in a (multi-line) human readable format and return a reference to the
+/// Write the value of the specified `rhs` object to the specified `stream` in
+/// a (multi-line) human readable format and return a reference to the
 /// `stream`.  Note that the last line is *not* terminated by a newline
 /// character.
 bsl::ostream& operator<<(bsl::ostream& stream, const OccurrenceInfo& rhs);

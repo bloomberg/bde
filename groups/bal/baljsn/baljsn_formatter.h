@@ -36,8 +36,8 @@ BSLS_IDENT("$Id: $")
 // encoding style (compact or pretty), the initial indentation level and spaces
 // per level if encoding in the pretty format.
 //
-// Valid sequence of operations
-// - - - - - - - - - - - - - -
+///Valid sequence of operations
+///----------------------------
 // The `Formatter` `class` does only minimal checking to verify that the
 // sequence of operations called on its object result in a valid JSON
 // document.  It is the user's responsibility to ensure that the methods
@@ -205,10 +205,9 @@ class EncoderOptions;
                           // class Formatter
                           // ===============
 
-/// This class implements a formatter providing operations for rendering
-/// JSON text elements to an output stream (supplied at construction)
-/// according to a set of formatting options (also supplied at
-/// construction).
+/// This class implements a formatter providing operations for rendering JSON
+/// text elements to an output stream (supplied at construction) according to a
+/// set of formatting options (also supplied at construction).
 class Formatter {
 
     // DATA
@@ -232,36 +231,34 @@ class Formatter {
 
     /// Unconditionally print onto the stream supplied at construction the
     /// sequence of whitespace characters for the proper indentation of an
-    /// element at the current indentation level.  Note that this method
-    /// does not check that `d_usePrettyStyle` is `true` before indenting.
+    /// element at the current indentation level.  Note that this method does
+    /// not check that `d_usePrettyStyle` is `true` before indenting.
     void indent();
 
     // PRIVATE ACCESSORS
 
-    /// Return `true` if the value being encoded is an element of an array,
-    /// and `false` otherwise.  A value is identified as an element of an
-    /// array if `openArray` was called on this object and was not
-    /// subsequently followed by either an `openObject` or `closeArray`
-    /// call.
+    /// Return `true` if the value being encoded is an element of an array, and
+    /// `false` otherwise.  A value is identified as an element of an array if
+    /// `openArray` was called on this object and was not subsequently followed
+    /// by either an `openObject` or `closeArray` call.
     bool isArrayElement() const;
 
   public:
     // CREATORS
 
-    /// Create a `Formatter` object using the specified `stream`.
-    /// Optionally specify `usePrettyStyle` to inform the formatter whether
-    /// the pretty encoding style should be used when writing data.  If
-    /// `usePrettyStyle` is not specified then the data is written in a
-    /// compact style.  If `usePrettyStyle` is specified, additionally
-    /// specify `initialIndentLevel` and `spacesPerLevel` to provide the
-    /// initial indentation level and spaces per level at which the data
-    /// should be formatted.  If `initialIndentLevel` or `spacesPerLevel` is
-    /// not specified then an initial value of `0` is used for both
-    /// parameters.  If `usePrettyStyle` is `false` then
-    /// `initialIndentLevel` and `spacesPerLevel` are both ignored.
-    /// Optionally specify a `basicAllocator` used to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.
+    /// Create a `Formatter` object using the specified `stream`.  Optionally
+    /// specify `usePrettyStyle` to inform the formatter whether the pretty
+    /// encoding style should be used when writing data.  If `usePrettyStyle`
+    /// is not specified then the data is written in a compact style.  If
+    /// `usePrettyStyle` is specified, additionally specify
+    /// `initialIndentLevel` and `spacesPerLevel` to provide the initial
+    /// indentation level and spaces per level at which the data should be
+    /// formatted.  If `initialIndentLevel` or `spacesPerLevel` is not
+    /// specified then an initial value of `0` is used for both parameters.  If
+    /// `usePrettyStyle` is `false` then `initialIndentLevel` and
+    /// `spacesPerLevel` are both ignored.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     Formatter(bsl::ostream&     stream,
               bool              usePrettyStyle     = false,
               int               initialIndentLevel = 0,
@@ -279,25 +276,25 @@ class Formatter {
     void openObject();
 
     /// Print onto the stream supplied at construction the sequence of
-    /// characters designating the end of an object (referred to as an
-    /// "object" in JSON).  The behavior is undefined unless this
-    /// `Formatter` is currently formatting an object.
+    /// characters designating the end of an object (referred to as an "object"
+    /// in JSON).  The behavior is undefined unless this `Formatter` is
+    /// currently formatting an object.
     void closeObject();
 
     /// Print onto the stream supplied at construction the sequence of
-    /// characters designating the start of an array (referred to as an
-    /// "array" in JSON).  Optionally specify `formatAsEmptyArray` denoting
-    /// if the array being opened should be formatted as an empty array.  If
+    /// characters designating the start of an array (referred to as an "array"
+    /// in JSON).  Optionally specify `formatAsEmptyArray` denoting if the
+    /// array being opened should be formatted as an empty array.  If
     /// `formatAsEmptyArray` is not specified then the array being opened is
-    /// formatted as an array having elements.  Note that the formatting
-    /// (and as a consequence the `formatAsEmptyArray`) is relevant only if
-    /// this formatter encodes in the pretty style and is ignored otherwise.
+    /// formatted as an array having elements.  Note that the formatting (and
+    /// as a consequence the `formatAsEmptyArray`) is relevant only if this
+    /// formatter encodes in the pretty style and is ignored otherwise.
     void openArray(bool formatAsEmptyArray = false);
 
     /// Print onto the stream supplied at construction the sequence of
-    /// characters designating the end of an array (referred to as an
-    /// "array" in JSON).  Optionally specify `formatAsEmptyArray` denoting
-    /// if the array being closed should be formatted as an empty array.  If
+    /// characters designating the end of an array (referred to as an "array"
+    /// in JSON).  Optionally specify `formatAsEmptyArray` denoting if the
+    /// array being closed should be formatted as an empty array.  If
     /// `formatAsEmptyArray` is not specified then the array being closed is
     /// formatted as an array having elements.  The behavior is undefined
     /// unless this `Formatter` is currently formatting an array.  Note that
@@ -312,14 +309,13 @@ class Formatter {
     /// success and a non-zero value otherwise.
     int openMember(const bsl::string_view& name);
 
-    /// Print onto the stream supplied at construction the value
-    /// corresponding to a null element.
+    /// Print onto the stream supplied at construction the value corresponding
+    /// to a null element.
     void putNullValue();
 
-    /// Print onto the stream supplied at construction the specified
-    /// `value`.  Optionally specify `options` according which `value`
-    /// should be encoded.  Return 0 on success and a non-zero value
-    /// otherwise.
+    /// Print onto the stream supplied at construction the specified `value`.
+    /// Optionally specify `options` according which `value` should be encoded.
+    /// Return 0 on success and a non-zero value otherwise.
     template <class TYPE>
     int putValue(const TYPE& value, const EncoderOptions *options = 0);
 
@@ -331,8 +327,8 @@ class Formatter {
 
     /// Print onto the stream supplied at construction the sequence of
     /// characters designating an array element separator (i.e., `,`).  The
-    /// behavior is undefined unless this `Formatter` is currently
-    /// formatting a member.
+    /// behavior is undefined unless this `Formatter` is currently formatting a
+    /// member.
     void addArrayElementSeparator();
 
     // ACCESSORS

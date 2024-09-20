@@ -16,13 +16,13 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a single (value-semantic) attribute
 // class, `balcl::TypeInfo`, that is used to describe several features of a
 // command-line option.  Specifically:
-// * The type of an option's value (see {`balcl_optiontype`}).
+// * The type of an option's value (see `balcl_optiontype`).
 // * Optional: The address of a linked variable to hold an option's value.
-// * Optional: The address of a function (see {`balcl_constraint`}) that
+// * Optional: The address of a function (see `balcl_constraint`) that
 //   imposes a user-defined constraint on an option's value.
 //
-// For further details see {`balcl_commandline`|Type-and-Constraint Field} and
-// {`balcl_commandline`|Example: Type-and-Constraint Field}.
+// For further details see [](balcl_commandline#Type-and-Constraint Field) and
+// [](balcl_commandline#Example: Type-and-Constraint Field).
 //
 // This component also provides a utility `struct`, `balcl::TypeInfoUtil`, that
 // defines a namespace for functions that extract option values from input
@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The intended use of this component is illustrated in
-// {`balcl_commandline`|Usage}.
+// [](balcl_commandline#Usage).
 
 #include <balscm_version.h>
 
@@ -78,12 +78,12 @@ class TypeInfo {
 
   public:
     // PUBLIC TYPES
+
+    /// This enumeration differentiates the source of input when parsing an
+    /// option type.  Note that boolean options, in particular, are treated
+    /// differently when supplied on the command line from how they are treated
+    /// when supplied by an environment variable (see 'balcl_commandline').
     enum ParseInputSource {
-        // This enumeration differentiates the source of input when parsing an
-        // option type.  Note that boolean options, in particular, are treated
-        // differently when supplied on the command line from how they are
-        // treated when supplied by an environment variable (see
-        // 'balcl_commandline').
 
         e_COMMAND_LINE,
         e_ENVIRONMENT_VARIABLE

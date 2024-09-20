@@ -242,7 +242,7 @@ class Encoder {
     /// specified `streamBuf`.  Return 0 on success, and a non-zero value
     /// otherwise.
     ///
-    /// DEPRECATED: Use the `encode` function passed a reference to a
+    /// @DEPRECATED: Use the `encode` function passed a reference to a
     /// non-modifiable `EncoderOptions` object instead.
     template <class TYPE>
     int encode(bsl::streambuf *streamBuf, const TYPE& value);
@@ -252,7 +252,7 @@ class Encoder {
     /// otherwise.  Note that `stream` will be invalidated if the encoding
     /// failed.
     ///
-    /// DEPRECATED: Use the `encode` function passed a reference to a
+    /// @DEPRECATED: Use the `encode` function passed a reference to a
     /// non-modifiable `EncoderOptions` object instead.
     template <class TYPE>
     int encode(bsl::ostream& stream, const TYPE& value);
@@ -269,8 +269,8 @@ class Encoder {
                        // struct Encoder_EncodeImplUtil
                        // =============================
 
-/// This component-private utility `struct` provides a suite of functions
-/// that encode `bdlat` types in the JSON format.
+/// This component-private utility `struct` provides a suite of functions that
+/// encode `bdlat` types in the JSON format.
 struct Encoder_EncodeImplUtil {
 
     // TYPES
@@ -280,10 +280,10 @@ struct Encoder_EncodeImplUtil {
 
     /// `FormattingMode` is an alias to the type of an `int`-valued
     /// `bdlat_FormattingMode` bit-field.  A `FormattingMode` value is not
-    /// valid unless it is equal to an enumerator of `bdlat_FormattingMode`
-    /// or a valid bitwise-or of two or more such enumerators.  See the
-    /// component-level documentation of {`bdlat_formattingmode`} for a
-    /// description of the set of valid formatting-mode values.
+    /// valid unless it is equal to an enumerator of `bdlat_FormattingMode` or
+    /// a valid bitwise-or of two or more such enumerators.  See
+    /// `bdlat_formattingmode` for a description of the set of valid
+    /// formatting-mode values.
     typedef int FormattingMode;
 
     // CLASS METHODS
@@ -292,17 +292,17 @@ struct Encoder_EncodeImplUtil {
 
     /// Print the sequence of characters that designate the start of a JSON
     /// document to the specified `outputStream` according to the specified
-    /// encoding `options`.  See the component-level documentation of
-    /// {`baljsn_encoderoptions`} for a description of the effects, if any,
-    /// of each option in the `options` on the start of a JSON document.
+    /// encoding `options`.  See `baljsn_encoderoptions` for a description of
+    /// the effects, if any, of each option in the `options` on the start of a
+    /// JSON document.
     static void openDocument(bsl::ostream          *outputStream,
                              const EncoderOptions&  options);
 
     /// Print the sequence of characters that designate the end of a JSON
     /// document to the specified `outputStream` according to the specified
-    /// encoding `options`.  See the component-level documentation of
-    /// {`baljsn_encoderoptions`} for a description of the effects, if any,
-    /// of each option in the `options` on the end of a JSON document.
+    /// encoding `options`.  See the `baljsn_encoderoptions` for a description
+    /// of the effects, if any, of each option in the `options` on the end of a
+    /// JSON document.
     static void closeDocument(bsl::ostream          *outputStream,
                               const EncoderOptions&  options);
 
@@ -314,12 +314,11 @@ struct Encoder_EncodeImplUtil {
     /// not specified, the default `EncoderOptions` value is used.  Return 0
     /// on success, and a non-zero value otherwise.  The behavior is
     /// undefined unless the specified `TYPE` satisfies both the static and
-    /// dynamic requirements of one `bdlat` type-category concept.  See the
-    /// component-level documentation of {`baljsn_encoderoptions`} for a
-    /// description of the effects, if any, of each option in the `options`
-    /// on the JSON representation of the `value`.  See the package-level
-    /// documentation of {`bdlat`} for a description of the available
-    /// type-category concepts.
+    /// dynamic requirements of one `bdlat` type-category concept.  See
+    /// `baljsn_encoderoptions` for a description of the effects, if any, of
+    /// each option in the `options` on the JSON representation of the `value`.
+    /// See the package-level documentation of `bdlat` for a description of the
+    /// available type-category concepts.
     template <class TYPE>
     static int encode(bsl::ostream          *jsonStream,
                       const TYPE&            value,
@@ -334,10 +333,9 @@ struct Encoder_EncodeImplUtil {
     /// used.  Return 0 on success, and a non-zero value otherwise.  The
     /// behavior is undefined unless the specified `TYPE` satisfies both the
     /// static and dynamic requirements of one `bdlat` type-category
-    /// concept.  See the component-level documentation of
-    /// {`baljsn_encoderoptions`} for a description of the effects, if any,
-    /// of each option in the `options` on the JSON representation of the
-    /// `value`.  See the package-level documentation of {`bdlat`} for an
+    /// concept.  See `baljsn_encoderoptions` for a description of the effects,
+    /// if any, of each option in the `options` on the JSON representation of
+    /// the `value`.  See the package-level documentation of `bdlat` for an
     /// introduction to the requirements of `bdlat` type-category concepts.
     template <class TYPE>
     static int encode(bsl::ostream          *logStream,
@@ -359,11 +357,11 @@ struct Encoder_EncodeImplUtil {
     /// Return 0 on success, and a non-zero value otherwise.  The behavior
     /// is undefined unless the specified `TYPE` satisfies both the static
     /// and dynamic requirements of one of the `bdlat` type-category
-    /// concepts.  See the component-level documentation of
-    /// {`baljsn_encoderoptions`} for a description of the effects, if any,
-    /// of each option in the `options` on the JSON representation of the
-    /// `value`.  See the package-level documentation of {`bdlat`} for an
-    /// introduction to the requirements of `bdlat` type-category concepts.
+    /// concepts.  See `baljsn_encoderoptions` for a description of the
+    /// effects, if any, of each option in the `options` on the JSON
+    /// representation of the `value`.  See the package-level documentation of
+    /// `bdlat` for an introduction to the requirements of `bdlat`
+    /// type-category concepts.
     template <class TYPE>
     static int encode(bool                  *isValueEmpty,
                       Formatter             *formatter,
@@ -377,16 +375,16 @@ struct Encoder_EncodeImplUtil {
 
     /// Determine if the specified `value` having the specified `bdlat`
     /// `category` satisfies the requirements for encoding using this
-    /// component.  If the `value` meets the encoding requirements, return
-    /// 0, otherwise load an unspecified, human-readable description of the
+    /// component.  If the `value` meets the encoding requirements, return 0,
+    /// otherwise load an unspecified, human-readable description of the
     /// requirements that are not satisfied by the `value` and return a
     /// non-zero value.  For values satisfying the `bdlat` `Choice`
-    /// type-category concept, the value of the  `selectionId` attribute
-    /// must not be undefined.  For values satisfying the requirements of
-    /// other `bdlat` type-category concepts, there are no further
-    /// requirements for encoding using this component.  See the
-    /// package-level documentation of {`bdlat`} for an introduction to the
-    /// requirements of `bdlat` type-category concepts.
+    /// type-category concept, the value of the  `selectionId` attribute must
+    /// not be undefined.  For values satisfying the requirements of other
+    /// `bdlat` type-category concepts, there are no further requirements for
+    /// encoding using this component.  See the package-level documentation of
+    /// `bdlat` for an introduction to the requirements of `bdlat`
+    /// type-category concepts.
     template <class TYPE>
     static int validate(bsl::ostream               *logStream,
                         const TYPE&                 value,
@@ -398,20 +396,19 @@ struct Encoder_EncodeImplUtil {
 
     /// Determine if the specified `value` satisfies the requirements for
     /// encoding using this component.  If the `value` meets the encoding
-    /// requirements, return 0, otherwise load an unspecified,
-    /// human-readable description of the requirements that are not
-    /// satisfied by the `value` to the specified `logStream` and return a
-    /// non-zero value.  The `value` is required to not have an undefined
-    /// `selectionId`.
+    /// requirements, return 0, otherwise load an unspecified, human-readable
+    /// description of the requirements that are not satisfied by the `value`
+    /// to the specified `logStream` and return a non-zero value.  The `value`
+    /// is required to not have an undefined `selectionId`.
     template <class TYPE>
     static int validateChoice(bsl::ostream *logStream, const TYPE& value);
 
     // Encoding Values That Have Specific Type Categories
 
     /// Encode the JSON representation of the specified `value` to the
-    /// specified JSON `formatter`.  Use the specified `options` to
-    /// configure aspects of the JSON representation of the `value`.  Return
-    /// 0 on success, and a non-zero value otherwise.
+    /// specified JSON `formatter`.  Use the specified `options` to configure
+    /// aspects of the JSON representation of the `value`.  Return 0 on
+    /// success, and a non-zero value otherwise.
     static int encodeCharArray(Formatter                *formatter,
                                const bsl::vector<char>&  value,
                                const EncoderOptions&     options);
@@ -422,11 +419,10 @@ struct Encoder_EncodeImplUtil {
     /// 0 on success, and a non-zero value otherwise.  The behavior is
     /// undefined unless the specified `TYPE` satisfies both the static and
     /// dynamic requirements of the `Simple` `bdlat` type-category concept.
-    /// See the component-level documentation of {`baljsn_encoderoptions`}
-    /// for a description of the effects, if any, of each option in the
-    /// `options` on the JSON representation of the `value`.  See the
-    /// package-level documentation of {`bdlat`} for an introduction to the
-    /// requirements of `bdlat` type-category concepts.
+    /// See `baljsn_encoderoptions` for a description of the effects, if any,
+    /// of each option in the `options` on the JSON representation of the
+    /// `value`.  See the package-level documentation of `bdlat` for an
+    /// introduction to the requirements of `bdlat` type-category concepts.
     template <class TYPE>
     static int encodeSimpleValue(Formatter             *formatter,
                                  const TYPE&            value,
@@ -461,19 +457,17 @@ struct Encoder_EncodeImplUtil {
     static void encodeEmptyArray(Formatter *formatter);
 
     /// Encode the JSON representation of the specified `value` to the
-    /// specified JSON `formatter`.  Use the specified `options` to
-    /// configure aspects of the JSON representation of the `value`.  If
-    /// this operation is not successful, load an unspecified,
-    /// human-readable description of the error condition to the specified
-    /// `logStream`.  Return 0 on success, and a non-zero value otherwise.
-    /// The behavior is undefined unless the `value` is non-empty and the
-    /// specified `TYPE` satisfies both the static and dynamic requirements
-    /// of the `Array` `bdlat` type-category concept.  See the
-    /// component-level documentation of {`baljsn_encoderoptions`} for a
-    /// description of the effects, if any, of each option in the `options`
-    /// on the JSON representation of the `selection`.  See the
-    /// package-level documentation of {`bdlat`} for an introduction to the
-    /// requirements of `bdlat` type-category concepts.
+    /// specified JSON `formatter`.  Use the specified `options` to configure
+    /// aspects of the JSON representation of the `value`.  If this operation
+    /// is not successful, load an unspecified, human-readable description of
+    /// the error condition to the specified `logStream`.  Return 0 on success,
+    /// and a non-zero value otherwise.  The behavior is undefined unless the
+    /// `value` is non-empty and the specified `TYPE` satisfies both the static
+    /// and dynamic requirements of the `Array` `bdlat` type-category concept.
+    /// See `baljsn_encoderoptions` for a description of the effects, if any,
+    /// of each option in the `options` on the JSON representation of the
+    /// `selection`.  See the package-level documentation of `bdlat` for an
+    /// introduction to the requirements of `bdlat` type-category concepts.
     template <class TYPE>
     static int encodeNonEmptyArray(Formatter             *formatter,
                                    bsl::ostream          *logStream,
@@ -496,12 +490,10 @@ struct Encoder_EncodeImplUtil {
     /// and a non-zero value otherwise.  The behavior is undefined unless
     /// the specified `TYPE` satisfies both the static and dynamic
     /// requirements of the specified `category` `bdlat` type-category
-    /// concept.  See the component-level documentation of
-    /// {`baljsn_encoderoptions`} for a description of the effects, if any,
-    /// of each option in the `options` on the JSON representation of the
-    /// `selection`.  See the package-level documentation of {`bdlat`} for
-    /// an introduction to the requirements of `bdlat` type-category
-    /// concepts.
+    /// concept.  See `baljsn_encoderoptions` for a description of the effects,
+    /// if any, of each option in the `options` on the JSON representation of
+    /// the `selection`.  See the package-level documentation of `bdlat` for
+    /// an introduction to the requirements of `bdlat` type-category concepts.
     static int encodeMember(bool                      *isMemberEmpty,
                             Formatter                 *formatter,
                             bsl::ostream              *logStream,
@@ -626,25 +618,24 @@ class Encoder_ValueDispatcher {
     // MANIPULATORS
 
     /// Encode the JSON representation of the specified `value` to the JSON
-    /// `formatter` attribute of this object, according to the
-    /// `formattingMode` attribute of this object.  If the representation
-    /// contains no text and the `isFirstSubObject` attribute of this object
-    /// is `true`, set the `isNextObjectFirst` attribute of this object to
-    /// `true`, and the value `false` otherwise. If `isFirstSubObject` is
-    /// `true`, then the representation of the value contains no leading
-    /// sequence delimiter, and does contain such a delimiter otherwise. The
-    /// `options` attribute of this object configures aspects of the JSON
-    /// representation of the `value`.  If this operation is not successful,
-    /// load an unspecified, human-readable description of the error
-    /// condition to the `logStream` attribute of this object.  Return 0 on
-    /// success, and a non-zero value otherwise.  The behavior is undefined
-    /// unless the specified `TYPE` satisfies both the static and dynamic
-    /// requirements of the specified `category` `bdlat` type-category
-    /// concept.  See the component-level documentation of
-    /// {`baljsn_encoderoptions`} for a description of the effects, if any,
-    /// of each option in the `options` on the JSON representation of the
-    /// `value`.  See the package-level documentation of {`bdlat`} for an
-    /// introduction to the requirements of `bdlat` type-category concepts.
+    /// `formatter` attribute of this object, according to the `formattingMode`
+    /// attribute of this object.  If the representation contains no text and
+    /// the `isFirstSubObject` attribute of this object is `true`, set the
+    /// `isNextObjectFirst` attribute of this object to `true`, and the value
+    /// `false` otherwise. If `isFirstSubObject` is `true`, then the
+    /// representation of the value contains no leading sequence delimiter, and
+    /// does contain such a delimiter otherwise. The `options` attribute of
+    /// this object configures aspects of the JSON representation of the
+    /// `value`.  If this operation is not successful, load an unspecified,
+    /// human-readable description of the error condition to the `logStream`
+    /// attribute of this object.  Return 0 on success, and a non-zero value
+    /// otherwise.  The behavior is undefined unless the specified `TYPE`
+    /// satisfies both the static and dynamic requirements of the specified
+    /// `category` `bdlat` type-category concept.  See `baljsn_encoderoptions`
+    /// for a description of the effects, if any, of each option in the
+    /// `options` on the JSON representation of the `value`.  See the
+    /// package-level documentation of `bdlat` for an introduction to the
+    /// requirements of `bdlat` type-category concepts.
     int operator()(const bsl::vector<char>&  value,
                    bdlat_TypeCategory::Array category);
     template <class TYPE>
@@ -810,12 +801,11 @@ class Encoder_ElementDispatcher {
     /// attribute of this object.  Return 0 on success, and a non-zero value
     /// otherwise.  The behavior is undefined unless the specified `TYPE`
     /// satisfies both the static and dynamic requirements of the specified
-    /// `category` `bdlat` type-category concept.  See the component-level
-    /// documentation of {`baljsn_encoderoptions`} for a description of the
-    /// effects, if any, of each option in the `options` on the JSON
-    /// representation of the `value`.  See the package-level documentation
-    /// of {`bdlat`} for an introduction to the requirements of `bdlat`
-    /// type-category concepts.
+    /// `category` `bdlat` type-category concept.  See `baljsn_encoderoptions`
+    /// for a description of the effects, if any, of each option in the
+    /// `options` on the JSON representation of the `value`.  See the
+    /// package-level documentation of `bdlat` for an introduction to the
+    /// requirements of `bdlat` type-category concepts.
     int operator()(const bsl::vector<char>&  element,
                    bdlat_TypeCategory::Array category);
     template <class TYPE>

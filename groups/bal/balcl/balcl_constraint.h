@@ -16,13 +16,13 @@ BSLS_IDENT("$Id: $")
 // defined).  Signatures are defined for each of the supported
 // command-line-option values of scalar type.
 //
-// For further details see {`balcl_commandline`|Type-and-Constraint Field} and
-// {`balcl_commandline`|Example: Type-and-Constraint Field}.
+// For further details see [](balcl_commandline#Type-and-Constraint Field) and
+// [](balcl_commandline#Example: Type-and-Constraint Field).
 //
 ///Usage
 ///-----
 // The intended use of this component is illustrated in
-// {`balcl_commandline`|Usage}.
+// [](balcl_commandline#Usage).
 
 #include <balscm_version.h>
 
