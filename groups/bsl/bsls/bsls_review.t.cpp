@@ -5,6 +5,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 // Include 'cassert' to make sure no macros conflict between 'bsls_review.h'
@@ -19,6 +20,10 @@
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <signal.h>
+#endif
+
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
+#pragma GCC diagnostic ignored "-Wcatch-value"
 #endif
 
 using namespace BloombergLP;

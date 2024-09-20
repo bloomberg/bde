@@ -324,6 +324,13 @@ int main(int argc, char *argv[])
         LOOP2_ASSERT(level, x.level(), level == x.level());
 
 #if defined(BDE_BUILD_TARGET_EXC)
+
+// The catch by value in this block is deliberate - suppress warning.
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcatch-value"
+#endif // def BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+
         // This class is created for the express purpose of throwing as an
         // exception, but this cannot be tested unless exceptions are enabled.
         if (verbose) printf("\nThrow and catch a copy of x.\n");
@@ -342,6 +349,11 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(x.level(), y.level(),
                          x.level() == y.level());
         }
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif // def BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+
 #endif
 
         if (verbose) printf("\nConfirm that x has not changed.\n");

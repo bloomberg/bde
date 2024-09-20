@@ -591,7 +591,7 @@ int main(int argc, char *argv[])
                     ASSERT(false);
                 }
             }
-            catch(const TestExceptionClass) {
+            catch(const TestExceptionClass&) {
                 caughtException = true;
             }
             ASSERT(executedTest);

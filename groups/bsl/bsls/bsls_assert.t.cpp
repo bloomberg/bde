@@ -39,6 +39,7 @@ static_assert(std::is_trivially_destructible<
 
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic ignored "-Wstringop-truncation"
+#pragma GCC diagnostic ignored "-Wcatch-value"
 #endif
 
 using namespace BloombergLP;
