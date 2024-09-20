@@ -764,7 +764,7 @@ int main(int argc, char **argv)
         // Testing float
 
         {
-            float value = 3.1;
+            float value = 3.1f;
             FA    arg   = makeTestArg<char>(value);
 
             TestVisitor<char> visitor;
@@ -781,7 +781,7 @@ int main(int argc, char **argv)
         }
 
         {
-            float value = 4.2;
+            float value = 4.2f;
             WFA   arg   = makeTestArg<wchar_t>(value);
 
             TestVisitor<wchar_t> visitor;
@@ -983,6 +983,7 @@ int main(int argc, char **argv)
             ASSERT(visitor2.d_stringview == value);
         }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         // Testing std::basic_string_view
 
         {
@@ -1020,6 +1021,7 @@ int main(int argc, char **argv)
 
             ASSERT(visitor2.d_stringview == value);
         }
+#endif
 
         // Testing bsl::basic_string
 
@@ -1196,6 +1198,8 @@ int main(int argc, char **argv)
             bslfmt::basic_format_context<wchar_t *, wchar_t> >
             WFA;
 
+        typedef bslmf::MovableRefUtil  MoveUtil;
+
         if (verbose)
             printf("\nValidating operator=\n");
         {
@@ -1260,7 +1264,7 @@ int main(int argc, char **argv)
 
         {
             FA a1;
-            FA a2 = bsl::move(a1);
+            FA a2 = MoveUtil::move(a1);
 
             ASSERT(!a1);
             ASSERT(!a2);
@@ -1268,7 +1272,7 @@ int main(int argc, char **argv)
 
         {
             WFA a1;
-            WFA a2 = bsl::move(a1);
+            WFA a2 = MoveUtil::move(a1);
 
             ASSERT(!a1);
             ASSERT(!a2);
@@ -1276,7 +1280,7 @@ int main(int argc, char **argv)
 
         {
             FA a1 = makeTestArg<char>((int)99);
-            FA a2 = bsl::move(a1);
+            FA a2 = MoveUtil::move(a1);
 
             ASSERT(a1);
             ASSERT(a2);
@@ -1287,7 +1291,7 @@ int main(int argc, char **argv)
 
         {
             WFA a1 = makeTestArg<wchar_t>((int)99);
-            WFA a2 = bsl::move(a1);
+            WFA a2 = MoveUtil::move(a1);
 
             ASSERT(a1);
             ASSERT(a2);
@@ -1298,7 +1302,7 @@ int main(int argc, char **argv)
 
         {
             FA a1 = makeTestArg<char>(FormattableType(42));
-            FA a2 = bsl::move(a1);
+            FA a2 = MoveUtil::move(a1);
 
             ASSERT(a1);
             ASSERT(a2);
@@ -1309,7 +1313,7 @@ int main(int argc, char **argv)
 
         {
             WFA a1 = makeTestArg<wchar_t>(FormattableType(42));
-            WFA a2 = bsl::move(a1);
+            WFA a2 = MoveUtil::move(a1);
 
             ASSERT(a1);
             ASSERT(a2);
@@ -1423,6 +1427,8 @@ int main(int argc, char **argv)
             bslfmt::basic_format_context<wchar_t *, wchar_t> >
             WFA;
 
+        typedef bslmf::MovableRefUtil  MoveUtil;
+
         if (verbose)
             printf("\nValidating copy construction\n");
 
@@ -1488,7 +1494,7 @@ int main(int argc, char **argv)
 
         {
             FA a1;
-            FA a2(bsl::move(a1));
+            FA a2(MoveUtil::move(a1));
 
             ASSERT(!a1);
             ASSERT(!a2);
@@ -1496,7 +1502,7 @@ int main(int argc, char **argv)
 
         {
             WFA a1;
-            WFA a2(bsl::move(a1));
+            WFA a2(MoveUtil::move(a1));
 
             ASSERT(!a1);
             ASSERT(!a2);
@@ -1504,7 +1510,7 @@ int main(int argc, char **argv)
 
         {
             FA a1 = makeTestArg<char>((int)99);
-            FA a2(bsl::move(a1));
+            FA a2(MoveUtil::move(a1));
 
             ASSERT(a1);
             ASSERT(a2);
@@ -1515,7 +1521,7 @@ int main(int argc, char **argv)
 
         {
             WFA a1 = makeTestArg<wchar_t>((int)99);
-            WFA a2(bsl::move(a1));
+            WFA a2(MoveUtil::move(a1));
 
             ASSERT(a1);
             ASSERT(a2);
@@ -1526,7 +1532,7 @@ int main(int argc, char **argv)
 
         {
             FA a1 = makeTestArg<char>(FormattableType(42));
-            FA a2(bsl::move(a1));
+            FA a2(MoveUtil::move(a1));
 
             ASSERT(a1);
             ASSERT(a2);
@@ -1537,7 +1543,7 @@ int main(int argc, char **argv)
 
         {
             WFA a1 = makeTestArg<wchar_t>(FormattableType(42));
-            WFA a2(bsl::move(a1));
+            WFA a2(MoveUtil::move(a1));
 
             ASSERT(a1);
             ASSERT(a2);

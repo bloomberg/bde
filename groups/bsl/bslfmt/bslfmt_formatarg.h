@@ -195,7 +195,7 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 
     typedef typename BloombergLP::bsls::UnspecifiedBool<basic_format_arg>
                                                    UnspecifiedBoolType;
-    typedef UnspecifiedBoolType::BoolType BoolType;
+    typedef typename UnspecifiedBoolType::BoolType BoolType;
 
   private:
     // NOT IMPLEMENTED
@@ -292,12 +292,14 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     explicit basic_format_arg(
       bsl::basic_string_view<char_type, t_TRAITS> value) BSLS_KEYWORD_NOEXCEPT;
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
     /// Construct a `basic_format_arg` from the specified `value`, which is
     /// then held by value.
     template <class t_TRAITS>
     explicit basic_format_arg(
       std::basic_string_view<char_type, t_TRAITS> value) BSLS_KEYWORD_NOEXCEPT;
+#endif
 #endif
 
     /// Construct a `basic_format_arg` holding (by value) a `string_view`
@@ -361,6 +363,15 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 
     /// Construct a `basic_format_arg` which holds no value.
     basic_format_arg() BSLS_KEYWORD_NOEXCEPT;
+
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    /// Move-construct a `basic_format_arg` from the specified `rhs`. This is
+    /// required to support use on C++03, but must
+    /// *not* be specified for C++11 and later as it will result in the
+    /// implicit deletion of other defaulted special member functions.
+    basic_format_arg(
+                bslmf::MovableRef<basic_format_arg> rhs) BSLS_KEYWORD_NOEXCEPT;
+#endif  // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
     // ACCESSORS
 
@@ -697,7 +708,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
     if (static_cast<t_TYPE>(-1) < static_cast<t_TYPE>(0)) {
         // 't_TYPE' is signed
         if (sizeof(t_TYPE) <= sizeof(int)) {
-            d_value.template emplace<int>(value);
+            d_value.template emplace<int>(static_cast<int>(value));
         }
         else {
             d_value.template emplace<long long>(value);
@@ -706,7 +717,8 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
     else {
         // 't_TYPE' is unsigned
         if (sizeof(t_TYPE) <= sizeof(int)) {
-            d_value.template emplace<unsigned int>(value);
+            d_value.template emplace<unsigned int>(
+                                             static_cast<unsigned int>(value));
         }
         else {
             d_value.template emplace<unsigned long long>(value);
@@ -754,6 +766,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 {
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
 template <class t_OUT, class t_CHAR>
 template <class t_TRAITS>
@@ -762,6 +775,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 : d_value(static_cast<bsl::basic_string_view<char_type> >(value))
 {
 }
+#endif
 #endif
 
 template <class t_OUT, class t_CHAR>
@@ -841,6 +855,16 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg()
     BSLS_KEYWORD_NOEXCEPT
 {
 }
+
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+template <class t_OUT, class t_CHAR>
+basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
+                 bslmf::MovableRef<basic_format_arg> rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    d_value = bslmf::MovableRefUtil::move(
+                                 bslmf::MovableRefUtil::access(rhs).d_value);
+}
+#endif  // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
 // ACCESSORS
 template <class t_OUT, class t_CHAR>
