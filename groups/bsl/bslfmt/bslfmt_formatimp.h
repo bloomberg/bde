@@ -558,7 +558,7 @@ t_OUT Format_FormatImp<t_CHAR>::processImp(
          const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args)
     // The actual meat of the implementation.
 {
-    const size_t argssize = Format_FormatArgs_ImpUtils::formatArgsSize(args);
+    const size_t argssize = Format_FormatArgs_ImpUtil::formatArgsSize(args);
 
     basic_format_parse_context<t_CHAR>  pc(fmtstr, argssize);
     basic_format_context<t_OUT, t_CHAR> fc(

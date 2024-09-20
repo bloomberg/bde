@@ -84,7 +84,7 @@ class Format_FormatArgStore {
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend class Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtil;
 
     // PRIVATE CREATORS
     explicit Format_FormatArgStore(
@@ -127,7 +127,7 @@ class basic_format_args {
     size_t size() const;
 
     // FRIENDS
-    friend class Format_FormatArgs_ImpUtils;
+    friend class Format_FormatArgs_ImpUtil;
 
   public:
     // CREATORS
@@ -143,16 +143,16 @@ class basic_format_args {
     basic_format_arg<t_CONTEXT> get(size_t i) const BSLS_KEYWORD_NOEXCEPT;
 };
 
-                      // --------------------------------
-                      // class Format_FormatArgs_ImpUtils
-                      // --------------------------------
+                      // -------------------------------
+                      // class Format_FormatArgs_ImpUtil
+                      // -------------------------------
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
 /// This class provides utility functions to enable manipulation of types
 /// declared by this component. It is solely for private use by other components
 /// of the `bslfmt` package and should not be used directly.
-class Format_FormatArgs_ImpUtils {
+class Format_FormatArgs_ImpUtil {
   public:
     // CLASS METHODS
 
@@ -233,9 +233,9 @@ size_t basic_format_args<t_CONTEXT>::size() const
 }
 
 
-                      // --------------------------------
-                      // class Format_FormatArgs_ImpUtils
-                      // --------------------------------
+                      // -------------------------------
+                      // class Format_FormatArgs_ImpUtil
+                      // -------------------------------
 
 // CLASS METHODS
 
@@ -243,10 +243,10 @@ size_t basic_format_args<t_CONTEXT>::size() const
 
 template <class t_CONTEXT, class... t_ARGS>
 Format_FormatArgStore<t_CONTEXT, t_ARGS...>
-Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS&... fmt_args)
+Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS&... fmt_args)
 {
     bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array;
-    Format_FormatArg_ImpUtils::makeFormatArgArray<t_CONTEXT, t_ARGS...>(
+    Format_FormatArg_ImpUtil::makeFormatArgArray<t_CONTEXT, t_ARGS...>(
                                                                   &arg_array,
                                                                   fmt_args...);
     return Format_FormatArgStore<t_CONTEXT, t_ARGS...>(arg_array);
@@ -255,7 +255,7 @@ Format_FormatArgs_ImpUtils::makeFormatArgs(t_ARGS&... fmt_args)
 #endif
 
 template <class t_CONTEXT>
-size_t Format_FormatArgs_ImpUtils::formatArgsSize(
+size_t Format_FormatArgs_ImpUtil::formatArgsSize(
                                       const basic_format_args<t_CONTEXT>& args)
 {
     return args.size();
@@ -274,7 +274,7 @@ template <class... t_ARGS>
 Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
                                                            t_ARGS&... fmt_args)
 {
-    return Format_FormatArgs_ImpUtils::makeFormatArgs<format_context>(
+    return Format_FormatArgs_ImpUtil::makeFormatArgs<format_context>(
                                                                   fmt_args...);
 }
 
@@ -282,7 +282,7 @@ template <class... t_ARGS>
 Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
                                                            t_ARGS&... fmt_args)
 {
-    return Format_FormatArgs_ImpUtils::makeFormatArgs<wformat_context>(
+    return Format_FormatArgs_ImpUtil::makeFormatArgs<wformat_context>(
                                                                   fmt_args...);
 }
 
