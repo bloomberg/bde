@@ -184,8 +184,6 @@ class ConditionImpl<Platform::Win32Threads> {
         // Return the clock type used for timeouts.
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -196,7 +194,7 @@ class ConditionImpl<Platform::Win32Threads> {
 
 // CREATORS
 inline
-bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::ConditionImpl(
+ConditionImpl<bslmt::Platform::Win32Threads>::ConditionImpl(
                                          bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
@@ -205,20 +203,20 @@ bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::ConditionImpl(
 }
 
 inline
-bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::~ConditionImpl()
+ConditionImpl<bslmt::Platform::Win32Threads>::~ConditionImpl()
 {
 }
 
 // MANIPULATORS
 inline
-void bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::broadcast()
+void ConditionImpl<bslmt::Platform::Win32Threads>::broadcast()
 {
     WakeAllConditionVariable(
                          reinterpret_cast<_RTL_CONDITION_VARIABLE *>(&d_cond));
 }
 
 inline
-void bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::signal()
+void ConditionImpl<bslmt::Platform::Win32Threads>::signal()
 {
     WakeConditionVariable(
                          reinterpret_cast<_RTL_CONDITION_VARIABLE *>(&d_cond));
@@ -227,11 +225,12 @@ void bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::signal()
 // ACCESSORS
 inline
 bsls::SystemClockType::Enum
-bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::clockType() const
+ConditionImpl<bslmt::Platform::Win32Threads>::clockType() const
 {
     return d_clockType;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // BSLMT_PLATFORM_WIN32_THREADS

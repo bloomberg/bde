@@ -174,8 +174,6 @@ class Semaphore {
     int getValue() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -186,53 +184,54 @@ class Semaphore {
 
 // CREATORS
 inline
-bslmt::Semaphore::Semaphore()
+Semaphore::Semaphore()
 : d_impl(0)
 {
 }
 
 inline
-bslmt::Semaphore::Semaphore(int count)
+Semaphore::Semaphore(int count)
 : d_impl(count)
 {
 }
 
 inline
-bslmt::Semaphore::~Semaphore()
+Semaphore::~Semaphore()
 {
 }
 
 inline
-void bslmt::Semaphore::post()
+void Semaphore::post()
 {
     d_impl.post();
 }
 
 inline
-void bslmt::Semaphore::post(int value)
+void Semaphore::post(int value)
 {
     d_impl.post(value);
 }
 
 inline
-int bslmt::Semaphore::tryWait()
+int Semaphore::tryWait()
 {
     return d_impl.tryWait();
 }
 
 inline
-void bslmt::Semaphore::wait()
+void Semaphore::wait()
 {
     d_impl.wait();
 }
 
 // ACCESSORS
 inline
-int bslmt::Semaphore::getValue() const
+int Semaphore::getValue() const
 {
     return d_impl.getValue();
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

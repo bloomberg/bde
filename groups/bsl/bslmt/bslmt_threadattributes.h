@@ -281,8 +281,8 @@ namespace bslmt {
                           // ======================
 
 /// This simply constrained (value-semantic) attribute class characterizes a
-/// collection of thread attribute values.  See the Attributes section under
-/// @DESCRIPTION in the component-level documentation.
+/// collection of thread attribute values.  See the [](#Attributes) section for
+/// information on the class attributes.
 ///
 /// This class:
 /// * supports a complete set of *value* *semantic* operations
@@ -709,15 +709,16 @@ bslma::Allocator *ThreadAttributes::allocator() const
     return d_threadName.get_allocator().mechanism();
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 inline
-bsl::ostream& operator<<(bsl::ostream&           stream,
-                         const ThreadAttributes& object)
+bsl::ostream& bslmt::operator<<(bsl::ostream&                  stream,
+                                const bslmt::ThreadAttributes& object)
 {
     return object.print(stream, 0, -1);
 }
 
-}  // close package namespace
 }  // close enterprise namespace
 
 #endif

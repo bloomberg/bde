@@ -98,8 +98,6 @@ class SemaphoreImpl<Platform::PosixSemaphore> {
     int getValue() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -110,7 +108,7 @@ class SemaphoreImpl<Platform::PosixSemaphore> {
 
 // CREATORS
 inline
-bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::~SemaphoreImpl()
+SemaphoreImpl<bslmt::Platform::PosixSemaphore>::~SemaphoreImpl()
 {
     int result = ::sem_destroy(&d_sem);
 
@@ -120,7 +118,7 @@ bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::~SemaphoreImpl()
 
 // MANIPULATORS
 inline
-void bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::post()
+void SemaphoreImpl<bslmt::Platform::PosixSemaphore>::post()
 {
     int result = ::sem_post(&d_sem);
 
@@ -129,14 +127,14 @@ void bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::post()
 }
 
 inline
-int bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::tryWait()
+int SemaphoreImpl<bslmt::Platform::PosixSemaphore>::tryWait()
 {
     return ::sem_trywait(&d_sem);
 }
 
 // ACCESSORS
 inline
-int bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::getValue() const
+int SemaphoreImpl<bslmt::Platform::PosixSemaphore>::getValue() const
 {
     int value = 0;
     int result = ::sem_getvalue(const_cast<sem_t *>(&d_sem), &value);
@@ -147,6 +145,7 @@ int bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::getValue() const
     return value;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // defined(BSLMT_PLATFORM_POSIX_SEMAPHORE)

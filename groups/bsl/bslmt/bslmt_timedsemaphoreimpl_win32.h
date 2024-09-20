@@ -186,8 +186,6 @@ class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
     bsls::SystemClockType::Enum clockType() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -198,7 +196,7 @@ class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
 
 // CREATORS
 inline
-bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
+TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
     TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
@@ -209,7 +207,7 @@ bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
 }
 
 inline
-bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
+TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
     TimedSemaphoreImpl(int count, bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
@@ -220,7 +218,7 @@ bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
 }
 
 inline
-bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
+TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
     ~TimedSemaphoreImpl()
 {
     CloseHandle(d_handle);
@@ -228,26 +226,26 @@ bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
 
 // MANIPULATORS
 inline
-void bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::post()
+void TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::post()
 {
     ReleaseSemaphore(d_handle, 1, NULL);
 }
 
 inline
-void bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
+void TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
     post(int number)
 {
     ReleaseSemaphore(d_handle, number, NULL);
 }
 
 inline
-int bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::tryWait()
+int TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::tryWait()
 {
     return WaitForSingleObject(d_handle, 0);  // 0 means timeout immediately.
 }
 
 inline
-void bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::wait()
+void TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::wait()
 {
     WaitForSingleObject(d_handle, 0xFFFFFFFF /* INFINITE */);
 }
@@ -255,12 +253,13 @@ void bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::wait()
 // ACCESSORS
 inline
 bsls::SystemClockType::Enum
-bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
+TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
                                                            clockType() const
 {
     return d_clockType;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // BSLMT_PLATFORM_WIN32_THREADS

@@ -115,8 +115,6 @@ class RecursiveMutexImpl<Platform::PosixThreads> {
     void unlock();
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -127,11 +125,12 @@ class RecursiveMutexImpl<Platform::PosixThreads> {
 
 // CREATORS
 inline
-bslmt::RecursiveMutexImpl<bslmt::Platform::PosixThreads>::~RecursiveMutexImpl()
+RecursiveMutexImpl<bslmt::Platform::PosixThreads>::~RecursiveMutexImpl()
 {
     pthread_mutex_destroy(&d_lock);
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif // BSLMT_PLATFORM_POSIX_THREADS

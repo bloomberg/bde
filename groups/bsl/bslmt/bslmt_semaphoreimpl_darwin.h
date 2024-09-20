@@ -96,8 +96,6 @@ class SemaphoreImpl<Platform::DarwinSemaphore> {
     int getValue() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -108,7 +106,7 @@ class SemaphoreImpl<Platform::DarwinSemaphore> {
 
 // CREATORS
 inline
-bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::~SemaphoreImpl()
+SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::~SemaphoreImpl()
 {
     int result = ::sem_close(d_sem_p);
 
@@ -118,7 +116,7 @@ bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::~SemaphoreImpl()
 
 // MANIPULATORS
 inline
-void bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::post()
+void SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::post()
 {
     int result = ::sem_post(d_sem_p);
 
@@ -127,7 +125,7 @@ void bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::post()
 }
 
 inline
-int bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::tryWait()
+int SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::tryWait()
 {
     return ::sem_trywait(d_sem_p);
 
@@ -135,7 +133,7 @@ int bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::tryWait()
 
 // ACCESSORS
 inline
-int bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::getValue() const
+int SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::getValue() const
 {
     // Not implemented on Darwin, but sem_getvalue still returns success.
     BSLS_ASSERT(false &&
@@ -143,6 +141,7 @@ int bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::getValue() const
     return 0;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // BSLS_PLATFORM_OS_DARWIN

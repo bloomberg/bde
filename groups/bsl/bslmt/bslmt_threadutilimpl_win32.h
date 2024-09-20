@@ -362,32 +362,10 @@ bool operator==(const ThreadUtilImpl<Platform::Win32Threads>::Handle& lhs,
 bool operator!=(const ThreadUtilImpl<Platform::Win32Threads>::Handle& lhs,
                 const ThreadUtilImpl<Platform::Win32Threads>::Handle& rhs);
 
-}  // close package namespace
 
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
-
-                          // ----------------------
-                          // ThreadUtilImpl::Handle
-                          // ----------------------
-
-// FREE OPERATORS
-inline
-bool bslmt::operator==(
-              const ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle& lhs,
-              const ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle& rhs)
-{
-    return ThreadUtilImpl<Platform::Win32Threads>::areEqual(lhs, rhs);
-}
-
-inline
-bool bslmt::operator!=(
-              const ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle& lhs,
-              const ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle& rhs)
-{
-    return !(lhs == rhs);
-}
 
                // --------------------------------------------
                // class ThreadUtilImpl<Platform::Win32Threads>
@@ -395,27 +373,27 @@ bool bslmt::operator!=(
 
 // CLASS METHODS
 inline
-int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::
+int ThreadUtilImpl<bslmt::Platform::Win32Threads>::
     getMinSchedulingPriority(ThreadAttributes::SchedulingPolicy)
 {
     return ThreadAttributes::e_UNSET_PRIORITY;
 }
 
 inline
-int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::
+int ThreadUtilImpl<bslmt::Platform::Win32Threads>::
     getMaxSchedulingPriority(ThreadAttributes::SchedulingPolicy)
 {
     return ThreadAttributes::e_UNSET_PRIORITY;
 }
 
 inline
-void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::yield()
+void ThreadUtilImpl<bslmt::Platform::Win32Threads>::yield()
 {
     ::SleepEx(0, 0);
 }
 
 inline
-void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleep(
+void ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleep(
                                            const bsls::TimeInterval& sleepTime)
 
 {
@@ -426,7 +404,7 @@ void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleep(
 }
 
 inline
-void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::microSleep(
+void ThreadUtilImpl<bslmt::Platform::Win32Threads>::microSleep(
                                                                  int microsecs,
                                                                  int seconds)
 {
@@ -441,8 +419,8 @@ void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::microSleep(
 }
 
 inline
-bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle
-bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::self()
+ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle
+ThreadUtilImpl<bslmt::Platform::Win32Threads>::self()
 {
     Handle h;
     h.d_id     = GetCurrentThreadId();
@@ -451,37 +429,37 @@ bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::self()
 }
 
 inline
-bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::NativeHandle
-bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::nativeHandle(
+ThreadUtilImpl<bslmt::Platform::Win32Threads>::NativeHandle
+ThreadUtilImpl<bslmt::Platform::Win32Threads>::nativeHandle(
                                                           const Handle& handle)
 {
     return handle.d_handle;
 }
 
 inline
-bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Id
-bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::selfId()
+ThreadUtilImpl<bslmt::Platform::Win32Threads>::Id
+ThreadUtilImpl<bslmt::Platform::Win32Threads>::selfId()
 {
     return GetCurrentThreadId();
 }
 
 inline
 bsls::Types::Uint64
-bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::selfIdAsInt()
+ThreadUtilImpl<bslmt::Platform::Win32Threads>::selfIdAsInt()
 {
     return idAsInt(selfId());
 }
 
 inline
 bsls::Types::Uint64
-bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::selfIdAsUint64()
+ThreadUtilImpl<bslmt::Platform::Win32Threads>::selfIdAsUint64()
 {
     return idAsUint64(selfId());
 }
 
 inline
-bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Id
-bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::handleToId(
+ThreadUtilImpl<bslmt::Platform::Win32Threads>::Id
+ThreadUtilImpl<bslmt::Platform::Win32Threads>::handleToId(
                                                     const Handle& threadHandle)
 {
     return threadHandle.d_id;
@@ -489,21 +467,21 @@ bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::handleToId(
 
 inline
 bsls::Types::Uint64
-bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::idAsUint64(
+ThreadUtilImpl<bslmt::Platform::Win32Threads>::idAsUint64(
                                                             const Id& threadId)
 {
     return static_cast<bsls::Types::Uint64>(threadId);
 }
 
 inline
-int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::idAsInt(
+int ThreadUtilImpl<bslmt::Platform::Win32Threads>::idAsInt(
                                                             const Id& threadId)
 {
     return static_cast<int>(threadId);
 }
 
 inline
-bool bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::areEqualId(
+bool ThreadUtilImpl<bslmt::Platform::Win32Threads>::areEqualId(
                                                                    const Id& a,
                                                                    const Id& b)
 {
@@ -511,18 +489,41 @@ bool bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::areEqualId(
 }
 
 inline
-void *bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::getSpecific(
+void *ThreadUtilImpl<bslmt::Platform::Win32Threads>::getSpecific(
                                                                 const Key& key)
 {
     return TlsGetValue(key);
 }
 
 inline
-int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::setSpecific(
+int ThreadUtilImpl<bslmt::Platform::Win32Threads>::setSpecific(
                                                              const Key&  key,
                                                              const void *value)
 {
     return 0 == TlsSetValue(key, (void*)value) ? 1 : 0;
+}
+
+}  // close package namespace
+
+                          // ----------------------
+                          // ThreadUtilImpl::Handle
+                          // ----------------------
+
+// FREE OPERATORS
+inline
+bool bslmt::operator==(
+       const bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle& lhs,
+       const bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle& rhs)
+{
+    return bslmt::ThreadUtilImpl<Platform::Win32Threads>::areEqual(lhs, rhs);
+}
+
+inline
+bool bslmt::operator!=(
+       const bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle& lhs,
+       const bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::Handle& rhs)
+{
+    return !(lhs == rhs);
 }
 
 }  // close enterprise namespace

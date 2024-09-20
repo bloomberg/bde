@@ -365,8 +365,6 @@ class WriteLockGuardTryLock {
     T *ptr() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -378,7 +376,7 @@ class WriteLockGuardTryLock {
 // CREATORS
 template <class T>
 inline
-bslmt::WriteLockGuard<T>::WriteLockGuard(T *lock)
+WriteLockGuard<T>::WriteLockGuard(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -388,7 +386,7 @@ bslmt::WriteLockGuard<T>::WriteLockGuard(T *lock)
 
 template <class T>
 inline
-bslmt::WriteLockGuard<T>::WriteLockGuard(T *lock, bool alreadyLockedFlag)
+WriteLockGuard<T>::WriteLockGuard(T *lock, bool alreadyLockedFlag)
 : d_lock_p(lock)
 {
     if (d_lock_p && !alreadyLockedFlag) {
@@ -398,7 +396,7 @@ bslmt::WriteLockGuard<T>::WriteLockGuard(T *lock, bool alreadyLockedFlag)
 
 template <class T>
 inline
-bslmt::WriteLockGuard<T>::~WriteLockGuard()
+WriteLockGuard<T>::~WriteLockGuard()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -409,7 +407,7 @@ bslmt::WriteLockGuard<T>::~WriteLockGuard()
 
 template <class T>
 inline
-T *bslmt::WriteLockGuard<T>::release()
+T *WriteLockGuard<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -419,7 +417,7 @@ T *bslmt::WriteLockGuard<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bslmt::WriteLockGuard<T>::ptr() const
+T *WriteLockGuard<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -431,7 +429,7 @@ T *bslmt::WriteLockGuard<T>::ptr() const
 // CREATORS
 template <class T>
 inline
-bslmt::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock)
+WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -441,8 +439,8 @@ bslmt::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock)
 
 template <class T>
 inline
-bslmt::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T    *lock,
-                                                     bool  alreadyUnlockedFlag)
+WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T    *lock,
+                                              bool  alreadyUnlockedFlag)
 : d_lock_p(lock)
 {
     if (d_lock_p && !alreadyUnlockedFlag) {
@@ -452,7 +450,7 @@ bslmt::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T    *lock,
 
 template <class T>
 inline
-bslmt::WriteLockGuardUnlock<T>::~WriteLockGuardUnlock()
+WriteLockGuardUnlock<T>::~WriteLockGuardUnlock()
 {
     if (d_lock_p) {
         d_lock_p->lockWrite();
@@ -462,7 +460,7 @@ bslmt::WriteLockGuardUnlock<T>::~WriteLockGuardUnlock()
 // MANIPULATORS
 template <class T>
 inline
-T *bslmt::WriteLockGuardUnlock<T>::release()
+T *WriteLockGuardUnlock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -472,7 +470,7 @@ T *bslmt::WriteLockGuardUnlock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bslmt::WriteLockGuardUnlock<T>::ptr() const
+T *WriteLockGuardUnlock<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -483,7 +481,7 @@ T *bslmt::WriteLockGuardUnlock<T>::ptr() const
 
 // CREATORS
 template <class T>
-bslmt::WriteLockGuardTryLock<T>::WriteLockGuardTryLock(T *lock, int attempts)
+WriteLockGuardTryLock<T>::WriteLockGuardTryLock(T *lock, int attempts)
 : d_lock_p(0)
 {
     if (lock) {
@@ -498,7 +496,7 @@ bslmt::WriteLockGuardTryLock<T>::WriteLockGuardTryLock(T *lock, int attempts)
 
 template <class T>
 inline
-bslmt::WriteLockGuardTryLock<T>::~WriteLockGuardTryLock()
+WriteLockGuardTryLock<T>::~WriteLockGuardTryLock()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -508,7 +506,7 @@ bslmt::WriteLockGuardTryLock<T>::~WriteLockGuardTryLock()
 // MANIPULATORS
 template <class T>
 inline
-T *bslmt::WriteLockGuardTryLock<T>::release()
+T *WriteLockGuardTryLock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -518,7 +516,7 @@ T *bslmt::WriteLockGuardTryLock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bslmt::WriteLockGuardTryLock<T>::ptr() const
+T *WriteLockGuardTryLock<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -530,18 +528,19 @@ T *bslmt::WriteLockGuardTryLock<T>::ptr() const
 // CREATORS
 template <class T>
 inline
-bslmt::LockWriteGuard<T>::LockWriteGuard(T *lock)
+LockWriteGuard<T>::LockWriteGuard(T *lock)
 : WriteLockGuard<T>(lock)
 {
 }
 
 template <class T>
 inline
-bslmt::LockWriteGuard<T>::LockWriteGuard(T *lock, bool alreadyLockedFlag)
+LockWriteGuard<T>::LockWriteGuard(T *lock, bool alreadyLockedFlag)
 : WriteLockGuard<T>(lock, alreadyLockedFlag)
 {
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

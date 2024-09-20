@@ -112,8 +112,6 @@ class SemaphoreImpl<Platform::CountedSemaphore> {
     int getValue() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -124,7 +122,7 @@ class SemaphoreImpl<Platform::CountedSemaphore> {
 
 // CREATORS
 inline
-bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::SemaphoreImpl(
+SemaphoreImpl<bslmt::Platform::CountedSemaphore>::SemaphoreImpl(
                                                                      int count)
 : d_resources(count)
 , d_sem(0)
@@ -132,13 +130,13 @@ bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::SemaphoreImpl(
 }
 
 inline
-bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::~SemaphoreImpl()
+SemaphoreImpl<bslmt::Platform::CountedSemaphore>::~SemaphoreImpl()
 {
 }
 
 // MANIPULATORS
 inline
-void bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::post()
+void SemaphoreImpl<bslmt::Platform::CountedSemaphore>::post()
 {
     if (++d_resources <= 0) {
         d_sem.post();
@@ -146,7 +144,7 @@ void bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::post()
 }
 
 inline
-void bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::post(int number)
+void SemaphoreImpl<bslmt::Platform::CountedSemaphore>::post(int number)
 {
     for (int i = 0; i < number; ++i) {
         post();
@@ -154,7 +152,7 @@ void bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::post(int number)
 }
 
 inline
-int bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::tryWait()
+int SemaphoreImpl<bslmt::Platform::CountedSemaphore>::tryWait()
 {
     for (int i = d_resources; i > 0; i = d_resources) {
         if (i == d_resources.testAndSwap(i, i - 1)) {
@@ -166,7 +164,7 @@ int bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::tryWait()
 }
 
 inline
-void bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::wait()
+void SemaphoreImpl<bslmt::Platform::CountedSemaphore>::wait()
 {
     if (--d_resources >= 0) {
         return;
@@ -177,12 +175,13 @@ void bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::wait()
 
 // ACCESSORS
 inline
-int bslmt::SemaphoreImpl<bslmt::Platform::CountedSemaphore>::getValue() const
+int SemaphoreImpl<bslmt::Platform::CountedSemaphore>::getValue() const
 {
     const int v = d_resources;
     return v > 0 ? v : 0;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -164,7 +164,6 @@ class RWMutex {
     void unlock();
 };
 
-}  // close package namespace
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -178,7 +177,7 @@ class RWMutex {
 
 // CREATORS
 inline
-bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::RWMutexImpl()
+RWMutexImpl<bslmt::Platform::PosixThreads>::RWMutexImpl()
 {
     const int rc = pthread_rwlock_init(&d_lock, NULL);
 
@@ -190,7 +189,7 @@ bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::RWMutexImpl()
 }
 
 inline
-bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::~RWMutexImpl()
+RWMutexImpl<bslmt::Platform::PosixThreads>::~RWMutexImpl()
 {
     const int rc = pthread_rwlock_destroy(&d_lock);
 
@@ -203,7 +202,7 @@ bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::~RWMutexImpl()
 // MANIPULATORS
 inline
 void
-bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::lockRead()
+RWMutexImpl<bslmt::Platform::PosixThreads>::lockRead()
 {
     const int rc = pthread_rwlock_rdlock(&d_lock);
 
@@ -215,7 +214,7 @@ bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::lockRead()
 
 inline
 void
-bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::lockWrite()
+RWMutexImpl<bslmt::Platform::PosixThreads>::lockWrite()
 {
     const int rc = pthread_rwlock_wrlock(&d_lock);
 
@@ -227,21 +226,21 @@ bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::lockWrite()
 
 inline
 int
-bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::tryLockRead()
+RWMutexImpl<bslmt::Platform::PosixThreads>::tryLockRead()
 {
     return pthread_rwlock_tryrdlock(&d_lock) ? 1 : 0;
 }
 
 inline
 int
-bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::tryLockWrite()
+RWMutexImpl<bslmt::Platform::PosixThreads>::tryLockWrite()
 {
     return pthread_rwlock_trywrlock(&d_lock) ? 1 : 0;
 }
 
 inline
 void
-bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::unlock()
+RWMutexImpl<bslmt::Platform::PosixThreads>::unlock()
 {
     pthread_rwlock_unlock(&d_lock);
 }
@@ -254,46 +253,47 @@ bslmt::RWMutexImpl<bslmt::Platform::PosixThreads>::unlock()
 
 // CREATORS
 inline
-bslmt::RWMutex::RWMutex()
+RWMutex::RWMutex()
 {
 }
 
 inline
-bslmt::RWMutex::~RWMutex()
+RWMutex::~RWMutex()
 {
 }
 
 // MANIPULATORS
 inline
-void bslmt::RWMutex::lockRead()
+void RWMutex::lockRead()
 {
     d_impl.lockRead();
 }
 
 inline
-void bslmt::RWMutex::lockWrite()
+void RWMutex::lockWrite()
 {
     d_impl.lockWrite();
 }
 
 inline
-int bslmt::RWMutex::tryLockRead()
+int RWMutex::tryLockRead()
 {
     return d_impl.tryLockRead();
 }
 
 inline
-int bslmt::RWMutex::tryLockWrite()
+int RWMutex::tryLockWrite()
 {
     return d_impl.tryLockWrite();
 }
 
 inline
-void bslmt::RWMutex::unlock()
+void RWMutex::unlock()
 {
     d_impl.unlock();
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

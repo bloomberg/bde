@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // parameters.  The `bslmt::Configuration` utility currently provides static
 // methods to access and modify the BCE library's default stack size, as well
 // as functions that access the platform's native default stack size and guard
-// size.  The BCE default stack size is initially configured to
+// size.  The BDE default stack size is initially configured to
 // `bslmt::ThreadAttributes::BSLMT_UNSET_STACK_SIZE`, in which case thread
 // creation is to use the native default thread stack size.
 //
@@ -29,8 +29,8 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Demonstrate Accessing & Modifying the Default Thread Stack Size
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to access both the platform's native and
-// BCE configured default stack sizes, and then to set the default stack size
-// used by BCE.  Note that the value returned by `defaultThreadStackSize` may
+// BDE configured default stack sizes, and then to set the default stack size
+// used by BDE.  Note that the value returned by `defaultThreadStackSize` may
 // be adjusted from that provided by the underlying operating system to reflect
 // the actual amount of stack memory available to a created thread.  Note that
 // operations creating a thread should perform a similar inverse adjustment

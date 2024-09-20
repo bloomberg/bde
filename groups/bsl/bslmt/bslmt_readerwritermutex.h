@@ -280,8 +280,6 @@ class ReaderWriterMutex {
     bool isLockedWrite() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -292,72 +290,73 @@ class ReaderWriterMutex {
 
 // CREATORS
 inline
-bslmt::ReaderWriterMutex::ReaderWriterMutex()
+ReaderWriterMutex::ReaderWriterMutex()
 {
 }
 
 // MANIPULATORS
 inline
-void bslmt::ReaderWriterMutex::lockRead()
+void ReaderWriterMutex::lockRead()
 {
     d_impl.lockRead();
 }
 
 inline
-void bslmt::ReaderWriterMutex::lockWrite()
+void ReaderWriterMutex::lockWrite()
 {
     d_impl.lockWrite();
 }
 
 inline
-int bslmt::ReaderWriterMutex::tryLockRead()
+int ReaderWriterMutex::tryLockRead()
 {
     return d_impl.tryLockRead();
 }
 
 inline
-int bslmt::ReaderWriterMutex::tryLockWrite()
+int ReaderWriterMutex::tryLockWrite()
 {
     return d_impl.tryLockWrite();
 }
 
 inline
-void bslmt::ReaderWriterMutex::unlock()
+void ReaderWriterMutex::unlock()
 {
     d_impl.unlock();
 }
 
 inline
-void bslmt::ReaderWriterMutex::unlockRead()
+void ReaderWriterMutex::unlockRead()
 {
     d_impl.unlockRead();
 }
 
 inline
-void bslmt::ReaderWriterMutex::unlockWrite()
+void ReaderWriterMutex::unlockWrite()
 {
     d_impl.unlockWrite();
 }
 
 // ACCESSORS
 inline
-bool bslmt::ReaderWriterMutex::isLocked() const
+bool ReaderWriterMutex::isLocked() const
 {
     return d_impl.isLocked();
 }
 
 inline
-bool bslmt::ReaderWriterMutex::isLockedRead() const
+bool ReaderWriterMutex::isLockedRead() const
 {
     return d_impl.isLockedRead();
 }
 
 inline
-bool bslmt::ReaderWriterMutex::isLockedWrite() const
+bool ReaderWriterMutex::isLockedWrite() const
 {
     return d_impl.isLockedWrite();
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

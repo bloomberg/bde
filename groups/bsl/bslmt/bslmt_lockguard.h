@@ -381,7 +381,7 @@ class LockGuardTryLock {
                             // class TryLockGuard
                             // ==================
 
-/// This class is DEPRECATED.  Use `LockGuardTryLock` instead.
+/// @DEPRECATED:  Use `LockGuardTryLock` instead.
 template <class T>
 class TryLockGuard : public LockGuardTryLock<T> {
 
@@ -393,11 +393,9 @@ class TryLockGuard : public LockGuardTryLock<T> {
   public:
     // CREATORS
 
-    /// DEPRECATED: Use `LockGuardTryLock` instead.
+    /// @DEPRECATED: Use `LockGuardTryLock` instead.
     explicit TryLockGuard(T *lock, int attempts = 1);
 };
-
-}  // close package namespace
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -410,7 +408,7 @@ class TryLockGuard : public LockGuardTryLock<T> {
 // CREATORS
 template <class T>
 inline
-bslmt::LockGuard<T>::LockGuard(T *lock)
+LockGuard<T>::LockGuard(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -420,7 +418,7 @@ bslmt::LockGuard<T>::LockGuard(T *lock)
 
 template <class T>
 inline
-bslmt::LockGuard<T>::LockGuard(T *lock, bool alreadyLockedFlag)
+LockGuard<T>::LockGuard(T *lock, bool alreadyLockedFlag)
 : d_lock_p(lock)
 {
     if (d_lock_p && !alreadyLockedFlag) {
@@ -430,7 +428,7 @@ bslmt::LockGuard<T>::LockGuard(T *lock, bool alreadyLockedFlag)
 
 template <class T>
 inline
-bslmt::LockGuard<T>::~LockGuard()
+LockGuard<T>::~LockGuard()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -440,7 +438,7 @@ bslmt::LockGuard<T>::~LockGuard()
 // MANIPULATORS
 template <class T>
 inline
-T *bslmt::LockGuard<T>::release()
+T *LockGuard<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -450,7 +448,7 @@ T *bslmt::LockGuard<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bslmt::LockGuard<T>::ptr() const
+T *LockGuard<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -462,14 +460,14 @@ T *bslmt::LockGuard<T>::ptr() const
 // CREATORS
 template <class T>
 inline
-bslmt::UnLockGuard<T>::UnLockGuard(T *lock)
+UnLockGuard<T>::UnLockGuard(T *lock)
 : LockGuardUnlock<T>(lock)
 {
 }
 
 template <class T>
 inline
-bslmt::UnLockGuard<T>::UnLockGuard(T *lock, bool alreadyUnlockedFlag)
+UnLockGuard<T>::UnLockGuard(T *lock, bool alreadyUnlockedFlag)
 : LockGuardUnlock<T>(lock, alreadyUnlockedFlag)
 {
 }
@@ -480,7 +478,7 @@ bslmt::UnLockGuard<T>::UnLockGuard(T *lock, bool alreadyUnlockedFlag)
 
 template <class T>
 inline
-bslmt::TryLockGuard<T>::TryLockGuard(T *lock, int attempts)
+TryLockGuard<T>::TryLockGuard(T *lock, int attempts)
 : LockGuardTryLock<T>(lock, attempts)
 {
 }
@@ -492,7 +490,7 @@ bslmt::TryLockGuard<T>::TryLockGuard(T *lock, int attempts)
 // CREATORS
 template <class T>
 inline
-bslmt::LockGuardUnlock<T>::LockGuardUnlock(T *lock)
+LockGuardUnlock<T>::LockGuardUnlock(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -502,7 +500,7 @@ bslmt::LockGuardUnlock<T>::LockGuardUnlock(T *lock)
 
 template <class T>
 inline
-bslmt::LockGuardUnlock<T>::LockGuardUnlock(T *lock, bool alreadyUnlockedFlag)
+LockGuardUnlock<T>::LockGuardUnlock(T *lock, bool alreadyUnlockedFlag)
 : d_lock_p(lock)
 {
     if (d_lock_p && !alreadyUnlockedFlag) {
@@ -512,7 +510,7 @@ bslmt::LockGuardUnlock<T>::LockGuardUnlock(T *lock, bool alreadyUnlockedFlag)
 
 template <class T>
 inline
-bslmt::LockGuardUnlock<T>::~LockGuardUnlock()
+LockGuardUnlock<T>::~LockGuardUnlock()
 {
     if (d_lock_p) {
         d_lock_p->lock();
@@ -522,7 +520,7 @@ bslmt::LockGuardUnlock<T>::~LockGuardUnlock()
 // MANIPULATORS
 template <class T>
 inline
-T *bslmt::LockGuardUnlock<T>::release()
+T *LockGuardUnlock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -532,7 +530,7 @@ T *bslmt::LockGuardUnlock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bslmt::LockGuardUnlock<T>::ptr() const
+T *LockGuardUnlock<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -543,7 +541,7 @@ T *bslmt::LockGuardUnlock<T>::ptr() const
 
 // CREATORS
 template <class T>
-bslmt::LockGuardTryLock<T>::LockGuardTryLock(T *lock, int attempts)
+LockGuardTryLock<T>::LockGuardTryLock(T *lock, int attempts)
 : d_lock_p(0)
 {
     if (lock) {
@@ -558,7 +556,7 @@ bslmt::LockGuardTryLock<T>::LockGuardTryLock(T *lock, int attempts)
 
 template <class T>
 inline
-bslmt::LockGuardTryLock<T>::~LockGuardTryLock()
+LockGuardTryLock<T>::~LockGuardTryLock()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -568,7 +566,7 @@ bslmt::LockGuardTryLock<T>::~LockGuardTryLock()
 // MANIPULATORS
 template <class T>
 inline
-T *bslmt::LockGuardTryLock<T>::release()
+T *LockGuardTryLock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -578,11 +576,12 @@ T *bslmt::LockGuardTryLock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bslmt::LockGuardTryLock<T>::ptr() const
+T *LockGuardTryLock<T>::ptr() const
 {
     return d_lock_p;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

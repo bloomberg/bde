@@ -138,8 +138,6 @@ class SemaphoreImpl<Platform::Win32Semaphore> {
     int getValue() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -150,7 +148,7 @@ class SemaphoreImpl<Platform::Win32Semaphore> {
 
 // CREATORS
 inline
-bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::SemaphoreImpl(int count)
+SemaphoreImpl<bslmt::Platform::Win32Semaphore>::SemaphoreImpl(int count)
 : d_resources(count)
 {
     // Create a semaphore with a 0 count, since the count is actually
@@ -163,14 +161,14 @@ bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::SemaphoreImpl(int count)
 }
 
 inline
-bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::~SemaphoreImpl()
+SemaphoreImpl<bslmt::Platform::Win32Semaphore>::~SemaphoreImpl()
 {
     CloseHandle(d_handle);
 }
 
 // MANIPULATORS
 inline
-void bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::post()
+void SemaphoreImpl<bslmt::Platform::Win32Semaphore>::post()
 {
     if (++d_resources <= 0) {
         ReleaseSemaphore(d_handle, 1, NULL);
@@ -178,7 +176,7 @@ void bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::post()
 }
 
 inline
-void bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::wait()
+void SemaphoreImpl<bslmt::Platform::Win32Semaphore>::wait()
 {
     if (--d_resources >= 0) {
         return;
@@ -188,12 +186,13 @@ void bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::wait()
 
 // ACCESSORS
 inline
-int bslmt::SemaphoreImpl<bslmt::Platform::Win32Semaphore>::getValue() const
+int SemaphoreImpl<bslmt::Platform::Win32Semaphore>::getValue() const
 {
     const int v = d_resources;
     return v > 0 ? v : 0;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // BSLMT_PLATFORM_WIN32_THREADS

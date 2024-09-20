@@ -1,12 +1,4 @@
 // bslmt_once.h                                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BSLMT_ONCE
 #define INCLUDED_BSLMT_ONCE
 
@@ -560,8 +552,6 @@ class OnceGuard {
     bool isInProgress() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -596,7 +586,7 @@ class OnceGuard {
 
 // CREATORS
 inline
-bslmt::OnceGuard::OnceGuard(Once *once)
+OnceGuard::OnceGuard(Once *once)
 : d_once(once)
 , d_state(e_NOT_ENTERED)
 , d_num_exceptions(bsl::uncaught_exceptions())
@@ -605,7 +595,7 @@ bslmt::OnceGuard::OnceGuard(Once *once)
 
 // MANIPULATORS
 inline
-void bslmt::OnceGuard::setOnce(Once *once)
+void OnceGuard::setOnce(Once *once)
 {
     BSLS_ASSERT_SAFE(e_IN_PROGRESS != d_state);
 
@@ -615,7 +605,7 @@ void bslmt::OnceGuard::setOnce(Once *once)
 
 // ACCESSORS
 inline
-bool bslmt::OnceGuard::isInProgress() const
+bool OnceGuard::isInProgress() const
 {
     return e_IN_PROGRESS == d_state;
 }
@@ -627,7 +617,7 @@ bool bslmt::OnceGuard::isInProgress() const
 // MANIPULATORS
 template <class FUNC>
 inline
-void bslmt::Once::callOnce(FUNC& function)
+void Once::callOnce(FUNC& function)
 {
     OnceGuard guard(this);
     if (guard.enter()) {
@@ -647,7 +637,7 @@ void bslmt::Once::callOnce(FUNC& function)
 
 template <class FUNC>
 inline
-void bslmt::Once::callOnce(const FUNC& function)
+void Once::callOnce(const FUNC& function)
 {
     OnceGuard guard(this);
     if (guard.enter()) {
@@ -667,11 +657,12 @@ void bslmt::Once::callOnce(const FUNC& function)
 
 // ACCESSORS
 inline
-bool bslmt::Once::isMaybeUninitialized() const
+bool Once::isMaybeUninitialized() const
 {
     return e_DONE != bsls::AtomicOperations::getIntAcquire(&d_state);
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT

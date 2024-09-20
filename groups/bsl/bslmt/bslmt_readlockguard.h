@@ -298,7 +298,7 @@ class ReadLockGuard {
                            // class LockReadGuard
                            // ===================
 
-/// This class is DEPRECATED.  Use `ReadLockGuard` instead.
+/// @DEPRECATED:  Use `ReadLockGuard` instead.
 template <class T>
 class LockReadGuard : public ReadLockGuard<T> {
 
@@ -310,10 +310,10 @@ class LockReadGuard : public ReadLockGuard<T> {
   public:
     // CREATORS
 
-    /// DEPRECATED: Use `ReadLockGuard` instead.
+    /// @DEPRECATED: Use `ReadLockGuard` instead.
     explicit LockReadGuard(T *lock);
 
-    /// DEPRECATED: Use `ReadLockGuard` instead.
+    /// @DEPRECATED: Use `ReadLockGuard` instead.
     LockReadGuard(T *lock, bool alreadyLockedFlag);
 };
 
@@ -430,8 +430,6 @@ class ReadLockGuardTryLock {
     T *ptr() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -443,7 +441,7 @@ class ReadLockGuardTryLock {
 // CREATORS
 template <class T>
 inline
-bslmt::ReadLockGuard<T>::ReadLockGuard(T *lock)
+ReadLockGuard<T>::ReadLockGuard(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -453,7 +451,7 @@ bslmt::ReadLockGuard<T>::ReadLockGuard(T *lock)
 
 template <class T>
 inline
-bslmt::ReadLockGuard<T>::ReadLockGuard(T *lock, bool alreadyLockedFlag)
+ReadLockGuard<T>::ReadLockGuard(T *lock, bool alreadyLockedFlag)
 : d_lock_p(lock)
 {
     if (d_lock_p && !alreadyLockedFlag) {
@@ -463,7 +461,7 @@ bslmt::ReadLockGuard<T>::ReadLockGuard(T *lock, bool alreadyLockedFlag)
 
 template <class T>
 inline
-bslmt::ReadLockGuard<T>::~ReadLockGuard()
+ReadLockGuard<T>::~ReadLockGuard()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -473,7 +471,7 @@ bslmt::ReadLockGuard<T>::~ReadLockGuard()
 // MANIPULATORS
 template <class T>
 inline
-T *bslmt::ReadLockGuard<T>::release()
+T *ReadLockGuard<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -483,7 +481,7 @@ T *bslmt::ReadLockGuard<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bslmt::ReadLockGuard<T>::ptr() const
+T *ReadLockGuard<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -495,14 +493,14 @@ T *bslmt::ReadLockGuard<T>::ptr() const
 // CREATORS
 template <class T>
 inline
-bslmt::LockReadGuard<T>::LockReadGuard(T *lock)
+LockReadGuard<T>::LockReadGuard(T *lock)
 : ReadLockGuard<T>(lock)
 {
 }
 
 template <class T>
 inline
-bslmt::LockReadGuard<T>::LockReadGuard(T *lock, bool alreadyLockedFlag)
+LockReadGuard<T>::LockReadGuard(T *lock, bool alreadyLockedFlag)
 : ReadLockGuard<T>(lock, alreadyLockedFlag)
 {
 }
@@ -514,7 +512,7 @@ bslmt::LockReadGuard<T>::LockReadGuard(T *lock, bool alreadyLockedFlag)
 // CREATORS
 template <class T>
 inline
-bslmt::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock)
+ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -524,7 +522,7 @@ bslmt::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock)
 
 template <class T>
 inline
-bslmt::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T    *lock,
+ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T    *lock,
                                                    bool  alreadyUnlockedFlag)
 : d_lock_p(lock)
 {
@@ -535,7 +533,7 @@ bslmt::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T    *lock,
 
 template <class T>
 inline
-bslmt::ReadLockGuardUnlock<T>::~ReadLockGuardUnlock()
+ReadLockGuardUnlock<T>::~ReadLockGuardUnlock()
 {
     if (d_lock_p) {
         d_lock_p->lockRead();
@@ -545,7 +543,7 @@ bslmt::ReadLockGuardUnlock<T>::~ReadLockGuardUnlock()
 // MANIPULATORS
 template <class T>
 inline
-T *bslmt::ReadLockGuardUnlock<T>::release()
+T *ReadLockGuardUnlock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -555,7 +553,7 @@ T *bslmt::ReadLockGuardUnlock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bslmt::ReadLockGuardUnlock<T>::ptr() const
+T *ReadLockGuardUnlock<T>::ptr() const
 {
     return d_lock_p;
 }
@@ -566,7 +564,7 @@ T *bslmt::ReadLockGuardUnlock<T>::ptr() const
 
 // CREATORS
 template <class T>
-bslmt::ReadLockGuardTryLock<T>::ReadLockGuardTryLock(T *lock, int attempts)
+ReadLockGuardTryLock<T>::ReadLockGuardTryLock(T *lock, int attempts)
 : d_lock_p(0)
 {
     if (lock) {
@@ -581,7 +579,7 @@ bslmt::ReadLockGuardTryLock<T>::ReadLockGuardTryLock(T *lock, int attempts)
 
 template <class T>
 inline
-bslmt::ReadLockGuardTryLock<T>::~ReadLockGuardTryLock()
+ReadLockGuardTryLock<T>::~ReadLockGuardTryLock()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -591,7 +589,7 @@ bslmt::ReadLockGuardTryLock<T>::~ReadLockGuardTryLock()
 // MANIPULATORS
 template <class T>
 inline
-T *bslmt::ReadLockGuardTryLock<T>::release()
+T *ReadLockGuardTryLock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -601,11 +599,12 @@ T *bslmt::ReadLockGuardTryLock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *bslmt::ReadLockGuardTryLock<T>::ptr() const
+T *ReadLockGuardTryLock<T>::ptr() const
 {
     return d_lock_p;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

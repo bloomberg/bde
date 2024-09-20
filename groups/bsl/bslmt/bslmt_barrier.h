@@ -442,13 +442,12 @@ class Barrier {
 
     // DEPRECATED METHODS
 
-    /// **DEPRECATED**: Use `numArrivals` instead.
-    ///
     /// Return the required number of arrivals before all waiting threads
     /// will unblock.
+    ///
+    /// **DEPRECATED**: Use `numArrivals` instead.
     int numThreads() const;
 };
-}  // close package namespace
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -456,7 +455,7 @@ class Barrier {
 
 // CREATORS
 inline
-bslmt::Barrier::Barrier(int numArrivals, bsls::SystemClockType::Enum clockType)
+Barrier::Barrier(int numArrivals, bsls::SystemClockType::Enum clockType)
 : d_mutex()
 , d_cond(clockType)
 , d_numArrivals(numArrivals)
@@ -470,7 +469,7 @@ bslmt::Barrier::Barrier(int numArrivals, bsls::SystemClockType::Enum clockType)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 inline
-bslmt::Barrier::Barrier(int numArrivals, const bsl::chrono::system_clock&)
+Barrier::Barrier(int numArrivals, const bsl::chrono::system_clock&)
 : d_mutex()
 , d_cond(bsls::SystemClockType::e_REALTIME)
 , d_numArrivals(numArrivals)
@@ -483,7 +482,7 @@ bslmt::Barrier::Barrier(int numArrivals, const bsl::chrono::system_clock&)
 }
 
 inline
-bslmt::Barrier::Barrier(int numArrivals, const bsl::chrono::steady_clock&)
+Barrier::Barrier(int numArrivals, const bsl::chrono::steady_clock&)
 : d_mutex()
 , d_cond(bsls::SystemClockType::e_MONOTONIC)
 , d_numArrivals(numArrivals)
@@ -498,8 +497,7 @@ bslmt::Barrier::Barrier(int numArrivals, const bsl::chrono::steady_clock&)
 // MANIPULATORS
 template <class CLOCK, class DURATION>
 inline
-int bslmt::Barrier::timedWait(
-                       const bsl::chrono::time_point<CLOCK, DURATION>& absTime)
+int Barrier::timedWait(const bsl::chrono::time_point<CLOCK, DURATION>& absTime)
 {
     return bslmt::ChronoUtil::timedWait(this, absTime);
 }
@@ -507,24 +505,25 @@ int bslmt::Barrier::timedWait(
 
 // ACCESSORS
 inline
-bsls::SystemClockType::Enum bslmt::Barrier::clockType() const
+bsls::SystemClockType::Enum Barrier::clockType() const
 {
     return d_cond.clockType();
 }
 
 inline
-int bslmt::Barrier::numArrivals() const
+int Barrier::numArrivals() const
 {
     return d_numArrivals;
 }
 
 // DEPRECATED METHODS
 inline
-int bslmt::Barrier::numThreads() const
+int Barrier::numThreads() const
 {
     return d_numArrivals;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -326,8 +326,6 @@ class Mutex {
     void unlock();
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -338,40 +336,41 @@ class Mutex {
 
 // CREATORS
 inline
-bslmt::Mutex::Mutex()
+Mutex::Mutex()
 {
 }
 
 inline
-bslmt::Mutex::~Mutex()
+Mutex::~Mutex()
 {
 }
 
 // MANIPULATORS
 inline
-void bslmt::Mutex::lock()
+void Mutex::lock()
 {
     d_imp.lock();
 }
 
 inline
-bslmt::Mutex::NativeType& bslmt::Mutex::nativeMutex()
+Mutex::NativeType& Mutex::nativeMutex()
 {
     return d_imp.nativeMutex();
 }
 
 inline
-int bslmt::Mutex::tryLock()
+int Mutex::tryLock()
 {
     return d_imp.tryLock();
 }
 
 inline
-void bslmt::Mutex::unlock()
+void Mutex::unlock()
 {
     d_imp.unlock();
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

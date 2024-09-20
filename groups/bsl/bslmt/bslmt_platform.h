@@ -145,19 +145,20 @@ struct Platform {
       // Current Power cpus have 128-byte cache lines.
       //
       // On Solaris, to determine the cache line size on the local cpu, run:
-      // ..
+      // ```
       //   prtconf -pv | grep -i l1-dcache-line-size | sort -u
-      // .. Older sparc cpus have 32-byte cache lines, newer 64-byte cache
+      // ```
+      // Older sparc cpus have 32-byte cache lines, newer 64-byte cache
       // lines.  We'll assume 64-byte cache lines here.
       //
       // On Linux with 'sysfs' support,
-      //..
+      // ```
       //  cat /sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size
-      //..
+      // ```
       // or
-      //..
+      // ```
       //  cat /proc/cpuinfo | grep cache
-      //..
+      // ```
       // Post SSE2 cpus have the clflush instruction which can be used to write
       // a program similar to the one mentioned above for POWER cpus.  Current
       // x86/x86_64 have 64-byte cache lines.

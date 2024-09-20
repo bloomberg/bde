@@ -91,56 +91,56 @@ BSLS_IDENT("$Id: $")
 // ```
 // The following usage pattern should always be followed:
 // ```
-//   // ...
+// // ...
 //
-//   bslmt::Condition condition;
-//   bslmt::Mutex     mutex;
+// bslmt::Condition condition;
+// bslmt::Mutex     mutex;
 //
-//   mutex.lock();
-//   while (false == predicate()) {
-//       condition.wait(&mutex);
-//   }
+// mutex.lock();
+// while (false == predicate()) {
+//     condition.wait(&mutex);
+// }
 //
-//   // Modify shared resources and adjust the predicate here.
+// // Modify shared resources and adjust the predicate here.
 //
-//   mutex.unlock();
+// mutex.unlock();
 //
-//   // ...
+// // ...
 // ```
 // The usage pattern for a timed wait is similar, but has extra branches to
 // handle a timeout:
 // ```
-//   // ...
+// // ...
 //
-//   enum { e_TIMED_OUT = -1 };
-//   bsls::TimeInterval absTime = bsls::SystemTime::nowRealtimeClock();
+// enum { e_TIMED_OUT = -1 };
+// bsls::TimeInterval absTime = bsls::SystemTime::nowRealtimeClock();
 //
-//   // Advance 'absTime' to some delta into the future here.
+// // Advance 'absTime' to some delta into the future here.
 //
-//   mutex.lock();
-//   while (false == predicate()) {
-//       const int status = condition.timedWait(&mutex, absTime);
-//       if (e_TIMED_OUT == status) {
-//           break;
-//       }
-//   }
+// mutex.lock();
+// while (false == predicate()) {
+//     const int status = condition.timedWait(&mutex, absTime);
+//     if (e_TIMED_OUT == status) {
+//         break;
+//     }
+// }
 //
-//   if (false == predicate()) {
-//       // The wait timed out and 'predicate' returned 'false'.  Perform
-//       // timeout logic here.
+// if (false == predicate()) {
+//     // The wait timed out and `predicate` returned `false`.  Perform
+//     // timeout logic here.
 //
-//       // ...
-//   }
-//   else {
-//       // The condition variable was either signaled or timed out and
-//       // 'predicate' returned 'true'.  Modify shared resources and adjust
-//       // predicate here.
+//     // ...
+// }
+// else {
+//     // The condition variable was either signaled or timed out and
+//     // `predicate` returned `true`.  Modify shared resources and adjust
+//     // predicate here.
 //
-//       // ...
-//   }
-//   mutex.unlock();
+//     // ...
+// }
+// mutex.unlock();
 //
-//   // ...
+// // ...
 // ```
 
 #include <bslscm_version.h>
@@ -305,7 +305,6 @@ class Condition {
     bsls::SystemClockType::Enum clockType() const;
 };
 
-}  // close package namespace
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -317,46 +316,46 @@ class Condition {
 
 // CREATORS
 inline
-bslmt::Condition::Condition(bsls::SystemClockType::Enum clockType)
+Condition::Condition(bsls::SystemClockType::Enum clockType)
 : d_imp(clockType)
 {
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 inline
-bslmt::Condition::Condition(const bsl::chrono::system_clock&)
+Condition::Condition(const bsl::chrono::system_clock&)
 : d_imp(bsls::SystemClockType::e_REALTIME)
 {
 }
 
 inline
-bslmt::Condition::Condition(const bsl::chrono::steady_clock&)
+Condition::Condition(const bsl::chrono::steady_clock&)
 : d_imp(bsls::SystemClockType::e_MONOTONIC)
 {
 }
 #endif
 
 inline
-bslmt::Condition::~Condition()
+Condition::~Condition()
 {
 }
 
 // MANIPULATORS
 inline
-void bslmt::Condition::broadcast()
+void Condition::broadcast()
 {
     d_imp.broadcast();
 }
 
 inline
-void bslmt::Condition::signal()
+void Condition::signal()
 {
     d_imp.signal();
 }
 
 inline
-int bslmt::Condition::timedWait(Mutex                     *mutex,
-                                const bsls::TimeInterval&  absTime)
+int Condition::timedWait(Mutex                     *mutex,
+                         const bsls::TimeInterval&  absTime)
 {
     BSLS_ASSERT_SAFE(mutex);
 
@@ -366,18 +365,18 @@ int bslmt::Condition::timedWait(Mutex                     *mutex,
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 template <class CLOCK, class DURATION>
 inline
-int bslmt::Condition::timedWait(
+int Condition::timedWait(
                       Mutex                                           *mutex,
                       const bsl::chrono::time_point<CLOCK, DURATION>&  absTime)
 {
     BSLS_ASSERT_SAFE(mutex);
 
-    return bslmt::ChronoUtil::timedWait(this, mutex, absTime);
+    return ChronoUtil::timedWait(this, mutex, absTime);
 }
 #endif
 
 inline
-int bslmt::Condition::wait(Mutex *mutex)
+int Condition::wait(Mutex *mutex)
 {
     BSLS_ASSERT_SAFE(mutex);
 
@@ -386,11 +385,12 @@ int bslmt::Condition::wait(Mutex *mutex)
 
 // ACCESSORS
 inline
-bsls::SystemClockType::Enum bslmt::Condition::clockType() const
+bsls::SystemClockType::Enum Condition::clockType() const
 {
     return d_imp.clockType();
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

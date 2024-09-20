@@ -108,8 +108,6 @@ class MutexImpl<Platform::PosixThreads> {
     void unlock();
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -120,7 +118,7 @@ class MutexImpl<Platform::PosixThreads> {
 
 // CREATORS
 inline
-bslmt::MutexImpl<bslmt::Platform::PosixThreads>::MutexImpl()
+MutexImpl<bslmt::Platform::PosixThreads>::MutexImpl()
 {
     const int status = pthread_mutex_init(&d_lock, 0);
     if (status) {
@@ -130,7 +128,7 @@ bslmt::MutexImpl<bslmt::Platform::PosixThreads>::MutexImpl()
 
 // MANIPULATORS
 inline
-void bslmt::MutexImpl<bslmt::Platform::PosixThreads>::lock()
+void MutexImpl<bslmt::Platform::PosixThreads>::lock()
 {
     BSLS_ASSERT_SAFE(0xdeadbeef !=
                                  *reinterpret_cast<const unsigned *>(&d_lock));
@@ -141,7 +139,7 @@ void bslmt::MutexImpl<bslmt::Platform::PosixThreads>::lock()
 }
 
 inline
-int bslmt::MutexImpl<bslmt::Platform::PosixThreads>::tryLock()
+int MutexImpl<bslmt::Platform::PosixThreads>::tryLock()
 {
     BSLS_ASSERT_SAFE(0xdeadbeef !=
                                  *reinterpret_cast<const unsigned *>(&d_lock));
@@ -150,7 +148,7 @@ int bslmt::MutexImpl<bslmt::Platform::PosixThreads>::tryLock()
 }
 
 inline
-void bslmt::MutexImpl<bslmt::Platform::PosixThreads>::unlock()
+void MutexImpl<bslmt::Platform::PosixThreads>::unlock()
 {
     BSLS_ASSERT_SAFE(0xdeadbeef !=
                                  *reinterpret_cast<const unsigned *>(&d_lock));
@@ -161,12 +159,13 @@ void bslmt::MutexImpl<bslmt::Platform::PosixThreads>::unlock()
 }
 
 inline
-bslmt::MutexImpl<bslmt::Platform::PosixThreads>::NativeType&
-bslmt::MutexImpl<bslmt::Platform::PosixThreads>::nativeMutex()
+MutexImpl<bslmt::Platform::PosixThreads>::NativeType&
+MutexImpl<bslmt::Platform::PosixThreads>::nativeMutex()
 {
     return d_lock;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // BSLMT_PLATFORM_POSIX_THREADS

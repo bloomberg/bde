@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //  BSLMT_TESTUTIL_GUARDED_STREAM(STREAM): guarded access to `STREAM`
 //  BSLMT_TESTUTIL_COUT: thread-safe access to `bsl::cout`
 //  BSLMT_TESTUTIL_CERR: thread-safe access to `bsl::cerr`
-//
+//  ---
 //  BSLMT_TESTUTIL_LOOP_ASSERT
 //  BSLMT_TESTUTIL_LOOP2_ASSERT
 //  BSLMT_TESTUTIL_LOOP3_ASSERT
@@ -32,10 +32,10 @@ BSLS_IDENT("$Id: $")
 //      // Discouraged: use `ASSERTV`.  Provided for the sake of ease of
 //      // migration of test drivers from using `bsls_bsltestutil` or
 //      // `bslim_testutil`.
-//
+//  ---
 //  BSLMT_TESTUTIL_OUTPUT_GUARD
 //      // **DEPRECATED**: use BSLMT_TESTUTIL_GUARD
-//
+//  ---
 //  BSLMT_TESTUTIL_NESTED_OUTPUT_GUARD
 //      // **DEPRECATED**: use BSLMT_TESTUTIL_GUARD
 //

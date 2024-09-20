@@ -402,8 +402,6 @@ class QLockGuard  {
     void unlock();
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -414,14 +412,14 @@ class QLockGuard  {
 
 // MANIPULATORS
 inline
-void bslmt::QLock::initialize()
+void QLock::initialize()
 {
     bsls::AtomicOperations::setPtrRelaxed(&d_guardQueueTail, 0);
 }
 
 // ACCESSORS
 inline
-bool bslmt::QLock::isLocked() const
+bool QLock::isLocked() const
 {
     return bsls::AtomicOperations::getPtr(&d_guardQueueTail) != 0;
 }
@@ -432,19 +430,19 @@ bool bslmt::QLock::isLocked() const
 
 // CREATORS
 inline
-bslmt::QLock_EventFlag::QLock_EventFlag()
+QLock_EventFlag::QLock_EventFlag()
 : d_status(0)
 {
 }
 
 inline
-bslmt::QLock_EventFlag::~QLock_EventFlag()
+QLock_EventFlag::~QLock_EventFlag()
 {
 }
 
 // MANIPULATORS
 inline
-void bslmt::QLock_EventFlag::reset()
+void QLock_EventFlag::reset()
 {
     d_status = 0;
 }
@@ -455,7 +453,7 @@ void bslmt::QLock_EventFlag::reset()
 
 // CREATORS
 inline
-bslmt::QLockGuard::QLockGuard()
+QLockGuard::QLockGuard()
 : d_qlock_p   (0)
 , d_next      (0)
 , d_readyFlag ()
@@ -465,7 +463,7 @@ bslmt::QLockGuard::QLockGuard()
 }
 
 inline
-bslmt::QLockGuard::QLockGuard(QLock *qlock, bool doLock)
+QLockGuard::QLockGuard(QLock *qlock, bool doLock)
 : d_qlock_p   (qlock)
 , d_next      (0)
 , d_readyFlag ()
@@ -478,7 +476,7 @@ bslmt::QLockGuard::QLockGuard(QLock *qlock, bool doLock)
 }
 
 inline
-bslmt::QLockGuard::~QLockGuard()
+QLockGuard::~QLockGuard()
 {
     if (d_locked) {
         unlockRaw();
@@ -487,7 +485,7 @@ bslmt::QLockGuard::~QLockGuard()
 
 // MANIPULATORS
 inline
-void bslmt::QLockGuard::setQLock(QLock *qlock)
+void QLockGuard::setQLock(QLock *qlock)
 {
     BSLS_ASSERT_SAFE(!d_locked);
 
@@ -495,7 +493,7 @@ void bslmt::QLockGuard::setQLock(QLock *qlock)
 }
 
 inline
-void bslmt::QLockGuard::lock(QLock *qlock)
+void QLockGuard::lock(QLock *qlock)
 {
     BSLS_ASSERT_SAFE(!d_locked);
     BSLS_ASSERT_SAFE(qlock);
@@ -505,7 +503,7 @@ void bslmt::QLockGuard::lock(QLock *qlock)
 }
 
 inline
-void bslmt::QLockGuard::unlock()
+void QLockGuard::unlock()
 {
     if (d_locked) {
         // Release the lock, and reset the state variables so it can be
@@ -520,6 +518,7 @@ void bslmt::QLockGuard::unlock()
     }
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -249,8 +249,6 @@ class MeteredMutex {
     bsls::Types::Int64 waitTime() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -260,19 +258,19 @@ class MeteredMutex {
                                 // ------------
 // CREATORS
 inline
-bslmt::MeteredMutex::MeteredMutex()
+MeteredMutex::MeteredMutex()
 : d_lastResetTime(bsls::TimeUtil::getTimer())
 {
 }
 
 inline
-bslmt::MeteredMutex::~MeteredMutex()
+MeteredMutex::~MeteredMutex()
 {
 }
 
 // MANIPULATORS
 inline
-void bslmt::MeteredMutex::lock()
+void MeteredMutex::lock()
 {
     bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
     d_mutex.lock();
@@ -281,7 +279,7 @@ void bslmt::MeteredMutex::lock()
 }
 
 inline
-int bslmt::MeteredMutex::tryLock()
+int MeteredMutex::tryLock()
 {
     bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
     int returnStatus = d_mutex.tryLock();
@@ -294,7 +292,7 @@ int bslmt::MeteredMutex::tryLock()
 }
 
 inline
-void bslmt::MeteredMutex::unlock()
+void MeteredMutex::unlock()
 {
     d_holdTime += (bsls::TimeUtil::getTimer() - d_startHoldTime);
     d_mutex.unlock();
@@ -302,23 +300,24 @@ void bslmt::MeteredMutex::unlock()
 
 // ACCESSORS
 inline
-bsls::Types::Int64 bslmt::MeteredMutex::holdTime() const
+bsls::Types::Int64 MeteredMutex::holdTime() const
 {
     return d_holdTime;
 }
 
 inline
-bsls::Types::Int64 bslmt::MeteredMutex::lastResetTime() const
+bsls::Types::Int64 MeteredMutex::lastResetTime() const
 {
     return d_lastResetTime;
 }
 
 inline
-bsls::Types::Int64 bslmt::MeteredMutex::waitTime() const
+bsls::Types::Int64 MeteredMutex::waitTime() const
 {
     return d_waitTime;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

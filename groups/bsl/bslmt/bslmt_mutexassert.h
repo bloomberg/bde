@@ -74,11 +74,11 @@ BSLS_IDENT("$Id: $")
 //
 //     // PRIVATE MANIPULATOR
 //
-//     // Assign the value at the front of the queue to the specified
-//     // `*result`, and remove the value at the front of the queue;
-//     // return 0 if the queue was not initially empty, and a non-zero
-//     // value (with no effect) otherwise.  The behavior is undefined
-//     // unless `d_mutex` is locked.
+//     /// Assign the value at the front of the queue to the specified
+//     /// `*result`, and remove the value at the front of the queue;
+//     /// return 0 if the queue was not initially empty, and a non-zero
+//     /// value (with no effect) otherwise.  The behavior is undefined
+//     /// unless `d_mutex` is locked.
 //     int popImp(int *result);
 //
 //   public:

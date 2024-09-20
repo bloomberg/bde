@@ -376,15 +376,15 @@ class ReaderWriterLock {
     /// guaranteed to succeed.
     int tryUpgradeToWriteLock();
 
-    /// *DEPRECATED* Use `unlock` instead.  Note that calls to this function
+    /// @DEPRECATED: Use `unlock` instead.  Note that calls to this function
     /// are simply forwarded to `unlock`.
     void unlockRead();
 
-    /// *DEPRECATED* Use `unlock` instead.  Note that calls to this function
+    /// @DEPRECATED: Use `unlock` instead.  Note that calls to this function
     /// are simply forwarded to `unlock`.
     void unlockReadUnreserveWrite();
 
-    /// *DEPRECATED* Use `unlock` instead.  Note that calls to this function
+    /// @DEPRECATED: Use `unlock` instead.  Note that calls to this function
     /// are simply forwarded to `unlock`.
     void unlockWrite();
 
@@ -411,8 +411,6 @@ class ReaderWriterLock {
     bool isLockedWrite() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -423,7 +421,7 @@ class ReaderWriterLock {
 
 // CREATORS
 inline
-bslmt::ReaderWriterLock::ReaderWriterLock()
+ReaderWriterLock::ReaderWriterLock()
 : d_signalState(e_NOT_SIGNALED)
 , d_owned(false)
 {
@@ -431,32 +429,32 @@ bslmt::ReaderWriterLock::ReaderWriterLock()
 }
 
 inline
-bslmt::ReaderWriterLock::~ReaderWriterLock()
+ReaderWriterLock::~ReaderWriterLock()
 {
 }
 
 // MANIPULATORS
 inline
-void bslmt::ReaderWriterLock::unlockRead()
+void ReaderWriterLock::unlockRead()
 {
     unlock();
 }
 
 inline
-void bslmt::ReaderWriterLock::unlockReadUnreserveWrite()
+void ReaderWriterLock::unlockReadUnreserveWrite()
 {
     unlock();
 }
 
 inline
-void bslmt::ReaderWriterLock::unlockWrite()
+void ReaderWriterLock::unlockWrite()
 {
     unlock();
 }
 
 // ACCESSORS
 inline
-bool bslmt::ReaderWriterLock::isLocked() const
+bool ReaderWriterLock::isLocked() const
 {
     bsls::Types::Int64 rwcount = bsls::AtomicOperations::getInt64(&d_rwCount);
 
@@ -469,7 +467,7 @@ bool bslmt::ReaderWriterLock::isLocked() const
 }
 
 inline
-bool bslmt::ReaderWriterLock::isLockedRead() const
+bool ReaderWriterLock::isLockedRead() const
 {
     bsls::Types::Int64 rwcount = bsls::AtomicOperations::getInt64(&d_rwCount);
 
@@ -482,7 +480,7 @@ bool bslmt::ReaderWriterLock::isLockedRead() const
 }
 
 inline
-bool bslmt::ReaderWriterLock::isLockedWrite() const
+bool ReaderWriterLock::isLockedWrite() const
 {
     bsls::Types::Int64 rwcount = bsls::AtomicOperations::getInt64(&d_rwCount);
 
@@ -493,6 +491,7 @@ bool bslmt::ReaderWriterLock::isLockedWrite() const
     }
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

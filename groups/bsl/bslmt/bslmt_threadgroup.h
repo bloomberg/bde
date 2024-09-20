@@ -182,8 +182,6 @@ class ThreadGroup {
     int numThreads() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -195,21 +193,21 @@ class ThreadGroup {
 // MANIPULATORS
 template<class INVOKABLE>
 inline
-int bslmt::ThreadGroup::addThread(const INVOKABLE& functor)
+int ThreadGroup::addThread(const INVOKABLE& functor)
 {
     return addThread(functor, ThreadAttributes());
 }
 
 template<class INVOKABLE>
 inline
-int bslmt::ThreadGroup::addThreads(const INVOKABLE& functor, int numThreads)
+int ThreadGroup::addThreads(const INVOKABLE& functor, int numThreads)
 {
     return addThreads(functor, numThreads, ThreadAttributes());
 }
 
 template<class INVOKABLE>
-int bslmt::ThreadGroup::addThread(const INVOKABLE&        functor,
-                                  const ThreadAttributes& attributes)
+int ThreadGroup::addThread(const INVOKABLE&        functor,
+                           const ThreadAttributes& attributes)
 {
     ThreadUtil::Handle handle;
     int rc = 1;
@@ -237,7 +235,7 @@ int bslmt::ThreadGroup::addThread(const INVOKABLE&        functor,
 }
 
 template<class INVOKABLE>
-int bslmt::ThreadGroup::addThreads(const INVOKABLE&        functor,
+int ThreadGroup::addThreads(const INVOKABLE&        functor,
                                    int                     numThreads,
                                    const ThreadAttributes& attributes)
 {
@@ -254,11 +252,12 @@ int bslmt::ThreadGroup::addThreads(const INVOKABLE&        functor,
 
 // ACCESSORS
 inline
-int bslmt::ThreadGroup::numThreads() const
+int ThreadGroup::numThreads() const
 {
    return d_numThreads.loadRelaxed();
 }
 
+}  // close package namespace
 
 // ============================================================================
 //                                TYPE TRAITS

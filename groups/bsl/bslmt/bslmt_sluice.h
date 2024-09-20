@@ -268,8 +268,6 @@ class Sluice {
     bsls::SystemClockType::Enum clockType() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                              INLINE DEFINITIONS
 // ============================================================================
@@ -281,8 +279,7 @@ class Sluice {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 // MANIPULATORS
 template <class CLOCK, class DURATION>
-int bslmt::Sluice::timedWait(
-                      const void                                      *token,
+int Sluice::timedWait(const void                                      *token,
                       const bsl::chrono::time_point<CLOCK, DURATION>&  absTime)
 {
 
@@ -330,11 +327,12 @@ int bslmt::Sluice::timedWait(
 
 // ACCESSORS
 inline
-bsls::SystemClockType::Enum bslmt::Sluice::clockType() const
+bsls::SystemClockType::Enum Sluice::clockType() const
 {
     return d_clockType;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

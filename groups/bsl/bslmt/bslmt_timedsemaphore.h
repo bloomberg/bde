@@ -316,8 +316,6 @@ class TimedSemaphore {
     bsls::SystemClockType::Enum clockType() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -328,68 +326,68 @@ class TimedSemaphore {
 
 // CREATORS
 inline
-bslmt::TimedSemaphore::TimedSemaphore(bsls::SystemClockType::Enum clockType)
+TimedSemaphore::TimedSemaphore(bsls::SystemClockType::Enum clockType)
 : d_impl(clockType)
 {
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 inline
-bslmt::TimedSemaphore::TimedSemaphore(const bsl::chrono::system_clock&)
+TimedSemaphore::TimedSemaphore(const bsl::chrono::system_clock&)
 : d_impl(bsls::SystemClockType::e_REALTIME)
 {
 }
 
 inline
-bslmt::TimedSemaphore::TimedSemaphore(const bsl::chrono::steady_clock&)
+TimedSemaphore::TimedSemaphore(const bsl::chrono::steady_clock&)
 : d_impl(bsls::SystemClockType::e_MONOTONIC)
 {
 }
 #endif
 
 inline
-bslmt::TimedSemaphore::TimedSemaphore(int                         count,
-                                      bsls::SystemClockType::Enum clockType)
+TimedSemaphore::TimedSemaphore(int                         count,
+                               bsls::SystemClockType::Enum clockType)
 : d_impl(count, clockType)
 {
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 inline
-bslmt::TimedSemaphore::TimedSemaphore(int                              count,
-                                      const bsl::chrono::system_clock&)
+TimedSemaphore::TimedSemaphore(int                              count,
+                               const bsl::chrono::system_clock&)
 : d_impl(count, bsls::SystemClockType::e_REALTIME)
 {
 }
 
 inline
-bslmt::TimedSemaphore::TimedSemaphore(int                              count,
-                                      const bsl::chrono::steady_clock&)
+TimedSemaphore::TimedSemaphore(int                              count,
+                               const bsl::chrono::steady_clock&)
 : d_impl(count, bsls::SystemClockType::e_MONOTONIC)
 {
 }
 #endif
 
 inline
-bslmt::TimedSemaphore::~TimedSemaphore()
+TimedSemaphore::~TimedSemaphore()
 {
 }
 
 // MANIPULATORS
 inline
-void bslmt::TimedSemaphore::post()
+void TimedSemaphore::post()
 {
     d_impl.post();
 }
 
 inline
-void bslmt::TimedSemaphore::post(int value)
+void TimedSemaphore::post(int value)
 {
     d_impl.post(value);
 }
 
 inline
-int bslmt::TimedSemaphore::timedWait(const bsls::TimeInterval& absTime)
+int TimedSemaphore::timedWait(const bsls::TimeInterval& absTime)
 {
     return d_impl.timedWait(absTime);
 }
@@ -397,7 +395,7 @@ int bslmt::TimedSemaphore::timedWait(const bsls::TimeInterval& absTime)
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 template <class CLOCK, class DURATION>
 inline
-int bslmt::TimedSemaphore::timedWait(
+int TimedSemaphore::timedWait(
                        const bsl::chrono::time_point<CLOCK, DURATION>& absTime)
 {
     return bslmt::ChronoUtil::timedWait(this, absTime);
@@ -405,13 +403,13 @@ int bslmt::TimedSemaphore::timedWait(
 #endif
 
 inline
-int bslmt::TimedSemaphore::tryWait()
+int TimedSemaphore::tryWait()
 {
     return d_impl.tryWait();
 }
 
 inline
-void bslmt::TimedSemaphore::wait()
+void TimedSemaphore::wait()
 {
     d_impl.wait();
 }
@@ -419,11 +417,12 @@ void bslmt::TimedSemaphore::wait()
 // ACCESSORS
 inline
 bsls::SystemClockType::Enum
-bslmt::TimedSemaphore::clockType() const
+TimedSemaphore::clockType() const
 {
     return d_impl.clockType();
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

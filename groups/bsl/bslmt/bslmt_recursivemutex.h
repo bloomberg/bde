@@ -128,8 +128,6 @@ class RecursiveMutex {
     void unlock();
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -140,34 +138,35 @@ class RecursiveMutex {
 
 // CREATORS
 inline
-bslmt::RecursiveMutex::RecursiveMutex()
+RecursiveMutex::RecursiveMutex()
 {
 }
 
 inline
-bslmt::RecursiveMutex::~RecursiveMutex()
+RecursiveMutex::~RecursiveMutex()
 {
 }
 
 // MANIPULATORS
 inline
-void bslmt::RecursiveMutex::lock()
+void RecursiveMutex::lock()
 {
     d_imp.lock();
 }
 
 inline
-int bslmt::RecursiveMutex::tryLock()
+int RecursiveMutex::tryLock()
 {
     return d_imp.tryLock();
 }
 
 inline
-void bslmt::RecursiveMutex::unlock()
+void RecursiveMutex::unlock()
 {
     d_imp.unlock();
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

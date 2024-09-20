@@ -746,8 +746,6 @@ struct ThreadUtil {
     static unsigned int hardwareConcurrency();
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -760,9 +758,9 @@ struct ThreadUtil {
 
 // CLASS METHODS
 inline
-int bslmt::ThreadUtil::create(Handle         *handle,
-                              ThreadFunction  function,
-                              void           *userData)
+int ThreadUtil::create(Handle         *handle,
+                       ThreadFunction  function,
+                       void           *userData)
 {
     BSLS_ASSERT_SAFE(handle);
 
@@ -771,8 +769,8 @@ int bslmt::ThreadUtil::create(Handle         *handle,
 
 template <class INVOKABLE>
 inline
-int bslmt::ThreadUtil::create(Handle           *handle,
-                              const INVOKABLE&  function)
+int ThreadUtil::create(Handle           *handle,
+                       const INVOKABLE&  function)
 {
     BSLS_ASSERT_SAFE(handle);
 
@@ -783,9 +781,9 @@ int bslmt::ThreadUtil::create(Handle           *handle,
 
 template <class INVOKABLE>
 inline
-int bslmt::ThreadUtil::create(Handle                  *handle,
-                              const ThreadAttributes&  attributes,
-                              const INVOKABLE&         function)
+int ThreadUtil::create(Handle                  *handle,
+                       const ThreadAttributes&  attributes,
+                       const INVOKABLE&         function)
 {
     BSLS_ASSERT_SAFE(handle);
 
@@ -796,7 +794,7 @@ int bslmt::ThreadUtil::create(Handle                  *handle,
 }
 
 inline
-int bslmt::ThreadUtil::createWithAllocator(
+int ThreadUtil::createWithAllocator(
                                  Handle                             *handle,
                                  ThreadFunction                      function,
                                  void                               *userData,
@@ -814,10 +812,10 @@ int bslmt::ThreadUtil::createWithAllocator(
 
 template <class INVOKABLE>
 inline
-int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
-                                           const ThreadAttributes&  attributes,
-                                           const INVOKABLE&         function,
-                                           bslma::Allocator        *allocator)
+int ThreadUtil::createWithAllocator(Handle                  *handle,
+                                    const ThreadAttributes&  attributes,
+                                    const INVOKABLE&         function,
+                                    bslma::Allocator        *allocator)
 {
     BSLS_ASSERT_SAFE(handle);
     BSLS_ASSERT_OPT(allocator);
@@ -840,9 +838,9 @@ int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
 
 template <class INVOKABLE>
 inline
-int bslmt::ThreadUtil::createWithAllocator(Handle           *handle,
-                                           const INVOKABLE&  function,
-                                           bslma::Allocator *allocator)
+int ThreadUtil::createWithAllocator(Handle           *handle,
+                                    const INVOKABLE&  function,
+                                    bslma::Allocator *allocator)
 {
     BSLS_ASSERT_SAFE(handle);
     BSLS_ASSERT_OPT(allocator);
@@ -862,33 +860,33 @@ int bslmt::ThreadUtil::createWithAllocator(Handle           *handle,
 }
 
 inline
-int bslmt::ThreadUtil::detach(Handle& handle)
+int ThreadUtil::detach(Handle& handle)
 {
     return Imp::detach(handle);
 }
 
 inline
-void bslmt::ThreadUtil::exit(void *status)
+void ThreadUtil::exit(void *status)
 {
     Imp::exit(status);
 }
 
 inline
-int bslmt::ThreadUtil::getMinSchedulingPriority(
+int ThreadUtil::getMinSchedulingPriority(
                                      ThreadAttributes::SchedulingPolicy policy)
 {
     return Imp::getMinSchedulingPriority(policy);
 }
 
 inline
-int bslmt::ThreadUtil::getMaxSchedulingPriority(
+int ThreadUtil::getMaxSchedulingPriority(
                                      ThreadAttributes::SchedulingPolicy policy)
 {
     return Imp::getMaxSchedulingPriority(policy);
 }
 
 inline
-void bslmt::ThreadUtil::getThreadName(bsl::string *threadName)
+void ThreadUtil::getThreadName(bsl::string *threadName)
 {
     BSLS_ASSERT_SAFE(threadName);
 
@@ -896,25 +894,25 @@ void bslmt::ThreadUtil::getThreadName(bsl::string *threadName)
 }
 
 inline
-int bslmt::ThreadUtil::join(Handle& threadHandle, void **status)
+int ThreadUtil::join(Handle& threadHandle, void **status)
 {
     return Imp::join(threadHandle, status);
 }
 
 inline
-void bslmt::ThreadUtil::microSleep(int microseconds, int seconds)
+void ThreadUtil::microSleep(int microseconds, int seconds)
 {
     Imp::microSleep(microseconds, seconds);
 }
 
 inline
-void bslmt::ThreadUtil::setThreadName(const bslstl::StringRef& threadName)
+void ThreadUtil::setThreadName(const bslstl::StringRef& threadName)
 {
     Imp::setThreadName(threadName);
 }
 
 inline
-void bslmt::ThreadUtil::sleep(const bsls::TimeInterval& sleepTime)
+void ThreadUtil::sleep(const bsls::TimeInterval& sleepTime)
 {
     Imp::sleep(sleepTime);
 }
@@ -922,16 +920,15 @@ void bslmt::ThreadUtil::sleep(const bsls::TimeInterval& sleepTime)
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 template <class REP_TYPE, class PERIOD_TYPE>
 inline
-void bslmt::ThreadUtil::sleep(
+void ThreadUtil::sleep(
                  const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& sleepTime)
 {
-    bslmt::ThreadUtil::sleep(
-                         bslmt::ChronoUtil::durationToTimeInterval(sleepTime));
+    ThreadUtil::sleep(ChronoUtil::durationToTimeInterval(sleepTime));
 }
 #endif
 
 inline
-void bslmt::ThreadUtil::sleepUntil(const bsls::TimeInterval&   absoluteTime,
+void ThreadUtil::sleepUntil(const bsls::TimeInterval&   absoluteTime,
                                    bsls::SystemClockType::Enum clockType)
 {
     int status = Imp::sleepUntil(absoluteTime, clockType);
@@ -941,7 +938,7 @@ void bslmt::ThreadUtil::sleepUntil(const bsls::TimeInterval&   absoluteTime,
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 template <class CLOCK, class DURATION>
-void bslmt::ThreadUtil::sleepUntil(
+void ThreadUtil::sleepUntil(
                   const bsl::chrono::time_point<CLOCK, DURATION>& absoluteTime)
 {
     typename CLOCK::time_point        now = CLOCK::now();
@@ -954,14 +951,14 @@ void bslmt::ThreadUtil::sleepUntil(
     while (absoluteTime > now) {
         bsls::TimeInterval ti = bsls::SystemTime::now(bslsClockType)
                                               .addDuration(absoluteTime - now);
-        bslmt::ThreadUtil::sleepUntil(ti);
+        ThreadUtil::sleepUntil(ti);
         now = CLOCK::now();
     }
 }
 #endif
 
 inline
-void bslmt::ThreadUtil::yield()
+void ThreadUtil::yield()
 {
     Imp::yield();
 }
@@ -969,7 +966,7 @@ void bslmt::ThreadUtil::yield()
                     // *** Thread Identification ***
 
 inline
-bool bslmt::ThreadUtil::areEqual(const Handle& a, const Handle& b)
+bool ThreadUtil::areEqual(const Handle& a, const Handle& b)
 {
     // Some implementations (notably pthreads) do not define the result of
     // comparing invalid handles.  We avoid undefined behavior by explicitly
@@ -981,74 +978,74 @@ bool bslmt::ThreadUtil::areEqual(const Handle& a, const Handle& b)
 }
 
 inline
-bool bslmt::ThreadUtil::areEqualId(const Id& a, const Id& b)
+bool ThreadUtil::areEqualId(const Id& a, const Id& b)
 {
     return Imp::areEqualId(a, b);
 }
 
 inline
-bslmt::ThreadUtil::Id bslmt::ThreadUtil::handleToId(const Handle& threadHandle)
+ThreadUtil::Id ThreadUtil::handleToId(const Handle& threadHandle)
 {
     return Imp::handleToId(threadHandle);
 }
 
 inline
-bsls::Types::Uint64 bslmt::ThreadUtil::idAsUint64(const Id& threadId)
+bsls::Types::Uint64 ThreadUtil::idAsUint64(const Id& threadId)
 {
     return Imp::idAsUint64(threadId);
 }
 
 inline
-int bslmt::ThreadUtil::idAsInt(const Id& threadId)
+int ThreadUtil::idAsInt(const Id& threadId)
 {
     return Imp::idAsInt(threadId);
 }
 
 inline
-const bslmt::ThreadUtil::Handle& bslmt::ThreadUtil::invalidHandle()
+const ThreadUtil::Handle& ThreadUtil::invalidHandle()
 {
     return Imp::INVALID_HANDLE;
 }
 
 inline
-bool bslmt::ThreadUtil::isEqual(const Handle& a, const Handle& b)
+bool ThreadUtil::isEqual(const Handle& a, const Handle& b)
 {
     return Imp::areEqual(a, b);
 }
 
 inline
-bool bslmt::ThreadUtil::isEqualId(const Id& a, const Id& b)
+bool ThreadUtil::isEqualId(const Id& a, const Id& b)
 {
     return Imp::areEqualId(a, b);
 }
 
 inline
-bslmt::ThreadUtil::NativeHandle
-bslmt::ThreadUtil::nativeHandle(const Handle& handle)
+ThreadUtil::NativeHandle
+ThreadUtil::nativeHandle(const Handle& handle)
 {
     return Imp::nativeHandle(handle);
 }
 
 inline
-bslmt::ThreadUtil::Handle bslmt::ThreadUtil::self()
+ThreadUtil::Handle ThreadUtil::self()
 {
     return Imp::self();
 }
 
 inline
-bslmt::ThreadUtil::Id bslmt::ThreadUtil::selfId()
+ThreadUtil::Id ThreadUtil::selfId()
 {
     return Imp::selfId();
 }
 
 inline
-bsls::Types::Uint64 bslmt::ThreadUtil::selfIdAsInt()
+bsls::Types::Uint64 ThreadUtil::selfIdAsInt()
 {
     return Imp::selfIdAsInt();
 }
 
 inline
-bsls::Types::Uint64 bslmt::ThreadUtil::selfIdAsUint64()
+bsls::Types::Uint64 ThreadUtil::selfIdAsUint64()
 {
     return Imp::selfIdAsUint64();
 }
@@ -1056,35 +1053,36 @@ bsls::Types::Uint64 bslmt::ThreadUtil::selfIdAsUint64()
             // *** Thread-Specific (Local) Storage (TSS or TLS) ***
 
 inline
-int bslmt::ThreadUtil::createKey(Key *key, Destructor threadKeyCleanupFunction)
+int ThreadUtil::createKey(Key *key, Destructor threadKeyCleanupFunction)
 {
     return Imp::createKey(key, threadKeyCleanupFunction);
 }
 
 inline
-int bslmt::ThreadUtil::deleteKey(Key& key)
+int ThreadUtil::deleteKey(Key& key)
 {
     return Imp::deleteKey(key);
 }
 
 inline
-void *bslmt::ThreadUtil::getSpecific(const Key& key)
+void *ThreadUtil::getSpecific(const Key& key)
 {
     return Imp::getSpecific(key);
 }
 
 inline
-int bslmt::ThreadUtil::setSpecific(const Key& key, const void *value)
+int ThreadUtil::setSpecific(const Key& key, const void *value)
 {
     return Imp::setSpecific(key, value);
 }
 
 inline
-unsigned int bslmt::ThreadUtil::hardwareConcurrency()
+unsigned int ThreadUtil::hardwareConcurrency()
 {
     return Imp::hardwareConcurrency();
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

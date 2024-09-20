@@ -116,8 +116,8 @@ BSLS_IDENT("$Id: $")
 //     /// method has no effect.
 //     void disablePopFront();
 //
-//     /// Enable dequeuing.  If the queue is not dequeue disabled, this
-//     /// method has no effect.
+//     /// Enable dequeuing.  If the queue is not dequeue disabled, this method
+//     /// has no effect.
 //     void enablePopFront();
 //
 //     /// Remove the element from the front of this queue and load that

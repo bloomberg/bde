@@ -156,8 +156,6 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
     bsls::SystemClockType::Enum clockType() const;
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -168,7 +166,7 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
 
 // CREATORS
 inline
-bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
+TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
     TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
@@ -177,7 +175,7 @@ bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
 }
 
 inline
-bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
+TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
     TimedSemaphoreImpl(int count, bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
@@ -186,7 +184,7 @@ bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
 }
 
 inline
-bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
+TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
     ~TimedSemaphoreImpl()
 {
     ::sem_destroy(&d_sem);
@@ -194,13 +192,13 @@ bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
 
 // MANIPULATORS
 inline
-void bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::post()
+void TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::post()
 {
     ::sem_post(&d_sem);
 }
 
 inline
-int bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
+int TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
     tryWait()
 {
     return ::sem_trywait(&d_sem);
@@ -209,12 +207,12 @@ int bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
 // ACCESSORS
 inline
 bsls::SystemClockType::Enum
-bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
-                                                           clockType() const
+TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::clockType() const
 {
     return d_clockType;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // BSLMT_PLATFORM_POSIX_THREADS

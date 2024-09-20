@@ -156,7 +156,6 @@ class ConditionImpl<Platform::PosixThreads> {
     /// Return the clock type used for timeouts.
     bsls::SystemClockType::Enum clockType() const;
 };
-}  // close package namespace
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -168,26 +167,26 @@ class ConditionImpl<Platform::PosixThreads> {
 
 // CREATORS
 inline
-bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::~ConditionImpl()
+ConditionImpl<bslmt::Platform::PosixThreads>::~ConditionImpl()
 {
     pthread_cond_destroy(&d_cond);
 }
 
 // MANIPULATORS
 inline
-void bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::broadcast()
+void ConditionImpl<bslmt::Platform::PosixThreads>::broadcast()
 {
     pthread_cond_broadcast(&d_cond);
 }
 
 inline
-void bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::signal()
+void ConditionImpl<bslmt::Platform::PosixThreads>::signal()
 {
     pthread_cond_signal(&d_cond);
 }
 
 inline
-int bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::wait(Mutex *mutex)
+int ConditionImpl<bslmt::Platform::PosixThreads>::wait(Mutex *mutex)
 {
     return pthread_cond_wait(&d_cond, &mutex->nativeMutex());
 }
@@ -195,11 +194,12 @@ int bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::wait(Mutex *mutex)
 // ACCESSORS
 inline
 bsls::SystemClockType::Enum
-bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::clockType() const
+ConditionImpl<bslmt::Platform::PosixThreads>::clockType() const
 {
     return d_clockType;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // BSLMT_PLATFORM_POSIX_THREADS

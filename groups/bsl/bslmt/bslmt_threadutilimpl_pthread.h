@@ -345,8 +345,6 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
     static unsigned int hardwareConcurrency();
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -358,7 +356,7 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
 // CLASS METHODS
                           // *** Thread Management ***
 inline
-int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::create(
+int ThreadUtilImpl<bslmt::Platform::PosixThreads>::create(
                                             Handle               *threadHandle,
                                             bslmt_ThreadFunction  function,
                                             void                 *userData)
@@ -368,28 +366,26 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::create(
 }
 
 inline
-int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::detach(
-                                                          Handle& threadHandle)
+int ThreadUtilImpl<bslmt::Platform::PosixThreads>::detach(Handle& threadHandle)
 {
     return pthread_detach(threadHandle);
 }
 
 inline
-void bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::exit(void *status)
+void ThreadUtilImpl<bslmt::Platform::PosixThreads>::exit(void *status)
 {
     pthread_exit(status);
 }
 
 inline
-int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::join(
-                                                        Handle&   threadHandle,
+int ThreadUtilImpl<bslmt::Platform::PosixThreads>::join(Handle&   threadHandle,
                                                         void    **status)
 {
     return pthread_join(threadHandle, status);
 }
 
 inline
-int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleepUntil(
+int ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleepUntil(
                                       const bsls::TimeInterval&   absoluteTime,
                                       bsls::SystemClockType::Enum clockType)
 {
@@ -397,7 +393,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleepUntil(
 }
 
 inline
-void bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::yield()
+void ThreadUtilImpl<bslmt::Platform::PosixThreads>::yield()
 {
     sched_yield();
 }
@@ -405,24 +401,22 @@ void bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::yield()
                        // *** Thread Identification ***
 
 inline
-bool bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::areEqual(
-                                                               const Handle& a,
-                                                               const Handle& b)
+bool ThreadUtilImpl<bslmt::Platform::PosixThreads>::areEqual(const Handle& a,
+                                                             const Handle& b)
 {
     return pthread_equal(a, b);
 }
 
 inline
-bool bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::areEqualId(
-                                                                   const Id& a,
-                                                                   const Id& b)
+bool ThreadUtilImpl<bslmt::Platform::PosixThreads>::areEqualId(const Id& a,
+                                                               const Id& b)
 {
     return pthread_equal(a, b);
 }
 
 inline
-bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::Id
-bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::handleToId(
+ThreadUtilImpl<bslmt::Platform::PosixThreads>::Id
+ThreadUtilImpl<bslmt::Platform::PosixThreads>::handleToId(
                                                     const Handle& threadHandle)
 {
     return threadHandle;
@@ -430,8 +424,7 @@ bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::handleToId(
 
 inline
 bsls::Types::Uint64
-bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::idAsUint64(
-                                                            const Id& threadId)
+ThreadUtilImpl<bslmt::Platform::PosixThreads>::idAsUint64(const Id& threadId)
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
     return reinterpret_cast<bsls::Types::Uint64>(threadId);
@@ -442,8 +435,7 @@ bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::idAsUint64(
 
 inline
 int
-bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::idAsInt(
-                                                            const Id& threadId)
+ThreadUtilImpl<bslmt::Platform::PosixThreads>::idAsInt(const Id& threadId)
 {
     // Our interface is not good if the id is a pointer.  The two casts will
     // avoid a compilation error though.  TBD
@@ -452,37 +444,37 @@ bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::idAsInt(
 }
 
 inline
-bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::NativeHandle
-bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::nativeHandle(
+ThreadUtilImpl<bslmt::Platform::PosixThreads>::NativeHandle
+ThreadUtilImpl<bslmt::Platform::PosixThreads>::nativeHandle(
                                                     const Handle& threadHandle)
 {
     return threadHandle;
 }
 
 inline
-bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::Handle
-bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::self()
+ThreadUtilImpl<bslmt::Platform::PosixThreads>::Handle
+ThreadUtilImpl<bslmt::Platform::PosixThreads>::self()
 {
     return pthread_self();
 }
 
 inline
-bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::Id
-bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::selfId()
+ThreadUtilImpl<bslmt::Platform::PosixThreads>::Id
+ThreadUtilImpl<bslmt::Platform::PosixThreads>::selfId()
 {
     return pthread_self();
 }
 
 inline
 bsls::Types::Uint64
-bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::selfIdAsInt()
+ThreadUtilImpl<bslmt::Platform::PosixThreads>::selfIdAsInt()
 {
     return idAsInt(selfId());
 }
 
 inline
 bsls::Types::Uint64
-bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::selfIdAsUint64()
+ThreadUtilImpl<bslmt::Platform::PosixThreads>::selfIdAsUint64()
 {
     return idAsUint64(selfId());
 }
@@ -490,7 +482,7 @@ bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::selfIdAsUint64()
                 // *** Thread-Specific (Local) Storage (TSS or TLS) ***
 
 inline
-int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::createKey(
+int ThreadUtilImpl<bslmt::Platform::PosixThreads>::createKey(
                                        Key                         *key,
                                        bslmt_KeyDestructorFunction  destructor)
 {
@@ -498,26 +490,27 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::createKey(
 }
 
 inline
-int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::deleteKey(Key& key)
+int ThreadUtilImpl<bslmt::Platform::PosixThreads>::deleteKey(Key& key)
 {
     return pthread_key_delete(key);
 }
 
 inline
-void *bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::getSpecific(
+void *ThreadUtilImpl<bslmt::Platform::PosixThreads>::getSpecific(
                                                                 const Key& key)
 {
     return pthread_getspecific(key);
 }
 
 inline
-int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::setSpecific(
+int ThreadUtilImpl<bslmt::Platform::PosixThreads>::setSpecific(
                                                              const Key&  key,
                                                              const void *value)
 {
     return pthread_setspecific(key, value);
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // BSLMT_PLATFORM_POSIX_THREADS
