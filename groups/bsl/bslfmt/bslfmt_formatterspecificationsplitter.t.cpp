@@ -108,14 +108,14 @@ struct MockFormatContext {
     template <class t_ARG0>
     MockFormatContext(const t_ARG0 &arg_0) {
         bsl::array<Arg, 1> arr;
-        Format_FormatArg_ImpUtils::makeFormatArgArray(&arr, arg_0);
+        Format_FormatArg_ImpUtil::makeFormatArgArray(&arr, arg_0);
         d_arg_0 = Arg(arr[0]);
     }
 
     template <class t_ARG0, class t_ARG1>
     MockFormatContext(const t_ARG0 &arg_0, const t_ARG1 &arg_1) {
         bsl::array<Arg, 2> arr;
-        Format_FormatArg_ImpUtils::makeFormatArgArray(&arr, arg_0, arg_1);
+        Format_FormatArg_ImpUtil::makeFormatArgArray(&arr, arg_0, arg_1);
         d_arg_0 = Arg(arr[0]);
         d_arg_1 = Arg(arr[1]);
     }
@@ -126,7 +126,7 @@ struct MockFormatContext {
                       const t_ARG2& arg_2)
     {
         bsl::array<Arg, 3> arr;
-        Format_FormatArg_ImpUtils::makeFormatArgArray(&arr,
+        Format_FormatArg_ImpUtil::makeFormatArgArray(&arr,
                                                       arg_0,
                                                       arg_1,
                                                       arg_2);
