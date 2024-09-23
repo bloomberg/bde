@@ -47,11 +47,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// The `bdlmt::ThreadMultiplexor` class is both *fully thread-safe* (i.e., all
-// non-creator methods can correctly execute concurrently), and is
-// *thread-enabled* (i.e., the class does not function correctly in a
+// The `bdlmt::ThreadMultiplexor` class is both **fully thread-safe** (i.e.,
+// all non-creator methods can correctly execute concurrently), and is
+// **thread-enabled** (i.e., the class does not function correctly in a
 // non-multi-threading environment).  See `bsldoc_glossary` for complete
-// definitions of *fully thread-safe* and *thread-enabled*.
+// definitions of **fully thread-safe** and **thread-enabled**.
 //
 ///Usage
 ///-----
@@ -71,16 +71,16 @@ BSLS_IDENT("$Id: $")
 // to instantiate the job queue, and owns an instance of
 // `bdlmt::ThreadMultiplexor`, used to process jobs.
 // ```
+// /// This class defines a generic processor for user-defined functions
+// /// ("jobs").  Jobs specified to the `processJob` method are executed
+// /// in the thread pool specified at construction.
 // class JobQueue {
-//     // This class defines a generic processor for user-defined functions
-//     // ("jobs").  Jobs specified to the 'processJob' method are executed
-//     // in the thread pool specified at construction.
 //
 //   public:
 //     // PUBLIC TYPES
+//
+//     /// A callback of this type my be specified to the `processJob` method.
 //     typedef bdlmt::ThreadMultiplexor::Job Job;
-//         // A callback of this type my be specified to the 'processJob'
-//         // method.
 //
 //   private:
 //     // DATA
@@ -94,23 +94,25 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a job queue that executes jobs in the specified
+//     /// 'threadPool' using no more than the specified 'maxProcessors'.
+//     /// Optionally specify a 'basicAllocator' used to supply memory.  If
+//     /// 'basicAllocator' is 0, the currently installed default allocator
+//     /// is used.
 //     JobQueue(int                     maxProcessors,
 //              bdlmt::FixedThreadPool *threadPool,
 //              bslma::Allocator       *basicAllocator = 0);
-//       // Create a job queue that executes jobs in the specified
-//       // 'threadPool' using no more than the specified 'maxProcessors'.
-//       // Optionally specify a 'basicAllocator' used to supply memory.  If
-//       // 'basicAllocator' is 0, the currently installed default allocator
-//       // is used.
 //
+//     ///  Destroy this object.
 //     ~JobQueue();
-//         // Destroy this object.
 //
 //     // MANIPULATORS
+//
+//     ///  Process the specified `job` in the thread pool specified at
+//     ///  construction.  Return 0 on success, and a non-zero value
+//     ///  otherwise.
 //     int processJob(const Job& job);
-//         // Process the specified 'job' in the thread pool specified at
-//         // construction.  Return 0 on success, and a non-zero value
-//         // otherwise.
 // };
 // ```
 // The maximum number of processors for the multiplexor instance owned by each
@@ -251,10 +253,10 @@ class ThreadMultiplexor {
 
   private:
     // DATA
-    bslma::Allocator     *d_allocator_p;      // memory allocator (held)
+    bslma::Allocator       *d_allocator_p;      // memory allocator (held)
     bdlcc::FixedQueue<Job> *d_jobQueue_p;       // pending job queue (owned)
-    bsls::AtomicInt        d_numProcessors;    // current number of processors
-    int                   d_maxProcessors;    // maximum number of processors
+    bsls::AtomicInt         d_numProcessors;    // current number of processors
+    int                     d_maxProcessors;    // maximum number of processors
 
   private:
     // PRIVATE MANIPULATORS
@@ -279,13 +281,12 @@ class ThreadMultiplexor {
 
     /// Create a thread multiplexor which uses, at most, the specified
     /// `maxProcessors` number of threads to process user-specified jobs,
-    /// identified as callbacks of type `Job`.  Jobs that cannot be
-    /// processed immediately are placed on a queue having the specified
-    /// `maxQueueSize` to be processed by the next free thread.  Optionally
-    /// specify a `basicAllocator` used to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.  The behavior is undefined unless `0 < maxProcessors` and
-    /// `0 < maxQueueSize`.
+    /// identified as callbacks of type `Job`.  Jobs that cannot be processed
+    /// immediately are placed on a queue having the specified `maxQueueSize`
+    /// to be processed by the next free thread.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.  The behavior is
+    /// undefined unless `0 < maxProcessors` and `0 < maxQueueSize`.
     ThreadMultiplexor(int               maxProcessors,
                       int               maxQueueSize,
                       bslma::Allocator *basicAllocator = 0);
@@ -297,10 +298,10 @@ class ThreadMultiplexor {
 
     /// Process the specified `job` functor in the calling thread if the
     /// current number of processors is less than the maximum number of
-    /// processors.  Otherwise, enqueue `job` to the pending job queue.
-    /// Return 0 on success, and a non-zero value otherwise.  Note that the
-    /// only requirements on `t_JOBTYPE` are that it defines `operator()`,
-    /// having a `void` return type, and that it defines a copy constructor.
+    /// processors.  Otherwise, enqueue `job` to the pending job queue.  Return
+    /// 0 on success, and a non-zero value otherwise.  Note that the only
+    /// requirements on `t_JOBTYPE` are that it defines `operator()`, having a
+    /// `void` return type, and that it defines a copy constructor.
     template <class t_JOBTYPE>
     int processJob(const t_JOBTYPE& job);
 

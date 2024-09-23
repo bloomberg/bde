@@ -61,11 +61,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// The `bdlmt::ThreadPool` class is both *fully thread-safe* (i.e., all
+// The `bdlmt::ThreadPool` class is both **fully thread-safe** (i.e., all
 // non-creator methods can correctly execute concurrently), and is
-// *thread-enabled* (i.e., the class does not function correctly in a
+// **thread-enabled** (i.e., the class does not function correctly in a
 // non-multi-threading environment).  See `bsldoc_glossary` for complete
-// definitions of *fully thread-safe* and *thread-enabled*.
+// definitions of **fully thread-safe** and **thread-enabled**.
 //
 ///Synchronous Signals on Unix
 ///---------------------------
@@ -372,9 +372,9 @@ namespace BloombergLP {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
+/// This type declares the prototype for functions that are suitable to
+/// be specified `bdlmt::FixedThreadPool::enqueueJob`.
 extern "C" typedef void (*bcep_ThreadPoolJobFunc)(void *);
-        // This type declares the prototype for functions that are suitable to
-        // be specified 'bdlmt::FixedThreadPool::enqueueJob'.
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
@@ -526,13 +526,12 @@ class ThreadPool {
 
     /// Construct a thread pool with the specified `threadAttributes`, the
     /// specified `minThreads` minimum number of threads, the specified
-    /// `maxThreads` maximum number of threads, and the specified
-    /// `maxIdleTime` idle time (in milliseconds) after which a thread may
-    /// be considered for destruction.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The behavior is
-    /// undefined unless `0 <= minThreads`, `minThreads <= maxThreads`, and
-    /// `0 <= maxIdleTime`.
+    /// `maxThreads` maximum number of threads, and the specified `maxIdleTime`
+    /// idle time (in milliseconds) after which a thread may be considered for
+    /// destruction.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The behavior is undefined unless `0 <= minThreads`,
+    /// `minThreads <= maxThreads`, and `0 <= maxIdleTime`.
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                int                             minThreads,
                int                             maxThreads,
@@ -542,13 +541,13 @@ class ThreadPool {
     /// Construct a thread pool with the specified `threadAttributes`, the
     /// specified `minThreads` minimum number of threads, the specified
     /// `maxThreads` maximum number of threads, the specified `maxIdleTime`
-    /// idle time (in milliseconds) after which a thread may be considered
-    /// for destruction, the specified `metricsIdentifier` to be used to
-    /// identify this thread pool, and the specified `metricsRegistry` to
-    /// be used for reporting metrics.  If `metricsRegistry` is 0,
+    /// idle time (in milliseconds) after which a thread may be considered for
+    /// destruction, the specified `metricsIdentifier` to be used to identify
+    /// this thread pool, and the specified `metricsRegistry` to be used for
+    /// reporting metrics.  If `metricsRegistry` is 0,
     /// `bdlm::MetricsRegistry::singleton()` is used.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The behavior is
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.  The behavior is
     /// undefined unless `0 <= minThreads`, `minThreads <= maxThreads`, and
     /// `0 <= maxIdleTime`.
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
@@ -561,14 +560,13 @@ class ThreadPool {
 
     /// Construct a thread pool with the specified `threadAttributes`, the
     /// specified `minThreads` minimum number of threads, the specified
-    /// `maxThreads` maximum number of threads, and the specified
-    /// `maxIdleTime` idle time after which a thread may be considered for
-    /// destruction.  Optionally specify a `basicAllocator` used to supply
-    /// memory.  If `basicAllocator` is 0, the currently installed default
-    /// allocator is used.  The behavior is undefined unless
-    /// `0 <= minThreads`, `minThreads <= maxThreads`, `0 <= maxIdleTime`,
-    /// and the `maxIdleTime` has a value less than or equal to `INT_MAX`
-    /// milliseconds.
+    /// `maxThreads` maximum number of threads, and the specified `maxIdleTime`
+    /// idle time after which a thread may be considered for destruction.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  The behavior is undefined unless `0 <= minThreads`,
+    /// `minThreads <= maxThreads`, `0 <= maxIdleTime`, and the `maxIdleTime`
+    /// has a value less than or equal to `INT_MAX` milliseconds.
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                int                             minThreads,
                int                             maxThreads,
@@ -619,30 +617,30 @@ class ThreadPool {
     /// successfully, and a non-zero value if queuing is currently disabled.
     int enqueueJob(ThreadPoolJobFunc function, void *userData);
 
-    /// Atomically report the percentage of wall time spent by each thread
-    /// of this thread pool executing jobs since the last reset time, and
-    /// set the reset time to now.  The creation of the thread pool is
-    /// considered a first reset time.  This value is calculated as
+    /// Atomically report the percentage of wall time spent by each thread of
+    /// this thread pool executing jobs since the last reset time, and set the
+    /// reset time to now.  The creation of the thread pool is considered a
+    /// first reset time.  This value is calculated as:
     /// ```
     ///          sum(jobExecutionTime)       100%
     /// P_busy = --------------------   x ----------
     ///           timeSinceLastReset      maxThreads
     /// ```
-    /// Note that this percentage reflects the wall time spent per thread,
-    /// and not CPU time per thread, or not even CPU time per processor.
-    /// Also note that there is no guarantee that all threads are processed
-    /// concurrently (e.g., the number of threads could be larger than the
-    /// number of processors).
+    /// Note that this percentage reflects the wall time spent per thread, and
+    /// not CPU time per thread, or not even CPU time per processor.  Also note
+    /// that there is no guarantee that all threads are processed concurrently
+    /// (e.g., the number of threads could be larger than the number of
+    /// processors).
     double resetPercentBusy();
 
-    /// Disable queuing on this thread pool, cancel all queued jobs, and
-    /// shut down all processing threads (after all active jobs complete).
+    /// Disable queuing on this thread pool, cancel all queued jobs, and shut
+    /// down all processing threads (after all active jobs complete).
     void shutdown();
 
-    /// Enable queuing on this thread pool and spawn `minThreads()`
-    /// processing threads.  Return 0 on success, and a non-zero value
-    /// otherwise.  If `minThreads()` threads were not successfully started,
-    /// all threads are stopped.
+    /// Enable queuing on this thread pool and spawn `minThreads()` processing
+    /// threads.  Return 0 on success, and a non-zero value otherwise.  If
+    /// `minThreads()` threads were not successfully started, all threads are
+    /// stopped.
     int start();
 
     /// Disable queuing on this thread pool and wait until all pending jobs
@@ -654,46 +652,46 @@ class ThreadPool {
     /// Return the state (enabled or not) of the thread pool.
     int enabled() const;
 
-    /// Return the maximum number of threads that are allowed to be running
-    /// at given time.
+    /// Return the maximum number of threads that are allowed to be running at
+    /// given time.
     int maxThreads() const;
 
     /// Return the amount of time (in milliseconds) a thread remains idle
     /// before being shut down when there are more than min threads started.
     int maxIdleTime() const;
 
-    /// Return the amount of time a thread remains idle before being shut
-    /// down when there are more than min threads started.
+    /// Return the amount of time a thread remains idle before being shut down
+    /// when there are more than min threads started.
     bsls::TimeInterval maxIdleTimeInterval() const;
 
-    /// Return the minimum number of threads that must be started at any
-    /// given time.
+    /// Return the minimum number of threads that must be started at any given
+    /// time.
     int minThreads() const;
 
     /// Return the number of threads that are currently processing a job.
     int numActiveThreads() const;
 
-    /// Return the number of jobs that are currently queued, but not yet
-    /// being processed.
+    /// Return the number of jobs that are currently queued, but not yet being
+    /// processed.
     int numPendingJobs() const;
 
     /// Return the number of threads that are currently waiting for a job.
     int numWaitingThreads() const;
 
-    /// Return the percentage of wall time spent by each thread of this
-    /// thread pool executing jobs since the last reset time.  The creation
-    /// of the thread pool is considered a first reset time.  This value is
-    /// calculated as
+    /// Return the percentage of wall time spent by each thread of this thread
+    /// pool executing jobs since the last reset time.  The creation of the
+    /// thread pool is considered a first reset time.  This value is calculated
+    /// as:
     /// ```
     ///          sum(jobExecutionTime)       100%
     /// P_busy = --------------------   x ----------
     ///           timeSinceLastReset      maxThreads
     /// ```
-    /// Note that this percentage reflects the wall time spent per thread,
-    /// and not CPU time per thread, or not even CPU time per processor.
-    /// Also note that there is no guarantee that all threads are processed
-    /// concurrently (e.g., the number of threads could be larger than the
-    /// number of processors).
+    /// Note that this percentage reflects the wall time spent per thread, and
+    /// not CPU time per thread, or not even CPU time per processor.  Also note
+    /// that there is no guarantee that all threads are processed concurrently
+    /// (e.g., the number of threads could be larger than the number of
+    /// processors).
     double percentBusy() const;
 
     /// Return the number of times that thread creation failed.
@@ -751,9 +749,7 @@ bsls::TimeInterval ThreadPool::maxIdleTimeInterval() const
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
-
 #endif
 
 // ----------------------------------------------------------------------------

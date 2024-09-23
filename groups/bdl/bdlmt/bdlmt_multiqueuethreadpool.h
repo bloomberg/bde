@@ -49,11 +49,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// The `bdlmt::MultiQueueThreadPool` class is *fully thread-safe* (i.e., all
+// The `bdlmt::MultiQueueThreadPool` class is **fully thread-safe** (i.e., all
 // public methods of a particular instance may safely execute concurrently).
-// This class is also *thread-enabled* (i.e., the class does not function
+// This class is also **thread-enabled** (i.e., the class does not function
 // correctly in a non-multi-threading environment).  See `bsldoc_glossary` for
-// complete definitions of *fully thread-safe* and *thread-enabled*.
+// complete definitions of **fully thread-safe** and **thread-enabled**.
 //
 ///Job Execution Batch Size
 ///------------------------
@@ -100,10 +100,10 @@ BSLS_IDENT("$Id: $")
 // First, we present a class used to manage a word, and the set of files which
 // contain that word:
 // ```
+// /// This class defines a search profile consisting of a word and a set
+// /// of files (given by name) that contain the word.  Here, "word" is
+// /// defined as any string of characters.
 // class my_SearchProfile {
-//     // This class defines a search profile consisting of a word and a set
-//     // of files (given by name) that contain the word.  Here, "word" is
-//     // defined as any string of characters.
 //
 //     bsl::string           d_word;     // word to search for
 //     bsl::set<bsl::string> d_fileSet;  // set of matching files
@@ -115,32 +115,35 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     ///  Create a `my_SearchProfile` with the specified `word`.
+//     ///  Optionally specify a `basicAllocator` used to supply memory.  If
+//     ///  `basicAllocator` is 0, the default memory allocator is used.
 //     my_SearchProfile(const char       *word,
 //                      bslma::Allocator *basicAllocator = 0);
-//         // Create a 'my_SearchProfile' with the specified 'word'.
-//         // Optionally specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the default memory allocator is used.
 //
+//     ///  Destroy this search profile.
 //     ~my_SearchProfile();
-//         // Destroy this search profile.
 //
 //     // MANIPULATORS
+//
+//     ///  Insert the specified `file` into the file set maintained by this
+//     ///  search profile.
 //     void insert(const char *file);
-//         // Insert the specified 'file' into the file set maintained by this
-//         // search profile.
 //
 //     // ACCESSORS
+//
+//     ///  Return `true` if the specified `file` matches this search
+//     ///  profile.
 //     bool isMatch(const char *file) const;
-//         // Return 'true' if the specified 'file' matches this search
-//         // profile.
 //
+//     ///  Return a reference to the non-modifiable file set maintained by
+//     ///  this search profile.
 //     const bsl::set<bsl::string>& fileSet() const;
-//         // Return a reference to the non-modifiable file set maintained by
-//         // this search profile.
 //
+//     ///  Return a reference to the non-modifiable word maintained by this
+//     ///  search profile.
 //     const bsl::string& word() const;
-//         // Return a reference to the non-modifiable word maintained by this
-//         // search profile.
 // };
 // ```
 // And the implementation:
@@ -204,10 +207,10 @@ BSLS_IDENT("$Id: $")
 // file name.  If the specified file name matches the profile, it is inserted
 // into the profile's file list.
 // ```
+// /// Insert the specified `file` to the file set of the specified search
+// /// `profile` if `file` matches the `profile`.
 // void my_SearchCb(my_SearchProfile* profile, const char *file)
 // {
-//     // Insert the specified 'file' to the file set of the specified search
-//     // 'profile' if 'file' matches the 'profile'.
 //
 //     assert(profile);
 //     assert(file);
@@ -227,19 +230,19 @@ BSLS_IDENT("$Id: $")
 // profile.  Lastly, `fastSearch` collects the results, which is the set
 // intersection of each file set maintained by the individual search profiles.
 // ```
+// /// Return the set of files, specified by `fileList`, containing every
+// /// word in the specified `wordList`, in the specified `resultSet`.
+// /// Optionally specify `repetitions`, the number of repetitions to run
+// /// the search jobs (it is used to increase the load for performance
+// /// testing).  Optionally specify a `basicAllocator` used to supply
+// /// memory.  If `basicAllocator` is 0, the default memory allocator is
+// /// used.
 // void fastSearch(const bsl::vector<bsl::string>&  wordList,
 //                 const bsl::vector<bsl::string>&  fileList,
 //                 bsl::set<bsl::string>&           resultSet,
 //                 int                              repetitions = 1,
 //                 bslma::Allocator                *basicAllocator = 0)
 // {
-//     // Return the set of files, specified by 'fileList', containing every
-//     // word in the specified 'wordList', in the specified 'resultSet'.
-//     // Optionally specify 'repetitions', the number of repetitions to run
-//     // the search jobs (it is used to increase the load for performance
-//     // testing).  Optionally specify a 'basicAllocator' used to supply
-//     // memory.  If 'basicAllocator' is 0, the default memory allocator is
-//     // used.
 //
 //     typedef bsl::vector<bsl::string> ListType;
 //         // This type is defined for notational convenience when iterating
@@ -405,7 +408,7 @@ class MultiQueueThreadPool_Queue {
 
     // DATA
     MultiQueueThreadPool      *d_multiQueueThreadPool_p;
-                                                 // the 'MultiQueueThreadPool'
+                                                 // the `MultiQueueThreadPool`
                                                  // that owns this object
 
     bsl::deque<Job>            d_list;           // queue of jobs to be
@@ -472,13 +475,12 @@ class MultiQueueThreadPool_Queue {
     /// `prepareForDeletion` has already been called on this object.
     int enable();
 
-    /// Disable enqueuing to this queue.  Return 0 on success, and a
-    /// non-zero value otherwise.  This method will fail (with an error) if
+    /// Disable enqueuing to this queue.  Return 0 on success, and a non-zero
+    /// value otherwise.  This method will fail (with an error) if
     /// `prepareForDeletion` has already been called on this object.
     int disable();
 
-    /// Block until all threads waiting for this queue to pause are
-    /// released.
+    /// Block until all threads waiting for this queue to pause are released.
     void drainWaitWhilePausing();
 
     /// Execute the `Job` at the front of this queue, dequeue the `Job`, and
@@ -608,7 +610,7 @@ class MultiQueueThreadPool {
 
     ThreadPool       *d_threadPool_p;       // threads for queue processing
 
-    bool              d_threadPoolIsOwned;  // 'true' if thread pool is owned
+    bool              d_threadPoolIsOwned;  // `true` if thread pool is owned
 
     bdlcc::ObjectPool<
           MultiQueueThreadPool_Queue,
@@ -619,7 +621,7 @@ class MultiQueueThreadPool {
     QueueRegistry     d_queueRegistry;      // registry of queues
 
     int               d_nextId;             // next id to provide from
-                                            // 'createQueue'
+                                            // `createQueue`
 
     State             d_state;              // maintains internal state
 
@@ -850,7 +852,7 @@ class MultiQueueThreadPool {
     // ACCESSORS
 
     /// Return an instantaneous snapshot of the execution batch size (see
-    /// {`Job Execution Batch Size`}) of the queue associated with the
+    /// [](#Job Execution Batch Size)) of the queue associated with the
     /// specified `id`, or -1 if `id` is not a valid queue id.  When a
     /// thread is selecting jobs for processing, if fewer than `batchSize`
     /// jobs are available then only the available jobs will be processed in
@@ -875,16 +877,15 @@ class MultiQueueThreadPool {
     /// enqueued.
     int numElements() const;
 
-    /// Return an instantaneous snapshot of the number of elements enqueued
-    /// in the queue associated with the specified `id` as a non-negative
-    /// integer, or -1 if `id` does not specify a valid queue.
+    /// Return an instantaneous snapshot of the number of elements enqueued in
+    /// the queue associated with the specified `id` as a non-negative integer,
+    /// or -1 if `id` does not specify a valid queue.
     int numElements(int id) const;
 
-    /// Load into the specified `numExecuted` and `numEnqueued` the number
-    /// of items dequeued / enqueued (respectively) since the last time
-    /// these values were reset.  Optionally specify a `numDeleted` used to
-    /// load into the number of items deleted since the last time this value
-    /// was reset.
+    /// Load into the specified `numExecuted` and `numEnqueued` the number of
+    /// items dequeued / enqueued (respectively) since the last time these
+    /// values were reset.  Optionally specify a `numDeleted` used to load into
+    /// the number of items deleted since the last time this value was reset.
     void numProcessed(int *numExecuted,
                       int *numEnqueued,
                       int *numDeleted = 0) const;

@@ -148,7 +148,7 @@ BSLS_IDENT("$Id: $")
 // less urgent jobs did not:
 // ```
 //      bdlmt::MultipriorityThreadPool pool(20,  // # of threads
-//                                        2);  // # of priorities
+//                                          2);  // # of priorities
 //
 //      bsls::TimeInterval finishTime =
 //                                 bsls::SystemTime::nowRealtimeClock() + 0.5;
@@ -194,14 +194,14 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  bool isStillPrime[TOP_NUMBER];
-//  bsls::AtomicInt scannedTo[TOP_NUMBER];  // if 'P' is a prime, what is the
-//                                          // highest multiple of 'P' that
+//  bsls::AtomicInt scannedTo[TOP_NUMBER];  // if `P` is a prime, what is the
+//                                          // highest multiple of `P` that
 //                                          // we have marked
-//                                          // 'isStillPrime[P] = false'
+//                                          // `isStillPrime[P] = false`
 //
 //  bsls::AtomicInt maxPrimeFound;          // maximum prime identified so far
 //  int primeNumbers[TOP_NUMBER];           // elements in the range
-//                                          // '0 .. numPrimeNumbers - 1' are
+//                                          // `0 .. numPrimeNumbers - 1` are
 //                                          // the prime numbers we have found
 //                                          // so far
 //  bsls::AtomicInt numPrimeNumbers;

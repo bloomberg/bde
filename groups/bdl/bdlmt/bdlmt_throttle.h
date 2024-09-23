@@ -176,8 +176,8 @@ BSLS_IDENT("$Id: $")
 //
 // First, we declare the signature of our `reportError` function:
 // ```
+// /// Report an error to the specified `stream`.
 // void reportError(bsl::ostream& stream)
-//     // Report an error to the specified 'stream'.
 // {
 // ```
 // Then, we define the maximum number of traces that can happen at a time to be
@@ -297,20 +297,19 @@ class Throttle {
     /// number of simultaneous actions allowed to the specified
     /// `maxSimultaneousActions`.  Optionally specify `clockType` to
     /// indicate the system clock that will be used to measure time (see
-    /// {Supported Clock-Types} in the component documentation).  If
-    /// `clockType` is not supplied the monotonic system clock is used.  The
-    /// configured throttle will over time limit the average number of
-    /// actions permitted to a rate of `1 / nanosecondsPerAction`.  If
-    /// `maxSimultaneousActions` is 0, the throttle will be configured to
-    /// permit no actions, otherwise if `nanosecondsPerAction` is 0, the
-    /// throttle will be configured to permit all actions.  The behavior is
-    /// undefined unless `0 <= nanosecondsPerAction`,
-    /// `0 <= maxSimultaneousActions`,
+    /// [](#Supported Clock-Types)).  If `clockType` is not supplied the
+    /// monotonic system clock is used.  The configured throttle will over time
+    /// limit the average number of actions permitted to a rate of `1 /
+    /// nanosecondsPerAction`.  If `maxSimultaneousActions` is 0, the throttle
+    /// will be configured to permit no actions, otherwise if
+    /// `nanosecondsPerAction` is 0, the throttle will be configured to permit
+    /// all actions.  The behavior is undefined unless
+    /// `0 <= nanosecondsPerAction`, `0 <= maxSimultaneousActions`,
     /// `0 < nanosecondsPerAction || 0 < maxSimultaneousActions`, and
-    /// `maxSimultaneousActions * nanosecondsPerActionLeak <= LLONG_MAX`.
-    /// Note that the behavior for other methods is undefined unless this
-    /// `Throttle` is initialized (either using one of the overloads of this
-    /// function, or a `BDLMT_THROTTLE_INIT` macro) prior to being called.
+    /// `maxSimultaneousActions * nanosecondsPerActionLeak <= LLONG_MAX`.  Note
+    /// that the behavior for other methods is undefined unless this `Throttle`
+    /// is initialized (either using one of the overloads of this function, or
+    /// a `BDLMT_THROTTLE_INIT` macro) prior to being called.
     void initialize(int                         maxSimultaneousActions,
                     Int64                       nanosecondsPerAction,
                     bsls::SystemClockType::Enum clockType =
@@ -321,7 +320,7 @@ class Throttle {
     /// permitted to the specified `nanosecondsPerAction`, and the maximum
     /// number of simultaneous actions allowed to the specified
     /// `maxSimultaneousActions`.  Use the realtime system clock to measure
-    /// time (see {Supported Clock-Types} in the component documentation).
+    /// time (see [](#Supported Clock-Types)).
     /// The configured throttle will over time limit the average number of
     /// actions permitted to a rate of `1 / nanosecondsPerAction`.  If
     /// `maxSimultaneousActions` is 0, the throttle will be configured to
@@ -342,7 +341,7 @@ class Throttle {
     /// permitted to the specified `nanosecondsPerAction`, and the maximum
     /// number of simultaneous actions allowed to the specified
     /// `maxSimultaneousActions`.  Use the monotonic system clock to measure
-    /// time (see {Supported Clock-Types} in the component documentation).
+    /// time (see [](#Supported Clock-Types)).
     /// The configured throttle will over time limit the average number of
     /// actions permitted to a rate of `1 / nanosecondsPerAction`.  If
     /// `maxSimultaneousActions` is 0, the throttle will be configured to
@@ -413,8 +412,8 @@ class Throttle {
 
     // ACCESSOR
 
-    /// Return the system clock type with which this `Throttle` is
-    /// configured to observe the passage of time.
+    /// Return the system clock type with which this `Throttle` is configured
+    /// to observe the passage of time.
     bsls::SystemClockType::Enum clockType() const;
 
     /// Return the maximum number of simultaneous actions for which this
@@ -446,11 +445,11 @@ class Throttle {
 
 /// [**PRIVATE**] This component private meta-function is used to implement
 /// the initialization macros.  This type provides the following:
-/// * Ensures arguments are evaluated at compile time (which won't be
-///    the case for floating point arguments)
+/// * Ensures arguments are evaluated at compile time (which won't be the case
+///   for floating point arguments)
 /// * Enables compile time checks with BSLMF_ASSERT
-/// * Handles special cases if 0 is passed for
-///   `t_MAX_SIMULTANEOUS_ACTIONS` or t_NANOSECONDS_PER_ACTION'
+/// * Handles special cases if 0 is passed for `t_MAX_SIMULTANEOUS_ACTIONS` or
+///   `t_NANOSECONDS_PER_ACTION`
 template <int                t_MAX_SIMULTANEOUS_ACTIONS,
           bsls::Types::Int64 t_NANOSECONDS_PER_ACTION>
 class Throttle_InitHelper {
