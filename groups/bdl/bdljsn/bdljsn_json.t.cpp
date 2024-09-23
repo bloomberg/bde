@@ -12379,6 +12379,30 @@ int main(int argc, char *argv[])
 
             // Note that memory should be independently allocated for each
             // attribute capable of allocating memory.
+
+            {
+                bslma::TestAllocator da("default", veryVeryVeryVerbose);
+                bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                Obj              mX(&oa);
+                const size_t     numBlocks = oa.numBlocksTotal();
+                bsl::string_view short_sv = "ABC";
+                bsl::string_view long_sv  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ012345";
+
+                (void) mX[short_sv];
+                // one allocation for the vector, one for the node
+                ASSERTV(numBlocks, oa.numBlocksTotal(),
+                                         2 + numBlocks == oa.numBlocksTotal());
+                ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+
+                (void) mX[long_sv];
+                // one allocation for the node, one for the string
+                ASSERTV(numBlocks, oa.numBlocksTotal(),
+                                         4 + numBlocks == oa.numBlocksTotal());
+                ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            }
         }
       } break;
       case 14: {

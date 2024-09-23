@@ -2114,11 +2114,23 @@ inline
 Json& JsonObject::operator[](const bsl::string_view& key)
 {
     BSLS_ASSERT(bdlde::Utf8Util::isValid(key.data(), key.size()));
+
     Iterator it = d_members.find(key);
     if (it != d_members.end()) {
         return it->second;                                            // RETURN
     }
-    return d_members[bsl::string(key)];
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    return d_members.emplace(std::piecewise_construct,
+                             std::forward_as_tuple(key),
+                             std::forward_as_tuple())
+                .first->second;
+#else
+    bslma::Allocator *alloc = allocator();
+    bsl::pair<bsl::string_view, Json> value(alloc);
+    value.first = key;
+    return d_members.emplace(bslmf::MovableRefUtil::move(value)).first->second;
+#endif
 }
 
 inline
