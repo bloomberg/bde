@@ -2551,7 +2551,7 @@ bool Encoder_AttributeDispatcher::isNextAttributeFirst() const
 /// a component-private class and should not be used outside of this
 /// component.
 ///
-/// DEPRECATED: Use `baljsn::Formatter` instead.
+/// @DEPRECATED: Use `baljsn::Formatter` instead.
 class Encoder_Formatter {
 
     // DATA

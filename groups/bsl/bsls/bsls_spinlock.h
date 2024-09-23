@@ -42,9 +42,9 @@ BSLS_IDENT("$: $")
 //
 // First, we define a type to manage the count within a scope:
 // ```
+// /// This type manages a count and high-water-mark within a scope.
+// /// It decrements the count in its destructor upon leaving the scope.
 // class MaxConcurrencyCounter {
-//     // This type manages a count and high-water-mark within a scope.
-//     // It decrements the count in its destructor upon leaving the scope.
 //
 //     // DATA
 //     int            *d_count_p;
@@ -52,15 +52,16 @@ BSLS_IDENT("$: $")
 //
 //   public:
 //     // CREATORS
-//     MaxConcurrencyCounter(int *count, int *max, bsls::SpinLock *lock);
-//         // Acquire the specified 'lock' and increment the specified 'count'.
-//         // If the resulting value is larger than the specified 'max',
-//         // load it into 'max'. Release 'lock' and create a scoped guard to
-//         // decrement 'count' on destruction.
 //
+//     /// Acquire the specified `lock` and increment the specified `count`.
+//     /// If the resulting value is larger than the specified `max`,
+//     /// load it into `max`. Release `lock` and create a scoped guard to
+//     /// decrement `count` on destruction.
+//     MaxConcurrencyCounter(int *count, int *max, bsls::SpinLock *lock);
+//
+//     /// Acquire the lock specified at construction, decrement the count
+//     /// variable, and release the lock.
 //     ~MaxConcurrencyCounter();
-//         // Acquire the lock specified at construction, decrement the count
-//         // variable, and release the lock.
 //   };
 //
 //   MaxConcurrencyCounter::MaxConcurrencyCounter(int            *count,
@@ -117,11 +118,11 @@ BSLS_IDENT("$: $")
 // would have an array of queues, each with a SpinLock member for fine-grained
 // locking.  First, we define the type to be held in the array.
 // ```
+// /// This type implements a threadsafe queue with a small memory footprint
+// /// and low initialization costs. It is designed for low-contention use
+// /// only.
 // template<typename TYPE>
 // class LightweightThreadsafeQueue {
-//    // This type implements a threadsafe queue with a small memory
-//    // footprint and low initialization costs. It is designed for
-//    // low-contention use only.
 //
 //    // TYPES
 //    struct Node {
@@ -138,20 +139,22 @@ BSLS_IDENT("$: $")
 //
 //  public:
 //    // CREATORS
-//    LightweightThreadsafeQueue();
-//      // Create an empty queue.
 //
+//    /// Create an empty queue.
+//    LightweightThreadsafeQueue();
+//
+//    /// Destroy this object.
 //    ~LightweightThreadsafeQueue();
-//      // Destroy this object.
 //
 //    // MANIPULATORS
-//    int dequeue(TYPE* value);
-//       // Remove the element at the front of the queue and load it into the
-//       // specified 'value'. Return '0' on success, or a nonzero value if
-//       // the queue is empty.
 //
+//    /// Remove the element at the front of the queue and load it into the
+//    /// specified `value`. Return `0` on success, or a nonzero value if
+//    /// the queue is empty.
+//    int dequeue(TYPE* value);
+//
+//    /// Add the specified `value` to the back of the queue.
 //    void enqueue(const TYPE& value);
-//       // Add the specified 'value' to the back of the queue.
 //  };
 // ```
 // Next, we implement the creators.  Note that a different idiom is used to
@@ -272,16 +275,16 @@ BSLS_IDENT("$: $")
 #define BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
 #endif
 
+/// Use this macro as the value for initializing an object of type
+/// `SpinLock`.  For example:
+/// ```
+/// SpinLock lock = BSLS_SPINLOCK_UNLOCKED;
+/// ```
 #ifdef BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
 #define BSLS_SPINLOCK_UNLOCKED  { {0} }
 #else
 #define BSLS_SPINLOCK_UNLOCKED (::BloombergLP::bsls::SpinLock::s_unlocked)
 #endif
-    // Use this macro as the value for initializing an object of type
-    // 'SpinLock'.  For example:
-    //..
-    //  SpinLock lock = BSLS_SPINLOCK_UNLOCKED;
-    //..
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 typedef unsigned long DWORD;
@@ -338,10 +341,10 @@ struct SpinLock {
 #ifdef BSLS_SPINLOCK_USES_AGGREGATE_INITIALIZATION
     SpinLock& operator=(const SpinLock&) BSLS_KEYWORD_DELETED;
 
+    /// Note that we would like to prohibit copy construction, but then this
+    /// class would not be an aggregate and could not be initialized
+    /// statically in C++03 mode.
     //! SpinLock(const SpinLock&) = delete;
-        // Note that we would like to prohibit copy construction, but then this
-        // class would not be an aggregate and could not be initialized
-        // statically in C++03 mode.
 #else
     SpinLock& operator=(const SpinLock&) = delete;
     SpinLock(const SpinLock&) = delete;

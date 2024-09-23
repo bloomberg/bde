@@ -38,7 +38,7 @@
 // BSLS_DEPRECATE
 // #endif
 // int foo(const char *bar);
-//     // !DEPRECATED!: Use 'newFoo' instead.
+//     // @DEPRECATED: Use 'newFoo' instead.
 // ```
 // The above application of `BSLS_DEPRECATE_IS_ACTIVE` indicates that `foo` is
 // deprecated starting with `bde` version 3.2.  Once the deprecation threshold
@@ -78,21 +78,22 @@
 ///Keeping Your Code Free of Calls to Deprecated Interfaces
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // When an interface is tagged with `BSLS_DEPRECATE` as shown above, the
-// deprecation is initially <u>not</u> <u>enforced</u> by default.  That is, a normal
-// build of code calling the deprecated interface will not emit a deprecation
-// warning.
+// deprecation is initially <u>not</u> <u>enforced</u> by default.  That is, a
+// normal build of code calling the deprecated interface will not emit a
+// deprecation warning.
 //
 // Downstream developers who wish to make sure that their code uses no
 // deprecated interfaces can do so by defining the symbol
 // `BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY` in their build system.
 // ```
 // $ CXXFLAGS=-DBB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY make my_application
-// # A compiler that supports 'BSLS_DEPRECATE' will emit a warning if any
-// # deprecated interfaces are used in 'my_application', even if those
-// # deprecations are scheduled to take effect in a future release.
+//
+// A compiler that supports `BSLS_DEPRECATE` will emit a warning if any
+// deprecated interfaces are used in `my_application`, even if those
+// deprecations are scheduled to take effect in a future release.
 // ```
-// *NEVER* define `BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY` in a
-// *PRODUCTION* *BUILD* *CONFIGURATION*.  If you do so, all libraries that you
+// **NEVER** define `BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY` in a
+// **PRODUCTION BUILD CONFIGURATION**.  If you do so, all libraries that you
 // depend on will be prevented from deprecating more code in future versions.
 //
 ///Preventing New Uses of Already-Deprecated Interfaces
@@ -101,14 +102,14 @@
 // library owner can make new uses of that interface generate warnings by
 // defining a deprecation threshold for the UOR that contains the deprecated
 // interface (or by adjusting the deprecation threshold for the UOR if it
-// already exists).  Defining a deprecation threshold <u>enforces</u> deprecations
-// made in all versions up to and including the threshold.  If the version
-// number of the deprecation threshold is greater than or equal to the version
-// number specified in the `BSLS_DEPRECATE_IS_ACTIVE(UOR, M, N)` macro, then
-// the `BSLS_DEPRECATE` macro will be enabled and generate a warning.
+// already exists).  Defining a deprecation threshold <u>enforces</u>
+// deprecations made in all versions up to and including the threshold.  If the
+// version number of the deprecation threshold is greater than or equal to the
+// version number specified in the `BSLS_DEPRECATE_IS_ACTIVE(UOR, M, N)` macro,
+// then the `BSLS_DEPRECATE` macro will be enabled and generate a warning.
 //
-// This is the recommended way to define a deprecation threshold (see {Version
-// Control Macros for Library Authors}):
+// This is the recommended way to define a deprecation threshold (see
+// [](#Version Control Macros for Library Authors)):
 // ```
 // // bdescm_versiontag.h
 //
@@ -170,15 +171,15 @@
 //
 ///Deprecation Macros
 /// - - - - - - - - -
-//: `BSLS_DEPRECATE`:
-//:   Expands to a particular deprecation attribute with compilers that have
-//:   such support; otherwise, `BSLS_DEPRECATE` expands to nothing.
-//:   `BSLS_DEPRECATE` can be applied to `class` or `struct` definitions,
-//:   function declarations, and `typedef`s.
-//:
-//: `BSLS_DEPRECATE_IS_ACTIVE(UOR, M, N)`:
-//:   Expands to 1 if deprecations are enforced for the specified version `M.N`
-//:   of the specified `UOR`, and to 0 otherwise.
+// * `BSLS_DEPRECATE`
+//   > Expands to a particular deprecation attribute with compilers that have
+//   > such support; otherwise, `BSLS_DEPRECATE` expands to nothing.
+//   > `BSLS_DEPRECATE` can be applied to `class` or `struct` definitions,
+//   > function declarations, and `typedef`s.
+//
+// * `BSLS_DEPRECATE_IS_ACTIVE(UOR, M, N)`
+//   > Expands to 1 if deprecations are enforced for the specified version
+//   > `M.N` of the specified `UOR`, and to 0 otherwise.
 //
 // These two macros are intended to be placed together in a preprocessor `#if`
 // block in front of a function, type, or `typedef` declaration, with
@@ -265,11 +266,11 @@
 // A UOR-specific deprecation threshold can be (and typically *should* be)
 // specified by the authors of a UOR to govern which of their deprecations are
 // active by default:
-//: `<UOR>_VERSION_DEPRECATION_THRESHOLD`:
-//:   This macro should be defined in `<uor>scm_versiontag.h` alongside
-//:   `<UOR>_VERSION_MAJOR` and `<UOR>_VERSION_MINOR` to indicate the greatest
-//:   version of the unit of release `UOR` for which deprecations are enforced
-//:   by default.
+// * `<UOR>_VERSION_DEPRECATION_THRESHOLD`
+//   > This macro should be defined in `<uor>scm_versiontag.h` alongside
+//   > `<UOR>_VERSION_MAJOR` and `<UOR>_VERSION_MINOR` to indicate the greatest
+//   > version of the unit of release `UOR` for which deprecations are enforced
+//   > by default.
 //
 // Example:
 // ```
@@ -300,13 +301,14 @@
 // A second UOR-specific macro is available to the authors of a UOR that must,
 // for whatever reason, continue to use interfaces that are deprecated in their
 // own library:
-//: `BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>`:
-//:   This macro prevents `bsls_deprecate` from enforcing deprecations for all
-//:   versions of `UOR`.  This macro must be defined in each `.cpp` file of
-//:   `UOR` that either uses a deprecated interface from the *same* UOR that
-//:   has reached the deprecation threshold for `UOR`, or includes a header
-//:   file of `UOR` that uses such an interface in inline code.  This macro
-//:   must be defined before the first `#include` of a header from `UOR`.
+//  * `BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>`
+//    > This macro prevents `bsls_deprecate` from enforcing deprecations for
+//    > all versions of `UOR`.  This macro must be defined in each `.cpp` file
+//    > of `UOR` that either uses a deprecated interface from the *same* UOR
+//    > that has reached the deprecation threshold for `UOR`, or includes a
+//    > header file of `UOR` that uses such an interface in inline code.  This
+//    > macro must be defined before the first `#include` of a header from
+//    > `UOR`.
 //
 // Example:
 // ```
@@ -323,31 +325,31 @@
 /// - - - - - - - - - - - - - - - -
 // The following two macros are intended for client use during builds, either
 // to *enable* *all* deprecations or to *suppress* *selected* deprecations:
-//: `BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY`:
-//:   This macro should be defined as a `-D` parameter during test builds of
-//:   components that are intended to be deprecation-clean.  When this macro is
-//:   defined, deprecations will be enforced for all versions of all UORs,
-//:   except as overridden by `BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>`
-//:   (see {Version Control Macros for Library Authors} or
-//:   `BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>` (see below).  This macro must
-//:   *never* appear in source code, and must *never* be defined for any
-//:   production or check-in build configuration.
-//:
-//: `BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>`:
-//:   This macro should be defined by clients of `UOR` who still need to use an
-//:   interface that was deprecated in version `M.N` after the deprecation
-//:   threshold for `UOR` has reached (or exceeded) `M.N`.  This macro should
-//:   be defined *before* the first `#include` of a header from `UOR`.  This
-//:   macro must *never* be defined in a header file.
+// * `BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY`
+//   > This macro should be defined as a `-D` parameter during test builds of
+//   > components that are intended to be deprecation-clean.  When this macro
+//   > is defined, deprecations will be enforced for all versions of all UORs,
+//   > except as overridden by `BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>`
+//   > (see [](#Version Control Macros for Library Authors) or
+//   > `BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>` (see below).  This macro must
+//   > **never** appear in source code, and must **never** be defined for any
+//   > production or check-in build configuration.
+//
+// * `BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>`
+//   > This macro should be defined by clients of `UOR` who still need to use
+//   > an interface that was deprecated in version `M.N` after the deprecation
+//   > threshold for `UOR` has reached (or exceeded) `M.N`.  This macro should
+//   > be defined *before* the first `#include` of a header from `UOR`.  This
+//   > macro must *never* be defined in a header file.
 //
 // Example:
 // ```
 // // grppkg_fooutil.cpp
 //
+// /// `BB_SILENCE_DEPRECATIONS_ABC_1_2` must be defined before the
+// /// component`s own `#include` directive in case `grppkg_fooutil.h`
+// /// includes headers from `abc` (directly or transitively).
 // #define BB_SILENCE_DEPRECATIONS_ABC_1_2
-//     // 'BB_SILENCE_DEPRECATIONS_ABC_1_2' must be defined before the
-//     // component's own '#include' directive in case 'grppkg_fooutil.h'
-//     // includes headers from 'abc' (directly or transitively).
 //
 // #include <grppkg_fooutil.h>
 //
@@ -404,11 +406,11 @@
 //
 // ...
 //
+// /// @DEPRECATED: use 'abcdef::OtherUtil::otherFunction' instead.
 // #if BSLS_DEPRECATE_IS_ACTIVE(ABC, 1, 2)
 // BSLS_DEPRECATE
 // #endif
 // static int someFunction();
-//     // DEPRECATED: use 'abcdef::OtherUtil::otherFunction' instead.
 //
 // ...
 //
@@ -524,42 +526,42 @@
 // our components contains a function `foo` that has been superseded by another
 // function `bar`.
 // ```
+// /// Load into the specified `coefficient` the (positive) Winkelbaum
+// /// Coefficient of the specified `n`.  Return 0 on success, and a
+// /// negative number if there is no coefficient corresponding to `n`.
+// /// Note that every integer divisible by the Winkelbaum Modulus (17) has
+// /// a corresponding Winkelbaum Coefficient.
 // int foo(int *coefficient, int n);
-//     // Load into the specified 'coefficient' the (positive) Winkelbaum
-//     // Coefficient of the specified 'n'.  Return 0 on success, and a
-//     // negative number if there is no coefficient corresponding to 'n'.
-//     // Note that every integer divisible by the Winkelbaum Modulus (17) has
-//     // a corresponding Winkelbaum Coefficient.
 //
 // // ...
 //
+// /// Return the (positive) Winkelbaum Coefficient of the specified `n`.
+// /// The behavior is undefined unless `n` is divisible by 17 (the
+// /// Winkelbaum Modulus).
 // int bar(int n);
-//     // Return the (positive) Winkelbaum Coefficient of the specified 'n'.
-//     // The behavior is undefined unless 'n' is divisible by 17 (the
-//     // Winkelbaum Modulus).
 // ```
 // First, we add a deprecation tag to the declaration of `foo`, showing that it
 // will be deprecated starting with version 7.7, and update the documentation
 // accordingly:
 // ```
+// /// Load into the specified `coefficient` the (positive) Winkelbaum
+// /// Coefficient of the specified `n`.  Return 0 on success, and a
+// /// negative number if there is no coefficient corresponding to `n`.
+// /// Note that every integer divisible by the Winkelbaum Modulus (17) has
+// /// a corresponding Winkelbaum Coefficient.
+// ///
+// /// @DEPRECATED: Use `bar` instead.
 // #if BSLS_DEPRECATE_IS_ACTIVE(XXX, 7, 7)
 // BSLS_DEPRECATE
 // #endif
 // int foo(int *coefficient, int n);
-//     // !DEPRECATED!: Use 'bar' instead.
-//     //
-//     // Load into the specified 'coefficient' the (positive) Winkelbaum
-//     // Coefficient of the specified 'n'.  Return 0 on success, and a
-//     // negative number if there is no coefficient corresponding to 'n'.
-//     // Note that every integer divisible by the Winkelbaum Modulus (17) has
-//     // a corresponding Winkelbaum Coefficient.
 //
 // // ...
 //
+// /// Return the (positive) Winkelbaum Coefficient of the specified `n`.
+// /// The behavior is undefined unless `n` is divisible by 17 (the
+// /// Winkelbaum Modulus).
 // int bar(int n);
-//     // Return the (positive) Winkelbaum Coefficient of the specified 'n'.
-//     // The behavior is undefined unless 'n' is divisible by 17 (the
-//     // Winkelbaum Modulus).
 // ```
 // When we release version 7.7, the added deprecation tag will not immediately
 // affect any of the users of `foo`.  However if any of those users do a test

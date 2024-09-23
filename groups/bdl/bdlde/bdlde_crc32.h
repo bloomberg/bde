@@ -97,17 +97,16 @@ namespace bdlde {
 /// This class represents a CRC-32 checksum value that can be updated as
 /// data is provided.
 ///
-/// More generally, this class supports a complete set of *value*
-/// *semantic* operations, including copy construction, assignment,
-/// equality comparison, `ostream` printing, and `bdex` serialization.
-/// (A precise operational definition of when two objects have the same
-/// value can be found in the description of `operator==` for the class.)
-/// This class is *exception* *neutral* with no guarantee of rollback:
-/// if an exception is thrown during the invocation of a method on a
-/// pre-existing object, the class is left in a valid state, but its value
-/// is undefined.  In no event is memory leaked.  Finally, *aliasing* (e.g.,
-/// using all or part of an object as both source and destination) is
-/// supported in all cases.
+/// More generally, this class supports a complete set of *value semantic*
+/// operations, including copy construction, assignment, equality comparison,
+/// `ostream` printing, and `bdex` serialization.  (A precise operational
+/// definition of when two objects have the same value can be found in the
+/// description of `operator==` for the class.) This class is *exception
+/// neutral* with no guarantee of rollback: if an exception is thrown during
+/// the invocation of a method on a pre-existing object, the class is left in a
+/// valid state, but its value is undefined.  In no event is memory leaked.
+/// Finally, *aliasing* (e.g., using all or part of an object as both source
+/// and destination) is supported in all cases.
 class Crc32 {
 
     // DATA
@@ -223,7 +222,7 @@ class Crc32 {
 
     /// Return the current value of this checksum.
     ///
-    /// DEPRECATED: use method `checksum` instead.
+    /// @DEPRECATED: use method `checksum` instead.
     unsigned int view() const;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 

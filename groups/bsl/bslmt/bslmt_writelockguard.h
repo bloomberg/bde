@@ -232,7 +232,7 @@ class WriteLockGuard {
                            // class LockWriteGuard
                            // ====================
 
-/// This class is DEPRECATED.  Use `WriteLockGuard` instead.
+/// @DEPRECATED: Use `WriteLockGuard` instead.
 template <class T>
 class LockWriteGuard : public WriteLockGuard<T> {
 
@@ -244,10 +244,10 @@ class LockWriteGuard : public WriteLockGuard<T> {
   public:
     // CREATORS
 
-    /// DEPRECATED: Use `WriteLockGuard` instead.
+    /// @DEPRECATED: Use `WriteLockGuard` instead.
     explicit LockWriteGuard(T *lock);
 
-    /// DEPRECATED: Use `WriteLockGuard` instead.
+    /// @DEPRECATED: Use `WriteLockGuard` instead.
     LockWriteGuard(T *lock, bool alreadyLockedFlag);
 
 };

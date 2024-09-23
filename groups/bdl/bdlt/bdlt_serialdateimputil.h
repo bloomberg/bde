@@ -45,8 +45,8 @@ namespace bdlt {
 #else
     typedef     PosixDateImpUtil SerialDateImpUtil;
 
-    /// DEPRECATED: typedef to temporarily support residual uses of
-    /// 'DelegatingDateImpUtil'.
+    /// @DEPRECATED: typedef to temporarily support residual uses of
+    /// `DelegatingDateImpUtil`.
     typedef     PosixDateImpUtil DelegatingDateImpUtil;
 #endif
 

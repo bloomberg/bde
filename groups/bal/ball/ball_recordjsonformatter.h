@@ -540,7 +540,7 @@ class RecordJsonFormatter {
 
                                   // Aspects
 
-    /// DEPRECATED: Use `get_allocator().mechanism()` instead.
+    /// @DEPRECATED: Use `get_allocator().mechanism()` instead.
     BSLS_DEPRECATE
     bslma::Allocator *allocator() const;
 

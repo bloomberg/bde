@@ -556,7 +556,7 @@ class Base64Decoder {
     /// characters.  If `alphabet` is not specified, then the basic
     /// alphabet, "base64", is used.  Padded input is assumed.
     ///
-    /// DEPRECATED: Use the overload that takes `options` instead.
+    /// @DEPRECATED: Use the overload that takes `options` instead.
     explicit
     Base64Decoder(bool     unrecognizedNonWhitespaceIsErrorFlag,
                   Alphabet alphabet = e_BASIC);
@@ -667,7 +667,7 @@ class Base64Decoder {
     /// one of the 64 "numeric" base-64 characters, `=`, or whitespace) is
     /// encountered, and `false` otherwise.
     ///
-    /// DEPRECATED: use the `ignoreMode` accessor instead.
+    /// @DEPRECATED: use the `ignoreMode` accessor instead.
     bool isUnrecognizedAnError() const;
 
     /// Return a `Base64DecoderOptions` object representing the

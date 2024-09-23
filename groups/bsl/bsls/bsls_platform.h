@@ -265,8 +265,8 @@ struct bsls_Platform_Assert;
     #define BSLS_PLATFORM_CMP_VERSION __xlC__
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    /// @DEPRECATED: use 'BSLS_PLATFORM_CMP_IBM' instead.
     #define BSLS_PLATFORM_CMP_AIX                                             1
-         // DEPRECATED: use 'BSLS_PLATFORM_CMP_IBM' instead.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // which OS -- this compiler should only be used on AIX

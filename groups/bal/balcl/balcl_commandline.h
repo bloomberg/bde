@@ -435,38 +435,37 @@ BSLS_IDENT("$Id: $")
 // flags cannot have constraints.  Multiple values (for multi-valued options
 // and multi-valued non-option arguments) can be specified by using array
 // types.  The list of the supported types is provided in the section
-// {Supported Types} below.
+// [](#Supported Types) below.
 //
 // Other constraints can be placed on individual value(s).  When the type is an
 // array type, then those constraints are placed on the individual value(s)
 // held in the array and not on the entire array.  A list of useful constraints
-// is provided in the section {Supported Constraint Values}.  Also see the
-// section {Building New Constraints} to see how new constraints can be built
+// is provided in the section [](#Supported Constraint Values).  Also see the
+// section [](#Building New Constraints) to see how new constraints can be built
 // so that they can be used in the same manner as the available constraints.
 //
 // Additionally, this field allows a specified variable to be linked to the
 // option.  In that case, after parsing, the variable is loaded with the option
 // value specified on the command line (or its default value, if any, if the
-// option is absent from the command line).  {Occurrence Information Field}
+// option is absent from the command line).  [](#Occurrence Information Field)
 // describes how to configure a default value.
 //
 // The general format can be one of either:
 // ```
+// /// Link the option with the specified `variable`.  Note that the option
+// /// type is inferred from the type of `variable`.  Optionally place the
+// /// user-specified `constraint`, of a type defined in
+// /// `balcl::Constraint`, on the value.
 // balcl::TypeInfo(&variable)
 // balcl::TypeInfo(&variable, constraint)
-//     // Link the option with the specified 'variable'.  Note that the option
-//     // type is inferred from the type of 'variable'.  Optionally place the
-//     // user-specified 'constraint', of a type defined in
-//     // 'balcl::Constraint', on the value.
 //
+// /// Specify the type of this option to be of the specified `type`.
+// /// Optionally place the user-specified `constraint`, of a type defined
+// /// in `balcl::Constraint`, on the value.  Don't link this
+// /// option with any variable.  `type` must be one of the static
+// /// variables (null pointers) listed in [](balcl_optiontype#Enumerators).
 // balcl::TypeInfo(type)
 // balcl::TypeInfo(type, constraint)
-//     // Specify the type of this option to be of the specified 'type'.
-//     // Optionally place the user-specified 'constraint', of a type defined
-//     // in 'balcl::Constraint', on the value.  Don't link this
-//     // option with any variable.  'type' must be one of the static
-//     // variables (null pointers) listed in
-//     // {'balcl_optiontype'|Enumerators}.
 // ```
 // This field can be omitted.  If so, the type is assumed to be of string type
 // with no constraints and no variable is linked to the option.  No occurrence
@@ -479,12 +478,13 @@ BSLS_IDENT("$Id: $")
 // should that method determine a value for an option; otherwise, the linked
 // variable is left unchanged.  The value for an option is determined either
 // from the command-line arguments passed to `parse` or obtained from a
-// pre-configured default value, if any (see {Occurrence Information Field}).
+// pre-configured default value, if any (see
+// [](#Occurrence Information Field)).
 //
 // Linked variables can be `bsl::optional` objects that wrap any of the
-// non-array option types except for `bool` (see {Supported Types}).  Also, a
-// link to a `bsl::optional` object is disallowed if the option is "required"
-// or has a default value (see {Occurrence Information Field}).
+// non-array option types except for `bool` (see [](#Supported Types)).  Also,
+// a link to a `bsl::optional` object is disallowed if the option is "required"
+// or has a default value (see [](#Occurrence Information Field)).
 //
 ///Occurrence Information Field
 /// - - - - - - - - - - - - - -

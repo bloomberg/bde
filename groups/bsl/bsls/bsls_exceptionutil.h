@@ -268,54 +268,54 @@ BSLS_IDENT("$Id: $")
 
 # if !BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 17)
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS)
+      /// @DEPRECATED: This macro is deprecated, as the language feature itself
+      /// is deprecated in C++11, and is entirely removed in C++17.  It is
+      /// recommended to simply document the potential set of exceptions that
+      /// may be thrown by a function instead.
+      ///
+      /// Declare a dynamic exception specification for a function.
+      /// Usage:
+      /// ```
+      ///  void f() BSLS_EXCEPTION_SPEC((std::logic_error));
+      /// ```
+      /// `SPEC` must be a comma-separated list of one or more exception
+      /// types enclosed in parenthesis.  (Double parenthesis are mandatory)
+      /// Use `BSLS_NOTHROW_SPEC` (below) to declare that a function does not
+      /// throw.
+      /// Exceptions enabled: `throw SPEC`
+      /// Exceptions disabled: empty
 #     define BSLS_EXCEPTION_SPEC(SPEC) throw SPEC
-        // DEPRECATED: This macro is deprecated, as the language feature itself
-        // is deprecated in C++11, and is entirely removed in C++17.  It is
-        // recommended to simply document the potential set of exceptions that
-        // may be thrown by a function instead.
-        //
-        // Declare a dynamic exception specification for a function.
-        // Usage:
-        //..
-        //  void f() BSLS_EXCEPTION_SPEC((std::logic_error));
-        //..
-        // 'SPEC' must be a comma-separated list of one or more exception
-        // types enclosed in parenthesis.  (Double parenthesis are mandatory)
-        // Use 'BSLS_NOTHROW_SPEC' (below) to declare that a function does not
-        // throw.
-        // Exceptions enabled: 'throw SPEC'
-        // Exceptions disabled: empty
 #   else
+      /// @DEPRECATED: This macro is deprecated, and cannot expand to a
+      /// supported syntax on the current platform.
 #     define BSLS_EXCEPTION_SPEC(SPEC)
-        // DEPRECATED: This macro is deprecated, and cannot expand to a
-        // supported syntax on the current platform.
 #   endif  // BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
 # endif // BSLS_DEPRECATE_IS_ACTIVE
 
+        /// Declare that a function does not throw any exceptions:
+        /// Usage:
+        /// ```
+        ///  void f() BSLS_NOTHROW_SPEC;
+        /// ```
+        /// Exceptions enabled: `throw ()` or `noexcept`
+        /// Exceptions disabled: empty
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 #       define BSLS_NOTHROW_SPEC noexcept
 #   else
 #       define BSLS_NOTHROW_SPEC throw ()
 #   endif
-        // Declare that a function does not throw any exceptions:
-        // Usage:
-        //..
-        //  void f() BSLS_NOTHROW_SPEC;
-        //..
-        // Exceptions enabled: 'throw ()' or 'noexcept'
-        // Exceptions disabled: empty
 
+    /// The exception specification that overrides of the virtual destructor
+    /// and the `exception::what()` virtual method should use.  It is a
+    /// separate macro from `BSLS_NOTHROW_SPEC` because the GNU library
+    /// unconditionally declares the function `throw()`, regardless if
+    /// exceptions are enabled or not - and overrides must do the same.
 #   define BSLS_EXCEPTION_VIRTUAL_NOTHROW BSLS_NOTHROW_SPEC
-        // The exception specification that overrides of the virtual destructor
-        // and the 'exception::what()' virtual method should use.  It is a
-        // separate macro from 'BSLS_NOTHROW_SPEC' because the GNU library
-        // unconditionally declares the function 'throw()', regardless if
-        // exceptions are enabled or not - and overrides must do the same.
 
+    /// More specialized name for the no-throw declaration of the
+    /// `exception::what()` method.  Use `BSLS_EXCEPTION_VIRTUAL_NOTHROW`
+    /// instead.
 #   define BSLS_EXCEPTION_WHAT_NOTHROW BSLS_EXCEPTION_VIRTUAL_NOTHROW
-        // More specialized name for the no-throw declaration of the
-        // 'exception::what()' method.  Use 'BSLS_EXCEPTION_VIRTUAL_NOTHROW'
-        // instead.
 
 #else // If exceptions are disabled
 
@@ -341,6 +341,11 @@ BSLS_IDENT("$Id: $")
 
 #   define BSLS_NOTHROW_SPEC
 
+    /// The exception specification that overrides of the
+    /// `exception::what()` virtual method should use.  It is a separate
+    /// macro from `BSLS_NOTHROW_SPEC` because the GNU library
+    /// unconditionally declares the function `throw()`, regardless if
+    /// exceptions are enabled or not - and overrides must do the same.
 #   if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) || \
        defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD) || \
        defined(BSLS_LIBRARYFEATURES_STDCPP_IBM)
@@ -352,11 +357,6 @@ BSLS_IDENT("$Id: $")
 #   else
 #       define BSLS_EXCEPTION_VIRTUAL_NOTHROW
 #   endif
-        // The exception specification that overrides of the
-        // 'exception::what()' virtual method should use.  It is a separate
-        // macro from 'BSLS_NOTHROW_SPEC' because the GNU library
-        // unconditionally declares the function 'throw()', regardless if
-        // exceptions are enabled or not - and overrides must do the same.
 
 
 #endif // BDE_BUILD_TARGET_EXC

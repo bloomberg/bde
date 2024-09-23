@@ -548,7 +548,7 @@ class Base64Encoder {
     /// MIME standard).  The behavior is undefined unless
     /// `0 <= inputLength`.
     ///
-    /// DEPRECATED: use the overload with `options` instead.
+    /// @DEPRECATED: use the overload with `options` instead.
     static
     int encodedLength(int inputLength);
 
@@ -564,7 +564,7 @@ class Base64Encoder {
     /// Note also that the number of encoded bytes need not be the number of
     /// *output* bytes.
     ///
-    /// DEPRECATED: use the overload with `options` instead.
+    /// @DEPRECATED: use the overload with `options` instead.
     static
     int encodedLength(int inputLength, int maxLineLength);
 
@@ -587,7 +587,7 @@ class Base64Encoder {
     /// `0 <= inputLength`.  Note also that the number of encoded bytes need
     /// not be the number of *output* bytes.
     ///
-    /// DEPRECATED: use the overload with `options` instead.
+    /// @DEPRECATED: use the overload with `options` instead.
     static
     int encodedLines(int inputLength);
 
@@ -603,7 +603,7 @@ class Base64Encoder {
     /// Note also that the number of encoded bytes need not be the number of
     /// *output* bytes.
     ///
-    /// DEPRECATED: use the overload with `options` instead.
+    /// @DEPRECATED: use the overload with `options` instead.
     static
     int encodedLines(int inputLength, int maxLineLength);
 
@@ -626,7 +626,7 @@ class Base64Encoder {
     /// `endConvert` methods of this encoder will insert a CRLF to prevent
     /// each line of the output from exceeding 76 characters.
     ///
-    /// DEPRECATED: Create and pass an `options` object instead.
+    /// @DEPRECATED: Create and pass an `options` object instead.
     explicit
     Base64Encoder(Alphabet alphabet);
 
@@ -644,7 +644,7 @@ class Base64Encoder {
     /// of this encoder will insert a CRLF to prevent each line of the
     /// output from exceeding `maxLineLength`.
     ///
-    /// DEPRECATED: Create and pass an `options` object instead.
+    /// @DEPRECATED: Create and pass an `options` object instead.
     explicit
     Base64Encoder(int maxLineLength, Alphabet alphabet = e_BASIC);
 

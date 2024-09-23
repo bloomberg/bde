@@ -212,12 +212,12 @@ namespace bdlc {
 /// and `reserveCapacityRaw` methods.  Note that there is no guarantee of
 /// contiguous storage of consecutive elements.
 ///
-/// More generally, this container class supports a complete set of *value*
-/// *semantics* operations, including copy construction, assignment,
+/// More generally, this container class supports a complete set of *value
+/// semantics* operations, including copy construction, assignment,
 /// equality comparison, `ostream` printing, and `bdex` serialization.  (A
 /// precise operational definition of when two objects have the same value
 /// can be found in the description of `operator==` for the class.)  This
-/// container is *exception* *neutral* with no guarantee of rollback: if an
+/// container is *exception neutral* with no guarantee of rollback: if an
 /// exception is thrown during the invocation of a method on a pre-existing
 /// object, the container is left in a valid state, but its value is
 /// undefined.  In no event is memory leaked.  Finally, *aliasing* (e.g.,
@@ -458,7 +458,7 @@ class Queue {
     /// Note that this function is a synonym for `pushBack` and is logically
     /// equivalent to (but generally more efficient than):
     /// ```
-    ///  insert(length(), item);
+    /// insert(length(), item);
     /// ```
     void append(const T& item);
 
@@ -466,7 +466,7 @@ class Queue {
     /// specified `srcQueue`.  Note that this function is logically
     /// equivalent to:
     /// ```
-    ///  insert(length(), srcQueue);
+    /// insert(length(), srcQueue);
     /// ```
     void append(const Queue& srcQueue);
 
@@ -474,7 +474,7 @@ class Queue {
     /// the specified `srcQueue` starting at the specified index position
     /// `srcIndex`.  Note that this function is logically equivalent to:
     /// ```
-    ///  insert(length(), srcQueue, srcIndex, numElements);
+    /// insert(length(), srcQueue, srcIndex, numElements);
     /// ```
     /// The behavior is undefined unless `0 <= srcIndex`,
     /// `0 <= numElements`, and
@@ -529,7 +529,7 @@ class Queue {
     /// time).  The behavior is undefined if this queue is empty.  Note that
     /// this function is logically equivalent to (but more efficient than):
     /// ```
-    ///   remove(length() - 1)
+    /// remove(length() - 1)
     /// ```
     void popBack();
 
@@ -723,22 +723,21 @@ class Queue {
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // pending deprecation
-
-    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
-    ///
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     /// Return the most current BDEX streaming version number supported by
     /// this class.
+    ///
+    /// @DEPRECATED: Use `maxSupportedBdexVersion(int)` instead.
     static int maxSupportedBdexVersion();
 
     /// Return the most current `bdex` streaming version number supported by
     /// this class.  (See the package-group-level documentation for more
     /// information on `bdex` streaming of container types.)
     ///
-    /// DEPRECATED: Use `maxSupportedBdexVersion` instead.
+    /// @DEPRECATED: Use `maxSupportedBdexVersion` instead.
     static int maxSupportedVersion();
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED -- pending deprecation
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // FREE OPERATORS

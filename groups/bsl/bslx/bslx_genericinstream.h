@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // fundamental types, and on `bsl::string`.
 //
 // The `bslx::GenericInStream` type reads from a compliant user-supplied buffer
-// (see {Generic Byte-Format Parser}) directly, with no data copying or
+// (see [](#Generic Byte-Format Parser)) directly, with no data copying or
 // assumption of ownership.  The user must therefore make sure that the
 // lifetime and visibility of the buffer is sufficient to satisfy the needs of
 // the input stream.
@@ -98,87 +98,92 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CLASS METHODS
+//
+//     /// Return the maximum valid BDEX format version, as indicated by
+//     /// the specified `versionSelector`, to be passed to the
+//     /// `bdexStreamOut` method.  Note that it is highly recommended that
+//     /// `versionSelector` be formatted as "YYYYMMDD", a date
+//     /// representation.  Also note that `versionSelector` should be a
+//     /// *compile*-time-chosen value that selects a format version
+//     /// supported by both externalizer and unexternalizer.  See the
+//     /// `bslx` package-level documentation for more information on BDEX
+//     /// streaming of value-semantic types and containers.
 //     static int maxSupportedBdexVersion(int versionSelector);
-//         // Return the maximum valid BDEX format version, as indicated by
-//         // the specified 'versionSelector', to be passed to the
-//         // 'bdexStreamOut' method.  Note that it is highly recommended that
-//         // 'versionSelector' be formatted as "YYYYMMDD", a date
-//         // representation.  Also note that 'versionSelector' should be a
-//         // *compile*-time-chosen value that selects a format version
-//         // supported by both externalizer and unexternalizer.  See the
-//         // 'bslx' package-level documentation for more information on BDEX
-//         // streaming of value-semantic types and containers.
 //
 //     // CREATORS
+//
+//     /// Create a default person.
 //     MyPerson();
-//         // Create a default person.
 //
+//     /// Create a person having the specified `firstName`, `lastName`,
+//     /// and `age`.
 //     MyPerson(const char *firstName, const char *lastName, int age);
-//         // Create a person having the specified 'firstName', 'lastName',
-//         // and 'age'.
 //
+//     /// Create a person having the value of the specified `original`
+//     /// person.
 //     MyPerson(const MyPerson& original);
-//         // Create a person having the value of the specified 'original'
-//         // person.
 //
+//     /// Destroy this object.
 //     ~MyPerson();
-//         // Destroy this object.
 //
 //     // MANIPULATORS
-//     MyPerson& operator=(const MyPerson& rhs);
-//         // Assign to this person the value of the specified 'rhs' person,
-//         // and return a reference to this person.
 //
+//     /// Assign to this person the value of the specified `rhs` person,
+//     /// and return a reference to this person.
+//     MyPerson& operator=(const MyPerson& rhs);
+//
+//     /// Assign to this object the value read from the specified input
+//     /// `stream` using the specified `version` format, and return a
+//     /// reference to `stream`.  If `stream` is initially invalid, this
+//     /// operation has no effect.  If `version` is not supported, this
+//     /// object is unaltered and `stream` is invalidated, but otherwise
+//     /// unmodified.  If `version` is supported but `stream` becomes
+//     /// invalid during this operation, this object has an undefined, but
+//     /// valid, state.  Note that no version is read from `stream`.  See
+//     /// the `bslx` package-level documentation for more information on
+//     /// BDEX streaming of value-semantic types and containers.
 //     template <class STREAM>
 //     STREAM& bdexStreamIn(STREAM& stream, int version);
-//         // Assign to this object the value read from the specified input
-//         // 'stream' using the specified 'version' format, and return a
-//         // reference to 'stream'.  If 'stream' is initially invalid, this
-//         // operation has no effect.  If 'version' is not supported, this
-//         // object is unaltered and 'stream' is invalidated, but otherwise
-//         // unmodified.  If 'version' is supported but 'stream' becomes
-//         // invalid during this operation, this object has an undefined, but
-//         // valid, state.  Note that no version is read from 'stream'.  See
-//         // the 'bslx' package-level documentation for more information on
-//         // BDEX streaming of value-semantic types and containers.
 //
 //     //...
 //
 //     // ACCESSORS
-//     int age() const;
-//         // Return the age of this person.
 //
+//     /// Return the age of this person.
+//     int age() const;
+//
+//     /// Write the value of this object, using the specified `version`
+//     /// format, to the specified output `stream`, and return a reference
+//     /// to `stream`.  If `stream` is initially invalid, this operation
+//     /// has no effect.  If `version` is not supported, `stream` is
+//     /// invalidated, but otherwise unmodified.  Note that `version` is
+//     /// not written to `stream`.  See the `bslx` package-level
+//     /// documentation for more information on BDEX streaming of
+//     /// value-semantic types and containers.
 //     template <class STREAM>
 //     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-//         // Write the value of this object, using the specified 'version'
-//         // format, to the specified output 'stream', and return a reference
-//         // to 'stream'.  If 'stream' is initially invalid, this operation
-//         // has no effect.  If 'version' is not supported, 'stream' is
-//         // invalidated, but otherwise unmodified.  Note that 'version' is
-//         // not written to 'stream'.  See the 'bslx' package-level
-//         // documentation for more information on BDEX streaming of
-//         // value-semantic types and containers.
 //
+//     /// Return the first name of this person.
 //     const bsl::string& firstName() const;
-//         // Return the first name of this person.
 //
+//     /// Return the last name of this person.
 //     const bsl::string& lastName() const;
-//         // Return the last name of this person.
 //
 //     //...
 //
 // };
 //
 // // FREE OPERATORS
-// bool operator==(const MyPerson& lhs, const MyPerson& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' person objects have
-//     // the same value, and 'false' otherwise.  Two person objects have the
-//     // same value if they have the same first name, last name, and age.
 //
+// /// Return `true` if the specified `lhs` and `rhs` person objects have
+// /// the same value, and `false` otherwise.  Two person objects have the
+// /// same value if they have the same first name, last name, and age.
+// bool operator==(const MyPerson& lhs, const MyPerson& rhs);
+//
+// /// Return `true` if the specified `lhs` and `rhs` person objects do not
+// /// have the same value, and `false` otherwise.  Two person objects
+// /// differ in value if they differ in first name, last name, or age.
 // bool operator!=(const MyPerson& lhs, const MyPerson& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' person objects do not
-//     // have the same value, and 'false' otherwise.  Two person objects
-//     // differ in value if they differ in first name, last name, or age.
 //
 // // ========================================================================
 // //                  INLINE FUNCTION DEFINITIONS
@@ -353,9 +358,9 @@ BSLS_IDENT("$Id: $")
 // First, we implement `MyStreamBuf` (which, for brevity, simply uses the
 // default allocator):
 // ```
+// /// This class implements a very basic stream buffer suitable for use in
+// /// 'bslx::GenericOutStream' and 'bslx::GenericInStream'.
 // class MyStreamBuf {
-//     // This class implements a very basic stream buffer suitable for use in
-//     // 'bslx::GenericOutStream' and 'bslx::GenericInStream'.
 //
 //     // DATA
 //     bsl::deque<char> d_buffer;  // the input and output buffer
@@ -372,35 +377,37 @@ BSLS_IDENT("$Id: $")
 //     };
 //
 //     // CREATORS
-//     MyStreamBuf();
-//         // Create an empty stream buffer.
 //
+//     /// Create an empty stream buffer.
+//     MyStreamBuf();
+//
+//     /// Destroy this object.
 //     ~MyStreamBuf();
-//         // Destroy this stream buffer.
 //
 //     // MANIPULATORS
+//
+//     /// Return 0.
 //     int pubsync();
-//         // Return 0.
 //
+//     /// Read the next character in this buffer.  Return the value of the
+//     // character on success, and `traits_type::eof()` otherwise.
 //     int sbumpc();
-//         // Read the next character in this buffer.  Return the value of the
-//         // character on success, and 'traits_type::eof()' otherwise.
 //
+//     /// Peek at the next character in this buffer.  Return the value of
+//     /// the character on success, and `traits_type::eof()` otherwise.
 //     int sgetc();
-//         // Peek at the next character in this buffer.  Return the value of
-//         // the character on success, and 'traits_type::eof()' otherwise.
 //
+//     /// Load the specified `length` characters into the specified
+//     /// address `s`, and return the number of characters read.
 //     bsl::streamsize sgetn(char *s, bsl::streamsize length);
-//         // Load the specified 'length' characters into the specified
-//         // address 's', and return the number of characters read.
 //
+//     /// Write the specified character `c` to this buffer.  Return `c` on
+//     /// success, and `traits_type::eof()` otherwise.
 //     int sputc(char c);
-//         // Write the specified character 'c' to this buffer.  Return 'c' on
-//         // success, and 'traits_type::eof()' otherwise.
 //
+//     /// Write the specified `length` characters at the specified address
+//     /// `s` to this buffer, and return the number of characters written.
 //     bsl::streamsize sputn(const char *s, bsl::streamsize length);
-//         // Write the specified 'length' characters at the specified address
-//         // 's' to this buffer, and return the number of characters written.
 // };
 //
 // // ========================================================================

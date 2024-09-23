@@ -7,9 +7,9 @@
 //@CLASSES:
 //
 //@MACROS:
-//: BSLS_IDENT(identifier): inset `identifier` into `.comment` section
-//: BSLS_IDENT_RCSID(tag, identifier): alternatively, use add `tag` as static
-//: BSLS_IDENT_PRAGMA_ONCE: encapsulate `_Pragma("once")`
+//  BSLS_IDENT(identifier): inset `identifier` into `.comment` section
+//  BSLS_IDENT_RCSID(tag, identifier): alternatively, use add `tag` as static
+//  BSLS_IDENT_PRAGMA_ONCE: encapsulate `_Pragma("once")`
 //
 //@DESCRIPTION: The purpose of this component is to provide macros for
 // inserting SCM (Source Control Management) Ids into source files.  SCM Ids
@@ -49,21 +49,21 @@
 ///-------------
 // The following are the macros provided by this component.
 //
-//: `BSLS_IDENT(identifier)`
-//:   This macro inserts the specified `identifier` into the object's
-//:   `.comment` section, if supported on the current platform.
-//:
-//: `BSLS_IDENT_RCSID(tag, identifier)`
-//:   This macro inserts the specified `identifier` into the object, using
-//:   `BSLS_IDENT`, if possible on the current platform.  If `BSLS_IDENT` is
-//:   not available, the specified `tag` may be used to declare a static char
-//:   array containing the `tag`.
-//:
-//: `BSLS_IDENT_PRAGMA_ONCE`
-//:   This macro encapsulates the `_Pragma("once")` functionality if available
-//:   on the current platform.  If available, this functions in the same way as
-//:   redundant include guards, avoiding re-opening already-included header
-//:   files.
+// * `BSLS_IDENT(identifier)`
+//   > This macro inserts the specified `identifier` into the object's
+//   > `.comment` section, if supported on the current platform.
+//
+// * `BSLS_IDENT_RCSID(tag, identifier)`
+//   > This macro inserts the specified `identifier` into the object, using
+//   > `BSLS_IDENT`, if possible on the current platform.  If `BSLS_IDENT` is
+//   > not available, the specified `tag` may be used to declare a static char
+//   > array containing the `tag`.
+//
+// * `BSLS_IDENT_PRAGMA_ONCE`
+//   > This macro encapsulates the `_Pragma("once")` functionality if available
+//   > on the current platform.  If available, this functions in the same way
+//   > as redundant include guards, avoiding re-opening already-included header
+//   > files.
 //
 ///Usage
 ///-----
