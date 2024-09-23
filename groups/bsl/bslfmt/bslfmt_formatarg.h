@@ -37,28 +37,21 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show the intended use of this component.
 //
-///Example: Formatting a basic string
-/// - - - - - - - - - - - - - - - - -
+///Example: Default construction and value verification
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We do not expect most users of `bsl::format` to interact with this type
-// directly and instead use `bsl::format` or `bsl::vformat`, so this example is
+// directly and instead use `bsl::format` or `bsl::vformat`. In addition, there
+// are only a very limited number of public methods so this example is
 // necessarily unrealistic.
 //
-// Suppose we want to test this formatter's ability to a substring with padding
-// and minimum width.
+// Suppose we want to construct a default-constructed `basic_format_arg` and
+// verify that it contains no value.
 //
 //..
-//  bslfmt::Formatter_MockParseContext<char> mpc("*<5.3s", 1);
+//   bslfmt::basic_format_arg<
+//       bslfmt::basic_format_context<char *, char> > arg;
 //
-//  bsl::formatter<const char *, char> f;
-//  mpc.advance_to(f.parse(mpc));
-//
-//  const char *value = "abcdefghij";
-//
-//  bslfmt::Formatter_MockFormatContext<char> mfc(value, 0, 0);
-//
-//  mfc.advance_to(bsl::as_const(f).format(value, mfc));
-//
-//  assert("abc**" == mfc.finalString());
+//   assert(!arg);
 //..
 //
 

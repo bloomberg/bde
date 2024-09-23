@@ -50,7 +50,7 @@ using namespace BloombergLP;
 // [ 2] TESTING PRIMARY MANIPULATORS: Not Applicable
 // [ 5] TESTING OUTPUT
 // [10] STREAMING FUNCTIONALITY:      Not Applicable
-// [13] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -464,6 +464,41 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
+      case 12: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 Demonstrate the functioning of this component.
+        //
+        // Plan:
+        //: 1 Construct an instance and verify it holds no value.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+///Example: Default construction and value verification
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We do not expect most users of `bsl::format` to interact with this type
+// directly and instead use `bsl::format` or `bsl::vformat`. In addition, there
+// are only a very limited number of public methods so this example is
+// necessarily unrealistic.
+//
+// Suppose we want to construct a default-constructed `basic_format_arg` and
+// verify that it contains no value.
+//
+//..
+        bslfmt::basic_format_arg<
+            bslfmt::basic_format_context<char *, char> > arg;
+
+        ASSERT(!arg);
+//..
+//
+      } break;
       case 11: {
         // --------------------------------------------------------------------
         // TESTING VISIT AND HANDLE FORMAT FUNCTIONALITY
