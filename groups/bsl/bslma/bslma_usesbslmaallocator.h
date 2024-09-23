@@ -19,6 +19,8 @@ BSLS_IDENT("$Id: $")
 // trait (i.e., to test whether a type uses a `bslma` allocator, and follows
 // the `bslma` allocator model).
 //
+///Trait Description
+///-----------------
 // `bslma::UsesBslmaAllocator<TYPE>` derives from `bsl::true_type` if `TYPE` is
 // a complete object type and one or more of the following are true:
 //

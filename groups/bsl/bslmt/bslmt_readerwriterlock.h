@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // "starvation" in applications with continuous writes.
 //
 ///Comparison between `bslmt` Reader-Writer Locks
-/// - - - - - - - - - - - - - - - - - - - - - - -
+///----------------------------------------------
 //
 // * `bslmt::ReaderWriterLock` (defined in this component).  Preferred only
 //   when very long hold times are anticipated.  Provides `upgrade*` methods

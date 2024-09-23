@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // readers will not be able to re-acquire the lock in the presence of writers.
 //
 ///`bslmt` Read/Write Locking Components
-///- - - - - - - - - - - - - - - - - - -
+///--------------------------------------
 // * `bslmt::ReaderWriterMutex` (defined in this component).  Preferred for
 //   most use-cases, has been shown to be faster than
 //   `bslmt::ReaderWriterLock` under most conditions and is generally the best

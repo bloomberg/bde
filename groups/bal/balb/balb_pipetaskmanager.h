@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 // messages to a named pipe.
 //
 ///Configuring the `balbl::PipeTaskManager`
-/// - - - - - - - - - - - - - - - - - - - -
+///----------------------------------------
 // A default constructed `balbl::PipeTaskManager` has no registered handlers.
 // Users can use the exposed `balb::ControlManager`, to register different
 // control message prefixes (typically "verbs") to dispatch received messages

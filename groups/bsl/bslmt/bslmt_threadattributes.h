@@ -16,6 +16,8 @@ BSLS_IDENT("$Id: $")
 // attribute class, `bslmt::ThreadAttributes`, for describing attributes of a
 // thread in a platform-independent way.
 //
+///Attributes
+///----------
 // The default values and constraints for the attributes provided by
 // `bslmt::ThreadAttributes` are listed in the following two tables:
 // ```
