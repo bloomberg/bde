@@ -1689,6 +1689,7 @@ int main(int argc, char *argv[])
             // allocate 100% of the blocks, in random order
 
             int numAllocations = 0;
+            int numZeroAllocations = 0;
             for (int i = 0; i < MAX_NUM_BLOCKS; ++i) {
                 int index =
                            bdlb::Random::generate15(&randNum) % MAX_NUM_BLOCKS;
@@ -1699,11 +1700,14 @@ int main(int argc, char *argv[])
                 Block& s = blocks[index];
 
                 s.d_ptr     = (char *) ta.allocate(s.d_len);
+                ++numAllocations;
                 s.d_alloced = true;
                 s.d_fill    = (char) bdlb::Random::generate15(&randNum);
                 if (s.d_ptr) {
                     memset(s.d_ptr, s.d_fill, s.d_len);
-                    ++numAllocations;
+                }
+                else {
+                    ++numZeroAllocations;
                 }
                 ASSERT(!s.d_ptr == !s.d_len);
 
@@ -1713,11 +1717,11 @@ int main(int argc, char *argv[])
                                    0 == ((UintPtr) s.d_ptr & (s.d_align - 1)));
             }
             int numBlocksInUse = MAX_NUM_BLOCKS - 2;
-            ASSERT(numAllocations == numBlocksInUse);
+            ASSERT(numAllocations - numZeroAllocations == numBlocksInUse);
             ASSERT((int) ta.numBlocksInUse() == numBlocksInUse);
             ASSERT(ta.numAllocations() == numAllocations);
 
-            // Now go around chosing blocks at random to be allocated or freed
+            // Now go around choosing blocks at random to be allocated or freed
             // in random order.
 
             for (int i = 0; i < ITERATIONS; ++i) {
@@ -1744,13 +1748,13 @@ int main(int argc, char *argv[])
                     ASSERT(!s.d_ptr);
 
                     s.d_ptr     = (char *) ta.allocate(s.d_len);
+                    ++numAllocations;
                     s.d_alloced = true;
 
                     ASSERT(!s.d_ptr == !s.d_len);
                     s.d_fill = (char) bdlb::Random::generate15(&randNum);
                     if (s.d_ptr) {
                         ++numBlocksInUse;
-                        ++numAllocations;
                         memset(s.d_ptr, s.d_fill, s.d_len);
                     }
 
