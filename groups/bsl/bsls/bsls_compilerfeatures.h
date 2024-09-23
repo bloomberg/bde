@@ -7,9 +7,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide macros to identify compiler support for C++11 features.
 //
-//@CLASSES:
-//
-//@MACROS
+//@MACROS:
 //  BSLS_COMPILERFEATURES_CPLUSPLUS: portable version of `__cplusplus`
 //  BSLS_COMPILERFEATURES_FORWARD_REF(T): argument of type `T` to be forwarded
 //  BSLS_COMPILERFEATURES_FORWARD(T, V): forward argument `V` of type `T`
@@ -127,281 +125,283 @@ BSLS_IDENT("$Id: $")
 // The following are the macros provided by this component.  Note that they are
 // not defined for all platform/compiler combinations.
 //
-//: `BSLS_COMPILERFEATURES_CPLUSPLUS`:
-//:     This macro provides a portable way to determine the version of the C++
-//:     standard mode that is being used.  In general, this has the same value
-//:     as the standard `__cplusplus` macro, but on some compilers with some
-//:     settings the standard macro does not get assigned the correct value.
-//:     The values generally set (as defined in the C++ Standard) are the year
-//:     and month when the Standard was completed, and the value of this macro
-//:     should be compared with the appropriate constants:
-//     - 199711L -- before C++11
-//     - 201103L -- C++11
-//     - 201402L -- C++14
-//     - 201703L -- C++17
-//     - 202002L -- C++20
-//     - 202302L -- C++23
-//     Note that compilers may report "in-between" values to indicate partial
-//     support of a standard, so `BSLS_COMPILERFEATURES_CPLUSPLUS > 201402L`
-//     normally means that *some* C++17 features are available.  Since those
-//     values are not standardized their meaning varies.
-//: `BSLS_COMPILERFEATURES_FORWARD_REF(T)`:
-//:     This macro provides a portable way to declare a function template
-//:     argument of type `T` that is to be perfect-forwarded.  The expansion of
-//:     the macro will use syntax that is appropriate for the current compiler
-//:     settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_FORWARD(T, V)`:
-//:     This macro provides a portable way to perfect-forward a function
-//:     template argument, `V`, of type `T`.  The expansion of the macro will
-//:     use syntax that is appropriate for the current compiler settings for
-//:     this platform.  Note that due to the vagaries of implementing this
-//:     macro, client code using this macro should provide the following two
-//:     inclusions (in addition to the requisite inclusion of this header):
-//     - `#include <bslmf_util.h>`
-//     - `#include <bsls_util.h>`
-//: `BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION`:
-//:     This macro is defined if the compiler always elides all copies (or
-//:     moves) when returning a prvalue expression from a function and using
-//:     that expression to initialize a class object of the same type
-//:     (ignoring cv qualifications).  Specifically, given the function,
-//:     `Thing funcReturningThing() { return Thing(ctor-args...); }`, the
-//:     return value is always initialized with `(ctor-args...)`; no copy is
-//:     performed in the return statement.  Additionally,
-//:     `Thing var(funcReturningThing())` always constructs `var` directly
-//:     from the return expression of `funcReturningThing()`; again, no copies
-//:     are involved.  The semantics of these optimizations are guaranteed in
-//:     C++17 and later, but are optional in previous versions of C++.
-//:
-//: `BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS`:
-//:     The `BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS` macro
-//:     is defined for implementations that leak temporary objects constructed
-//:     trying to initialize a `std::initializer_list` object in the event that
-//:     one of the elements of the list throws from its constructor.  This is
-//:     known to affect gcc as recently as the 8.x series, and the Sun CC
-//:     compiler in C++11 mode. This would often reveal itself as a spurious
-//:     memory leak in exception-safety tests for `initializer_list`
-//:     constructors, so rises to the level of a generally supported
-//:     defect-detection macro.
-//:
-//: `BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST`:
-//:     The `BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST` macro is defined for
-//:     implementations that implement WG14 N2322
-//:     (http://www.open-std.org/jtc1/sc22/wg14/www/docs/n2322.htm)
-//:     "Recommended practice" on the substitution value for the `__LINE__`
-//:     (predefined) preprocessor macro when expanding a macro that uses
-//:     `__LINE__` in its body, and that macro invocation spans multiple source
-//:     lines (logical or physical).  When macro is defined `__LINE__` is
-//:     substituted with the line number of the first character of the macro
-//:     name of the (multi-line) macro invocation.  When this macro is not
-//:     defined `__LINE__` is replaced (as traditional on older C++ compilers)
-//:     by the line number of the last character of the  macro invocation that
-//:     expands to a use of `__LINE__`.  See also {Example 2: `__LINE__` Macro
-//:     Multi-line Value Differences Demonstration}.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES`:
-//:     This macro is defined if alias templates are supported by the current
-//:     compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS`:
-//:     This macro is defined if `alignas` alignment specifier is supported by
-//:     the current compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH`:
-//:     This macro is defined if the `[[fallthrough]]` attribute is supported
-//:     by the current compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED`:
-//:     This macro is defined if the `[[maybe_unused]]` attribute is supported
-//:     by the current compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD`:
-//:     This macro is defined if the `[[nodiscard]]` attribute is supported by
-//:     the current compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN`:
-//:     This macro is defined if the `[[noreturn]]` attribute is supported by
-//:     the current compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS`:
-//:     This macro is defined if the concepts core language feature is
-//:     supported by the current compiler settings for this platform, as
-//:     defined by ISO C++20.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR`:
-//:     This macro is defined if `constexpr` is supported by the current
-//:     compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14`:
-//:     This macro is defined if `constexpr` with C++14 semantics is supported
-//:     by the current compiler settings for this platform.  In particular,
-//:     this allows multiple statements in a `constexpr` function; changing
-//:     state of local variables within the function; and making non-`const`
-//:     member functions `constexpr`.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17`:
-//:     This macro is defined if `constexpr` with C++17 semantics is supported
-//:     by the current compiler settings for this platform.  In particular,
-//:     this allows lambda functions to be defined in a `constexpr` function.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_COROUTINE`:
-//:     This macro is defined if coroutines with C++20 (or later) semantics are
-//:     supported by the current compiler settings, including the existence of
-//:     the <coroutine> standard header that provides the basic library
-//:     facilities necessary to make use of coroutines.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_CTAD`:
-//:     This macro is defined if template argument deduction introduced in the
-//:     C++17 Standard are supported by the current compiler settings for this
-//:     platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE`:
-//:     This macro is defined if `decltype` is supported by the current
-//:     compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS`:
-//:     This macro is defined if default template arguments for function
-//:     templates are supported by the current compiler settings for this
-//:     platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS`:
-//:     This macro is defined if defaulted functions are supported by the
-//:     current compiler settings for this platform (i.e., via the `= default`
-//:     syntax).
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS`:
-//:     This macro is defined if deleted functions are supported by the
-//:     current compiler settings for this platform (i.e., via the `= delete`
-//:     syntax).
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS`:
-//:     This macro is defined if `enum class` is supported by the current
-//:     compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE`:
-//:     This macro is defined if `extern template` is supported by the current
-//:     compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_FINAL`:
-//:     This macro is defined if `final` is supported for classes and member
-//:     functions by the current compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS`:
-//:     This macro is defined if generalized initializers are supported by the
-//:     current compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE`:
-//:     This macro is defined if `__has_include` is supported by the current
-//:     compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS`:
-//:     This macro is defined if hexadecimal format literals for floating point
-//:     types are supported by the current compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT`:
-//:     This macro is defined if `include_next` is supported by the current
-//:     compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE`:
-//:     This macro is defined if `inline` namespaces introduced in the C++11
-//:     Standard are supported by the current compiler settings for this
-//:     platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES`:
-//:     This macro is defined if `inline` variables introduced in the C++17
-//:     Standard are supported by the current compiler settings for this
-//:     platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT`:
-//:     This macro is defined if the `noexcept` keyword is supported by the
-//:     current compiler settings for this platform, both for designating a
-//:     function as not throwing and for testing if an expression may throw.
-//:     The definition of this macro does not depend on whether the current
-//:     compiler configuration has disabled support for exceptions.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE`:
-//:     This macro is defined if the `noexcept` keyword is supported by the
-//:     current compiler settings for this platform such that if `noexcept` is
-//:     used to designate a function as not throwing, that use of `noexcept` is
-//:     explicitly considered part of the type of the function (a feature
-//:     introduced in C++17).  The definition of this macro does not depend on
-//:     whether the current compiler configuration has disabled support for
-//:     exceptions.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES`:
-//:     Deprecated, use `BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE`
-//:     instead.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_NULLPTR`:
-//:    This macro is defined if `nullptr` is supported by the current compiler
-//:    settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT`:
-//:     This macro is defined if the `explicit` keyword applied to conversion
-//:     operators is supported by the current compiler settings for this
-//:     platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE`:
-//:     This macro is defined if the `override` keyword is supported by the
-//:     current compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS`:
-//:     This macro is defined if the compiler supports C++-11-style
-//:     R"tag(string)tag" strings.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS`:
-//:     This macro is defined if member functions with trailing reference
-//:     qualifiers (e.g., `void myfunc(int) &&`) are supported by the current
-//:     compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES`:
-//:     This macro is defined if rvalue references are supported by the current
-//:     compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT`:
-//:     This macro is defined if `static_assert` is supported by the current
-//:     compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON`:
-//:     This macro is defined if `<=>` operator is supported by the current
-//:     compiler settings for this platform.  Including full library support as
-//:     of C++20.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS`:
-//:     This macro is defined if dynamic exception specifications are supported
-//:     by the current compiler settings for this platform.  Dynamic exception
-//:     specifications were deprecated in C++11, and actively removed from the
-//:     language in C++17.  The definition of this macro does not depend on
-//:     whether the current compiler configuration has disabled support for
-//:     exceptions.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER`:
-//:     This macro is defined if the standard library for the current compiler
-//:     settings for this platform supports some form of the standard
-//:     `<type_traits>` header.  Note that many standard library
-//:     implementations provided partial support for a long time, and those
-//:     libraries *will* be identified as providing the `<type_traits>` header.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES`:
-//:     This macro is defined if the compiler supports the `char16_t` and
-//:     `char32_t` types and the related u and U prefixes for character- and
-//:     string-literal values.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS`:
-//:     This macro is defined if user-defined literals are supported by the
-//:     current compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE`:
-//:     This macro is defined if the compiler supports the `char8_t` type.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES`:
-//:     This macro is defined if variadic template parameters are supported by
-//:     the current compiler settings for this platform.
-//:
-//: `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES`:
-//:     This macro is defined if variable templates introduced in the C++14
-//:     Standard are supported by the current compiler settings for this
-//:     platform.
+// * `BSLS_COMPILERFEATURES_CPLUSPLUS`
+//   > This macro provides a portable way to determine the version of the C++
+//   > standard mode that is being used.  In general, this has the same value
+//   > as the standard `__cplusplus` macro, but on some compilers with some
+//   > settings the standard macro does not get assigned the correct value.
+//   > The values generally set (as defined in the C++ Standard) are the year
+//   > and month when the Standard was completed, and the value of this macro
+//   > should be compared with the appropriate constants:
+//   >  - 199711L -- before C++11
+//   >  - 201103L -- C++11
+//   >  - 201402L -- C++14
+//   >  - 201703L -- C++17
+//   >  - 202002L -- C++20
+//   >  - 202302L -- C++23
+//   > Note that compilers may report "in-between" values to indicate partial
+//   > support of a standard, so `BSLS_COMPILERFEATURES_CPLUSPLUS > 201402L`
+//   > normally means that *some* C++17 features are available.  Since those
+//   > values are not standardized their meaning varies.
+//
+// * `BSLS_COMPILERFEATURES_FORWARD_REF(T)`
+//   > This macro provides a portable way to declare a function template
+//   > argument of type `T` that is to be perfect-forwarded.  The expansion of
+//   > the macro will use syntax that is appropriate for the current compiler
+//   > settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_FORWARD(T, V)`
+//   > This macro provides a portable way to perfect-forward a function
+//   > template argument, `V`, of type `T`.  The expansion of the macro will
+//   > use syntax that is appropriate for the current compiler settings for
+//   > this platform.  Note that due to the vagaries of implementing this
+//   > macro, client code using this macro should provide the following two
+//   > inclusions (in addition to the requisite inclusion of this header):
+//   >  - `#include <bslmf_util.h>`
+//   >  - `#include <bsls_util.h>`
+//
+// * `BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION`
+//   > This macro is defined if the compiler always elides all copies (or
+//   > moves) when returning a prvalue expression from a function and using
+//   > that expression to initialize a class object of the same type
+//   > (ignoring cv qualifications).  Specifically, given the function,
+//   > `Thing funcReturningThing() { return Thing(ctor-args...); }`, the
+//   > return value is always initialized with `(ctor-args...)`; no copy is
+//   > performed in the return statement.  Additionally,
+//   > `Thing var(funcReturningThing())` always constructs `var` directly
+//   > from the return expression of `funcReturningThing()`; again, no copies
+//   > are involved.  The semantics of these optimizations are guaranteed in
+//   > C++17 and later, but are optional in previous versions of C++.
+//
+// * `BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS`
+//   > The `BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS` macro
+//   > is defined for implementations that leak temporary objects constructed
+//   > trying to initialize a `std::initializer_list` object in the event that
+//   > one of the elements of the list throws from its constructor.  This is
+//   > known to affect gcc as recently as the 8.x series, and the Sun CC
+//   > compiler in C++11 mode. This would often reveal itself as a spurious
+//   > memory leak in exception-safety tests for `initializer_list`
+//   > constructors, so rises to the level of a generally supported
+//   > defect-detection macro.
+//
+// * `BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST`
+//   > The `BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST` macro is defined for
+//   > implementations that implement WG14 N2322
+//   > (http://www.open-std.org/jtc1/sc22/wg14/www/docs/n2322.htm)
+//   > "Recommended practice" on the substitution value for the `__LINE__`
+//   > (predefined) preprocessor macro when expanding a macro that uses
+//   > `__LINE__` in its body, and that macro invocation spans multiple source
+//   > lines (logical or physical).  When macro is defined `__LINE__` is
+//   > substituted with the line number of the first character of the macro
+//   > name of the (multi-line) macro invocation.  When this macro is not
+//   > defined `__LINE__` is replaced (as traditional on older C++ compilers)
+//   > by the line number of the last character of the  macro invocation that
+//   > expands to a use of `__LINE__`.  See also {Example 2: `__LINE__` Macro
+//   > Multi-line Value Differences Demonstration}.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES`
+//   > This macro is defined if alias templates are supported by the current
+//   > compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS`
+//   > This macro is defined if `alignas` alignment specifier is supported by
+//   > the current compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH`
+//   > This macro is defined if the `[[fallthrough]]` attribute is supported
+//   > by the current compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED`
+//   > This macro is defined if the `[[maybe_unused]]` attribute is supported
+//   > by the current compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD`
+//   > This macro is defined if the `[[nodiscard]]` attribute is supported by
+//   > the current compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN`
+//   > This macro is defined if the `[[noreturn]]` attribute is supported by
+//   > the current compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS`
+//   > This macro is defined if the concepts core language feature is
+//   > supported by the current compiler settings for this platform, as
+//   > defined by ISO C++20.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR`
+//   > This macro is defined if `constexpr` is supported by the current
+//   > compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14`
+//   > This macro is defined if `constexpr` with C++14 semantics is supported
+//   > by the current compiler settings for this platform.  In particular,
+//   > this allows multiple statements in a `constexpr` function; changing
+//   > state of local variables within the function; and making non-`const`
+//   > member functions `constexpr`.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17`
+//   > This macro is defined if `constexpr` with C++17 semantics is supported
+//   > by the current compiler settings for this platform.  In particular,
+//   > this allows lambda functions to be defined in a `constexpr` function.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_COROUTINE`
+//   > This macro is defined if coroutines with C++20 (or later) semantics are
+//   > supported by the current compiler settings, including the existence of
+//   > the <coroutine> standard header that provides the basic library
+//   > facilities necessary to make use of coroutines.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_CTAD`
+//   > This macro is defined if template argument deduction introduced in the
+//   > C++17 Standard are supported by the current compiler settings for this
+//   > platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE`
+//   > This macro is defined if `decltype` is supported by the current
+//   > compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS`
+//   > This macro is defined if default template arguments for function
+//   > templates are supported by the current compiler settings for this
+//   > platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS`
+//   > This macro is defined if defaulted functions are supported by the
+//   > current compiler settings for this platform (i.e., via the `= default`
+//   > syntax).
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS`
+//   > This macro is defined if deleted functions are supported by the
+//   > current compiler settings for this platform (i.e., via the `= delete`
+//   > syntax).
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS`
+//   > This macro is defined if `enum class` is supported by the current
+//   > compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE`
+//   > This macro is defined if `extern template` is supported by the current
+//   > compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_FINAL`
+//   > This macro is defined if `final` is supported for classes and member
+//   > functions by the current compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS`
+//   > This macro is defined if generalized initializers are supported by the
+//   > current compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE`
+//   > This macro is defined if `__has_include` is supported by the current
+//   > compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS`
+//   > This macro is defined if hexadecimal format literals for floating point
+//   > types are supported by the current compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT`
+//   > This macro is defined if `include_next` is supported by the current
+//   > compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE`
+//   > This macro is defined if `inline` namespaces introduced in the C++11
+//   > Standard are supported by the current compiler settings for this
+//   > platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES`
+//   > This macro is defined if `inline` variables introduced in the C++17
+//   > Standard are supported by the current compiler settings for this
+//   > platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT`
+//   > This macro is defined if the `noexcept` keyword is supported by the
+//   > current compiler settings for this platform, both for designating a
+//   > function as not throwing and for testing if an expression may throw.
+//   > The definition of this macro does not depend on whether the current
+//   > compiler configuration has disabled support for exceptions.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE`
+//   > This macro is defined if the `noexcept` keyword is supported by the
+//   > current compiler settings for this platform such that if `noexcept` is
+//   > used to designate a function as not throwing, that use of `noexcept` is
+//   > explicitly considered part of the type of the function (a feature
+//   > introduced in C++17).  The definition of this macro does not depend on
+//   > whether the current compiler configuration has disabled support for
+//   > exceptions.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES`
+//   > Deprecated, use `BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE`
+//   > instead.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_NULLPTR`
+//   > This macro is defined if `nullptr` is supported by the current compiler
+//   > settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT`
+//   > This macro is defined if the `explicit` keyword applied to conversion
+//   > operators is supported by the current compiler settings for this
+//   > platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE`
+//   > This macro is defined if the `override` keyword is supported by the
+//   > current compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS`
+//   > This macro is defined if the compiler supports C++-11-style
+//   > R"tag(string)tag" strings.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS`
+//   > This macro is defined if member functions with trailing reference
+//   > qualifiers (e.g., `void myfunc(int) &&`) are supported by the current
+//   > compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES`
+//   > This macro is defined if rvalue references are supported by the current
+//   > compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT`
+//   > This macro is defined if `static_assert` is supported by the current
+//   > compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON`
+//   > This macro is defined if `<=>` operator is supported by the current
+//   > compiler settings for this platform.  Including full library support as
+//   > of C++20.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS`
+//   > This macro is defined if dynamic exception specifications are supported
+//   > by the current compiler settings for this platform.  Dynamic exception
+//   > specifications were deprecated in C++11, and actively removed from the
+//   > language in C++17.  The definition of this macro does not depend on
+//   > whether the current compiler configuration has disabled support for
+//   > exceptions.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER`
+//   > This macro is defined if the standard library for the current compiler
+//   > settings for this platform supports some form of the standard
+//   > `<type_traits>` header.  Note that many standard library
+//   > implementations provided partial support for a long time, and those
+//   > libraries *will* be identified as providing the `<type_traits>` header.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES`
+//   > This macro is defined if the compiler supports the `char16_t` and
+//   > `char32_t` types and the related u and U prefixes for character- and
+//   > string-literal values.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS`
+//   > This macro is defined if user-defined literals are supported by the
+//   > current compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE`
+//   > This macro is defined if the compiler supports the `char8_t` type.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES`
+//   > This macro is defined if variadic template parameters are supported by
+//   > the current compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES`
+//   > This macro is defined if variable templates introduced in the C++14
+//   > Standard are supported by the current compiler settings for this
+//   > platform.
 //
 ///Usage
 ///-----
@@ -600,10 +600,11 @@ BSLS_IDENT("$Id: $")
 // * Compiler support:
 //   - GCC 12.1
 //   - Visual Studio 2022 version 17.2.2 (<u>MSC</u>VER 1932)
-//: Note that clang 16.0 still has a bug that prevents it declaring C++20
-//: concepts support. (At the time of writing (2023.Jun.01) clang `trunk` does
-//: not yet declare C++20 concepts to be available, `_cpp_concepts` is
-//: 201907LL).
+//
+// Note that clang 16.0 still has a bug that prevents it declaring C++20
+// concepts support. (At the time of writing (2023.Jun.01) clang `trunk` does
+// not yet declare C++20 concepts to be available, `_cpp_concepts` is
+// 201907LL).
 //
 ///`BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR`
 ///- - - - - - - - - - - - - - - - - - - - -

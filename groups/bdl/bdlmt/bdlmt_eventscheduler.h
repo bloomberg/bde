@@ -33,17 +33,19 @@ BSLS_IDENT("$Id: $")
 // methods that take a `const Event*` to also take a `const EventHandle&`.
 //
 ///Comparison to `bdlmt::TimerEventScheduler`
-/// - - - - - - - - - - - - - - - - - - - - -
+///------------------------------------------
 // This component was written after `bdlmt_timereventscheduler`, which suffered
-// from a couple of short-comings: 1) there was a maximum number of events it
-// could manage, and 2) it was inefficient at dealing with large numbers of
-// events.  This component addresses both those problems -- there is no limit
-// on the number of events it can manage, and it is more efficient at dealing
-// with large numbers of events.  The disadvantage of this component relative
-// to `bdlmt_timereventscheduler` is that handles referring to managed events
-// in a `bdlmt::EventScheduler` are reference-counted and need to be released,
-// while handles of events in a `bdlmt::TimerEventScheduler` are integral types
-// that do not need to be released.
+// from a couple of short-comings:
+// 1. there was a maximum number of events it could manage, and
+// 2. it was inefficient at dealing with large numbers of events
+//
+// This component addresses both those problems -- there is no limit on the
+// number of events it can manage, and it is more efficient at dealing with
+// large numbers of events.  The disadvantage of this component relative to
+// `bdlmt_timereventscheduler` is that handles referring to managed events in a
+// `bdlmt::EventScheduler` are reference-counted and need to be released, while
+// handles of events in a `bdlmt::TimerEventScheduler` are integral types that
+// do not need to be released.
 //
 ///Thread Safety and "Raw" Event Pointers
 ///--------------------------------------
@@ -53,19 +55,18 @@ BSLS_IDENT("$Id: $")
 // behavior of the component depend on the correct usage of `Event` pointers,
 // which refer to scheduled events in the "Raw" API of this class.  In
 // particular:
-// ```
-//  * Every 'Event*'  and 'RecurringEvent*' populated by 'scheduleEventRaw'
-// and 'scheduleRecurringEventRaw' must be released using 'releaseEventRaw.'
-//      - Pointers are not released automatically when events are completed.
-//      - Pointers are not released automatically when events are canceled.
-//      - Events are not canceled when pointers to them are released.
-//  * Pointers must not be used after being released.
-//  * Pointers must never be shared or duplicated without using
-//   'addEventRefRaw' and 'addRecurringEventRefRaw' to get additional
-//    references; *each* such added reference must be released separately.
-// ```
+// * Every `Event*`  and `RecurringEvent*` populated by `scheduleEventRaw`
+//   and `scheduleRecurringEventRaw` must be released using `releaseEventRaw.`
+//     - Pointers are not released automatically when events are completed.
+//     - Pointers are not released automatically when events are canceled.
+//     - Events are not canceled when pointers to them are released.
+// * Pointers must not be used after being released.
+// * Pointers must never be shared or duplicated without using
+//   `addEventRefRaw` and `addRecurringEventRefRaw` to get additional
+//   references; *each* such added reference must be released separately.
+//
 // `bdlmt::EventSchedulerEventHandle` and
-// `bdlmt::EventSchedulerRecurringEventHandle` are *const* *thread-safe*.  It
+// `bdlmt::EventSchedulerRecurringEventHandle` are **const thread-safe**.  It
 // is not safe for multiple threads to invoke non-`const` methods on the same
 // `EventHandle` or `RecurringEventHandle` object concurrently.
 //
@@ -82,9 +83,9 @@ BSLS_IDENT("$Id: $")
 //
 // CAVEAT: Using a dispatcher functor such as the example above (to execute the
 // callback in a separate thread) violates the guarantees of
-// cancelEventAndWait().  Users who specify a dispatcher functor that transfers
-// the event to another thread for execution should not use
-// cancelEventAndWait(), and should instead ensure that the lifetime of any
+// ``cancelEventAndWait()``.  Users who specify a dispatcher functor that
+// transfers the event to another thread for execution should not use
+// ``cancelEventAndWait()``, and should instead ensure that the lifetime of any
 // object bound to an event exceeds the lifetime of the mechanism used by the
 // customized dispatcher functor.
 //
@@ -92,7 +93,7 @@ BSLS_IDENT("$Id: $")
 ///---------------------------------------
 // It is intended that recurring and one-time events are processed as closely
 // as possible to their respective time values, and that they are processed in
-// the order scheduled.  However, this component *guarantees* only that events
+// the order scheduled.  However, this component **guarantees** only that events
 // will not be executed before their scheduled time.  Generally, events that
 // are scheduled more than 1 microsecond apart will be executed in the order
 // scheduled; but different behavior may be observed when events are submitted
@@ -178,8 +179,9 @@ BSLS_IDENT("$Id: $")
 // All test events scheduled for a `bdlmt::EventScheduler` that is instrumented
 // with a `bdlt::EventSchedulerTestTimeSource` should be scheduled in terms of
 // an offset from whatever arbitrary time is reported by
-// `bdlt::EventSchedulerTestTimeSource`.  See Example 3 below for an
-// illustration of how this is done.
+// `bdlt::EventSchedulerTestTimeSource`.  See
+// [](#Example 3: Using the Test Time Source) below for an illustration of how
+// this is done.
 //
 ///Thread Name for Dispatcher Thread
 ///---------------------------------
@@ -251,22 +253,23 @@ BSLS_IDENT("$Id: $")
 // "monotonic" clock that advances at a steady rate, rather than a "wall" clock
 // that may fluctuate to reflect real time adjustments.
 // ```
+//   /// This class encapsulates the data and state associated with a
+//   /// connection and provides a method `processData` to process the
+//   /// incoming data for the connection.
 //   class my_Session{
-//       // This class encapsulates the data and state associated with a
-//       // connection and provides a method 'processData' to process the
-//       // incoming data for the connection.
 //     public:
+//
+//       /// Process the specified `data` of the specified `length`.  (TBD)
 //       int processData(void *data, int length);
-//           // Process the specified 'data' of the specified 'length'.  (TBD)
 //   };
 //
+//   /// This class implements a server maintaining several connections.
+//   /// A connection is closed if the data for it does not arrive
+//   /// before a timeout (specified at the server creation time).
 //   class my_Server {
-//    // This class implements a server maintaining several connections.
-//    // A connection is closed if the data for it does not arrive
-//    // before a timeout (specified at the server creation time).
 //
 //    struct Connection {
-//        bdlmt::EventSchedulerEventHandle d_timerId;   // handle for timeout
+//        bdlmt::EventSchedulerEventHandle d_timerId; // handle for timeout
 //                                                    // event
 //
 //        my_Session *d_session_p;                    // session for this
@@ -277,31 +280,32 @@ BSLS_IDENT("$Id: $")
 //    bdlmt::EventScheduler    d_scheduler;   // timeout event scheduler
 //    bsls::TimeInterval       d_ioTimeout;   // time out
 //
+//    ///  Add the specified `connection` to this server and schedule
+//    ///  the timeout event that closes this connection if the data
+//    ///  for this connection does not arrive before the timeout.
 //    void newConnection(Connection *connection);
-//        // Add the specified 'connection' to this server and schedule
-//        // the timeout event that closes this connection if the data
-//        // for this connection does not arrive before the timeout.
 //
+//    ///  Close the specified `connection` and remove it from this server.
 //    void closeConnection(Connection *connection);
-//        // Close the specified 'connection' and remove it from this server.
 //
+//    ///  Return if the specified `connection` has already timed-out.
+//    ///  If not, cancel the existing timeout event for the `connection`,
+//    ///  process the specified `data` of the specified `length` and
+//    ///  schedule a new timeout event that closes the `connection` if
+//    ///  the data does not arrive before the timeout.
 //    void dataAvailable(Connection *connection, void *data, int length);
-//        // Return if the specified 'connection' has already timed-out.
-//        // If not, cancel the existing timeout event for the 'connection',
-//        // process the specified 'data' of the specified 'length' and
-//        // schedule a new timeout event that closes the 'connection' if
-//        // the data does not arrive before the timeout.
 //
 //  public:
+//
+//    ///  Create a `my_Server` object with a timeout value of
+//    ///  `ioTimeout` seconds.  Optionally specify a `allocator` used to
+//    ///  supply memory.  If `allocator` is 0, the currently installed
+//    ///  default allocator is used.
 //    my_Server(const bsls::TimeInterval&  ioTimeout,
 //              bslma::Allocator         *allocator = 0);
-//        // Create a 'my_Server' object with a timeout value of
-//        // 'ioTimeout' seconds.  Optionally specify a 'allocator' used to
-//        // supply memory.  If 'allocator' is 0, the currently installed
-//        // default allocator is used.
 //
+//    ///  Perform the required clean-up and destroy this object.
 //    ~my_Server();
-//        // Perform the required clean-up and destroy this object.
 // };
 //
 // my_Server::my_Server(const bsls::TimeInterval&  ioTimeout,
