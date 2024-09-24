@@ -16,14 +16,12 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_log.h>
 #include <bsls_platform.h>
-#include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_cstdlib.h>
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
@@ -70,31 +68,6 @@
     // changes in the expected 'strtod' anomalies).
 #endif
 
-//=============================================================================
-//                   PLATFORM RELATED CONDITIONAL BEHAVIORS
-//-----------------------------------------------------------------------------
-
-#if defined(__GLIBC__) && __GLIBC__ <= 2
-    // 'strtod' of GNU libc  consistently parses any hexfloat value that is
-    // half of 'bsl::numeric_limits<double>::denorm_min()' into the value of
-    // 'bsl::numeric_limits<double>::denorm_min()'.  This off-by-one-helf bug
-    // does not seem to appear for any other value or format.  The anomaly is
-    // fixed/patched up in the 'parseDouble' implementation.  As 'strtod' is
-    // used with GNU libstdc++ even when 'from_chars' is present (to determine
-    // the exact under/overflow condition) the bug fix has to be tested even
-    // when we use 'from_chars'.
-    #define u_GLIBC2_STRTOD_HEX_HALF_DENORM_MIN_HEX_BUG                       1
-#endif
-
-// Solaris 'strtod' linked by us somehow does not parse hexadecimal floats, but
-// the one we link when using gcc on Solaris does.
-#if defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
-    #define u_BDLB_NUMERICPARSEUTIL_ON_SUN                                    1
-#endif
-#if !defined(u_BDLB_NUMERICPARSEUTIL_ON_SUN) || defined(BSLS_PLATFORM_CMP_GNU)
-    #define u_BDLB_NUMERICPARSEUTIL_SUPPORT_PARSING_HEXFLOAT                  1
-#endif
-
 using namespace BloombergLP;
 
 //=============================================================================
@@ -119,7 +92,6 @@ using namespace BloombergLP;
 // [ 3] parseSignedInteger(result, rest, input, base, minVal, maxVal)
 // [ 3] parseSignedInteger(result, input, base, minVal, maxVal)
 // [ 4] size_t calcRestPos(parsedChars, length)
-// [ 4] class BslsReviewMonitor
 // [ 4] class TestAssertCounter
 // [ 4] double parseExpected(const bsl::string_view&)
 // [ 5] parseDouble(double *res, string_view *rest, string_view in)
@@ -412,28 +384,23 @@ namespace testDouble {
 void checkConfig()
 {
 #ifdef u_PARSEDOUBLE_USES_STRTOD
-        if (verbose) puts("'parseDouble' uses 'strtod'");
-#endif
+    if (verbose) puts("'parseDouble' uses 'strtod'");
+#endif  // u_PARSEDOUBLE_USES_STRTOD
+
 #ifdef u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY
-        if (verbose) puts("'parseDouble' uses 'from_chars' then 'strtod' in "
-                          "case of Range Error.");
-    #ifndef u_PARSEDOUBLE_USES_FROM_CHARS
-        ASSERT("u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY without using"
-               " 'bsl::from_chars'?" == 0);
-    #endif
-#endif
+    if (verbose) puts("'parseDouble' uses 'from_chars' then 'strtod' in case "
+                      "of Range Error.");
+  #ifndef u_PARSEDOUBLE_USES_FROM_CHARS
+    ASSERT("u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY without using "
+           "'bsl::from_chars'?" == 0);
+  #endif  // u_PARSEDOUBLE_USES_FROM_CHARS
+#endif  // u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY
 
-#if defined(u_PARSEDOUBLE_USES_FROM_CHARS) &&               \
-    !defined(u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY)
-        if (verbose) puts("'parseDouble' uses 'from_chars' only");
+#if defined(u_PARSEDOUBLE_USES_FROM_CHARS) &&                                \
+                       !defined(u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY)
+    if (verbose) puts("'parseDouble' uses 'from_chars' only");
 #elif !defined(u_PARSEDOUBLE_USES_STRTOD)
-        ASSERT("'parseDouble' uses neither 'strtod' nor 'from_chars'?" == 0);
-#endif
-
-#ifdef u_BDLB_NUMERICPARSEUTIL_SUPPORT_PARSING_HEXFLOAT
-        if (verbose) puts("Hexfloat parsing supported");
-#else
-        if (verbose) puts("NO hexfloat parsing (Solaris && Sun-CC)");
+    ASSERT("'parseDouble' uses neither 'strtod' nor 'from_chars'?" == 0);
 #endif
 }
 
@@ -871,405 +838,6 @@ int BslsLogCounterGuard::counter()
     return s_logMessageCounter;
 }
 
-                       // ===========================
-                       // class BslsReviewMonitorUtil
-                       // ===========================
-
-class BslsReviewMonitorUtil {
-    // A simple stateful utility that monitors 'BSLS_REVIEW' failures and
-    // verifies that only expected messages from the tested component occur.
-    // Do not use this utility directly, use 'BslsReviewMonitor'.
-
-  private:
-    // CLASS DATA
-    static bsls::Review::ViolationHandler s_originalReviewHandler;
-
-    static bool s_verbose;
-
-    static int  s_numHexfloatReviews;
-    static int  s_numOverflowReviews;
-    static int  s_numUnderflowReviews;
-
-  private:
-    // PRIVATE CLASS METHODS
-
-                       // VIOLATION PREDICATES RELATED
-
-    static bool containsCaseless(const bsl::string_view& string,
-                                 const bsl::string_view& subString);
-        // Return 'true' if the specified 'subString' is present in the
-        // specified 'string' disregarding case of alphabet characters
-        // '[a-zA-Z]', otherwise return 'false'.
-
-    static bool isInComment(const char *comment, const char *subString);
-        // Return 'true' if the specified 'comment' is not a null pointer and
-        // contains the specified 'subString', case insensitive, otherwise
-        // return 'false'.
-
-    static bool maybeRightFilename(const char *fileName);
-        // Return 'true' if the specified 'fileName' is a null pointer, or an
-        // empty null-terminated string, or contains the name of this
-        // component, case insensitive, immediately followed by a dot,
-        // otherwise return 'false'.
-
-                     // 'bsls::Review::ViolationHandler'
-
-    static void monitoringHandler(const bsls::ReviewViolation& violation);
-        // If 'd_verbose' is 'true' "print" the specified 'violation' using the
-        // 'bsls::Review::failByLog' handler.  Determine if the 'violation' is
-        // one of the valid review violations from the tested method
-        // ('bsls::NumericParseutil::parseDouble').  In case  'violation' is
-        // unexpected 'ASSERT' and call the original violation handler stored
-        // by the constructor, unless 'd_verbose' is 'true' and the original
-        // handler is 'bsls::Review::failByLog', then return.  In case
-        // 'violation' is an expected one update the corresponding counter,
-        // then return.
-
-                               // Handler Helpers
-
-    static bool handleIfExpected(const bsls::ReviewViolation& violation);
-        // Determine if the specified 'violation' is expected and update the
-        // corresponding counter if it is, and return 'true', otherwise return
-        // 'false'.
-
-    static bool handleIfHexfloat(const char *comment);
-        // If the specified 'comment' is not from a hexfloat related review
-        // violation do nothing and return 'false', otherwise return 'true'.
-
-    static bool handleIfOverflow(const char *comment);
-        // If the specified 'comment' is not from an overflow related review
-        // violation do nothing and return 'false', otherwise return 'true'.
-
-    static bool handleIfUnderflow(const char *comment);
-        // If the specified 'comment' is not from an underflow related review
-        // violation do nothing and return 'false', otherwise return 'true'.
-
-  public:
-    // CLASS METHODS            // Setup/Tear-down
-    static void start();
-        // Save the original handler, install 'monitoringHandler' as the bsls
-        // review violation handler.  The behavior is undefined unless
-        // 'false == wasStarted()'.
-
-    static void stop();
-        // Restore the saved original bsls review violation handler stored by
-        // 'installHandler' and set the original handler to null.  The behavior
-        // is undefined unless 'true == isActive()'.
-
-                            // Monitoring Status Helpers
-
-    static bool isActive();
-        // Return 'true' if 'true == wasStarted()' and also the installed
-        // review violation handler is 'monitoringHandler', otherwise return
-        // 'false'.
-
-    static bool wasStarted();
-        // Return 'true' if there is a saved original bsls review violation
-        // handler, otherwise return 'false'.
-
-    static bool isVerbose();
-        // Return 'd_verbose'.
-
-                                // Counter Related
-    static int numHexfloat();
-        // Return the hexfloat review violation counter.
-
-    static int numOverflow();
-        // Return the overflow review violation counter.
-
-    static int numUnderflow();
-        // Return the underflow review violation counter.
-
-    static void resetCounters();
-        // Set all counters to 0.
-
-                               // Verbosity Related
-
-    static void setVerbose(bool verbosity);
-        // Set verbosity to the specified 'verbosity'.
-};
-                         // =======================
-                         // class BslsReviewMonitor
-                         // =======================
-
-class BslsReviewMonitor {
-    // A mechanism that monitors 'BSLS_REVIEW' failures and verifies that only
-    // expected messages from the tested component occur.  Note that no more
-    // than one instance of this type is allowed to exist.
-
-  public:
-    // CREATORS
-    explicit BslsReviewMonitor(bool verbose);
-        // Create a 'BslsReviewMonitor' object, set the monitoring verbosity
-        // to the specified 'verbose', reset all counters to zero, and finally
-        // start monitoring bsls review failures.  The behavior is undefined
-        // unless no other 'BslsReviewMonitor' objects exists or in other words
-        // 'false == BslsReviewMonitorUtil::wasStarted()'.
-
-    ~BslsReviewMonitor();
-        // Call 'BslsReviewMonitorUtil::stop()' to stop monitoring and destroy
-        // this object.
-
-    // MANIPULATORS
-    void resetCounters();
-        // Set all expected review violation counters to zero.
-
-    // ACCESSORS
-    bool isVerbose() const;
-        // Return 'true' if this object has been instantiated in 'verbose'
-        // mode, otherwise return 'false'.
-
-    int numHexfloat() const;
-    int numOverflow() const;
-    int numUnderflow() const;
-        // Return the number of observed review failures since construction or
-        // the last call to 'resetCounters'.
-};
-                        // ---------------------------
-                        // class BslsReviewMonitorUtil
-                        // ---------------------------
-// CLASS DATA
-bsls::Review::ViolationHandler BslsReviewMonitorUtil::s_originalReviewHandler;
-
-bool BslsReviewMonitorUtil::s_verbose = false;
-
-int BslsReviewMonitorUtil::s_numHexfloatReviews  = 0;
-int BslsReviewMonitorUtil::s_numOverflowReviews  = 0;
-int BslsReviewMonitorUtil::s_numUnderflowReviews = 0;
-
-// PRIVATE CLASS METHODS
-
-                     // VIOLATION PREDICATES RELATED
-inline
-bool BslsReviewMonitorUtil::containsCaseless(const bsl::string_view& string,
-                                             const bsl::string_view& subString)
-{
-    if (subString.empty()) {
-        return true;                                                  // RETURN
-    }
-
-    typedef bdlb::StringViewUtil SVU;
-    const bsl::string_view rsv = SVU::strstrCaseless(string, subString);
-
-    return !rsv.empty();
-}
-
-inline
-bool BslsReviewMonitorUtil::isInComment(const char *comment,
-                                        const char *subString)
-{
-    return comment && containsCaseless(comment, subString);
-}
-
-inline
-bool BslsReviewMonitorUtil::maybeRightFilename(const char *fileName)
-{
-    if (0 == fileName || '\0' == *fileName) {
-        // It could have been "bsls_numericparseutil.cpp"
-        return true;                                                  // RETURN
-    }
-
-    return containsCaseless(fileName, "bdlb_numericparseutil.");
-}
-
-                    // 'bsls::Review::ViolationHandler'
-
-void BslsReviewMonitorUtil::monitoringHandler(
-                                        const bsls::ReviewViolation& violation)
-{
-    if (s_verbose) {
-        bsls::Review::failByLog(violation);
-    }
-
-    const bool expectedReviewViolation = handleIfExpected(violation);
-
-    ASSERTV(violation.reviewLevel(),
-            Opt(violation.fileName()),
-            violation.lineNumber(),
-            Opt(violation.comment()),
-            violation.count(),
-            expectedReviewViolation);
-
-    if (!expectedReviewViolation &&
-        (!s_verbose || &bsls::Review::failByLog != s_originalReviewHandler)) {
-        // Unexpected violations get the original handler called unless we have
-        // called it already, because it is 'failByLog' and we are verbose.
-        s_originalReviewHandler(violation);
-    }
-}
-                             // Handler Helpers
-inline
-bool BslsReviewMonitorUtil::handleIfExpected(
-                                        const bsls::ReviewViolation& violation)
-{
-    return maybeRightFilename(violation.fileName())
-        && (handleIfHexfloat(violation.comment())  ||
-            handleIfUnderflow(violation.comment()) ||
-            handleIfOverflow(violation.comment()));
-}
-
-inline
-bool BslsReviewMonitorUtil::handleIfHexfloat(const char *comment)
-{
-    const bool isMyThing = isInComment(comment, "hexfloat");
-    if (isMyThing) {
-        ++s_numHexfloatReviews;
-    }
-
-    return isMyThing;  // Chain of Responsibilities Pattern
-}
-
-inline
-bool BslsReviewMonitorUtil::handleIfOverflow(const char *comment)
-{
-    const bool isMyThing = isInComment(comment, "overflow");
-    if (isMyThing) {
-        ++s_numOverflowReviews;
-    }
-
-    return isMyThing;  // Chain of Responsibilities Pattern
-}
-
-inline
-bool BslsReviewMonitorUtil::handleIfUnderflow(const char *comment)
-{
-    const bool isMyThing = isInComment(comment, "underflow");
-    if (isMyThing) {
-        ++s_numUnderflowReviews;
-    }
-
-    return isMyThing;  // Chain of Responsibilities Pattern
-}
-
-// CLASS METHODS
-                            // Setup/Tear-down
-inline
-void BslsReviewMonitorUtil::start()
-{
-    ASSERT(!wasStarted());
-
-    s_originalReviewHandler = bsls::Review::violationHandler();
-
-    bsls::Review::setViolationHandler(&monitoringHandler);
-}
-
-inline
-void BslsReviewMonitorUtil::stop()
-{
-    ASSERT(isActive());
-
-    bsls::Review::setViolationHandler(s_originalReviewHandler);
-    s_originalReviewHandler = 0;
-}
-                        // Monitoring Status Helpers
-inline
-bool BslsReviewMonitorUtil::isActive()
-{
-    return wasStarted() &&
-                        &monitoringHandler == bsls::Review::violationHandler();
-}
-
-inline
-bool BslsReviewMonitorUtil::wasStarted()
-{
-    return s_originalReviewHandler != 0;
-}
-
-inline bool BslsReviewMonitorUtil::isVerbose()
-{
-    return s_verbose;
-}
-
-                             // Counter Related
-inline
-int BslsReviewMonitorUtil::numHexfloat()
-{
-    return s_numHexfloatReviews;
-}
-
-inline
-int BslsReviewMonitorUtil::numOverflow()
-{
-    return s_numOverflowReviews;
-}
-
-inline
-int BslsReviewMonitorUtil::numUnderflow()
-{
-    return s_numUnderflowReviews;
-}
-
-inline
-void BslsReviewMonitorUtil::resetCounters()
-{
-    s_numHexfloatReviews  = 0;
-    s_numOverflowReviews  = 0;
-    s_numUnderflowReviews = 0;
-}
-                            // Verbosity Related
-inline
-void BslsReviewMonitorUtil::setVerbose(bool verbosity)
-{
-    s_verbose = verbosity;
-}
-                         // -----------------------
-                         // class BslsReviewMonitor
-                         // -----------------------
-// CREATORS
-inline
-BslsReviewMonitor::BslsReviewMonitor(bool verbose)
-{
-    ASSERT(!BslsReviewMonitorUtil::wasStarted());
-
-    BslsReviewMonitorUtil::setVerbose(verbose);
-    BslsReviewMonitorUtil::resetCounters();
-    BslsReviewMonitorUtil::start();
-}
-
-inline
-BslsReviewMonitor::~BslsReviewMonitor()
-{
-    BslsReviewMonitorUtil::stop();
-}
-
-// MANIPULATORS
-inline
-void BslsReviewMonitor::resetCounters()
-{
-    BslsReviewMonitorUtil::resetCounters();
-}
-
-// ACCESSORS
-inline
-bool BslsReviewMonitor::isVerbose() const
-{
-    return BslsReviewMonitorUtil::isVerbose();
-}
-
-inline
-int BslsReviewMonitor::numHexfloat() const
-{
-    return BslsReviewMonitorUtil::numHexfloat();
-}
-
-inline
-int BslsReviewMonitor::numOverflow() const
-{
-    return BslsReviewMonitorUtil::numOverflow();
-}
-
-inline
-int BslsReviewMonitor::numUnderflow() const
-{
-    return BslsReviewMonitorUtil::numUnderflow();
-}
-                        // Null Review Handler
-
-void nullReviewHandler(const bsls::ReviewViolation&)
-    // This 'BSLS_REVIEW' handler does nothing.  Used in benchmarking.
-{
-    // This function is intentionally empty.
-}
 
 // ============================================================================
 // FREQUENTLY USED TYPE ABBREVIATIONS
@@ -1323,30 +891,6 @@ bsl::size_t calcRestPos(ParsedChars parsedChars, bsl::size_t length)
 
     // Small negative position counts from the end of the string (of 'length')
     return length + parsedChars;
-}
-
-bsl::size_t calcRestPosForNoHexfloat(bool                    isHex,
-                                     const bsl::string_view& input,
-                                     ParsedChars             parsedChars)
-    // Calculate the position of the first not-parsed character for platforms
-    // that do not support parsing hexadecimal floating point.  Such platforms
-    // will parse the '0' of the hex prefix into a 0, regardless of the rest of
-    // the input after the 'x' or 'X'.  Non hexfloat input (the specified
-    // 'isHex' is 'false') is not different, so we delegate to'calcRestpos'
-    // using the specified 'parsedChars' value, and the length of the specified
-    // 'input'.  When 'isHex' is 'true' the function returns the position of
-    // the first 'x' or 'X' character of 'input'.  The behavior is undefined
-    // if 'isHex' is 'true', but the 'input' does not start with a hex prefix
-    // ("0x" or "0X") optionally preceded by a sign character ('+'/'-').
-    // Notice that the 'parsedChars' argument value is deliberately ignored in
-    // case of a hexfloat 'input'.
-{
-    ASSERTV(input,
-            !isHex || input.find_first_of("xX") != bsl::string_view::npos);
-
-    return isHex
-        ? input.find_first_of("xX")
-        : calcRestPos(parsedChars, input.length());
 }
 
 static const double Inf = Limits::infinity();
@@ -1489,7 +1033,6 @@ struct SpecialFlags {
     //..
     //  Name                Type  Default  Simple Constraints
     //  ------------------  ----  -------  ------------------
-    //  isHex               bool  none     none
     //  uflwInSignificand   bool  none     none
     //  isUnderflow         bool  none     none
     //  isOverflow          bool  none     none
@@ -1502,8 +1045,6 @@ struct SpecialFlags {
     //: +-------------------+-----------------------------------------+
     //: | Flags             | Constraint one when can be set ('true') |
     //: +===================+=========================================+
-    //: | isHex             | none                                    |
-    //: +-------------------+-----------------------------------------+
     //: | isUnderflow       | these 3 flags are mutually exclusive,   |
     //: | isOverflow        | only one of them may be 'true'.         |
     //: | isSubnormal       |                                         |
@@ -1536,75 +1077,49 @@ struct SpecialFlags {
     // then translate to these boolean values.  See also 'stringToFlags'.  The
     // above constraints translate to the following possible literals:
     //
-    //: +------+---+-----+---+-----+
-    //: | str  |   | u   | o | d i |
-    //: | ing  |   | n t | v | e s |
-    //: |      | h | d i | e | n m |
-    //: | lit  | e | e n | r | r i | ,----------------------------------------+
-    //: | eral | x | r y | f | m n |/               Description               |
-    //: +======+===+=====+===+=====+==========================================+
-    //: | ""   | f | f f | f | f f | normal number in fixed/scientific format |
-    //: |      |   |     |   |     | or parsing error(**)                     |
-    //: +------+---+-----+---+-----+------------------------------------------+
-    //: | "H"  | T | f f | f | f f | normal number in hexfloat format         |
-    //: +------+---+-----+---+-----+------------------------------------------+
-    //: | "U"  | f | T f | f | f f | underflow in fixed or scientific format  |
-    //: +------+---+-----+---+-----+------------------------------------------+
-    //: | "u"  | f | T T | f | f T | significand-only underflow in            |
-    //: |      |   |     |   |     | fixed/scientific format                  |
-    //: +------+---+-----+---+-----+------------------------------------------+
-    //: | "O"  | f | f f | T | f T | overflow in fixed or scientific format   |
-    //: +------+---+-----+---+-----+------------------------------------------+
-    //: | "HU" | T | T f | f | f f | underflow in hexfloat format             |
-    //: +------+---+-----+---+-----+------------------------------------------+
-    //: | "Hu" | T | T T | f | f T | significand-only underflow in hexadecimal|
-    //: |      |   |     |   |     | format                                   |
-    //: +------+---+-----+---+-----+------------------------------------------+
-    //: | "HO" | T | f f | T | f f | overflow in hexfloat format              |
-    //: +------+---+-----+---+-----+------------------------------------------+
-    //: | "D"  | f | f f | f | f f | subnormal in fixed or scientific format  |
-    //: +------+---+-----+---+-----+------------------------------------------+
-    //: | "d"  | f | f f | f | T T | 'denorm_min()' in fixed/scientific fmt   |
-    //: +------+---+-----+---+-----+------------------------------------------+
-    //: | "HD" | T | f f | f | T f | subnormal in hexfloat format             |
-    //: +------+---+-----+---+-----+------------------------------------------+
-    //: | "Hd" | T | f f | f | T T | 'denorm_min()' in hexfloat format        |
-    //: +------+---+-----+---+-----+------------------------------------------+
-    //: | "hd" | T | f f | f | F F | hexfloat 'denorm_min()/2' GNU bug(***)   |
-    //: +------+---+-----+---+-----+------------------------------------------+
-    //: | str  | h | u t | o | d i |\              Description                |
-    //: | ing  | e | n i | v | e s | `----------------------------------------+
-    //: | eral | x | d n | e | n M |
-    //: | lit  |   | e y | r | r i |
-    //: |      |   | r   | f | m n |
-    //: +------+---+-----+---+-----+
+    //: +------+-----+---+-----+
+    //: | str  | u   | o | d i |
+    //: | ing  | n t | v | e s |
+    //: |      | d i | e | n m |
+    //: | lit  | e n | r | r i | ,----------------------------------------+
+    //: | eral | r y | f | m n |/               Description               |
+    //: +======+=====+===+=====+==========================================+
+    //: | ""   | f f | f | f f | normal number in fixed/scientific format |
+    //: |      |     |   |     | or parsing error(**)                     |
+    //: +------+-----+---+-----+------------------------------------------+
+    //: | "U"  | T f | f | f f | underflow in fixed or scientific format  |
+    //: +------+-----+---+-----+------------------------------------------+
+    //: | "u"  | T T | f | f T | significand-only underflow in            |
+    //: |      |     |   |     | fixed/scientific format                  |
+    //: +------+-----+---+-----+------------------------------------------+
+    //: | "O"  | f f | T | f T | overflow in fixed or scientific format   |
+    //: +------+-----+---+-----+------------------------------------------+
+    //: | "D"  | f f | f | f f | subnormal in fixed or scientific format  |
+    //: +------+-----+---+-----+------------------------------------------+
+    //: | "d"  | f f | f | T T | 'denorm_min()' in fixed/scientific fmt   |
+    //: +------+-----+---+-----+------------------------------------------+
+    //: | str  | u t | o | d i |\              Description                |
+    //: | ing  | n i | v | e s | `----------------------------------------+
+    //: |      | d n | e | n M |
+    //: | eral | e y | r | r i |
+    //: | lit  | r   | f | m n |
+    //: +------+-----+---+-----+
     //:
     //:(**) Every other string literal must accompany an input that is, or
     //:     begins-with a parsable 'double' that fulfills to the description.
-    //:
-    //: (***) See 'u_GLIBC2_STRTOD_HEX_HALF_DENORM_MIN_HEX_BUG'.  This sets
-    //:       'd_isHexHalfSubnormMin' to 'true', while all other flags
-    //:       combinations set 'd_isHexHalfSubnormMin' to 'false'.  That flag
-    //:       is used only in the expectations-verifier when the 'strtod' bug
-    //:       is expected to be present.
 
     // PUBLIC DATA
-    bool d_isHex;
     bool d_isUnderflow;
     bool d_significandUnderflow;
     bool d_isOverflow;
     bool d_isSubnormal;
     bool d_subnormIsMin;
-    bool d_isHexHalfSubnormMin;
 };
 
 bsl::ostream& operator<<(bsl::ostream& os, const SpecialFlags& flags)
 {
     os << '"';
 
-    const char hexFlag = (flags.d_isHexHalfSubnormMin ? 'h' : 'H');
-
-    if (flags.d_isHex)                os << hexFlag;
     if (flags.d_significandUnderflow) os << 'u';
     else if (flags.d_isUnderflow)     os << 'U';
     else if (flags.d_isOverflow)      os << 'O';
@@ -1615,51 +1130,24 @@ bsl::ostream& operator<<(bsl::ostream& os, const SpecialFlags& flags)
 }
 
 SpecialFlags stringToFlags(const char *string)
-    // Return 'SpecialFlags' filled out according to the specified 'string',
-    // properly ignoring hexfloat flags for platforms that do not support
-    // parsing that format.
+    // Return 'SpecialFlags' filled out according to the specified 'string'.
     //
-    //: "H"  | hexfloat
     //: "U"  | underflow
     //: "u"  | Significand-only underflow
     //: "O"  | overflow
-    //: "HU" | hex and underflow
-    //: "Hu" | hex and decimal significand-only underflow
-    //: "HO" | hex and overflow
     //: "D"  | subnormal
-    //: "HD" | hexfloat subnormal
     //: "d"  | sci/fixed 'denorm_min()'
-    //: "Hd" | hexfloat 'denorm_min()'
-    //: "hd" | hexfloat 'denorm_min() / 2'
     //
     // See 'SpecialFlags' for a detailed description.
 {
     using bdlb::CharType;
 
-    const bool k_IS_HEX      = ('H' == CharType::toUpper(string[0]));
-
-#ifndef u_BDLB_NUMERICPARSEUTIL_SUPPORT_PARSING_HEXFLOAT
-    // On platforms not supporting hexfloat parsing the hex prefix will be
-    // parsed as zero ("0x"/"0X"), so no overflow, underflow, or subnormals are
-    // possible.  Therefore all flags should be 'false' except for 'isHex', as
-    // we still get our own 'BSLS_REVIEW_OPT'.  Note that all platforms that
-    // support 'from_chars' do support 'chars_format::hex'.
-    if (k_IS_HEX) {
-        static const SpecialFlags k_JUST_HEX = { true };
-        return k_JUST_HEX;                                            // RETURN
-    }
-#endif
-
-    const bsl::size_t POS = k_IS_HEX ? 1 : 0;
-
     SpecialFlags rv = {
-        k_IS_HEX,                                 // isHex
-        ('U' == CharType::toUpper(string[POS])),  // isUnderflow
-        ('u' == string[POS]),                     // significandUnderflow
-        ('O' == string[POS]),                     // isOverflow
-        ('D' == CharType::toUpper(string[POS])),  // isSubnormal
-        ('d' == string[POS]),                     // subnormIsMin
-        (k_IS_HEX && 'h' == string[0])            // isHexHalfSubnormMin
+        ('U' == CharType::toUpper(string[0])),  // isUnderflow
+        ('u' == string[0]),                     // significandUnderflow
+        ('O' == string[0]),                     // isOverflow
+        ('D' == CharType::toUpper(string[0])),  // isSubnormal
+        ('d' == string[0])                      // subnormIsMin
     };
 
     return rv;
@@ -1679,7 +1167,8 @@ struct TestDataRow {
     SpecialFlags d_flags;       // See 'SpecialFlags' and 'stringToFlags()'.
 
     string_view  d_expLiteral;  // literal form of 'expected' used to overcome
-};                              // no-support for hexfloat literal in compiler
+                                // no-support for hexfloat literal in compiler
+};
 
 // ============================================================================
 // PARSE DOUBLE TEST DATA DEFINITION AND ITS PORTABILITY MACROS
@@ -1700,9 +1189,8 @@ struct TestDataRow {
         // floating point literals, and to allow better for experience by
         // asserting *exactly* what the expected value was in the table
         // regardless of stream format settings.
-#elif defined(u_BDLB_NUMERICPARSEUTIL_SUPPORT_PARSING_HEXFLOAT)
-    // This is AIX, has trouble with some literals but its 'strtod' has working
-    // hexfloat support.
+#else
+    // AIX and Sun
     #define ROW(input, expected, offset, sflags)                              \
         { L_, input,                                                          \
               parseExpected(#expected),                                       \
@@ -1710,30 +1198,11 @@ struct TestDataRow {
               stringToFlags(sflags),                                          \
               #expected                                                       \
         }
-#else
-    // This is Solaris, no hexfloat support of any kind so we need to fake that
-    // by "parsing" everything hex into 0, and parsing the expected literals by
-    // a function into a 'double'.
-    #define ROW(input, expected, offset, sflags)                              \
-        { L_, input,                                                          \
-              ('H' != *sflags) ? parseExpected(#expected) : 0.0,              \
-              calcRestPosForNoHexfloat('H' == *sflags || 'h' == *sflags,      \
-                                       input, offset),                        \
-              stringToFlags(sflags),                                          \
-              #expected                                                       \
-        }
 #endif
 
 #define PROW(input, expected) ROW(input, expected, All, "")
     // Abbreviation for long rows that are expected to pass and have no special
-    // flags (not subnormal, not hexfloat format, no any under/overflow).
-
-#define HPROW(input, expected) ROW(input, expected, All, "H")
-    // Abbreviation for long hexfloat rows that are expected to pass and have
-    // no other special flags (not subnormal, no any under/overflow).
-
-#define HDROW(input, expected) ROW(input, expected, All, "HD")
-    // Abbreviation for long hexfloat subnormal rows.
+    // flags (not subnormal, no under or overflow).
 
 static const TestDataRow TEST_DATA[] = {
     //  input text                         expected                 offs sflags
@@ -1777,46 +1246,16 @@ static const TestDataRow TEST_DATA[] = {
     ROW("+-1",                             NtA,                       0, ""  ),
     ROW("-+1",                             NtA,                       0, ""  ),
 
-    // Hex-looking 3 char, but not really valid hexfloat
-    ROW("0xx",                             0,                         1, ""  ),
-    ROW("0XX",                             0,                         1, ""  ),
-    ROW("0x.",                             0,                         1, ""  ),
-    ROW("0X.",                             0,                         1, ""  ),
-
-    // Valid 3 char hexfloats
-    ROW("0x0",                              0,                      All, "H" ),
-    ROW("0x1",                              1,                      All, "H" ),
-    ROW("0x2",                              2,                      All, "H" ),
-    ROW("0x3",                              3,                      All, "H" ),
-    ROW("0x4",                              4,                      All, "H" ),
-    ROW("0x5",                              5,                      All, "H" ),
-    ROW("0x6",                              6,                      All, "H" ),
-    ROW("0x7",                              7,                      All, "H" ),
-    ROW("0x8",                              8,                      All, "H" ),
-    ROW("0x9",                              9,                      All, "H" ),
-    ROW("0xa",                             10,                      All, "H" ),
-    ROW("0xb",                             11,                      All, "H" ),
-    ROW("0xc",                             12,                      All, "H" ),
-    ROW("0xd",                             13,                      All, "H" ),
-    ROW("0xe",                             14,                      All, "H" ),
-    ROW("0xf",                             15,                      All, "H" ),
-    ROW("0x10",                            16,                      All, "H" ),
-    ROW("0x11",                            17,                      All, "H" ),
-    ROW("0x12",                            18,                      All, "H" ),
-    ROW("0x13",                            19,                      All, "H" ),
-    ROW("0x14",                            20,                      All, "H" ),
-    ROW("0x15",                            21,                      All, "H" ),
-    ROW("0x16",                            22,                      All, "H" ),
-    ROW("0x17",                            23,                      All, "H" ),
-    ROW("0x18",                            24,                      All, "H" ),
-    ROW("0x19",                            25,                      All, "H" ),
-    ROW("0x1a",                            26,                      All, "H" ),
-    ROW("0x1b",                            27,                      All, "H" ),
-    ROW("0x1c",                            28,                      All, "H" ),
-    ROW("0x1d",                            29,                      All, "H" ),
-    ROW("0x1e",                            30,                      All, "H" ),
-    ROW("0x1f",                            31,                      All, "H" ),
-    ROW("0xFF",                           255,                      All, "H" ),
+    // Hexfloat - should be parsed as 0, stopping on the 'x'
+    ROW("0x7",                               0,                       1, ""  ),
+    ROW("0X3",                               0,                       1, ""  ),
+    ROW("+0x5",                              0,                       2, ""  ),
+    ROW("+0X2",                              0,                       2, ""  ),
+    ROW("-0x4",                              0,                       2, ""  ),
+    ROW("-0X9",                              0,                       2, ""  ),
+    // Complete tests for parsing hexfloats are found at the following git hash
+    // 5cb5985af1b7e3fb113eea421f73770075eb968f and may be used in case we
+    // decide to implement a hexfloat parsing functionality.
 
     // '[eE]+$' had 'scanf' anomalies, we treat those as possible anomalies
     ROW("0ee",                               0,                       1, ""  ),
@@ -1867,34 +1306,6 @@ static const TestDataRow TEST_DATA[] = {
     ROW(" -+ 1",                           NtA,                       0, ""  ),
     ROW("- + 1",                           NtA,                       0, ""  ),
     ROW(" - + 1",                          NtA,                       0, ""  ),
-
-    // Valid 4 char hexfloats
-    ROW("0x42",                             66,                     All, "H" ),
-    ROW("0X0f",                             15,                     All, "H" ),
-    ROW("0Xa5",                            165,                     All, "H" ),
-
-    ROW("0x.0",                            0,                       All, "H" ),
-    ROW("0x.1",                            0x1.0000000000000p-4,    All, "H" ),
-    ROW("0x.2",                            0x1.0000000000000p-3,    All, "H" ),
-    ROW("0x.3",                            0x1.8000000000000p-3,    All, "H" ),
-    ROW("0x.4",                            0x1.0000000000000p-2,    All, "H" ),
-    ROW("0x.5",                            0x1.4000000000000p-2,    All, "H" ),
-    ROW("0x.6",                            0x1.8000000000000p-2,    All, "H" ),
-    ROW("0x.7",                            0x1.c000000000000p-2,    All, "H" ),
-    ROW("0x.8",                            0x1.0000000000000p-1,    All, "H" ),
-    ROW("0x.9",                            0x1.2000000000000p-1,    All, "H" ),
-    ROW("0x.a",                            0x1.4000000000000p-1,    All, "H" ),
-    ROW("0x.b",                            0x1.6000000000000p-1,    All, "H" ),
-    ROW("0x.c",                            0x1.8000000000000p-1,    All, "H" ),
-    ROW("0x.d",                            0x1.a000000000000p-1,    All, "H" ),
-    ROW("0x.e",                            0x1.c000000000000p-1,    All, "H" ),
-    ROW("0x.f",                            0x1.e000000000000p-1,    All, "H" ),
-
-    // Too many signs for hexfloat
-    ROW("++0Xa",                           NtA,                       0, ""  ),
-    ROW("--0xa",                           NtA,                       0, ""  ),
-    ROW("+-0Xa",                           NtA,                       0, ""  ),
-    ROW("-+0xa",                           NtA,                       0, ""  ),
 
     // Eclectic set of string that look hex or scientific but aren't, yet a
     // part of them can be parsed as a 'double'
@@ -1996,274 +1407,6 @@ static const TestDataRow TEST_DATA[] = {
     ROW("1e309",                           Inf,                     All, "O" ),
     ROW("1e+309",                          Inf,                     All, "O" ),
 
-    // Hexfloat under/overflow
-    ROW("0x1p-1074",                       0x0.0000000000001p-1022, All, "Hd"),
-    ROW("0x2p-1075",                       0x0.0000000000001p-1022, All, "Hd"),
-    ROW("0x2p-1076",                       0,                       All, "hd"),
-    ROW("0x1p-1075",                       0,                       All, "hd"),
-
-    // 'strtod' of GNU libc  consistently parses any hexfloat value that is
-    // half of 'bsl::numeric_limits<double>::denorm_min()' into the value of
-    // 'bsl::numeric_limits<double>::denorm_min()'.  This off-by-one-helf bug
-    // does not seem to appear for any other value or format.  The anomaly is
-    // fixed/patched up in the 'parseDouble' implementation.  These test values
-    // are the reasonable verification of the fix on this GNU libc bug.  A more
-    // exhaustive verification step is performed separately with much longer
-    // strings to verify pathological scenarios.  These tests are enabled for
-    // all platforms deliberately as we use the non-buggy platforms as oracles.
-    // See also 'u_GLIBC2_STRTOD_HEX_HALF_DENORM_MIN_HEX_BUG'.
-    ROW( "0x1p-1075",                      0,                       All, "hd"),
-    ROW( "0x2p-1076",                      0,                       All, "hd"),
-    ROW( "0x4p-1077",                      0,                       All, "hd"),
-    ROW( "0x8p-1078",                      0,                       All, "hd"),
-    ROW("0x10p-1079",                      0,                       All, "hd"),
-    ROW("0x20p-1080",                      0,                       All, "hd"),
-    ROW("0x40p-1081",                      0,                       All, "hd"),
-    ROW("0x80p-1082",                      0,                       All, "hd"),
-    ROW("0x100p-1083",                     0,                       All, "hd"),
-    ROW("0x200p-1084",                     0,                       All, "hd"),
-    ROW("0x400p-1085",                     0,                       All, "hd"),
-    ROW("0x800p-1086",                     0,                       All, "hd"),
-    ROW("0x1000p-1087",                    0,                       All, "hd"),
-    ROW("0x2000p-1088",                    0,                       All, "hd"),
-    ROW("0x4000p-1089",                    0,                       All, "hd"),
-    ROW("0x8000p-1090",                    0,                       All, "hd"),
-    ROW("0x10000p-1091",                   0,                       All, "hd"),
-    ROW("0x20000p-1092",                   0,                       All, "hd"),
-    ROW("0x40000p-1093",                   0,                       All, "hd"),
-
-    ROW("0x0.8p-1074",                     0,                       All, "hd"),
-    ROW("0x0.4p-1073",                     0,                       All, "hd"),
-    ROW("0x0.2p-1072",                     0,                       All, "hd"),
-    ROW("0x0.1p-1071",                     0,                       All, "hd"),
-    ROW("0x0.08p-1070",                    0,                       All, "hd"),
-    ROW("0x0.04p-1069",                    0,                       All, "hd"),
-    ROW("0x0.02p-1068",                    0,                       All, "hd"),
-    ROW("0x0.01p-1067",                    0,                       All, "hd"),
-    ROW("0x0.008p-1066",                   0,                       All, "hd"),
-    ROW("0x0.004p-1065",                   0,                       All, "hd"),
-    ROW("0x0.002p-1064",                   0,                       All, "hd"),
-    ROW("0x0.001p-1063",                   0,                       All, "hd"),
-    ROW("0x0.0008p-1062",                  0,                       All, "hd"),
-    ROW("0x0.0004p-1061",                  0,                       All, "hd"),
-    ROW("0x0.0002p-1060",                  0,                       All, "hd"),
-    ROW("0x0.0001p-1059",                  0,                       All, "hd"),
-    ROW("0x0.00008p-1058",                 0,                       All, "hd"),
-    ROW("0x0.00004p-1057",                 0,                       All, "hd"),
-    ROW("0x0.00002p-1056",                 0,                       All, "hd"),
-    ROW("0x0.00001p-1055",                 0,                       All, "hd"),
-    ROW("0x0.000001p-1051",                0,                       All, "hd"),
-
-    ROW("0x.8p-1074",                      0,                       All, "hd"),
-    ROW("0x.4p-1073",                      0,                       All, "hd"),
-    ROW("0x.2p-1072",                      0,                       All, "hd"),
-    ROW("0x.1p-1071",                      0,                       All, "hd"),
-    ROW("0x.08p-1070",                     0,                       All, "hd"),
-    ROW("0x.04p-1069",                     0,                       All, "hd"),
-    ROW("0x.02p-1068",                     0,                       All, "hd"),
-    ROW("0x.01p-1067",                     0,                       All, "hd"),
-    ROW("0x.008p-1066",                    0,                       All, "hd"),
-    ROW("0x.004p-1065",                    0,                       All, "hd"),
-    ROW("0x.002p-1064",                    0,                       All, "hd"),
-    ROW("0x.001p-1063",                    0,                       All, "hd"),
-    ROW("0x.0008p-1062",                   0,                       All, "hd"),
-    ROW("0x.0004p-1061",                   0,                       All, "hd"),
-    ROW("0x.0002p-1060",                   0,                       All, "hd"),
-    ROW("0x.0001p-1059",                   0,                       All, "hd"),
-    ROW("0x.00008p-1058",                  0,                       All, "hd"),
-    ROW("0x.00004p-1057",                  0,                       All, "hd"),
-    ROW("0x.00002p-1056",                  0,                       All, "hd"),
-    ROW("0x.00001p-1055",                  0,                       All, "hd"),
-    ROW("0x.000001p-1051",                 0,                       All, "hd"),
-
-    // 'u_GLIBC2_STRTOD_HEX_HALF_DENORM_MIN_HEX_BUG' unlikely but valid inputs
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000002", // 268 '0's then '2'
-                                           0,                       All, "hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000004", // 268 '0's then '4'
-                                           0x0.0000000000001p-1022, All, "Hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000002P0", // 268 '0's then '2'
-                                           0,                       All, "hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000004P0", // 268 '0's then '4'
-                                           0x0.0000000000001p-1022, All, "Hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000001P1",
-                                           0,                       All, "hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000002P1",
-                                           0x0.0000000000001p-1022, All, "Hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "000000000000000000000000000008P2",
-                                           0,                       All, "hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000001P2",
-                                           0x0.0000000000001p-1022, All, "Hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "000000000000000000000000000004P3",
-                                           0,                       All, "hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "000000000000000000000000000008P3",
-                                           0x0.0000000000001p-1022, All, "Hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "000000000000000000000000000002P4",
-                                           0,                       All, "hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "000000000000000000000000000004P4",
-                                           0x0.0000000000001p-1022, All, "Hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "0000000000000000000000000000002P8",
-                                           0,                       All, "hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "0000000000000000000000000000004P8",
-                                           0x0.0000000000001p-1022, All, "Hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000004P-1",
-                                           0,                       All, "hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000008P-1",
-                                           0x0.0000000000001p-1022, All, "Hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000008P-2",
-                                           0,                       All, "hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "0000000000000000000000000001P-2",
-                                           0x0.0000000000001p-1022, All, "Hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "0000000000000000000000000001P-3",
-                                           0,                       All, "hd"),
-
-    ROW("0x.000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "0000000000000000000000000002P-3",
-                                           0x0.0000000000001p-1022, All, "Hd"),
-
-    ROW("0x0"
-          ".000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000002", // 268 '0's then '2'
-                                           0,                       All, "hd"),
-
-    ROW("0x0"
-          ".000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000004", // 268 '0's then '4'
-                                           0x0.0000000000001p-1022, All, "Hd"),
-
-    ROW("0x00000"
-          ".000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000002", // 268 '0's then '2'
-                                           0,                       All, "hd"),
-
-    ROW("0x00000000"
-          ".000000000000000000000000000000000000000000000000000000000000" // 60
-           "000000000000000000000000000000000000000000000000000000000000" //120
-           "000000000000000000000000000000000000000000000000000000000000" //180
-           "000000000000000000000000000000000000000000000000000000000000" //240
-           "00000000000000000000000000004", // 268 '0's then '4'
-                                           0x0.0000000000001p-1022, All, "Hd"),
-
-    ROW("0x2p-1077",                       0,                       All, "Hu"),
-    ROW("0x1p-1076",                       0,                       All, "Hu"),
-    ROW("0x1p-1077",                       0,                       All, "Hu"),
-    ROW("0x1p-1078",                       0,                       All, "Hu"),
-    ROW("0x1p-1079",                       0,                       All, "HU"),
-    ROW("0x1p-1080",                       0,                       All, "HU"),
-    ROW("0x0.8p1024",                      0x1.0000000000000p+1023, All, "H" ),
-    ROW("0x1p1024",                        Inf,                     All, "HO"),
-    ROW("0x1p+1024",                       Inf,                     All, "HO"),
-
-    // Hexfloat exact maximum, then first overflow NA,
-    ROW("0x1.FFFFFFFFFFFFFp1023",          0x1.fffffffffffffp+1023, All, "H" ),
-    ROW("0x1.FFFFFFFFFFFFFp+1023",         0x1.fffffffffffffp+1023, All, "H" ),
-
     ROW("1e1000000000",                    Inf,                     All, "O" ),
     ROW("1e+1000000000",                   Inf,                     All, "O" ),
     ROW("1e2147483647",                    Inf,                     All, "O" ),
@@ -2348,90 +1491,7 @@ static const TestDataRow TEST_DATA[] = {
     PROW("NAN(ananana_batmaaan)",   NaN ),
     PROW("Nan(ananana_batmaaan)",   NaN ),
     PROW("NaN(ananana_batmaaan)",   NaN ),
-
-    // Tests for hexfloat parsing
-    //
-    // Hexfloats are verified more thoroughly as they are a relatively recent
-    // addition to the languages and also one that may not be used as widely as
-    // the scientific and fixed format.
-    //
-    // Some values are from https://observablehq.com/@jrus/hexfloat
-    //..
-    // number             hexfloat                 decimal
-    //  1                 +0x1.0000000000000p+00   +1.0000000000000000e+00
-    // +0                 +0x0.0000000000000p+00   +0.0000000000000000e+00
-    // -0                 -0x0.0000000000000p+00   -0.0000000000000000e+00
-    //  1/3               +0x1.5555555555555p-02   +3.3333333333333331e-01
-    // -4/7               -0x1.2492492492492p-01   -5.7142857142857140e-01
-    //  0.1               +0x1.999999999999ap-04   +1.0000000000000001e-01
-    // (sqrt(5) + 1) / 2  +0x1.9e3779b97f4a8p+00   +1.6180339887498949e+00
-    // sqrt(.5)           +0x1.6a09e667f3bcdp-01   +7.0710678118654757e-01
-    // pi                 +0x1.921fb54442d18p+01   +3.1415926535897931e+00
-    // e                  +0x1.5bf0a8b145769p+01   +2.7182818284590451e+00
-    // ln(2)              +0x1.62e42fefa39efp-01   +6.9314718055994529e-01
-    // log2(e)            +0x1.71547652b82fep+00   +1.4426950408889634e+00
-    // DBL_EPSILON        +0x1.0000000000000p-52   +2.2204460492503131e-16
-    // DBL_MIN            +0x1.0000000000000p-1074 +4.9406564584124654e-324
-    // DBL_MAX            +0x1.fffffffffffffp+1023 +1.7976931348623157e+308
-    // min safe int64     -0x1.fffffffffffffp+052  -9.0071992547409910e+15
-    // max safe int64     +0x1.fffffffffffffp+052  +9.0071992547409910e+15
-    //..
-    //
-    // More values (corner cases, subnormals, etc.) will have to be added only
-    // if we decide to implement hexfloat support on Solaris.
-    //
-    //     Input                         Expected
-    //     ---------------------------   ------------------------
-    HPROW( "0x1.0000000000000p0",        1                       ),
-    HPROW( "0x1.0000000000000p+0",       1                       ),
-    HPROW( "0x1.0000000000000p00",       1                       ),
-    HPROW( "0x1.0000000000000p+00",      1                       ),
-    HPROW( "0x0.0000000000000p0",        0                       ),
-    HPROW( "0x0.0000000000000p+0",       0                       ),
-    HPROW( "0x0.0000000000000p00",       0                       ),
-    HPROW( "0x0.0000000000000p+00",      0                       ),
-    HPROW( "0x1.5555555555555p-2",       0x1.5555555555555p-2    ),
-    HPROW( "0x1.5555555555555p-02",      0x1.5555555555555p-2    ),
-    HPROW( "0x1.999999999999ap-4",       0x1.999999999999ap-4    ),
-    HPROW( "0x1.999999999999ap-04",      0x1.999999999999ap-4    ),
-    HPROW( "0x1.9e3779b97f4a8p0",        0x1.9e3779b97f4a8p+0    ),
-    HPROW( "0x1.9e3779b97f4a8p00",       0x1.9e3779b97f4a8p+0    ),
-    HPROW( "0x1.9e3779b97f4a8p+0",       0x1.9e3779b97f4a8p+0    ),
-    HPROW( "0x1.9e3779b97f4a8p+00",      0x1.9e3779b97f4a8p+0    ),
-    HPROW( "0x1.6a09e667f3bcdp-1",       0x1.6a09e667f3bcdp-1    ),
-    HPROW( "0x1.6a09e667f3bcdp-01",      0x1.6a09e667f3bcdp-1    ),
-    HPROW( "0x1.921fb54442d18p1",        0x1.921fb54442d18p+1    ),
-    HPROW( "0x1.921fb54442d18p01",       0x1.921fb54442d18p+1    ),
-    HPROW( "0x1.921fb54442d18p+1",       0x1.921fb54442d18p+1    ),
-    HPROW( "0x1.921fb54442d18p+01",      0x1.921fb54442d18p+1    ),
-    HPROW( "0x1.5bf0a8b145769p1",        0x1.5bf0a8b145769p+1    ),
-    HPROW( "0x1.5bf0a8b145769p01",       0x1.5bf0a8b145769p+1    ),
-    HPROW( "0x1.5bf0a8b145769p+1",       0x1.5bf0a8b145769p+1    ),
-    HPROW( "0x1.5bf0a8b145769p+01",      0x1.5bf0a8b145769p+1    ),
-    HPROW( "0x1.62e42fefa39efp-1",       0x1.62e42fefa39efp-1    ),
-    HPROW( "0x1.62e42fefa39efp-01",      0x1.62e42fefa39efp-1    ),
-    HPROW( "0x1.71547652b82fep0",        0x1.71547652b82fep+0    ),
-    HPROW( "0x1.71547652b82fep00",       0x1.71547652b82fep+0    ),
-    HPROW( "0x1.71547652b82fep+0",       0x1.71547652b82fep+0    ),
-    HPROW( "0x1.71547652b82fep+00",      0x1.71547652b82fep+0    ),
-    HPROW( "0x1.0000000000000p-52",      0x1.0000000000000p-52   ),
-    HPROW( "0x1.0000000000000p-052",     0x1.0000000000000p-52   ),
-    HPROW( "0x1.0000000000000p-0052",    0x1.0000000000000p-52   ),
-    HDROW( "0x1.0000000000000p-1074",    0x0.0000000000001p-1022 ),
-    HDROW( "0x1.0000000000000p-01074",   0x0.0000000000001p-1022 ),
-    HPROW( "0x1.fffffffffffffp1023",     0x1.fffffffffffffp+1023 ),
-    HPROW( "0x1.fffffffffffffp01023",    0x1.fffffffffffffp+1023 ),
-    HPROW( "0x1.fffffffffffffp+1023",    0x1.fffffffffffffp+1023 ),
-    HPROW( "0x1.fffffffffffffp+01023",   0x1.fffffffffffffp+1023 ),
-    HPROW( "0x1.fffffffffffffp52",       9007199254740991        ),
-    HPROW( "0x1.fffffffffffffp052",      9007199254740991        ),
-    HPROW( "0x1.fffffffffffffp0052",     9007199254740991        ),
-    HPROW( "0x1.fffffffffffffp+52",      9007199254740991        ),
-    HPROW( "0x1.fffffffffffffp+052",     9007199254740991        ),
-    HPROW( "0x1.fffffffffffffp+0052",    9007199254740991        ),
 };
-#undef HDROW
-#undef HPROW
 #undef PROW
 #undef ROW
 
@@ -2469,18 +1529,19 @@ void verifyParseDouble(const TestDataRow& ROW, OpMode::Enum opMode)
     const bsl::size_t  REST_POS = ROW.d_restPos;
     const SpecialFlags FLAGS    = ROW.d_flags;
 
-    // Derived test data
-    const bool         SUCCESS = (REST_POS != 0);
-    const bool         IS_NAN  = SUCCESS && isNan(EXPECTED);
-    const string_view  REST    = INPUT.substr(REST_POS);
-
     // Flags describing the input value
-    const bool IS_HEX       = FLAGS.d_isHex;
     const bool IS_OVERFLOW  = FLAGS.d_isOverflow;
     //const bool SIGD_UFLOW   = FLAGS.d_significandUnderflow;
     const bool IS_UNDERFLOW = FLAGS.d_isUnderflow;
-    const bool IS_SUBNORMAL = FLAGS.d_isSubnormal;
+    //const bool IS_SUBNORMAL = FLAGS.d_isSubnormal;
     //const bool SUBNORM_MIN  = FLAGS.d_subnormIsMin;
+
+    // Derived test data
+    const bool RANGE_ERROR = IS_OVERFLOW || IS_UNDERFLOW;
+    const bool SUCCESS     = (REST_POS != 0);
+    const bool IS_NAN      = SUCCESS && isNan(EXPECTED);
+
+    const string_view REST = INPUT.substr(REST_POS);
 
     if (veryVerbose) {
         P_(LINE) P_(INPUT)
@@ -2490,20 +1551,10 @@ void verifyParseDouble(const TestDataRow& ROW, OpMode::Enum opMode)
         P(SUCCESS);
     }
 
-    // For platforms that do not support parsing hexfloat we modified the flags
-    // while filling the row of the test table.
-    const bool EXPECT_HEX_REVIEW       = (SUCCESS && IS_HEX      );
-    const bool EXPECT_OVERFLOW_REVIEW  = (SUCCESS && IS_OVERFLOW );
-    const bool EXPECT_UNDERFLOW_REVIEW = (SUCCESS && IS_UNDERFLOW);
-    const bool MAYBE_UNDERFLOW_REVIEW  = (SUCCESS && IS_SUBNORMAL);
-
     const double INIT1 = 42.42e42 * (isNegative(EXPECTED) ? 1 : -1);
     const double INIT2 = 24.24e24 * (isNegative(EXPECTED) ? 1 : -1);
 
     const double INIT_VALUE = (INIT1 == EXPECTED) ? INIT2 : INIT1;
-
-    // For under/overflow and hexfloat 'BSLS_REVIEW' tests.
-    BslsReviewMonitor reviewMon(veryVerbose);
 
     double      result = INIT_VALUE;
     string_view rest;
@@ -2511,7 +1562,6 @@ void verifyParseDouble(const TestDataRow& ROW, OpMode::Enum opMode)
     // ==========================================
     // Verification of the all-arguments function
 
-    reviewMon.resetCounters();
     const int rc = Util::parseDouble(&result, &rest, INPUT);
     if (veryVerbose) {
         P(rc);
@@ -2531,11 +1581,11 @@ void verifyParseDouble(const TestDataRow& ROW, OpMode::Enum opMode)
     // failure message to be able to quickly identify the issue reported.
 
     // Return value is as expected
-    ASSERTL(SUCCESS == (0 == rc));
+    ASSERTL(SUCCESS == (0 == rc) || RANGE_ERROR == (ERANGE == rc));
 
     // The unparsed 'rest' is at the expected input-string-offset
     ASSERTL(REST_POS,
-            Qs(REST),
+            Qs(REST), Qs(rest),
             ASPTR(REST.data()), ASPTR(rest.data()),
             REST.data() == rest.data());
 
@@ -2561,25 +1611,9 @@ void verifyParseDouble(const TestDataRow& ROW, OpMode::Enum opMode)
         ASSERTL(result, INIT_VALUE, result == INIT_VALUE);
     }
 
-    // Verify expected 'BSLS_REVIEW' violation numbers
-    ASSERTL(reviewMon.numHexfloat(),
-            reviewMon.numHexfloat() == (EXPECT_HEX_REVIEW ? 1 : 0));
-    ASSERTL(reviewMon.numOverflow(),
-            reviewMon.numOverflow() == (EXPECT_OVERFLOW_REVIEW ? 1 : 0));
-    if (EXPECT_UNDERFLOW_REVIEW) {
-        ASSERTL(reviewMon.numUnderflow(), reviewMon.numUnderflow() == 1);
-    }
-    else if (MAYBE_UNDERFLOW_REVIEW) {
-        ASSERTL(reviewMon.numUnderflow(), reviewMon.numUnderflow() <= 1);
-    }
-    else {
-        ASSERTL(reviewMon.numUnderflow(), reviewMon.numUnderflow() == 0);
-    }
-
     // ===========================================
     // Verification of the two-parameters function
 
-    reviewMon.resetCounters();
     double    result2 = INIT_VALUE;
     const int rc2     = Util::parseDouble(&result2, INPUT);
     if (veryVerbose) {
@@ -2606,21 +1640,6 @@ void verifyParseDouble(const TestDataRow& ROW, OpMode::Enum opMode)
         ASSERTL(rc2, result == result2);
     }
 
-    // Verify expected 'BSLS_REVIEW' violation numbers
-    ASSERTL(reviewMon.numHexfloat(),
-            reviewMon.numHexfloat() == (EXPECT_HEX_REVIEW ? 1 : 0));
-    ASSERTL(reviewMon.numOverflow(),
-            reviewMon.numOverflow() == (EXPECT_OVERFLOW_REVIEW ? 1 : 0));
-    if (EXPECT_UNDERFLOW_REVIEW) {
-        ASSERTL(reviewMon.numUnderflow(), reviewMon.numUnderflow() == 1);
-    }
-    else if (MAYBE_UNDERFLOW_REVIEW) {
-        ASSERTL(reviewMon.numUnderflow(), reviewMon.numUnderflow() <= 1);
-    }
-    else {
-        ASSERTL(reviewMon.numUnderflow(), reviewMon.numUnderflow() == 0);
-    }
-
 #undef ASSERTL
 }
 
@@ -2645,7 +1664,6 @@ void orthogonallyPerturbateOn(const TestDataRow& ROW)
     const bool         SUCCESS = (REST_POS != 0);
     const bool         IS_NAN  = (SUCCESS && EXPECTED != EXPECTED);
 
-    //const bool         IS_HEX       = FLAGS.d_isHex;
     //const bool         IS_OVERFLOW  = FLAGS.d_isOverflow;
     //const bool         SIGD_UFLOW   = FLAGS.d_significandUnderflow;
     //const bool         IS_UNDERFLOW = FLAGS.d_isUnderflow;
@@ -3326,15 +2344,6 @@ class Expectations {
         // 'isSubnormal()'.  In other words this flag is always 'false' unless
         // 'true == isSubnormal()'.
 
-    bool isHexHalfSubnormMin() const;
-        // Return 'true' if the input is in hexfloat format, and its absolute
-        // value is the half smallest representable subnormal number (that is
-        // 'bsl::numeric_limits<double>::denorm_min() / 2'), otherwise, return
-        // 'false'.  Note that this flags is additional to 'isSubnormal()',
-        // hence when this flag is 'true' so is 'isSubnormal()'.  In other
-        // words this flag is always 'false' unless 'true == isSubnormal()'.
-        // See also 'u_GLIBC2_STRTOD_HEX_HALF_DENORM_MIN_HEX_BUG'.
-
     bool isInf() const;
         // Return 'true' if the input should convert to positive or negative
         // Infinity, otherwise return 'false'.
@@ -3349,11 +2358,6 @@ class Expectations {
         // exponent value at the same as the smallest subnormal value (-324 for
         // 'double), but its binary significand is smaller than what can be
         // represented using the available 52 bits, otherwise return 'false'.
-
-                             // Input Format Flag
-    bool isHex() const;
-        // Return 'true' if the input text was in hexadecimal format,
-        // otherwise return 'false'.
 };
                        // ------------------
                        // class Expectations
@@ -3368,13 +2372,6 @@ Expectations::Expectations(const TestDataRow& row)
 , d_isNan(row.d_expected != row.d_expected)
 , d_flags(row.d_flags)
 {
-#if u_GLIBC2_STRTOD_HEX_HALF_DENORM_MIN_HEX_BUG
-    if (row.d_flags.d_isHexHalfSubnormMin) {
-        // We expect this bug.
-        d_expected = bsl::numeric_limits<double>::denorm_min() *
-                                     (isNegative(row.d_expected) ? -1.0 : 1.0);
-    }
-#endif  // u_GLIBC2_STRTOD_HEX_HALF_DENORM_MIN_HEX_BUG
 }
 
 // ACCESSORS       // Result Expectations
@@ -3433,12 +2430,6 @@ bool Expectations::isSubnormMin() const
 }
 
 inline
-bool Expectations::isHexHalfSubnormMin() const
-{
-    return d_flags.d_isHexHalfSubnormMin;
-}
-
-inline
 bool Expectations::isInf() const
 {
     return d_isInf;
@@ -3454,12 +2445,6 @@ inline
 bool Expectations::isSignificandUnderflow() const
 {
     return d_flags.d_significandUnderflow;
-}
-                  // Input Format Flag
-inline
-bool Expectations::isHex() const
-{
-    return d_flags.d_isHex;
 }
 
                             // ================
@@ -4110,6 +3095,11 @@ void reportForWholeTestTable()
     }
 
     bsl::cout << matrix << '\n';
+
+    if (0 == testStatus) {
+        bsl::cout << "\nAssumptions about 'strtod' behavior in 'parseDouble' "
+                     "implementation hold.\n";
+    }
 }
 
 void verifyForRow(const TestDataRow& ROW)
@@ -4206,8 +3196,9 @@ void report()
 
     verify();
 
-    if (testStatus == 0) {
-        bsl::cout << "'std::from_chars' assumption in implementation hold.\n";
+    if (0 == testStatus) {
+        bsl::cout << "Assumptions about 'std::from_chars' behavior in "
+                     "'parseDouble' implementation hold.\n";
     }
 }
 
@@ -4228,13 +3219,13 @@ namespace benchmarking {
 
 const static bsl::string_view k_ALGORITHM =
 #ifdef u_PARSEDOUBLE_USES_FROM_CHARS
-#ifdef u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY
-    "from_chars-17"; // 'std::from_chars' with 'strtod' on range-errors
+  #ifdef u_PARSEDOUBLE_USES_STRTOD_ON_RANGE_ERRORS_ONLY
+    "from_chars-17";        // 'from_chars' with 'strtod' on range-errors
+  #else
+    "from_chars-LWG-3081";  // pure 'from_chars'
+  #endif
 #else
-    "from_chars-MS"; // pure 'std::from_chars'
-#endif
-#else
-    "strtod";  // pure 'strtod'
+    "strtod";  // pure 'strtod', hexfloat is disabled, out-of-range is error
 #endif
 
 class LapTimesDatum {
@@ -4458,14 +3449,13 @@ class BenchmarkInput {
                             unsigned        maxNums,
                             unsigned        maxMemMB);
         // Create a 'BenchmarkInput' object representing benchmark input data
-        // read from the specified 'streamBuf' until EOF is reached, a hard
-        // error occurs, or until the specified 'maxNums' number of input
-        // strings or the specified 'maxMemMB' number of (significant,
-        // non-whitespace) characters are read.  The value of 0 for either of
-        // 'maxNums' and 'maxMemMB' indicates no limit.  The input (from
-        // 'streamBuf') is considered to be a sequence of whitespace-delimited
-        // strings that the benchmark will parse by repeatedly calling
-        // 'parseDouble'.  The read strings are copied into the object created.
+        // read from the specified 'streamBuf' until EOF or a hard error
+        // occurs, or until the specified 'maxNums' or 'maxMemMB' limit is
+        // reached.  The limit values are 0 for unlimited, and the number of
+        // maximum numbers, or the number of maximum megabytes (1024*1024
+        // bytes) after which the reading will stop.  The input should be
+        // whitespace delimited strings that the benchmark will parse.  The
+        // strings are copied into the object created.
 
     // ACCESSORS
     operator const bsl::vector<bsl::string_view>& () const
@@ -4552,9 +3542,6 @@ void measure(LapTimes                             *results,
     // and collect CPU user-system use and wall time data in ('double') seconds
     // for each lap and add them to the specified 'results'.
 {
-    // Silence 'BSLS_REVIEW', its handling is irrelevant to the benchmark.
-    bsls::Review::setViolationHandler(nullReviewHandler);
-
     const bsl::size_t NUM_INPUTS = inputs.size();
 
     bsl::cout << "Starting warmup laps...\n";
@@ -5431,486 +4418,7 @@ void testBslsLogCounterGuard()
     ASSERT(originalLogHandler == Log::logMessageHandler());
 }
 
-void testBslsReviewMonitorCounters(const BslsReviewMonitor&  monitor,
-                                   int                       fileLine,
-                                   const char               *file,
-                                   int                       commentLine,
-                                   const char               *comment,
-                                   char                      category)
-    // Verifies the working of the counters in the 'BslsReviewMonitor'
-    // mechanism on expected review violations.  Use the specified 'monitor',
-    // with test data from the specified 'file', 'comment', and 'category'.
-    // Use the specified 'fileLine' and 'commentLine' in assertions to identify
-    // the location of the test data in this file.  The behavior is undefined
-    // unless 'file' is a file name that matches this component(*), and
-    // category is one of 'H', 'O', or 'U'.
-{
-    const bool IS_VERBOSE    = monitor.isVerbose();
-
-    const bool IS_HEXFLOAT   = ('H' == category);
-    const bool IS_OVERFLOW   = ('O' == category);
-    const bool IS_UNDERFLOW  = ('U' == category);
-
-#define ASSERTL(...)                                                          \
-    ASSERTV(fileLine, commentLine, Opt(file), category, Opt(comment),         \
-            __VA_ARGS__)
-        // Local assert that prints all values to understand what failed
-
-    const int origNumHexf  = monitor.numHexfloat();
-    const int origNumOver  = monitor.numOverflow();
-    const int origNumUnder = monitor.numUnderflow();
-
-    const int EXP_NUM_HEXFLOAT  = origNumHexf  + IS_HEXFLOAT;
-    const int EXP_NUM_OVERFLOW  = origNumOver  + IS_OVERFLOW;
-    const int EXP_NUM_UNDERFLOW = origNumUnder + IS_UNDERFLOW;
-
-    using bsls::Review;
-    using bsls::ReviewViolation;
-    typedef Review::ViolationHandler ReviewHandler;
-
-    const ReviewHandler monitoringHandler = Review::violationHandler();
-
-    const ReviewViolation reviewViolation(comment, file, L_, "11", 0);
-                                                    // line, level, count
-    {
-        // This guard counts log messages.
-        const BslsLogCounterGuard lcg(false); (void)lcg;
-
-        // If we get an assertion failure for an expected review message we
-        // want to tell the test data line numbers that had the issue.  This
-        // guard allows us to monitor those unexpected assertions even if
-        // 'testStatus' is at the maximum 100.
-        TestAssertCounter tsg; (void)tsg;
-
-        monitoringHandler(reviewViolation);
-
-        // Save the number of test assert failures we counted.
-        const int numAsserts = testStatus;
-        tsg.release();  // Stop the counter.
-
-        ASSERTL(numAsserts, 0 == numAsserts);
-        // There should be no assertion failures
-
-        if (IS_VERBOSE) {
-            ASSERTL(lcg.counter(), 1 == lcg.counter());
-            // There should be exactly one log message if monitor is verbose
-        }
-        else {
-            ASSERTL(lcg.counter(), 0 == lcg.counter());
-            // There should be no log messages if the monitor isn't verbose
-        }
-    }
-
-    ASSERTL(origNumHexf, EXP_NUM_HEXFLOAT, monitor.numHexfloat(),
-            EXP_NUM_HEXFLOAT == monitor.numHexfloat());
-
-    ASSERTL(origNumOver, EXP_NUM_OVERFLOW, monitor.numOverflow(),
-            EXP_NUM_OVERFLOW == monitor.numOverflow());
-
-    ASSERTL(origNumUnder, EXP_NUM_UNDERFLOW, monitor.numUnderflow(),
-            EXP_NUM_UNDERFLOW == monitor.numUnderflow());
-#undef ASSERTL
-}
-
-void testBslsReviewMonitorAsserts(const BslsReviewMonitor&  monitor,
-                                  int                       fileLine,
-                                  const char               *file,
-                                  int                       commentLine,
-                                  const char               *comment)
-    // Verifies the existence of assertions in the 'BslsReviewMonitor'
-    // mechanism for unexpected review violations as well as that counters are
-    // unchanged by such unexpected review message.  Use the specified
-    // 'monitor' with test data from the specified 'file', 'comment'.  Use the
-    // specified 'fileLine' and 'commentLine' in assertions to identify the
-    // location of the test data in this file.  The behavior is undefined
-    // unless either 'file' does not matches this component(*), or comment does
-    // not match the underflow, overflow, or hexfloat messages.
-{
-    // Abbreviations for readable code
-
-#define ASSERTL(...)                                                          \
-    ASSERTV(fileLine, commentLine, Opt(file), Opt(comment), __VA_ARGS__)
-        // Local assert that prints all values to understand what failed
-
-    const int origNumHexf  = monitor.numHexfloat();
-    const int origNumOver  = monitor.numOverflow();
-    const int origNumUnder = monitor.numUnderflow();
-
-    using bsls::Review;
-    using bsls::ReviewViolation;
-    typedef Review::ViolationHandler ReviewHandler;
-
-    const ReviewHandler monitoringHandler = Review::violationHandler();
-
-    const ReviewViolation reviewViolation(comment, file, L_, "11", 0);
-                                                    // line, level, count
-    {
-        // This guard silences and counts the 'failByLog' messages of the
-        // unexpected review violations unless the user requested to see them.
-        const BslsLogCounterGuard lcg(veryVerbose); (void)lcg;
-
-        // This guard allows us to count the number of assertions that occur
-        // even if 'testStatus' is already at its maximum 100.
-        TestAssertCounter tsg;
-        {
-            // This guard silences the test assertion failures ('cout') unless
-            // the user of the test driver requested otherwise.
-            const OstreamSilencerGuard osg(bsl::cout, veryVerbose); (void)osg;
-
-            monitoringHandler(reviewViolation);
-        }
-
-        // Save the number of test asserts that had occurred
-        const int numAsserts = testStatus;
-
-        // "Hide" the count of the test assert that we expected to happen.
-        testStatus = (testStatus > 0) ? testStatus - 1 : testStatus;
-
-        // Stop the counter and restore the global 'testStatus'
-        tsg.release();
-
-        // Verify that only the expected number of test asserts fired.
-        ASSERTL(numAsserts, 1 == numAsserts);
-
-        ASSERTL(lcg.counter(), 1 == lcg.counter());
-        // There should be exactly 1 log message observed.  Note that even if
-        // 'monitor' is in verbose mode we don't want it logged it twice.
-    }
-
-    // Counters must not change for unexpected review messages
-    ASSERTL(origNumHexf,    monitor.numHexfloat(),
-            origNumHexf  == monitor.numHexfloat());
-    ASSERTL(origNumOver,    monitor.numOverflow(),
-            origNumOver  == monitor.numOverflow());
-    ASSERTL(origNumUnder,   monitor.numUnderflow(),
-            origNumUnder == monitor.numUnderflow());
-#undef ASSERTL
-}
-
-void testBslsReviewMonitor()
-    // Verifies the 'BslsReviewMonitor' mechanism.  See the calling test 'case'
-    // description for concerns and plan.
-{
-    // Abbreviations for readable code
-    using bsls::Review;
-    using bsls::ReviewViolation;
-
-    typedef Review::ViolationHandler ReviewHandler;
-
-    // Creating a monitor replaces the review violation handler
-    const ReviewHandler originalHandler = Review::violationHandler();
-    {
-        BslsReviewMonitor brm(veryVerbose); (void)brm;
-
-        ASSERT(originalHandler != Review::violationHandler());
-    }
-    // Destroying a monitor restores the original violation handler
-    ASSERT(originalHandler == Review::violationHandler());
-
-    static const struct FilenameTestData {
-        int          d_line;
-        const char * d_filename_p;
-        bool         d_match;
-    } FILENAMES[] = {
-        { L_, "/usr/local/Cellar/BBLP-BDE/src/groups/bdl/bdlb/"
-                                     "BDLB_NumericParseUtil.CPP",   true  },
-        { L_, "X:\\devel\\workarea\\bde\\groups\bdl\\bdlb\\"
-                                         "bdlb_numericparseutil.h", true  },
-
-        { L_, "BDLB_NUMERICPARSEUTIL.",                             true  },
-
-        { L_, "",                                                   true  },
-
-        { L_, 0,                                                    true  },
-
-        { L_, "bdlb_numericparseRutil.",                            false },
-        { L_, "bdlb_numericparseutil",                              false },
-        { L_, "dlb_numericparseutil.",                              false },
-        { L_, "bdlbnumericparseutil",                               false },
-    };
-    const bsl::size_t NUM_FILENAMES = sizeof FILENAMES / sizeof *FILENAMES;
-
-    static const struct CommentTestData {
-        int         d_line;
-        const char *d_comment_p;
-        char        d_category;  // '?' - unexpected
-                                 // 'H' - hexfloat
-                                 // 'O' - overflow
-                                 // 'U' - underflow
-    } COMMENTS[] = {
-        { L_, "An hexfloat has been detected.",  'H' },
-        { L_, "Hexfloat parsed by 'stR2D2'.",    'H' },
-        { L_, "I think I taw an hexfloat",       'H' },
-        { L_, "HeXfLoAt baby, yeah!",            'H' },
-        { L_, "hExFlOaT",                        'H' },
-
-        { L_, "An overflow has been detected.",  'O' },
-        { L_, "Overflow reported by 'stR2D'.",   'O' },
-        { L_, "I think I taw an overflow",       'O' },
-        { L_, "oVeRfLoW baby, yeah!",            'O' },
-        { L_, "OvErFlOw",                        'O' },
-
-        { L_, "An underflow has been detected.", 'U' },
-        { L_, "Underflow reported by 'stR2D'.",  'U' },
-        { L_, "I think I taw an underflow",      'U' },
-        { L_, "uNdErFlOw baby, yeah!",           'U' },
-        { L_, "UnDeRfLoW",                       'U' },
-
-        { L_, "Hexgroot parsed by 'stR2D2'.",    '?' },
-        { L_, "An overgrow has been detected.",  '?' },
-        { L_, "I think I taw an unterflow",      '?' },
-
-        { L_, 0, '?' }
-    };
-    const bsl::size_t NUM_COMMENTS = sizeof COMMENTS / sizeof *COMMENTS;
-
-    // Let's ensure we are using a log severity threshold that will show all
-    // log messages so we can count them properly.
-    bsls::Log::setSeverityThreshold(bsls::LogSeverity::e_TRACE);
-
-    // Let's ensure we are using the proper review violation handler for these
-    // test so that we can count the log messages.
-    Review::setViolationHandler(&Review::failByLog);
-
-    for (int vi = 0; vi <= 1; ++vi) {
-        const bool VERBOSE = (0 < vi);
-
-        BslsReviewMonitor monitor(VERBOSE);
-
-        // Verifying counting of expected review violations, as well as lack of
-        // test assertions using the already verified test status monitor.
-        // This loop skips failure cases on purpose.
-        for (bsl::size_t fi = 0; fi < NUM_FILENAMES; ++fi) {
-            const FilenameTestData& FILENAME = FILENAMES[fi];
-
-            const bool MATCHING_FILENAME = FILENAME.d_match;
-
-            for (bsl::size_t ci = 0; ci < NUM_COMMENTS; ++ci) {
-                const CommentTestData& COMMENT = COMMENTS[ci];
-
-                const bool EXPECTED_COMMENT = ('?' != COMMENT.d_category);
-                const bool EXPECTED_REVIEW  =
-                                         MATCHING_FILENAME && EXPECTED_COMMENT;
-
-                if (veryVerbose) {
-                    P_(FILENAME.d_line) P_(COMMENT.d_line)
-                    P_(Opt(FILENAME.d_filename_p)) P_(MATCHING_FILENAME)
-                    P_(Opt(COMMENT.d_comment_p))  P_(COMMENT.d_category)
-                    P(EXPECTED_REVIEW);
-                }
-
-                if (EXPECTED_REVIEW) {
-                    testBslsReviewMonitorCounters(monitor,
-                                                  FILENAME.d_line,
-                                                  FILENAME.d_filename_p,
-                                                  COMMENT.d_line,
-                                                  COMMENT.d_comment_p,
-                                                  COMMENT.d_category);
-                }
-                else {
-                    testBslsReviewMonitorAsserts(monitor,
-                                                 FILENAME.d_line,
-                                                 FILENAME.d_filename_p,
-                                                 COMMENT.d_line,
-                                                 COMMENT.d_comment_p);
-                }
-            }  // Close comments (messages) loop
-        }  // Close filenames loop
-
-        // Verifying 'resetCounters'
-        {
-            ASSERT(monitor.numHexfloat()  > 0);
-            ASSERT(monitor.numOverflow()  > 0);
-            ASSERT(monitor.numUnderflow() > 0);
-
-            monitor.resetCounters();
-
-            ASSERTV(monitor.numHexfloat(),  0 == monitor.numHexfloat());
-            ASSERTV(monitor.numOverflow(),  0 == monitor.numOverflow());
-            ASSERTV(monitor.numUnderflow(), 0 == monitor.numUnderflow());
-        }
-    }  // Close monitor-verbosity setting (on/off) loop
-}
-
 }  // close namespace testDouble
-
-bool isHexHalfSubnormMin(const bsl::string_view& input)
-    // Return 'true' if the specified 'input' is a signless hexfloat
-    // representation of 'denorm_min()', otherwise return 'false'.
-{
-    typedef bsl::string_view::size_type Size;
-
-    if (input.size() < 7) {
-        // Too short
-        return false;                                                 // RETURN
-    }
-    if (input[0] != '0' || bdlb::CharType::toUpper(input[1]) != 'X') {
-        // Not hex
-        return false;                                                 // RETURN
-    }
-
-    // Does it have a binary exponent?
-    const bsl::string_view::size_type k_NPOS = bsl::string_view::npos;
-    bsl::string_view::size_type pos = input.find_last_of("pP");
-    if (k_NPOS == pos) {  // There is no exponent
-        // Must have "0x."(3)"0...0"(268)"2" minimum
-        if (input.size() < 272) {  // Too short
-            return false;                                             // RETURN
-        }
-
-        pos = input.find('.');
-        if (k_NPOS == pos) {  // There is no dot
-            return false;                                             // RETURN
-        }
-
-        if (input.size() - pos < 270) {  // Too short
-            return false;                                             // RETURN
-        }
-        if (input[++pos] != '0') {  // Nah
-            return false;                                             // RETURN
-        }
-        const Size fracPos = pos;
-
-
-        pos = input.find_last_not_of('0');
-        if (k_NPOS == pos) {  // There is no significant digit
-            return false;                                             // RETURN
-        }
-
-        if (input[pos] != 2) {  // Not the right number
-            return false;                                             // RETURN
-        }
-
-        const Size twoPos = pos;
-        if (twoPos - fracPos != 268) {  // Wrong length
-            return false;                                             // RETURN
-        }
-
-        if (input.find_first_not_of('0', fracPos) != twoPos) {  // Wrong digits
-            return false;                                             // RETURN
-        }
-        return true;                                                  // RETURN
-    }
-
-    // Has an exponent at 'pos'
-    if (input.size() < pos + 6) {  // Not enough characters after 'p'
-        return false;                                                 // RETURN
-    }
-
-    const Size pPos = pos++;
-
-    const bool expNeg = ('-' ==  input[pos]);
-    if (expNeg || '+' == input[pos]) {
-        ++pos;  // Skip sign
-    }
-
-    pos = input.find_first_not_of('0', pos);
-    if (k_NPOS == pos) {  // There is no significant exponent digit
-        return false;                                                 // RETURN
-    }
-
-    if (input.size() - pos > 20) { // This won't fit into an unit64
-        return false;                                                 // RETURN
-    }
-
-    Uint64 exponent;
-    if (0 != Util::parseUint64(&exponent, input.substr(pos), 10)) {
-        // Not a number or too large
-        return false;                                                 // RETURN
-    }
-
-    // Cannot be 'npos', we have the exponent starting with 'p'
-    pos = input.find_first_not_of("0.", 2);
-
-    if ('P' == bdlb::CharType::toUpper(input[pos])) {  // No significant digits
-        return false;                                                 // RETURN
-    }
-    if (!bdlb::CharType::isDigit(input[pos])) {  // Bad char
-        return false;                                                 // RETURN
-    }
-    static const bsl::string_view bitXD("1248");  // 1 bit set hex digits
-    if (k_NPOS == bitXD.find(input[pos])) {  // Bad digit for us
-        return false;                                                 // RETURN
-    }
-    static const int xdigitToBitOffset[] = {
-        -1, // '0' X
-         0, // '1'
-         1, // '2'
-        -1, // '3' X
-         2, // '4'
-        -1, // '5' X
-        -1, // '6' X
-        -1, // '7' X
-         3  // '8'
-    };
-    const unsigned xdigitOffset = xdigitToBitOffset[input[pos] - '0'];
-
-    const Size xdigitPos = pos;
-
-    pos = input.find('.', 2);
-
-    const Size hasFrac = (pos != k_NPOS);
-
-    const Size dotPos  = hasFrac ? pos        : pPos;
-    const Size fracPos = hasFrac ? dotPos + 1 : pPos;
-
-    const bool hasIntPart = !hasFrac || dotPos > xdigitPos;
-
-    if (hasIntPart && !expNeg) {
-        // Fraction has bad character or it is non-zero (only 1 bit can be set)
-        return false;                                                 // RETURN
-    }
-    if (hasIntPart && input.find_first_not_of('0', fracPos) != pPos) {
-        // Fraction has bad character or it is non-zero (only 1 bit can be set)
-        return false;                                                 // RETURN
-    }
-
-    static const Size sizeMax = bsl::numeric_limits<Size>::max();
-
-    if (hasIntPart) {
-        const Size bigxShift = (dotPos - xdigitPos - 1);
-        if (bigxShift > sizeMax / 4) {
-            // Waaaay too large integer value
-            return false;                                             // RETURN
-        }
-
-        if (exponent < 4 * bigxShift) {
-            return false;                                             // RETURN
-        }
-        exponent -= 4 * bigxShift;
-        return (exponent == xdigitOffset + 1075);                     // RETURN
-    }
-
-    // Fraction has the significant bit...
-    if (pPos != input.find_first_not_of('0', xdigitPos + 1)) {
-        // Garbage after the significant digit
-        return false;                                                 // RETURN
-    }
-
-    const Size bigxShift = xdigitPos - 1 - dotPos;
-
-    if (bigxShift > bsl::numeric_limits<Size>::max() / 4) {
-        // Waaaay too small fraction value
-        return false;                                                 // RETURN
-    }
-
-    if (expNeg) {
-        if (exponent > sizeMax - 4 * bigxShift) {
-            return false;                                             // RETURN
-        }
-        exponent += 4 * bigxShift;
-    }
-    else {
-        // Positive exponent
-        if (exponent >= 4 * bigxShift) {  // It must turn negative
-            return false;                                             // RETURN
-        }
-        exponent = 4 * bigxShift - exponent;
-        // Now it is negative
-    }
-
-    return (exponent == 1075 - (4 - xdigitOffset));
-}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -7215,16 +5723,6 @@ int main(int argc, char *argv[])
         //:     2 recreates 'testStatus' properly when destroyed
         //:
         //:  4 'BslsLogCounterGuard' replaces and restores the handler.
-        //:
-        //:  5 'BslsReviewMonitor':
-        //:     1 on expected events:
-        //:         1 counts the events properly
-        //:         2 calls the original handler only when 'verbose == true'
-        //          3 does not assert
-        //:     2 on unexpected events:
-        //:         1 asserts with the full content
-        //:         2 calls the original handler with all the same arguments
-        //:     3 empty file name in an event is ignored
         //
         // Plan:
         //: 1 Use the table-driven approach with combinations of zero, and
@@ -7251,16 +5749,11 @@ int main(int argc, char *argv[])
         //:
         //: 4 'BslsLogCounterGuard' is tested by comparing the active handler
         //:   during and after its lifetime.
-        //:
-        //: 5 'BslsReviewMonitor' is tested by comparing the active handler
-        //:   during and after its lifetime, as well as calling the handler
-        //:   directly with fake log messages and observing the counts.
         //
         // Testing:
         //   PARSE DOUBLE TEST MACHINERY
         //   size_t calcRestPos(parsedChars, length)
         //   double parseExpected(const bsl::string_view&)
-        //   class BslsReviewMonitor
         //   class TestAssertCounter
         // --------------------------------------------------------------------
 
@@ -7283,9 +5776,6 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "'BslsLogCounterGuard'\n";
         testDouble::testBslsLogCounterGuard();
-
-        if (verbose) bsl::cout << "'BslsReviewMonitor'\n";
-        testDouble::testBslsReviewMonitor();
 
      } break;
       case 3: {
@@ -8233,12 +6723,12 @@ int main(int argc, char *argv[])
             "\n===========================================================\n";
 
 #ifdef u_PARSEDOUBLE_USES_STRTOD
-        bsl::cout << "\nAssumptions about 'strtod' behavior:\n";
+        bsl::cout << "\nVerifying 'strtod' expected behavior:\n";
         testDouble::StrtodAssumptions::reportForWholeTestTable();
 #endif
 
 #ifdef u_PARSEDOUBLE_USES_FROM_CHARS
-        bsl::cout << "\nAssumptions about 'std::from_chars' behavior\n";
+        bsl::cout << "\nVerifying 'std::from_chars' expected behavior\n";
         testDouble::FromCharsAssumptions::report();
 #endif
       } break;
@@ -8275,9 +6765,6 @@ int main(int argc, char *argv[])
 
         bsl::cout << "\nPARSE DOUBLE EXTERNAL INPUT BASED BENCHMARK"
                      "\n===========================================\n\n";
-
-        // CONSIDER USING 'contrib/data/numbers.txt' from the 'bde/benchmarks'
-        //                repository as input file.
 
         const char *filename   = argc > 2 ? argv[2] : "-";
 

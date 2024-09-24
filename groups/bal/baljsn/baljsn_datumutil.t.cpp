@@ -161,68 +161,6 @@ bool     veryVeryVerbose;
 bool veryVeryVeryVerbose;
 
 // ============================================================================
-//                HELPERS FOR REVIEW & LOG MESSAGE HANDLING
-// ----------------------------------------------------------------------------
-
-static bool containsCaseless(const bsl::string_view& string,
-                             const bsl::string_view& subString)
-    // Return 'true' if the specified 'subString' is present in the specified
-    // 'string' disregarding case of alphabet characters '[a-zA-Z]', otherwise
-    // return 'false'.
-{
-    if (subString.empty()) {
-        return true;                                                  // RETURN
-    }
-
-    typedef bdlb::StringViewUtil SVU;
-    const bsl::string_view rsv = SVU::strstrCaseless(string, subString);
-
-    return !rsv.empty();
-}
-
-// ============================================================================
-//                    EXPECTED 'BSLS_REVIEW' TEST HANDLERS
-// ----------------------------------------------------------------------------
-
-// These handlers are needed only temporarily until we determine how to fix the
-// broken contract of 'bdlb::NumericParseUtil::parseDouble()' that says under-
-// and overflow is not allowed yet the function supports it.
-
-bool isBdlbNumericParseUtilReview(const bsls::ReviewViolation& reviewViolation)
-    // Return 'true' if the specified 'reviewViolation' has been raised by the
-    // 'bdlb_numericparseutil' component or no source file names are supported
-    // by the build, otherwise return 'false'.
-{
-    const char *fn = reviewViolation.fileName();
-    const bool fileOk = ('\0' == fn[0]) // empty or has the component name
-                              || containsCaseless(fn, "bdlb_numericparseutil");
-    return fileOk;
-}
-
-bool isParseDoubleReview(const bsls::ReviewViolation& reviewViolation)
-    // Return 'true' if the specified 'reviewViolation' is an over/underflow or
-    // hexfloat message from the 'bdlb_numericparseutil' component (or no
-    // source file names are supported by the build configuration), otherwise
-    // return 'false'.
-{
-    return isBdlbNumericParseUtilReview(reviewViolation) &&
-           (containsCaseless(reviewViolation.comment(), "overflow") ||
-            containsCaseless(reviewViolation.comment(), "underflow") ||
-            containsCaseless(reviewViolation.comment(), "hexfloat"));
-}
-
-void ignoreParseDoubleMsgs(const bsls::ReviewViolation& reviewViolation)
-    // If the specified 'reviewViolation' is an expected parseDouble-related
-    // message (over/underflow, parsed a hexfloat) do nothing, otherwise call
-    // 'bsls::Review::failByAbort()'.
-{
-    if (!isParseDoubleReview(reviewViolation)) {
-        bsls::Review::failByAbort(reviewViolation);
-    }
-}
-
-
-// ============================================================================
 //                    GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -1228,9 +1166,6 @@ int main(int argc, char *argv[])
     veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
-
-    // CONCERN: Unexpected 'BSLS_REVIEW' failures should lead to test failures.
-    bsls::ReviewFailureHandlerGuard reviewGuard(&ignoreParseDoubleMsgs);
 
     // CONCERN: DOES NOT ALLOCATE MEMORY FROM GLOBAL ALLOCATOR
 
@@ -2353,14 +2288,6 @@ int main(int argc, char *argv[])
           , { L_, "n_number_2.e+3.json", "TBD" }
           , { L_, "n_number_2.e-3.json", "TBD" }
           , { L_, "n_number_2.e3.json", "TBD" }
-          // Skip these tests everywhere except Sun CC or MSVC pre-2015, where
-          // they unexpectedly succeed.  Since these are negative tests, being
-          // overly permissive in what we accept is not a problem.
-#if !((defined(BSLS_PLATFORM_OS_SOLARIS) && defined(BSLS_PLATFORM_CMP_SUN))   \
-      || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900))
-          , { L_, "n_number_hex_1_digit.json", "TBD" }
-          , { L_, "n_number_hex_2_digits.json", "TBD" }
-#endif
           , { L_, "n_number_Inf.json", "TBD" }
           , { L_, "n_number_infinity.json", "TBD" }
           , { L_, "n_number_minus_infinity.json", "TBD" }
@@ -2375,7 +2302,7 @@ int main(int argc, char *argv[])
           , { L_, "n_object_trailing_comment_open.json", "TBD" }
           , { L_, "n_object_trailing_comment_slash_open.json", "TBD" }
           , { L_, "n_object_trailing_comment_slash_open_incomplete.json",
-              "TBD" }
+                                                                        "TBD" }
           , { L_, "n_object_two_commas_in_a_row.json", "TBD" }
           , { L_, "n_object_with_trailing_garbage.json", "TBD" }
           , { L_, "n_string_unescaped_newline.json", "TBD" }

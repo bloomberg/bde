@@ -124,6 +124,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #include <bsls_types.h>
 
+#include <bsl_cerrno.h>
 #include <bsl_string.h>
 #include <bsl_string_view.h>
 #include <bsl_type_traits.h>
@@ -423,7 +424,7 @@ double NumberUtil::asDouble(const bsl::string_view& value)
     double result;
 
     int rc = bdlb::NumericParseUtil::parseDouble(&result, value);
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 != rc)) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 != rc && ERANGE != rc)) {
         // This should not be possible and no test has found a case where this
         // is occurs.  However, to prevent a possible denial of service attack
         // if some gap were to be found in the implementation of low-level

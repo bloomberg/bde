@@ -43,46 +43,56 @@ BSLS_IDENT("$Id: $")
 ///------------------------
 // ```
 // <NUMBER> ::= <OPTIONAL_SIGN><DIGIT>+
+//
 // <DECIMAL_NUMBER> ::= <OPTIONAL_SIGN><DECIMAL_DIGIT>+
+//
 // <POSITIVE_NUMBER> ::= <DIGIT>+
+//
 // <OPTIONAL_SIGN> ::= (+|-)?
+//
 // <DIGIT> ::= depending on base can include characters 0-9 and case-
 //      insensitive letters.  For example, octal digit is in the range
 //      [0 .. 7].
+//
 // <DECIMAL_DIGIT> ::= [0123456789]
-// <OCTAL_DIGIT> ::= [01234567]
-// <HEX_DIGIT> ::= [0123456789abcdefABCDEF]
+// <OCTAL_DIGIT>   ::= [01234567]
+// <HEX_DIGIT>     ::= [0123456789abcdefABCDEF]
+//
 // <SHORT> ::= <NUMBER>
 //      <SHORT> must be in range [SHRT_MIN .. SHRT_MAX].
 // <USHORT> ::= <NUMBER>
 //      <USHORT> must be in range [0 .. USHRT_MAX].
+//
 // <INT> ::= <NUMBER>
 //      <INT> must be in range [INT_MIN .. INT_MAX].
+//
 // <INT64> ::= <NUMBER>
 //      <INT64> must be in range
 //                           [-0x8000000000000000uLL .. 0x7FFFFFFFFFFFFFFFuLL].
+//
 // <UNSIGNED> ::= <NUMBER>
 //      <UNSIGNED> must be in range [0 .. UINT_MAX].
+//
 // <UNSIGNED64> ::= <NUMBER>
 //      <UNSIGNED64> must be in range
 //                           [0 .. 0xFFFFFFFFFFFFFFFFuLL].
 //
 // <DECIMAL_EXPONENT> ::= <DECIMAL_NUMBER>
-// <REAL> ::= <OPTIONAL_SIGN>
-//            (<DECIMAL_DIGIT>+ (. <DECIMAL_DIGIT>*)? | . <DECIMAL_DIGIT>+)
+//
+// <REAL> ::= (<DECIMAL_DIGIT>+ (. <DECIMAL_DIGIT>*)? | . <DECIMAL_DIGIT>+)
 //            (e|E <DECIMAL_EXPONENT>)
 //
-// <INF>    ::= <OPTIONAL_SIGN> infinity | inf
-//              case insensitive
+// <INF>    ::= infinity | inf
+//              all case insensitive
 //
 // <NAN-SEQUENCE> ::= [abcdefghijklmnopqrstuvwxyz0123456789_]*
-//                    case insensitive
-// <NAN>    ::= <OPTIONAL_SIGN> nan(<NAN-SEQUENCE>) | nan
-//              case insensitive
+//                     case insensitive
 //
-// <DOUBLE> ::= <REAL> | <INF> | <NAN>
-//      <DOUBLE> must be in range [DBL_MIN .. DBL_MAX].
-// ```
+// <NAN>    ::= nan(<NAN-SEQUENCE>) | nan
+//              all case insensitive
+//
+// <DOUBLE> ::= <OPTIONAL_SIGN> (<REAL> | <INF> | <NAN>)
+//      <DOUBLE> must be in range [DBL_MIN .. DBL_MAX], or Nan, or Infinity.
 //
 ///Remainder Output Parameter
 ///--------------------------
@@ -168,7 +178,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bsls_assert.h>
-#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_string.h>
@@ -209,11 +218,13 @@ struct NumericParseUtil {
     /// successfully parsed text, or the position at which a parse failure
     /// was detected.  Return zero on success, and a non-zero value
     /// otherwise.  The value of `result` is unchanged if a parse failure
-    /// occurs.  Underflow and overflow are not failures, and return 0.0 and
-    /// infinity with the appropriate sign, respectively.  The behavior is
-    /// undefined unless the current numeric locale is the "C" locale, such
-    /// that `strcmp(setlocale(LC_NUMERIC, 0), "C") == 0`.  For more
-    /// information see {Floating Point Values}.
+    /// occurs unless it is a range error (value `ERANGE` from `<cerrno>`).
+    /// In case of `ERANGE` return value `result` will be set to zero on
+    /// underflow and infinity in case of overflow, with the appropriate
+    /// sign.  The behavior is undefined unless the current numeric locale
+    /// is the `"C"` locale, such that
+    /// `strcmp(setlocale(LC_NUMERIC, 0), "C") == 0`.  For more information
+    /// see {Floating Point Values}.
     static int parseDouble(double                  *result,
                            const bsl::string_view&  inputString);
     static int parseDouble(double                  *result,

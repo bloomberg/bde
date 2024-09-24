@@ -7,6 +7,7 @@
 
 #include <bdlma_guardingallocator.h>
 
+#include <bdlb_chartype.h>
 #include <bdlb_numericparseutil.h>
 #include <bdlb_string.h>
 #include <bdlb_stringviewutil.h>
@@ -26,8 +27,6 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_keyword.h>
-#include <bsls_log.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
@@ -47,7 +46,6 @@
 #include <bsl_vector.h>
 
 using bsl::cout;
-using bsl::cerr;
 using bsl::endl;
 using namespace BloombergLP;
 
@@ -93,8 +91,7 @@ using namespace BloombergLP;
 // [13] USAGE EXAMPLE
 // [ 3] CONCERN: 'IsValidNumber' functor can be used as an oracle.
 // [ 2] CONCERN: Test Machinery
-// [  ] CONCERN: Unexpected 'BSLS_REVIEW' failures should lead to test failures
-// [  ] CONCERN: 'bsls::Log' messages are sent by the tested module only.
+// [  ] CONCERN: 'BSLS_REVIEW' failures should lead to test failures
 // [-1] BENCHMARK: asDecimal64Exact vs asDecimal64ExactOracle
 
 // ============================================================================
@@ -170,71 +167,13 @@ BSLA_MAYBE_UNUSED bool     veryVeryVerbose;
 BSLA_MAYBE_UNUSED bool veryVeryVeryVerbose;
 
 // ============================================================================
-//                HELPERS FOR REVIEW & LOG MESSAGE HANDLING
-// ----------------------------------------------------------------------------
-
-static bool containsCaseless(const bsl::string_view& string,
-                             const bsl::string_view& subString)
-    // Return 'true' if the specified 'subString' is present in the specified
-    // 'string' disregarding case of alphabet characters '[a-zA-Z]', otherwise
-    // return 'false'.
-{
-    if (subString.empty()) {
-        return true;                                                  // RETURN
-    }
-
-    typedef bdlb::StringViewUtil SVU;
-    const bsl::string_view rsv = SVU::strstrCaseless(string, subString);
-
-    return !rsv.empty();
-}
-
-// ============================================================================
-//                    EXPECTED 'BSLS_REVIEW' TEST HANDLERS
-// ----------------------------------------------------------------------------
-
-// These handlers are needed only temporarily until we determine how to fix the
-// broken contract of 'bdlb::NumericParseUtil::parseDouble()' that says under-
-// and overflow is not allowed yet the function supports it.
-
-bool isBdlbNumericParseUtilReview(const bsls::ReviewViolation& reviewViolation)
-    // Return 'true' if the specified 'reviewViolation' has been raised by the
-    // 'bdlb_numericparseutil' component or no source file names are supported
-    // by the build, otherwise return 'false'.
-{
-    const char *fn = reviewViolation.fileName();
-    const bool fileOk = ('\0' == fn[0]) // empty or has the component name
-                              || containsCaseless(fn, "bdlb_numericparseutil");
-    return fileOk;
-}
-
-bool isRangeReview(const bsls::ReviewViolation& reviewViolation)
-    // Return 'true' if the specified 'reviewViolation' is an overflow or
-    // underflow message from the 'bdlb_numericparseutil' component (or no
-    // source file names are supported by the build), otherwise return 'false'.
-{
-    return isBdlbNumericParseUtilReview(reviewViolation) &&
-                    (containsCaseless(reviewViolation.comment(), "overflow") ||
-                     containsCaseless(reviewViolation.comment(), "underflow"));
-}
-
-void ignoreRangeMsgs(const bsls::ReviewViolation& reviewViolation)
-    // If the specified 'reviewViolation' is an expected overflow-related
-    // message from 'parseDouble' do nothing, otherwise call
-    // 'bsls::Review::failByAbort()'.
-{
-    if (!isRangeReview(reviewViolation)) {
-        bsls::Review::failByAbort(reviewViolation);
-    }
-}
-
-// ============================================================================
 //                        JSON NUMBER VALIDATOR ORACLE
 // ----------------------------------------------------------------------------
 
                            // ===================
                            // class IsValidNumber
                            // ===================
+
 class IsValidNumber {
     // This functor class matches the textual pattern of a valid JSON number.
 
@@ -244,7 +183,7 @@ class IsValidNumber {
   public:
     // CREATORS
     IsValidNumber();
-        // Create a 'IsValidNumber' object that is prepared to match the
+        // Create an 'IsValidNumber' functor object that is ready to match the
         // textual pattern of a valid JSON number.
 
     // ACCESSORS
@@ -428,7 +367,7 @@ void generateEquivalenceSet(bsl::vector<bsl::string> *result,
 
     if (exponent.size() > 0) {
         bsl::string_view remainder;
-        int rc = bdlb::NumericParseUtil::parseInt64(&originalExponent,
+        const int rc = bdlb::NumericParseUtil::parseInt64(&originalExponent,
                                                           &remainder,
                                                           exponent);
         if (0 != rc || 0 != remainder.size()) {
@@ -470,12 +409,12 @@ void generateEquivalenceSet(bsl::vector<bsl::string> *result,
 
             output << "0." << zeros << digits << 'e' << bsl::to_string(exp);
         }
-        else if (adjustedDecimalPos > static_cast<int>(digits.size())) {
+        else if (adjustedDecimalPos > static_cast<Int64>(digits.size())) {
             bsl::string zeros(SizeType(adjustedDecimalPos) - digits.size(),
                               '0');
             output << digits << zeros << 'e' << bsl::to_string(exp);
         }
-        else if (adjustedDecimalPos == static_cast<int>(digits.size())) {
+        else if (adjustedDecimalPos == static_cast<Int64>(digits.size())) {
             output << digits << 'e' << bsl::to_string(exp);
         }
         else {
@@ -536,9 +475,8 @@ int verifyDecimal64Exactness(const char *value)
     };
 
     bdldfp::Decimal64 d;
-    int rc = bdldfp::DecimalUtil::parseDecimal64(&d, value);
-    BSLS_ASSERT(0 == rc);
-    (void)rc;
+    const int rc = bdldfp::DecimalUtil::parseDecimal64(&d, value);
+    BSLS_ASSERT(0 == rc);  (void)rc;
 
     bsl::ostringstream text;
     text << d;
@@ -670,12 +608,13 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
     BSLS_ASSERT(0 == rc);
     rc = ImpUtil::appendDigits(&significand, significand, moreDigits);
     BSLS_ASSERT(0 == rc);
-    Int64 signedSignficand =
-        isNeg ? -static_cast<Int64>(significand) : significand;
+    const Int64 signedSignificand = isNeg
+                                  ? -static_cast<Int64>(significand)
+                                  : static_cast<Int64>(significand);
 
-    *result = bdldfp::DecimalUtil::makeDecimalRaw64(
-        signedSignficand, static_cast<int>(exponent));
-
+    using bdldfp::DecimalUtil;
+    *result = DecimalUtil::makeDecimalRaw64(signedSignificand,
+                                            static_cast<int>(exponent));
     return 0;
 }
 
@@ -883,113 +822,159 @@ struct AsIntegralTest {
 
 // Test data generated from https://github.com/nst/JSONTestSuite (MIT License)
 // Generation done by the python script embedded below.  Then the numeric test
-// points extracted and messaged a bit.
+// points extracted and massaged a bit.
 //
-// Two modified tests:
-// n_multidigit_number_then_00.json - test data format can't handle embedded 0,
-//                                    manually tested
-//
+// One modified tests:
 // y_number_after_space.json - this is not a valid number according to the JSON
 //                             spec.  A whitespace prefix will be handled by
 //                             the tokenizer it bdljsn.
 
+static bool isValidJSonSuiteFileData(const bsl::string_view& fname) {
+    BSLS_ASSERT_OPT(!fname.empty());
+
+
+    using bdlb::StringViewUtil;
+    if (StringViewUtil::areEqualCaseless(fname, "y_number_after_space")) {
+        return false;                                                 // RETURN
+    }
+
+    const char tag = bdlb::CharType::toLower(fname[0]);
+
+    ASSERTV(fname, strchr("yni", tag));
+
+    return tag == 'y'    // yes
+        || tag == 'i';   // implementation defined, we support all
+}
+
+static bool containsCaseless(const bsl::string_view& hayStack,
+                             const bsl::string_view& needle)
+    // Using the specified 'hayStack and 'needle':
+    //:   return bdlb::StringViewUtil::strstrCaseless(hayStack, needle) !=
+    //:                                                     bsl::string_view();
+{
+    return bdlb::StringViewUtil::strstrCaseless(hayStack, needle) !=
+                                                            bsl::string_view();
+}
+
+static bool isOutOfRangeJSonSuiteFileData(const bsl::string_view& fname) {
+    BSLS_ASSERT_OPT(!fname.empty());
+
+    return containsCaseless(fname, "_huge_")
+       || (containsCaseless(fname, "_real_")
+           && (containsCaseless(fname, "_overflow")
+               || containsCaseless(fname, "_underflow")));
+}
+
+static const
 struct JSonSuiteNumericData {
-    int         d_line;
-    const char *d_testName;
-    bool        d_isValid;
-    const char *d_input;
+    int              d_line;
+    bsl::string_view d_testName;
+    bool             d_isValid;
+    bool             d_isOutOfRange;
+    bsl::string_view d_input;
 } JSON_SUITE_DATA[] =
 {
-  { L_, "i_number_double_huge_neg_exp.json", true, "123.456e-789" }
-, { L_, "i_number_huge_exp.json", true, "0."
-    "4e00669999999999999999999999999999999999999999999999999999999999999999999"
-    "999999999999999999999999999999999999999999999999969999999006" }
-, { L_, "i_number_neg_int_huge_exp.json", true, "-1e+9999" }
-, { L_, "i_number_pos_double_huge_exp.json", true, "1.5e+9999" }
-, { L_, "i_number_real_neg_overflow.json", true, "-123123e100000" }
-, { L_, "i_number_real_pos_overflow.json", true, "123123e100000" }
-, { L_, "i_number_real_underflow.json", true, "123e-10000000" }
-, { L_, "i_number_too_big_neg_int.json", true,
-        "-123123123123123123123123123123" }
-, { L_, "i_number_too_big_pos_int.json", true, "100000000000000000000" }
-, { L_, "i_number_very_big_negative_int.json", true,
-        "-237462374673276894279832749832423479823246327846" }
-, { L_, "n_number_++.json", false, "++1234" }
-, { L_, "n_number_+1.json", false, "+1" }
-, { L_, "n_number_+Inf.json", false, "+Inf" }
-, { L_, "n_number_-01.json", false, "-01" }
-, { L_, "n_number_-1.0..json", false, "-1.0." }
-, { L_, "n_number_-2..json", false, "-2." }
-, { L_, "n_number_-NaN.json", false, "-NaN" }
-, { L_, "n_number_.-1.json", false, ".-1" }
-, { L_, "n_number_.2e-3.json", false, ".2e-3" }
-, { L_, "n_number_0.1.2.json", false, "0.1.2" }
-, { L_, "n_number_0.3e+.json", false, "0.3e+" }
-, { L_, "n_number_0.3e.json", false, "0.3e" }
-, { L_, "n_number_0.e1.json", false, "0.e1" }
-, { L_, "n_number_0_capital_E+.json", false, "0E+" }
-, { L_, "n_number_0_capital_E.json", false, "0E" }
-, { L_, "n_number_0e+.json", false, "0e+" }
-, { L_, "n_number_0e.json", false, "0e" }
-, { L_, "n_number_1.0e+.json", false, "1.0e+" }
-, { L_, "n_number_1.0e-.json", false, "1.0e-" }
-, { L_, "n_number_1.0e.json", false, "1.0e" }
-, { L_, "n_number_1_000.json", false, "1 000.0" }
-, { L_, "n_number_1eE2.json", false, "1eE2" }
-, { L_, "n_number_2.e+3.json", false, "2.e+3" }
-, { L_, "n_number_2.e-3.json", false, "2.e-3" }
-, { L_, "n_number_2.e3.json", false, "2.e3" }
-, { L_, "n_number_9.e+.json", false, "9.e+" }
-, { L_, "n_number_Inf.json", false, "Inf" }
-, { L_, "n_number_NaN.json", false, "NaN" }
-, { L_, "n_number_U+FF11_fullwidth_digit_one.json", false, "１" }
-, { L_, "n_number_expression.json", false, "1+2" }
-, { L_, "n_number_hex_1_digit.json", false, "0x1" }
-, { L_, "n_number_hex_2_digits.json", false, "0x42" }
-, { L_, "n_number_infinity.json", false, "Infinity" }
-, { L_, "n_number_invalid+-.json", false, "0e+-1" }
-, { L_, "n_number_invalid-negative-real.json", false, "-123.123foo" }
-, { L_, "n_number_invalid-utf-8-in-bigger-int.json", false, "123�" }
-, { L_, "n_number_invalid-utf-8-in-exponent.json", false, "1e1�" }
-, { L_, "n_number_invalid-utf-8-in-int.json", false, "0�" }
-, { L_, "n_number_minus_infinity.json", false, "-Infinity" }
-, { L_, "n_number_minus_sign_with_trailing_garbage.json", false, "-foo" }
-, { L_, "n_number_minus_space_1.json", false, "- 1" }
-, { L_, "n_number_neg_int_starting_with_zero.json", false, "-012" }
-, { L_, "n_number_neg_real_without_int_part.json", false, "-.123" }
-, { L_, "n_number_neg_with_garbage_at_end.json", false, "-1x" }
-, { L_, "n_number_real_garbage_after_e.json", false, "1ea" }
-, { L_, "n_number_real_with_invalid_utf8_after_e.json", false, "1e�" }
-, { L_, "n_number_real_without_fractional_part.json", false, "1." }
-, { L_, "n_number_starting_with_dot.json", false, ".123" }
-, { L_, "n_number_with_alpha.json", false, "1.2a-3" }
-, { L_, "n_number_with_alpha_char.json", false, "1.8011670033376514H-308" }
-, { L_, "n_number_with_leading_zero.json", false, "012" }
-, { L_, "y_number.json", true, "123e65" }
-, { L_, "y_number_0e+1.json", true, "0e+1" }
-, { L_, "y_number_0e1.json", true, "0e1" }
-, { L_, "y_number_after_space.json", false, " 4" }   // modified
-, { L_, "y_number_double_close_to_zero.json", true,
-     "-0.0000000000000000000000000000000000"
-     "00000000000000000000000000000000000000000001" }
-, { L_, "y_number_int_with_exp.json", true, "20e1" }
-, { L_, "y_number_minus_zero.json", true, "-0" }
-, { L_, "y_number_negative_int.json", true, "-123" }
-, { L_, "y_number_negative_one.json", true, "-1" }
-, { L_, "y_number_negative_zero.json", true, "-0" }
-, { L_, "y_number_real_capital_e.json", true, "1E22" }
-, { L_, "y_number_real_capital_e_neg_exp.json", true, "1E-2" }
-, { L_, "y_number_real_capital_e_pos_exp.json", true, "1E+2" }
-, { L_, "y_number_real_exponent.json", true, "123e45" }
-, { L_, "y_number_real_fraction_exponent.json", true, "123.456e78" }
-, { L_, "y_number_real_neg_exp.json", true, "1e-2" }
-, { L_, "y_number_real_pos_exponent.json", true, "1e+2" }
-, { L_, "y_number_simple_int.json", true, "123" }
-, { L_, "y_number_simple_real.json", true, "123.456789" }
+#define TR(fname, json)                         \
+    { L_, fname,                                 \
+          isValidJSonSuiteFileData(fname),        \
+          isOutOfRangeJSonSuiteFileData(fname),    \
+          bsl::string_view(json, (sizeof json) - 1) }
+
+    TR("i_number_double_huge_neg_exp",   "123.456e-789"                      ),
+    TR("i_number_huge_exp",              "0.4e0066"
+                                             "9999999999999999999999999999999"
+                                             "9999999999999999999999999999999"
+                                             "9999999999999999999999999999999"
+                                             "9999999999999999999999969999999"
+                                             "006"                           ),
+    TR("i_number_neg_int_huge_exp",      "-1e+9999"                          ),
+    TR("i_number_pos_double_huge_exp",   "1.5e+9999"                         ),
+    TR("i_number_real_neg_overflow",     "-123123e100000"                    ),
+    TR("i_number_real_pos_overflow",     "123123e100000"                     ),
+    TR("i_number_real_underflow",        "123e-10000000"                     ),
+    TR("i_number_too_big_neg_int",       "-123123123123123123123123123123"   ),
+    TR("i_number_too_big_pos_int",       "100000000000000000000"             ),
+    TR("i_number_very_big_negative_int",
+                          "-237462374673276894279832749832423479823246327846"),
+
+    TR("n_number_++",                               "++1234"                 ),
+    TR("n_number_+1",                               "+1"                     ),
+    TR("n_number_+Inf",                             "+Inf"                   ),
+    TR("n_number_-01",                              "-01"                    ),
+    TR("n_number_-1.0.",                            "-1.0."                  ),
+    TR("n_number_-2.",                              "-2."                    ),
+    TR("n_number_-NaN",                             "-NaN"                   ),
+    TR("n_number_.-1",                              ".-1"                    ),
+    TR("n_number_.2e-3",                            ".2e-3"                  ),
+    TR("n_number_0.1.2",                            "0.1.2"                  ),
+    TR("n_number_0.3e+",                            "0.3e+"                  ),
+    TR("n_number_0.3e",                             "0.3e"                   ),
+    TR("n_number_0.e1",                             "0.e1"                   ),
+    TR("n_number_0_capital_E+",                     "0E+"                    ),
+    TR("n_number_0_capital_E",                      "0E"                     ),
+    TR("n_number_0e+",                              "0e+"                    ),
+    TR("n_number_0e",                               "0e"                     ),
+    TR("n_number_1.0e+",                            "1.0e+"                  ),
+    TR("n_number_1.0e-",                            "1.0e-"                  ),
+    TR("n_number_1.0e",                             "1.0e"                   ),
+    TR("n_number_1_000",                            "1 000.0"                ),
+    TR("n_number_1eE2",                             "1eE2"                   ),
+    TR("n_number_2.e+3",                            "2.e+3"                  ),
+    TR("n_number_2.e-3",                            "2.e-3"                  ),
+    TR("n_number_2.e3",                             "2.e3"                   ),
+    TR("n_number_9.e+",                             "9.e+"                   ),
+    TR("n_number_Inf",                              "Inf"                    ),
+    TR("n_number_NaN",                              "NaN"                    ),
+    TR("n_number_U+FF11_fullwidth_digit_one",       "１"                     ),
+    TR("n_number_expression",                       "1+2"                    ),
+    TR("n_number_hex_1_digit",                      "0x1"                    ),
+    TR("n_number_hex_2_digits",                     "0x42"                   ),
+    TR("n_number_infinity",                         "Infinity"               ),
+    TR("n_number_invalid+-",                        "0e+-1"                  ),
+    TR("n_number_invalid-negative-real",            "-123.123foo"            ),
+    TR("n_number_invalid-utf-8-in-bigger-int",      "123�"                   ),
+    TR("n_number_invalid-utf-8-in-exponent",        "1e1�"                   ),
+    TR("n_number_invalid-utf-8-in-int",             "0�"                     ),
+    TR("n_number_minus_infinity",                   "-Infinity"              ),
+    TR("n_number_minus_sign_with_trailing_garbage", "-foo"                   ),
+    TR("n_number_minus_space_1",                    "- 1"                    ),
+    TR("n_multidigit_number_then_00",               "123\0"                  ),
+    TR("n_number_neg_int_starting_with_zero",       "-012"                   ),
+    TR("n_number_neg_real_without_int_part",        "-.123"                  ),
+    TR("n_number_neg_with_garbage_at_end",          "-1x"                    ),
+    TR("n_number_real_garbage_after_e",             "1ea"                    ),
+    TR("n_number_real_with_invalid_utf8_after_e",   "1e�"                    ),
+    TR("n_number_real_without_fractional_part",     "1."                     ),
+    TR("n_number_starting_with_dot",                ".123"                   ),
+    TR("n_number_with_alpha",                       "1.2a-3"                 ),
+    TR("n_number_with_alpha_char",                  "1.8011670033376514H-308"),
+    TR("n_number_with_leading_zero",                "012"                    ),
+
+    TR("y_number",                        "123e65"                           ),
+    TR("y_number_0e+1",                   "0e+1"                             ),
+    TR("y_number_0e1",                    "0e1"                              ),
+    TR("y_number_after_space",            " 4"          ),  // modified by hand
+    TR("y_number_double_close_to_zero",   "-0.0000000000000000000000000000000"
+                                             "0000000000000000000000000000000"
+                                             "0000000000000001"              ),
+    TR("y_number_int_with_exp",           "20e1"                             ),
+    TR("y_number_minus_zero",             "-0"                               ),
+    TR("y_number_negative_int",           "-123"                             ),
+    TR("y_number_negative_one",           "-1"                               ),
+    TR("y_number_negative_zero",          "-0"                               ),
+    TR("y_number_real_capital_e",         "1E22"                             ),
+    TR("y_number_real_capital_e_neg_exp", "1E-2"                             ),
+    TR("y_number_real_capital_e_pos_exp", "1E+2"                             ),
+    TR("y_number_real_exponent",          "123e45"                           ),
+    TR("y_number_real_fraction_exponent", "123.456e78"                       ),
+    TR("y_number_real_neg_exp",           "1e-2"                             ),
+    TR("y_number_real_pos_exponent",      "1e+2"                             ),
+    TR("y_number_simple_int",             "123"                              ),
+    TR("y_number_simple_real",            "123.456789"                       ),
 };
 
-const int NUM_JSON_SUITE_DATA = sizeof(JSON_SUITE_DATA) /
-                                sizeof(*JSON_SUITE_DATA);
+const int NUM_JSON_SUITE_DATA =
+                              sizeof JSON_SUITE_DATA / sizeof *JSON_SUITE_DATA;
 
 #define NL "\n"
 const char *JSONTESTSUITE_PYTHON_SCRIPT =
@@ -1096,8 +1081,8 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: Unexpected 'BSLS_REVIEW' failures should lead to test failures.
-    bsls::ReviewFailureHandlerGuard reviewGuard(&ignoreRangeMsgs);
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
@@ -1546,8 +1531,8 @@ int main(int argc, char *argv[])
         { L_,      OK,                100,                  "1e2" },
 
                     // boundary checks
-        { L_,     OK,  9223372036854775807LL,  "9223372036854775807" },
-        { L_,  EOVER,  9223372036854775807LL,  "9223372036854775808" },
+        { L_,     OK,  9223372036854775807LL,      "9223372036854775807" },
+        { L_,  EOVER,  9223372036854775807LL,      "9223372036854775808" },
         { L_,     OK, -9223372036854775807LL - 1, "-9223372036854775808" },
         { L_, EUNDER, -9223372036854775807LL - 1, "-9223372036854775809" },
 
@@ -1968,25 +1953,30 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        if (verbose) {
-            bsl::cout << "\tTest JSONSuite Test Data"
-                      << bsl::endl;
-        }
+        if (verbose) cout << "\tTest JSONSuite Test Data\n";
+        typedef bsl::string_view StVw;
         for (int i = 0; i < NUM_JSON_SUITE_DATA; ++i) {
-            const bool  L_EXP   = JSON_SUITE_DATA[i].d_isValid;
-            const char *L_INPUT = JSON_SUITE_DATA[i].d_input;
-            const char *L_NAME  = JSON_SUITE_DATA[i].d_testName;
+            const bool  L_LINE  = JSON_SUITE_DATA[i].d_line;
+            const bool  L_VALID = JSON_SUITE_DATA[i].d_isValid;
+            const StVw& L_INPUT = JSON_SUITE_DATA[i].d_input;
+            const StVw& L_NAME  = JSON_SUITE_DATA[i].d_testName;
 
-            if (!L_EXP) {  // Ignore invalid JSON numbers.
+            if (!L_VALID) {  // Ignore invalid JSON numbers.
                 continue;                                           // CONTINUE
             }
 
             for (int j = 0; j < NUM_JSON_SUITE_DATA; ++j) {
-                const bool  R_EXP   = JSON_SUITE_DATA[j].d_isValid;
-                const char *R_INPUT = JSON_SUITE_DATA[j].d_input;
-                const char *R_NAME  = JSON_SUITE_DATA[j].d_testName;
-                if (!R_EXP) {  // Ignore invalid JSON numbers.
+                const bool  R_LINE  = JSON_SUITE_DATA[j].d_line;
+                const bool  R_VALID = JSON_SUITE_DATA[j].d_isValid;
+                const StVw& R_INPUT = JSON_SUITE_DATA[j].d_input;
+                const StVw& R_NAME  = JSON_SUITE_DATA[j].d_testName;
+                if (!R_VALID) {  // Ignore invalid JSON numbers.
                     continue;                                       // CONTINUE
+                }
+
+                if (veryVerbose) {
+                    P_(L_LINE) P_(L_VALID) P_(L_INPUT) P(L_NAME);
+                    P_(R_LINE) P_(R_VALID) P_(R_INPUT) P(R_NAME);
                 }
 
                 // We must jump through some hoops to determine the expected
@@ -1999,12 +1989,13 @@ int main(int argc, char *argv[])
                 // Decimal64 exactly (a property we manually verified).
 
                 bdldfp::Decimal64 junk;
-                bool lhsIsExact = 0 == Obj::asDecimal64Exact(&junk, L_INPUT);
-                bool rhsIsExact = 0 == Obj::asDecimal64Exact(&junk, R_INPUT);
+                const bool bothAreExact =
+                                    0 == Obj::asDecimal64Exact(&junk, L_INPUT)
+                                 && 0 == Obj::asDecimal64Exact(&junk, R_INPUT);
 
-                bool expected = (i == j) || (lhsIsExact && rhsIsExact &&
-                                             Obj::asDecimal64(L_INPUT) ==
-                                                 Obj::asDecimal64(R_INPUT));
+                const bool expected = (i == j) || (bothAreExact &&
+                                                Obj::asDecimal64(L_INPUT) ==
+                                                    Obj::asDecimal64(R_INPUT));
 
                 ASSERTV(i, j, L_INPUT, R_INPUT, L_NAME, R_NAME, expected,
                         expected == Obj::areEqual(L_INPUT, R_INPUT));
@@ -2251,25 +2242,26 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) {
-            bsl::cout << "\tTest JSONSuite Test Data"
-                      << bsl::endl;
-        }
+        if (verbose) cout << "\tTest JSONSuite Test Data\n";
+        typedef bsl::string_view StVw;
         for (int i = 0; i < NUM_JSON_SUITE_DATA; ++i) {
-            const int   LINE  = JSON_SUITE_DATA[i].d_line;
-            const bool  EXP   = JSON_SUITE_DATA[i].d_isValid;
-            const char *INPUT = JSON_SUITE_DATA[i].d_input;
-            const char *NAME  = JSON_SUITE_DATA[i].d_testName;
+            const int   LINE      = JSON_SUITE_DATA[i].d_line;
+            const bool  VALID     = JSON_SUITE_DATA[i].d_isValid;
+            const bool  RANGE_ERR = JSON_SUITE_DATA[i].d_isOutOfRange;
+            const StVw& INPUT     = JSON_SUITE_DATA[i].d_input;
+            const StVw& NAME      = JSON_SUITE_DATA[i].d_testName;
 
-            if (!EXP) {
-                // Ignore invalid JSON numbers.
-
+            if (!VALID) {  // Ignore invalid JSON numbers.
                 continue;                                           // CONTINUE
+            }
+
+            if (veryVerbose) {
+                P_(LINE) P_(VALID) P_(RANGE_ERR) P_(INPUT) P(NAME);
             }
 
             double  expected;
             int rc = bdlb::NumericParseUtil::parseDouble(&expected, INPUT);
-            ASSERTV(LINE, INPUT, 0 == rc);
+            ASSERTV(LINE, INPUT, 0 == rc || (RANGE_ERR && ERANGE == rc));
 
             bdldfp::Decimal64 result;
             result = Obj::asDecimal64(INPUT);
@@ -2396,7 +2388,6 @@ int main(int argc, char *argv[])
             { L_, "-1797693134862316E+99999",        -k_INF },
             { L_,             "2.22500E-308",             0 },
             { L_,            "-2.22500E-308",             0 }
-
         };
         const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2484,24 +2475,27 @@ int main(int argc, char *argv[])
                         fuzzyCompare(EXPECTED, result));
             }
         }
-        if (verbose) {
-            bsl::cout << "\tTest JSONSuite Test Data"
-                      << bsl::endl;
-        }
+        if (verbose) cout << "\tTest JSONSuite Test Data\n";
+        typedef bsl::string_view StVw;
         for (int i = 0; i < NUM_JSON_SUITE_DATA; ++i) {
-            const int   LINE  = JSON_SUITE_DATA[i].d_line;
-            const bool  EXP   = JSON_SUITE_DATA[i].d_isValid;
-            const char *INPUT = JSON_SUITE_DATA[i].d_input;
-            const char *NAME  = JSON_SUITE_DATA[i].d_testName;
+            const int   LINE      = JSON_SUITE_DATA[i].d_line;
+            const bool  VALID     = JSON_SUITE_DATA[i].d_isValid;
+            const bool  RANGE_ERR = JSON_SUITE_DATA[i].d_isOutOfRange;
+            const StVw& INPUT     = JSON_SUITE_DATA[i].d_input;
+            const StVw& NAME      = JSON_SUITE_DATA[i].d_testName;
 
-            if (!EXP) {  // Ignore invalid JSON numbers.
+            if (!VALID) {  // Ignore invalid JSON numbers.
                 continue;                                           // CONTINUE
+            }
+
+            if (veryVerbose) {
+                P_(LINE) P_(VALID) P_(RANGE_ERR) P_(INPUT) P(NAME);
             }
 
             double result, expected;
             int rc = bdlb::NumericParseUtil::parseDouble(&expected, INPUT);
 
-            ASSERTV(LINE, INPUT, 0 == rc);
+            ASSERTV(LINE, INPUT, 0 == rc || (RANGE_ERR && ERANGE == rc));
             result = Obj::asDouble(INPUT);
 
             ASSERTV(LINE, NAME, INPUT, expected, result, expected == result);
@@ -2707,20 +2701,22 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) {
-            bsl::cout << "\tTest JSONSuite Test Data"
-                      << bsl::endl;
-        }
+        if (verbose) cout << "\tTest JSONSuite Test Data\n";
+        typedef bsl::string_view StVw;
         for (int i = 0; i < NUM_JSON_SUITE_DATA; ++i) {
-            const int   LINE  = JSON_SUITE_DATA[i].d_line;
-            const bool  EXP   = JSON_SUITE_DATA[i].d_isValid;
-            const char *INPUT = JSON_SUITE_DATA[i].d_input;
-            const char *NAME  = JSON_SUITE_DATA[i].d_testName;
+            const int   LINE      = JSON_SUITE_DATA[i].d_line;
+            const bool  VALID     = JSON_SUITE_DATA[i].d_isValid;
+            const bool  RANGE_ERR = JSON_SUITE_DATA[i].d_isOutOfRange;
+            const StVw& INPUT     = JSON_SUITE_DATA[i].d_input;
+            const StVw& NAME      = JSON_SUITE_DATA[i].d_testName;
 
-            if (!EXP) {
+            if (!VALID) {
                 // Ignore invalid JSON numbers.
+                continue;                                           // CONTINUE
+            }
 
-                continue;
+            if (veryVerbose) {
+                P_(LINE) P_(VALID) P_(RANGE_ERR) P_(INPUT) P(NAME);
             }
 
             // The following compares the result of a conversion to double
@@ -2735,7 +2731,8 @@ int main(int argc, char *argv[])
 
             int rc = bdlb::NumericParseUtil::parseDouble(&expected, INPUT);
 
-            ASSERTV(LINE, INPUT, 0 == rc);
+            ASSERTV(LINE, INPUT, RANGE_ERR,
+                    0 == rc || (RANGE_ERR && ERANGE ==rc));
 
             rc = Obj::asUint64(&result, INPUT);
 
@@ -3158,20 +3155,20 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose)
-            bsl::cout << "\tTest JSONSuite Test Data"
-                      << bsl::endl;
+        if (verbose) cout << "\tTest JSONSuite Test Data\n";
+        typedef bsl::string_view StVw;
         for (int i = 0; i < NUM_JSON_SUITE_DATA; ++i) {
-            const int   LINE  = JSON_SUITE_DATA[i].d_line;
-            const bool  EXP   = JSON_SUITE_DATA[i].d_isValid;
-            const char *INPUT = JSON_SUITE_DATA[i].d_input;
-            const char *NAME  = JSON_SUITE_DATA[i].d_testName;
+            const int   LINE      = JSON_SUITE_DATA[i].d_line;
+            const bool  VALID     = JSON_SUITE_DATA[i].d_isValid;
+            //const bool  RANGE_ERR = JSON_SUITE_DATA[i].d_isOutOfRange;
+            const StVw& INPUT     = JSON_SUITE_DATA[i].d_input;
+            const StVw& NAME      = JSON_SUITE_DATA[i].d_testName;
 
             if (veryVerbose) {
-                P_(LINE) P_(EXP) P_(INPUT) P(NAME);
+                P_(LINE) P_(VALID) P_(INPUT) P(NAME);
             }
 
-            const bsl::size_t  LENGTH     = bsl::strlen(INPUT);
+            const bsl::size_t  LENGTH     = INPUT.length();
             const bsl::size_t  paddedSize =
                         bsls::AlignmentUtil::roundUpToMaximalAlignment(LENGTH);
             char              *block      = static_cast<char *>(
@@ -3179,15 +3176,15 @@ int main(int argc, char *argv[])
             char *firstProtectedAddress   = block + paddedSize;
             char *data                    = firstProtectedAddress - LENGTH;
 
-            bsl::memcpy(data, INPUT, LENGTH);
+            bsl::memcpy(data, INPUT.data(), LENGTH);
 
             bsl::string_view input(data, LENGTH);
 
-            bool rc = Obj::isValidNumber(input);
-            ASSERTV(LINE, NAME, INPUT, EXP, rc,  EXP == rc);
+            const bool rc = Obj::isValidNumber(input);
+            ASSERTV(LINE, NAME, INPUT, VALID, rc,  VALID == rc);
 
-            bool rcOr = oracle(input);
-            ASSERTV(LINE, NAME, INPUT, EXP, rcOr,  EXP == rcOr);
+            const bool rcOr = oracle(input);
+            ASSERTV(LINE, NAME, INPUT, VALID, rcOr,  VALID == rcOr);
 
             ga.deallocate(block);
         }
