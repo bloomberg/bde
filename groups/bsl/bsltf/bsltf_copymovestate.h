@@ -440,7 +440,7 @@ inline void bsltf::setCopyMoveState(void *, bsltf::CopyMoveState::Enum)
 
 }  // close enterprise namespace
 
-#endif  // INCLUDED_BDLTF_COPYMOVESTATE
+#endif  // INCLUDED_BSLTF_COPYMOVESTATE
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

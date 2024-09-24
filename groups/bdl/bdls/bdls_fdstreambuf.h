@@ -169,7 +169,7 @@ BSLS_IDENT("$Id: $")
 // }
 // ```
 // Finally, read the file back a second time, this time in text mode.  Note
-// how, on Windows, the '\r\n' is translated back to '\n'
+// how, on Windows, the `\r\n` is translated back to `\n`:
 // ```
 // {
 //     // read it back in text mode
@@ -375,8 +375,8 @@ namespace bdls {
 
 /// This private helper class isolates direct operations on files from the
 /// `FdStreamBuf` class; it is a thin wrapper around `FilesystemUtil`.  One
-/// service this class provides is converting between an in-process '\n' and
-/// its corresponding on-file '\r\n' when writing to or reading from a
+/// service this class provides is converting between an in-process `\n` and
+/// its corresponding on-file `\r\n` when writing to or reading from a
 /// Windows text file.  On `reset` an object of this type is associated with
 /// a supplied file descriptor, after which it can do simple operations on
 /// that file descriptor in the service of a `FdStreamBuf`.
@@ -412,7 +412,7 @@ class FdStreamBuf_FileHandler {
                                    // otherwise
 
     char   d_peekBuffer;           // buffer used when looking one byte ahead
-                                   // to complete a '\r\n' in text mode
+                                   // to complete a `\r\n` in text mode
 
     bool   d_peekBufferFlag;       // `true` if peek buffer contains a
                                    // character, `false` otherwise.  Note this
@@ -425,8 +425,8 @@ class FdStreamBuf_FileHandler {
     /// Write the specified `numChars` characters from the specified
     /// `buffer` to this object's file descriptor.  Return the number of
     /// characters successfully written on success, and a negative value
-    /// otherwise.  Note that '\n's in the specified `buffer` will be
-    /// translated to '\r\n' sequences on output.  Also note that this
+    /// otherwise.  Note that `\n`s in the specified `buffer` will be
+    /// translated to `\r\n` sequences on output.  Also note that this
     /// method does not exist and is not called except on Windows.
     int windowsWriteText(const char *buffer, int numChars);
 #endif
@@ -465,8 +465,8 @@ class FdStreamBuf_FileHandler {
     /// is to be closed when this object is cleared, reset, or destroyed,
     /// otherwise no action will be taken on `fileDescriptor` at that time.
     /// Optionally specify a `binaryModeFlag`, which is ignored on Unix; if
-    /// `false` on Windows, it indicates that '\n's internally are to be
-    /// translated to and from '\r\n' sequences on the device; on Unix or if
+    /// `false` on Windows, it indicates that `\n`s internally are to be
+    /// translated to and from `\r\n` sequences on the device; on Unix or if
     /// `binaryModeFlag` is `true` no such translation is to occur.  Return 0
     /// on success, and a non-zero value otherwise.  Note that if
     /// `FilesystemUtil::k_INVALID_FD` is passed as `fileDescriptor`, no file
@@ -497,15 +497,15 @@ class FdStreamBuf_FileHandler {
     /// file descriptor into the specified `buffer`.  Return the number of
     /// characters successfully read.  The behavior is undefined unless
     /// `0 <= numBytes` and `buffer` is at least `numBytes` long.  Note that
-    /// on Windows in text mode, '\r\n' is read as a single character and
-    /// stored in the buffer as '\n'.
+    /// on Windows in text mode, `\r\n` is read as a single character and
+    /// stored in the buffer as `\n`.
     int read(char *buffer, int numBytes);
 
     /// Write the specified `buffer`, containing the specified `numBytes`, to
     /// the file descriptor starting at the current position.  Return 0 on
     /// success, and a non-zero value otherwise.  The behavior is undefined
-    /// unless `0 <= numBytes`.  Note that on Windows in text mode, a '\n' is
-    /// written as '\r\n' and counts as one character.
+    /// unless `0 <= numBytes`.  Note that on Windows in text mode, a `\n` is
+    /// written as `\r\n` and counts as one character.
     int write(const char *buffer, int numBytes);
 
     /// Set the file position associated with this object according to the
@@ -526,7 +526,7 @@ class FdStreamBuf_FileHandler {
     /// beyond the end of the file; instead, the next write at the pointer
     /// will increase the file size.  Also note that on Windows in text
     /// mode, `offset` will be the number of bytes on disk passed over,
-    /// including '\r's in '\r\n' sequences.
+    /// including `\r`s in `\r\n` sequences.
     bsl::streampos seek(bsl::streamoff offset, FilesystemUtil::Whence dir);
 
     /// Map to memory a section of the file starting at the specified
@@ -565,7 +565,7 @@ class FdStreamBuf_FileHandler {
     /// `[first, last)` will fill when written to the file descriptor.  Note
     /// that on Unix, or for a binary file on Windows, this value will be
     /// `last - first`, but for on Windows in text mode, extra bytes are
-    /// added when '\n' would be written to the file descriptor as '\r\n'.
+    /// added when `\n` would be written to the file descriptor as `\r\n`.
     bsl::streamoff getOffset(char *first, char *last) const;
 
     /// Return `false` if on Windows and the file is opened in text mode, and
@@ -778,8 +778,8 @@ class FdStreamBuf : public bsl::streambuf {
 
     /// Replenish the input buffer with data obtained from the file descriptor,
     /// and return the next character of input (or eof if no input is
-    /// available).  Note that in windows text mode, '\r\n' sequences on the
-    /// device will be translated to '\n's.
+    /// available).  Note that in windows text mode, `\r\n` sequences on the
+    /// device will be translated to `\n`s.
     int_type underflow() BSLS_KEYWORD_OVERRIDE;
 
     /// If the optionally specified `c` is not given, move the current input
@@ -808,7 +808,7 @@ class FdStreamBuf : public bsl::streambuf {
     /// Optionally specify a character `c` to be appended to the buffer prior
     /// to the flush.  If no character is specified, no character is appended
     /// to the buffer.  If not in output mode, switch to output mode.  Note
-    /// that the write will translate '\n's to '\r\n's.
+    /// that the write will translate `\n`s to `\r\n`s.
     int_type overflow(int_type c = traits_type::eof()) BSLS_KEYWORD_OVERRIDE;
 
     /// Use the specified `buffer` of the specified `numBytes` capacity as
@@ -837,9 +837,9 @@ class FdStreamBuf : public bsl::streambuf {
     /// not change the size of the file if the pointer advances beyond the end
     /// of the file; instead, the next write at the pointer will increase the
     /// file size.  Also note that seeks are always in terms of bytes on the
-    /// device, meaning that in Windows text mode, seeking past a '\n'
+    /// device, meaning that in Windows text mode, seeking past a `\n`
     /// perceived by the caller will count as 2 bytes since it has to seek over
-    /// a '\r\n' sequence on the device.
+    /// a `\r\n` sequence on the device.
     pos_type seekoff(
         off_type                offset,
         bsl::ios_base::seekdir  whence,
@@ -850,8 +850,8 @@ class FdStreamBuf : public bsl::streambuf {
     /// Return the resulting absolute position in the file relative to the
     /// beginning.  Optionally specify `mode` which is ignored.  Also note that
     /// seeks are always in terms of bytes on the device, meaning that on a
-    /// Windows text file, seeking past a '\r\n' sequence on the disk will
-    /// count as two bytes, though if it is read in it will be a single '\n'
+    /// Windows text file, seeking past a `\r\n` sequence on the disk will
+    /// count as two bytes, though if it is read in it will be a single `\n`
     /// byte.
     pos_type seekpos(
         pos_type                offset,
@@ -879,7 +879,7 @@ class FdStreamBuf : public bsl::streambuf {
     /// descriptor into the specified `buffer` and return the number of
     /// characters successfully read.  The behavior is undefined unless
     /// `buffer` is at least `numBytes` bytes long.  Note that on a Windows
-    /// text file, a '\r\n' in the file will be read as '\n' (counting as a
+    /// text file, a `\r\n` in the file will be read as `\n` (counting as a
     /// single character).
     bsl::streamsize xsgetn(char *buffer, bsl::streamsize numBytes)
                                                          BSLS_KEYWORD_OVERRIDE;
@@ -888,8 +888,8 @@ class FdStreamBuf : public bsl::streambuf {
     /// `buffer` and return the number of characters successfully written.
     /// Note that this method does not necessarily modify the file: this method
     /// may simply write the characters to a buffer to be flushed to the file
-    /// at a later time.  Also note that on a Windows text file, a '\n' will be
-    /// written to the file as '\r\n' (counted as a single character).
+    /// at a later time.  Also note that on a Windows text file, a `\n` will be
+    /// written to the file as `\r\n` (counted as a single character).
     bsl::streamsize xsputn(const char      *buffer,
                            bsl::streamsize  numBytes) BSLS_KEYWORD_OVERRIDE;
 
@@ -909,8 +909,8 @@ class FdStreamBuf : public bsl::streambuf {
     /// `fileDescriptor` is to be closed the next time this object is reset,
     /// cleared or destroyed, or if `false` the file descriptor is to be
     /// left open.  Optionally specify a `binaryModeFlag` which is ignored
-    /// on Unix; if `false` on Windows, it indicates that '\n's are to be
-    /// translated to and from '\r\n' sequences on the device.  Optionally
+    /// on Unix; if `false` on Windows, it indicates that `\n`s are to be
+    /// translated to and from `\r\n` sequences on the device.  Optionally
     /// specify a `basicAllocator` used to supply memory.  If
     /// `basicAllocator` is 0, the currently installed default allocator is
     /// used.  Note that if `FilesystemUtil::k_INVALID_FD` is passed to
@@ -942,8 +942,8 @@ class FdStreamBuf : public bsl::streambuf {
     /// when this object is cleared, reset, or destroyed, otherwise no
     /// action will be taken on `fileDescriptor` at that time.  Optionally
     /// specify a `binaryModeFlag`, which is ignored on Unix; if `false` on
-    /// Windows, it indicates that '\n's internally are to be translated to
-    /// and from '\r\n' sequences on the device; on Unix or if
+    /// Windows, it indicates that `\n`s internally are to be translated to
+    /// and from `\r\n` sequences on the device; on Unix or if
     /// `binaryModeFlag` is `true` no such translation is to occur.  Return
     /// 0 on success, and a non-zero value otherwise.  Note that if
     /// `FilesystemUtil::k_INVALID_FD` is passed as `fileDescriptor`, no
