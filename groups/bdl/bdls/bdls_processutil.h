@@ -5,13 +5,12 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-
 //@PURPOSE: Provide basic platform-independent utilities related to processes.
 //
 //@CLASSES:
 //  bdls::ProcessUtil: portable utility methods related to processes
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bdls_filesystemutil
 //
 //@DESCRIPTION: This component, `bdls::ProcessUtil`, defines a
 // platform-independent interface for processes.  Currently, it provides a
@@ -81,28 +80,28 @@ struct ProcessUtil {
 
     // CLASS METHODS
 
-    /// Return the system specific process identifier for the currently
-    /// running process.
+    /// Return the system specific process identifier for the currently running
+    /// process.
     static int getProcessId();
 
-    /// Load the system specific process name for the currently running
-    /// process into the specified `*result`.  Return 0 on success, and a
-    /// non-zero value otherwise.  The language in which `*result` is
-    /// provided is unspecified; `*result` will be encoded as UTF-8, but
-    /// might not be normalized.  On failure, `*result` will be unmodified.
-    /// Note that the primary purpose of this method is to provide an
-    /// identifier for the current process, and `*result` may not be a valid
-    /// path to the executable; to access the actual task file for the
-    /// process use `getPathToExecutable` below.
+    /// Load the system specific process name for the currently running process
+    /// into the specified `*result`.  Return 0 on success, and a non-zero
+    /// value otherwise.  The language in which `*result` is provided is
+    /// unspecified; `*result` will be encoded as UTF-8, but might not be
+    /// normalized.  On failure, `*result` will be unmodified.  Note that the
+    /// primary purpose of this method is to provide an identifier for the
+    /// current process, and `*result` may not be a valid path to the
+    /// executable; to access the actual task file for the process use
+    /// `getPathToExecutable` below.
     static int getProcessName(bsl::string *result);
 
     /// Set `*result` to a path with which the executable can be accessed
     /// (which may bear no relation to the command line used to begin this
     /// process).  Return 0 on success, and a non-zero value otherwise.  On
-    /// failure, `*result` will not be modified.  Note that the returned
-    /// value of `*result` may not correspond to the value of `argv[0]`
-    /// passed to `main`.  Some systems provide more reliable alternatives,
-    /// such as through the "/proc" file system.
+    /// failure, `*result` will not be modified.  Note that the returned value
+    /// of `*result` may not correspond to the value of `argv[0]` passed to
+    /// `main`.  Some systems provide more reliable alternatives, such as
+    /// through the "/proc" file system.
     static int getPathToExecutable(bsl::string *result);
 };
 

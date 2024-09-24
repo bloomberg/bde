@@ -355,7 +355,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_platform.h>  // BSLS_PLATFORM_OS_UNIX
+#include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 
 #include <bsl_deque.h>

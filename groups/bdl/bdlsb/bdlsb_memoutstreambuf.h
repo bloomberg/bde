@@ -57,8 +57,8 @@ BSLS_IDENT("$Id: $")
 // First, we define our example stream class, `CapitalizingStream` (which we
 // will later test using 'bdlsb::MemOutStreamBuf):
 // ```
+// /// This class capitalizes lower-case ASCII characters that are output.
 // class CapitalizingStream {
-//     // This class capitalizes lower-case ASCII characters that are output.
 //
 //     // DATA
 //     bsl::streambuf  *d_streamBuffer_p;   // pointer to a stream buffer
@@ -68,16 +68,18 @@ BSLS_IDENT("$Id: $")
 //                                           const char          *data);
 //   public:
 //     // CREATORS
+//
+//     /// Create a capitalizing stream using the specified `streamBuffer`
+//     /// as underlying stream buffer to the stream.
 //     explicit CapitalizingStream(bsl::streambuf *streamBuffer);
-//         // Create a capitalizing stream using the specified 'streamBuffer'
-//         // as underlying stream buffer to the stream.
 // };
 //
 // // FREE OPERATORS
+//
+// /// Write the specified `data` in capitalized form to the specified
+// /// `stream`.
 // CapitalizingStream& operator<<(CapitalizingStream&  stream,
 //                                const char          *data);
-//     // Write the specified 'data' in capitalized form to the specified
-//     // 'stream'.
 //
 // CapitalizingStream::CapitalizingStream(bsl::streambuf *streamBuffer)
 // : d_streamBuffer_p(streamBuffer)
@@ -94,8 +96,8 @@ BSLS_IDENT("$Id: $")
 // Therefore we wrap `bsl::toupper` in an interface that works in terms of
 // `unsigned char`:
 // ```
+// /// Return the upper-case equivalent to the specified `input` character.
 // static unsigned char ucharToUpper(unsigned char input)
-//     // Return the upper-case equivalent to the specified 'input' character.
 // {
 //     return static_cast<unsigned char>(bsl::toupper(input));
 // }
@@ -249,18 +251,18 @@ class MemOutStreamBuf : public bsl::streambuf {
 
     // CREATORS
 
-    /// Create an empty stream buffer.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.
+    /// Create an empty stream buffer.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     explicit
     MemOutStreamBuf(bslma::Allocator *basicAllocator = 0);
 
     /// Create an empty stream buffer with sufficient initial capacity to
     /// accommodate up to the specified `numElements` characters without
-    /// subsequent reallocation.  If `numElements == 0`, an implementation-
-    /// defined initial capacity is used.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.
+    /// subsequent reallocation.  If `numElements == 0`, an
+    /// implementation-defined initial capacity is used.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     explicit
     MemOutStreamBuf(bsl::size_t       numElements,
                     bslma::Allocator *basicAllocator = 0);
@@ -272,14 +274,14 @@ class MemOutStreamBuf : public bsl::streambuf {
 
     /// Reserve sufficient internal capacity to store at least the specified
     /// `numCharacters` characters without reallocation.  Note that if the
-    /// storage size specified is less than the number of characters already
-    /// in the buffer, this method has no effect.
+    /// storage size specified is less than the number of characters already in
+    /// the buffer, this method has no effect.
     void reserveCapacity(bsl::size_t numCharacters);
 
-    /// Destroy the contents of this stream buffer, return all allocated
-    /// memory to the allocator, and reset the buffer to the default
-    /// constructed state.  Note that `length() == 0` holds following a call
-    /// to this method.
+    /// Destroy the contents of this stream buffer, return all allocated memory
+    /// to the allocator, and reset the buffer to the default constructed
+    /// state.  Note that `length() == 0` holds following a call to this
+    /// method.
     void reset();
 
     // ACCESSORS

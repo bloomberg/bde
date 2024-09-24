@@ -151,42 +151,41 @@ class FixedMemInStreamBuf : public bsl::streambuf {
   protected:
     // PROTECTED MANIPULATORS
 
-    /// Set the position indicator to the relative specified `offset` from
-    /// the base position indicated by the specified `way` and return the
-    /// resulting absolute position on success or pos_type(-1) on failure.
-    /// Optionally specify `which` area of the stream buffer.  The seek
-    /// operation will fail if `which` does not include the flag
-    /// `bsl::ios_base::in` or if the resulting absolute position is less
-    /// than zero or greater than the value returned by `length`.
+    /// Set the position indicator to the relative specified `offset` from the
+    /// base position indicated by the specified `way` and return the resulting
+    /// absolute position on success or pos_type(-1) on failure.  Optionally
+    /// specify `which` area of the stream buffer.  The seek operation will
+    /// fail if `which` does not include the flag `bsl::ios_base::in` or if the
+    /// resulting absolute position is less than zero or greater than the value
+    /// returned by `length`.
     pos_type seekoff(off_type                offset,
                      bsl::ios_base::seekdir  way,
                      bsl::ios_base::openmode which = bsl::ios_base::in)
                                                          BSLS_KEYWORD_OVERRIDE;
 
+    /// Set the position indicator to the specified `position` and return the
+    /// resulting absolute position on success or pos_type(-1) on failure.
+    /// Optionally specify `which` area of the stream buffer.  The `seekpos`
+    /// operation will fail if `which` does not include the flag
+    /// `bsl::ios_base::in` or if position is less then zero or greater than
+    /// the value returned by `length`.
     pos_type seekpos(pos_type                position,
                      bsl::ios_base::openmode which = bsl::ios_base::in)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Set the position indicator to the specified 'position' and return
-        // the resulting absolute position on success or pos_type(-1) on
-        // failure.  Optionally specify 'which' area of the stream buffer.  The
-        // 'seekpos' operation will fail if 'which' does not include the flag
-        // 'bsl::ios_base::in' or if position is less then zero or greater
-        // than the value returned by 'length'.
 
     FixedMemInStreamBuf *setbuf(char            *buffer,
                                 bsl::streamsize  length) BSLS_KEYWORD_OVERRIDE;
 
-    /// Reinitialize this stream buffer to use the specified character
-    /// `buffer` having the specified `length`.  Return the pointer
-    /// providing modifiable access to this stream buffer.  The behavior is
-    /// undefined unless `buffer != 0 && length > 0` or `length == 0`.  Upon
-    /// re-initialization for use of the new buffer, neither the content nor
-    /// the next input position indicator are preserved.  Note that `buffer`
-    /// is held but not owned.
+    /// Reinitialize this stream buffer to use the specified character `buffer`
+    /// having the specified `length`.  Return the pointer providing modifiable
+    /// access to this stream buffer.  The behavior is undefined unless `buffer
+    /// != 0 && length > 0` or `length == 0`.  Upon re-initialization for use
+    /// of the new buffer, neither the content nor the next input position
+    /// indicator are preserved.  Note that `buffer` is held but not owned.
     FixedMemInStreamBuf *setbuf(const char *buffer, bsl::streamsize length);
 
-    /// Return the number of characters currently available for reading
-    /// from this stream buffer, or -1 if there are none.
+    /// Return the number of characters currently available for reading from
+    /// this stream buffer, or -1 if there are none.
     bsl::streamsize showmanyc() BSLS_KEYWORD_OVERRIDE;
 
     /// Read the specified `length` number of characters into the specified
@@ -223,15 +222,14 @@ class FixedMemInStreamBuf : public bsl::streambuf {
 
     // ACCESSORS
 
-    /// Return the address of the non-modifiable character buffer held by
-    /// this stream buffer.
+    /// Return the address of the non-modifiable character buffer held by this
+    /// stream buffer.
     const char *data() const;
 
-    /// Return the number of characters from the current input position to
-    /// the end of the stream buffer.  The function returns the same value
-    /// as `seekoff(0, bsl::ios_base::beg)`.  The length is modified by a
-    /// call to `seekpos`, `seekoff` or by reading characters from the
-    /// buffer.
+    /// Return the number of characters from the current input position to the
+    /// end of the stream buffer.  The function returns the same value as
+    /// `seekoff(0, bsl::ios_base::beg)`.  The length is modified by a call to
+    /// `seekpos`, `seekoff` or by reading characters from the buffer.
     bsl::size_t length() const;
 };
 

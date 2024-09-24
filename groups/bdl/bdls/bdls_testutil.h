@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 //
 //@DEPRECATED: Use `bslim_testutil` instead.
 //
-//@CLASSES:
-//
 //@MACROS:
 //  BDLS_TESTUTIL_ASSERT(X): record and print error if `!X`
 //  BDLS_TESTUTIL_LOOP_ASSERT(I, X): print args if `!X`
@@ -53,12 +51,12 @@ BSLS_IDENT("$Id: $")
 // ```
 // namespace bdlabc {
 //
+// /// This utility class provides sample functionality to demonstrate how
+// /// a test driver might be written validating its only method.
 // struct BdlExampleUtil {
-//     // This utility class provides sample functionality to demonstrate how
-//     // a test driver might be written validating its only method.
 //
+//     /// Return the integer value `42`.
 //     static int fortyTwo();
-//         // Return the integer value '42'.
 // };
 //
 // inline

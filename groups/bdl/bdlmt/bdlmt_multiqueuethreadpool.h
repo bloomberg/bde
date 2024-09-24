@@ -116,33 +116,32 @@ BSLS_IDENT("$Id: $")
 //   public:
 //     // CREATORS
 //
-//     ///  Create a `my_SearchProfile` with the specified `word`.
-//     ///  Optionally specify a `basicAllocator` used to supply memory.  If
-//     ///  `basicAllocator` is 0, the default memory allocator is used.
+//     /// Create a `my_SearchProfile` with the specified `word`.
+//     /// Optionally specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the default memory allocator is used.
 //     my_SearchProfile(const char       *word,
 //                      bslma::Allocator *basicAllocator = 0);
 //
-//     ///  Destroy this search profile.
+//     /// Destroy this search profile.
 //     ~my_SearchProfile();
 //
 //     // MANIPULATORS
 //
-//     ///  Insert the specified `file` into the file set maintained by this
-//     ///  search profile.
+//     /// Insert the specified `file` into the file set maintained by this
+//     /// search profile.
 //     void insert(const char *file);
 //
 //     // ACCESSORS
 //
-//     ///  Return `true` if the specified `file` matches this search
-//     ///  profile.
+//     /// Return `true` if the specified `file` matches this search profile.
 //     bool isMatch(const char *file) const;
 //
-//     ///  Return a reference to the non-modifiable file set maintained by
-//     ///  this search profile.
+//     /// Return a reference to the non-modifiable file set maintained by
+//     /// this search profile.
 //     const bsl::set<bsl::string>& fileSet() const;
 //
-//     ///  Return a reference to the non-modifiable word maintained by this
-//     ///  search profile.
+//     /// Return a reference to the non-modifiable word maintained by this
+//     /// search profile.
 //     const bsl::string& word() const;
 // };
 // ```

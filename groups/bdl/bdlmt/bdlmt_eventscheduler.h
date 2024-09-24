@@ -280,27 +280,26 @@ BSLS_IDENT("$Id: $")
 //    bdlmt::EventScheduler    d_scheduler;   // timeout event scheduler
 //    bsls::TimeInterval       d_ioTimeout;   // time out
 //
-//    ///  Add the specified `connection` to this server and schedule
-//    ///  the timeout event that closes this connection if the data
-//    ///  for this connection does not arrive before the timeout.
+//    /// Add the specified `connection` to this server and schedule
+//    /// the timeout event that closes this connection if the data
+//    /// for this connection does not arrive before the timeout.
 //    void newConnection(Connection *connection);
 //
-//    ///  Close the specified `connection` and remove it from this server.
+//    /// Close the specified `connection` and remove it from this server.
 //    void closeConnection(Connection *connection);
 //
-//    ///  Return if the specified `connection` has already timed-out.
-//    ///  If not, cancel the existing timeout event for the `connection`,
-//    ///  process the specified `data` of the specified `length` and
-//    ///  schedule a new timeout event that closes the `connection` if
-//    ///  the data does not arrive before the timeout.
+//    /// Return if the specified `connection` has already timed-out.
+//    /// If not, cancel the existing timeout event for the `connection`,
+//    /// process the specified `data` of the specified `length` and
+//    /// schedule a new timeout event that closes the `connection` if
+//    /// the data does not arrive before the timeout.
 //    void dataAvailable(Connection *connection, void *data, int length);
 //
 //  public:
 //
-//    ///  Create a `my_Server` object with a timeout value of
-//    ///  `ioTimeout` seconds.  Optionally specify a `allocator` used to
-//    ///  supply memory.  If `allocator` is 0, the currently installed
-//    ///  default allocator is used.
+//    /// Create a `my_Server` object with a timeout value of `ioTimeout`
+//    /// seconds.  Optionally specify a `allocator` used to supply memory.  If
+//    /// `allocator` is 0, the currently installed default allocator is used.
 //    my_Server(const bsls::TimeInterval&  ioTimeout,
 //              bslma::Allocator         *allocator = 0);
 //
@@ -371,12 +370,11 @@ BSLS_IDENT("$Id: $")
 // object can be created atop the scheduler.  A test can then use the test
 // time-source to advance the scheduler's observed system-time in order to
 // dispatch events in a manner coordinated by the test.  Note that a
-// `bdlmt::EventSchedulerTestTimeSource` *must* be created on an
+// `bdlmt::EventSchedulerTestTimeSource` **must** be created on an
 // event-scheduler before any events are scheduled, or the event-scheduler is
 // started.
 //
 // This example shows how the clock may be altered:
-//
 // ```
 // void myCallbackFunction() {
 //     puts("Event triggered!");
@@ -415,7 +413,6 @@ BSLS_IDENT("$Id: $")
 //     scheduler.stop();
 // }
 // ```
-//
 // Note that this feature should be used only for testing purposes, never in
 // production code.
 

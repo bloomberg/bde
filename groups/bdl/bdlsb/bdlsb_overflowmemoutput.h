@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // `bdlsb_fixedmemoutput`, they can no longer reinitialize the stream buffer
 // with a different character buffer by calling the `pubsetbuf` method;
 // instead, if that buffer runs out, the `bdlsb::OverflowMemOutput` will
-// allocate another buffer (see "Overflow Buffer" below).  The only difference
+// allocate another buffer (see [](#Overflow Buffer)).  The only difference
 // between this component and `bdlsb_overflowmemoutstreambuf` is that the class
 // `bdlsb::OverflowMemOutput` does *not* derive from `bsl::streambuf` and does
 // not support locales.  This is advantageous for performance reasons, as the
@@ -130,13 +130,13 @@ namespace bdlsb {
 
 /// This class, like `bdlsb::OverflowMemOutStreamBuf`, implements the output
 /// functionality of the `bsl::basic_streambuf` interface, using a
-/// client-supplied buffer and allocator-supplied overflow buffer if
-/// additional memory is needed.  It has an interface similar to
-/// `bdlsb::OverflowMemOutStreamBuf` but does *not* inherit from
+/// client-supplied buffer and allocator-supplied overflow buffer if additional
+/// memory is needed.  It has an interface similar to
+/// `bdlsb::OverflowMemOutStreamBuf` but does **not** inherit from
 /// `bsl::streambuf`.  Thus, it is suitable for use as template parameter to
 /// `bslx::GenericByteOutStream` (but not to `bslx::ByteOutStream` or
-/// `bslx::ByteOutStreamFormatter`).  Note that this class is not designed
-/// to be derived from.
+/// `bslx::ByteOutStreamFormatter`).  Note that this class is not designed to
+/// be derived from.
 class OverflowMemOutput {
 
     // DATA
@@ -175,9 +175,9 @@ class OverflowMemOutput {
     /// Replace the overflow buffer with another buffer, larger then the
     /// current buffer by at least the specified `numBytes`, by growing
     /// geometrically by a factor of two.  Optionally specify a `copyOrigin`
-    /// indicating whether the content of the overflow buffer should be
-    /// copied into new location.  Note that `d_put_p` is not updated, and
-    /// may be pointing to deallocated memory when the method returns.
+    /// indicating whether the content of the overflow buffer should be copied
+    /// into new location.  Note that `d_put_p` is not updated, and may be
+    /// pointing to deallocated memory when the method returns.
     void grow(bsl::size_t numBytes, bool copyOrigin = true);
 
   public:
@@ -210,29 +210,28 @@ class OverflowMemOutput {
     // MANIPULATORS
                              // *** 27.5.2.2.2 buffer and positioning ***
 
-    /// Set the position indicator to the relative specified `offset` from
-    /// the base position indicated by the specified `way` and return the
-    /// resulting absolute position on success or pos_type(-1) on failure.
-    /// Optionally specify `which` area of the stream buffer.  The seek
-    /// operation will fail if `which` does not include the flag
-    /// `bsl::ios_base::out` or if the resulting absolute position is less
-    /// than zero.
+    /// Set the position indicator to the relative specified `offset` from the
+    /// base position indicated by the specified `way` and return the resulting
+    /// absolute position on success or pos_type(-1) on failure.  Optionally
+    /// specify `which` area of the stream buffer.  The seek operation will
+    /// fail if `which` does not include the flag `bsl::ios_base::out` or if
+    /// the resulting absolute position is less than zero.
     pos_type pubseekoff(off_type                offset,
                         bsl::ios_base::seekdir  way,
                         bsl::ios_base::openmode which = bsl::ios_base::out);
 
-    /// Set the position indicator to the specified `position` and return
-    /// the resulting absolute position on success or pos_type(-1) on
-    /// failure.  Optionally specify `which` area of the stream buffer.  The
-    /// `seekpos` operation will fail if `which` does not include the flag
+    /// Set the position indicator to the specified `position` and return the
+    /// resulting absolute position on success or pos_type(-1) on failure.
+    /// Optionally specify `which` area of the stream buffer.  The `seekpos`
+    /// operation will fail if `which` does not include the flag
     /// `bsl::ios_base::out` or if `position` is less then zero.
     pos_type pubseekpos(pos_type                position,
                         bsl::ios_base::openmode which = bsl::ios_base::out);
 
-    /// Reinitialize this stream buffer to use the specified character
-    /// `buffer` having the specified `length`.  Return a pointer providing
-    /// modifiable access to this stream buffer.  This stream buffer does
-    /// not support reinitialization of the internal character buffer.
+    /// Reinitialize this stream buffer to use the specified character `buffer`
+    /// having the specified `length`.  Return a pointer providing modifiable
+    /// access to this stream buffer.  This stream buffer does not support
+    /// reinitialization of the internal character buffer.
     OverflowMemOutput *pubsetbuf(char *buffer, bsl::streamsize length);
 
     /// Synchronize this stream buffer with associated character sequence.
@@ -259,14 +258,14 @@ class OverflowMemOutput {
     /// Return the number of bytes that have been written to this object.
     bsl::size_t dataLength() const;
 
-    /// Return the length of data in the initial buffer, i.e.,
-    /// `dataLength()` if there is no overflow buffer, or
-    /// `initialBufferSize()` if there is one.
+    /// Return the length of data in the initial buffer, i.e., `dataLength()`
+    /// if there is no overflow buffer, or `initialBufferSize()` if there is
+    /// one.
     bsl::size_t dataLengthInInitialBuffer() const;
 
-    /// Return the length of the data in the overflow buffer, i.e., 0 if
-    /// there is no overflow buffer, or `dataLength() - initialBufferSize()`
-    /// if there is one.
+    /// Return the length of the data in the overflow buffer, i.e., 0 if there
+    /// is no overflow buffer, or `dataLength() - initialBufferSize()` if there
+    /// is one.
     bsl::size_t dataLengthInOverflowBuffer() const;
 
     /// Return a pointer providing non-modifiable access to the character
@@ -276,8 +275,8 @@ class OverflowMemOutput {
     /// Return the size of the initial buffer held by this stream buffer.
     bsl::size_t initialBufferSize() const;
 
-    /// Return a pointer providing non-modifiable access to the overflow
-    /// buffer if there is one, or 0 otherwise.
+    /// Return a pointer providing non-modifiable access to the overflow buffer
+    /// if there is one, or 0 otherwise.
     const char *overflowBuffer() const;
 
     /// Return the size of the overflow buffer, or 0 if there is no overflow

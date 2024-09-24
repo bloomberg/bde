@@ -88,8 +88,8 @@ namespace bdlsb {
 /// This class, like `bdlsb::FixedMemOutStreamBuf`, implements the output
 /// functionality of the `basic_streambuf` interface, using client-supplied
 /// `char *` memory.  It has an identical interface to
-/// `bdlsb::FixedMemOutStreamBuf` but does *not* inherit from
-/// `bsl::streambuf`.  Thus, it is suitable for use as template parameter to
+/// `bdlsb::FixedMemOutStreamBuf` but does *not* inherit from `bsl::streambuf`.
+/// Thus, it is suitable for use as template parameter to
 /// `bslx::GenericOutStream` (but not to `bslx::StreambufOutStream`).  Note
 /// that this class is not designed to be derived from.
 class FixedMemOutput {
@@ -124,9 +124,8 @@ class FixedMemOutput {
     /// Note that `buffer` is held but not owned.
     FixedMemOutput(char *buffer, bsl::streamsize length);
 
-    //! ~FixedMemOutput();
-        // Destroy this stream buffer.  Note that this method's definition is
-        // compiler generated.
+    /// Destroy this object.
+    //! ~FixedMemOutput() = default;
 
     // MANIPULATORS
 
@@ -136,44 +135,44 @@ class FixedMemOutput {
 
                              // *** 27.5.2.2.1 locales: ***
 
-    /// Associate the specified locale `loc` to this stream buffer.
-    /// Operation has no effect, because locales are not supported by this
-    /// component.  Return default constructed bsl::locale object.
+    /// Associate the specified locale `loc` to this stream buffer.  Operation
+    /// has no effect, because locales are not supported by this component.
+    /// Return default constructed bsl::locale object.
     bsl::locale pubimbue(const bsl::locale& loc);
 
                              // *** 27.5.2.2.2 buffer and positioning: ***
 
-    /// Reset the internal buffer of this stream to the specified `buffer`
-    /// of the specified `length`.  Note that the next write operation will
-    /// start at the beginning of `buffer`.
+    /// Reset the internal buffer of this stream to the specified `buffer` of
+    /// the specified `length`.  Note that the next write operation will start
+    /// at the beginning of `buffer`.
     FixedMemOutput *pubsetbuf(char            *buffer,
                               bsl::streamsize  length);
 
-    /// Set the position indicator to the relative specified `offset` from
-    /// the base position indicated by the specified `fixedPosition` and
-    /// return the resulting absolute position on success or pos_type(-1)
-    /// on failure.  Optionally specify `which` area of the stream buffer.
-    /// The seek operation will fail if `which` does not include the flag
-    /// `bsl::ios_base::out` or if the resulting absolute position is less
-    /// than zero or greater than the value returned by `length`.
+    /// Set the position indicator to the relative specified `offset` from the
+    /// base position indicated by the specified `fixedPosition` and return the
+    /// resulting absolute position on success or pos_type(-1) on failure.
+    /// Optionally specify `which` area of the stream buffer.  The seek
+    /// operation will fail if `which` does not include the flag
+    /// `bsl::ios_base::out` or if the resulting absolute position is less than
+    /// zero or greater than the value returned by `length`.
     pos_type pubseekoff(off_type                offset,
                         bsl::ios_base::seekdir  fixedPosition,
                         bsl::ios_base::openmode which =
                             bsl::ios_base::in | bsl::ios_base::out);
 
-    /// Set the position indicator to the specified `position` and return
-    /// the resulting absolute position on success or pos_type(-1) on
-    /// failure.  Optionally specify `which` area of the stream buffer.  The
-    /// `seekpos` operation will fail if `which` does not include the flag
-    /// `bsl::ios_base::out` or if position is less then zero or greater
-    /// than the value returned by `length`.
+    /// Set the position indicator to the specified `position` and return the
+    /// resulting absolute position on success or pos_type(-1) on failure.
+    /// Optionally specify `which` area of the stream buffer.  The `seekpos`
+    /// operation will fail if `which` does not include the flag
+    /// `bsl::ios_base::out` or if position is less then zero or greater than
+    /// the value returned by `length`.
     pos_type pubseekpos(pos_type                position,
                         bsl::ios_base::openmode which =
                             bsl::ios_base::in | bsl::ios_base::out);
 
-    /// Synchronizes the controlled character sequence (the buffers) with
-    /// the associated character sequence.  Operation has no effect, because
-    /// the stream is always kept in sync (no buffered output).  Return 0.
+    /// Synchronizes the controlled character sequence (the buffers) with the
+    /// associated character sequence.  Operation has no effect, because the
+    /// stream is always kept in sync (no buffered output).  Return 0.
     int pubsync();
 
                              // *** 27.5.2.2.5 Put area: ***
@@ -182,11 +181,11 @@ class FixedMemOutput {
     /// `traits_type::eof()` if the end of the write buffer is reached.
     int_type sputc(char c);
 
-    /// Write the specified `length` characters at the specified address `s`
-    /// to this buffer.  Return the number of characters written, which is
-    /// either `length` or the distance from the current write position to
-    /// the end of the write buffer, whichever is smaller, and move the
-    /// write cursor position by this amount.
+    /// Write the specified `length` characters at the specified address `s` to
+    /// this buffer.  Return the number of characters written, which is either
+    /// `length` or the distance from the current write position to the end of
+    /// the write buffer, whichever is smaller, and move the write cursor
+    /// position by this amount.
     bsl::streamsize sputn(const char *s, bsl::streamsize length);
 
     // ACCESSORS
@@ -198,8 +197,8 @@ class FixedMemOutput {
     /// buffer held by this stream buffer (supplied at construction).
     const char *data() const;
 
-    /// Return the number of characters from the beginning of the buffer to
-    /// the current write position.
+    /// Return the number of characters from the beginning of the buffer to the
+    /// current write position.
     bsl::streamsize length() const;
 
                              // *** 27.5.2.2.1 locales: ***

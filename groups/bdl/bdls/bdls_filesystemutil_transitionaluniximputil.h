@@ -124,9 +124,9 @@ struct FilesystemUtil_TransitionalUnixImpUtil {
     /// `sys/stat.h` header.
     typedef typename UNIX_INTERFACE::stat64 stat64;
 
-    /// `time_t` is an alias to the `time_t` type provided by the
-    /// `sys/types.h` header.  It represents a time point as number of
-    /// seconds since January 1st 1970 in Coordinated Universal Time.
+    /// `time_t` is an alias to the `time_t` type provided by the `sys/types.h`
+    /// header.  It represents a time point as number of seconds since January
+    /// 1st 1970 in Coordinated Universal Time.
     typedef typename UNIX_INTERFACE::time_t time_t;
 
     // PRIVATE CLASS METHODS
@@ -135,14 +135,13 @@ struct FilesystemUtil_TransitionalUnixImpUtil {
     /// struct.
     static long get_st_mtim_nsec(const stat64& stat);
 
-    /// Return the value of the `st_mtime` data member of the specified
-    /// `stat`.
+    /// Return the value of the `st_mtime` data member of the specified `stat`.
     static time_t get_st_mtime(const stat64& stat);
 
-    /// Return the value of the `st_size` data member of the specified
-    /// `stat`.  Note that this function is provided in order to create a
-    /// consistent interface for accessing the data members of a `stat64`
-    /// struct with `get_st_mtime`.
+    /// Return the value of the `st_size` data member of the specified `stat`.
+    /// Note that this function is provided in order to create a consistent
+    /// interface for accessing the data members of a `stat64` struct with
+    /// `get_st_mtime`.
     static off64_t get_st_size(const stat64& stat);
 
     /// Invoke and return the result of `::fstat64(fildes, buf)` with the
@@ -153,14 +152,14 @@ struct FilesystemUtil_TransitionalUnixImpUtil {
   public:
     // CLASS METHODS
 
-    /// Return the size, in bytes, of the file with the specified
-    /// `descriptor`, or a negative value if an error occurs.
+    /// Return the size, in bytes, of the file with the specified `descriptor`,
+    /// or a negative value if an error occurs.
     static Offset getFileSize(FileDescriptor descriptor);
 
-    /// Load into the specified `time` the last modification time of the
-    /// file with the specified `descriptor`, as reported by the filesystem.
-    /// Return 0 on success, and a non-zero value otherwise.  Note that the
-    /// time is reported in UTC.
+    /// Load into the specified `time` the last modification time of the file
+    /// with the specified `descriptor`, as reported by the filesystem.  Return
+    /// 0 on success, and a non-zero value otherwise.  Note that the time is
+    /// reported in UTC.
     static int getLastModificationTime(bdlt::Datetime *time,
                                        FileDescriptor  descriptor);
 };

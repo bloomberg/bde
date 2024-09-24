@@ -105,27 +105,26 @@ struct MemoryUtil {
     static int pageSize();
 
     /// Change the access protection on a region of memory starting at the
-    /// specified `address` and `numBytes` long, according to specified
-    /// `mode`, making memory readable if `(mode & ACCESS_READ)` is nonzero
-    /// and writable if `(mode & ACCESS_WRITE)` is nonzero.  Return 0 on
-    /// success, and a nonzero value otherwise.  The behavior is undefined
-    /// if `addr` is not aligned on a page boundary, if `numBytes` is not a
-    /// multiple of `pageSize()`, or if `numBytes` is 0.  Note that some
-    /// platforms do not support certain protection modes, e.g., on some
-    /// platforms the memory cannot be made writable but unreadable, or
-    /// readable but non-executable.  On these platforms the actual access
-    /// protection set on the region might be more permissive than the
-    /// specified one.  Also note that most memory allocators do not expect
-    /// memory protection on allocated memory to be changed, so you must
-    /// reset protection back to ACCESS_READ_WRITE before releasing the
-    /// memory.
+    /// specified `address` and `numBytes` long, according to specified `mode`,
+    /// making memory readable if `(mode & ACCESS_READ)` is nonzero and
+    /// writable if `(mode & ACCESS_WRITE)` is nonzero.  Return 0 on success,
+    /// and a nonzero value otherwise.  The behavior is undefined if `addr` is
+    /// not aligned on a page boundary, if `numBytes` is not a multiple of
+    /// `pageSize()`, or if `numBytes` is 0.  Note that some platforms do not
+    /// support certain protection modes, e.g., on some platforms the memory
+    /// cannot be made writable but unreadable, or readable but non-executable.
+    /// On these platforms the actual access protection set on the region might
+    /// be more permissive than the specified one.  Also note that most memory
+    /// allocators do not expect memory protection on allocated memory to be
+    /// changed, so you must reset protection back to ACCESS_READ_WRITE before
+    /// releasing the memory.
     static int protect(void *address, int numBytes, int mode);
 
-    /// Allocate an area of memory of the specified size `numBytes`, aligned
-    /// on a page boundary.  Return a pointer to allocated memory on
-    /// success, and a null pointer otherwise.  Note that the allocated
-    /// memory is readable and writable, and read/write access to this
-    /// memory, if revoked, must be restored before deallocation.
+    /// Allocate an area of memory of the specified size `numBytes`, aligned on
+    /// a page boundary.  Return a pointer to allocated memory on success, and
+    /// a null pointer otherwise.  Note that the allocated memory is readable
+    /// and writable, and read/write access to this memory, if revoked, must be
+    /// restored before deallocation.
     static void *allocate(int numBytes);
 
     /// Deallocate a memory area at the specified `address` previously
@@ -135,10 +134,9 @@ struct MemoryUtil {
     /// Note that deallocating memory does not change memory protection.
     static int deallocate(void *address);
 };
+
 }  // close package namespace
-
 }  // close enterprise namespace
-
 #endif
 
 // ----------------------------------------------------------------------------

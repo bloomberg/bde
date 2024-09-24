@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdls::FdStreamBuf: stream buffer constructed with file descriptor
 //
-//@SEE_ALSO: <bsl::streambuf>
+//@SEE_ALSO: bsl::streambuf
 //
 //@DESCRIPTION: This component implements a class, `bdls::FdStreamBuf`, derived
 // from the C++ standard library's `bsl::streambuf` that can be associated with
@@ -391,44 +391,44 @@ class FdStreamBuf_FileHandler {
     // DATA
     FilesystemUtil::FileDescriptor
            d_fileId;               // file descriptor, which is owned if
-                                   // 'd_willCloseOnResetFlag' is 'true',
+                                   // `d_willCloseOnResetFlag` is `true`,
                                    // otherwise not owned
 
-    bool   d_openedFlag;           // 'true' if this object is associated with
-                                   // a valid file descriptor, and 'false'
+    bool   d_openedFlag;           // `true` if this object is associated with
+                                   // a valid file descriptor, and `false`
                                    // otherwise
 
-    bool   d_regularFileFlag;      // 'true' if the file descriptor represents
+    bool   d_regularFileFlag;      // `true` if the file descriptor represents
                                    // a plain file (and not a directory or
-                                   // other device), and 'false' otherwise
+                                   // other device), and `false` otherwise
 
     bsl::ios_base::openmode
-           d_openModeFlags;        // 'ios_base'-style flags with which the
+           d_openModeFlags;        // `ios_base`-style flags with which the
                                    // file or device was opened
 
-    bool   d_willCloseOnResetFlag; // 'true' if the file descriptor should be
+    bool   d_willCloseOnResetFlag; // `true` if the file descriptor should be
                                    // closed when this file handler is reset,
-                                   // cleared or destroyed, and 'false'
+                                   // cleared or destroyed, and `false`
                                    // otherwise
 
     char   d_peekBuffer;           // buffer used when looking one byte ahead
                                    // to complete a '\r\n' in text mode
 
-    bool   d_peekBufferFlag;       // 'true' if peek buffer contains a
-                                   // character, 'false' otherwise.  Note this
+    bool   d_peekBufferFlag;       // `true` if peek buffer contains a
+                                   // character, `false` otherwise.  Note this
                                    // is never true on Unix or in binary mode
                                    // on Windows.
 
   private:
     // PRIVATE MANIPULATORS
 #ifdef BSLS_PLATFORM_OS_WINDOWS
+    /// Write the specified `numChars` characters from the specified
+    /// `buffer` to this object's file descriptor.  Return the number of
+    /// characters successfully written on success, and a negative value
+    /// otherwise.  Note that '\n's in the specified `buffer` will be
+    /// translated to '\r\n' sequences on output.  Also note that this
+    /// method does not exist and is not called except on Windows.
     int windowsWriteText(const char *buffer, int numChars);
-        // Write the specified 'numChars' characters from the specified
-        // 'buffer' to this object's file descriptor.  Return the number of
-        // characters successfully written on success, and a negative value
-        // otherwise.  Note that '\n's in the specified 'buffer' will be
-        // translated to '\r\n' sequences on output.  Also note that this
-        // method does not exist and is not called except on Windows.
 #endif
 
   private:
@@ -444,45 +444,43 @@ class FdStreamBuf_FileHandler {
 
     // CREATORS
 
-    /// Create a file handler that is not associated with any file
-    /// descriptor.  Note that `isOpened` will be `false` on the newly
-    /// created object.
+    /// Create a file handler that is not associated with any file descriptor.
+    /// Note that `isOpened` will be `false` on the newly created object.
     FdStreamBuf_FileHandler();
 
-    /// Destroy this file handler.  If `willCloseOnReset` is `true`, close
-    /// any file descriptor associated with this object.
+    /// Destroy this file handler.  If `willCloseOnReset` is `true`, close any
+    /// file descriptor associated with this object.
     ~FdStreamBuf_FileHandler();
 
     // MANIPULATORS
 
-    /// Associate this object with the specified `fileDescriptor`, and
-    /// record the state of the specified `writableFlag` which, if `true`,
-    /// indicates that the `fileDescriptor` is writable, otherwise it is
-    /// not.  Before making this association, if, prior to this call,
-    /// `willCloseOnReset` is true, close any file descriptor previously
-    /// associated with this object, otherwise leave it open but
-    /// disassociate this object from it.  The optionally specified
-    /// `willCloseOnResetFlag` will set `willCloseOnReset`, which, if
-    /// `true`, indicates that `fileDescriptor` is to be closed when this
-    /// object is cleared, reset, or destroyed, otherwise no action will be
-    /// taken on `fileDescriptor` at that time.  Optionally specify a
-    /// `binaryModeFlag`, which is ignored on Unix; if `false` on Windows,
-    /// it indicates that '\n's internally are to be translated to and from
-    /// '\r\n' sequences on the device; on Unix or if `binaryModeFlag` is
-    /// `true` no such translation is to occur.  Return 0 on success, and a
-    /// non-zero value otherwise.  Note that if
-    /// `FilesystemUtil::k_INVALID_FD` is passed as `fileDescriptor`, no
-    /// file descriptor is to be associated with this object.  Also note
-    /// that the state of `fileDescriptor` is unchanged by this call, there
-    /// is no implicit seek.
+    /// Associate this object with the specified `fileDescriptor`, and record
+    /// the state of the specified `writableFlag` which, if `true`, indicates
+    /// that the `fileDescriptor` is writable, otherwise it is not.  Before
+    /// making this association, if, prior to this call, `willCloseOnReset` is
+    /// true, close any file descriptor previously associated with this object,
+    /// otherwise leave it open but disassociate this object from it.  The
+    /// optionally specified `willCloseOnResetFlag` will set
+    /// `willCloseOnReset`, which, if `true`, indicates that `fileDescriptor`
+    /// is to be closed when this object is cleared, reset, or destroyed,
+    /// otherwise no action will be taken on `fileDescriptor` at that time.
+    /// Optionally specify a `binaryModeFlag`, which is ignored on Unix; if
+    /// `false` on Windows, it indicates that '\n's internally are to be
+    /// translated to and from '\r\n' sequences on the device; on Unix or if
+    /// `binaryModeFlag` is `true` no such translation is to occur.  Return 0
+    /// on success, and a non-zero value otherwise.  Note that if
+    /// `FilesystemUtil::k_INVALID_FD` is passed as `fileDescriptor`, no file
+    /// descriptor is to be associated with this object.  Also note that the
+    /// state of `fileDescriptor` is unchanged by this call, there is no
+    /// implicit seek.
     int reset(FilesystemUtil::FileDescriptor fileDescriptor,
               bool                           writableFlag,
               bool                           willCloseOnResetFlag = true,
               bool                           binaryModeFlag = false);
 
-    /// Disassociate this file handler from any file descriptor with which
-    /// it may be associated without closing that file descriptor.  This
-    /// method succeeds with no effect if `isOpened` was `false`.  Note that
+    /// Disassociate this file handler from any file descriptor with which it
+    /// may be associated without closing that file descriptor.  This method
+    /// succeeds with no effect if `isOpened` was `false`.  Note that
     /// `fileDescriptor` is `FilesystemUtil::k_INVALID_FD` after this call.
     void release();
 
@@ -503,23 +501,23 @@ class FdStreamBuf_FileHandler {
     /// stored in the buffer as '\n'.
     int read(char *buffer, int numBytes);
 
-    /// Write the specified `buffer`, containing the specified `numBytes`,
-    /// to the file descriptor starting at the current position.  Return 0
-    /// on success, and a non-zero value otherwise.  The behavior is
-    /// undefined unless `0 <= numBytes`.  Note that on Windows in text
-    /// mode, a '\n' is written as '\r\n' and counts as one character.
+    /// Write the specified `buffer`, containing the specified `numBytes`, to
+    /// the file descriptor starting at the current position.  Return 0 on
+    /// success, and a non-zero value otherwise.  The behavior is undefined
+    /// unless `0 <= numBytes`.  Note that on Windows in text mode, a '\n' is
+    /// written as '\r\n' and counts as one character.
     int write(const char *buffer, int numBytes);
 
     /// Set the file position associated with this object according to the
     /// specified `offset` and `dir` behavior.
-    /// ```
-    ///  * If 'dir' is 'FilesystemUtil::e_SEEK_FROM_BEGINNING', set the
-    ///    position to 'offset' bytes from the beginning of the file.
-    ///  * If 'dir' is 'FilesystemUtil::e_SEEK_FROM_CURRENT', advance the
-    ///    position by 'offset' bytes
-    ///  * If 'dir' is 'FilesystemUtil::e_SEEK_FROM_END', set the position
-    ///    to 'offset' bytes beyond the end of the file.
-    /// ```
+    ///
+    /// * If 'dir' is 'FilesystemUtil::e_SEEK_FROM_BEGINNING', set the
+    ///   position to 'offset' bytes from the beginning of the file.
+    /// * If 'dir' is 'FilesystemUtil::e_SEEK_FROM_CURRENT', advance the
+    ///   position by 'offset' bytes
+    /// * If 'dir' is 'FilesystemUtil::e_SEEK_FROM_END', set the position
+    ///   to 'offset' bytes beyond the end of the file.
+    ///
     /// Return the new location of the file position, in bytes from the
     /// beginning of the file on success; and `FilesystemUtil::k_INVALID_FD`
     /// otherwise.  The effect on the file position is undefined unless the
@@ -554,13 +552,13 @@ class FdStreamBuf_FileHandler {
 
     // ACCESSORS
 
-    /// Return the file descriptor associated with this object, if
-    /// `isOpened` is `true`, and -1 otherwise.
+    /// Return the file descriptor associated with this object, if `isOpened`
+    /// is `true`, and -1 otherwise.
     FilesystemUtil::FileDescriptor fileDescriptor() const;
 
-    /// Return the size of the file associated with this file handler, or
-    /// 0 if it is associated with a device other than a regular file (e.g.,
-    /// a device or directory).
+    /// Return the size of the file associated with this file handler, or 0 if
+    /// it is associated with a device other than a regular file (e.g., a
+    /// device or directory).
     bsl::streamoff fileSize() const;
 
     /// Return the number of bytes that the data in the range specified by
@@ -570,17 +568,17 @@ class FdStreamBuf_FileHandler {
     /// added when '\n' would be written to the file descriptor as '\r\n'.
     bsl::streamoff getOffset(char *first, char *last) const;
 
-    /// Return `false` if on Windows and the file is opened in text mode,
-    /// and `true` otherwise.
+    /// Return `false` if on Windows and the file is opened in text mode, and
+    /// `true` otherwise.
     bool isInBinaryMode() const;
 
-    /// Return `true` if this file handler is currently associated with a
-    /// file descriptor, and `false` otherwise.
+    /// Return `true` if this file handler is currently associated with a file
+    /// descriptor, and `false` otherwise.
     bool isOpened() const;
 
-    /// Return `true` if the file descriptor associated with this file
-    /// handler is associated with a regular file and `false` otherwise.
-    /// Note that directories and pipes are not regular files.
+    /// Return `true` if the file descriptor associated with this file handler
+    /// is associated with a regular file and `false` otherwise.  Note that
+    /// directories and pipes are not regular files.
     bool isRegularFile() const;
 
     /// Return the `bsl::ios_base` mode bits corresponding to this file
@@ -588,10 +586,10 @@ class FdStreamBuf_FileHandler {
     /// the `bsl::ios_base` constants `in`, `out`, and `binary`.
     int openMode() const;
 
-    /// Return `true` if the associated file descriptor will be closed the
-    /// next time this file handler is reset, cleared, or destroyed, and
-    /// `false` otherwise.  Note that this value is determined by the value
-    /// of `willCloseOnResetFlag` that was passed to the most recent call to
+    /// Return `true` if the associated file descriptor will be closed the next
+    /// time this file handler is reset, cleared, or destroyed, and `false`
+    /// otherwise.  Note that this value is determined by the value of
+    /// `willCloseOnResetFlag` that was passed to the most recent call to
     /// `reset` or `setWillCloseOnReset`.
     bool willCloseOnReset() const;
 };
@@ -600,12 +598,12 @@ class FdStreamBuf_FileHandler {
                              // class FdStreamBuf
                              // =================
 
-/// This class, derived from the C++ standard library class
-/// `bsl::streambuf`, is a mechanism that can be associated with an opened
-/// file descriptor, and, except for changing the locale, enables the caller
-/// to invoke all the standard `bsl::streambuf` operations on that file
-/// descriptor.  Note that objects of this class are always in exactly one
-/// of the 5 modes outlined in the enum `FdStreamBuf::FdStreamBufMode`.
+/// This class, derived from the C++ standard library class `bsl::streambuf`,
+/// is a mechanism that can be associated with an opened file descriptor, and,
+/// except for changing the locale, enables the caller to invoke all the
+/// standard `bsl::streambuf` operations on that file descriptor.  Note that
+/// objects of this class are always in exactly one of the 5 modes outlined in
+/// the enum `FdStreamBuf::FdStreamBufMode`.
 class FdStreamBuf : public bsl::streambuf {
 
   private:
@@ -621,14 +619,14 @@ class FdStreamBuf : public bsl::streambuf {
         e_INPUT_PUTBACK_MODE = 2,  // input putback mode is a form of input
                                    // mode where chars that have been stuffed
                                    // back into the input buffer are kept in
-                                   // 'd_pBackBuf'.
+                                   // `d_pBackBuf`.
 
         e_OUTPUT_MODE        = 3,  // doing output
 
         e_ERROR_MODE         = 4   // An error has occurred.  Note that error
                                    // mode is sticky -- subsequent I/O won't
                                    // work until error mode is cleared by a
-                                   // 'reset' or a seek.
+                                   // `reset` or a seek.
     };
 
   private:
@@ -645,8 +643,8 @@ class FdStreamBuf : public bsl::streambuf {
 
     FdStreamBufMode   d_mode;
 
-    bool              d_dynamicBufferFlag;// 'true' if the buffer 'd_buf_p' is
-                                          // heap allocated, 'false' if it was
+    bool              d_dynamicBufferFlag;// `true` if the buffer `d_buf_p` is
+                                          // heap allocated, `false` if it was
                                           // supplied by the user.
 
                         // putback buffer
@@ -667,15 +665,15 @@ class FdStreamBuf : public bsl::streambuf {
                         // these elements are for saving fields from the base
                         // class while we are in putback mode
 
-    char             *d_savedEback_p;     // saved value of 'eback'
-    char             *d_savedGptr_p;      // saved value of 'gptr'
-    char             *d_savedEgptr_p;     // saved value of 'egptr'
+    char             *d_savedEback_p;     // saved value of `eback`
+    char             *d_savedGptr_p;      // saved value of `gptr`
+    char             *d_savedEgptr_p;     // saved value of `egptr`
 
                         // fields relevant to mapping the file while in input
                         // mode
 
-    char             *d_mmapBase_p;       // pointer to the 'mmap'ed input
-                                          // area, 0 if we are not in 'mmap'
+    char             *d_mmapBase_p;       // pointer to the `mmap`ed input
+                                          // area, 0 if we are not in `mmap`
                                           // input mode
 
     bsl::streamoff    d_mmapLen;          // length of mapped area
@@ -687,80 +685,76 @@ class FdStreamBuf : public bsl::streambuf {
   private:
     // PRIVATE MANIPULATORS
 
-    /// Exit putback mode (leaving this object in input mode) and restore
-    /// the get buffer to the state it was in just prior to entering putback
-    /// mode.  The behavior is undefined unless this object is in putback
-    /// mode.
+    /// Exit putback mode (leaving this object in input mode) and restore the
+    /// get buffer to the state it was in just prior to entering putback mode.
+    /// The behavior is undefined unless this object is in putback mode.
     void exitPutbackMode();
 
-    /// Switch this object to input mode.  Return 0 on success, and a
-    /// non-zero value otherwise.  If this method is called while in input
-    /// putback mode, exit input putback mode.  Note that this function is
-    /// called when doing the first input, after a seek, or after writing.
-    /// Also note that this method has no effect if called when this object
-    /// is in input mode.
+    /// Switch this object to input mode.  Return 0 on success, and a non-zero
+    /// value otherwise.  If this method is called while in input putback mode,
+    /// exit input putback mode.  Note that this function is called when doing
+    /// the first input, after a seek, or after writing.  Also note that this
+    /// method has no effect if called when this object is in input mode.
     int switchToInputMode();
 
-    /// Change from input mode to null mode.  If the specified `correctSeek`
-    /// is `true`, seek to position the file pointer at the point from
-    /// which the next input would have come; otherwise don't do the seek.
-    /// If the input file is currently mapped, unmap it.  Return 0 on
-    /// success, and non-zero otherwise.  The behavior is undefined unless
-    /// this object is in input or input_putback mode.  Note that
-    /// performing a corrective seek corrects the discrepancy between the
-    /// client's perception of the file pointer location and the actual
-    /// file pointer location, caused by buffering.
+    /// Change from input mode to null mode.  If the specified `correctSeek` is
+    /// `true`, seek to position the file pointer at the point from which the
+    /// next input would have come; otherwise don't do the seek.  If the input
+    /// file is currently mapped, unmap it.  Return 0 on success, and non-zero
+    /// otherwise.  The behavior is undefined unless this object is in input or
+    /// input_putback mode.  Note that performing a corrective seek corrects
+    /// the discrepancy between the client's perception of the file pointer
+    /// location and the actual file pointer location, caused by buffering.
     int exitInputMode(bool correctSeek);
 
-    /// Switch this object to output mode.  Return 0 on success, and a
-    /// non-zero value otherwise.  Note that this method has no effect if
-    /// this object is already in output mode.  Also note that this method
-    /// is called when performing the first output, or when performing the
-    /// first output after a seek or read.
+    /// Switch this object to output mode.  Return 0 on success, and a non-zero
+    /// value otherwise.  Note that this method has no effect if this object is
+    /// already in output mode.  Also note that this method is called when
+    /// performing the first output, or when performing the first output after
+    /// a seek or read.
     int switchToOutputMode();
 
-    /// Use `read` to get some data from the file descriptor, and add it to
-    /// the input buffer.  Return the first character of input.  Note that
-    /// this method is called only by `underflow`, and only as a last
-    /// resort, when additional data can't be provided by mapping.
+    /// Use `read` to get some data from the file descriptor, and add it to the
+    /// input buffer.  Return the first character of input.  Note that this
+    /// method is called only by `underflow`, and only as a last resort, when
+    /// additional data can't be provided by mapping.
     int underflowRead();
 
-    /// Put this object into error mode, clearing the get area.  Always
-    /// return `traits_type::eof()`.  Note that error mode is sticky and is
-    /// cleared only by a `reset`, `clear` or seek.
+    /// Put this object into error mode, clearing the get area.  Always return
+    /// `traits_type::eof()`.  Note that error mode is sticky and is cleared
+    /// only by a `reset`, `clear` or seek.
     int inputError();
 
-    /// Put this object into error mode, clearing the put area.  Always
-    /// return `traits_type::eof()`.  Note that error mode is sticky and is
-    /// cleared only by a `reset`, `clear`, `seekoff`, or `seekpos`.
+    /// Put this object into error mode, clearing the put area.  Always return
+    /// `traits_type::eof()`.  Note that error mode is sticky and is cleared
+    /// only by a `reset`, `clear`, `seekoff`, or `seekpos`.
     int outputError();
 
-    /// Set the buffer to be used by this object.  If the specified `buffer`
-    /// is 0, dynamically allocate a buffer of specified `numBytes` length,
-    /// or if `buffer` is a non-zero value, use the first `numBytes` bytes
-    /// of `buffer`.  Return 0 on success, and a non-zero value otherwise.
-    /// The behavior is undefined unless `1 <= numBytes`, `buffer` (if
-    /// non-zero) is at least `numBytes` long, a buffer has not previously
-    /// been allocated or provided, and no I/O has occurred prior to this
-    /// call.
+    /// Set the buffer to be used by this object.  If the specified `buffer` is
+    /// 0, dynamically allocate a buffer of specified `numBytes` length, or if
+    /// `buffer` is a non-zero value, use the first `numBytes` bytes of
+    /// `buffer`.  Return 0 on success, and a non-zero value otherwise.  The
+    /// behavior is undefined unless `1 <= numBytes`, `buffer` (if non-zero) is
+    /// at least `numBytes` long, a buffer has not previously been allocated or
+    /// provided, and no I/O has occurred prior to this call.
     int allocateBuffer(char *buffer, int numBytes);
 
-    /// Dynamically allocate an input/output buffer of a default size.
-    /// Return 0 on success, and a non-zero value otherwise.  The behavior
-    /// is undefined unless no buffer has previously been allocated or
-    /// provided, and no I/O has occurred prior to this call.
+    /// Dynamically allocate an input/output buffer of a default size.  Return
+    /// 0 on success, and a non-zero value otherwise.  The behavior is
+    /// undefined unless no buffer has previously been allocated or provided,
+    /// and no I/O has occurred prior to this call.
     int allocateBuffer();
 
-    /// If the buffer is dynamically allocated by `allocateBuffer`, free
-    /// it.  The behavior is undefined unless the buffer was previously
-    /// allocated or provided.
+    /// If the buffer is dynamically allocated by `allocateBuffer`, free it.
+    /// The behavior is undefined unless the buffer was previously allocated or
+    /// provided.
     void deallocateBuffer();
 
-    /// Prepare this `FdStreamBuf` for a subsequent seek operation by
-    /// setting various mode information into an appropriate state.  If in
-    /// output mode, flush the buffer.  If in putback input mode or error
-    /// mode, exit that mode.  If in regular input mode, leave that mode
-    /// unaffected.  Return 0 on success, and a non-zero value otherwise.
+    /// Prepare this `FdStreamBuf` for a subsequent seek operation by setting
+    /// various mode information into an appropriate state.  If in output mode,
+    /// flush the buffer.  If in putback input mode or error mode, exit that
+    /// mode.  If in regular input mode, leave that mode unaffected.  Return 0
+    /// on success, and a non-zero value otherwise.
     int seekInit();
 
     /// Finish a seek by putting this object into null mode and nulling out
@@ -782,10 +776,10 @@ class FdStreamBuf : public bsl::streambuf {
 
     // PROTECTED MANIPULATORS
 
-    /// Replenish the input buffer with data obtained from the file
-    /// descriptor, and return the next character of input (or eof if no
-    /// input is available).  Note that in windows text mode, '\r\n'
-    /// sequences on the device will be translated to '\n's.
+    /// Replenish the input buffer with data obtained from the file descriptor,
+    /// and return the next character of input (or eof if no input is
+    /// available).  Note that in windows text mode, '\r\n' sequences on the
+    /// device will be translated to '\n's.
     int_type underflow() BSLS_KEYWORD_OVERRIDE;
 
     /// If the optionally specified `c` is not given, move the current input
@@ -809,13 +803,12 @@ class FdStreamBuf : public bsl::streambuf {
     /// is already at the beginning of the input buffer.
     int_type pbackfail(int_type c = traits_type::eof()) BSLS_KEYWORD_OVERRIDE;
 
-    /// If in output mode, write the contents of the buffer to output.
-    /// Return `traits_type::eof()` on failure, and any other value on
-    /// success.  Optionally specify a character `c` to be appended to the
-    /// buffer prior to the flush.  If no character is specified, no
-    /// character is appended to the buffer.  If not in output mode, switch
-    /// to output mode.  Note that the write will translate '\n's to
-    /// '\r\n's.
+    /// If in output mode, write the contents of the buffer to output.  Return
+    /// `traits_type::eof()` on failure, and any other value on success.
+    /// Optionally specify a character `c` to be appended to the buffer prior
+    /// to the flush.  If no character is specified, no character is appended
+    /// to the buffer.  If not in output mode, switch to output mode.  Note
+    /// that the write will translate '\n's to '\r\n's.
     int_type overflow(int_type c = traits_type::eof()) BSLS_KEYWORD_OVERRIDE;
 
     /// Use the specified `buffer` of the specified `numBytes` capacity as
@@ -829,45 +822,44 @@ class FdStreamBuf : public bsl::streambuf {
 
     /// Set the file pointer associated with the file descriptor according
     /// to the specified `offset` and `whence`:
-    /// ```
+    ///
     /// * If 'whence' is 'bsl::ios_base::beg', set the pointer to 'offset'
     ///   bytes from the beginning of the file.
     /// * If 'whence' is 'bsl::ios_base::cur', advance the pointer by
     ///   'offset' bytes
     /// * If 'whence' is 'bsl::ios_base::end', set the pointer to 'offset'
     ///   bytes beyond the end of the file.
-    /// ```
-    /// Optionally specify `mode`, which is ignored.  Return the new
-    /// location of the file position, in bytes from the beginning of the
-    /// file, on success, and -1 otherwise.  The behavior is undefined
-    /// unless the file descriptor is on a device capable of seeking.  Note
-    /// that seeking does not change the size of the file if the pointer
-    /// advances beyond the end of the file; instead, the next write at the
-    /// pointer will increase the file size.  Also note that seeks are
-    /// always in terms of bytes on the device, meaning that in Windows
-    /// text mode, seeking past a '\n' perceived by the caller will count as
-    /// 2 bytes since it has to seek over a '\r\n' sequence on the device.
+    ///
+    /// Optionally specify `mode`, which is ignored.  Return the new location
+    /// of the file position, in bytes from the beginning of the file, on
+    /// success, and -1 otherwise.  The behavior is undefined unless the file
+    /// descriptor is on a device capable of seeking.  Note that seeking does
+    /// not change the size of the file if the pointer advances beyond the end
+    /// of the file; instead, the next write at the pointer will increase the
+    /// file size.  Also note that seeks are always in terms of bytes on the
+    /// device, meaning that in Windows text mode, seeking past a '\n'
+    /// perceived by the caller will count as 2 bytes since it has to seek over
+    /// a '\r\n' sequence on the device.
     pos_type seekoff(
         off_type                offset,
         bsl::ios_base::seekdir  whence,
         bsl::ios_base::openmode mode = bsl::ios_base::in | bsl::ios_base::out)
                                                          BSLS_KEYWORD_OVERRIDE;
 
-    /// Seek to the specified `offset` relative to the beginning of the
-    /// file.  Return the resulting absolute position in the file relative
-    /// to the beginning.  Optionally specify `mode` which is ignored.  Also
-    /// note that seeks are always in terms of bytes on the device, meaning
-    /// that on a Windows text file, seeking past a '\r\n' sequence on the
-    /// disk will count as two bytes, though if it is read in it will be a
-    /// single '\n' byte.
+    /// Seek to the specified `offset` relative to the beginning of the file.
+    /// Return the resulting absolute position in the file relative to the
+    /// beginning.  Optionally specify `mode` which is ignored.  Also note that
+    /// seeks are always in terms of bytes on the device, meaning that on a
+    /// Windows text file, seeking past a '\r\n' sequence on the disk will
+    /// count as two bytes, though if it is read in it will be a single '\n'
+    /// byte.
     pos_type seekpos(
         pos_type                offset,
         bsl::ios_base::openmode mode = bsl::ios_base::in | bsl::ios_base::out)
                                                          BSLS_KEYWORD_OVERRIDE;
 
-    /// If in output mode, flush the buffer to the associated file
-    /// descriptor; otherwise do nothing.  Return 0 on success, -1
-    /// otherwise.
+    /// If in output mode, flush the buffer to the associated file descriptor;
+    /// otherwise do nothing.  Return 0 on success, -1 otherwise.
     int sync() BSLS_KEYWORD_OVERRIDE;
 
     /// Set the locale for this object.  This method has no effect.  The
@@ -894,11 +886,10 @@ class FdStreamBuf : public bsl::streambuf {
 
     /// Write up to the specified `numBytes` characters from the specified
     /// `buffer` and return the number of characters successfully written.
-    /// Note that this method does not necessarily modify the file: this
-    /// method may simply write the characters to a buffer to be flushed to
-    /// the file at a later time.  Also note that on a Windows text file, a
-    /// '\n' will be written to the file as '\r\n' (counted as a single
-    /// character).
+    /// Note that this method does not necessarily modify the file: this method
+    /// may simply write the characters to a buffer to be flushed to the file
+    /// at a later time.  Also note that on a Windows text file, a '\n' will be
+    /// written to the file as '\r\n' (counted as a single character).
     bsl::streamsize xsputn(const char      *buffer,
                            bsl::streamsize  numBytes) BSLS_KEYWORD_OVERRIDE;
 
@@ -989,9 +980,9 @@ class FdStreamBuf : public bsl::streambuf {
     /// descriptor, and `false` otherwise.
     bool isOpened() const;
 
-    /// Return `true` if this object will close the associated file
-    /// descriptor the next time it is reset, cleared, or destroyed, and
-    /// `false` otherwise.
+    /// Return `true` if this object will close the associated file descriptor
+    /// the next time it is reset, cleared, or destroyed, and `false`
+    /// otherwise.
     bool willCloseOnReset() const;
 };
 

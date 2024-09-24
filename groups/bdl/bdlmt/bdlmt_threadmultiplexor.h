@@ -104,14 +104,13 @@ BSLS_IDENT("$Id: $")
 //              bdlmt::FixedThreadPool *threadPool,
 //              bslma::Allocator       *basicAllocator = 0);
 //
-//     ///  Destroy this object.
+//     /// Destroy this object.
 //     ~JobQueue();
 //
 //     // MANIPULATORS
 //
-//     ///  Process the specified `job` in the thread pool specified at
-//     ///  construction.  Return 0 on success, and a non-zero value
-//     ///  otherwise.
+//     /// Process the specified `job` in the thread pool specified at
+//     /// construction.  Return 0 on success, and a non-zero value otherwise.
 //     int processJob(const Job& job);
 // };
 // ```

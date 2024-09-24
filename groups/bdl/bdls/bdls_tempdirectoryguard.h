@@ -28,9 +28,9 @@ BSLS_IDENT("$Id: $")
 // Suppose an algorithm requires writing data to a temporary file on disk
 // during processing:
 // ```
+// /// Do "algorithm" using the specified `testFileName` for intermidiate state
+// /// storage.
 // void testAlgorithm(const bsl::string &testFileName);
-//     // Do "algorithm" using the specified 'testFileName' for intermidiate
-//     // state storage.
 // ```
 // A function looking to use this algorithm can obtain a directory in which to
 // put this file, guaranteed to not be used by other processes and to be
@@ -61,9 +61,13 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdls {
 
-/// This class implements a scoped temporary directory guard.  The guard
-/// tries to create a temporary directory in the system-wide temp directory
-/// and falls back to the current directory.
+                              // ========================
+                              // class TempDirectoryGuard
+                              // ========================
+
+/// This class implements a scoped temporary directory guard.  The guard tries
+/// to create a temporary directory in the system-wide temp directory and falls
+/// back to the current directory.
 class TempDirectoryGuard {
 
     // DATA
@@ -83,8 +87,8 @@ class TempDirectoryGuard {
 
     /// Create temporary directory with the specified `prefix` in the
     /// system-wide temp or current directory.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     explicit TempDirectoryGuard(const bsl::string&  prefix,
                                 bslma::Allocator   *basicAllocator = 0);
 
@@ -101,7 +105,6 @@ class TempDirectoryGuard {
 
 }  // close package namespace
 }  // close enterprise namespace
-
 #endif
 
 // ----------------------------------------------------------------------------

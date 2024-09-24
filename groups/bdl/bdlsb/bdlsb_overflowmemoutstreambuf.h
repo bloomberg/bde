@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 // services, and leaving the formatting to the client stream.  The standard
 // C++ IOStreams library further partitions streaming into input streaming and
 // output streaming, separating responsibilities for each at both the stream
-// layer and the stream buffer layer.  The BDE streaming library for `bdex`,
+// layer and the stream buffer layer.  The BDE streaming library for `bslx`,
 // including all of `bdlsb`, follows this model.
 //
 ///Usage
@@ -72,8 +72,8 @@ BSLS_IDENT("$Id: $")
 // First, we define our example stream class, `CapitalizingStream` (which we
 // will later test using 'bdlsb::OverflowMemOutStreamBuf):
 // ```
+// /// This class capitalizes lower-case ASCII characters that are output.
 // class CapitalizingStream {
-//     // This class capitalizes lower-case ASCII characters that are output.
 //
 //     // DATA
 //     bsl::streambuf  *d_streamBuffer_p;   // pointer to a stream buffer
@@ -83,16 +83,18 @@ BSLS_IDENT("$Id: $")
 //                                           const char          *data);
 //   public:
 //     // CREATORS
+//
+//     /// Create a capitalizing stream using the specified `streamBuffer` as
+//     /// the underlying stream buffer for the stream.
 //     explicit CapitalizingStream(bsl::streambuf *streamBuffer);
-//         // Create a capitalizing stream using the specified 'streamBuffer'
-//         // as the underlying stream buffer for the stream.
 // };
 //
 // // FREE OPERATORS
+//
+// /// Write the specified `data` in capitalized form to the specified
+// /// `stream`.
 // CapitalizingStream& operator<<(CapitalizingStream&  stream,
 //                                const char          *data);
-//     // Write the specified 'data' in capitalized form to the specified
-//     // 'stream'.
 //
 // CapitalizingStream::CapitalizingStream(bsl::streambuf *streamBuffer)
 // : d_streamBuffer_p(streamBuffer)
@@ -109,8 +111,8 @@ BSLS_IDENT("$Id: $")
 // Therefore we wrap `bsl::toupper` in an interface that works in terms of
 // `unsigned char`:
 // ```
+// /// Return the upper-case equivalent to the specified `input` character.
 // static unsigned char ucharToUpper(unsigned char input)
-//     // Return the upper-case equivalent to the specified 'input' character.
 // {
 //     return static_cast<unsigned char>(bsl::toupper(input));
 // }
@@ -242,40 +244,39 @@ class OverflowMemOutStreamBuf : public bsl::streambuf {
 
            // *** 27.5.2.4.2 buffer management and positioning ***
 
-    /// Set the position indicator to the relative specified `offset` from
-    /// the base position indicated by the specified `way` and return the
-    /// resulting absolute position on success or pos_type(-1) on failure.
-    /// Optionally specify `which` area of the stream buffer.  The seek
-    /// operation will fail if `which` does not include the flag
-    /// `bsl::ios_base::out` or if the resulting absolute position is
-    /// negative.
+    /// Set the position indicator to the relative specified `offset` from the
+    /// base position indicated by the specified `way` and return the resulting
+    /// absolute position on success or pos_type(-1) on failure.  Optionally
+    /// specify `which` area of the stream buffer.  The seek operation will
+    /// fail if `which` does not include the flag `bsl::ios_base::out` or if
+    /// the resulting absolute position is negative.
     pos_type seekoff(
        off_type                offset,
        bsl::ios_base::seekdir  way,
        bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out)
                                                          BSLS_KEYWORD_OVERRIDE;
 
+    /// Set the position indicator to the specified `position` and return the
+    /// resulting absolute position on success or pos_type(-1) on failure.
+    /// Optionally specify `which` area of the stream buffer.  The `seekpos`
+    /// operation will fail if `which` does not include the flag
+    /// `bsl::ios_base::out` or if `position` is negative.
     pos_type seekpos(
        pos_type                position,
        bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Set the position indicator to the specified 'position' and return
-        // the resulting absolute position on success or pos_type(-1) on
-        // failure.  Optionally specify 'which' area of the stream buffer.  The
-        // 'seekpos' operation will fail if 'which' does not include the flag
-        // 'bsl::ios_base::out' or if 'position' is negative.
 
-    /// Set `d_dataLength` to the amount of data that has been written to
-    /// this stream buffer, from the beginning of the stream to the current
-    /// `pptr()` position and return 0.  Note that if `pptr()` points into
-    /// the overflow buffer, this size the initial buffer, plus the portion
-    /// of the overflow buffer that has been written to.
+    /// Set `d_dataLength` to the amount of data that has been written to this
+    /// stream buffer, from the beginning of the stream to the current `pptr()`
+    /// position and return 0.  Note that if `pptr()` points into the overflow
+    /// buffer, this size the initial buffer, plus the portion of the overflow
+    /// buffer that has been written to.
     int sync() BSLS_KEYWORD_OVERRIDE;
 
-    /// Write the specified `numChars` characters from the specified
-    /// `source` to the stream buffer.  Return the number of characters
-    /// successfully written.  The behavior is undefined unless '(source &&
-    /// 0 < numChars) || 0 == numChars'.
+    /// Write the specified `numChars` characters from the specified `source`
+    /// to the stream buffer.  Return the number of characters successfully
+    /// written.  The behavior is undefined unless
+    /// '(source && 0 < numChars) || 0 == numChars'.
     bsl::streamsize xsputn(const char_type *source,
                            bsl::streamsize  numChars) BSLS_KEYWORD_OVERRIDE;
 
@@ -294,12 +295,12 @@ class OverflowMemOutStreamBuf : public bsl::streambuf {
     // CREATORS
 
     /// Create an empty stream buffer that uses the specified `buffer` as an
-    /// initial output buffer of the specified `size` (in bytes).
-    /// Optionally specify a `basicAllocator` used to supply memory.  If
-    /// `basicAllocator` is 0, the currently-installed default allocator is
-    /// used.  The behavior is undefined unless `buffer` points to a valid
-    /// sequence of positive `size` characters.  Note that this stream
-    /// buffer does not assume ownership of `buffer`.
+    /// initial output buffer of the specified `size` (in bytes).  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If `basicAllocator`
+    /// is 0, the currently-installed default allocator is used.  The behavior
+    /// is undefined unless `buffer` points to a valid sequence of positive
+    /// `size` characters.  Note that this stream buffer does not assume
+    /// ownership of `buffer`.
     OverflowMemOutStreamBuf(char             *buffer,
                             bsl::size_t       size,
                             bslma::Allocator *basicAllocator = 0);
@@ -310,29 +311,28 @@ class OverflowMemOutStreamBuf : public bsl::streambuf {
     // ACCESSORS
 
     /// Return the number of bytes written to this stream.  Note that if
-    /// `pptr()` is currently pointing into the overflow buffer the data
-    /// length will be greater than the size of the initial buffer.
+    /// `pptr()` is currently pointing into the overflow buffer the data length
+    /// will be greater than the size of the initial buffer.
     bsl::size_t dataLength() const;
 
-    /// Return the length of data in the initial buffer, i.e.,
-    /// `dataLength()` if there is no overflow buffer, or
-    /// `initialBufferSize()` if there is one.
+    /// Return the length of data in the initial buffer, i.e., `dataLength()`
+    /// if there is no overflow buffer, or `initialBufferSize()` if there is
+    /// one.
     bsl::size_t dataLengthInInitialBuffer() const;
 
-    /// Return the length of the data in the overflow buffer, i.e., 0 if
-    /// there is no overflow buffer, or `dataLength() - initialBufferSize()`
-    /// if there is one.
+    /// Return the length of the data in the overflow buffer, i.e., 0 if there
+    /// is no overflow buffer, or `dataLength() - initialBufferSize()` if there
+    /// is one.
     bsl::size_t dataLengthInOverflowBuffer() const;
 
-    /// Return a pointer to the non-modifiable buffer supplied at
-    /// construction.
+    /// Return a pointer to the non-modifiable buffer supplied at construction.
     const char *initialBuffer() const;
 
     /// Return the size of the buffer supplied at construction.
     bsl::size_t initialBufferSize() const;
 
-    /// Return a pointer to the non-modifiable overflow buffer if there is
-    /// one, or 0 otherwise.
+    /// Return a pointer to the non-modifiable overflow buffer if there is one,
+    /// or 0 otherwise.
     const char *overflowBuffer() const;
 
     /// Return the size of the overflow buffer, or 0 if there is no overflow

@@ -39,18 +39,18 @@ BSLS_IDENT("$Id: $")
 // `bdls::FilesystemUtil::FileOpenPolicy` governs whether `open` creates a new
 // file or opens an existing one.  The following values are possible:
 //
-//: `e_OPEN`:
-//:   Open an existing file.
-//:
-//: `e_CREATE`:
-//:   Create a new file.
-//:
-//: `e_CREATE_PRIVATE`:
-//:   Create a new file, with limited permissions where that is supported (e.g.
-//:   not necessarily Microsoft Windows).
-//:
-//: `e_OPEN_OR_CREATE`:
-//:   Open a file if it exists, and create a new file otherwise.
+// * `e_OPEN`
+//   > Open an existing file.
+//
+// * `e_CREATE`
+//   > Create a new file.
+//
+// * `e_CREATE_PRIVATE`
+//   > Create a new file, with limited permissions where that is supported
+//   > (e.g. not necessarily Microsoft Windows).
+//
+// * `e_OPEN_OR_CREATE`
+//   > Open a file if it exists, and create a new file otherwise.
 //
 ///Input/Output Access Policy: `bdls::FilesystemUtil::FileIOPolicy`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -58,20 +58,20 @@ BSLS_IDENT("$Id: $")
 // are allowed on a file after it is opened.  The following values are
 // possible:
 //
-//: `e_READ_ONLY`:
-//:   Allow reading only.
-//:
-//: `e_WRITE_ONLY`:
-//:    Allow writing only.
-//:
-//: `e_READ_WRITE`:
-//:    Allow both reading and writing.
-//:
-//: `e_APPEND_ONLY`:
-//:    Allow appending to end-of-file only.
-//:
-//: `e_READ_APPEND`:
-//:    Allow both reading and appending to end-of-file.
+// * `e_READ_ONLY`
+//   > Allow reading only.
+//
+// * `e_WRITE_ONLY`
+//   > Allow writing only.
+//
+// * `e_READ_WRITE`
+//   > Allow both reading and writing.
+//
+// * `e_APPEND_ONLY`
+//   > Allow appending to end-of-file only.
+//
+// * `e_READ_APPEND`
+//   > Allow both reading and appending to end-of-file.
 //
 ///Truncation Policy: `bdls::FilesystemUtil::FileTruncatePolicy`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -79,30 +79,30 @@ BSLS_IDENT("$Id: $")
 // the existing contents of a file when it is opened.  The following values are
 // possible:
 //
-//: `e_TRUNCATE`:
-//:   Delete the file's contents.
-//:
-//: `e_KEEP`:
-//:    Keep the file's contents.
+// * `e_TRUNCATE`
+//   > Delete the file's contents.
+//
+// * `e_KEEP`
+//   > Keep the file's contents.
 //
 ///Starting Points for `seek`
 ///--------------------------
 // The behavior of the `seek` method is governed by an enumeration that
 // determines the point from which the seek operation starts:
 //
-//: `e_SEEK_FROM_BEGINNING`:
-//:   Seek from the beginning of the file.
-//:
-//: `e_SEEK_FROM_CURRENT`:
-//:   Seek from the current position in the file.
-//:
-//: `e_SEEK_FROM_END`:
-//:   Seek from the end of the file.
+// * `e_SEEK_FROM_BEGINNING`
+//   > Seek from the beginning of the file.
+//
+// * `e_SEEK_FROM_CURRENT`
+//   > Seek from the current position in the file.
+//
+// * `e_SEEK_FROM_END`
+//   > Seek from the end of the file.
 //
 ///Platform-Specific File Locking Caveats
 ///--------------------------------------
 // Locking has the following caveats for the following operating systems:
-//:
+//
 // * On Posix, closing a file releases all locks on all file descriptors
 //   referring to that file within the current process.  [doc 1] [doc 2]
 // * On Posix, the child of a fork does not inherit the locks of the parent
@@ -303,24 +303,24 @@ struct FilesystemUtil {
 
     // TYPES
 #ifdef BSLS_PLATFORM_OS_WINDOWS
+    /// `HANDLE` is a stand-in for the Windows API `HANDLE` type, to allow
+    /// us to avoid including `windows.h` in this header.  `HANDLE` should
+    /// not be used by client code.
     typedef void *HANDLE;
-        // 'HANDLE' is a stand-in for the Windows API 'HANDLE' type, to allow
-        // us to avoid including 'windows.h' in this header.  'HANDLE' should
-        // not be used by client code.
 
+    /// `FileDescriptor` is an alias for the operating system`s native file
+    /// descriptor / file handle type.
     typedef HANDLE FileDescriptor;
-        // 'FileDescriptor' is an alias for the operating system's native file
-        // descriptor / file handle type.
 
+    /// `Offset` is an alias for a signed value, representing the offset of
+    /// a location within a file.
     typedef __int64 Offset;
-        // 'Offset' is an alias for a signed value, representing the offset of
-        // a location within a file.
 
+    /// maximum representable file offset value
     static const Offset k_OFFSET_MAX = _I64_MAX;
-        // maximum representable file offset value
 
+    /// minimum representable file offset value
     static const Offset k_OFFSET_MIN = _I64_MIN;
-        // minimum representable file offset value
 
 #elif defined(BSLS_PLATFORM_OS_UNIX)
     /// `FileDescriptor` is an alias for the operating system's native file
@@ -328,9 +328,9 @@ struct FilesystemUtil {
     typedef int FileDescriptor;
 
 #if defined(BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF64)
+    /// `Offset` is an alias for a signed value, representing the offset of
+    /// a location within a file.
     typedef off64_t Offset;
-        // 'Offset' is an alias for a signed value, representing the offset of
-        // a location within a file.
 #else
     /// `Offset` is an alias for a signed value, representing the offset of
     /// a location within a file.
@@ -346,10 +346,9 @@ struct FilesystemUtil {
 # error "'bdls_filesystemutil' does not support this platform."
 #endif
 
+    /// Enumeration used to distinguish among different starting points for
+    /// a seek operation.
     enum Whence {
-        // Enumeration used to distinguish among different starting points for
-        // a seek operation.
-
         e_SEEK_FROM_BEGINNING = 0,  // Seek from beginning of file.
         e_SEEK_FROM_CURRENT   = 1,  // Seek from current position.
         e_SEEK_FROM_END       = 2   // Seek from end of file.
@@ -385,10 +384,9 @@ struct FilesystemUtil {
                                            // descriptor was supplied
     };
 
+    /// Enumeration used to determine whether 'open' should open an existing
+    /// file, or create a new file.
     enum FileOpenPolicy {
-        // Enumeration used to determine whether 'open' should open an existing
-        // file, or create a new file.
-
         e_OPEN,           // Open a file if it exists, and fail otherwise.
 
         e_CREATE,         // Create a new file, and fail if the file already
@@ -402,10 +400,9 @@ struct FilesystemUtil {
                           // otherwise.
     };
 
+    /// Enumeration used to distinguish between different sets of actions
+    /// permitted on an open file descriptor.
     enum FileIOPolicy {
-        // Enumeration used to distinguish between different sets of actions
-        // permitted on an open file descriptor.
-
         e_READ_ONLY,    // Allow reading only.
         e_WRITE_ONLY,   // Allow writing only.
         e_APPEND_ONLY,  // Allow appending to end-of-file only.
@@ -413,20 +410,19 @@ struct FilesystemUtil {
         e_READ_APPEND   // Allow both reading and appending to end-of-file.
     };
 
+    /// Enumeration used to distinguish between different ways to handle the
+    /// contents, if any, of an existing file immediately upon opening the
+    /// file.
     enum FileTruncatePolicy {
-        // Enumeration used to distinguish between different ways to handle the
-        // contents, if any, of an existing file immediately upon opening the
-        // file.
-
         e_TRUNCATE,  // Delete the file's contents on open.
         e_KEEP       // Keep the file's contents.
     };
 
     // CLASS DATA
-    static const FileDescriptor k_INVALID_FD;  // 'FileDescriptor' value
+    static const FileDescriptor k_INVALID_FD;  // `FileDescriptor` value
                                                // representing no file, used
                                                // as the error return for
-                                               // 'open'
+                                               // `open`
 
     // CLASS METHODS
 
@@ -488,20 +484,18 @@ struct FilesystemUtil {
                                FileTruncatePolicy truncatePolicy = e_KEEP);
 
 
-    /// Close the specified `descriptor`.  Return 0 on success and a
-    /// non-zero value otherwise.  A return value of
-    /// `k_BAD_FILE_DESCRIPTOR` indicates that the supplied `descriptor` is
-    /// invalid.
+    /// Close the specified `descriptor`.  Return 0 on success and a non-zero
+    /// value otherwise.  A return value of `k_BAD_FILE_DESCRIPTOR` indicates
+    /// that the supplied `descriptor` is invalid.
     static int close(FileDescriptor descriptor);
 
+    /// Load into the specified 'path' the absolute pathname of the current
+    /// working directory.  Return 0 on success and a non-zero value otherwise.
     static int getWorkingDirectory(bsl::string *path);
     static int getWorkingDirectory(std::string *path);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int getWorkingDirectory(std::pmr::string *path);
 #endif
-        // Load into the specified 'path' the absolute pathname of the current
-        // working directory.  Return 0 on success and a non-zero value
-        // otherwise.
 
     /// Set the working directory of the current process to the specified
     /// `path`.  Return 0 on success and a non-zero value otherwise.  The
@@ -616,17 +610,29 @@ struct FilesystemUtil {
     template <class STRING_TYPE>
     static int createPrivateDirectory(const STRING_TYPE& path);
 
+    /// Load a valid path to the system temporary directory to the specified
+    /// `path`.  Return 0 on success, and a non-zero value otherwise.  A
+    /// temporary directory is one in which the operating system has permission
+    /// to delete its contents, but not necessarily the directory itself, the
+    /// next time the computer reboots.
     static int getSystemTemporaryDirectory(bsl::string *path);
     static int getSystemTemporaryDirectory(std::string *path);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static int getSystemTemporaryDirectory(std::pmr::string *path);
 #endif
-        // Load a valid path to the system temporary directory to the specified
-        // 'path'.  Return 0 on success, and a non-zero value otherwise.  A
-        // temporary directory is one in which the operating system has
-        // permission to delete its contents, but not necessarily the directory
-        // itself, the next time the computer reboots.
 
+    /// Create and open a new file with a name constructed by appending an
+    /// automatically-generated suffix to the specified `prefix`, and return
+    /// its file descriptor open for reading and writing.  A return value of
+    /// `k_INVALID_FD` indicates that no such file could be created; otherwise,
+    /// the name of the file created is assigned to the specified `outPath`.
+    /// The file is created with permissions restricted, as closely as
+    /// possible, to the caller`s userid only.  If the prefix is a relative
+    /// path, the file is created relative to the process current directory.
+    /// Responsibility for deleting the file is left to the caller.  Note that
+    /// on Posix systems, if `outPath` is unlinked immediately, the file will
+    /// remain usable until its descriptor is closed.  Note that files created
+    /// on Microsoft Windows may receive default, not restricted permissions.
     static FileDescriptor createTemporaryFile(bsl::string             *outPath,
                                               const bsl::string_view&  prefix);
     static FileDescriptor createTemporaryFile(std::string             *outPath,
@@ -635,20 +641,16 @@ struct FilesystemUtil {
     static FileDescriptor createTemporaryFile(std::pmr::string        *outPath,
                                               const bsl::string_view&  prefix);
 #endif
-        // Create and open a new file with a name constructed by appending an
-        // automatically-generated suffix to the specified 'prefix', and return
-        // its file descriptor open for reading and writing.  A return value of
-        // 'k_INVALID_FD' indicates that no such file could be created;
-        // otherwise, the name of the file created is assigned to the specified
-        // 'outPath'.  The file is created with permissions restricted, as
-        // closely as possible, to the caller's userid only.  If the prefix is
-        // a relative path, the file is created relative to the process current
-        // directory.  Responsibility for deleting the file is left to the
-        // caller.  Note that on Posix systems, if 'outPath' is unlinked
-        // immediately, the file will remain usable until its descriptor is
-        // closed.  Note that files created on Microsoft Windows may receive
-        // default, not restricted permissions.
 
+    /// Create a new directory with a name constructed by appending an
+    /// automatically-generated suffix to the specified `prefix`.  A non-zero
+    /// return value indicates that no such directory could be created;
+    /// otherwise the name of the directory created is assigned to the
+    /// specified `outPath`.  The directory is created with permissions
+    /// restricted, as closely as possible, to the caller only.  If the prefix
+    /// is a relative path, the directory is created relative to the process
+    /// current directory.  Responsibility for deleting the directory (and any
+    /// files subsequently created in it) is left to the caller.
     static int createTemporaryDirectory(bsl::string             *outPath,
                                         const bsl::string_view&  prefix);
     static int createTemporaryDirectory(std::string             *outPath,
@@ -657,17 +659,17 @@ struct FilesystemUtil {
     static int createTemporaryDirectory(std::pmr::string        *outPath,
                                         const bsl::string_view&  prefix);
 #endif
-        // Create a new directory with a name constructed by appending an
-        // automatically-generated suffix to the specified 'prefix'.  A
-        // non-zero return value indicates that no such directory could be
-        // created; otherwise the name of the directory created is assigned to
-        // the specified 'outPath'.  The directory is created with permissions
-        // restricted, as closely as possible, to the caller only.  If the
-        // prefix is a relative path, the directory is created relative to the
-        // process current directory.  Responsibility for deleting the
-        // directory (and any files subsequently created in it) is left to the
-        // caller.
 
+    /// Create a new directory with a name constructed by appending an
+    /// automatically-generated suffix to the specified `prefix` within the
+    /// specified `rootDirectory`.  A non-zero return value indicates that no
+    /// such directory could be created; otherwise the name of the directory
+    /// created is assigned to the specified `outPath`.  The directory is
+    /// created with permissions restricted, as closely as possible, to the
+    /// caller only.  If the `rootDirectory` is a relative path, the directory
+    /// is created relative to the process current directory.  Responsibility
+    /// for deleting the directory (and any files subsequently created in it)
+    /// is left to the caller.
     static int createTemporarySubdirectory(
                                         bsl::string             *outPath,
                                         const bsl::string_view&  rootDirectory,
@@ -682,17 +684,18 @@ struct FilesystemUtil {
                                         const bsl::string_view&  rootDirectory,
                                         const bsl::string_view&  prefix);
 #endif
-        // Create a new directory with a name constructed by appending an
-        // automatically-generated suffix to the specified 'prefix' within the
-        // specified 'rootDirectory'.  A non-zero return value indicates that
-        // no such directory could be created; otherwise the name of the
-        // directory created is assigned to the specified 'outPath'.  The
-        // directory is created with permissions restricted, as closely as
-        // possible, to the caller only.  If the 'rootDirectory' is a relative
-        // path, the directory is created relative to the process current
-        // directory.  Responsibility for deleting the directory (and any files
-        // subsequently created in it) is left to the caller.
 
+    /// Construct a file name by appending an automatically-generated suffix to
+    /// the specified `prefix`.  The file name constructed is assigned to the
+    /// specified `outPath`.  Note that this function is called "unsafe"
+    /// because a file with the resulting name may be created by another
+    /// program before the caller has opportunity to use the name, which could
+    /// be a security vulnerability, and a file with the given name may already
+    /// exist where you mean to put it.  Note that the suffix is hashed from
+    /// environmental details, including any pre-existing value of `outPath` so
+    /// that if a resulting name is unsuitable (e.g. the file exists) this
+    /// function may simply be called again, pointing to its previous result,
+    /// to get a new, probably different name.
     static void makeUnsafeTemporaryFilename(bsl::string             *outPath,
                                             const bsl::string_view&  prefix);
     static void makeUnsafeTemporaryFilename(std::string             *outPath,
@@ -701,17 +704,6 @@ struct FilesystemUtil {
     static void makeUnsafeTemporaryFilename(std::pmr::string        *outPath,
                                             const bsl::string_view&  prefix);
 #endif
-        // Construct a file name by appending an automatically-generated suffix
-        // to the specified 'prefix'.  The file name constructed is assigned to
-        // the specified 'outPath'.  Note that this function is called "unsafe"
-        // because a file with the resulting name may be created by another
-        // program before the caller has opportunity to use the name, which
-        // could be a security vulnerability, and a file with the given name
-        // may already exist where you mean to put it.  Note that the suffix is
-        // hashed from environmental details, including any pre-existing value
-        // of 'outPath' so that if a resulting name is unsuitable (e.g. the
-        // file exists) this function may simply be called again, pointing to
-        // its previous result, to get a new, probably different name.
 
     /// Call the specified `visitor` function object for each path in the
     /// filesystem matching the specified `pattern`.  Return the number of
@@ -772,6 +764,34 @@ struct FilesystemUtil {
                 const bsl::function<void(const char *path)>& visitor,
                 bool                                         sortFlag = false);
 
+    /// Load into the specified `result` vector all paths in the filesystem
+    /// matching the specified `pattern`.  The '*' character will match any
+    /// number of characters in a filename; however, this matching will not
+    /// span a directory separator (e.g., "logs/m*.txt" will not match
+    /// "logs/march/001.txt").  '?' will match any one character.  '*' and '?'
+    /// may be used any number of times in the pattern.  The special
+    /// directories "." and ".." will not be matched against any pattern.  Note
+    /// that any initial contents of `result` will be erased, and that the
+    /// paths in `result` will not be in any particular guaranteed order.
+    /// Return the number of paths matched on success, and a negative value
+    /// otherwise; if a negative value is returned, the contents of `*result`
+    /// are undefined.  The parameterized `STRING_TYPE` must be one of
+    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported), or
+    /// `bslstl::StringRef`.
+    ///
+    /// WINDOWS-SPECIFIC NOTE: To support DOS idioms, the OS-provided search
+    /// function has behavior that we have chosen not to work around: an
+    /// extension consisting of wild-card characters ('?', '*') can match an
+    /// extension or *no* extension.  E.g., "file.?" matches "file.z", but not
+    /// "file.txt"; however, it also matches "file" (without any extension).
+    /// Likewise, "*.*" matches any filename, including filenames having no
+    /// extension.  Also, on Windows (but not on Unix) attempting to match a
+    /// pattern that is invalid UTF-8 will result in an error.
+    ///
+    /// IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
+    /// implementation of the system `glob` function can temporarily change the
+    /// working directory of the entire program, casuing attempts in other
+    /// threads to open files with relative path names to fail.
     static int findMatchingPaths(bsl::vector<bsl::string> *result,
                                  const char               *pattern);
     template <class STRING_TYPE>
@@ -789,35 +809,6 @@ struct FilesystemUtil {
     static int findMatchingPaths(std::pmr::vector<std::pmr::string> *result,
                                  const STRING_TYPE&                  pattern);
 #endif
-        // Load into the specified 'result' vector all paths in the filesystem
-        // matching the specified 'pattern'.  The '*' character will match any
-        // number of characters in a filename; however, this matching will not
-        // span a directory separator (e.g., "logs/m*.txt" will not match
-        // "logs/march/001.txt").  '?' will match any one character.  '*' and
-        // '?' may be used any number of times in the pattern.  The special
-        // directories "." and ".." will not be matched against any pattern.
-        // Note that any initial contents of 'result' will be erased, and that
-        // the paths in 'result' will not be in any particular guaranteed
-        // order.  Return the number of paths matched on success, and a
-        // negative value otherwise; if a negative value is returned, the
-        // contents of '*result' are undefined.  The parameterized
-        // 'STRING_TYPE' must be one of 'bsl::string', 'std::string',
-        // 'std::pmr::string' (if supported), or 'bslstl::StringRef'.
-        //
-        // WINDOWS-SPECIFIC NOTE: To support DOS idioms, the OS-provided search
-        // function has behavior that we have chosen not to work around: an
-        // extension consisting of wild-card characters ('?', '*') can match an
-        // extension or *no* extension.  E.g., "file.?" matches "file.z", but
-        // not "file.txt"; however, it also matches "file" (without any
-        // extension).  Likewise, "*.*" matches any filename, including
-        // filenames having no extension.  Also, on Windows (but not on Unix)
-        // attempting to match a pattern that is invalid UTF-8 will result in
-        // an error.
-        //
-        // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
-        // implementation of the system 'glob' function can temporarily change
-        // the working directory of the entire program, casuing attempts in
-        // other threads to open files with relative path names to fail.
 
     /// Return the number of bytes available for allocation in the file
     /// system where the file or directory with the specified `path`
@@ -856,6 +847,14 @@ struct FilesystemUtil {
     /// integer overflow in your calculations.
     static Offset getFileSizeLimit();
 
+    /// Load, into the specified `result`, the target of the symbolic link at
+    /// the specified `path`.  Return 0 on success, and a non-zero value
+    /// otherwise.  For example, this function will return an error if `path`
+    /// does not refer to a symbolic link.  Windows directory junctions are
+    /// treated as directory symbolic links.  If `path` is a relative path, it
+    /// is evaluated against the current working directory.  The parameterized
+    /// `STRING_TYPE` must be one of `bsl::string`, `std::string`,
+    /// `std::pmr::string` (if supported), or `bslstl::StringRef`.
     static int getSymbolicLinkTarget(bsl::string *result,
                                      const char  *path);
     static int getSymbolicLinkTarget(std::string *result,
@@ -873,15 +872,6 @@ struct FilesystemUtil {
     static int getSymbolicLinkTarget(std::pmr::string   *result,
                                      const STRING_TYPE&  path);
 #endif
-        // Load, into the specified 'result', the target of the symbolic link
-        // at the specified 'path'.  Return 0 on success, and a non-zero value
-        // otherwise.  For example, this function will return an error if
-        // 'path' does not refer to a symbolic link.  Windows directory
-        // junctions are treated as directory symbolic links.  If 'path' is a
-        // relative path, it is evaluated against the current working
-        // directory.  The parameterized 'STRING_TYPE' must be one of
-        // 'bsl::string', 'std::string', 'std::pmr::string' (if supported), or
-        // 'bslstl::StringRef'.
 
     /// Acquire a lock for the file with the specified `descriptor`.  If
     /// `lockWriteFlag` is true, acquire an exclusive write lock; otherwise
@@ -1126,12 +1116,12 @@ struct FilesystemUtil_CStringUtil {
     static const char *flatten(char *cString);
     static const char *flatten(const char *cString);
 
+    /// Return the result of invoking `c_str()` on the specified `string`.
     static const char *flatten(const bsl::string& string);
     static const char *flatten(const std::string& string);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
     static const char *flatten(const std::pmr::string& string);
 #endif
-        // Return the result of invoking 'c_str()' on the specified 'string'.
 
     /// Return a temporary `bsl::string` constructed from the specified
     /// `stringView`.

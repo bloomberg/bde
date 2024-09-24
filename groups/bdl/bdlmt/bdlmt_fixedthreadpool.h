@@ -382,10 +382,6 @@ class FixedThreadPool {
       , BCEP_RUN     = e_RUN
       , BCEP_SUSPEND = e_SUSPEND
       , BCEP_DRAIN   = e_DRAIN
-      , TP_STOP    = e_STOP
-      , TP_RUN     = e_RUN
-      , TP_SUSPEND = e_SUSPEND
-      , TP_DRAIN   = e_DRAIN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -404,7 +400,7 @@ class FixedThreadPool {
     bsls::AtomicBool        d_drainFlag;          // set when draining
 
     bslmt::Barrier          d_barrier;            // barrier to sync threads
-                                                  // during 'start' and 'drain'
+                                                  // during `start` and `drain`
 
     bslmt::Mutex            d_metaMutex;          // mutex to ensure that there
                                                   // is only one controlling
