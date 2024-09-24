@@ -93,6 +93,7 @@ BSLS_IDENT("$Id: $")
 //
 // <DOUBLE> ::= <OPTIONAL_SIGN> (<REAL> | <INF> | <NAN>)
 //      <DOUBLE> must be in range [DBL_MIN .. DBL_MAX], or Nan, or Infinity.
+// ```
 //
 ///Remainder Output Parameter
 ///--------------------------
