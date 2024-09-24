@@ -15,7 +15,13 @@ BSLS_IDENT("$Id: $")
 // string that is a "standard formatting specification" as defined by
 // [format.string.std].
 //
-// This component is for use within `bslfmt` only.
+//@DESCRIPTION: This component provides a mechanism to perform a first-pass
+// split of a formatting string into its component parts in a way that is
+// compatible with [format.string] and [time.format] in the Standard. No
+// validation is performed by this component and further type-specific
+// processing will be required prior to use.
+//
+// This component is for private use only.
 
 #include <bslscm_version.h>
 
@@ -121,7 +127,7 @@ class FormatterSpecificationStandard
   private:
     // CLASS TYPES
     typedef FormatterSpecification_Splitter<t_CHAR> FSS;
-    
+
     // DATA
     ParsingStatus d_parsingStatus;
     FSS           d_basicSplitter;

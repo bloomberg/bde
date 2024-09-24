@@ -1,6 +1,8 @@
 // bslstl_formatterintegral.t.cpp                                     -*-C++-*-
 #include <bslfmt_formatterintegral.h>
 
+#include <bslfmt_formatimp.h> // Testing only (`bsl::format` - breathing test)
+
 #include <bsls_bsltestutil.h>
 
 #include <bslstl_string.h>
@@ -97,6 +99,77 @@ int main(int argc, char **argv)
         (void)dummy1;
         (void)dummy2;
         ASSERT(true);  // placeholder
+
+        static const struct {
+            int         d_line;        // source line number
+            const char *d_format_p;    // format spec
+            const char *d_expected_p;  // format
+            int         d_value;
+        } DATA[] = {
+            //LINE  FORMAT                        EXPECTED           VALUE
+            //----  --------------------------    ----------------   -----
+            { L_,   "{0:}, {0:+}, {0:-}, {0: }",  "-5, -5, -5, -5",  -5   },
+            { L_,   "{0:}, {0:+}, {0:-}, {0: }",  "5, +5, 5,  5",     5   },
+            { L_,   "{:#05x}",                    "0x00c",            12  },
+            { L_,   "{:*<6}",                     "5*****",           5   },
+            { L_,   "{:*>6}",                     "*****5",           5   },
+            { L_,   "{:*^6}",                     "**5***",           5   },
+            { L_,   "{:*^+6}",                    "**+5**",           5   },
+            { L_,   "{:#0x}",                     "0x5",              5   },
+            { L_,   "{:#01x}",                    "0x5",              5   },
+            { L_,   "{:#02x}",                    "0x5",              5   },
+            { L_,   "{:#03x}",                    "0x5",              5   },
+            { L_,   "{:#04x}",                    "0x05",             5   },
+            { L_,   "{:#04X}",                    "0X05",             5   },
+            { L_,   "{:#b}",                      "0b101",            5   },
+            { L_,   "{:#05b}",                    "0b101",            5   },
+            { L_,   "{:#06b}",                    "0b0101",           5   },
+            { L_,   "{:#06B}",                    "0B1100",           12  },
+            { L_,   "{:#d}",                      "5",                5   },
+            { L_,   "{:#d}",                      "12",               12  },
+        };
+
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int          LINE     = DATA[i].d_line;
+            const char        *FORMAT   = DATA[i].d_format_p;
+            const bsl::string  EXPECTED = DATA[i].d_expected_p;
+            const int          VALUE    = DATA[i].d_value;
+            const long long    L_VALUE  = static_cast<long>(VALUE);
+            const long long    LL_VALUE = static_cast<long long>(VALUE);
+
+            bsl::string result = bslfmt::format(FORMAT, VALUE);
+            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
+                    EXPECTED == result);
+
+            result = bslfmt::format(FORMAT, L_VALUE);
+            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
+                    EXPECTED == result);
+
+            result = bslfmt::format(FORMAT, LL_VALUE);
+            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
+                    EXPECTED == result);
+        }
+
+        for (int i = 1; i < NUM_DATA; ++i) {
+            const int           LINE     = DATA[i].d_line;
+            const char         *FORMAT   = DATA[i].d_format_p;
+            const bsl::string   EXPECTED = DATA[i].d_expected_p;
+            const int           VALUE    = DATA[i].d_value;
+            const unsigned long UL_VALUE  = static_cast<unsigned long>(VALUE);
+
+            bsl::string result = bslfmt::format(FORMAT, UL_VALUE);
+            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
+                    EXPECTED == result);
+        }
+
+        if (verbose) printf("\tTesting wstrings.\n");
+        {
+            bsl::wstring result = bslfmt::format(L"Test3 {:#0x}", 12ll);
+            bsl::wstring expected(L"Test3 0xc");
+            ASSERTV(expected.c_str(), result.c_str(), expected == result);
+        }
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);
