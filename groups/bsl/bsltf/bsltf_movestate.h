@@ -1,6 +1,6 @@
 // bsltf_movestate.h                                                  -*-C++-*-
-#ifndef INCLUDED_BDLTF_MOVESTATE
-#define INCLUDED_BDLTF_MOVESTATE
+#ifndef INCLUDED_BSLTF_MOVESTATE
+#define INCLUDED_BSLTF_MOVESTATE
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -118,7 +118,7 @@ void debugprint(const MoveState::Enum& value);
 /// "inherited" by derived classes of that type; new types should customize
 /// `copyMoveState`, not `getMovedFrom`.
 ///
-/// @DEPRECATED Use `CopyMoveState::isMovedFrom` or `CopyMoveState::get`.
+/// @DEPRECATED: Use `CopyMoveState::isMovedFrom` or `CopyMoveState::get`.
 template <class TYPE>
 MoveState::Enum getMovedFrom(const TYPE& object);
 
@@ -130,7 +130,7 @@ MoveState::Enum getMovedFrom(const TYPE& object);
 /// of that type; new types should customize `copyMoveState`, not
 /// `getMovedInto`.
 ///
-/// @DEPRECATED Use `CopyMoveState::isMovedInto` or `CopyMoveState::get`.
+/// @DEPRECATED: Use `CopyMoveState::isMovedInto` or `CopyMoveState::get`.
 template <class TYPE>
 MoveState::Enum getMovedInto(const TYPE& object);
 
@@ -141,7 +141,7 @@ MoveState::Enum getMovedInto(const TYPE& object);
 /// specific type will not be "inherited" by derived classes of that type;
 /// new types should customize `setCopyMoveState`, not `setMovedInto`.
 ///
-/// @DEPRECATED Use `CopyMoveState::set` instead.
+/// @DEPRECATED: Use `CopyMoveState::set` instead.
 template <class TYPE>
 void setMovedInto(TYPE *object, MoveState::Enum value);
 

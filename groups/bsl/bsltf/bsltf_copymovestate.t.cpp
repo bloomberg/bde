@@ -1,5 +1,4 @@
 // bsltf_copymovestate.t.cpp                                          -*-C++-*-
-
 #include <bsltf_copymovestate.h>
 
 #include <bslmf_movableref.h>

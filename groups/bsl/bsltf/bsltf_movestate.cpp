@@ -1,5 +1,4 @@
 // bsltf_movestate.cpp                                                -*-C++-*-
-
 #include <bsltf_movestate.h>
 
 #include <bsls_ident.h>

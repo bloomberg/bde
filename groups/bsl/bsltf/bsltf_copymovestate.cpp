@@ -1,5 +1,4 @@
 // bsltf_copymovestate.cpp                                            -*-C++-*-
-
 #include <bsltf_copymovestate.h>
 
 #include <cstdio>  // for 'printf'

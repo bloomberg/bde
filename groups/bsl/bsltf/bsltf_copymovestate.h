@@ -1,6 +1,6 @@
 // bsltf_copymovestate.h                                              -*-C++-*-
-#ifndef INCLUDED_BDLTF_COPYMOVESTATE
-#define INCLUDED_BDLTF_COPYMOVESTATE
+#ifndef INCLUDED_BSLTF_COPYMOVESTATE
+#define INCLUDED_BSLTF_COPYMOVESTATE
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")

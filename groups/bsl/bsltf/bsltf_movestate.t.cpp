@@ -1,5 +1,4 @@
 // bsltf_movestate.t.cpp                                              -*-C++-*-
-
 #include <bsltf_movestate.h>
 
 #include <bsls_assert.h>
