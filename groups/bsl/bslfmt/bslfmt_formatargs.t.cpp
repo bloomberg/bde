@@ -1302,10 +1302,6 @@ int main(int argc, char **argv)
             printf("\nTESTING ASSIGNMENT OPERATOR"
                    "\n===========================\n");
 
-        typedef bslfmt::basic_format_arg<bslfmt::format_context> FA;
-
-        typedef bslfmt::basic_format_arg<bslfmt::wformat_context> WFA;
-
         typedef bslfmt::Format_FormatArgStore<bslfmt::format_context, int>
             FASI;
         typedef bslfmt::Format_FormatArgStore<bslfmt::wformat_context, int>
